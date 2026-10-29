@@ -40,8 +40,8 @@
     "scripts/third-party.mjs"
   ],
   "windowsSourceCheck": {
-    "run": 40913184270,
-    "sourceCommit": "539c1e0b9b8566b1048005d84f9881df6a70c6d6",
+    "run": 40920806149,
+    "sourceCommit": "31f04bf2eb43f7d19363a0a382da2246c4ee6197",
     "result": "passed"
   },
   "windowsInstallerBuild": {
