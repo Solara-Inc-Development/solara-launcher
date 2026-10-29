@@ -38,6 +38,7 @@ pub async fn initialize() -> Result<()> {
                 .context("Local app-data folder unavailable")?
                 .join("in.solara.launcher");
             tokio::fs::create_dir_all(&data).await?;
+            cleanup_stale_files(&data).await;
             let instances = Instances::new(data.join("custom-instances"));
             // A crashed/closed app cannot leave an instance permanently installing.
             for record in instances.list().await? {
@@ -706,4 +707,202 @@ pub async fn stop_all() -> Result<()> {
         engine.local.stop_all().await?
     };
     Ok(())
+}
+
+/// Clean up stale temporary files, download caches, and legacy remnants
+/// while strictly preserving user data (instances, saves, configs, mods, accounts, and servers).
+pub async fn cleanup_stale_files(data: &std::path::Path) {
+    // 1. Stale temporary directories and legacy engine remnants in launcher root
+    for dir_name in &["app-update", "temp", "tmp", "theseus", "legacy"] {
+        let path = data.join(dir_name);
+        if path.exists() {
+            let _ = tokio::fs::remove_dir_all(&path).await;
+        }
+    }
+
+    // 2. Game file verification temporary directory
+    let verified_tmp = data.join("verified-game-files").join(".tmp");
+    if verified_tmp.exists() {
+        let _ = tokio::fs::remove_dir_all(&verified_tmp).await;
+    }
+
+    // 3. Stale temporary files in launcher root data folder
+    if let Ok(mut rd) = tokio::fs::read_dir(data).await {
+        while let Ok(Some(entry)) = rd.next_entry().await {
+            let file_name = entry.file_name().to_string_lossy().to_string();
+            let is_stale_temp = file_name.ends_with(".tmp")
+                || file_name.ends_with(".pending")
+                || (file_name.starts_with(".solara-") && file_name.contains(".tmp"))
+                || (file_name.starts_with(".modpack-") && file_name.ends_with(".tmp"));
+            if is_stale_temp {
+                if let Ok(meta) = entry.metadata().await {
+                    if meta.is_file() {
+                        let _ = tokio::fs::remove_file(entry.path()).await;
+                    }
+                }
+            }
+        }
+    }
+
+    // 4. Stale staging directories and temporary files inside custom-instances
+    // User saves (game/saves), configs, mods (*.jar), and identity remain strictly untouched.
+    let instances_dir = data.join("custom-instances");
+    if let Ok(mut rd) = tokio::fs::read_dir(&instances_dir).await {
+        while let Ok(Some(entry)) = rd.next_entry().await {
+            if let Ok(file_type) = entry.file_type().await {
+                if file_type.is_dir() {
+                    let inst_dir = entry.path();
+                    // Interrupted backup/restore staging directories
+                    let backups_dir = inst_dir.join("backups");
+                    if let Ok(mut b_rd) = tokio::fs::read_dir(&backups_dir).await {
+                        while let Ok(Some(b_entry)) = b_rd.next_entry().await {
+                            let name = b_entry.file_name().to_string_lossy().to_string();
+                            if name.starts_with(".create-stage-")
+                                || name.starts_with(".restore-stage-")
+                            {
+                                let _ = tokio::fs::remove_dir_all(b_entry.path()).await;
+                            } else if name.ends_with(".tmp") || name.starts_with(".solara-backup-")
+                            {
+                                let _ = tokio::fs::remove_file(b_entry.path()).await;
+                            }
+                        }
+                    }
+                    // Clean temporary files in instance root and game folders
+                    for sub in &["", "game", "game/mods"] {
+                        let target_sub = if sub.is_empty() {
+                            inst_dir.clone()
+                        } else {
+                            inst_dir.join(sub)
+                        };
+                        if let Ok(mut sub_rd) = tokio::fs::read_dir(&target_sub).await {
+                            while let Ok(Some(f_entry)) = sub_rd.next_entry().await {
+                                let name = f_entry.file_name().to_string_lossy().to_string();
+                                if name.ends_with(".tmp")
+                                    || (name.starts_with(".solara-") && name.contains(".tmp"))
+                                {
+                                    if let Ok(m) = f_entry.metadata().await {
+                                        if m.is_file() {
+                                            let _ = tokio::fs::remove_file(f_entry.path()).await;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn cleanup_stale_files_removes_unwanted_and_preserves_user_data() -> Result<()> {
+        let dir =
+            std::env::temp_dir().join(format!("solara-cleanup-test-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        // 1. Setup stale/unwanted files and directories
+        let app_update = data.join("app-update");
+        tokio::fs::create_dir_all(&app_update).await?;
+        tokio::fs::write(app_update.join("update.zip"), b"old update bytes").await?;
+
+        let theseus = data.join("theseus");
+        tokio::fs::create_dir_all(&theseus).await?;
+        tokio::fs::write(theseus.join("legacy.dat"), b"old engine").await?;
+
+        let verified_tmp = data.join("verified-game-files").join(".tmp");
+        tokio::fs::create_dir_all(&verified_tmp).await?;
+        tokio::fs::write(verified_tmp.join("chunk.tmp"), b"temp asset").await?;
+
+        let root_tmp = data.join("stale.tmp");
+        tokio::fs::write(&root_tmp, b"temp").await?;
+        let root_solara_tmp = data.join(".solara-content-123.tmp");
+        tokio::fs::write(&root_solara_tmp, b"temp").await?;
+
+        // 2. Setup custom-instances with both valid data and stale staging
+        let inst_dir = data.join("custom-instances").join("test-instance");
+        let saves_dir = inst_dir.join("game").join("saves").join("World1");
+        tokio::fs::create_dir_all(&saves_dir).await?;
+        let level_dat = saves_dir.join("level.dat");
+        tokio::fs::write(&level_dat, b"player save world").await?;
+
+        let mods_dir = inst_dir.join("game").join("mods");
+        tokio::fs::create_dir_all(&mods_dir).await?;
+        let sodium_jar = mods_dir.join("sodium-mc1.20.jar");
+        tokio::fs::write(&sodium_jar, b"real mod jar").await?;
+        let stale_mod_tmp = mods_dir.join(".solara-mod-temp.tmp");
+        tokio::fs::write(&stale_mod_tmp, b"partial mod download").await?;
+
+        let instance_json = inst_dir.join("instance.json");
+        tokio::fs::write(&instance_json, b"{\"id\":\"test-instance\"}").await?;
+
+        let backups_dir = inst_dir.join("backups");
+        let stage_dir = backups_dir.join(".create-stage-999");
+        tokio::fs::create_dir_all(&stage_dir).await?;
+        tokio::fs::write(stage_dir.join("partial.zip"), b"partial backup").await?;
+
+        let valid_backup = backups_dir.join("backup-1.zip");
+        tokio::fs::write(&valid_backup, b"completed backup").await?;
+
+        // 3. Setup accounts, local servers, and preferences (must be preserved)
+        let accounts_dir = data.join("custom-minecraft-accounts");
+        tokio::fs::create_dir_all(&accounts_dir).await?;
+        let account_file = accounts_dir.join("accounts.json");
+        tokio::fs::write(&account_file, b"{\"accounts\":[]}").await?;
+
+        let servers_dir = data.join("local-servers").join("survival-server");
+        tokio::fs::create_dir_all(&servers_dir).await?;
+        let server_props = servers_dir.join("server.properties");
+        tokio::fs::write(&server_props, b"motd=Solara Server").await?;
+
+        let preferences = data.join("preferences.json");
+        tokio::fs::write(&preferences, b"{\"theme\":\"dark\"}").await?;
+
+        // Run cleanup
+        cleanup_stale_files(data).await;
+
+        // Verify unwanted/stale files were deleted
+        assert!(!app_update.exists(), "app-update dir must be deleted");
+        assert!(!theseus.exists(), "theseus dir must be deleted");
+        assert!(
+            !verified_tmp.exists(),
+            "verified-game-files/.tmp must be deleted"
+        );
+        assert!(!root_tmp.exists(), "root .tmp file must be deleted");
+        assert!(
+            !root_solara_tmp.exists(),
+            "root .solara-*.tmp must be deleted"
+        );
+        assert!(
+            !stage_dir.exists(),
+            "interrupted backup stage must be deleted"
+        );
+        assert!(
+            !stale_mod_tmp.exists(),
+            "stale mod download temp must be deleted"
+        );
+
+        // Verify all user data is strictly preserved
+        assert!(level_dat.exists(), "saves/level.dat must be preserved");
+        assert!(sodium_jar.exists(), "mods jar must be preserved");
+        assert!(instance_json.exists(), "instance.json must be preserved");
+        assert!(
+            valid_backup.exists(),
+            "completed backup zip must be preserved"
+        );
+        assert!(account_file.exists(), "account logins must be preserved");
+        assert!(
+            server_props.exists(),
+            "server configurations must be preserved"
+        );
+        assert!(preferences.exists(), "preferences must be preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
 }
