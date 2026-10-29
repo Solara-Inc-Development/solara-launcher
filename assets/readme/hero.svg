@@ -1,23 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="460" viewBox="0 0 1440 460" fill="none" role="img" aria-labelledby="title description">
   <title id="title">Solara Launcher</title>
-  <desc id="description">An original vector banner on black with a large white wordmark, the Solara ring and lightning mark, and four small colour accents.</desc>
+  <desc id="description">An original pure-black vector banner with a large white Solara Launcher wordmark, rounded status pills, the flat Solara ring and lightning mark, and four restrained colour accent lines.</desc>
   <rect width="1440" height="460" rx="28" fill="#000"/>
   <rect x=".5" y=".5" width="1439" height="459" rx="27.5" stroke="#242424"/>
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="68" y="63" fill="#CBCBCB" font-size="13" font-weight="700" letter-spacing="2.6">SOLARA INC.</text>
-    <path d="M189 49V65" stroke="#4A4A4A"/>
-    <text x="207" y="63" fill="#B6B6B6" font-size="13" letter-spacing="1.6">YOUR DESKTOP, A LITTLE BETTER.</text>
-    <text x="61" y="209" fill="#FFF" font-size="132" font-weight="700" letter-spacing="-7">Solara</text>
-    <text x="61" y="333" fill="#FFF" font-size="132" font-weight="700" letter-spacing="-7">Launcher<tspan fill="#B7A5FF">.</tspan></text>
-    <text x="69" y="386" fill="#B9B9B9" font-size="21">Your worlds. Your services. Right here.</text>
-    <text x="1332" y="63" text-anchor="end" fill="#B6B6B6" font-size="12" letter-spacing="1.9">MINECRAFT JAVA / WINDOWS</text>
+
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Arial, Helvetica, sans-serif">
+    <!-- Top toolbar strip -->
+    <text x="64" y="62" fill="#E2E2E2" font-size="13" font-weight="700" letter-spacing="2.4">SOLARA INC.</text>
+    <path d="M186 47V65" stroke="#383838" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="204" y="62" fill="#9E9E9E" font-size="13" letter-spacing="1.4">YOUR DESKTOP, A LITTLE BETTER.</text>
+
+    <!-- Top-right platform pills (right-aligned to x=1376) -->
+    <rect x="976" y="40" width="194" height="32" rx="16" fill="#0A0A0A" stroke="#262626"/>
+    <circle cx="996" cy="56" r="4" fill="#79D6B2"/>
+    <text x="1010" y="60" fill="#CFCFCF" font-size="11.5" font-weight="600" letter-spacing="1.2">MINECRAFT JAVA</text>
+
+    <rect x="1182" y="40" width="194" height="32" rx="16" fill="#0A0A0A" stroke="#262626"/>
+    <circle cx="1202" cy="56" r="4" fill="#7BD8F2"/>
+    <text x="1216" y="60" fill="#CFCFCF" font-size="11.5" font-weight="600" letter-spacing="1.2">WINDOWS 10 / 11</text>
+
+    <!-- Main wordmark -->
+    <text x="60" y="202" fill="#FFF" font-size="128" font-weight="700" letter-spacing="-5">Solara</text>
+    <text x="60" y="322" fill="#FFF" font-size="128" font-weight="700" letter-spacing="-5">Launcher<tspan fill="#B7A5FF">.</tspan></text>
+
+    <!-- Subtitle & rounded feature pills -->
+    <text x="64" y="370" fill="#B5B5B5" font-size="20">Your worlds. Your services. Right here.</text>
+
+    <rect x="462" y="348" width="144" height="30" rx="15" fill="#0A0A0A" stroke="#262626"/>
+    <circle cx="480" cy="363" r="3.5" fill="#B7A5FF"/>
+    <text x="492" y="367" fill="#C8C8C8" font-size="12" font-weight="600">Pure black UI</text>
+
+    <rect x="616" y="348" width="164" height="30" rx="15" fill="#0A0A0A" stroke="#262626"/>
+    <circle cx="634" cy="363" r="3.5" fill="#FFC17B"/>
+    <text x="646" y="367" fill="#C8C8C8" font-size="12" font-weight="600">Custom Java core</text>
+
+    <rect x="790" y="348" width="178" height="30" rx="15" fill="#0A0A0A" stroke="#262626"/>
+    <circle cx="808" cy="363" r="3.5" fill="#79D6B2"/>
+    <text x="820" y="367" fill="#C8C8C8" font-size="12" font-weight="600">Local-first accounts</text>
   </g>
-  <!-- The existing Solara mark, drawn as flat strokes; no generated artwork. -->
-  <rect x="1016" y="110" width="260" height="260" rx="64" fill="#000" stroke="#303030" stroke-width="2"/>
-  <circle cx="1146" cy="240" r="75" stroke="#7BD8F2" stroke-width="18"/>
-  <path d="M1102 253H1146L1133 288L1190 235H1146L1159 200Z" fill="#FFC17B"/>
-  <path d="M69 430H385" stroke="#B7A5FF" stroke-width="3" stroke-linecap="round"/>
-  <path d="M405 430H721" stroke="#7BD8F2" stroke-width="3" stroke-linecap="round"/>
-  <path d="M741 430H1057" stroke="#FFC17B" stroke-width="3" stroke-linecap="round"/>
-  <path d="M1077 430H1371" stroke="#79D6B2" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- The existing Solara mark, drawn as flat strokes; no generated artwork. Right edge aligned to x=1376 -->
+  <rect x="1116" y="108" width="260" height="260" rx="64" fill="#050505" stroke="#2A2A2A" stroke-width="2"/>
+  <rect x="1130" y="122" width="232" height="232" rx="52" stroke="#171717"/>
+  <circle cx="1246" cy="238" r="74" stroke="#7BD8F2" stroke-width="18"/>
+  <path d="M1202 251H1246L1233 286L1290 233H1246L1259 198Z" fill="#FFC17B"/>
+
+  <!-- Four equal 316px accent bars with 16px gaps (64..1376) -->
+  <path d="M64 428H380" stroke="#B7A5FF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M396 428H712" stroke="#7BD8F2" stroke-width="3" stroke-linecap="round"/>
+  <path d="M728 428H1044" stroke="#FFC17B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M1060 428H1376" stroke="#79D6B2" stroke-width="3" stroke-linecap="round"/>
 </svg>

@@ -3,21 +3,24 @@
 </p>
 
 <p align="center">
-  <strong>A calmer home for Minecraft Java and your Solara services.</strong><br />
-  Dark by design. Clear controls. More room for your next world.
+  <strong>Built for Minecraft Java and everyday Solara tools.</strong><br />
+  Pure black layout. Simple controls. Nothing noisy in your way.
 </p>
 
 <p align="center">
   <a href="https://github.com/Solara-Inc-Development/solara-launcher/actions/workflows/windows-check.yml"><img src="https://github.com/Solara-Inc-Development/solara-launcher/actions/workflows/windows-check.yml/badge.svg" alt="Windows source checks" /></a>
-  <img src="https://img.shields.io/badge/platform-Windows-19232D?style=flat&amp;labelColor=11151A" alt="Windows first" />
-  <img src="https://img.shields.io/badge/status-in%20development-315E43?style=flat&amp;labelColor=11151A" alt="In development" />
-  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-GPL%203.0-19232D?style=flat&amp;labelColor=11151A" alt="GPL 3.0 licence" /></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-19232D?style=flat&amp;labelColor=0A0A0A" alt="Windows 10/11 x64" />
+  <img src="https://img.shields.io/badge/stack-Vue%203%20%C2%B7%20Tauri%202%20%C2%B7%20Rust-1E1B2E?style=flat&amp;labelColor=0A0A0A" alt="Vue 3 · Tauri 2 · Rust" />
+  <img src="https://img.shields.io/badge/status-in%20development-315E43?style=flat&amp;labelColor=0A0A0A" alt="In development" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-GPL%203.0-19232D?style=flat&amp;labelColor=0A0A0A" alt="GPL 3.0 licence" /></a>
 </p>
 
 <p align="center">
-  <a href="#meet-your-launcher">Take a look</a> &nbsp; · &nbsp;
+  <a href="#meet-your-launcher">Overview</a> &nbsp; · &nbsp;
+  <a href="#a-place-for-your-next-adventure">Library</a> &nbsp; · &nbsp;
   <a href="#download">Download status</a> &nbsp; · &nbsp;
   <a href="#build-it-yourself">Build from source</a> &nbsp; · &nbsp;
+  <a href="#built-around-your-device">Privacy</a> &nbsp; · &nbsp;
   <a href="https://www.solara-inc.in/contact">Get help</a>
 </p>
 
@@ -27,7 +30,9 @@
 
 A black desktop, a small sidebar and your account right where you need it. Open your worlds, check your services, or just look around. We wanted the everyday stuff to feel easy.
 
-<img src="public/screenshots/dashboard.png" alt="Actual Solara development dashboard with compact navigation, original landscape artwork, real Solara listings and account sidebar" width="100%" />
+<p align="center">
+  <img src="public/screenshots/dashboard.png" alt="Actual Solara development dashboard with compact navigation, original landscape artwork, real Solara listings and account sidebar" width="100%" />
+</p>
 
 <p align="center"><sub>Actual development interface. Listings come from a local development API using existing Solara sources. This is not a release or a live sign-in demo.</sub></p>
 
@@ -37,14 +42,14 @@ A black desktop, a small sidebar and your account right where you need it. Open 
 
 ### Your worlds
 
-Give each Minecraft setup its own space. Find instances by name, version or loader, and switch between grid and list views.
+Give each Minecraft setup its own space. Search instances by name or version, and switch between grid and list views whenever you want.
 
 </td>
 <td width="33%" valign="top">
 
 ### Your services
 
-Explore Solara projects and supported server tools. Public browsing works as a guest; protected actions use your Solara account.
+Explore Solara projects and supported server tools in the same window. Public browsing works as a guest; protected actions use your Solara account.
 
 </td>
 <td width="33%" valign="top">
@@ -57,49 +62,88 @@ Smooth little animations, clear loading screens and colours that don't shout at 
 </tr>
 </table>
 
+---
+
 ## A place for your next adventure
 
-<img src="public/screenshots/library.png" alt="Actual Solara Minecraft library development screen with search, grid and list controls, instance creation and separate local account controls" width="100%" />
+<p align="center">
+  <img src="public/screenshots/library.png" alt="Actual Solara Minecraft library development screen with search, grid and list controls, instance creation and separate local account controls" width="100%" />
+</p>
 
-**A clean library.** Keep setups separate, choose your version and make room for mods.<br />
-**A clear view of downloads.** Follow real progress and useful error states.<br />
-**Separate accounts.** Solara connects your services. Minecraft sign-in stays on your device.
+<table>
+<tr>
+<td width="50%" valign="top">
 
+**Isolated instances**<br />
+Keep setups separate inside their own folders so testing a new version never messes with your main world saves.
+
+</td>
+<td width="50%" valign="top">
+
+**Real download tracking**<br />
+Follow actual file progress in the bottom bar, with clear error states and one-click retry if an install gets interrupted.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+**Two separate accounts**<br />
+Solara connects your services and hosting. Minecraft sign-in happens directly with Microsoft and stays on your PC.
+
+</td>
+<td width="50%" valign="top">
+
+**Local server starter**<br />
+Run a local Java server on your own machine with EULA checks, memory/port settings and a live console view.
+
+</td>
+</tr>
+</table>
+
+> [!NOTE]
 > **Still being built:** the local Minecraft engine is now independently written. The first testing build supports vanilla installs; mod loaders and content installation are still being added. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+
+---
 
 ## Download
 
 **The public Windows installer is not available yet.**
 
-The download and installed app will be named **`solaralauncher.exe`**. Install once; signed updates are designed to download and apply automatically when games, local servers and downloads are idle. Real update/relaunch testing is still required before release.
+The download and installed app will be named **`solaralauncher.exe`**. Install once; signed updates are designed to download and apply automatically when games, local servers and downloads are idle. Real update and relaunch testing is still required before release.
 
-| | Status |
-| --- | --- |
-| First platform | Windows 10/11 x64 — final compatibility testing pending |
-| Installer | Not published |
-| Minecraft core | Custom vanilla preview; Windows game testing pending |
-| App updates | Automatic-update code added; signed Windows upgrade testing pending |
-| Website address | [app.solara-inc.in](https://app.solara-inc.in) — deployment pending |
+| Area | Current status | Details |
+| :--- | :--- | :--- |
+| **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
+| **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
+| **Public installer** | Not published | Candidate build pipeline active; awaiting signing & acceptance checks |
+| **Minecraft core** | Custom vanilla preview | Official manifest/asset verified; mod loaders coming in later updates |
+| **App updates** | Idle auto-update code ready | Signed Windows upgrade & relaunch verification pending |
+| **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Website source ready; live domain deployment pending |
 
 There's still a few things to test before the first download goes up. Passing source checks alone doesn't make it a release. We'll put the real download here and on the official website once it's built and checked. You need a valid Minecraft Java licence to play.
 
 Found something that feels off? Tell us what happened, even the small stuff helps.
 
+---
+
 ## Build it yourself
 
-**Vue 3** for the interface. **Tauri 2 + Rust** for desktop code. Shared components for the launcher and website.
+**Vue 3** for the interface. **Tauri 2 + Rust** for desktop code. Shared components power both the desktop launcher and the website.
+
+### 1. Preview the interface in your browser
 
 ```sh
 npm ci
 npm run dev
 ```
 
-| Preview | Address |
-| --- | --- |
-| Website | `http://127.0.0.1:1420/` |
-| Desktop interface | `http://127.0.0.1:1420/desktop.html` |
+| Target | Local address | Notes |
+| :--- | :--- | :--- |
+| **Launcher website** | `http://127.0.0.1:1420/` | Marketing, release archive & status views |
+| **Desktop interface** | `http://127.0.0.1:1420/desktop.html` | UI preview only — does not simulate Minecraft accounts or native processes |
 
-The browser preview does not simulate Minecraft accounts, installed games or native processes.
+### 2. Run checks and build the frontend
 
 ```sh
 npm test
@@ -107,10 +151,12 @@ npm run check
 npm run build
 ```
 
-Native prerequisites, signing and packaging: [build guide](docs/BUILD-RELEASE.md). Public service contracts: [API guide](docs/API.md).
+For full Rust/Tauri desktop compilation, signing and packaging instructions, read the **[Build & release guide](docs/BUILD-RELEASE.md)**. Public API routes and schemas are documented in the **[API guide](docs/API.md)**, and visual/interaction notes live in **[Design notes](docs/DESIGN.md)**.
 
 <details>
-<summary><strong>More development checks</strong></summary>
+<summary><strong>More development &amp; native checks</strong></summary>
+
+<br />
 
 With the UI development server running and Playwright Chromium installed:
 
@@ -123,24 +169,54 @@ npm run test:csp
 
 Browser workflow tests use clearly labelled provider/native fixtures. They do not install Minecraft, provision DNS or prove live authentication.
 
+To run the Rust unit suites for the independent game core and local server manager:
+
+```sh
+cargo test -p solara-launcher -p solara-local-server --lib --locked
+```
+
 </details>
+
+---
 
 ## Built around your device
 
-Minecraft worlds, profiles and account credentials stay local. Microsoft passwords and Minecraft tokens must never go to the Solara backend. Solara and Minecraft have separate sign-in and sign-out controls.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-The Solara service backend is private and **is not included in this repository**. Public application data uses `https://api.solara-inc.in`. This repository contains the public desktop and website source.
+### Stays on your PC
+- Minecraft worlds, saves, screenshots and logs
+- Local instance folders and Java launch settings
+- Microsoft refresh credentials (stored in Windows Credential Manager — never sent to Solara)
+
+</td>
+<td width="50%" valign="top">
+
+### Uses Solara (`api.solara-inc.in`)
+- Public project and service directory (works in guest mode)
+- Signed launcher release and update metadata
+- Optional Solara account for your hosted servers, tools and subdomain assignments
+
+</td>
+</tr>
+</table>
+
+The Solara service backend is private and **is not included in this repository**. This repository contains the public desktop and website source.
 
 ---
 
 <p align="center">
-  <img src="public/logo.svg" alt="Solara" width="28" /><br /><br />
+  <img src="public/logo.svg" alt="Solara" width="32" /><br /><br />
   <strong>Make it your world.</strong><br />
   <sub>Made by Solara · Windows first · Minecraft Java</sub><br /><br />
   <a href="https://www.solara-inc.in">Solara</a> &nbsp; · &nbsp;
   <a href="https://www.solara-inc.in/contact">Support</a> &nbsp; · &nbsp;
+  <a href="CHANGELOG.md">Changelog</a> &nbsp; · &nbsp;
   <a href="LICENSE">Licence</a> &nbsp; · &nbsp;
   <a href="THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
-<sub>Public source: GPL-3.0-only. Dependency notices and their licences are included. Solara is not affiliated with Mojang or Microsoft.</sub>
+<p align="center">
+  <sub>Public source: GPL-3.0-only. Dependency notices and their licences are included. Solara is not affiliated with Mojang or Microsoft.</sub>
+</p>
