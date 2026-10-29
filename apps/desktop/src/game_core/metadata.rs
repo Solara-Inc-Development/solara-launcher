@@ -54,6 +54,8 @@ pub fn official_url(value: &str) -> Result<reqwest::Url> {
                     | "launchermeta.mojang.com"
                     | "libraries.minecraft.net"
                     | "resources.download.minecraft.net"
+                    | "meta.fabricmc.net"
+                    | "maven.fabricmc.net"
             )
         )
     {
@@ -126,7 +128,7 @@ impl Artifact {
     }
 }
 
-async fn fetch_metadata(url: &str) -> Result<Vec<u8>> {
+pub(super) async fn fetch_metadata(url: &str) -> Result<Vec<u8>> {
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(30))

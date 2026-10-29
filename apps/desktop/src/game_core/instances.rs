@@ -40,7 +40,7 @@ impl Instance {
             bail!("Invalid local instance record");
         }
         if let Some(version) = &self.loader_version {
-            super::metadata::version_id(version)?;
+            super::loaders::loader_id(version)?;
         }
         Ok(())
     }

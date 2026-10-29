@@ -18,7 +18,7 @@ pub struct Progress {
     pub total_bytes: u64,
 }
 
-pub async fn vanilla(
+pub async fn instance(
     store: &Instances,
     cache: &FileCache,
     id: &str,
@@ -28,8 +28,8 @@ pub async fn vanilla(
 ) -> Result<()> {
     cancel.check()?;
     let instance = store.get(id).await?;
-    if instance.loader != "vanilla" {
-        bail!("This installer currently supports vanilla Minecraft only")
+    if !matches!(instance.loader.as_str(), "vanilla" | "fabric") {
+        bail!("This loader is not supported by the installer yet")
     }
     store
         .transition(id, &["created", "failed", "cancelled"], "installing")
@@ -50,7 +50,16 @@ pub async fn vanilla(
             .find(|v| v.id == instance.game_version)
             .context("Minecraft version is not in the official list")?;
         let document = metadata::version(entry).await?;
-        let plan = plan::windows(&document, os_version)?;
+        let mut plan = plan::windows(&document, os_version)?;
+        if instance.loader == "fabric" {
+            cancel.check()?;
+            let loader = instance
+                .loader_version
+                .as_deref()
+                .context("Fabric loader version missing")?;
+            let profile = super::loaders::fabric_profile(&instance.game_version, loader).await?;
+            super::loaders::apply_fabric(&mut plan, &profile, os_version)?;
+        }
         if plan.asset_index.size > 16 * 1024 * 1024 {
             bail!("Minecraft asset index exceeds limit")
         }

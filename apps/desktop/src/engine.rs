@@ -96,8 +96,17 @@ pub async fn snapshot() -> Result<Value> {
 pub async fn versions() -> Result<Value> {
     Ok(serde_json::to_value(metadata::versions().await?)?)
 }
+pub async fn loader_versions(game: &str, loader: &str) -> Result<Value> {
+    match loader {
+        "vanilla" => Ok(json!([])),
+        "fabric" => Ok(serde_json::to_value(
+            crate::game_core::loaders::fabric_versions(game).await?,
+        )?),
+        _ => bail!("This loader is not available yet"),
+    }
+}
 pub fn capabilities() -> Value {
-    json!({"loaders":["vanilla"],"contentInstall":false,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
+    json!({"loaders":["vanilla","fabric"],"contentInstall":false,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
 }
 
 async fn windows_version() -> Result<Option<String>> {
@@ -142,7 +151,7 @@ async fn queue_install(id: String, name: String) -> Result<String> {
         let result = async {
             job.cancel.check()?;
             let os_version = windows_version().await?;
-            crate::game_core::install::vanilla(
+            crate::game_core::install::instance(
                 &engine.instances,
                 &engine.cache,
                 &id,
@@ -176,8 +185,10 @@ pub async fn create_instance(
     loader: String,
     loader_version: String,
 ) -> Result<Value> {
-    if loader != "vanilla" || !loader_version.is_empty() {
-        bail!("Only vanilla Minecraft is available in this testing build. More loaders are being added.")
+    if !matches!(loader.as_str(), "vanilla" | "fabric")
+        || (loader == "vanilla" && !loader_version.is_empty())
+    {
+        bail!("Choose a supported loader. More loaders are being added.")
     }
     let engine = get().await?;
     metadata::version_id(&game_version)?;
@@ -188,6 +199,11 @@ pub async fn create_instance(
     {
         bail!("Choose a version from the official Minecraft list")
     }
+    let resolved = if loader == "fabric" {
+        Some(crate::game_core::loaders::fabric_version(&game_version, &loader_version).await?)
+    } else {
+        None
+    };
     let prefs = preferences().await?;
     let record = engine
         .instances
@@ -195,7 +211,7 @@ pub async fn create_instance(
             name,
             game_version,
             loader,
-            None,
+            resolved,
             prefs.memory,
             prefs.java_path,
         )

@@ -26,6 +26,12 @@ async fn minecraft_versions() -> Result<Value, String> {
     engine::versions().await.map_err(err)
 }
 #[tauri::command]
+async fn loader_versions(game_version: String, loader: String) -> Result<Value, String> {
+    engine::loader_versions(&game_version, &loader)
+        .await
+        .map_err(err)
+}
+#[tauri::command]
 async fn create_instance(
     name: String,
     game_version: String,
@@ -352,6 +358,7 @@ pub fn run() {
             initialize_launcher,
             launcher_snapshot,
             minecraft_versions,
+            loader_versions,
             create_instance,
             launch_instance,
             retry_instance,
