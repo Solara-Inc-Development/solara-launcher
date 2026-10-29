@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate with clean native Win32 APIs and PE metadata
+# Build testing candidate V-0.0.05 with window dragging fix and Modrinth-inspired visual overhaul
 on:
   workflow_dispatch:
   push:
