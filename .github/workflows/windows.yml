@@ -10,7 +10,6 @@ jobs:
   windows:
     runs-on: windows-latest
     env:
-      SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
       SOLARA_CLIENT_ID: ${{ vars.SOLARA_CLIENT_ID }}
       SOLARA_MICROSOFT_CLIENT_ID: ${{ vars.SOLARA_MICROSOFT_CLIENT_ID }}
       SOLARA_DISCORD_CLIENT_ID: ${{ vars.SOLARA_DISCORD_CLIENT_ID }}
@@ -49,11 +48,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Fetch pinned engine and apply Solara patches
+        env:
+          SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
         run: python scripts/prepare-upstream.py
       - name: Test shared logic and UI types
         run: |
           npm test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test local server logic
         run: cargo test -p solara-local-server --locked
       - name: Reserve unique public version (draft release)

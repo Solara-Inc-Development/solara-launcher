@@ -13,7 +13,7 @@ if(mode==='reserve'){
  if(process.platform!=='win32')throw Error('Windows packaging requires a Windows x64 runner with MSVC, WebView2 and NSIS prerequisites');
  const review=await readJson(path.join(root,'docs/upstream-license-review.json'));if(review.status!=='cleared'||!review.evidence?.length)throw Error('Upstream dependency licence review is unresolved; see THIRD_PARTY_NOTICES.md');
  if(!process.env.TAURI_SIGNING_PRIVATE_KEY||!process.env.SOLARA_UPDATER_PUBLIC_KEY)throw Error('Updater signing private key and trusted public key are required');
- await readJson(path.join(dir,'current-build.json'));run('npx',['tauri','build','--config','apps/desktop/tauri.conf.json','--bundles','nsis']);
+ await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({plugins:{updater:{pubkey:process.env.SOLARA_UPDATER_PUBLIC_KEY}}}),'--bundles','nsis']);
 }else if(mode==='stage'){
  const r=await readJson(path.join(dir,'current-build.json'));const source=process.argv[3];if(!source)throw Error('Pass the actual NSIS installer path');const sig=(await readFile(source+'.sig','utf8')).trim();const key=process.env.SOLARA_UPDATER_PUBLIC_KEY;if(!key)throw Error('Trusted public key is required');
  const checked=await verifyArtifact(source,sig,key,r.internalVersion);await immutableCopy(source,path.join(dir,r.filename));await immutableCopy(source+'.sig',path.join(dir,r.filename+'.sig'));

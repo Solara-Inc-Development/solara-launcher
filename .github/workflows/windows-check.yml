@@ -28,7 +28,6 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 60
     env:
-      SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
       SQLX_OFFLINE: 'true'
       CARGO_INCREMENTAL: '0'
       CARGO_BUILD_JOBS: '2'
@@ -51,7 +50,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install locked frontend dependencies
         run: npm ci
+      - name: Check the direct Node Tauri CLI used by packaging
+        run: node node_modules/@tauri-apps/cli/tauri.js --version
       - name: Fetch pinned engine and apply Solara patches
+        env:
+          SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
         run: python scripts/prepare-upstream.py
       - name: Test shared logic, types and production frontend
         run: |
