@@ -28,3 +28,14 @@ checks/rejected-portal/
 
 builds/**/*.exe
 builds/**/*.sig
+
+# Local owner instructions and private development handoff (not public source).
+/AGENTS.md
+/PROGRESS.md
+/Solara_Launcher_Master_Prompt.md
+/docs/INSPECTION.md
+/docs/DISCORD-UPDATES.md
+/docs/UPSTREAM-LICENSE-REQUEST.md
+/docs/REQUIREMENTS.md
+/docs/ARTWORK.md
+/docs/DEPLOYMENT.md
