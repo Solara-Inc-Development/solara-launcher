@@ -1109,10 +1109,7 @@ mod tests {
         });
         let mrpack = build_mrpack_fixture(
             &index,
-            &[(
-                "overrides/config/nested/pack.toml",
-                br#"enabled = true"#,
-            )],
+            &[("overrides/config/nested/pack.toml", br#"enabled = true"#)],
         );
         tokio::fs::write(
             store.path(&pack_inst.id).unwrap().join("modpack.mrpack"),

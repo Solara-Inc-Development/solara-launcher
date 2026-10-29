@@ -106,7 +106,7 @@ pub async fn loader_versions(game: &str, loader: &str) -> Result<Value> {
     }
 }
 pub fn capabilities() -> Value {
-    json!({"loaders":["vanilla","fabric","quilt"],"contentInstall":true,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
+    json!({"loaders":["vanilla","fabric","quilt"],"contentInstall":true,"automaticJava":true,"instanceFiles":true,"modManager":true,"instanceBackups":true,"preview":true})
 }
 
 async fn windows_version() -> Result<Option<String>> {
@@ -382,6 +382,71 @@ pub async fn toggle_mod(id: &str, path: &str, enabled: bool) -> Result<()> {
     let e = get().await?;
     crate::game_core::mods::toggle(&e.instances, &e.files, id, path, enabled).await
 }
+pub async fn import_mod(
+    id: &str,
+    file_name: Option<&str>,
+    bytes_base64: Option<&str>,
+    source_path: Option<&str>,
+) -> Result<Value> {
+    assert_writable(id).await?;
+    let e = get().await?;
+    let imported = if let Some(path) = source_path.map(str::trim).filter(|s| !s.is_empty()) {
+        crate::game_core::mods::import_path(&e.instances, id, std::path::Path::new(path)).await?
+    } else {
+        let name = file_name
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .context("Choose a .jar mod file to import")?;
+        let encoded = bytes_base64
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .context("Selected .jar mod file is empty")?;
+        use base64::Engine as _;
+        let bytes = base64::engine::general_purpose::STANDARD
+            .decode(encoded)
+            .context("Could not read selected .jar mod file")?;
+        crate::game_core::mods::import_bytes(&e.instances, id, name, &bytes).await?
+    };
+    Ok(serde_json::to_value(imported)?)
+}
+pub async fn list_backups(id: &str) -> Result<Value> {
+    let e = get().await?;
+    Ok(serde_json::to_value(
+        crate::game_core::backups::list(&e.instances, id).await?,
+    )?)
+}
+pub async fn backup_action(
+    id: &str,
+    action: &str,
+    backup_id: Option<&str>,
+    name: Option<&str>,
+) -> Result<Value> {
+    assert_writable(id).await?;
+    let e = get().await?;
+    match action {
+        "create" => Ok(serde_json::to_value(
+            crate::game_core::backups::create(&e.instances, id, name).await?,
+        )?),
+        "restore" => {
+            let bid = backup_id
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .context("Choose a backup to restore")?;
+            Ok(serde_json::to_value(
+                crate::game_core::backups::restore(&e.instances, id, bid).await?,
+            )?)
+        }
+        "delete" => {
+            let bid = backup_id
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .context("Choose a backup to delete")?;
+            crate::game_core::backups::delete(&e.instances, id, bid).await?;
+            Ok(json!({"ok": true}))
+        }
+        _ => bail!("This backup action is not available"),
+    }
+}
 pub async fn file_action(
     id: &str,
     action: &str,
@@ -515,9 +580,7 @@ async fn queue_content_install(
     planned: Vec<crate::game_core::content::VerifiedFile>,
 ) -> Result<String> {
     let engine = get().await?;
-    let job = engine
-        .jobs
-        .begin_content(&id, &job_name, planned.clone())?;
+    let job = engine.jobs.begin_content(&id, &job_name, planned.clone())?;
     let job_id = job.id.clone();
     tokio::spawn(async move {
         let permit = tokio::select! {

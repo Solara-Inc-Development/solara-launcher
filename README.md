@@ -102,7 +102,7 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 </table>
 
 > [!NOTE]
-> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod management and verified Modrinth content/modpack installs (Forge/NeoForge are still being added, and the archived V-0.0.03 build predates these additions). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified Modrinth content/modpack installs (Forge/NeoForge are still being added, and the archived V-0.0.03 build predates these additions). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ---
 
@@ -153,7 +153,7 @@ npm run check
 npm run build
 ```
 
-For full Rust/Tauri desktop compilation, signing and packaging instructions, read the **[Build & release guide](docs/BUILD-RELEASE.md)**. Public API routes and schemas are documented in the **[API guide](docs/API.md)**, and visual/interaction notes live in **[Design notes](docs/DESIGN.md)**.
+For full Rust/Tauri desktop compilation, signing and packaging instructions, read the **[Build & release guide](docs/BUILD-RELEASE.md)**. Authentication registration and setup steps are in the **[Authentication setup guide](docs/AUTH-SETUP.md)**, public API routes and schemas are documented in the **[API guide](docs/API.md)**, and visual/interaction notes live in **[Design notes](docs/DESIGN.md)**.
 
 <details>
 <summary><strong>More development &amp; native checks</strong></summary>

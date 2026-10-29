@@ -210,6 +210,150 @@ pub async fn toggle(
     };
     files.rename(store, id, path, &target).await
 }
+
+fn validate_jar_file_name(file_name: &str) -> Result<String> {
+    let trimmed = file_name.trim();
+    if trimmed.len() <= 4
+        || trimmed.contains('/')
+        || trimmed.contains('\\')
+        || !trimmed.to_ascii_lowercase().ends_with(".jar")
+    {
+        bail!("Choose a valid .jar mod file")
+    }
+    super::metadata::relative_path(&format!("mods/{trimmed}"))?;
+    Ok(trimmed.to_string())
+}
+
+fn verify_imported_jar(
+    path: &Path,
+) -> Result<(
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Vec<String>,
+)> {
+    let parsed = inspect(path)?;
+    let file = std::fs::File::open(path)?;
+    let mut zip = zip::ZipArchive::new(file).context("Mod file is not a valid .jar archive")?;
+    if zip.is_empty() {
+        bail!("Mod .jar archive is empty")
+    }
+    let mut has_manifest_or_class = !parsed.4.is_empty();
+    for i in 0..zip.len() {
+        let entry = zip.by_index_raw(i)?;
+        if entry.is_symlink() {
+            bail!("Mod .jar archive contains an unsupported link entry")
+        }
+        let name = entry.name().replace('\\', "/");
+        if name.starts_with('/')
+            || name
+                .split('/')
+                .any(|seg| seg == ".." || seg.chars().any(char::is_control))
+        {
+            bail!("Mod .jar archive contains an unsafe entry path")
+        }
+        if name == "META-INF/MANIFEST.MF" || name.ends_with(".class") {
+            has_manifest_or_class = true;
+        }
+    }
+    if !has_manifest_or_class {
+        bail!("This .jar file does not contain valid Minecraft mod metadata")
+    }
+    Ok(parsed)
+}
+
+pub async fn import_bytes(
+    store: &Instances,
+    id: &str,
+    file_name: &str,
+    bytes: &[u8],
+) -> Result<Mod> {
+    let instance = store.get(id).await?;
+    if instance.loader == "vanilla" {
+        bail!("Vanilla instances do not load mods. Use a Fabric or Quilt instance.")
+    }
+    let clean_name = validate_jar_file_name(file_name)?;
+    if bytes.is_empty() || bytes.len() > 128 * 1024 * 1024 {
+        bail!("Choose a .jar mod file up to 128 MiB")
+    }
+    let rel = format!("mods/{clean_name}");
+    let disabled_rel = format!("{rel}.disabled");
+    let target = files::resolve_create_parents(store, id, &rel).await?;
+    let disabled = files::resolve(store, id, &disabled_rel, true).await?;
+    if tokio::fs::symlink_metadata(&target).await.is_ok()
+        || tokio::fs::symlink_metadata(&disabled).await.is_ok()
+    {
+        bail!("A mod file with that name already exists in this instance")
+    }
+    let temp = target.with_file_name(format!(".solara-mod-{}.tmp", uuid::Uuid::new_v4()));
+    let write_res = async {
+        use tokio::io::AsyncWriteExt;
+        let mut f = tokio::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temp)
+            .await?;
+        f.write_all(bytes).await?;
+        f.sync_all().await?;
+        Ok::<_, anyhow::Error>(())
+    }
+    .await;
+    if let Err(e) = write_res {
+        let _ = tokio::fs::remove_file(&temp).await;
+        return Err(e);
+    }
+    let temp_check = temp.clone();
+    let verified = tokio::task::spawn_blocking(move || verify_imported_jar(&temp_check)).await?;
+    let (name, mod_id, version, description, loaders) = match verified {
+        Ok(v) => v,
+        Err(e) => {
+            let _ = tokio::fs::remove_file(&temp).await;
+            return Err(e);
+        }
+    };
+    if tokio::fs::symlink_metadata(&target).await.is_ok()
+        || tokio::fs::symlink_metadata(&disabled).await.is_ok()
+    {
+        let _ = tokio::fs::remove_file(&temp).await;
+        bail!("A mod file with that name already exists in this instance")
+    }
+    if let Err(e) = tokio::fs::rename(&temp, &target).await {
+        let _ = tokio::fs::remove_file(&temp).await;
+        return Err(e.into());
+    }
+    Ok(Mod {
+        path: rel,
+        file_name: clean_name.clone(),
+        name: name.unwrap_or_else(|| clean_name.trim_end_matches(".jar").into()),
+        mod_id,
+        version,
+        description,
+        loaders,
+        enabled: true,
+        size: bytes.len() as u64,
+        issue: None,
+    })
+}
+
+pub async fn import_path(store: &Instances, id: &str, source_path: &Path) -> Result<Mod> {
+    let meta = tokio::fs::symlink_metadata(source_path)
+        .await
+        .context("Selected mod file is unavailable")?;
+    if files::is_link(&meta) {
+        bail!("Linked mod files cannot be imported")
+    }
+    if !meta.is_file() || meta.len() == 0 || meta.len() > 128 * 1024 * 1024 {
+        bail!("Choose a .jar mod file up to 128 MiB")
+    }
+    let file_name = source_path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .context("Selected mod file name is not valid Unicode")?;
+    let bytes = tokio::fs::read(source_path).await?;
+    import_bytes(store, id, file_name, &bytes).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -230,5 +374,110 @@ mod tests {
         assert_eq!(result.2.as_deref(), Some("1.2.3"));
         assert_eq!(result.4, vec!["fabric"]);
         std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[tokio::test]
+    async fn import_validates_jar_handles_conflicts_and_rejects_links_or_vanilla() {
+        use std::io::Write;
+        let root =
+            std::env::temp_dir().join(format!("solara-mod-import-test-{}", uuid::Uuid::new_v4()));
+        let store = Instances::new(root.clone());
+        let fs = Files::default();
+        let fabric_inst = store
+            .create(
+                "Fabric Test".into(),
+                "1.21.1".into(),
+                "fabric".into(),
+                Some("0.16.9".into()),
+                2048,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+        let vanilla_inst = store
+            .create(
+                "Vanilla Test".into(),
+                "1.21.1".into(),
+                "vanilla".into(),
+                None,
+                2048,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+
+        let mut jar_buf = std::io::Cursor::new(Vec::new());
+        {
+            let mut zip = zip::ZipWriter::new(&mut jar_buf);
+            zip.start_file("quilt.mod.json", zip::write::SimpleFileOptions::default())
+                .unwrap();
+            zip.write_all(
+                br#"{"quilt_loader":{"id":"zoom_mod","version":"2.0.0","metadata":{"name":"Zoom Mod","description":"Clean zoom"}}}"#,
+            )
+            .unwrap();
+            zip.finish().unwrap();
+        }
+        let jar_bytes = jar_buf.into_inner();
+
+        // Reject importing into vanilla instance
+        assert!(
+            import_bytes(&store, &vanilla_inst.id, "zoom.jar", &jar_bytes)
+                .await
+                .is_err()
+        );
+
+        // Reject corrupt/non-jar bytes and non-.jar filenames
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "zoom.jar", b"not-a-zip")
+                .await
+                .is_err()
+        );
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "zoom.exe", &jar_bytes)
+                .await
+                .is_err()
+        );
+
+        // Import valid JAR into fresh Fabric instance (creates game/mods/ automatically)
+        let imported = import_bytes(&store, &fabric_inst.id, "zoom.jar", &jar_bytes)
+            .await
+            .unwrap();
+        assert_eq!(imported.name, "Zoom Mod");
+        assert_eq!(imported.mod_id.as_deref(), Some("zoom_mod"));
+        assert_eq!(imported.version.as_deref(), Some("2.0.0"));
+        assert_eq!(imported.loaders, vec!["quilt"]);
+        assert!(imported.enabled);
+
+        // Reject duplicate import (even if disabled)
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "zoom.jar", &jar_bytes)
+                .await
+                .is_err()
+        );
+        toggle(&store, &fs, &fabric_inst.id, "mods/zoom.jar", false)
+            .await
+            .unwrap();
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "zoom.jar", &jar_bytes)
+                .await
+                .is_err()
+        );
+
+        #[cfg(unix)]
+        {
+            let src_jar = root.join("real-source.jar");
+            tokio::fs::write(&src_jar, &jar_bytes).await.unwrap();
+            let link_jar = root.join("linked-source.jar");
+            std::os::unix::fs::symlink(&src_jar, &link_jar).unwrap();
+            assert!(import_path(&store, &fabric_inst.id, &link_jar)
+                .await
+                .is_err());
+            let from_path = import_path(&store, &fabric_inst.id, &src_jar)
+                .await
+                .unwrap();
+            assert_eq!(from_path.file_name, "real-source.jar");
+        }
+
+        tokio::fs::remove_dir_all(root).await.unwrap();
     }
 }

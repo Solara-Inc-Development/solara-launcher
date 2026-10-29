@@ -90,6 +90,39 @@ async fn toggle_instance_mod(id: String, path: String, enabled: bool) -> Result<
     engine::toggle_mod(&id, &path, enabled).await.map_err(err)
 }
 #[tauri::command]
+async fn import_instance_mod(
+    id: String,
+    file_name: Option<String>,
+    bytes_base64: Option<String>,
+    source_path: Option<String>,
+) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::import_mod(
+        &id,
+        file_name.as_deref(),
+        bytes_base64.as_deref(),
+        source_path.as_deref(),
+    )
+    .await
+    .map_err(err)
+}
+#[tauri::command]
+async fn instance_backups(id: String) -> Result<Value, String> {
+    engine::list_backups(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_backup_action(
+    id: String,
+    action: String,
+    backup_id: Option<String>,
+    name: Option<String>,
+) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::backup_action(&id, &action, backup_id.as_deref(), name.as_deref())
+        .await
+        .map_err(err)
+}
+#[tauri::command]
 async fn instance_file_action(
     id: String,
     action: String,
@@ -371,6 +404,9 @@ pub fn run() {
             instance_mods,
             instance_file_action,
             toggle_instance_mod,
+            import_instance_mod,
+            instance_backups,
+            instance_backup_action,
             open_instance_folder,
             install_content,
             download_action,

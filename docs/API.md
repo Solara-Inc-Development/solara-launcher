@@ -25,7 +25,7 @@ Public fetches use no credentials and a timestamped bounded local cache. Main AP
 
 ## Native Solara identity extension
 
-The inspected existing SSO code only provides a confidential-client code/JWT exchange. It does not have PKCE binding, rotating refresh grant or revocation. Native clients do not use that unsafe fallback and do not embed a secret.
+The inspected existing SSO code only provides a confidential-client code/JWT exchange. It does not have PKCE binding, rotating refresh grant or revocation. Native clients do not use that unsafe fallback and do not embed a secret. See [AUTH-SETUP.md](AUTH-SETUP.md) for the exact step-by-step Microsoft Entra device-code registration and reviewed additive Solara PKCE setup/test checklist.
 
 Prepared additions at the **existing SSO host**:
 
@@ -51,8 +51,8 @@ Register a public client ID with `bin/admin.php client:register`, review ownersh
 
 Public content browsing goes directly to Modrinth without Solara/Minecraft credentials. Search results retain their own project type; changing the search filter aborts obsolete work and clears stale results. Trusted provider icons are optional. API shapes were verified against official [search](https://docs.modrinth.com/api/operations/searchprojects/), [project-version list](https://docs.modrinth.com/api/operations/getprojectversions/) and [version lookup](https://docs.modrinth.com/api/operations/getversion/) documentation.
 
-The first custom-core testing build advertises `launcher_capabilities` with vanilla only and `contentInstall:false`. Browsing works; mod/modpack installation controls are disabled and the native command rejects installation with a clear preview message. No inherited resolver or installation path remains.
+The archived `V-0.0.03` testing build (`8326bb7`, currently withdrawn on security hold) advertised `launcher_capabilities` with vanilla only and `contentInstall:false`. Current `main` source advertises `loaders: ["vanilla", "fabric", "quilt"]`, `contentInstall: true`, `automaticJava: true`, `instanceFiles: true`, `modManager: true` and `instanceBackups: true`, backed by `apps/desktop/src/game_core/content.rs`, `mods.rs` and `backups.rs` (verifying both SHA-1 and SHA-512 digests from `cdn.modrinth.com`, resolving required Modrinth dependencies, extracting `.mrpack` overrides safely, importing validated local `.jar` mods, and managing isolated per-instance world/config backups).
 
-`npm run test:workflows` uses explicitly labelled browser/provider/IPC fixtures to check UI selection, retry, account separation and owner-address management. The broader content-install fixtures describe future UI contracts, not current native support or successful game installation.
+`npm run test:workflows` uses explicitly labelled browser/provider/IPC fixtures to check UI selection, retry, account separation and owner-address management.
 
-Vanilla installs use the independently authored metadata/integrity/cache/staging code. Snapshot downloads show actual queued/running/completed/failed/cancelled jobs, with cancellation and retry. History is bounded in memory; restarting does not claim resumable jobs. Microsoft device-code prompts go only to the main local window; credentials remain native/on-device. Approved Microsoft registration and Windows account/game tests are still required.
+Vanilla, Fabric and Quilt installs use the independently authored metadata/integrity/cache/staging code. Snapshot downloads show actual queued/running/completed/failed/cancelled jobs (`install`, `java`, `content`), with cancellation and kind-aware retry. History is bounded in memory; restarting does not claim resumable jobs. Microsoft device-code prompts go only to the main local window; credentials remain native/on-device. Approved Microsoft registration and Windows account/game tests are still required.

@@ -76,14 +76,10 @@ async fn main() -> anyhow::Result<()> {
             |_| {},
         )
         .await?;
-        let installed_size = tokio::fs::metadata(
-            store
-                .game_dir(&inst.id)
+        let installed_size =
+            tokio::fs::metadata(store.game_dir(&inst.id).await?.join(&root_mod.destination))
                 .await?
-                .join(&root_mod.destination),
-        )
-        .await?
-        .len();
+                .len();
         let _ = tokio::fs::remove_dir_all(&smoke_root).await;
         let pack = content::prepare_modpack("1KVo5zza", "N276l2ON").await?;
         modrinth_summary = serde_json::json!({

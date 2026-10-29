@@ -11,7 +11,9 @@
     "official-metadata",
     "automatic-java-temurin",
     "instance-files-editor-trash",
+    "instance-world-config-backups",
     "local-mod-metadata-manager",
+    "local-mod-jar-import",
     "local-device-auth",
     "local-java-launch",
     "verified-cache",
@@ -38,8 +40,8 @@
     "scripts/third-party.mjs"
   ],
   "windowsSourceCheck": {
-    "run": 40884605917,
-    "sourceCommit": "b0860a1ef612614747370d9c278584eced177fc2",
+    "run": 40893111499,
+    "sourceCommit": "a080746f435a9a7d66c8b994022e8511e6132f58",
     "result": "passed"
   },
   "windowsInstallerBuild": {
