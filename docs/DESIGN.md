@@ -4,11 +4,11 @@ Latest owner direction, 2026-10-29: clean, simple and dark, with Modrinth-like c
 
 ## Layout and imagery
 
-Matte charcoal surfaces, flat muted green actions, a readable labelled sidebar, clear spacing and easy English. The actual Solara logo and original local SVG glyphs remain. The dashboard uses forest artwork with readable text over a dark overlay, real local library actions and actual project/service listings. Other scenes have specific homes: alpine lake in the library, workshop in local servers, canyon in discovery, coast on Network/website and a naturally dark cave at startup.
+Pure black surfaces, rounded controls, blue/purple/amber/teal accents, a compact icon sidebar with rounded hover labels, fewer boxed cards and easy English. A separate account/information rail collapses on smaller windows. The top toolbar has Home/current location and real Downloads access. The actual Solara logo and original local SVG glyphs remain. The dashboard uses forest artwork with readable text over a dark overlay, real local library actions and actual project/service listings. Other scenes have specific homes: alpine lake in the library, workshop in local servers, canyon in discovery, coast on Network/website and a naturally dark cave at startup.
 
-`packages/ui/WorldArt.vue` renders original illustrative landscape WebPs with actual load/decode fade, pending indicator and failure fallback. Artwork is generated with built-in imagegen, visually reviewed and documented in `docs/ARTWORK.md`. It is not a screenshot of an actual user world or installed pack. Full-size/thumbnail delivery assets total 1,765,840 bytes; original PNGs remain in `assets/artwork/source/` outside the shipped public directory. No external image service is needed.
+`packages/ui/WorldArt.vue` renders original illustrative landscape WebPs with actual load/decode fade, pending indicator and failure fallback. Artwork is generated with built-in imagegen, visually reviewed. It is not a screenshot of an actual user world or installed pack. Full-size/thumbnail delivery assets total 1,765,840 bytes; original PNGs remain in `assets/artwork/source/` outside the shipped public directory. No external image service is needed.
 
-Active styling is `packages/ui/base.css`, `packages/ui/motion.css`, `apps/desktop/desktop.css` and `apps/website/website.css`. Older `future*.css` and `PortalArt.vue` are inactive historical source; do not re-enable the rejected design.
+Active styling is `packages/ui/base.css`, `packages/ui/motion.css`, `apps/desktop/desktop.css`, `apps/desktop/reference-layout.css` and `apps/website/website.css`. Older `future*.css` and `PortalArt.vue` are inactive historical source; do not re-enable the rejected design.
 
 ## Loading and motion
 

@@ -5,7 +5,7 @@ const mode=process.argv[2];const run=(bin,args,opts={})=>execFileSync(bin,args,{
 const readJson=async p=>JSON.parse(await readFile(p,'utf8'));const json=async(p,d)=>writeFile(p,JSON.stringify(d,null,2)+'\n');
 if(mode==='reserve'){
  let minimum=1;let commit='uncommitted';try{commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()}catch{}
- if(process.argv.includes('--github')){const tags=JSON.parse(execFileSync('gh',['api','--paginate','--slurp','repos/{owner}/{repo}/releases','--jq','map(.[] | .tag_name)'],{cwd:root,encoding:'utf8'}));minimum=Math.max(1,...tags.filter(t=>/^solara-build-\d+$/.test(t)).map(t=>Number(t.slice(13))+1));}
+ if(process.argv.includes('--github')){const pages=JSON.parse(execFileSync('gh',['api','--paginate','--slurp','repos/{owner}/{repo}/releases'],{cwd:root,encoding:'utf8'}));const tags=pages.flat().map(release=>release.tag_name);minimum=Math.max(1,...tags.filter(t=>/^solara-build-\d+$/.test(t)).map(t=>Number(t.slice(13))+1));}
  const r=await reserveBuild(dir,{commit,minimum});if(process.argv.includes('--github'))run('gh',['release','create','solara-build-'+Number(r.internalVersion.split('.').at(-1)),'--draft','--title',r.publicVersion,'--notes','Reserved immutable Solara build. Pending packaging, verification and publication.']);
  await json(path.join(dir,'current-build.json'),r);await json(path.join(root,'packages/shared/build.json'),{...r,channel:'release-candidate'});
  const config=await readJson(path.join(root,'apps/desktop/tauri.conf.json'));config.version=r.internalVersion;await json(path.join(root,'apps/desktop/tauri.conf.json'),config);

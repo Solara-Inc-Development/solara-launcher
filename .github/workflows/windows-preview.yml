@@ -43,7 +43,18 @@ jobs:
       - name: Reserve unique testing version
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/release.mjs reserve --github
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $log = Join-Path $env:RUNNER_TEMP 'solara-reservation.log'
+          node scripts/release.mjs reserve --github 2>&1 | Tee-Object -FilePath $log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            $tail = (Get-Content $log -Tail 35) -join "`n"
+            $tail = $tail.Replace($env:GH_TOKEN, '[redacted]').Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error title=Build reservation diagnostics::$tail"
+            exit $code
+          }
       - name: Build actual NSIS installer without private signing keys
         run: node scripts/release.mjs package --candidate
       - name: Export candidate and exact corresponding source
