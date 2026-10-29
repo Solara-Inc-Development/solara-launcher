@@ -70,6 +70,17 @@ const fs=require('node:fs/promises');
   // Mods still require a real selected target; this test supplies only explicitly labelled IPC fixtures.
   await page.evaluate(()=>{window.__SOLARA_QA__.instances=[{id:'qa-first',name:'QA first instance',gameVersion:'1.21.1',loader:'fabric',state:'installed',running:false},{id:'qa-second',name:'QA second instance',gameVersion:'1.21.1',loader:'fabric',state:'installed',running:false}]});
   await page.getByRole('heading',{name:'QA second instance',exact:true}).waitFor();
+  await page.getByRole('textbox',{name:'Search your library',exact:true}).fill('QA second');
+  assert.equal(await page.locator('.instance-collection .instance-card').count(),1,'Library search filters actual loaded instance data');
+  await page.getByRole('button',{name:'Show list view',exact:true}).click();
+  assert.equal(await page.locator('.instance-collection').evaluate(e=>e.classList.contains('as-list')),true);
+  assert.equal(await page.evaluate(()=>localStorage.getItem('solara:library-view')),'list');
+  await page.getByRole('textbox',{name:'Search your library',exact:true}).fill('nothing matches');
+  await page.getByRole('heading',{name:'No instances match',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Clear search',exact:true}).click();
+  assert.equal(await page.locator('.instance-collection .instance-card').count(),2);
+  await page.getByRole('button',{name:'Show grid view',exact:true}).click();
+
   await page.getByRole('button',{name:'Explore mods and modpacks',exact:true}).click();await chooseType('Mods');
   assert.equal(await page.getByRole('heading',{name:'QA fixture modpack',exact:true}).count(),0,'Changing type removes stale results');
   await page.getByRole('button',{name:'Search',exact:true}).click();await page.getByRole('button',{name:'Install',exact:true}).click();

@@ -39,3 +39,7 @@ builds/**/*.sig
 /docs/REQUIREMENTS.md
 /docs/ARTWORK.md
 /docs/DEPLOYMENT.md
+
+# Owner-provided visual references stay local.
+/checks/
+/seelikethis/
