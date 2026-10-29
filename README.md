@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme/hero.svg" alt="Solara Launcher — one home, every adventure" width="100%" />
+  <img src="assets/readme/hero.svg" alt="Solara Launcher — your worlds, your services" width="100%" />
 </p>
 
 <p align="center">
