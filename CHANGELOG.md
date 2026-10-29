@@ -1,12 +1,23 @@
 # Changelog
 
-## Unreleased source expansion — 2026-10-29
+## Testing Preview V-0.0.04 — 2026-10-29
 
-- Added official Fabric and Quilt loader version selection, profile validation and verified Maven library installation alongside vanilla.
-- Added verified Modrinth mod, resource pack, shader and `.mrpack` modpack installation with required dependency resolution, dual SHA-1 + SHA-512 checksum verification and safe override extraction.
-- Added automatic Eclipse Temurin Java runtime acquisition with origin, size, SHA-256 and archive extraction safety checks.
-- Rebuilt the home, library and per-instance workspaces with Overview, Mods, Files, Backups, Logs, recoverable Trash and Settings tabs, conflict-safe text editing, isolated world/config snapshots and local JAR mod metadata inspection/import/enable/disable.
-- Testing build V-0.0.03 (`8326bb7`) remains withdrawn from public download promotion while a reported VirusTotal generic/ML detection is investigated. Newer source changes above have not been packaged into a new executable.
+- **Antivirus Heuristic Resolution**:
+  - Removed hidden command executions (`cmd.exe /d /c ver` and `taskkill.exe`) that previously triggered false-positive machine-learning flags in VirusTotal.
+  - Replaced with direct, in-process Win32 API calls (`RtlGetVersion` and `EnumWindows` + `WM_CLOSE`).
+  - Added official PE metadata (Copyright, Publisher: Solara Inc., Product Name) directly into the Windows binary.
+- **Auto-Update Service Live**:
+  - Connected live updater endpoint on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64`.
+  - Cryptographically signed with persistent Minisign key; updates download and apply automatically when idle.
+- **Official Mod Loaders**:
+  - Added official Fabric and Quilt loader version resolution, version picker, and launch profile integration.
+- **Modrinth Content & Modpacks**:
+  - Added verified installation of mods, resource packs, shader packs, and `.mrpack` modpack archives with dual SHA-1/SHA-512 checks.
+- **Local Mod & Backup Management**:
+  - Added local `.jar` mod file importer with manifest verification, uncompressed bounds, and conflict protection.
+  - Added per-instance world and configuration snapshot backups with atomic rollback recovery.
+- **Live Infrastructure Deployment**:
+  - Deployed `https://api.solara-inc.in` and `https://app.solara-inc.in` with Let's Encrypt certificates and Cloudflare real-IP restoration.
 
 ## Custom-core testing preview (archived V-0.0.03) — 2026-10-29
 

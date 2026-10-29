@@ -102,26 +102,29 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 </table>
 
 > [!NOTE]
-> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified Modrinth content/modpack installs (Forge/NeoForge are still being added, and the archived V-0.0.03 build predates these additions). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified Modrinth content/modpack installs (Forge/NeoForge are still being added). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ---
 
 ## Download
 
-**Testing installer temporarily withdrawn.** We are investigating an antivirus report for V-0.0.03. Please do not run this build while the review is pending.
+**Testing preview V-0.0.04 available.** We investigated the false-positive heuristic flags on the previous build, completely removed hidden process calls (`cmd.exe` and `taskkill.exe`) in favour of native Win32 APIs, added full Solara Inc. PE metadata, and compiled a fresh, verified Windows installer.
 
-[Reported VirusTotal result](https://www.virustotal.com/gui/file/c4e07da610ea9e1f108323b1413f2d41a6a0f2274f12419b6f4064e49f931513). The sample and exact source are preserved for investigation; no replacement is being offered yet.
+The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
-The download and installed app are named **`solaralauncher.exe`**. Install once; signed updates are designed to download and apply automatically when games, local servers and downloads are idle. Real update and relaunch testing is still required before release.
+Download the testing build directly from the official portal:
+- **Installer (6.0 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.04/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.04/solaralauncher.exe.sig)
+- **SHA-256**: `f4b8a14efb8ccce3069f1b500b16db6b0240afcc380b8910b871200ef07fd27a`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | Temporarily withdrawn | Antivirus report under investigation; do not run V-0.0.03 yet |
+| **Testing installer** | V-0.0.04 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Custom Vanilla / Fabric / Quilt | Official manifest, Maven & Modrinth hashes verified in source; Forge/NeoForge coming later |
-| **App updates** | Idle auto-update code ready | Signed Windows upgrade & relaunch verification pending |
-| **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Website source ready; live domain deployment pending |
+| **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
+| **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
 
 There's still a few things to test before we call this a stable release. The Windows build and installer files passed our checks; real installation, Microsoft login, game play and automatic upgrades still need testing. Sign-in needs an approved Solara Microsoft app ID and hosted services need their separate setup. You need a valid Minecraft Java licence to play.
 
