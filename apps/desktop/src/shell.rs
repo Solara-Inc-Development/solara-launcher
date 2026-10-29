@@ -350,6 +350,10 @@ fn window_action(window: tauri::Window, action: String) -> Result<(), String> {
         _ => Err("Unsupported window action".into()),
     }
 }
+#[tauri::command]
+fn start_dragging(window: tauri::Window) -> Result<(), String> {
+    window.start_dragging().map_err(err)
+}
 fn updater(app: &tauri::AppHandle) -> Result<tauri_plugin_updater::Updater, String> {
     let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY")
         .unwrap_or(include_str!("../updater.pub"))
@@ -427,6 +431,7 @@ pub fn run() {
             select_minecraft_account,
             open_external,
             window_action,
+            start_dragging,
             check_update,
             app_update_status
         ]);
