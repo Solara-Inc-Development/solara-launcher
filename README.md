@@ -2,7 +2,9 @@
 
 ## V-0.0.03
 
-[Download solaralauncher.exe](builds/V-0.0.03/solaralauncher.exe?raw=true) · [Exact source](builds/V-0.0.03/source.zip?raw=true) · [Checksums and signature](builds/V-0.0.03/metadata.json)
+**Temporarily withdrawn: antivirus report under investigation. Do not run V-0.0.03 yet.**
+
+Archived samples and exact source remain preserved for investigation. No replacement download is being promoted while this review is pending.
 
 Genuine x64 Windows testing preview. The installer is 7,144,205 bytes (about 7.1 MB). Native Windows compilation/tests and static installer/source/signature checks passed. This build has **not** completed real Windows install, account login, game-launch or automatic-upgrade acceptance. Vanilla only; mod loaders and content installation are coming later. Account/hosted features need approved application IDs and service configuration.
 

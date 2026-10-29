@@ -6,7 +6,7 @@
   "artifactPath": "V-0.0.03/solaralauncher.exe",
   "commit": "8326bb7a32da40ecb5db7725416a545de72eee1c",
   "allocatedAt": "2026-10-29T08:34:25.973Z",
-  "state": "testing-preview",
+  "state": "quarantined",
   "applicationSha256": "1d592fcba629b916f99fbf42c79d771df3a592c9fd6bc721b9f2ccc48aced301",
   "applicationSize": 17507840,
   "sourceTree": "4254c48aed68fecdba6249b8de3ebace27cd5cc9",
@@ -47,5 +47,8 @@
   "signing": {
     "updaterSignatureVerified": true,
     "authenticodePublisherSigning": false
-  }
+  },
+  "downloadEnabled": false,
+  "withdrawnAt": "2026-10-29T12:00:41.235594+00:00",
+  "withdrawalReason": "Antivirus report under investigation; do not run this testing build"
 }
