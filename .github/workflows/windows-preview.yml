@@ -38,7 +38,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cargo test -p solara-launcher -p solara-local-server --lib --locked
+          npm run build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/third-party.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test -p solara-launcher -p solara-local-server --lib --locked --no-default-features
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Reserve unique testing version
         env:
@@ -56,7 +60,19 @@ jobs:
             exit $code
           }
       - name: Build actual NSIS installer without private signing keys
-        run: node scripts/release.mjs package --candidate
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $log = Join-Path $env:RUNNER_TEMP 'solara-packaging.log'
+          node scripts/release.mjs package --candidate 2>&1 | Tee-Object -FilePath $log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            # This step receives no private signing key or repository token.
+            $tail = (Get-Content $log -Tail 70) -join "`n"
+            if ($tail.Length -gt 12000) { $tail = $tail.Substring($tail.Length - 12000) }
+            $tail = $tail.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error title=Windows packaging diagnostics::$tail"
+            exit $code
+          }
       - name: Export candidate and exact corresponding source
         run: node scripts/export-candidate.mjs "${{ runner.temp }}/solara-candidate"
       - name: Preserve candidate for private signing and acceptance
