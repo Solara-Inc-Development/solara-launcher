@@ -359,29 +359,34 @@ impl Games {
         }
         let pid = game.child.id().context("Game process unavailable")?;
         #[cfg(windows)]
-        let mut command = {
-            let mut c = Command::new("taskkill");
-            c.args(["/PID", &pid.to_string()])
-                .creation_flags(0x08000000);
-            c
-        };
+        {
+            let _ = pid;
+            let posted = close_process_windows(pid);
+            if !posted {
+                if let Err(_) = game.child.start_kill() {
+                    bail!("Close the Minecraft window to save and stop your game");
+                }
+            }
+        }
         #[cfg(not(windows))]
-        let mut command = {
-            let mut c = Command::new("kill");
-            c.args(["-TERM", &pid.to_string()]);
-            c
-        };
-        let result = tokio::time::timeout(
-            std::time::Duration::from_secs(10),
-            command
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status(),
-        )
-        .await;
-        if !matches!(result,Ok(Ok(status)) if status.success()) {
-            bail!("Close the Minecraft window to save and stop your game")
+        {
+            let mut command = {
+                let mut c = Command::new("kill");
+                c.args(["-TERM", &pid.to_string()]);
+                c
+            };
+            let result = tokio::time::timeout(
+                std::time::Duration::from_secs(10),
+                command
+                    .stdin(Stdio::null())
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .status(),
+            )
+            .await;
+            if !matches!(result, Ok(Ok(status)) if status.success()) {
+                bail!("Close the Minecraft window to save and stop your game");
+            }
         }
         match tokio::time::timeout(std::time::Duration::from_secs(15), game.child.wait()).await {
             Ok(Ok(_)) => {}
@@ -390,6 +395,39 @@ impl Games {
         }
         Ok(())
     }
+}
+
+#[cfg(windows)]
+fn close_process_windows(pid: u32) -> bool {
+    use windows_sys::Win32::Foundation::{BOOL, HWND, LPARAM};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        EnumWindows, GetWindowThreadProcessId, PostMessageW, WM_CLOSE,
+    };
+
+    struct EnumData {
+        target_pid: u32,
+        found: bool,
+    }
+
+    unsafe extern "system" fn enum_proc(hwnd: HWND, lparam: LPARAM) -> BOOL {
+        let data = &mut *(lparam as *mut EnumData);
+        let mut process_id = 0u32;
+        GetWindowThreadProcessId(hwnd, &mut process_id);
+        if process_id == data.target_pid {
+            PostMessageW(hwnd, WM_CLOSE, 0, 0);
+            data.found = true;
+        }
+        1
+    }
+
+    let mut data = EnumData {
+        target_pid: pid,
+        found: false,
+    };
+    unsafe {
+        EnumWindows(Some(enum_proc), &mut data as *mut _ as LPARAM);
+    }
+    data.found
 }
 
 async fn capture_log(

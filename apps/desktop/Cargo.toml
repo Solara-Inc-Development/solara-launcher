@@ -4,6 +4,10 @@ default-run = "solaralauncher"
 version = "0.0.1"
 edition = "2021"
 license = "GPL-3.0-only"
+description = "Solara desktop hub and Minecraft Java launcher"
+authors = ["Solara Inc. <contact@solara-inc.in>"]
+repository = "https://github.com/Solara-Inc-Development/solara-launcher"
+homepage = "https://app.solara-inc.in"
 build = "build.rs"
 
 [lib]
@@ -44,6 +48,8 @@ toml = "1"
 
 [target.'cfg(windows)'.dependencies]
 keyring = { version = "3.6.3", features = ["windows-native"] }
+windows-version = "0.1"
+windows-sys = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
 
 [build-dependencies]
 tauri-build = { version = "=2.7.4", features = [] }

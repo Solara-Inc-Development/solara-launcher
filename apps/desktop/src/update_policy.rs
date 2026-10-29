@@ -1,6 +1,7 @@
 use serde_json::Value;
 
 /// Unknown state blocks replacement too: never interrupt local work on a guess.
+#[allow(dead_code)]
 pub fn busy(snapshot: &Value) -> bool {
     let Some(instances) = snapshot["instances"].as_array() else {
         return true;

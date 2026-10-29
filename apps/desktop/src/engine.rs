@@ -112,23 +112,8 @@ pub fn capabilities() -> Value {
 async fn windows_version() -> Result<Option<String>> {
     #[cfg(windows)]
     {
-        let mut command = tokio::process::Command::new("cmd.exe");
-        command.args(["/d", "/c", "ver"]).creation_flags(0x08000000);
-        let output = tokio::time::timeout(std::time::Duration::from_secs(5), command.output())
-            .await
-            .context("Windows version check timed out")??;
-        if !output.status.success() {
-            bail!("Windows version could not be checked")
-        }
-        let text = String::from_utf8_lossy(&output.stdout);
-        let pattern = regex::Regex::new(r"\d+\.\d+\.\d+")?;
-        return Ok(Some(
-            pattern
-                .find(&text)
-                .context("Windows version was not recognized")?
-                .as_str()
-                .into(),
-        ));
+        let ver = windows_version::OsVersion::current();
+        Ok(Some(format!("{}.{}.{}", ver.major, ver.minor, ver.build)))
     }
     #[cfg(not(windows))]
     {

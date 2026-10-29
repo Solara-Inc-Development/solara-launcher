@@ -38,6 +38,9 @@
     ],
     "category": "Game",
     "shortDescription": "Solara desktop hub and Minecraft Java launcher",
+    "longDescription": "Official open-source desktop launcher and mod manager for Solara Minecraft.",
+    "copyright": "Copyright © 2026 Solara Inc. All rights reserved.",
+    "publisher": "Solara Inc.",
     "icon": [
       "icons/icon.ico",
       "icons/icon.png"
