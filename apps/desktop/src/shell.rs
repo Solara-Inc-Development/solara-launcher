@@ -63,12 +63,65 @@ async fn edit_instance(
     engine::edit(id, name, memory, java_path).await.map_err(err)
 }
 #[tauri::command]
+async fn instance_files(id: String, path: String) -> Result<Value, String> {
+    engine::list_files(&id, &path).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_text(id: String, path: String) -> Result<Value, String> {
+    engine::read_text(&id, &path).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_trash(id: String) -> Result<Value, String> {
+    engine::list_trash(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_mods(id: String) -> Result<Value, String> {
+    engine::list_mods(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn toggle_instance_mod(id: String, path: String, enabled: bool) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::toggle_mod(&id, &path, enabled).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_file_action(
+    id: String,
+    action: String,
+    path: String,
+    target: Option<String>,
+    content: Option<String>,
+    expected_sha256: Option<String>,
+) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::file_action(
+        &id,
+        &action,
+        &path,
+        target.as_deref(),
+        content.as_deref(),
+        expected_sha256.as_deref(),
+    )
+    .await
+    .map_err(err)
+}
+#[tauri::command]
 async fn instance_logs(id: String) -> Result<String, String> {
     engine::logs(&id).await.map_err(err)
 }
 #[tauri::command]
-async fn open_instance_folder(app: tauri::AppHandle, id: String) -> Result<(), String> {
-    let p = engine::instance_folder(&id).await.map_err(err)?;
+async fn open_instance_folder(
+    app: tauri::AppHandle,
+    id: String,
+    path: Option<String>,
+) -> Result<(), String> {
+    let e = engine::get().await.map_err(err)?;
+    let mut p =
+        crate::game_core::files::resolve(&e.instances, &id, path.as_deref().unwrap_or(""), false)
+            .await
+            .map_err(err)?;
+    if !p.is_dir() {
+        p = p.parent().ok_or("File folder unavailable")?.to_path_buf();
+    }
     app.opener()
         .open_path(p.to_string_lossy().to_string(), None::<String>)
         .map_err(err)
@@ -87,6 +140,9 @@ async fn install_content(
 }
 #[tauri::command]
 async fn download_action(id: String, action: String) -> Result<(), String> {
+    if action == "cancel" {
+        return engine::download_action(&id, &action).await.map_err(err);
+    }
     let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::download_action(&id, &action).await.map_err(err)
 }
@@ -302,6 +358,12 @@ pub fn run() {
             stop_instance,
             edit_instance,
             instance_logs,
+            instance_files,
+            instance_text,
+            instance_trash,
+            instance_mods,
+            instance_file_action,
+            toggle_instance_mod,
             open_instance_folder,
             install_content,
             download_action,

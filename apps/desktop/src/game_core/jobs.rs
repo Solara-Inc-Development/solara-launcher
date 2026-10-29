@@ -8,12 +8,13 @@ pub struct Job {
     pub id: String,
     pub name: String,
     pub status: String,
+    pub kind: String,
     pub detail: String,
     pub downloaded: u64,
     pub total: u64,
     pub progress: Option<f64>,
     pub actions: Vec<String>,
-    #[serde(skip)]
+    #[serde(rename = "instanceId")]
     pub instance: String,
     #[serde(skip)]
     pub cancel: Cancellation,
@@ -30,6 +31,13 @@ impl Default for Jobs {
 }
 impl Jobs {
     pub fn begin(&self, instance: &str, name: &str) -> Result<Job> {
+        self.begin_kind(instance, name, "install")
+    }
+    pub fn begin_kind(&self, instance: &str, name: &str, kind: &str) -> Result<Job> {
+        if !matches!(kind, "install" | "java" | "content" | "backup") {
+            bail!("Unknown local operation")
+        }
+
         let mut jobs = self
             .items
             .lock()
@@ -62,6 +70,7 @@ impl Jobs {
             id: uuid::Uuid::new_v4().to_string(),
             name: name.into(),
             status: "queued".into(),
+            kind: kind.into(),
             detail: "Waiting to start".into(),
             downloaded: 0,
             total: 0,
@@ -112,7 +121,7 @@ impl Jobs {
                     "failed"
                 }
                 .into();
-                job.detail=if success {"Minecraft files are ready"}else if cancelled {"Installation cancelled. Your worlds were kept."}else{"Could not install these files. Check your connection and retry. Some older versions are not supported yet."}.into();
+                job.detail=if success && job.kind == "java" {"Java is ready"} else if success {"Minecraft files are ready"}else if cancelled {"Installation cancelled. Your worlds were kept."}else{"Could not install these files. Check your connection and retry. Some older versions are not supported yet."}.into();
                 job.actions = if success {
                     vec![]
                 } else {
@@ -136,8 +145,9 @@ mod tests {
         jobs.finish(&first.id, false, true);
         assert_eq!(jobs.get(&first.id).unwrap().status, "cancelled");
         assert!(jobs.begin("instance", "Retry").is_ok());
-        let json = serde_json::to_string(&jobs.list().unwrap()).unwrap();
-        assert!(!json.contains("\"instance\""));
-        assert!(!json.contains("\"cancel\":"));
+        let json = serde_json::to_value(jobs.list().unwrap()).unwrap();
+        assert!(json[0].get("instance").is_none());
+        assert_eq!(json[0]["instanceId"], "instance");
+        assert!(json[0].get("cancel").is_none());
     }
 }

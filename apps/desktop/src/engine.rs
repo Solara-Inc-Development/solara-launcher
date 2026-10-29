@@ -2,7 +2,9 @@
 use crate::game_core::{
     auth::Accounts,
     download::{Cancellation, FileCache},
+    files::Files,
     instances::{write_json, Instances},
+    java::Runtimes,
     jobs::Jobs,
     launch::Games,
     metadata,
@@ -21,6 +23,8 @@ pub struct Engine {
     pub accounts: Accounts,
     pub games: Games,
     pub jobs: Jobs,
+    pub java: Runtimes,
+    pub files: Files,
     cache: FileCache,
     slots: Semaphore,
 }
@@ -49,6 +53,8 @@ pub async fn initialize() -> Result<()> {
                 accounts: Accounts::new(data.join("custom-minecraft-accounts")),
                 games: Games::default(),
                 jobs: Jobs::default(),
+                java: Runtimes::new(data.join("java-runtimes")),
+                files: Files::default(),
                 cache: FileCache::new(data.join("verified-game-files"))?,
                 slots: Semaphore::new(2),
                 data,
@@ -91,7 +97,7 @@ pub async fn versions() -> Result<Value> {
     Ok(serde_json::to_value(metadata::versions().await?)?)
 }
 pub fn capabilities() -> Value {
-    json!({"loaders":["vanilla"],"contentInstall":false,"preview":true})
+    json!({"loaders":["vanilla"],"contentInstall":false,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
 }
 
 async fn windows_version() -> Result<Option<String>> {
@@ -148,7 +154,14 @@ async fn queue_install(id: String, name: String) -> Result<String> {
                         .report(&job.id, p.phase, p.verified_bytes, p.total_bytes)
                 },
             )
-            .await
+            .await?;
+            if cfg!(windows) {
+                resolve_java(&id, &job.cancel, |phase, done, total| {
+                    engine.jobs.report(&job.id, phase.into(), done, total)
+                })
+                .await?;
+            }
+            Ok::<_, anyhow::Error>(())
         }
         .await;
         engine
@@ -198,6 +211,57 @@ pub async fn retry_instance(id: String) -> Result<String> {
     }
     queue_install(record.id, record.name).await
 }
+async fn resolve_java(
+    id: &str,
+    cancel: &Cancellation,
+    report: impl FnMut(&str, u64, u64) + Send,
+) -> Result<String> {
+    let engine = get().await?;
+    let record = engine.instances.get(id).await?;
+    if !matches!(record.java_path.as_str(), "auto" | "java") {
+        return Ok(record.java_path);
+    }
+    let path = engine.instances.path(id)?.join("runtime/plan.json");
+    let meta = tokio::fs::symlink_metadata(&path).await?;
+    if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > 4 * 1024 * 1024 {
+        bail!("Invalid installed launch plan")
+    }
+    let plan: crate::game_core::plan::Plan = serde_json::from_slice(&tokio::fs::read(path).await?)?;
+    if plan.version != record.game_version {
+        bail!("Installed files do not match this instance")
+    }
+    // A compatible explicitly selected PATH Java can be kept. Automatic mode
+    // installs the metadata-required major in the launcher's own local directory.
+    if record.java_path == "java"
+        && crate::game_core::launch::java_check("java", plan.java_major)
+            .await
+            .is_ok()
+    {
+        return Ok("java".into());
+    }
+    let java = engine.java.ensure(plan.java_major, cancel, report).await?;
+    java.to_str()
+        .map(String::from)
+        .context("Java path is not valid Unicode")
+}
+async fn queue_java(id: String) -> Result<String> {
+    let engine = get().await?;
+    let record = engine.instances.get(&id).await?;
+    let job = engine
+        .jobs
+        .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
+    let key = job.id.clone();
+    tokio::spawn(async move {
+        let result = resolve_java(&id, &job.cancel, |phase, done, total| {
+            engine.jobs.report(&job.id, phase.into(), done, total)
+        })
+        .await;
+        engine
+            .jobs
+            .finish(&job.id, result.is_ok(), job.cancel.check().is_err());
+    });
+    Ok(key)
+}
 pub async fn launch(id: String) -> Result<Value> {
     if !cfg!(windows) {
         bail!("Minecraft play is available on Windows in this first preview")
@@ -206,11 +270,25 @@ pub async fn launch(id: String) -> Result<Value> {
     if engine.instances.get(&id).await?.state != "installed" {
         bail!("Finish installing this instance before playing")
     }
+    let record = engine.instances.get(&id).await?;
+    let java_job = engine
+        .jobs
+        .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
+    let result = resolve_java(&id, &java_job.cancel, |phase, done, total| {
+        engine.jobs.report(&java_job.id, phase.into(), done, total)
+    })
+    .await;
+    engine.jobs.finish(
+        &java_job.id,
+        result.is_ok(),
+        java_job.cancel.check().is_err(),
+    );
+    let java = result?;
     let session = engine.accounts.session().await?;
     let version = windows_version().await?;
     let pid = engine
         .games
-        .start(&engine.instances, &id, session, version.as_deref())
+        .start(&engine.instances, &id, session, version.as_deref(), &java)
         .await?;
     Ok(json!({"processId":pid}))
 }
@@ -239,6 +317,84 @@ pub async fn edit(id: String, name: String, memory: u32, java_path: String) -> R
 }
 pub async fn instance_folder(id: &str) -> Result<PathBuf> {
     get().await?.instances.game_dir(id).await
+}
+pub async fn assert_writable(id: &str) -> Result<()> {
+    let engine = get().await?;
+    engine.instances.get(id).await?;
+    if engine.games.running().await?.iter().any(|key| key == id) {
+        bail!("Close this game before changing its files")
+    }
+    if engine
+        .jobs
+        .list()?
+        .iter()
+        .any(|j| j.instance == id && matches!(j.status.as_str(), "queued" | "running"))
+    {
+        bail!("Wait for this instance's current task to finish")
+    }
+    Ok(())
+}
+pub async fn list_files(id: &str, path: &str) -> Result<Value> {
+    let e = get().await?;
+    Ok(serde_json::to_value(
+        e.files.list(&e.instances, id, path).await?,
+    )?)
+}
+pub async fn read_text(id: &str, path: &str) -> Result<Value> {
+    let e = get().await?;
+    Ok(serde_json::to_value(
+        e.files.read(&e.instances, id, path).await?,
+    )?)
+}
+pub async fn list_trash(id: &str) -> Result<Value> {
+    let e = get().await?;
+    Ok(serde_json::to_value(
+        e.files.trash_list(&e.instances, id).await?,
+    )?)
+}
+pub async fn list_mods(id: &str) -> Result<Value> {
+    let e = get().await?;
+    Ok(serde_json::to_value(
+        crate::game_core::mods::list(&e.instances, &e.files, id).await?,
+    )?)
+}
+pub async fn toggle_mod(id: &str, path: &str, enabled: bool) -> Result<()> {
+    assert_writable(id).await?;
+    let e = get().await?;
+    crate::game_core::mods::toggle(&e.instances, &e.files, id, path, enabled).await
+}
+pub async fn file_action(
+    id: &str,
+    action: &str,
+    path: &str,
+    target: Option<&str>,
+    content: Option<&str>,
+    expected: Option<&str>,
+) -> Result<Value> {
+    assert_writable(id).await?;
+    let e = get().await?;
+    match action {
+        "mkdir" => e.files.mkdir(&e.instances, id, path).await?,
+        "rename" => {
+            e.files
+                .rename(
+                    &e.instances,
+                    id,
+                    path,
+                    target.context("Choose a new file name")?,
+                )
+                .await?
+        }
+        "trash" => return Ok(json!({"trashId":e.files.trash(&e.instances,id,path).await?})),
+        "restore" => e.files.restore(&e.instances, id, path).await?,
+        "save" => {
+            return Ok(
+                json!({"sha256":e.files.write(&e.instances,id,path,content.context("File text missing")?,expected).await?}),
+            )
+        }
+        _ => bail!("This file action is not available"),
+    };
+    Ok(json!({"ok":true}))
 }
 pub async fn logs(id: &str) -> Result<String> {
     get().await?.games.logs(id).await
@@ -282,7 +438,11 @@ pub async fn download_action(id: &str, action: &str) -> Result<()> {
         "cancel" if matches!(job.status.as_str(), "queued" | "running") => job.cancel.cancel(),
         "retry" if matches!(job.status.as_str(), "failed" | "cancelled") => {
             let record = engine.instances.get(&job.instance).await?;
-            queue_install(record.id, record.name).await?;
+            if record.state == "installed" {
+                queue_java(record.id).await?;
+            } else {
+                queue_install(record.id, record.name).await?;
+            }
         }
         _ => bail!("This download action is not available"),
     };
@@ -299,7 +459,7 @@ impl Default for Preferences {
     fn default() -> Self {
         Self {
             memory: 4096,
-            java_path: "java".into(),
+            java_path: "auto".into(),
             discord: false,
         }
     }

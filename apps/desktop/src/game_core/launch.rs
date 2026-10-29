@@ -271,6 +271,7 @@ impl Games {
         id: &str,
         session: Session,
         os_version: Option<&str>,
+        java_path: &str,
     ) -> Result<u32> {
         let instance = store.get(id).await?;
         if instance.state != "installed" {
@@ -289,7 +290,7 @@ impl Games {
         if plan.version != instance.game_version {
             bail!("Installed files do not match this instance")
         }
-        java_check(&instance.java_path, plan.java_major).await?;
+        java_check(java_path, plan.java_major).await?;
         // Check immutable launch files before passing a verified session to Java.
         for file in &plan.files {
             super::metadata::relative_path(&file.destination)?;
@@ -307,7 +308,7 @@ impl Games {
             instance.memory,
             os_version,
         )?;
-        let mut command = Command::new(&instance.java_path);
+        let mut command = Command::new(java_path);
         command
             .args(args)
             .current_dir(game_dir)

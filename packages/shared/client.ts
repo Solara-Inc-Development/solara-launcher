@@ -4,7 +4,7 @@ import catalogue from './events.json';
 import {features} from './features';
 export const isDesktop = typeof window!=='undefined' && '__TAURI_INTERNALS__' in window;
 export const snapshot=ref<any>({data:null,at:null,state:'checking'});
-export const preferences=ref({theme:localStorage.getItem('solara:theme')||'auto',motion:localStorage.getItem('solara:motion')==='true',accent:/^#[a-f0-9]{6}$/i.test(localStorage.getItem('solara:accent')||'')?localStorage.getItem('solara:accent')!:'#61c48c'});
+export const preferences=ref({theme:localStorage.getItem('solara:theme')||'auto',motion:localStorage.getItem('solara:motion')==='true',accent:/^#[a-f0-9]{6}$/i.test(localStorage.getItem('solara:accent')||'')?localStorage.getItem('solara:accent')!:'#b9a8ff'});
 export const preview=ref<string|null>(null);
 const developmentApi=import.meta.env.DEV?new URLSearchParams(location.search).get('api'):null;
 const origin=(developmentApi&&/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(developmentApi)?developmentApi:null)||import.meta.env.VITE_SOLARA_API_URL||'https://api.solara-inc.in';

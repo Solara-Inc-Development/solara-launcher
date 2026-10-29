@@ -13,7 +13,7 @@ async function settleArt(page){await page.locator('.image-art img').evaluateAll(
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await context.newPage();await page.goto(url,{waitUntil:'networkidle'});
   await page.locator('.boot-screen').waitFor({state:'hidden'});
-  if(api)await page.locator('.listing-card').first().waitFor();
+  if(api)await page.locator('.new-home-services>button').first().waitFor();
   await settleArt(page);
   await page.screenshot({path:'public/screenshots/dashboard.png',animations:'disabled'});
   await page.getByRole('button',{name:'Minecraft launcher',exact:true}).click();await page.waitForTimeout(500);
