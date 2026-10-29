@@ -1,0 +1,79 @@
+name: Check Windows source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-check.yml'
+      - 'apps/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'public/**'
+      - '*Cargo*'
+      - 'package*.json'
+      - '*config*'
+      - '*.html'
+
+# Compile/test only: no signing credentials, release writes or uploaded binaries.
+permissions:
+  contents: read
+concurrency:
+  group: solara-windows-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
+      SQLX_OFFLINE: 'true'
+      CARGO_INCREMENTAL: '0'
+      CARGO_BUILD_JOBS: '2'
+      CARGO_PROFILE_TEST_DEBUG: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Fetch pinned engine and apply Solara patches
+        run: python scripts/prepare-upstream.py
+      - name: Test shared logic, types and production frontend
+        run: |
+          npm test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check actual Windows desktop shell
+        run: cargo check -p solara-launcher --all-targets --locked
+      - name: Run native event, resource-policy and local-server tests
+        run: |
+          cargo test -p solara-launcher -p solara-local-server --lib --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record verification boundary
+        if: always()
+        run: |
+          @'
+          ## Windows source verification
+          This job checks Windows compilation and runs local unit tests. Read each step's result above.
+          It does not package/upload an installer, reserve a public build number, or use signing keys.
+          Installer distribution remains gated by licence review and signing setup in the packaging workflow.
+          Licensed Minecraft launch, Credential Manager persistence, login and installed UI acceptance need separate real-device tests.
+          '@ >> $env:GITHUB_STEP_SUMMARY
