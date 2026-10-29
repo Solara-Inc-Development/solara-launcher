@@ -28,7 +28,8 @@ pub fn version_id(value: &str) -> Result<()> {
         || value.len() > 100
         || !value
             .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"._-".contains(&b))
+            .all(|b| b.is_ascii_alphanumeric() || b"._- ".contains(&b))
+        || value.trim() != value
         || value == "."
         || value == ".."
     {

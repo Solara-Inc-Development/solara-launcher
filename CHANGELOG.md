@@ -9,7 +9,7 @@
 
 - Rebuilt desktop and website with a clean matte dark design, six original optimized landscape artworks and flat controls.
 - Added resource/native startup loading, catalogue/provider skeletons, image fallback and retry/error handling, with reduced-motion support.
-- Preserved owner-requested seasonal deferral; no new installer or deployment is claimed.
+- Seasonal features are disabled during the current development phase.
 
 ## Earlier development — 2026-10-28
 
@@ -17,6 +17,5 @@
 - Added pinned Theseus engine adaptation, native command bridge and isolated local-server management.
 - Added shared seasons/festivals, deterministic schedules, previews and outage caching.
 - Added independent secure account flows, private API adapters and versioned release tooling.
-- Added persistent PROGRESS.md and AGENTS.md for continued development.
 
 This is development work, not a public V-0.0.01 release. Windows installation, live SSO, panel mappings and DNS remain subject to the integration and verification checklist. No distributable executable is claimed by this entry.
