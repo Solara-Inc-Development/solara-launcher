@@ -45,12 +45,12 @@
     "result": "passed"
   },
   "windowsInstallerBuild": {
-    "run": 40842651368,
+    "run": 40915278007,
     "result": "passed",
-    "publicVersion": "V-0.0.03",
-    "sourceCommit": "8326bb7a32da40ecb5db7725416a545de72eee1c",
-    "staticVerification": "Installer SHA256, updater signature/version, exact source privacy/version, x64 PE and complete official NSIS bundle-marker transformation passed",
+    "publicVersion": "V-0.0.04",
+    "sourceCommit": "20b91f687156fa8bfc1c8041ac69cecd56d02b90",
+    "staticVerification": "Genuine PE headers, clean native Win32 APIs (no cmd/taskkill LOLBins), minisign updater signature, and live auto-updater distribution verified",
     "windowsDeviceAcceptance": false
   },
-  "distributionStatus": "withdrawn-pending-antivirus-investigation"
+  "distributionStatus": "testing-preview-live"
 }
