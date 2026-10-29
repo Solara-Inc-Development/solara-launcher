@@ -2,7 +2,7 @@
 use solara_launcher::game_core::{
     content,
     download::{Cancellation, FileCache},
-    instances::Instance,
+    instances::Instances,
     loaders, metadata, plan,
 };
 #[tokio::main]
@@ -47,23 +47,50 @@ async fn main() -> anyhow::Result<()> {
     }
     let mut modrinth_summary = serde_json::Value::Null;
     if args.iter().any(|a| a == "--verify-modrinth-smoke") {
-        let inst = Instance {
-            schema_version: 1,
-            id: uuid::Uuid::new_v4().to_string(),
-            name: "Smoke".into(),
-            game_version: game.into(),
-            loader: loader_kind.into(),
-            loader_version: Some(loader.clone()),
-            memory: 4096,
-            java_path: "auto".into(),
-            state: "installed".into(),
-        };
+        let smoke_root =
+            std::env::temp_dir().join(format!("solara-modrinth-smoke-{}", uuid::Uuid::new_v4()));
+        let store = Instances::new(smoke_root.join("inst"));
+        let cache = FileCache::new(smoke_root.join("cache"))?;
+        let inst = store
+            .create(
+                "Smoke".into(),
+                game.into(),
+                loader_kind.into(),
+                Some(loader.clone()),
+                4096,
+                "auto".into(),
+            )
+            .await?;
         let (mod_label, mod_files) =
             content::plan_project_install(&inst, "modmenu", "mod", None).await?;
+        let root_mod = mod_files
+            .last()
+            .cloned()
+            .ok_or_else(|| anyhow::anyhow!("Mod plan produced no files"))?;
+        content::install_files(
+            &store,
+            &cache,
+            &inst.id,
+            &[root_mod.clone()],
+            &Cancellation::default(),
+            |_| {},
+        )
+        .await?;
+        let installed_size = tokio::fs::metadata(
+            store
+                .game_dir(&inst.id)
+                .await?
+                .join(&root_mod.destination),
+        )
+        .await?
+        .len();
+        let _ = tokio::fs::remove_dir_all(&smoke_root).await;
         let pack = content::prepare_modpack("1KVo5zza", "N276l2ON").await?;
         modrinth_summary = serde_json::json!({
             "modLabel": mod_label,
             "modPlannedFilesWithDeps": mod_files.len(),
+            "modVerifiedInstalledFile": root_mod.destination,
+            "modVerifiedInstalledBytes": installed_size,
             "modpackName": pack.name,
             "modpackGameVersion": pack.game_version,
             "modpackLoader": pack.loader,

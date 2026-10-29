@@ -18,6 +18,8 @@ pub struct Job {
     pub instance: String,
     #[serde(skip)]
     pub cancel: Cancellation,
+    #[serde(skip)]
+    pub content_files: Option<Vec<super::content::VerifiedFile>>,
 }
 pub struct Jobs {
     items: Mutex<Vec<Job>>,
@@ -34,6 +36,23 @@ impl Jobs {
         self.begin_kind(instance, name, "install")
     }
     pub fn begin_kind(&self, instance: &str, name: &str, kind: &str) -> Result<Job> {
+        self.begin_with_content(instance, name, kind, None)
+    }
+    pub fn begin_content(
+        &self,
+        instance: &str,
+        name: &str,
+        files: Vec<super::content::VerifiedFile>,
+    ) -> Result<Job> {
+        self.begin_with_content(instance, name, "content", Some(files))
+    }
+    fn begin_with_content(
+        &self,
+        instance: &str,
+        name: &str,
+        kind: &str,
+        content_files: Option<Vec<super::content::VerifiedFile>>,
+    ) -> Result<Job> {
         if !matches!(kind, "install" | "java" | "content" | "backup") {
             bail!("Unknown local operation")
         }
@@ -78,6 +97,7 @@ impl Jobs {
             actions: vec!["cancel".into()],
             instance: instance.into(),
             cancel: Cancellation::default(),
+            content_files,
         };
         jobs.push(job.clone());
         Ok(job)
@@ -122,7 +142,7 @@ impl Jobs {
                 }
                 .into();
                 job.detail=if success && job.kind == "java" {"Java is ready"} else if success && job.kind == "content" {"Content installed"} else if success {"Minecraft files are ready"}else if cancelled {"Installation cancelled. Your worlds were kept."}else{"Could not install these files. Check your connection and retry. Some older versions are not supported yet."}.into();
-                job.actions = if success || job.kind == "content" {
+                job.actions = if success || (job.kind == "content" && job.content_files.is_none()) {
                     vec![]
                 } else {
                     vec!["retry".into()]
@@ -135,6 +155,7 @@ impl Jobs {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::game_core::{content::VerifiedFile, metadata::Artifact};
     #[test]
     fn queue_prevents_duplicates_and_records_real_terminal_states() {
         let jobs = Jobs::default();
@@ -145,9 +166,32 @@ mod tests {
         jobs.finish(&first.id, false, true);
         assert_eq!(jobs.get(&first.id).unwrap().status, "cancelled");
         assert!(jobs.begin("instance", "Retry").is_ok());
+
+        let content_job = jobs
+            .begin_content(
+                "instance-2",
+                "ModMenu for Fixture",
+                vec![VerifiedFile {
+                    destination: "mods/modmenu.jar".into(),
+                    artifact: Artifact {
+                        url: "https://cdn.modrinth.com/data/test/modmenu.jar".into(),
+                        sha1: "a".repeat(40),
+                        size: 128,
+                        path: Some("mods/modmenu.jar".into()),
+                    },
+                    sha512: "b".repeat(128),
+                }],
+            )
+            .unwrap();
+        jobs.finish(&content_job.id, false, false);
+        let failed_content = jobs.get(&content_job.id).unwrap();
+        assert_eq!(failed_content.actions, vec!["retry"]);
+        assert_eq!(failed_content.content_files.unwrap().len(), 1);
+
         let json = serde_json::to_value(jobs.list().unwrap()).unwrap();
         assert!(json[0].get("instance").is_none());
         assert_eq!(json[0]["instanceId"], "instance");
         assert!(json[0].get("cancel").is_none());
+        assert!(json[2].get("content_files").is_none());
     }
 }

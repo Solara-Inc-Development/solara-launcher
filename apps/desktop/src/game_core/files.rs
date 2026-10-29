@@ -40,7 +40,7 @@ pub struct Files {
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
-fn link(meta: &std::fs::Metadata) -> bool {
+pub fn is_link(meta: &std::fs::Metadata) -> bool {
     #[cfg(windows)]
     {
         use std::os::windows::fs::MetadataExt;
@@ -50,6 +50,9 @@ fn link(meta: &std::fs::Metadata) -> bool {
     {
         meta.file_type().is_symlink()
     }
+}
+fn link(meta: &std::fs::Metadata) -> bool {
+    is_link(meta)
 }
 fn editable(path: &str) -> bool {
     Path::new(path)
@@ -108,6 +111,53 @@ pub async fn resolve(
                     && index + 1 == parts.len()
                     && e.kind() == std::io::ErrorKind::NotFound => {}
             Err(e) => return Err(e).context("Instance file or folder is unavailable"),
+        }
+    }
+    Ok(path)
+}
+/// Resolves a target file path under game/, safely creating missing parent directories while rejecting links.
+pub async fn resolve_create_parents(
+    store: &Instances,
+    id: &str,
+    relative: &str,
+) -> Result<PathBuf> {
+    let root = store.game_dir(id).await?;
+    if link(&tokio::fs::symlink_metadata(&root).await?) {
+        bail!("Unsafe instance game directory")
+    }
+    leaf_required(relative)?;
+    let mut path = root;
+    let parts: Vec<_> = relative.split('/').collect();
+    for (index, part) in parts.iter().enumerate() {
+        path.push(part);
+        if index + 1 < parts.len() {
+            match tokio::fs::symlink_metadata(&path).await {
+                Ok(meta) => {
+                    if link(&meta) {
+                        bail!("Linked files and folders cannot be managed here")
+                    }
+                    if !meta.is_dir() {
+                        bail!("A parent path is not a folder")
+                    }
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                    tokio::fs::create_dir(&path).await?;
+                }
+                Err(e) => return Err(e).context("Instance file or folder is unavailable"),
+            }
+        } else {
+            match tokio::fs::symlink_metadata(&path).await {
+                Ok(meta) => {
+                    if link(&meta) {
+                        bail!("Linked files and folders cannot be managed here")
+                    }
+                    if !meta.is_file() {
+                        bail!("A folder already exists at the target file path")
+                    }
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+                Err(e) => return Err(e).context("Instance file or folder is unavailable"),
+            }
         }
     }
     Ok(path)

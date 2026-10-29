@@ -109,9 +109,15 @@ async function searchContent(){
   finally{if(searchController===controller){searchController=null;searching.value=false}}
 }
 watch(contentType,()=>{searchController?.abort();searchController=null;searching.value=false;results.value=[];hasSearched.value=false;error.value=''});
+const eligibleTargetInstances=computed(()=>{const kind=selectedContent.value?.kind;if(!kind||kind==='modpack')return [];return kind==='mod'?instances.value.filter(i=>i.loader&&i.loader!=='vanilla'):instances.value});
 async function installContent(hit:any){
-  const kind=hit.project_type;if(kind!=='modpack'&&!instances.value.length){toast('Create an instance before adding mods or packs.');return}
-  selectedContent.value={project:hit,kind,instanceId:instances.value[0]?.id||'',versionId:'',versions:[],error:''};show('install-content');if(kind==='modpack')void loadPackVersions();
+  const kind=hit.project_type;
+  if(kind!=='modpack'){
+    const targets=kind==='mod'?instances.value.filter(i=>i.loader&&i.loader!=='vanilla'):instances.value;
+    if(!targets.length){toast(kind==='mod'?'Create a Fabric or Quilt instance before adding mods.':'Create an instance before adding mods or packs.');return}
+    selectedContent.value={project:hit,kind,instanceId:targets[0]?.id||'',versionId:'',versions:[],error:''};show('install-content');return;
+  }
+  selectedContent.value={project:hit,kind,instanceId:'',versionId:'',versions:[],error:''};show('install-content');void loadPackVersions();
 }
 async function loadPackVersions(){
   const draft=selectedContent.value;if(!draft||draft.kind!=='modpack')return;
@@ -123,7 +129,7 @@ async function loadPackVersions(){
 async function confirmInstall(){
   const draft=selectedContent.value;if(!draft||!engineReady.value)return;
   if(draft.kind==='modpack'&&!draft.versions.some((v:any)=>v.id===draft.versionId))return;
-  if(draft.kind!=='modpack'&&!instances.value.some(i=>i.id===draft.instanceId))return;
+  if(draft.kind!=='modpack'&&!eligibleTargetInstances.value.some(i=>i.id===draft.instanceId))return;
   await run(async()=>{await native('install_content',{instanceId:draft.kind==='modpack'?null:draft.instanceId,projectId:draft.project.project_id,contentType:draft.kind,versionId:draft.kind==='modpack'?draft.versionId:null});if(modal.value==='install-content'&&selectedContent.value===draft)close();toast(draft.kind==='modpack'?'Modpack installation queued. Follow its progress in Downloads.':'Content installation requested for your instance.');await pollLocal();if(draft.kind==='modpack'&&section.value==='explore')navigate('launcher')});
 }
 watch(modal,value=>{if(value!=='minecraft-login'&&minecraftPrompt.value){void native('cancel_minecraft_sign_in').catch(()=>{});minecraftPrompt.value=null;}if(value!=='install-content'){packController?.abort();packController=null;packVersionsLoading.value=false;selectedContent.value=null}});
@@ -209,7 +215,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
   <template v-if="modal==='changelog'"><div v-if="!publicReleases.length" class="empty"><GitBranch/><h3>The first release is taking shape</h3><p>No published release metadata is available. Release notes will appear here when the first verified build is published.</p></div><article v-for="r in publicReleases" :key="r.buildId" class="download-item"><h3>{{r.publicVersion}} · {{r.state}}</h3><p>{{r.notes}}</p><small class="muted">{{r.publishedAt?new Date(r.publishedAt).toLocaleDateString(): 'Not published'}}</small></article><p style="margin-top:18px">Updates download and install automatically when your games, servers and downloads are finished.</p></template>
   <template v-if="modal==='install-content'&&selectedContent"><div class="install-project"><span class="card-icon provider-icon"><img v-if="selectedContent.project.icon_url" :src="selectedContent.project.icon_url" alt="" referrerpolicy="no-referrer" @error="selectedContent.project.icon_url=null"><Package v-else/></span><div><h3>{{selectedContent.project.title}}</h3><p>{{selectedContent.kind==='modpack'?'A new instance with its own mods, settings and saves.':'Choose the instance you want to change.'}}</p></div></div><form @submit.prevent="confirmInstall">
     <template v-if="selectedContent.kind==='modpack'"><div v-if="packVersionsLoading" class="loading-caption" role="status"><i class="loading-ring" aria-hidden="true"></i>Loading modpack versions…</div><div v-else-if="selectedContent.error" class="banner error" role="alert">{{selectedContent.error}} <button type="button" class="text-link" @click="loadPackVersions">Try again</button></div><label v-else-if="selectedContent.versions.length" class="field">Modpack version<SelectControl v-model="selectedContent.versionId" label="Modpack version" :options="selectedContent.versions.map((v:any)=>({value:v.id,label:v.name+' · '+v.type,hint:'Minecraft '+v.games+(v.loaders?' · '+v.loaders:'')}))" searchable/></label><div v-else class="banner">No supported modpack files are available. <button type="button" class="text-link" @click="loadPackVersions">Refresh versions</button></div><p class="banner">This creates a separate instance. Your existing worlds and mods stay in place.</p></template>
-    <template v-else><label class="field">Install into<SelectControl v-model="selectedContent.instanceId" label="Install into" :options="instances.map(i=>({value:i.id,label:i.name,hint:i.gameVersion+' · '+i.loader}))"/></label><p style="font-size:12px">The launcher checks compatible versions and required dependencies before adding content.</p></template>
+    <template v-else><label class="field">Install into<SelectControl v-model="selectedContent.instanceId" label="Install into" :options="eligibleTargetInstances.map(i=>({value:i.id,label:i.name,hint:i.gameVersion+' · '+i.loader}))"/></label><p style="font-size:12px">The launcher checks compatible versions and required dependencies before adding content.</p></template>
     <div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||packVersionsLoading||(selectedContent.kind==='modpack'?!selectedContent.versionId:!selectedContent.instanceId)">{{busy?'Installing…':selectedContent.kind==='modpack'?'Install modpack':'Install content'}}</button></div></form></template>
   <template v-if="modal==='beta'"><p v-if="!entitlements.length" class="banner">Your account has no active beta features yet.</p><div v-for="e in entitlements" :key="e.feature" class="download-item"><h3>{{e.feature}}</h3><p>{{e.active?'Active':'Expired or revoked'}} · {{e.expiresAt||'No expiry reported'}}</p></div></template>
   <template v-if="modal==='about'"><p>Solara Launcher is an independent desktop app for Minecraft Java and Solara services. This testing build uses Solara's own local Minecraft core.</p><p style="font-size:12px">The interface and native source are GPL-3.0-only. Required library and font notices are included in LICENSE and THIRD_PARTY_NOTICES.md. Solara is not affiliated with Mojang or Microsoft. A licensed Minecraft Java account is required to play.</p></template>

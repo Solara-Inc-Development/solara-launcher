@@ -120,7 +120,12 @@ pub fn allowed_content_destination(path: &str) -> Result<()> {
     let Some((top, rest)) = path.split_once('/') else {
         bail!("Content file must be placed inside a supported instance folder")
     };
-    if rest.is_empty() || !matches!(top, "mods" | "resourcepacks" | "shaderpacks" | "config") {
+    if rest.is_empty()
+        || !matches!(
+            top,
+            "mods" | "resourcepacks" | "shaderpacks" | "config" | "datapacks" | "defaultconfigs"
+        )
+    {
         bail!("Content file target folder is not permitted")
     }
     if top == "mods" {
@@ -419,7 +424,7 @@ pub async fn verify_sha512(path: &Path, expected_sha512: &str, expected_size: u6
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
         Err(e) => return Err(e.into()),
     };
-    if !meta.is_file() || meta.file_type().is_symlink() || meta.len() != expected_size {
+    if !meta.is_file() || files::is_link(&meta) || meta.len() != expected_size {
         return Ok(false);
     }
     let mut file = tokio::fs::File::open(path).await?;
@@ -455,11 +460,8 @@ pub async fn install_files(
     for (idx, item) in files.iter().enumerate() {
         cancel.check()?;
         allowed_content_destination(&item.destination)?;
-        let target = files::resolve(store, instance_id, &item.destination, true).await?;
-        if let Some(parent) = target.parent() {
-            tokio::fs::create_dir_all(parent).await?;
-        }
-        let target_final = files::resolve(store, instance_id, &item.destination, true).await?;
+        let target_final =
+            files::resolve_create_parents(store, instance_id, &item.destination).await?;
         if download::verified_file(&target_final, &item.artifact).await?
             && verify_sha512(&target_final, &item.sha512, item.artifact.size).await?
         {
@@ -485,6 +487,8 @@ pub async fn install_files(
             let _ = tokio::fs::remove_file(&cached).await;
             bail!("Content download SHA-512 integrity check failed")
         }
+        let target_final =
+            files::resolve_create_parents(store, instance_id, &item.destination).await?;
         let temp =
             target_final.with_file_name(format!(".solara-content-{}.tmp", uuid::Uuid::new_v4()));
         let copy_res = tokio::fs::copy(&cached, &temp).await;
@@ -568,6 +572,17 @@ pub fn parse_mrpack(
         .context("Modpack dependencies missing")?;
     if deps.contains_key("forge") || deps.contains_key("neoforge") {
         bail!("This modpack requires Forge or NeoForge. Choose a Fabric or Quilt modpack in this build.")
+    }
+    for key in deps.keys() {
+        if !matches!(
+            key.as_str(),
+            "minecraft" | "fabric-loader" | "quilt-loader" | "forge" | "neoforge"
+        ) {
+            bail!("Modpack requires an unsupported dependency: {key}");
+        }
+    }
+    if deps.contains_key("fabric-loader") && deps.contains_key("quilt-loader") {
+        bail!("Modpack cannot require both Fabric and Quilt loaders simultaneously");
     }
     let game_version = deps
         .get("minecraft")
@@ -679,7 +694,7 @@ pub fn parse_mrpack(
 pub fn extract_mrpack_overrides(bytes: &[u8], game_dir: &Path) -> Result<()> {
     let (_, _, _, _, _) = parse_mrpack(bytes)?;
     let meta = std::fs::symlink_metadata(game_dir)?;
-    if !meta.is_dir() || meta.file_type().is_symlink() {
+    if !meta.is_dir() || files::is_link(&meta) {
         bail!("Unsafe instance game directory")
     }
     let mut zip = zip::ZipArchive::new(Cursor::new(bytes))?;
@@ -703,7 +718,7 @@ pub fn extract_mrpack_overrides(bytes: &[u8], game_dir: &Path) -> Result<()> {
                 if idx + 1 < parts.len() {
                     match std::fs::symlink_metadata(&cur) {
                         Ok(m) => {
-                            if !m.is_dir() || m.file_type().is_symlink() {
+                            if !m.is_dir() || files::is_link(&m) {
                                 bail!("Unsafe override parent folder")
                             }
                         }
@@ -713,7 +728,7 @@ pub fn extract_mrpack_overrides(bytes: &[u8], game_dir: &Path) -> Result<()> {
                         Err(e) => return Err(e.into()),
                     }
                 } else if let Ok(m) = std::fs::symlink_metadata(&cur) {
-                    if !m.is_file() || m.file_type().is_symlink() {
+                    if !m.is_file() || files::is_link(&m) {
                         bail!("Unsafe override target file")
                     }
                 }
@@ -727,17 +742,20 @@ pub fn extract_mrpack_overrides(bytes: &[u8], game_dir: &Path) -> Result<()> {
                 bail!("Modpack override entry size mismatch")
             }
             let temp = cur.with_file_name(format!(".solara-override-{}.tmp", uuid::Uuid::new_v4()));
-            {
+            let write_res = (|| -> Result<()> {
                 let mut f = std::fs::OpenOptions::new()
                     .write(true)
                     .create_new(true)
                     .open(&temp)?;
                 f.write_all(&content)?;
                 f.sync_all()?;
-            }
-            if let Err(e) = std::fs::rename(&temp, &cur) {
+                drop(f);
+                std::fs::rename(&temp, &cur)?;
+                Ok(())
+            })();
+            if let Err(e) = write_res {
                 let _ = std::fs::remove_file(&temp);
-                return Err(e.into());
+                return Err(e);
             }
         }
     }
@@ -856,7 +874,7 @@ pub async fn apply_modpack_if_present(
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
         Err(e) => return Err(e.into()),
     };
-    if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > MRPACK_LIMIT as u64 {
+    if !meta.is_file() || files::is_link(&meta) || meta.len() > MRPACK_LIMIT as u64 {
         bail!("Invalid local modpack archive")
     }
     let bytes = tokio::fs::read(&pack_path).await?;
@@ -920,6 +938,7 @@ mod tests {
         assert!(allowed_content_destination("mods/fabric-api.jar").is_ok());
         assert!(allowed_content_destination("resourcepacks/pack.zip").is_ok());
         assert!(allowed_content_destination("shaderpacks/shader.zip").is_ok());
+        assert!(allowed_content_destination("datapacks/pack.zip").is_ok());
         for bad in [
             "mods/../escape.jar",
             "mods/nested/mod.jar",
@@ -985,5 +1004,147 @@ mod tests {
         let traversal_override =
             build_mrpack_fixture(&valid_index, &[("overrides/../escape.txt", b"escape")]);
         assert!(parse_mrpack(&traversal_override).is_err());
+
+        let mut unknown_dep = valid_index.clone();
+        unknown_dep["dependencies"]["liteloader"] = json!("1.0");
+        assert!(parse_mrpack(&build_mrpack_fixture(&unknown_dep, &[])).is_err());
+
+        let mut dual_loader = valid_index.clone();
+        dual_loader["dependencies"]["quilt-loader"] = json!("0.30.1");
+        assert!(parse_mrpack(&build_mrpack_fixture(&dual_loader, &[])).is_err());
+    }
+
+    #[tokio::test]
+    async fn install_files_and_apply_modpack_create_missing_folders_and_verify_hashes() {
+        let root =
+            std::env::temp_dir().join(format!("solara-content-install-{}", uuid::Uuid::new_v4()));
+        let store = Instances::new(root.join("instances"));
+        let cache_dir = root.join("cache");
+        let cache = FileCache::new(cache_dir.clone()).unwrap();
+        let inst = store
+            .create(
+                "Fresh Quilt Instance".into(),
+                "1.21.1".into(),
+                "quilt".into(),
+                Some("0.30.1".into()),
+                4096,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+
+        let mod_bytes = b"verified-jar-payload";
+        let mut s1 = sha1_smol::Sha1::new();
+        s1.update(mod_bytes);
+        let mod_sha1 = s1.digest().to_string();
+        let mod_sha512 = format!("{:x}", Sha512::digest(mod_bytes));
+
+        // Seed the verified cache with our exact SHA-1/SHA-512 payload.
+        let shard = cache_dir.join(&mod_sha1[..2]);
+        tokio::fs::create_dir_all(&shard).await.unwrap();
+        tokio::fs::write(shard.join(&mod_sha1), mod_bytes)
+            .await
+            .unwrap();
+
+        let planned = vec![VerifiedFile {
+            destination: "mods/test-mod.jar".into(),
+            artifact: Artifact {
+                url: "https://cdn.modrinth.com/data/test/versions/1/test-mod.jar".into(),
+                sha1: mod_sha1.clone(),
+                size: mod_bytes.len() as u64,
+                path: Some("mods/test-mod.jar".into()),
+            },
+            sha512: mod_sha512.clone(),
+        }];
+
+        // On a newly created instance, game/mods does not exist yet; install_files must create it safely.
+        install_files(
+            &store,
+            &cache,
+            &inst.id,
+            &planned,
+            &Cancellation::default(),
+            |_| {},
+        )
+        .await
+        .unwrap();
+
+        let installed_mod = store
+            .game_dir(&inst.id)
+            .await
+            .unwrap()
+            .join("mods/test-mod.jar");
+        assert_eq!(tokio::fs::read(&installed_mod).await.unwrap(), mod_bytes);
+
+        // Also test apply_modpack_if_present on a brand new instance where game/mods and game/config/nested do not exist.
+        let pack_inst = store
+            .create(
+                "Fresh Modpack Instance".into(),
+                "1.21.1".into(),
+                "quilt".into(),
+                Some("0.30.1".into()),
+                4096,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+        let index = json!({
+            "formatVersion": 1,
+            "game": "minecraft",
+            "name": "Fresh Modpack",
+            "dependencies": {
+                "minecraft": "1.21.1",
+                "quilt-loader": "0.30.1"
+            },
+            "files": [{
+                "path": "mods/pack-mod.jar",
+                "hashes": {
+                    "sha1": mod_sha1,
+                    "sha512": mod_sha512
+                },
+                "env": { "client": "required" },
+                "downloads": ["https://cdn.modrinth.com/data/test/versions/1/pack-mod.jar"],
+                "fileSize": mod_bytes.len()
+            }]
+        });
+        let mrpack = build_mrpack_fixture(
+            &index,
+            &[(
+                "overrides/config/nested/pack.toml",
+                br#"enabled = true"#,
+            )],
+        );
+        tokio::fs::write(
+            store.path(&pack_inst.id).unwrap().join("modpack.mrpack"),
+            &mrpack,
+        )
+        .await
+        .unwrap();
+
+        apply_modpack_if_present(
+            &store,
+            &cache,
+            &pack_inst.id,
+            &Cancellation::default(),
+            |_| {},
+        )
+        .await
+        .unwrap();
+
+        let pack_game = store.game_dir(&pack_inst.id).await.unwrap();
+        assert_eq!(
+            tokio::fs::read(pack_game.join("mods/pack-mod.jar"))
+                .await
+                .unwrap(),
+            mod_bytes
+        );
+        assert_eq!(
+            tokio::fs::read_to_string(pack_game.join("config/nested/pack.toml"))
+                .await
+                .unwrap(),
+            "enabled = true"
+        );
+
+        let _ = tokio::fs::remove_dir_all(&root).await;
     }
 }

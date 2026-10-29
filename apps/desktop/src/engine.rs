@@ -506,9 +506,19 @@ pub async fn install_content(
         version_id.as_deref(),
     )
     .await?;
+    queue_content_install(id, format!("{label} for {}", instance.name), planned).await?;
+    Ok(())
+}
+async fn queue_content_install(
+    id: String,
+    job_name: String,
+    planned: Vec<crate::game_core::content::VerifiedFile>,
+) -> Result<String> {
+    let engine = get().await?;
     let job = engine
         .jobs
-        .begin_kind(&id, &format!("{label} for {}", instance.name), "content")?;
+        .begin_content(&id, &job_name, planned.clone())?;
+    let job_id = job.id.clone();
     tokio::spawn(async move {
         let permit = tokio::select! {
             _=job.cancel.cancelled()=>{engine.jobs.finish(&job.id,false,true);return},
@@ -535,7 +545,7 @@ pub async fn install_content(
             .jobs
             .finish(&job.id, result.is_ok(), job.cancel.check().is_err());
     });
-    Ok(())
+    Ok(job_id)
 }
 pub async fn download_action(id: &str, action: &str) -> Result<()> {
     let engine = get().await?;
@@ -544,10 +554,21 @@ pub async fn download_action(id: &str, action: &str) -> Result<()> {
         "cancel" if matches!(job.status.as_str(), "queued" | "running") => job.cancel.cancel(),
         "retry" if matches!(job.status.as_str(), "failed" | "cancelled") => {
             let record = engine.instances.get(&job.instance).await?;
-            if record.state == "installed" {
-                queue_java(record.id).await?;
-            } else {
-                queue_install(record.id, record.name).await?;
+            match job.kind.as_str() {
+                "java" => {
+                    queue_java(record.id).await?;
+                }
+                "install" => {
+                    queue_install(record.id, record.name).await?;
+                }
+                "content" => {
+                    let files = job
+                        .content_files
+                        .context("This content download cannot be retried")?;
+                    assert_writable(&record.id).await?;
+                    queue_content_install(record.id, job.name, files).await?;
+                }
+                _ => bail!("This download action is not available"),
             }
         }
         _ => bail!("This download action is not available"),
