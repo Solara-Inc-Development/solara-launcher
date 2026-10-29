@@ -34,5 +34,6 @@
     "sourceCommit": "8326bb7a32da40ecb5db7725416a545de72eee1c",
     "staticVerification": "Installer SHA256, updater signature/version, exact source privacy/version, x64 PE and complete official NSIS bundle-marker transformation passed",
     "windowsDeviceAcceptance": false
-  }
+  },
+  "distributionStatus": "withdrawn-pending-antivirus-investigation"
 }
