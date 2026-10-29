@@ -24,7 +24,7 @@ test('overlaps are deterministic; disabled and regional exclusions work',()=>{
  assert.equal(chooseEvent([{...f('a'),enabled:false}]),NEUTRAL);
 });
 test('versions increment and compare numerically across 09 to 10',()=>{assert.equal(publicVersion(9),'V-0.0.09');assert.equal(publicVersion(10),'V-0.0.10');assert.equal(buildNumber('V-0.0.100'),100);assert.throws(()=>publicVersion(0));});
-const release=n=>({state:'published',platform:'windows',arch:'x86_64',verifiedAt:'2026-10-28T00:00Z',signature:'test-signature',size:123456,sha256:'a'.repeat(64),publicVersion:publicVersion(n),internalVersion:`0.0.${n}`,filename:`Solara-Launcher-${publicVersion(n)}.exe`,url:`https://launcher.solara-inc.in/builds/Solara-Launcher-${publicVersion(n)}.exe`});
+const release=n=>({state:'published',platform:'windows',arch:'x86_64',verifiedAt:'2026-10-28T00:00Z',signature:'test-signature',size:123456,sha256:'a'.repeat(64),publicVersion:publicVersion(n),internalVersion:`0.0.${n}`,filename:`Solara-Launcher-${publicVersion(n)}.exe`,url:`https://app.solara-inc.in/builds/Solara-Launcher-${publicVersion(n)}.exe`});
 test('downloads require real verified metadata and hide withdrawn or incomplete releases',()=>{assert.equal(latestRelease([release(9),release(10)]).publicVersion,'V-0.0.10');for(const r of [{...release(1),state:'withdrawn'},{...release(1),signature:null},{...release(1),sha256:'x'},{...release(1),url:'javascript:alert(1)'},{...release(1),filename:'fake.exe'}])assert.equal(isDownloadable(r),false);});
 test('cache handles outages, corruption, expiry, rate limits and never sends identity',async()=>{
  let now=100000;const storage={value:null,getItem(){return this.value},setItem(k,v){this.value=v}};let requests=0;
@@ -32,4 +32,12 @@ test('cache handles outages, corruption, expiry, rate limits and never sends ide
  assert.equal((await c.refresh()).state,'connected');c.fetcher=async()=>{throw Error('offline')};assert.equal((await c.refresh()).state,'cached');
  now+=20000;c.fetcher=async()=>new Response('',{status:429,headers:{'Retry-After':'9999999'}});const r=await c.refresh();assert.equal(r.state,'rate-limited');assert.equal(r.retryAt-now,300000);assert.equal((await c.refresh()).state,'rate-limited');
  now+=8*86400000;assert.equal(c.read(),null);storage.value='bad';assert.equal(c.read(),null);assert.equal(requests,1);
+});
+
+// Stable public filename, immutable internal paths, and legacy archive compatibility.
+test('stable installer names remain bound to their version directory',()=>{
+ const r={...release(1),filename:'solaralauncher.exe',artifactPath:'V-0.0.01/solaralauncher.exe',url:'https://app.solara-inc.in/builds/V-0.0.01/solaralauncher.exe'};
+ assert.equal(isDownloadable(r),true);
+ for(const bad of [{...r,artifactPath:'../solaralauncher.exe'},{...r,url:'https://app.solara-inc.in/builds/V-0.0.02/solaralauncher.exe'},{...r,artifactPath:'V-0.0.02/solaralauncher.exe'},{...r,publicVersion:'V-0.0.1'}])assert.equal(isDownloadable(bad),false);
+ assert.equal(isDownloadable(release(1)),true);
 });

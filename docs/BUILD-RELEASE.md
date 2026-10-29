@@ -1,6 +1,6 @@
 # Builds, installation and release archive
 
-Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/Solara-Launcher-V-0.0.01.exe`. Increment numerically; `09` → `10`. Old executables are immutable. This workspace currently has no generated installer; do not rename another file to `.exe` or claim it is signed.
+Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10`. Old executables are immutable. This workspace currently has no generated installer; do not rename another file to `.exe` or claim it is signed.
 
 ## Before a public build
 
@@ -58,3 +58,13 @@ Tauri updater public-key verification is mandatory. Missing keys produce a usefu
 NSIS architecture evidence: the [pinned Tauri CLI 2.12.4 bundler](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle/windows/nsis/mod.rs) lists x86 Unicode stubs/plugins. The official NSIS 3.13 archive was checked against that source's checksum, and its LZMA stub reports machine `0x14c` (x86). This toolchain inspection does not constitute a built Solara executable.
 
 `npm run test:csp` exercises the desktop image policy in Chromium with labelled fixtures. It permits local images and the exact validated Modrinth CDN, rejects untrusted origins before requests, and checks no-referrer behavior. Installed WebView2 acceptance remains separate.
+
+## Install once and automatic updates (latest owner instruction)
+
+The website always downloads `solaralauncher.exe`; the installed binary uses that name too. Internal versions still increase, with immutable server artifacts in `builds/<publicVersion>/solaralauncher.exe`. Old versioned-filename archives remain readable. Signature, version, checksum and path validation still apply. Public downloads remain unavailable until real verified bytes are published.
+
+Packaged Windows builds check automatically after local initialization and every 15 minutes. The current implementation downloads the full signed Tauri/NSIS update package; it does not implement delta/changed-files-only transfers. Verified bytes may be cached and reverified against fresh update metadata before installation. No new installer must be manually downloaded by the user. Quiet current-user installation replaces the app and relaunches it.
+
+Updates wait while Minecraft, local servers, downloads (including paused/unknown operations), or a mutating native command are active. A native read/write gate protects the final idle check/installation against concurrent launch/setup commands. Missing signing configuration and offline/failed checks leave the current app usable and retry later. Development and non-Windows builds do not replace themselves. Game/world/configuration/credential data are outside the install directory.
+
+Automatic apply/relaunch, cache recovery, upgrade/uninstall and preservation of real user data still need acceptance with two genuinely signed Windows releases. This source change does not clear the existing licence/signing/real-installer blockers or claim a shipped updater.

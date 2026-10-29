@@ -1,0 +1,7 @@
+{
+  "status": "in-progress",
+  "direction": "Independently implement the local Minecraft engine. Modrinth is only a UI reference.",
+  "inheritedEngineRemoved": false,
+  "windowsAcceptance": false,
+  "notes": "Official metadata/integrity foundation started. Theseus bridge still requires actual replacement; no custom-core release is permitted yet."
+}

@@ -47,7 +47,7 @@ s=s.replace('SigningKey::from_pkcs8_pem(&x.private_key)','SigningKey::from_pkcs8
 s=s.replace('let display_claims = serde_json::to_string(&self.token.display_claims)?;','let key = crate::solara_vault::put("device:private", &key)?;\n        let protected_device_token = crate::solara_vault::put("device:token", &self.token.token)?;\n        let display_claims = serde_json::to_string(&self.token.display_claims)?;')
 s=s.replace('            self.token.token,\n            display_claims,','            protected_device_token,\n            display_claims,')
 s=s.replace('const MICROSOFT_CLIENT_ID: &str = "00000000402b5328";','const MICROSOFT_CLIENT_ID: &str = match option_env!("SOLARA_MICROSOFT_CLIENT_ID") { Some(id) => id, None => "" };')
-s=s.replace('Modrinth App (support@modrinth.com; https://modrinth.com/app)','Solara Launcher (https://launcher.solara-inc.in)')
+s=s.replace('Modrinth App (support@modrinth.com; https://modrinth.com/app)','Solara Launcher (https://app.solara-inc.in)')
 # try_fold constructs credentials synchronously; make fallible vault reads inside its async block.
 s=s.replace('let mut credentials = Self {\n                offline_profile:', 'let access_token = crate::solara_vault::get(&x.access_token);\n            let refresh_token = crate::solara_vault::get(&x.refresh_token);\n            async move {\n            let mut credentials = Self {\n                offline_profile:',1)
 # This replacement is scoped to the get_all closure only in this pinned source.

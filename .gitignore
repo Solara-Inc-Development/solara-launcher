@@ -25,3 +25,6 @@ checks/*.mp4
 checks/recordings/
 checks/previous-design/
 checks/rejected-portal/
+
+builds/**/*.exe
+builds/**/*.sig

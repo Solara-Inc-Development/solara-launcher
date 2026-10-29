@@ -193,7 +193,7 @@ impl LocalServers {
     }
     async fn install(&self, c: &ServerConfig, dir: &Path) -> Result<()> {
         let http = reqwest::Client::builder()
-            .user_agent("SolaraLauncher/0.0.1 (https://launcher.solara-inc.in)")
+            .user_agent("SolaraLauncher/0.0.1 (https://app.solara-inc.in)")
             .timeout(std::time::Duration::from_secs(45))
             .redirect(reqwest::redirect::Policy::none())
             .build()?;

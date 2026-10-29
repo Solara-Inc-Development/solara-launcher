@@ -217,7 +217,7 @@ pub async fn install_content(
             .get(format!("https://api.modrinth.com/v2/version/{version_id}"))
             .header(
                 "User-Agent",
-                "SolaraLauncher/0.0.1 (https://launcher.solara-inc.in)",
+                "SolaraLauncher/0.0.1 (https://app.solara-inc.in)",
             )
             .send()
             .await?

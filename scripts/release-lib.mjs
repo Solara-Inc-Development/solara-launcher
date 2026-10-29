@@ -7,7 +7,7 @@ export async function reserveBuild(dir,{commit='unknown',minimum=1}={}){
  try{let registry={schemaVersion:1,allocations:[]};try{registry=JSON.parse(await readFile(path.join(dir,'allocations.json'),'utf8'))}catch(e){if(e.code!=='ENOENT')throw e}
  const existing=await readdir(dir);const consumed=existing.flatMap(name=>{const m=/^(V-0\.0\.\d+)\.reservation\.json$/.exec(name);return m?[buildNumber(m[1])+1]:[]});
  let n=Math.max(minimum,...consumed,...registry.allocations.map(a=>buildNumber(a.publicVersion)+1));if(!Number.isSafeInteger(n))throw Error('Invalid build counter');
- const reservation={buildId:crypto.randomUUID(),publicVersion:publicVersion(n),internalVersion:`0.0.${n}`,filename:`Solara-Launcher-${publicVersion(n)}.exe`,commit,allocatedAt:new Date().toISOString(),state:'allocated'};
+ const reservation={buildId:crypto.randomUUID(),publicVersion:publicVersion(n),internalVersion:`0.0.${n}`,filename:'solaralauncher.exe',artifactPath:`${publicVersion(n)}/solaralauncher.exe`,commit,allocatedAt:new Date().toISOString(),state:'allocated'};
  await writeFile(path.join(dir,reservation.publicVersion+'.reservation.json'),JSON.stringify(reservation,null,2),{flag:'wx'});registry.allocations.push(reservation);const temp=path.join(dir,'.allocations.'+reservation.buildId+'.tmp');await writeFile(temp,JSON.stringify(registry,null,2));await rename(temp,path.join(dir,'allocations.json'));return reservation;
  }finally{await guard.close();await unlink(lock)}
 }

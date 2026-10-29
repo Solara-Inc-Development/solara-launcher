@@ -12,7 +12,10 @@ fn err(e: impl std::fmt::Display) -> String {
 }
 #[tauri::command]
 async fn initialize_launcher() -> Result<(), String> {
-    engine::initialize().await.map_err(err)
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::initialize().await.map_err(err)?;
+    crate::app_updates::READY.store(true,Ordering::SeqCst);
+    Ok(())
 }
 #[tauri::command]
 async fn launcher_snapshot() -> Result<Value, String> {
@@ -29,16 +32,19 @@ async fn create_instance(
     loader: String,
     loader_version: String,
 ) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::create_instance(name, game_version, loader, loader_version)
         .await
         .map_err(err)
 }
 #[tauri::command]
 async fn launch_instance(id: String) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::launch(id).await.map_err(err)
 }
 #[tauri::command]
 async fn stop_instance(id: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::stop(id).await.map_err(err)
 }
 #[tauri::command]
@@ -48,6 +54,7 @@ async fn edit_instance(
     memory: u32,
     java_path: String,
 ) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::edit(id, name, memory, java_path).await.map_err(err)
 }
 #[tauri::command]
@@ -68,12 +75,14 @@ async fn install_content(
     content_type: String,
     version_id: Option<String>,
 ) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::install_content(instance_id, project_id, content_type, version_id)
         .await
         .map_err(err)
 }
 #[tauri::command]
 async fn download_action(id: String, action: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::download_action(&id, &action).await.map_err(err)
 }
 #[tauri::command]
@@ -86,6 +95,7 @@ async fn save_launcher_settings(
     java_path: String,
     discord: bool,
 ) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::save_preferences(memory, java_path, discord)
         .await
         .map_err(err)
@@ -99,12 +109,14 @@ async fn create_local_server(
     port: u16,
     eula: bool,
 ) -> Result<String, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::create_local(name, version, java_path, memory, port, eula)
         .await
         .map_err(err)
 }
 #[tauri::command]
 async fn local_server_action(id: String, action: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::get()
         .await
         .map_err(err)?
@@ -125,6 +137,7 @@ async fn local_server_logs(id: String) -> Result<String, String> {
 }
 #[tauri::command]
 async fn local_server_command(id: String, command: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::get()
         .await
         .map_err(err)?
@@ -139,6 +152,7 @@ async fn solara_profile() -> Result<Option<Value>, String> {
 }
 #[tauri::command]
 async fn solara_sign_in(app: tauri::AppHandle) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     identity::sign_in(|url| {
         app.opener().open_url(url, None::<String>)?;
         Ok(())
@@ -148,6 +162,7 @@ async fn solara_sign_in(app: tauri::AppHandle) -> Result<Value, String> {
 }
 #[tauri::command]
 async fn solara_sign_out() -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     identity::sign_out().await.map_err(err)
 }
 #[tauri::command]
@@ -160,6 +175,7 @@ async fn solara_request(
 }
 #[tauri::command]
 async fn minecraft_sign_out(id: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     let uuid = uuid::Uuid::parse_str(&id).map_err(err)?;
     theseus::minecraft_auth::remove_user(uuid)
         .await
@@ -174,12 +190,14 @@ async fn minecraft_sign_out(id: String) -> Result<(), String> {
 }
 #[tauri::command]
 async fn select_minecraft_account(id: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     theseus::minecraft_auth::set_default_user(uuid::Uuid::parse_str(&id).map_err(err)?)
         .await
         .map_err(err)
 }
 #[tauri::command]
 async fn minecraft_sign_in(app: tauri::AppHandle) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
     if !cfg!(windows) {
         return Err("Minecraft authentication requires Windows secure credential storage in this first release".into());
     };
@@ -285,17 +303,7 @@ async fn check_update(app: tauri::AppHandle) -> Result<Value, String> {
     })
 }
 #[tauri::command]
-async fn install_update(app: tauri::AppHandle) -> Result<(), String> {
-    let update = updater(&app)?
-        .check()
-        .await
-        .map_err(err)?
-        .ok_or("No verified update available")?;
-    update
-        .download_and_install(|_, _| {}, || {})
-        .await
-        .map_err(err)
-}
+fn app_update_status() -> Value { crate::app_updates::snapshot() }
 pub fn run() {
     let closing = Arc::new(AtomicBool::new(false));
     let presence_stop = Arc::new(AtomicBool::new(false));
@@ -329,7 +337,7 @@ pub fn run() {
             open_external,
             window_action,
             check_update,
-            install_update
+            app_update_status
         ]);
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -361,6 +369,7 @@ pub fn run() {
         })
         .build(tauri::generate_context!())
         .expect("Could not initialize Solara desktop");
+    crate::app_updates::start(app.handle().clone());
     let handle = app.handle().clone();
     tauri::async_runtime::spawn(async move {
         use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};

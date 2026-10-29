@@ -40,6 +40,8 @@ jobs:
           import {readFileSync} from 'node:fs';
           const review=JSON.parse(readFileSync('docs/upstream-license-review.json','utf8'));
           const missing=[];
+          const migration=JSON.parse(readFileSync('docs/engine-migration.json','utf8'));
+          if(migration.status!=='ready'||migration.inheritedEngineRemoved!==true||migration.windowsAcceptance!==true)missing.push('Complete independent engine replacement and Windows acceptance.');
           if(review.status!=='cleared'||!review.evidence?.length)missing.push('Resolve and document the upstream dependency licence review.');
           for(const key of ['TAURI_SIGNING_PRIVATE_KEY','SOLARA_UPDATER_PUBLIC_KEY'])if(!process.env[key])missing.push(`Configure ${key} in repository secrets/variables.`);
           if(missing.length){for(const message of missing)console.error(message);process.exit(1)}
@@ -68,7 +70,7 @@ jobs:
         run: |
           $installers = @(Get-ChildItem target/release/bundle/nsis/*.exe)
           if ($installers.Count -ne 1) { throw "Expected exactly one generated NSIS installer" }
-          node scripts/release.mjs stage $installers[0].FullName CHANGELOG.md target/release/Solara-Launcher.exe
+          node scripts/release.mjs stage $installers[0].FullName CHANGELOG.md target/release/solaralauncher.exe
       - name: Preserve completed builds and consumed version reservation
         if: always()
         uses: actions/upload-artifact@v4

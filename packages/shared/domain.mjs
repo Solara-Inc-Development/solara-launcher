@@ -21,9 +21,17 @@ export function buildNumber(version) {
   if(!m||!Number.isSafeInteger(Number(m[1]))||Number(m[1])<1) throw new Error('Invalid public version');
   return Number(m[1]);
 }
+export function releaseArtifactPath(r) {
+  const version=publicVersion(buildNumber(r.publicVersion));
+  if(r.publicVersion!==version)throw new Error('Noncanonical version');
+  const expected=r.filename==='solaralauncher.exe'?`${version}/solaralauncher.exe`:`Solara-Launcher-${version}.exe`;
+  if(r.filename!=='solaralauncher.exe' && r.filename!==expected)throw new Error('Invalid release filename');
+  if(r.artifactPath!==undefined && r.artifactPath!==expected)throw new Error('Invalid artifact path');
+  return expected;
+}
 export function isDownloadable(r) {
   if(!r || r.state!=='published'||r.platform!=='windows'||r.arch!=='x86_64'||!r.verifiedAt||!Number.isFinite(Date.parse(r.verifiedAt))||!r.signature || !/^[a-f0-9]{64}$/i.test(r.sha256||'') || !Number.isSafeInteger(r.size)||r.size<1024 || !safeHttps(r.url)) return false;
-  try {const n=buildNumber(r.publicVersion);return r.internalVersion===`0.0.${n}` && r.filename===`Solara-Launcher-${publicVersion(n)}.exe` && new URL(r.url).pathname.endsWith('/'+r.filename);}catch{return false;}
+  try {const n=buildNumber(r.publicVersion);return r.internalVersion===`0.0.${n}` && new URL(r.url).pathname.endsWith('/'+releaseArtifactPath(r));}catch{return false;}
 }
 export function latestRelease(releases) {
   return (releases||[]).filter(isDownloadable).sort((a,b)=>buildNumber(b.publicVersion)-buildNumber(a.publicVersion))[0] || null;
