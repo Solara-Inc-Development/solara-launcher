@@ -1,0 +1,1820 @@
+{
+  "schemaVersion": 1,
+  "timezone": "Asia/Kolkata",
+  "sources": [
+    {
+      "name": "Government of India — 2026 holidays",
+      "url": "https://www.cgca.gov.in/ccajh/list-of-holiday"
+    },
+    {
+      "name": "Consulate General of India — 2027 holidays",
+      "url": "https://www.cgibelfast.gov.in/page/list-of-holidays/"
+    },
+    {
+      "name": "Hong Kong Government — 2026 lunar calendar cross-check",
+      "url": "https://www.info.gov.hk/gia/general/202505/16/P2025051300353.htm"
+    }
+  ],
+  "events": [
+    {
+      "id": "none",
+      "name": "Classic",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 0,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#a5b4fc",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Classic",
+        "copy": "The original oiled finish."
+      },
+      "effects": [
+        "none"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "spring",
+      "name": "Spring / Vasant",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f472b6",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Spring / Vasant",
+        "copy": "Blooming corners, pink controls and floating petals."
+      },
+      "effects": [
+        "petals"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-02-28T18:30:00Z",
+          "end": "2026-04-30T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2027-02-28T18:30:00Z",
+          "end": "2027-04-30T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "summer",
+      "name": "Summer / Grishma",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#a5b4fc",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Summer / Grishma",
+        "copy": "Your selected palette with the classic finish."
+      },
+      "effects": [
+        "none"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-04-30T18:30:00Z",
+          "end": "2026-06-30T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2027-04-30T18:30:00Z",
+          "end": "2027-06-30T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "monsoon",
+      "name": "Monsoon / Varsha",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#8ec6c0",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Monsoon / Varsha",
+        "copy": "Rain-washed sage, glass droplets and soft ripples."
+      },
+      "effects": [
+        "rain"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-06-30T18:30:00Z",
+          "end": "2026-08-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2027-06-30T18:30:00Z",
+          "end": "2027-08-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "autumn",
+      "name": "Autumn / Sharad",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#d09b7f",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Autumn / Sharad",
+        "copy": "Terracotta satin and gently drifting ginkgo leaves."
+      },
+      "effects": [
+        "leaves"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-08-31T18:30:00Z",
+          "end": "2026-10-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2027-08-31T18:30:00Z",
+          "end": "2027-10-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "early_winter",
+      "name": "Early winter / Hemant",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#b5b0d8",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Early winter / Hemant",
+        "copy": "Lavender dusk, pearl mist and floating starlight."
+      },
+      "effects": [
+        "mist"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-10-31T18:30:00Z",
+          "end": "2026-12-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2027-10-31T18:30:00Z",
+          "end": "2027-12-31T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "winter",
+      "name": "Winter / Shishir",
+      "category": "season",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 10,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#9fc0db",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Winter / Shishir",
+        "copy": "Ice-blue satin, soft frost and delicate snow crystals."
+      },
+      "effects": [
+        "snow"
+      ],
+      "occurrences": [
+        {
+          "start": "2025-12-31T18:30:00Z",
+          "end": "2026-02-28T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        },
+        {
+          "start": "2026-12-31T18:30:00Z",
+          "end": "2027-02-28T18:30:00Z",
+          "source": "Existing Solara India seasonal policy",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "diwali",
+      "name": "Diwali",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 95,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fbbf24",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Diwali",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "diya"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-11-07T18:30:00Z",
+          "end": "2026-11-08T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-10-28T18:30:00Z",
+          "end": "2027-10-29T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "holi",
+      "name": "Holi",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 90,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f472b6",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Holi",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "confetti"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-03-03T18:30:00Z",
+          "end": "2026-03-04T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-03-22T18:30:00Z",
+          "end": "2027-03-23T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "navratri",
+      "name": "Sharad Navratri",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f472b6",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Sharad Navratri",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "garland"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "durga_puja",
+      "name": "Durga Puja",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 80,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb7185",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Durga Puja",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flower"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "dussehra",
+      "name": "Dussehra",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 85,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Dussehra",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "spark"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-10-19T18:30:00Z",
+          "end": "2026-10-20T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-10-08T18:30:00Z",
+          "end": "2027-10-09T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "ganesh_chaturthi",
+      "name": "Ganesh Chaturthi",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 75,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Ganesh Chaturthi",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flower"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-09-13T18:30:00Z",
+          "end": "2026-09-14T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "janmashtami",
+      "name": "Janmashtami",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 75,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#2dd4bf",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Janmashtami",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "feather"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-09-03T18:30:00Z",
+          "end": "2026-09-04T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-08-24T18:30:00Z",
+          "end": "2027-08-25T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "maha_shivratri",
+      "name": "Maha Shivratri",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#a78bfa",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Maha Shivratri",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "crescent"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-02-14T18:30:00Z",
+          "end": "2026-02-15T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "ram_navami",
+      "name": "Ram Navami",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Ram Navami",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flower"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-03-25T18:30:00Z",
+          "end": "2026-03-26T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "raksha_bandhan",
+      "name": "Raksha Bandhan",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb7185",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Raksha Bandhan",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "rosette"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-08-27T18:30:00Z",
+          "end": "2026-08-28T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "onam",
+      "name": "Onam",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 75,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#facc15",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Onam",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flower"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-08-25T18:30:00Z",
+          "end": "2026-08-26T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "pongal",
+      "name": "Pongal",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#a3e635",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Pongal",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "sun"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-01-13T18:30:00Z",
+          "end": "2026-01-17T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 4
+    },
+    {
+      "id": "makar_sankranti",
+      "name": "Makar Sankranti",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#38bdf8",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Makar Sankranti",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "kite"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-01-13T18:30:00Z",
+          "end": "2026-01-14T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "lohri",
+      "name": "Lohri",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Lohri",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flame"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-01-12T18:30:00Z",
+          "end": "2026-01-13T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-01-12T18:30:00Z",
+          "end": "2027-01-13T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "01-13",
+      "durationDays": 1
+    },
+    {
+      "id": "vaisakhi",
+      "name": "Vaisakhi / Vishu",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#facc15",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Vaisakhi / Vishu",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "flower"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-04-13T18:30:00Z",
+          "end": "2026-04-14T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "ugadi",
+      "name": "Ugadi / Gudi Padwa",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#34d399",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Ugadi / Gudi Padwa",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "garland"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-03-18T18:30:00Z",
+          "end": "2026-03-19T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "chhath",
+      "name": "Chhath Puja",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 75,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fbbf24",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Chhath Puja",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "sun"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-11-14T18:30:00Z",
+          "end": "2026-11-15T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "guru_nanak",
+      "name": "Guru Nanak Jayanti",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fbbf24",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Guru Nanak Jayanti",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "candle"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-11-23T18:30:00Z",
+          "end": "2026-11-24T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-11-13T18:30:00Z",
+          "end": "2027-11-14T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "republic_day",
+      "name": "India Republic Day",
+      "category": "national",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 80,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "India Republic Day",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "tricolour"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-01-25T18:30:00Z",
+          "end": "2026-01-26T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-01-25T18:30:00Z",
+          "end": "2027-01-26T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "01-26",
+      "durationDays": 1
+    },
+    {
+      "id": "independence_day",
+      "name": "India Independence Day",
+      "category": "national",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 80,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#34d399",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "India Independence Day",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "tricolour"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-08-14T18:30:00Z",
+          "end": "2026-08-15T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-08-14T18:30:00Z",
+          "end": "2027-08-15T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "08-15",
+      "durationDays": 1
+    },
+    {
+      "id": "eid_fitr",
+      "name": "Eid al-Fitr",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 90,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#34d399",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Eid al-Fitr",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "crescent"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-03-20T18:30:00Z",
+          "end": "2026-03-21T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-03-09T18:30:00Z",
+          "end": "2027-03-10T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "eid_adha",
+      "name": "Eid al-Adha",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 85,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#2dd4bf",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Eid al-Adha",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "crescent"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-05-26T18:30:00Z",
+          "end": "2026-05-27T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgca.gov.in/ccajh/list-of-holiday",
+          "verified": true
+        },
+        {
+          "start": "2027-05-16T18:30:00Z",
+          "end": "2027-05-17T18:30:00Z",
+          "source": "Existing Solara admin-maintained calendar; https://www.cgibelfast.gov.in/page/list-of-holidays/",
+          "verified": true
+        }
+      ],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "christmas",
+      "name": "Christmas",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 95,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f87171",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Christmas",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "bauble"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-12-24T18:30:00Z",
+          "end": "2026-12-25T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-12-24T18:30:00Z",
+          "end": "2027-12-25T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "12-25",
+      "durationDays": 1
+    },
+    {
+      "id": "new_year",
+      "name": "New Year",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 100,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#facc15",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "New Year",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "spark"
+      ],
+      "occurrences": [
+        {
+          "start": "2025-12-31T18:30:00Z",
+          "end": "2026-01-01T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2026-12-31T18:30:00Z",
+          "end": "2027-01-01T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "01-01",
+      "durationDays": 1
+    },
+    {
+      "id": "halloween",
+      "name": "Halloween",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 80,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Halloween",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "pumpkin"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-10-30T18:30:00Z",
+          "end": "2026-10-31T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-10-30T18:30:00Z",
+          "end": "2027-10-31T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "10-31",
+      "durationDays": 1
+    },
+    {
+      "id": "easter",
+      "name": "Easter",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 85,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#c4b5fd",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Easter",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "egg"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "lunar_new_year",
+      "name": "Lunar New Year",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 90,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f87171",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Lunar New Year",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "lantern"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "mid_autumn",
+      "name": "Mid-Autumn Festival",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 75,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fbbf24",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Mid-Autumn Festival",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "lantern"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "hanukkah",
+      "name": "Hanukkah",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 85,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#7dd3fc",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Hanukkah",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "candle"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "thanksgiving",
+      "name": "Thanksgiving (US)",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#fb923c",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Thanksgiving (US)",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "harvest"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "valentines",
+      "name": "Valentine's Day",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#f472b6",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Valentine's Day",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "heart"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-02-13T18:30:00Z",
+          "end": "2026-02-14T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-02-13T18:30:00Z",
+          "end": "2027-02-14T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "02-14",
+      "durationDays": 1
+    },
+    {
+      "id": "st_patricks",
+      "name": "St Patrick's Day",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#4ade80",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "St Patrick's Day",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "clover"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-03-16T18:30:00Z",
+          "end": "2026-03-17T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-03-16T18:30:00Z",
+          "end": "2027-03-17T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "03-17",
+      "durationDays": 1
+    },
+    {
+      "id": "carnival",
+      "name": "Carnival / Mardi Gras",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#c084fc",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Carnival / Mardi Gras",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "confetti"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "songkran",
+      "name": "Songkran",
+      "category": "festival",
+      "regions": [
+        "global"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 65,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#38bdf8",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Songkran",
+        "copy": "A little celebration, wherever you play."
+      },
+      "effects": [
+        "water"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-04-12T18:30:00Z",
+          "end": "2026-04-15T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-04-12T18:30:00Z",
+          "end": "2027-04-15T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "04-13",
+      "durationDays": 3
+    },
+    {
+      "id": "vasant_panchami",
+      "name": "Vasant Panchami",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Vasant Panchami",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "chaitra_navratri",
+      "name": "Chaitra Navratri",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Chaitra Navratri",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "mahavir_jayanti",
+      "name": "Mahavir Jayanti",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Mahavir Jayanti",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "buddha_purnima",
+      "name": "Buddha Purnima",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Buddha Purnima",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "rath_yatra",
+      "name": "Rath Yatra",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Rath Yatra",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "guru_purnima",
+      "name": "Guru Purnima",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Guru Purnima",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "karwa_chauth",
+      "name": "Karwa Chauth",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Karwa Chauth",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "dhanteras",
+      "name": "Dhanteras",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Dhanteras",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "govardhan_puja",
+      "name": "Govardhan Puja",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Govardhan Puja",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "bhai_dooj",
+      "name": "Bhai Dooj",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Bhai Dooj",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "guru_gobind_singh",
+      "name": "Guru Gobind Singh Jayanti",
+      "category": "festival",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 70,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Guru Gobind Singh Jayanti",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [],
+      "fixed": null,
+      "durationDays": 1
+    },
+    {
+      "id": "gandhi_jayanti",
+      "name": "Gandhi Jayanti",
+      "category": "national",
+      "regions": [
+        "IN"
+      ],
+      "enabled": true,
+      "timezone": "Asia/Kolkata",
+      "priority": 80,
+      "assets": {
+        "illustration": null,
+        "icon": "/logo.svg"
+      },
+      "accent": "#ffb55a",
+      "background": "#0b0e12",
+      "banner": {
+        "title": "Gandhi Jayanti",
+        "copy": "Celebrate the occasion with Solara."
+      },
+      "effects": [
+        "glow"
+      ],
+      "occurrences": [
+        {
+          "start": "2026-10-01T18:30:00Z",
+          "end": "2026-10-02T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        },
+        {
+          "start": "2027-10-01T18:30:00Z",
+          "end": "2027-10-02T18:30:00Z",
+          "source": "Fixed annual date; explicit yearly occurrence",
+          "verified": true
+        }
+      ],
+      "fixed": "10-02",
+      "durationDays": 1
+    }
+  ]
+}

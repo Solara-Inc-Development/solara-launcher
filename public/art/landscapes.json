@@ -1,0 +1,74 @@
+[
+  {
+    "id": "forest-valley-v1",
+    "label": "Forest valley",
+    "alt": "A block-built timber cabin beside a forest river valley.",
+    "src": "/art/forest-valley-v1.webp",
+    "small": "/art/forest-valley-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 288334,
+    "smallBytes": 46786
+  },
+  {
+    "id": "alpine-lake-v1",
+    "label": "Alpine lake",
+    "alt": "A stone settlement and bridge beside a mountain lake.",
+    "src": "/art/alpine-lake-v1.webp",
+    "small": "/art/alpine-lake-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 353092,
+    "smallBytes": 57770
+  },
+  {
+    "id": "coastal-hamlet-v1",
+    "label": "Coastal hamlet",
+    "alt": "Timber houses and docks along a quiet block-built coastline.",
+    "src": "/art/coastal-hamlet-v1.webp",
+    "small": "/art/coastal-hamlet-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 270198,
+    "smallBytes": 47096
+  },
+  {
+    "id": "canyon-settlement-v1",
+    "label": "Canyon settlement",
+    "alt": "A sandstone settlement with a wooden bridge in a terracotta canyon.",
+    "src": "/art/canyon-settlement-v1.webp",
+    "small": "/art/canyon-settlement-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 290234,
+    "smallBytes": 51686
+  },
+  {
+    "id": "moss-cave-v1",
+    "label": "Moss cave",
+    "alt": "A naturally lit mossy block cave with a clear stream.",
+    "src": "/art/moss-cave-v1.webp",
+    "small": "/art/moss-cave-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 171040,
+    "smallBytes": 30864
+  },
+  {
+    "id": "workshop-v1",
+    "label": "Workshop",
+    "alt": "A timber and stone workshop lit by daylight from a square window.",
+    "src": "/art/workshop-v1.webp",
+    "small": "/art/workshop-v1-small.webp",
+    "width": 1672,
+    "height": 941,
+    "kind": "original illustrative voxel artwork",
+    "bytes": 132032,
+    "smallBytes": 26708
+  }
+]

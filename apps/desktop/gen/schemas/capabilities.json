@@ -1,0 +1,1 @@
+{"main":{"identifier":"main","description":"Only the local main app can invoke native operations. Microsoft sign-in windows receive no app permissions.","local":true,"windows":["main"],"permissions":["core:default"]}}

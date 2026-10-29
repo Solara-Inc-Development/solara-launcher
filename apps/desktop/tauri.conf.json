@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Solara Launcher",
+  "mainBinaryName": "Solara-Launcher",
+  "version": "0.0.1",
+  "identifier": "in.solara.launcher",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://127.0.0.1:1420/desktop.html",
+    "frontendDist": "../../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "url": "desktop.html",
+        "title": "Solara Launcher",
+        "width": 1280,
+        "height": 880,
+        "minWidth": 800,
+        "minHeight": 620,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "capabilities": [
+        "main"
+      ],
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.solara-inc.in https://api.modrinth.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "category": "Game",
+    "shortDescription": "Solara desktop hub and Minecraft Java launcher",
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "resources": [
+      "../../LICENSE",
+      "../../THIRD_PARTY_NOTICES.md"
+    ],
+    "createUpdaterArtifacts": true,
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "",
+      "requireSignedVersion": true
+    }
+  }
+}

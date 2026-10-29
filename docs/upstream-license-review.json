@@ -1,0 +1,7 @@
+{
+  "status":"blocked",
+  "upstream":"e7757b14ed04e824ac7e8b8b05652d4290df721a",
+  "unresolvedPackages":["ariadne","modrinth-content-management","path-util","serde-binhum"],
+  "evidence":[],
+  "instructions":"Obtain explicit upstream grants or replace/remove dependencies. Record actual evidence per package before changing status to cleared. Never bypass this gate merely to produce an exe."
+}

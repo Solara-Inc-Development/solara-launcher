@@ -1,0 +1,11 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="solara-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3dd6f5"/>
+      <stop offset="100%" stop-color="#ffb55a"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#06131f" stroke="#1f4a66" stroke-width="2"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="url(#solara-g)" stroke-width="5"/>
+  <path d="M22 35h10l-3 8 13-12H32l3-8z" fill="url(#solara-g)"/>
+</svg>

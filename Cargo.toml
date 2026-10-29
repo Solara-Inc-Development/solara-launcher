@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = ["apps/desktop", "packages/local-server"]
+exclude = [".upstream/modrinth"]
+
+[profile.release]
+opt-level = "s"
+strip = true
+lto = "thin"
+
+[profile.dev]
+debug = 0
