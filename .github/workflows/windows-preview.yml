@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.05 with window dragging fix and Modrinth-inspired visual overhaul
+# Build testing candidate V-0.0.05: genuine NSIS installer, clean cache, and offline CI tests
 on:
   workflow_dispatch:
   push:
