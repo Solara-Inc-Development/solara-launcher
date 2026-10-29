@@ -78,6 +78,7 @@ jobs:
       - name: Build actual NSIS installer without private signing keys
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
+          Remove-Item -Recurse -Force target/release/bundle/nsis -ErrorAction SilentlyContinue
           $log = Join-Path $env:RUNNER_TEMP 'solara-packaging.log'
           node scripts/release.mjs package --candidate 2>&1 | Tee-Object -FilePath $log
           $code = $LASTEXITCODE

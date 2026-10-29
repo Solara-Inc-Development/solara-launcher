@@ -1,5 +1,5 @@
 // Export genuine Windows build outputs with exact corresponding source.
-import {readFile,writeFile,mkdir,readdir,copyFile} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,readdir,copyFile,stat} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
@@ -7,9 +7,17 @@ import {verifyPe,verifyApplication} from './release-lib.mjs';
 const output=path.resolve(process.argv[2]||'');
 if(!process.argv[2]||process.platform!=='win32')throw Error('Pass an output directory on the actual Windows runner');
 const reservation=JSON.parse(await readFile('builds/current-build.json','utf8'));
-const nsis='target/release/bundle/nsis',files=(await readdir(nsis)).filter(f=>f.endsWith('.exe'));
-if(files.length!==1)throw Error('Expected exactly one genuine NSIS installer');
-const installer=path.join(nsis,files[0]),app='target/release/solaralauncher.exe';
+const nsis='target/release/bundle/nsis';
+const allFiles=(await readdir(nsis)).filter(f=>f.endsWith('.exe'));
+const matching=allFiles.filter(f=>f.includes(reservation.internalVersion));
+let installerName=matching[0];
+if(!installerName&&allFiles.length){
+  const stats=await Promise.all(allFiles.map(async f=>({f,mtime:(await stat(path.join(nsis,f))).mtimeMs})));
+  stats.sort((a,b)=>b.mtime-a.mtime);
+  installerName=stats[0].f;
+}
+if(!installerName)throw Error('Expected a genuine NSIS installer in '+nsis);
+const installer=path.join(nsis,installerName),app='target/release/solaralauncher.exe';
 verifyPe(await readFile(installer),[0x14c,0x8664]);const application=await verifyApplication(app);
 await mkdir(path.join(output,'application'),{recursive:true});
 await copyFile(installer,path.join(output,'solaralauncher.exe'));
