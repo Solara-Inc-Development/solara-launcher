@@ -1,0 +1,51 @@
+{
+  "buildId": "fca76e49-b71d-4142-807e-9db605682db8",
+  "publicVersion": "V-0.0.03",
+  "internalVersion": "0.0.3",
+  "filename": "solaralauncher.exe",
+  "artifactPath": "V-0.0.03/solaralauncher.exe",
+  "commit": "8326bb7a32da40ecb5db7725416a545de72eee1c",
+  "allocatedAt": "2026-10-29T08:34:25.973Z",
+  "state": "testing-preview",
+  "applicationSha256": "1d592fcba629b916f99fbf42c79d771df3a592c9fd6bc721b9f2ccc48aced301",
+  "applicationSize": 17507840,
+  "sourceTree": "4254c48aed68fecdba6249b8de3ebace27cd5cc9",
+  "acceptance": false,
+  "artifacts": {
+    "solaralauncher.exe": {
+      "size": 7144205,
+      "sha256": "c4e07da610ea9e1f108323b1413f2d41a6a0f2274f12419b6f4064e49f931513"
+    },
+    "application/solaralauncher.exe": {
+      "size": 17507840,
+      "sha256": "1d592fcba629b916f99fbf42c79d771df3a592c9fd6bc721b9f2ccc48aced301"
+    },
+    "source.zip": {
+      "size": 19088909,
+      "sha256": "9088460cb863084124b0020d19b941e569ba5c50da464da665ccebbbd3aeb57c"
+    }
+  },
+  "size": 7144205,
+  "sha256": "c4e07da610ea9e1f108323b1413f2d41a6a0f2274f12419b6f4064e49f931513",
+  "platform": "windows",
+  "arch": "x86_64",
+  "publishedAt": null,
+  "verifiedAt": "2026-10-29T10:47:24.066Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDNrd085Yk9sWklOL3g1ZVNvdGxzUENBd0hhcERvbUhLd0NyRUt5Q0JsSzFLcTNLTmRMcG5LR2tEa3FDSzZwRno5Z3hGV2cvZUxyQkJabUtVVHAyVFFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMjcwODQzCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjMKWUlUVnpidFJpTE9XcU9rT3N3OVNmOUdZa0pLckgyZlBORjlSUjRPU3RnM2pUUjdGL212RkQ5RXg3S01ZOUgvMWtoTHVEWUZlc2lMVHF5MEgrWlBEQmc9PQo=",
+  "notes": "# Changelog\n\n## Custom-core testing preview \u2014 2026-10-29\n\n- Replaced the inherited engine with independently written vanilla metadata, verified downloads, isolated installs, local device sign-in and Java/process handling.\n- Added real download cancellation/retry. This first preview exposes vanilla only; mod/content installation is coming later.\n- Added the black, rounded desktop layout, smoother toolbar, coloured controls and compact account sidebar.\n- Simplified the README and kept build/acceptance status clear.\n- Actual Windows installation, licensed sign-in/play and signed upgrades still need testing. This is not a stable release.\n\n## Earlier unreleased work \u2014 2026-10-29\n\n- Fixed first-modpack setup to create a new instance without an existing library entry, with explicit version selection and independent native validation.\n- Added bounded local activity for inherited background content installs, including real completion/failure events and indeterminate pending progress.\n- Bound search results/actions to their content type and added trusted provider icons, stale-request cancellation and retry states.\n- Added account-owned server address listing, endpoint update and explicit release confirmation; kept backend ownership/proof/provider requirements enforced.\n\n- Rebuilt desktop and website with a clean matte dark design, six original optimized landscape artworks and flat controls.\n- Added resource/native startup loading, catalogue/provider skeletons, image fallback and retry/error handling, with reduced-motion support.\n- Seasonal features are disabled during the current development phase.\n\n## Earlier development \u2014 2026-10-28\n\n- Added Solara desktop hub, shared public-data integration and official website source.\n- Added pinned Theseus engine adaptation, native command bridge and isolated local-server management.\n- Added shared seasons/festivals, deterministic schedules, previews and outage caching.\n- Added independent secure account flows, private API adapters and versioned release tooling.\n\nThis is development work, not a public V-0.0.01 release. Windows installation, live SSO, panel mappings and DNS remain subject to the integration and verification checklist. No distributable executable is claimed by this entry.\n",
+  "url": "https://raw.githubusercontent.com/Solara-Inc-Development/solara-launcher/solara-builds/builds/V-0.0.03/solaralauncher.exe",
+  "bundledApplication": {
+    "path": "installed-application/solaralauncher.exe",
+    "size": 17507840,
+    "sha256": "43c2e8a6a568fa8c53f14a5a84836ec9f0f656072888678609c350ec20063937",
+    "verification": "Exact compiled application with only the official Tauri UNK-to-NSS bundle marker patch",
+    "toolSource": "https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle.rs"
+  },
+  "sourceUrl": "https://raw.githubusercontent.com/Solara-Inc-Development/solara-launcher/solara-builds/builds/V-0.0.03/source.zip",
+  "stablePublication": false,
+  "windowsAcceptance": false,
+  "signing": {
+    "updaterSignatureVerified": true,
+    "authenticodePublisherSigning": false
+  }
+}
