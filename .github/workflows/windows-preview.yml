@@ -30,6 +30,13 @@ jobs:
           node-version: '22'
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache/restore@v4
+        id: rust-cache
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: solara-windows-cargo-v1-${{ hashFiles('Cargo.lock') }}
       - name: Install locked frontend dependencies
         run: npm ci
       - name: Check frontend and independent native core
@@ -104,3 +111,11 @@ jobs:
           git -C $output push "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "Actual NSIS bytes and corresponding source preserved on $branch. Private signing/staging and Windows acceptance remain." >> $env:GITHUB_STEP_SUMMARY
+      - name: Save compiler work even if later packaging needs a fix
+        if: ${{ always() && steps.rust-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: ${{ steps.rust-cache.outputs.cache-primary-key }}

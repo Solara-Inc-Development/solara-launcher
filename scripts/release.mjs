@@ -19,7 +19,7 @@ if(mode==='reserve'){
  const key=process.env.SOLARA_UPDATER_PUBLIC_KEY||(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim();
  if(!key||(!candidate&&!process.env.TAURI_SIGNING_PRIVATE_KEY))throw Error('Updater signing identity is required');
  if(candidate&&process.env.TAURI_SIGNING_PRIVATE_KEY)throw Error('Candidate runners must not receive the private updater key');
- await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({bundle:{createUpdaterArtifacts:!candidate},plugins:{updater:{pubkey:key}}}),'--bundles','nsis']);
+ await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({bundle:{createUpdaterArtifacts:!candidate},plugins:{updater:{pubkey:key}}}),'--features','desktop-shell','--bundles','nsis']);
 }else if(mode==='stage'){
  const r=await readJson(path.join(dir,'current-build.json'));const source=process.argv[3];if(!source)throw Error('Pass the actual NSIS installer path');const sig=(await readFile(source+'.sig','utf8')).trim();const key=process.env.SOLARA_UPDATER_PUBLIC_KEY;if(!key)throw Error('Trusted public key is required');
  const application=process.argv[5];if(!application)throw Error('Pass the actual bundled x64 application binary after the release notes path');

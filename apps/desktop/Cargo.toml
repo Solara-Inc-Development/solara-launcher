@@ -1,5 +1,6 @@
 [package]
 name = "solara-launcher"
+default-run = "solaralauncher"
 version = "0.0.1"
 edition = "2021"
 license = "GPL-3.0-only"
