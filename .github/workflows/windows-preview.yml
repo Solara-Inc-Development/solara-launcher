@@ -1,0 +1,71 @@
+name: Build Windows testing candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-preview.yml']
+permissions:
+  contents: write
+concurrency:
+  group: solara-windows-build-allocation
+  cancel-in-progress: false
+jobs:
+  preview:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      CARGO_INCREMENTAL: '0'
+      CARGO_BUILD_JOBS: '2'
+      CARGO_PROFILE_TEST_DEBUG: '0'
+      SOLARA_MICROSOFT_CLIENT_ID: ${{ vars.SOLARA_MICROSOFT_CLIENT_ID }}
+      SOLARA_CLIENT_ID: ${{ vars.SOLARA_CLIENT_ID }}
+      SOLARA_DISCORD_CLIENT_ID: ${{ vars.SOLARA_DISCORD_CLIENT_ID }}
+      VITE_SOLARA_GITHUB_URL: https://github.com/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Check frontend and independent native core
+        run: |
+          npm test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test -p solara-launcher -p solara-local-server --lib --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Reserve unique testing version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release.mjs reserve --github
+      - name: Build actual NSIS installer without private signing keys
+        run: node scripts/release.mjs package --candidate
+      - name: Export candidate and exact corresponding source
+        run: node scripts/export-candidate.mjs "${{ runner.temp }}/solara-candidate"
+      - name: Preserve candidate for private signing and acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP 'solara-candidate'
+          $version = (Get-Content builds/current-build.json | ConvertFrom-Json).internalVersion.Split('.')[-1]
+          $branch = "solara-candidate-$version"
+          git -C $output init -b $branch
+          git -C $output config user.name 'Solara build automation'
+          git -C $output config user.email 'automation@solara.invalid'
+          git -C $output add .
+          git -C $output commit -m "Preserve testing candidate $version and corresponding source"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:GIT_CONFIG_COUNT = '1'
+          $env:GIT_CONFIG_KEY_0 = 'http.https://github.com/.extraheader'
+          $auth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("x-access-token:$env:GH_TOKEN"))
+          $env:GIT_CONFIG_VALUE_0 = "AUTHORIZATION: basic $auth"
+          git -C $output push "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "Actual NSIS bytes and corresponding source preserved on $branch. Private signing/staging and Windows acceptance remain." >> $env:GITHUB_STEP_SUMMARY

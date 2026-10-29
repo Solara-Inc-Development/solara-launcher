@@ -13,6 +13,7 @@ pub struct File {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Plan {
     pub version: String,
+    pub kind: String,
     pub java_major: u32,
     pub main_class: String,
     pub files: Vec<File>,
@@ -156,6 +157,10 @@ pub fn windows(version: &Value, os_version: Option<&str>) -> Result<Plan> {
     }
     Ok(Plan {
         version: id.into(),
+        kind: version["type"]
+            .as_str()
+            .context("Minecraft version type missing")?
+            .into(),
         java_major: java_major as u32,
         main_class: main_class.into(),
         files: files

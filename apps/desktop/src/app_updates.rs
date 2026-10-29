@@ -39,7 +39,9 @@ async fn cycle(app: &tauri::AppHandle) -> anyhow::Result<()> {
         status("waiting-for-idle", 0, None);
         return Ok(());
     }
-    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY").unwrap_or_default();
+    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY")
+        .unwrap_or(include_str!("../updater.pub"))
+        .trim();
     if key.is_empty() {
         status("unconfigured", 0, None);
         return Ok(());

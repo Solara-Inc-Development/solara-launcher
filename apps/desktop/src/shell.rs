@@ -4,7 +4,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use tauri::{Manager, WebviewUrl, WindowEvent};
+use tauri::WindowEvent;
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_updater::UpdaterExt;
 fn err(e: impl std::fmt::Display) -> String {
@@ -14,7 +14,7 @@ fn err(e: impl std::fmt::Display) -> String {
 async fn initialize_launcher() -> Result<(), String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::initialize().await.map_err(err)?;
-    crate::app_updates::READY.store(true,Ordering::SeqCst);
+    crate::app_updates::READY.store(true, Ordering::SeqCst);
     Ok(())
 }
 #[tauri::command]
@@ -36,6 +36,11 @@ async fn create_instance(
     engine::create_instance(name, game_version, loader, loader_version)
         .await
         .map_err(err)
+}
+#[tauri::command]
+async fn retry_instance(id: String) -> Result<String, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::retry_instance(id).await.map_err(err)
 }
 #[tauri::command]
 async fn launch_instance(id: String) -> Result<Value, String> {
@@ -173,83 +178,57 @@ async fn solara_request(
 ) -> Result<Value, String> {
     identity::request(&method, &path, body).await.map_err(err)
 }
+static MINECRAFT_LOGIN: tokio::sync::Mutex<Option<crate::game_core::download::Cancellation>> =
+    tokio::sync::Mutex::const_new(None);
 #[tauri::command]
 async fn minecraft_sign_out(id: String) -> Result<(), String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    let uuid = uuid::Uuid::parse_str(&id).map_err(err)?;
-    theseus::minecraft_auth::remove_user(uuid)
-        .await
-        .map_err(err)?;
-    #[cfg(windows)]
-    for name in [format!("{uuid}:access"), format!("{uuid}:refresh")] {
-        if let Ok(e) = keyring::Entry::new("in.solara.launcher.minecraft", &name) {
-            let _ = e.delete_credential();
-        }
-    }
-    Ok(())
+    engine::minecraft_logout(&id).await.map_err(err)
 }
 #[tauri::command]
 async fn select_minecraft_account(id: String) -> Result<(), String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    theseus::minecraft_auth::set_default_user(uuid::Uuid::parse_str(&id).map_err(err)?)
-        .await
-        .map_err(err)
+    engine::minecraft_select(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn cancel_minecraft_sign_in() -> Result<(), String> {
+    if let Some(cancel) = MINECRAFT_LOGIN.lock().await.as_ref() {
+        cancel.cancel()
+    };
+    Ok(())
 }
 #[tauri::command]
 async fn minecraft_sign_in(app: tauri::AppHandle) -> Result<(), String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    if !cfg!(windows) {
-        return Err("Minecraft authentication requires Windows secure credential storage in this first release".into());
-    };
-    if option_env!("SOLARA_MICROSOFT_CLIENT_ID")
-        .unwrap_or_default()
-        .is_empty()
+    let cancel = crate::game_core::download::Cancellation::default();
     {
-        return Err("Microsoft app registration is missing: build with an approved SOLARA_MICROSOFT_CLIENT_ID and Xbox/Minecraft API access. No upstream client ID is reused.".into());
-    };
-    let flow = theseus::minecraft_auth::begin_login().await.map_err(|_| {
-        "Could not begin Microsoft authentication; verify registration and service access"
-            .to_string()
-    })?;
-    if app.get_webview_window("minecraft-signin").is_some() {
-        return Err("A Minecraft sign-in is already open".into());
-    };
-    let url = flow.auth_request_uri.parse().map_err(err)?;
-    let window =
-        tauri::WebviewWindowBuilder::new(&app, "minecraft-signin", WebviewUrl::External(url))
-            .title("Microsoft sign-in for Minecraft")
-            .inner_size(900.0, 720.0)
-            .on_navigation(|url| url.scheme() == "https")
-            .build()
-            .map_err(err)?;
-    let start = std::time::Instant::now();
-    while start.elapsed() < std::time::Duration::from_secs(300) {
-        if app.get_webview_window("minecraft-signin").is_none() {
-            return Err("Minecraft sign-in cancelled".into());
+        let mut active = MINECRAFT_LOGIN.lock().await;
+        if active.is_some() {
+            return Err("A Minecraft sign-in is already open".into());
         };
-        let url = window.url().map_err(err)?;
-        if url.scheme() == "https"
-            && url.host_str() == Some("login.live.com")
-            && url.path() == "/oauth20_desktop.srf"
-        {
-            let code = url
-                .query_pairs()
-                .find(|(k, _)| k == "code")
-                .map(|(_, v)| v.into_owned());
-            if let Some(code) = code {
-                window.close().map_err(err)?;
-                theseus::minecraft_auth::finish_login(&code,flow).await.map_err(|_|"Minecraft authentication or ownership verification failed. Verify your licensed account and application registration.".to_string())?;
-                return Ok(());
-            };
-            if url.query_pairs().any(|(k, _)| k == "error") {
-                window.close().map_err(err)?;
-                return Err("Microsoft declined or cancelled sign-in".into());
-            }
-        };
-        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+        *active = Some(cancel.clone());
     }
-    let _ = window.close();
-    Err("Microsoft sign-in timed out".into())
+    let notice_cancel = cancel.clone();
+    let result = engine::minecraft_login(&cancel, |prompt| {
+        use tauri::Emitter;
+        if app
+            .emit_to("main", "minecraft-login-code", &prompt)
+            .is_err()
+        {
+            notice_cancel.cancel();
+            return;
+        }
+        // Credentials stay in native memory. The user enters this one-time code
+        // only on the official Microsoft site in their system browser.
+        let _ = app.opener().open_url(prompt.url, None::<String>);
+    })
+    .await;
+    *MINECRAFT_LOGIN.lock().await = None;
+    result.map_err(err)
+}
+#[tauri::command]
+fn launcher_capabilities() -> Value {
+    engine::capabilities()
 }
 #[tauri::command]
 fn open_external(app: tauri::AppHandle, url: String) -> Result<(), String> {
@@ -277,7 +256,9 @@ fn window_action(window: tauri::Window, action: String) -> Result<(), String> {
     }
 }
 fn updater(app: &tauri::AppHandle) -> Result<tauri_plugin_updater::Updater, String> {
-    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY").unwrap_or_default();
+    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY")
+        .unwrap_or(include_str!("../updater.pub"))
+        .trim();
     if key.is_empty() {
         return Err(
             "Verified updates are not configured: trusted public signing key missing".into(),
@@ -303,7 +284,9 @@ async fn check_update(app: tauri::AppHandle) -> Result<Value, String> {
     })
 }
 #[tauri::command]
-fn app_update_status() -> Value { crate::app_updates::snapshot() }
+fn app_update_status() -> Value {
+    crate::app_updates::snapshot()
+}
 pub fn run() {
     let closing = Arc::new(AtomicBool::new(false));
     let presence_stop = Arc::new(AtomicBool::new(false));
@@ -315,6 +298,7 @@ pub fn run() {
             minecraft_versions,
             create_instance,
             launch_instance,
+            retry_instance,
             stop_instance,
             edit_instance,
             instance_logs,
@@ -332,6 +316,8 @@ pub fn run() {
             solara_sign_out,
             solara_request,
             minecraft_sign_in,
+            cancel_minecraft_sign_in,
+            launcher_capabilities,
             minecraft_sign_out,
             select_minecraft_account,
             open_external,
@@ -396,10 +382,7 @@ pub fn run() {
                     connected = client.connect().is_ok()
                 };
                 if connected {
-                    let running = theseus::process::get_all()
-                        .await
-                        .map(|p| !p.is_empty())
-                        .unwrap_or(false);
+                    let running = engine::game_running().await;
                     if client
                         .set_activity(Activity::new().state(if running {
                             "Minecraft running"

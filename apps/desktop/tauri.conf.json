@@ -6,7 +6,7 @@
   "identifier": "in.solara.launcher",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run build && node scripts/third-party.mjs",
     "devUrl": "http://127.0.0.1:1420/desktop.html",
     "frontendDist": "../../dist"
   },
@@ -55,7 +55,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg3OTk3QUZCNTIxMTk2MzcKUldRM2xoRlMrM3FaaDlrMDRnellrV3FJWU9ZV3Z3dW1ZZDhpSXpISk1zVExTdU1HVGlPSWUxcm8K",
       "requireSignedVersion": true,
       "windows": {
         "installMode": "quiet"

@@ -10,7 +10,6 @@
     "test": "node --test tests/*.test.mjs",
     "desktop": "tauri dev --config apps/desktop/tauri.conf.json",
     "build:windows": "node scripts/release.mjs package",
-    "upstream": "python3 scripts/prepare-upstream.py",
     "check": "vue-tsc --noEmit",
     "test:ui": "node scripts/check-ui.cjs",
     "test:motion": "node scripts/check-future-ui.cjs",

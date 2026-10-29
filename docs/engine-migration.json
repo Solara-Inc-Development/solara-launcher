@@ -1,7 +1,27 @@
 {
-  "status": "in-progress",
-  "direction": "Independently implement the local Minecraft engine. Modrinth is only a UI reference.",
-  "inheritedEngineRemoved": false,
+  "status": "preview",
+  "direction": "Independently authored native Minecraft core; no inherited launcher engine.",
+  "inheritedEngineRemoved": true,
   "windowsAcceptance": false,
-  "notes": "Official metadata/integrity foundation started. Theseus bridge still requires actual replacement; no custom-core release is permitted yet."
+  "capabilities": [
+    "vanilla-install",
+    "official-metadata",
+    "local-device-auth",
+    "local-java-launch",
+    "verified-cache",
+    "cancel-retry"
+  ],
+  "pending": [
+    "Windows source check",
+    "approved Microsoft client ID and licensed-account acceptance",
+    "installed NSIS/update acceptance",
+    "mod loaders and content installation",
+    "game recovery after launcher restart"
+  ],
+  "evidence": [
+    "apps/desktop/src/game_core/",
+    "apps/desktop/src/engine.rs",
+    "Cargo.lock",
+    "scripts/third-party.mjs"
+  ]
 }

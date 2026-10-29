@@ -12,10 +12,14 @@ if(mode==='reserve'){
  const cargo=path.join(root,'apps/desktop/Cargo.toml');await writeFile(cargo,(await readFile(cargo,'utf8')).replace(/version = "[^"]+"/,`version = "${r.internalVersion}"`));console.log(`${r.publicVersion} allocated; never reuse if this build fails.`);
 }else if(mode==='package'){
  if(process.platform!=='win32')throw Error('Windows packaging requires a Windows x64 runner with MSVC, WebView2 and NSIS prerequisites');
- const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='ready'||migration.inheritedEngineRemoved!==true||migration.windowsAcceptance!==true)throw Error('Independent engine replacement and Windows acceptance are incomplete');
+ const candidate=process.argv.includes('--candidate');
+ const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.inheritedEngineRemoved!==true||(!candidate&&(migration.status!=='ready'||migration.windowsAcceptance!==true)))throw Error('Independent engine replacement and Windows acceptance are incomplete');
+ if(candidate&&migration.status!=='preview')throw Error('Candidate packaging requires an explicitly declared preview');
  const review=await readJson(path.join(root,'docs/upstream-license-review.json'));if(review.status!=='cleared'||!review.evidence?.length)throw Error('Upstream dependency licence review is unresolved; see THIRD_PARTY_NOTICES.md');
- if(!process.env.TAURI_SIGNING_PRIVATE_KEY||!process.env.SOLARA_UPDATER_PUBLIC_KEY)throw Error('Updater signing private key and trusted public key are required');
- await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({plugins:{updater:{pubkey:process.env.SOLARA_UPDATER_PUBLIC_KEY}}}),'--bundles','nsis']);
+ const key=process.env.SOLARA_UPDATER_PUBLIC_KEY||(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim();
+ if(!key||(!candidate&&!process.env.TAURI_SIGNING_PRIVATE_KEY))throw Error('Updater signing identity is required');
+ if(candidate&&process.env.TAURI_SIGNING_PRIVATE_KEY)throw Error('Candidate runners must not receive the private updater key');
+ await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({bundle:{createUpdaterArtifacts:!candidate},plugins:{updater:{pubkey:key}}}),'--bundles','nsis']);
 }else if(mode==='stage'){
  const r=await readJson(path.join(dir,'current-build.json'));const source=process.argv[3];if(!source)throw Error('Pass the actual NSIS installer path');const sig=(await readFile(source+'.sig','utf8')).trim();const key=process.env.SOLARA_UPDATER_PUBLIC_KEY;if(!key)throw Error('Trusted public key is required');
  const application=process.argv[5];if(!application)throw Error('Pass the actual bundled x64 application binary after the release notes path');
@@ -26,6 +30,7 @@ if(mode==='reserve'){
  await immutableCopy(source,path.join(dir,artifactPath));await immutableCopy(source+'.sig',path.join(dir,artifactPath+'.sig'));
  const metadata={...r,...checked,...appChecked,artifactPath,platform:'windows',arch:'x86_64',publishedAt:null,verifiedAt:new Date().toISOString(),signature:sig,notes,url:`https://app.solara-inc.in/builds/${artifactPath}`,state:'staged'};await json(path.join(dir,r.publicVersion+'.json'),metadata);console.log(`${r.filename} staged, x64 application, checksum and updater signature verified.`);
 }else if(mode==='publish-manifest'){
+ const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='ready'||migration.windowsAcceptance!==true)throw Error('Stable publication requires recorded Windows acceptance');
  const version=process.argv[3];if(!version)throw Error('Pass the staged public version');const r=await readJson(path.join(dir,version+'.json'));await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,process.env.SOLARA_UPDATER_PUBLIC_KEY||'',r.internalVersion);
  const response=await fetch(r.url,{signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('Uploaded installer URL is not publicly reachable');const remote=Buffer.from(await response.arrayBuffer());const local=await readFile(path.join(dir,releaseArtifactPath(r)));if(!remote.equals(local))throw Error('Public artifact bytes do not match verified local artifact');
  const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===r.publicVersion))throw Error('Release already exists; use withdrawal for revoked versions');r.state='published';r.publishedAt=new Date().toISOString();archive.releases.push(r);await json(path.join(dir,'releases.json'),archive);console.log('Published metadata only after public artifact verification.');

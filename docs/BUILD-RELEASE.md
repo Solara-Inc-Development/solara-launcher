@@ -4,8 +4,8 @@ Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/sol
 
 ## Before a public build
 
-1. Resolve all missing upstream dependency grants and record actual per-package evidence in `docs/upstream-license-review.json`. Preserve GPL corresponding source, original notices and Solara patch source. Review dependency notice report against lockfiles.
-2. Supply a Windows x64 build machine/Actions repository with Rust stable, MSVC/Windows SDK, Node, Python 3.12 and Java 17. `.github/workflows/windows.yml` is explicit workflow_dispatch and serializes build allocation.
+1. The inherited engine and its blocked dependencies have been removed. Generate notices with `node scripts/third-party.mjs` after the frontend build. Preserve exact corresponding source and both lockfiles alongside every executable. Do not remove remaining library/font licences.
+2. Supply a Windows x64 build machine/Actions repository with Rust stable, MSVC/Windows SDK, Node 22. `.github/workflows/windows.yml` is explicit workflow_dispatch and serializes build allocation.
 3. Register an approved Solara PKCE public client. Configure public native IDs `SOLARA_CLIENT_ID`, `SOLARA_MICROSOFT_CLIENT_ID`, optional `SOLARA_DISCORD_CLIENT_ID`; Microsoft's app must have the necessary Xbox/Minecraft permissions and supported redirect/flow. No upstream ID is reused and no secret is embedded.
 4. Configure trusted `SOLARA_UPDATER_PUBLIC_KEY`; keep `TAURI_SIGNING_PRIVATE_KEY` and optional password only in private CI secret storage. Generate keys using Tauri CLI in a private environment; never put keys into source/artifact logs. Updater signatures are distinct from Authenticode: Windows publisher signing is a separate optional configuration and must not be claimed unless supplied/verified.
 5. Run shared tests, Vue type checks, native checks, local-server tests and real Windows acceptance checks. Verify licensed launch, OS-vault persistence, independent logout, process shutdown, NSIS install/uninstall and signed update/install before public release.
@@ -16,7 +16,7 @@ Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/sol
 
 The separate `Verify and package Windows` workflow remains manual and refuses unresolved licence/signing setup before version allocation. Source checks do not clear distribution licences or replace real installed-app, OS-vault, game-launch and update acceptance.
 
-Both workflows have been checked with actionlint. In GitHub workflows, `runner.temp` belongs in the fetch step's environment, not the job-level environment. The release script runs the installed Tauri JavaScript CLI through Node (avoiding Windows npm command-shim execution) and merges the configured updater public key into the bundler config. Private signing values remain environment-only.
+Both workflows use locked source dependencies. No upstream-engine fetch or Gradle step is required. The release script runs the installed Tauri JavaScript CLI through Node (avoiding Windows npm command-shim execution) and merges the configured updater public key into the bundler config. Private signing values remain environment-only.
 
 ## Workflow
 
@@ -47,13 +47,17 @@ Withdrawal preserves the executable and records state/reason/time. For rollback,
 
 ## Local data
 
-Solara-specific preferences/local-server files: platform local app-data directory under `in.solara.launcher`. Instance/game/world/cache SQLite paths follow the pinned engine's `in.solara.launcher` configuration, separate from upstream's own app identity. Windows tokens use Credential Manager service names `in.solara.launcher.solara` and `in.solara.launcher.minecraft`; SQLite stores Minecraft vault references. No plaintext credential fallback is allowed. Back up instance/local-server folders before manual relocation; don't overwrite existing worlds or upstream app directories.
+Solara-specific preferences/local-server files: platform local app-data directory under `in.solara.launcher`. Custom instances live in `custom-instances/<uuid>/`, with worlds in `game/` and replaceable files in `runtime/`. Verified content is cached separately in `verified-game-files/`. The old engine namespace is never overwritten. Windows tokens use Credential Manager services `in.solara.launcher.solara` and `in.solara.launcher.minecraft.custom`; `custom-minecraft-accounts/accounts.json` holds local profile metadata only. No plaintext credential fallback is allowed. Back up instance/local-server folders before manual relocation; don't overwrite existing worlds or upstream app directories.
 
 Tauri updater public-key verification is mandatory. Missing keys produce a useful unconfigured state. No public update is available when the archive is empty. Discord is optional and does not block game launch if missing/not running; it only emits coarse app/game state and clears on exit.
 
-## Native content activity verification
+## Custom-core verification and first-preview limits
 
-`SQLX_OFFLINE=true cargo test -p solara-launcher --lib --locked` covers exact API-resource allowlisting, selected modpack identity/archive validation, bounded activity state and the actual inherited headless event emitter/channel/ledger path. The pinned preparation invokes `scripts/patch-content-events.py` to reproduce that headless event bridge. Browser workflow fixtures run with `npm run test:workflows`; actual Windows compatible installation and game launch still require separate acceptance. Content activity records are in memory and do not imply persisted/resumable work after restart.
+`cargo test -p solara-launcher -p solara-local-server --lib --locked` covers official metadata/path checks, verified cache integrity, world-preserving instance records, native ZIP traversal rejection, platform rules, real queue states, credential-free account schema, Java version parsing and split-stream log redaction. `cargo check -p solara-launcher --all-targets --locked` also compiles the actual shell.
+
+The first custom-core testing build exposes vanilla installation only. Mod loaders/content installation, automatic Java acquisition, legacy resource layouts and recovery of previously running games after launcher restart are not ready. A compatible local Java executable must be selected. Microsoft sign-in requires Solara's approved public-client ID; an unconfigured build explains this instead of using another launcher's identity. Solara SSO/hosted operations also require the documented private deployment/client setup.
+
+Local tests and browser IPC fixtures do not prove actual Windows installation, credentials or game launch. `docs/engine-migration.json` keeps Windows acceptance false until these are tested. Stable packaging/public-manifest publication remains gated; a clearly labelled testing candidate may be built for acceptance without pretending these checks have already happened.
 
 NSIS architecture evidence: the [pinned Tauri CLI 2.12.4 bundler](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle/windows/nsis/mod.rs) lists x86 Unicode stubs/plugins. The official NSIS 3.13 archive was checked against that source's checksum, and its LZMA stub reports machine `0x14c` (x86). This toolchain inspection does not constitute a built Solara executable.
 

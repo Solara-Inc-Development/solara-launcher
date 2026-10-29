@@ -1,7 +1,12 @@
 {
-  "status":"blocked",
-  "upstream":"e7757b14ed04e824ac7e8b8b05652d4290df721a",
-  "unresolvedPackages":["ariadne","modrinth-content-management","path-util","serde-binhum"],
-  "evidence":[],
-  "instructions":"Obtain explicit upstream grants or replace/remove dependencies. Record actual evidence per package before changing status to cleared. Never bypass this gate merely to produce an exe."
+  "status": "cleared",
+  "resolution": "Removed inherited engine and all its workspace dependencies instead of obtaining new grants.",
+  "unresolvedPackages": [],
+  "evidence": [
+    "Cargo.lock contains no theseus, ariadne, modrinth-content-management, path-util, serde-binhum, daedalus or async-minecraft-ping.",
+    "cargo metadata --locked --filter-platform x86_64-pc-windows-msvc confirms independent workspace plus declared registry dependencies.",
+    "scripts/third-party.mjs rejects retired packages and preserves locked dependency licence texts.",
+    "third-party/licence-supplements/sources.json records exact upstream licence sources and checksums."
+  ],
+  "instructions": "This review resolves the removed engine issue only. Preserve current dependency notices and exact corresponding source in every build. Windows/runtime/signature acceptance is separate."
 }

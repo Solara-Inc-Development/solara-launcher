@@ -18,20 +18,12 @@ jobs:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SQLX_OFFLINE: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
       - uses: dtolnay/rust-toolchain@stable
       - name: Check release prerequisites before any version reservation
         shell: bash
@@ -49,10 +41,6 @@ jobs:
           NODE
       - name: Install dependencies
         run: npm ci
-      - name: Fetch pinned engine and apply Solara patches
-        env:
-          SOLARA_UPSTREAM_CACHE: ${{ runner.temp }}/solara-upstream-cache
-        run: python scripts/prepare-upstream.py
       - name: Test shared logic and UI types
         run: |
           npm test

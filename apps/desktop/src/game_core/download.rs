@@ -25,11 +25,11 @@ impl Cancellation {
     }
     pub fn check(&self) -> Result<()> {
         if self.flag.load(Ordering::SeqCst) {
-            bail!("Download cancelled")
+            bail!("Operation cancelled")
         }
         Ok(())
     }
-    async fn cancelled(&self) {
+    pub async fn cancelled(&self) {
         loop {
             let changed = self.changed.notified();
             if self.flag.load(Ordering::SeqCst) {
@@ -100,7 +100,7 @@ impl FileCache {
         let temp = dir.join(format!(".{}.part", uuid::Uuid::new_v4()));
         let result=async {
             let mut response=tokio::select! {
-                _=cancel.cancelled()=>bail!("Download cancelled"),
+                _=cancel.cancelled()=>bail!("Operation cancelled"),
                 r=self.client.get(super::metadata::official_url(&artifact.url)?).send()=>r.context("Minecraft download unavailable")?,
             };
             if !response.status().is_success() {bail!("Minecraft download unavailable")}
@@ -110,7 +110,7 @@ impl FileCache {
             progress(0,artifact.size);
             loop {
                 cancel.check()?;
-                let chunk=tokio::select! {_=cancel.cancelled()=>bail!("Download cancelled"),r=response.chunk()=>r?};
+                let chunk=tokio::select! {_=cancel.cancelled()=>bail!("Operation cancelled"),r=response.chunk()=>r?};
                 let Some(chunk)=chunk else {break};
                 size=size.checked_add(chunk.len() as u64).context("Minecraft file too large")?;
                 if size>artifact.size {bail!("Minecraft download exceeds expected size")}

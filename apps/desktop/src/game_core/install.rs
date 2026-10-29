@@ -26,6 +26,7 @@ pub async fn vanilla(
     os_version: Option<&str>,
     mut report: impl FnMut(Progress) + Send,
 ) -> Result<()> {
+    cancel.check()?;
     let instance = store.get(id).await?;
     if instance.loader != "vanilla" {
         bail!("This installer currently supports vanilla Minecraft only")

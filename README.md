@@ -25,7 +25,7 @@
 
 ## Meet your launcher
 
-A familiar desktop layout with a quiet black canvas, a compact sidebar and your account details close at hand. Browse your library, switch to your services and see what is happening without getting lost in menus.
+A black desktop, a small sidebar and your account right where you need it. Open your worlds, check your services, or just look around. We wanted the everyday stuff to feel easy.
 
 <img src="public/screenshots/dashboard.png" alt="Actual Solara development dashboard with compact navigation, original landscape artwork, real Solara listings and account sidebar" width="100%" />
 
@@ -51,7 +51,7 @@ Explore Solara projects and supported server tools. Public browsing works as a g
 
 ### Your pace
 
-Smooth, restrained motion. Clear loading states. Reduced-motion support. A dark interface with no glow effects.
+Smooth little animations, clear loading screens and colours that don't shout at you. Less motion if you prefer it. And yep, no glow effects.
 
 </td>
 </tr>
@@ -65,7 +65,7 @@ Smooth, restrained motion. Clear loading states. Reduced-motion support. A dark 
 **A clear view of downloads.** Follow real progress and useful error states.<br />
 **Separate accounts.** Solara connects your services. Minecraft sign-in stays on your device.
 
-> **Still being built:** the local Minecraft engine is being replaced with an independently written implementation. Complete game flows and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Still being built:** the local Minecraft engine is now independently written. The first testing build supports vanilla installs; mod loaders and content installation are still being added. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ## Download
 
@@ -77,11 +77,13 @@ The download and installed app will be named **`solaralauncher.exe`**. Install o
 | --- | --- |
 | First platform | Windows 10/11 x64 — final compatibility testing pending |
 | Installer | Not published |
-| Minecraft core | Independent implementation in progress |
+| Minecraft core | Custom vanilla preview; Windows game testing pending |
 | App updates | Automatic-update code added; signed Windows upgrade testing pending |
 | Website address | [app.solara-inc.in](https://app.solara-inc.in) — deployment pending |
 
-Passing source checks does not mean an installer has been released. A real download will be announced here and on the official website once it has been built and verified. A valid Minecraft Java licence is required to play.
+There's still a few things to test before the first download goes up. Passing source checks alone doesn't make it a release. We'll put the real download here and on the official website once it's built and checked. You need a valid Minecraft Java licence to play.
+
+Found something that feels off? Tell us what happened, even the small stuff helps.
 
 ## Build it yourself
 
@@ -141,4 +143,4 @@ The Solara service backend is private and **is not included in this repository**
   <a href="THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
-<sub>Public source: GPL-3.0-only. Required dependency notices are preserved while engine migration is in progress. Solara is not affiliated with Mojang or Microsoft.</sub>
+<sub>Public source: GPL-3.0-only. Dependency notices and their licences are included. Solara is not affiliated with Mojang or Microsoft.</sub>
