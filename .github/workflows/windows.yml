@@ -66,9 +66,9 @@ jobs:
       - name: Stage and verify immutable executable
         shell: pwsh
         run: |
-          $installer = Get-ChildItem target/release/bundle/nsis/*.exe | Select-Object -First 1
-          if (-not $installer) { throw "NSIS installer was not generated" }
-          node scripts/release.mjs stage $installer.FullName CHANGELOG.md
+          $installers = @(Get-ChildItem target/release/bundle/nsis/*.exe)
+          if ($installers.Count -ne 1) { throw "Expected exactly one generated NSIS installer" }
+          node scripts/release.mjs stage $installers[0].FullName CHANGELOG.md target/release/Solara-Launcher.exe
       - name: Preserve completed builds and consumed version reservation
         if: always()
         uses: actions/upload-artifact@v4

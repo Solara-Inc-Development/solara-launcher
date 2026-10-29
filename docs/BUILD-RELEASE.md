@@ -24,12 +24,12 @@ Both workflows have been checked with actionlint. In GitHub workflows, `runner.t
 node scripts/release.mjs reserve
 # Or in the configured GitHub repository: reserve --github
 node scripts/release.mjs package
-node scripts/release.mjs stage <actual-NSIS-installer-path> <release-notes-path>
+node scripts/release.mjs stage <actual-NSIS-installer-path> <release-notes-path> <bundled-x64-application-path>
 ```
 
 Reserve uses an exclusive filesystem lock, consumed-version reservation files and numeric counter. GitHub mode examines existing draft/published build tags and creates a new draft reservation, under serialized workflow concurrency. Failed builds consume their reserved number; they do not overwrite previous artifacts. No number has been consumed in this workspace merely by tests (tests use temporary directories).
 
-Packaging fails outside Windows, while licence review is unresolved, or without signing configuration. `tauri build` produces a real NSIS current-user installer plus updater signature. Stage verifies real x86_64 PE headers, file size, SHA-256, Minisign/Tauri file signature and authenticated signature comment before copying with exclusive-create semantics into `builds/`. Repeated staging only accepts identical bytes. Metadata records public/internal versions, build ID, commit, architecture/platform, verified timestamp, size/hash, signature, URL, notes and staged state.
+Packaging fails outside Windows, while licence review is unresolved, or without signing configuration. `tauri build` produces a real NSIS current-user installer plus updater signature. Stage checks PE structure, file size, SHA-256, Minisign/Tauri file signature and authenticated version comment before copying with exclusive-create semantics into `builds/`. NSIS uses an x86 installer bootstrapper for the x64 application, so staging accepts x86/x64 installer headers while separately requiring the actual bundled application binary to have x64 headers. Its checksum/size are recorded too; header checks do not substitute for installed-app acceptance. Release notes and both binaries are validated before archive writes. Repeated staging only accepts identical bytes. Metadata records public/internal versions, build ID, commit, architecture/platform, verified timestamp, size/hash, signature, URL, notes and staged state.
 
 Upload immutable installer/signature to the prepared same-VPS artifact path (or deliberately configured GitHub release archive), then:
 
@@ -54,3 +54,5 @@ Tauri updater public-key verification is mandatory. Missing keys produce a usefu
 ## Native content activity verification
 
 `SQLX_OFFLINE=true cargo test -p solara-launcher --lib --locked` covers exact API-resource allowlisting, selected modpack identity/archive validation, bounded activity state and the actual inherited headless event emitter/channel/ledger path. The pinned preparation invokes `scripts/patch-content-events.py` to reproduce that headless event bridge. Browser workflow fixtures run with `npm run test:workflows`; actual Windows compatible installation and game launch still require separate acceptance. Content activity records are in memory and do not imply persisted/resumable work after restart.
+
+NSIS architecture evidence: the [pinned Tauri CLI 2.12.4 bundler](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle/windows/nsis/mod.rs) lists x86 Unicode stubs/plugins. The official NSIS 3.13 archive was checked against that source's checksum, and its LZMA stub reports machine `0x14c` (x86). This toolchain inspection does not constitute a built Solara executable.

@@ -65,7 +65,20 @@ jobs:
           npm run build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Check actual Windows desktop shell
-        run: cargo check -p solara-launcher --all-targets --locked
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $checkLog = Join-Path $env:RUNNER_TEMP 'solara-native-check.log'
+          cargo check -p solara-launcher --all-targets --locked 2>&1 | Tee-Object -FilePath $checkLog
+          $checkExit = $LASTEXITCODE
+          if ($checkExit -ne 0) {
+            # This job has no app/signing/provider secrets. Expose bounded compiler
+            # diagnostics as job annotations, readable with public repository access.
+            $tail = (Get-Content $checkLog -Tail 80) -join "`n"
+            if ($tail.Length -gt 12000) { $tail = $tail.Substring($tail.Length - 12000) }
+            $tail = $tail.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error title=Windows native compiler diagnostics::$tail"
+            exit $checkExit
+          }
       - name: Run native event, resource-policy and local-server tests
         run: |
           cargo test -p solara-launcher -p solara-local-server --lib --locked

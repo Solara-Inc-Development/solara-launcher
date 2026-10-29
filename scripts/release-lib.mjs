@@ -21,5 +21,24 @@ export function verifyMinisign(artifact,encodedSignature,encodedPublicKey,expect
  if(!verify(null,content,publicKey,sig.subarray(10)))throw Error('Installer signature verification failed');
  const comment=Buffer.from(lines[2].slice('trusted comment: '.length));if(!verify(null,Buffer.concat([sig.subarray(10),comment]),publicKey,global))throw Error('Trusted signature metadata verification failed');if(expectedVersion && !comment.toString().split('\t').includes('version:'+expectedVersion))throw Error('Signed version does not match release metadata');return true;
 }
-export function verifyPe(bytes){if(bytes.length<1024||bytes.subarray(0,2).toString()!=='MZ')throw Error('Artifact is not a Windows executable');const offset=bytes.readUInt32LE(0x3c);if(offset<64||offset+24>bytes.length||bytes.subarray(offset,offset+4).toString('binary')!=='PE\x00\x00'||bytes.readUInt16LE(offset+4)!==0x8664)throw Error('Artifact must be a real Windows x86_64 PE executable');return true;}
-export async function verifyArtifact(file,signature,key,version=null){const bytes=await readFile(file);verifyPe(bytes);verifyMinisign(bytes,signature,key,version);return {size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};}
+export function verifyPe(bytes,allowedMachines=[0x8664]){
+ if(bytes.length<1024||bytes.subarray(0,2).toString()!=='MZ')throw Error('Artifact is not a Windows executable');
+ const offset=bytes.readUInt32LE(0x3c);
+ if(offset<64||offset+24>bytes.length||bytes.subarray(offset,offset+4).toString('binary')!=='PE\x00\x00')throw Error('Invalid Windows PE header');
+ const machine=bytes.readUInt16LE(offset+4),sections=bytes.readUInt16LE(offset+6),optionalSize=bytes.readUInt16LE(offset+20),flags=bytes.readUInt16LE(offset+22);
+ if(!allowedMachines.includes(machine))throw Error('Unexpected Windows executable architecture');
+ const expectedMagic=machine===0x8664?0x20b:0x10b;
+ if(!sections||sections>96||optionalSize<(machine===0x8664?112:96)||offset+24+optionalSize+40*sections>bytes.length||bytes.readUInt16LE(offset+24)!==expectedMagic||!(flags&0x2)||(flags&0x2000))throw Error('Invalid Windows executable structure');
+ return true;
+}
+export async function verifyApplication(file){
+ const bytes=await readFile(file);verifyPe(bytes);
+ return {applicationSha256:createHash('sha256').update(bytes).digest('hex'),applicationSize:bytes.length};
+}
+export async function verifyArtifact(file,signature,key,version=null){
+ const bytes=await readFile(file);
+ // NSIS uses an x86 bootstrapper even when the bundled application is x64.
+ // The application's architecture is verified separately when staging.
+ verifyPe(bytes,[0x14c,0x8664]);verifyMinisign(bytes,signature,key,version);
+ return {size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};
+}
