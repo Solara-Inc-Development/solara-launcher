@@ -1,4 +1,5 @@
 name: Build Windows testing candidate
+# Build testing candidate with clean native Win32 APIs and PE metadata
 on:
   workflow_dispatch:
   push:
