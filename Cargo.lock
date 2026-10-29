@@ -5709,6 +5709,7 @@ dependencies = [
  "theseus",
  "tokio",
  "uuid 1.29.0",
+ "zip 6.0.0",
 ]
 
 [[package]]

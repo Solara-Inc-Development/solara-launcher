@@ -156,6 +156,17 @@ impl Instances {
         write_json(&self.safe_dir(id).await?.join("instance.json"), &record).await?;
         Ok(record)
     }
+    pub async fn transition(&self, id: &str, from: &[&str], to: &str) -> Result<Instance> {
+        let _guard = self.writes.lock().await;
+        let mut record = self.get(id).await?;
+        if !from.contains(&record.state.as_str()) {
+            bail!("Instance is already busy or cannot enter this state")
+        }
+        record.state = to.into();
+        record.validate()?;
+        write_json(&self.safe_dir(id).await?.join("instance.json"), &record).await?;
+        Ok(record)
+    }
     pub async fn game_dir(&self, id: &str) -> Result<PathBuf> {
         let dir = self.safe_dir(id).await?.join("game");
         let meta = tokio::fs::symlink_metadata(&dir).await?;

@@ -39,6 +39,7 @@ theseus = { path = "../../.upstream/modrinth/packages/app-lib" }
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 discord-rich-presence = "1"
+zip = { version = "6", default-features = false, features = ["deflate"] }
 
 [target.'cfg(windows)'.dependencies]
 keyring = { version = "3.6.3", features = ["windows-native"] }
