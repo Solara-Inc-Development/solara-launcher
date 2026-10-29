@@ -157,25 +157,50 @@ pub(super) async fn fetch_metadata(url: &str) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
+static CACHED_VERSIONS: std::sync::Mutex<Option<(std::time::Instant, Vec<VersionEntry>)>> =
+    std::sync::Mutex::new(None);
+
 pub async fn versions() -> Result<Vec<VersionEntry>> {
-    let data: Value = serde_json::from_slice(&fetch_metadata(MANIFEST).await?)?;
-    let raw = data["versions"]
-        .as_array()
-        .context("Invalid Minecraft version list")?;
-    if raw.len() > 10000 {
-        bail!("Minecraft version list exceeds limit")
-    }
-    let mut result = Vec::with_capacity(raw.len());
-    for value in raw {
-        let entry: VersionEntry = serde_json::from_value(value.clone())?;
-        version_id(&entry.id)?;
-        official_url(&entry.url)?;
-        if entry.sha1.len() != 40 || !entry.sha1.bytes().all(|b| b.is_ascii_hexdigit()) {
-            bail!("Invalid Minecraft metadata checksum")
+    if let Ok(guard) = CACHED_VERSIONS.lock() {
+        if let Some((at, ref list)) = *guard {
+            if at.elapsed() < std::time::Duration::from_secs(300) {
+                return Ok(list.clone());
+            }
         }
-        result.push(entry);
     }
-    Ok(result)
+    match fetch_metadata(MANIFEST).await {
+        Ok(bytes) => {
+            let data: Value = serde_json::from_slice(&bytes)?;
+            let raw = data["versions"]
+                .as_array()
+                .context("Invalid Minecraft version list")?;
+            if raw.len() > 10000 {
+                bail!("Minecraft version list exceeds limit")
+            }
+            let mut result = Vec::with_capacity(raw.len());
+            for value in raw {
+                let entry: VersionEntry = serde_json::from_value(value.clone())?;
+                version_id(&entry.id)?;
+                official_url(&entry.url)?;
+                if entry.sha1.len() != 40 || !entry.sha1.bytes().all(|b| b.is_ascii_hexdigit()) {
+                    bail!("Invalid Minecraft metadata checksum")
+                }
+                result.push(entry);
+            }
+            if let Ok(mut guard) = CACHED_VERSIONS.lock() {
+                *guard = Some((std::time::Instant::now(), result.clone()));
+            }
+            Ok(result)
+        }
+        Err(e) => {
+            if let Ok(guard) = CACHED_VERSIONS.lock() {
+                if let Some((_, ref list)) = *guard {
+                    return Ok(list.clone());
+                }
+            }
+            Err(e)
+        }
+    }
 }
 
 pub fn verify_version(entry: &VersionEntry, bytes: &[u8]) -> Result<Value> {
