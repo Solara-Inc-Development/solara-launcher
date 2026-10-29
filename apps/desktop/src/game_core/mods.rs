@@ -214,14 +214,36 @@ pub async fn toggle(
 fn validate_jar_file_name(file_name: &str) -> Result<String> {
     let trimmed = file_name.trim();
     if trimmed.len() <= 4
+        || trimmed.starts_with('.')
         || trimmed.contains('/')
         || trimmed.contains('\\')
         || !trimmed.to_ascii_lowercase().ends_with(".jar")
     {
         bail!("Choose a valid .jar mod file")
     }
-    super::metadata::relative_path(&format!("mods/{trimmed}"))?;
-    Ok(trimmed.to_string())
+    let stem = &trimmed[..trimmed.len() - 4];
+    if stem.trim().is_empty() || stem.ends_with([' ', '.']) {
+        bail!("Choose a valid .jar mod file")
+    }
+    let normalized = format!("{stem}.jar");
+    super::metadata::relative_path(&format!("mods/{normalized}"))?;
+    Ok(normalized)
+}
+
+async fn ensure_no_mod_conflict(mods_dir: &Path, clean_name: &str) -> Result<()> {
+    if !tokio::fs::try_exists(mods_dir).await? {
+        return Ok(());
+    }
+    let lower_jar = clean_name.to_ascii_lowercase();
+    let lower_disabled = format!("{lower_jar}.disabled");
+    let mut rd = tokio::fs::read_dir(mods_dir).await?;
+    while let Some(entry) = rd.next_entry().await? {
+        let existing = entry.file_name().to_string_lossy().to_ascii_lowercase();
+        if existing == lower_jar || existing == lower_disabled {
+            bail!("A mod file with that name already exists in this instance")
+        }
+    }
+    Ok(())
 }
 
 fn verify_imported_jar(
@@ -239,19 +261,34 @@ fn verify_imported_jar(
     if zip.is_empty() {
         bail!("Mod .jar archive is empty")
     }
+    if zip.len() > 8_192 {
+        bail!("Mod .jar archive contains too many entries")
+    }
     let mut has_manifest_or_class = !parsed.4.is_empty();
+    let mut total_uncompressed = 0u64;
     for i in 0..zip.len() {
         let entry = zip.by_index_raw(i)?;
-        if entry.is_symlink() {
+        if entry.is_symlink()
+            || entry
+                .unix_mode()
+                .is_some_and(|mode| mode & 0o170000 == 0o120000)
+        {
             bail!("Mod .jar archive contains an unsupported link entry")
         }
         let name = entry.name().replace('\\', "/");
         if name.starts_with('/')
+            || name.contains(':')
+            || name.contains('\0')
             || name
                 .split('/')
-                .any(|seg| seg == ".." || seg.chars().any(char::is_control))
+                .any(|seg| seg == "." || seg == ".." || seg.chars().any(char::is_control))
         {
             bail!("Mod .jar archive contains an unsafe entry path")
+        }
+        let size = entry.size();
+        total_uncompressed = total_uncompressed.saturating_add(size);
+        if size > 256 * 1024 * 1024 || total_uncompressed > 256 * 1024 * 1024 {
+            bail!("Mod .jar uncompressed contents exceed the 256 MiB limit")
         }
         if name == "META-INF/MANIFEST.MF" || name.ends_with(".class") {
             has_manifest_or_class = true;
@@ -281,11 +318,13 @@ pub async fn import_bytes(
     let disabled_rel = format!("{rel}.disabled");
     let target = files::resolve_create_parents(store, id, &rel).await?;
     let disabled = files::resolve(store, id, &disabled_rel, true).await?;
+    let mods_dir = target.parent().context("Mods folder unavailable")?;
     if tokio::fs::symlink_metadata(&target).await.is_ok()
         || tokio::fs::symlink_metadata(&disabled).await.is_ok()
     {
         bail!("A mod file with that name already exists in this instance")
     }
+    ensure_no_mod_conflict(mods_dir, &clean_name).await?;
     let temp = target.with_file_name(format!(".solara-mod-{}.tmp", uuid::Uuid::new_v4()));
     let write_res = async {
         use tokio::io::AsyncWriteExt;
@@ -317,6 +356,10 @@ pub async fn import_bytes(
     {
         let _ = tokio::fs::remove_file(&temp).await;
         bail!("A mod file with that name already exists in this instance")
+    }
+    if let Err(e) = ensure_no_mod_conflict(mods_dir, &clean_name).await {
+        let _ = tokio::fs::remove_file(&temp).await;
+        return Err(e);
     }
     if let Err(e) = tokio::fs::rename(&temp, &target).await {
         let _ = tokio::fs::remove_file(&temp).await;
@@ -426,9 +469,14 @@ mod tests {
                 .is_err()
         );
 
-        // Reject corrupt/non-jar bytes and non-.jar filenames
+        // Reject corrupt/non-jar bytes, dotfile names, and non-.jar filenames
         assert!(
             import_bytes(&store, &fabric_inst.id, "zoom.jar", b"not-a-zip")
+                .await
+                .is_err()
+        );
+        assert!(
+            import_bytes(&store, &fabric_inst.id, ".hidden.jar", &jar_bytes)
                 .await
                 .is_err()
         );
@@ -448,9 +496,14 @@ mod tests {
         assert_eq!(imported.loaders, vec!["quilt"]);
         assert!(imported.enabled);
 
-        // Reject duplicate import (even if disabled)
+        // Reject duplicate import (even if disabled or with different casing)
         assert!(
             import_bytes(&store, &fabric_inst.id, "zoom.jar", &jar_bytes)
+                .await
+                .is_err()
+        );
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "ZOOM.JAR", &jar_bytes)
                 .await
                 .is_err()
         );
@@ -459,6 +512,11 @@ mod tests {
             .unwrap();
         assert!(
             import_bytes(&store, &fabric_inst.id, "zoom.jar", &jar_bytes)
+                .await
+                .is_err()
+        );
+        assert!(
+            import_bytes(&store, &fabric_inst.id, "Zoom.JAR", &jar_bytes)
                 .await
                 .is_err()
         );

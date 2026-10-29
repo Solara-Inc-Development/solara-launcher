@@ -36,6 +36,37 @@ fn excluded_top_dir(segment: &str) -> bool {
     )
 }
 
+fn forbidden_backup_extension(path: &str) -> bool {
+    Path::new(path)
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|ext| {
+            matches!(
+                ext.to_ascii_lowercase().as_str(),
+                "exe"
+                    | "dll"
+                    | "so"
+                    | "dylib"
+                    | "bat"
+                    | "cmd"
+                    | "ps1"
+                    | "vbs"
+                    | "vbe"
+                    | "wsf"
+                    | "wsh"
+                    | "msi"
+                    | "msp"
+                    | "com"
+                    | "scr"
+                    | "pif"
+                    | "hta"
+                    | "cpl"
+                    | "sys"
+                    | "sh"
+            )
+        })
+}
+
 fn valid_label(label: Option<&str>, fallback_instance_name: &str) -> Result<String> {
     let default_name = format!("{fallback_instance_name} backup");
     let chosen = label
@@ -159,17 +190,25 @@ pub async fn create(store: &Instances, id: &str, label: Option<&str>) -> Result<
                 bail!("Linked files and folders cannot be backed up")
             }
             if meta.is_dir() {
-                if rel_dir == "saves" {
-                    worlds.insert(file_name);
-                }
                 stack.push((rel, entry.path()));
             } else if meta.is_file() {
+                if forbidden_backup_extension(&rel) {
+                    bail!("Executable files cannot be backed up in instance snapshots")
+                }
                 if files_to_archive.len() >= MAX_BACKUP_FILES {
                     bail!("This instance has too many files for a single backup")
                 }
                 total_bytes = total_bytes.saturating_add(meta.len());
                 if total_bytes > MAX_BACKUP_BYTES {
                     bail!("Backup size exceeds the 512 MiB limit")
+                }
+                let mut parts = rel.split('/');
+                if parts.next() == Some("saves") {
+                    if let Some(world_name) = parts.next() {
+                        if parts.next().is_some() {
+                            worlds.insert(world_name.to_string());
+                        }
+                    }
                 }
                 files_to_archive.push((rel, entry.path(), meta.len()));
             }
@@ -178,10 +217,11 @@ pub async fn create(store: &Instances, id: &str, label: Option<&str>) -> Result<
     files_to_archive.sort_by(|a, b| a.0.cmp(&b.0));
 
     let backup_id = uuid::Uuid::new_v4().to_string();
+    let stage_dir = backups_dir.join(format!(".create-stage-{}", uuid::Uuid::new_v4()));
     let entry_dir = backups_dir.join(&backup_id);
-    tokio::fs::create_dir(&entry_dir).await?;
-    let archive_path = entry_dir.join("archive.zip");
-    let temp_zip = entry_dir.join(format!(".solara-backup-{}.tmp", uuid::Uuid::new_v4()));
+    tokio::fs::create_dir(&stage_dir).await?;
+    let archive_path = stage_dir.join("archive.zip");
+    let temp_zip = stage_dir.join(format!(".solara-backup-{}.tmp", uuid::Uuid::new_v4()));
     let file_count = files_to_archive.len() as u32;
     let world_count = worlds.len() as u32;
 
@@ -222,12 +262,12 @@ pub async fn create(store: &Instances, id: &str, label: Option<&str>) -> Result<
     let (size, sha256) = match build_result {
         Ok(v) => v,
         Err(e) => {
-            let _ = tokio::fs::remove_dir_all(&entry_dir).await;
+            let _ = tokio::fs::remove_dir_all(&stage_dir).await;
             return Err(e);
         }
     };
 
-    if let Err(e) = async {
+    let finalize = async {
         tokio::fs::rename(&temp_zip, &archive_path).await?;
         let record = BackupEntry {
             id: backup_id.clone(),
@@ -238,17 +278,23 @@ pub async fn create(store: &Instances, id: &str, label: Option<&str>) -> Result<
             world_count,
             sha256,
         };
-        write_json(&entry_dir.join("record.json"), &record).await?;
+        write_json(&stage_dir.join("record.json"), &record).await?;
+        tokio::fs::rename(&stage_dir, &entry_dir).await?;
         Ok::<BackupEntry, anyhow::Error>(record)
     }
-    .await
-    {
-        let _ = tokio::fs::remove_dir_all(&entry_dir).await;
-        return Err(e);
-    } else {
-        let record: BackupEntry =
-            serde_json::from_slice(&tokio::fs::read(entry_dir.join("record.json")).await?)?;
-        Ok(record)
+    .await;
+
+    match finalize {
+        Ok(_) => {
+            let record: BackupEntry =
+                serde_json::from_slice(&tokio::fs::read(entry_dir.join("record.json")).await?)?;
+            Ok(record)
+        }
+        Err(e) => {
+            let _ = tokio::fs::remove_dir_all(&stage_dir).await;
+            let _ = tokio::fs::remove_dir_all(&entry_dir).await;
+            Err(e)
+        }
     }
 }
 
@@ -289,11 +335,12 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
     let backups_dir = ensure_backups_dir(store, id, false).await?;
     let archive_path = backups_dir.join(backup_id).join("archive.zip");
     let stage_dir = backups_dir.join(format!(".restore-stage-{}", uuid::Uuid::new_v4()));
-    tokio::fs::create_dir(&stage_dir).await?;
+    let files_stage_dir = stage_dir.join("files");
+    tokio::fs::create_dir_all(&files_stage_dir).await?;
 
     let stage_result = tokio::task::spawn_blocking({
         let archive_path = archive_path.clone();
-        let stage_dir = stage_dir.clone();
+        let files_stage_dir = files_stage_dir.clone();
         let expected_sha256 = record.sha256.clone();
         let expected_size = record.size;
         move || -> Result<(Vec<String>, BTreeSet<String>)> {
@@ -337,6 +384,9 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
                 if entry.is_dir() {
                     continue;
                 }
+                if forbidden_backup_extension(trimmed) {
+                    bail!("Backup archive contains a forbidden executable file")
+                }
                 let size = entry.size();
                 total_uncompressed = total_uncompressed.saturating_add(size);
                 if size > MAX_BACKUP_BYTES || total_uncompressed > MAX_BACKUP_BYTES {
@@ -350,7 +400,7 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
                         }
                     }
                 }
-                let staged_path = stage_dir.join(trimmed);
+                let staged_path = files_stage_dir.join(trimmed);
                 if let Some(parent) = staged_path.parent() {
                     std::fs::create_dir_all(parent)?;
                 }
@@ -385,42 +435,77 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
         if is_link(&tokio::fs::symlink_metadata(&game_dir).await?) {
             bail!("Unsafe instance game directory")
         }
-        // Pre-validate all target paths before modifying any existing world files.
-        for rel in &extracted_files {
-            files::resolve_create_parents(store, id, rel).await?;
-        }
-        // For worlds present in the backup, verify no links exist in the current world folder
-        // and clean that specific world folder so stale post-backup region/data files do not mix,
-        // while preserving any other worlds created separately.
         let saves_dir = game_dir.join("saves");
         if tokio::fs::try_exists(&saves_dir).await? {
             let saves_meta = tokio::fs::symlink_metadata(&saves_dir).await?;
             if is_link(&saves_meta) || !saves_meta.is_dir() {
                 bail!("Unsafe instance saves folder")
             }
+            // Pre-validate every restored world folder for links before moving or deleting anything.
             for world in &restored_worlds {
                 let world_dir = saves_dir.join(world);
                 if tokio::fs::try_exists(&world_dir).await? {
                     verify_no_links_recursive(&world_dir).await?;
-                    tokio::fs::remove_dir_all(&world_dir).await?;
                 }
             }
         }
+        // Pre-validate all non-world target paths before touching saves/.
         for rel in &extracted_files {
-            let target = files::resolve_create_parents(store, id, rel).await?;
-            let staged = stage_dir.join(rel);
-            let temp =
-                target.with_file_name(format!(".solara-restore-{}.tmp", uuid::Uuid::new_v4()));
-            if let Err(e) = async {
-                tokio::fs::copy(&staged, &temp).await?;
-                tokio::fs::rename(&temp, &target).await?;
-                Ok::<_, anyhow::Error>(())
+            let is_restored_world_file = {
+                let mut parts = rel.split('/');
+                parts.next() == Some("saves")
+                    && parts
+                        .next()
+                        .is_some_and(|w| parts.next().is_some() && restored_worlds.contains(w))
+            };
+            if !is_restored_world_file {
+                files::resolve_create_parents(store, id, rel).await?;
             }
-            .await
-            {
-                let _ = tokio::fs::remove_file(&temp).await;
-                return Err(e);
+        }
+
+        // Move existing folders for restored worlds into rollback_saves so post-backup
+        // file/folder changes inside those worlds do not block restore and can be rolled back on error.
+        let rollback_saves = stage_dir.join("rollback-saves");
+        tokio::fs::create_dir_all(&rollback_saves).await?;
+        let mut moved_worlds: Vec<String> = Vec::new();
+
+        let place_result = async {
+            if tokio::fs::try_exists(&saves_dir).await? {
+                for world in &restored_worlds {
+                    let world_dir = saves_dir.join(world);
+                    if tokio::fs::try_exists(&world_dir).await? {
+                        tokio::fs::rename(&world_dir, rollback_saves.join(world)).await?;
+                        moved_worlds.push(world.clone());
+                    }
+                }
             }
+            for rel in &extracted_files {
+                let target = files::resolve_create_parents(store, id, rel).await?;
+                let staged = files_stage_dir.join(rel);
+                let temp =
+                    target.with_file_name(format!(".solara-restore-{}.tmp", uuid::Uuid::new_v4()));
+                if let Err(e) = async {
+                    tokio::fs::copy(&staged, &temp).await?;
+                    tokio::fs::rename(&temp, &target).await?;
+                    Ok::<_, anyhow::Error>(())
+                }
+                .await
+                {
+                    let _ = tokio::fs::remove_file(&temp).await;
+                    return Err(e);
+                }
+            }
+            Ok::<_, anyhow::Error>(())
+        }
+        .await;
+
+        if let Err(e) = place_result {
+            for world in &moved_worlds {
+                let world_dir = saves_dir.join(world);
+                let _ = tokio::fs::remove_dir_all(&world_dir).await;
+                let _ = tokio::fs::rename(rollback_saves.join(world), &world_dir).await;
+            }
+            return Err(e);
         }
         Ok::<_, anyhow::Error>(())
     }
@@ -433,6 +518,10 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
 
 pub async fn delete(store: &Instances, id: &str, backup_id: &str) -> Result<()> {
     instance_id(backup_id)?;
+    let instance = store.get(id).await?;
+    if instance.state == "installing" {
+        bail!("Wait for this instance to finish installing before deleting a backup")
+    }
     let backups_dir = ensure_backups_dir(store, id, false).await?;
     let entry_dir = backups_dir.join(backup_id);
     let meta = tokio::fs::symlink_metadata(&entry_dir)
@@ -485,6 +574,10 @@ mod tests {
         tokio::fs::write(game.join("saves/SurvivalWorld/level.dat"), b"world-v1")
             .await
             .unwrap();
+        // Empty folder under saves/ should not inflate world_count when it has no files.
+        tokio::fs::create_dir_all(game.join("saves/EmptyFolder"))
+            .await
+            .unwrap();
 
         let created = create(&store, &inst.id, Some("Before Nether"))
             .await
@@ -497,13 +590,20 @@ mod tests {
         assert_eq!(listed.len(), 1);
         assert_eq!(listed[0].id, created.id);
 
-        // Mutate existing world/config and add a second independent world + extra file in SurvivalWorld.
+        // Mutate existing world/config, replace level.dat file with a directory inside SurvivalWorld,
+        // and add a second independent world + extra file in SurvivalWorld.
         tokio::fs::write(game.join("options.txt"), b"fov:110")
             .await
             .unwrap();
+        tokio::fs::remove_file(game.join("saves/SurvivalWorld/level.dat"))
+            .await
+            .unwrap();
+        tokio::fs::create_dir_all(game.join("saves/SurvivalWorld/level.dat"))
+            .await
+            .unwrap();
         tokio::fs::write(
-            game.join("saves/SurvivalWorld/level.dat"),
-            b"world-v2-corrupted",
+            game.join("saves/SurvivalWorld/level.dat/conflict.txt"),
+            b"folder-where-file-was",
         )
         .await
         .unwrap();
@@ -517,12 +617,13 @@ mod tests {
             .await
             .unwrap();
 
-        // Reject restore while instance is installing.
+        // Reject restore and delete while instance is installing.
         store
             .transition(&inst.id, &["installed"], "installing")
             .await
             .unwrap();
         assert!(restore(&store, &inst.id, &created.id).await.is_err());
+        assert!(delete(&store, &inst.id, &created.id).await.is_err());
         store
             .transition(&inst.id, &["installing"], "installed")
             .await

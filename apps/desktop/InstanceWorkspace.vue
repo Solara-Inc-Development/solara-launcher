@@ -30,14 +30,14 @@ async function readTab(){loading.value=true;error.value='';try{
 async function refreshLogs(){try{consoleText.value=await native('instance_logs',{id:props.instance.id})}catch{consoleText.value='No game log yet. Start this instance to see its output.'}}
 async function canLeave(){if(!dirty.value)return true;dialog.value='discard';return new Promise<boolean>(resolve=>{leaveAnswer=resolve})}
 defineExpose({canLeave});
-function dismiss(){if(leaveAnswer){leaveAnswer(false);leaveAnswer=null}dialog.value=null}
+function dismiss(){if(leaveAnswer){leaveAnswer(false);leaveAnswer=null}error.value='';dialog.value=null}
 async function selectTab(value:string){if(!await canLeave())return;editor.value=null;tab.value=value;query.value='';await readTab()}
 async function back(){if(await canLeave())emit('back')}
 async function openFolder(value:string){if(!await canLeave())return;editor.value=null;path.value=value;tab.value='files';query.value='';await readTab()}
 async function openFile(entry:any){if(entry.directory){await openFolder(entry.path);return}if(!edited(entry.name)){selected.value=entry;dialog.value='details';return}await run(async()=>{if(!await canLeave())return;editor.value=await native('instance_text',{id:props.instance.id,path:entry.path});text.value=editor.value.content})}
 async function save(){await run(async()=>{const result=await native('instance_file_action',{id:props.instance.id,action:'save',path:editor.value.path,content:text.value,expectedSha256:editor.value.sha256});editor.value={...editor.value,content:text.value,sha256:result.sha256};notice.value='Saved on this device.'})}
 function formatJson(){try{text.value=JSON.stringify(JSON.parse(text.value),null,2)+'\n';error.value=''}catch{error.value='This JSON has a syntax error. Fix it before formatting.'}}
-function ask(kind:string,entry?:any){selected.value=entry||null;dialogName.value=kind==='rename'?entry.name:kind==='new-backup'?`${props.instance.name} backup`:'';dialog.value=kind}
+function ask(kind:string,entry?:any){error.value='';selected.value=entry||null;dialogName.value=kind==='rename'?entry.name:kind==='new-backup'?`${props.instance.name} backup`:'';dialog.value=kind}
 async function confirm(){
  if(dialog.value==='discard'){editor.value=null;dialog.value=null;leaveAnswer?.(true);leaveAnswer=null;return}
  await run(async()=>{const action=dialog.value;const id=props.instance.id;
@@ -56,6 +56,8 @@ async function confirm(){
 async function importModFile(event:Event){
  const input=event.target as HTMLInputElement;const file=input.files?.[0];input.value='';if(!file)return;
  await run(async()=>{
+  if(!file.name.toLowerCase().endsWith('.jar'))throw Error('Choose a valid .jar mod file.');
+  if(!file.size||file.size>128*1024*1024)throw Error('Choose a .jar mod file up to 128 MiB.');
   const buf=new Uint8Array(await file.arrayBuffer());let binary='';const chunk=0x8000;
   for(let i=0;i<buf.length;i+=chunk)binary+=String.fromCharCode(...buf.subarray(i,i+chunk));
   await native('import_instance_mod',{id:props.instance.id,fileName:file.name,bytesBase64:btoa(binary)});
@@ -67,7 +69,7 @@ async function toggle(mod:any){await run(async()=>{await native('toggle_instance
 async function saveSettings(){await run(async()=>{await native('edit_instance',{id:props.instance.id,...form.value});notice.value='Instance settings saved.';emit('refresh')})}
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
-watch(()=>props.instance.id,()=>{tab.value='overview';path.value='';editor.value=null;error.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'}},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='overview';path.value='';entries.value=[];mods.value=[];backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'}},{immediate:true});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
 onUnmounted(()=>{if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
