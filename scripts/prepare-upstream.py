@@ -12,7 +12,7 @@ if not (CACHE/'.git').exists():
     CACHE.parent.mkdir(parents=True,exist_ok=True)
     subprocess.run(['git','clone','--bare','--filter=blob:none','https://github.com/modrinth/code.git',str(CACHE)],check=True)
 subprocess.run(['git','-C',str(CACHE),'fetch','--depth','1','origin',REV],check=True)
-paths=['Cargo.toml','Cargo.lock','COPYING.md','packages/app-lib','packages/ariadne','packages/daedalus','packages/async-minecraft-ping','packages/modrinth-content-management','packages/path-util','packages/serde-binhum','apps/app/LICENSE']
+paths=['Cargo.toml','Cargo.lock','COPYING.md','.gitattributes','packages/app-lib','packages/ariadne','packages/daedalus','packages/async-minecraft-ping','packages/modrinth-content-management','packages/path-util','packages/serde-binhum','apps/app/LICENSE']
 raw=subprocess.check_output(['git','-C',str(CACHE),'archive',REV,*paths])
 if DEST.exists(): shutil.rmtree(DEST)
 DEST.mkdir(parents=True)
@@ -66,4 +66,12 @@ p=lib/'src/state/minecraft_auth.rs';s=p.read_text().replace('Status Code: {statu
 # Allow a locally downloaded, checksum-verified Gradle distribution without changing engine behavior.
 p=lib/'build.rs';s=p.read_text().replace('let gradle_path = fs::canonicalize(', 'let gradle_path = std::env::var_os("SOLARA_GRADLE_BIN").map(PathBuf::from).unwrap_or_else(|| fs::canonicalize(').replace('    .unwrap();\n\n    let mut build_dir_str', '    .unwrap());\n\n    let mut build_dir_str');p.write_text(s)
 runpy.run_path(str(ROOT/'scripts/patch-content-events.py'))['patch'](lib)
+# Archive extraction preserves upstream LF bytes. Spotless cannot reliably infer
+# Git attributes for this ignored, extracted tree on Windows; use upstream's LF
+# policy explicitly while retaining every formatting, compilation and test task.
+p=lib/'java/build.gradle.kts';s=p.read_text(encoding='utf-8')
+if s.count('spotless {\n') != 1: raise RuntimeError('Pinned Java Spotless block changed')
+s=s.replace('spotless {\n','spotless {\n    lineEndings = com.diffplug.spotless.LineEnding.UNIX\n',1)
+p.write_text(s,encoding='utf-8',newline='\n')
+p=DEST/'SOLARA_PATCHES.json';patches=json.loads(p.read_text());patches['changes'].append('Preserve upstream LF policy for archived Java sources on Windows; retain Spotless checks');p.write_text(json.dumps(patches,indent=2)+'\n')
 print('Prepared pinned engine and Solara patches:',DEST)

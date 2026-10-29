@@ -15,7 +15,8 @@
     "test:ui": "node scripts/check-ui.cjs",
     "test:motion": "node scripts/check-future-ui.cjs",
     "capture:preview": "node scripts/capture-preview.cjs",
-    "test:workflows": "node scripts/check-workflows.cjs"
+    "test:workflows": "node scripts/check-workflows.cjs",
+    "test:csp": "node scripts/check-csp.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.10.0",
