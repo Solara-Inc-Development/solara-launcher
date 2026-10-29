@@ -99,14 +99,14 @@ pub async fn versions() -> Result<Value> {
 pub async fn loader_versions(game: &str, loader: &str) -> Result<Value> {
     match loader {
         "vanilla" => Ok(json!([])),
-        "fabric" => Ok(serde_json::to_value(
-            crate::game_core::loaders::fabric_versions(game).await?,
+        "fabric" | "quilt" => Ok(serde_json::to_value(
+            crate::game_core::loaders::versions(loader, game).await?,
         )?),
         _ => bail!("This loader is not available yet"),
     }
 }
 pub fn capabilities() -> Value {
-    json!({"loaders":["vanilla","fabric"],"contentInstall":false,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
+    json!({"loaders":["vanilla","fabric","quilt"],"contentInstall":true,"automaticJava":true,"instanceFiles":true,"modManager":true,"preview":true})
 }
 
 async fn windows_version() -> Result<Option<String>> {
@@ -185,7 +185,7 @@ pub async fn create_instance(
     loader: String,
     loader_version: String,
 ) -> Result<Value> {
-    if !matches!(loader.as_str(), "vanilla" | "fabric")
+    if !matches!(loader.as_str(), "vanilla" | "fabric" | "quilt")
         || (loader == "vanilla" && !loader_version.is_empty())
     {
         bail!("Choose a supported loader. More loaders are being added.")
@@ -199,8 +199,11 @@ pub async fn create_instance(
     {
         bail!("Choose a version from the official Minecraft list")
     }
-    let resolved = if loader == "fabric" {
-        Some(crate::game_core::loaders::fabric_version(&game_version, &loader_version).await?)
+    let resolved = if matches!(loader.as_str(), "fabric" | "quilt") {
+        Some(
+            crate::game_core::loaders::resolve_version(&loader, &game_version, &loader_version)
+                .await?,
+        )
     } else {
         None
     };
@@ -440,12 +443,99 @@ pub async fn game_running() -> bool {
 }
 
 pub async fn install_content(
-    _: Option<String>,
-    _: String,
-    _: String,
-    _: Option<String>,
+    instance_id: Option<String>,
+    project_id: String,
+    content_type: String,
+    version_id: Option<String>,
 ) -> Result<()> {
-    bail!("Content browsing is available. Installing mods and modpacks is coming in a later testing build.")
+    let engine = get().await?;
+    if content_type == "modpack" {
+        if instance_id.is_some() {
+            bail!("Modpacks create a new instance")
+        }
+        let version = version_id
+            .as_deref()
+            .filter(|v| !v.is_empty())
+            .context("Choose a modpack version")?;
+        let prepared = crate::game_core::content::prepare_modpack(&project_id, version).await?;
+        let prefs = preferences().await?;
+        let record = engine
+            .instances
+            .create(
+                prepared.name,
+                prepared.game_version,
+                prepared.loader,
+                prepared.loader_version,
+                prefs.memory,
+                prefs.java_path,
+            )
+            .await?;
+        let dir = engine.instances.path(&record.id)?;
+        let temp = dir.join(format!(".modpack-{}.tmp", uuid::Uuid::new_v4()));
+        if let Err(e) = async {
+            use tokio::io::AsyncWriteExt;
+            let mut f = tokio::fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&temp)
+                .await?;
+            f.write_all(&prepared.mrpack_bytes).await?;
+            f.sync_all().await?;
+            drop(f);
+            tokio::fs::rename(&temp, dir.join("modpack.mrpack")).await?;
+            Ok::<_, anyhow::Error>(())
+        }
+        .await
+        {
+            let _ = tokio::fs::remove_file(&temp).await;
+            let _ = tokio::fs::remove_dir_all(&dir).await;
+            return Err(e);
+        }
+        queue_install(record.id, record.name).await?;
+        return Ok(());
+    }
+    let id = instance_id
+        .filter(|s| !s.is_empty())
+        .context("Choose an instance")?;
+    assert_writable(&id).await?;
+    let instance = engine.instances.get(&id).await?;
+    let (label, planned) = crate::game_core::content::plan_project_install(
+        &instance,
+        &project_id,
+        &content_type,
+        version_id.as_deref(),
+    )
+    .await?;
+    let job = engine
+        .jobs
+        .begin_kind(&id, &format!("{label} for {}", instance.name), "content")?;
+    tokio::spawn(async move {
+        let permit = tokio::select! {
+            _=job.cancel.cancelled()=>{engine.jobs.finish(&job.id,false,true);return},
+            permit=engine.slots.acquire()=>permit,
+        };
+        let Ok(_permit) = permit else {
+            engine.jobs.finish(&job.id, false, false);
+            return;
+        };
+        let result = crate::game_core::content::install_files(
+            &engine.instances,
+            &engine.cache,
+            &id,
+            &planned,
+            &job.cancel,
+            |p| {
+                engine
+                    .jobs
+                    .report(&job.id, p.phase, p.verified_bytes, p.total_bytes)
+            },
+        )
+        .await;
+        engine
+            .jobs
+            .finish(&job.id, result.is_ok(), job.cancel.check().is_err());
+    });
+    Ok(())
 }
 pub async fn download_action(id: &str, action: &str) -> Result<()> {
     let engine = get().await?;

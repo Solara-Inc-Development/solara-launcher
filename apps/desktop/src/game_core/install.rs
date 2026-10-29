@@ -28,7 +28,7 @@ pub async fn instance(
 ) -> Result<()> {
     cancel.check()?;
     let instance = store.get(id).await?;
-    if !matches!(instance.loader.as_str(), "vanilla" | "fabric") {
+    if !matches!(instance.loader.as_str(), "vanilla" | "fabric" | "quilt") {
         bail!("This loader is not supported by the installer yet")
     }
     store
@@ -51,14 +51,16 @@ pub async fn instance(
             .context("Minecraft version is not in the official list")?;
         let document = metadata::version(entry).await?;
         let mut plan = plan::windows(&document, os_version)?;
-        if instance.loader == "fabric" {
+        if matches!(instance.loader.as_str(), "fabric" | "quilt") {
             cancel.check()?;
             let loader = instance
                 .loader_version
                 .as_deref()
-                .context("Fabric loader version missing")?;
-            let profile = super::loaders::fabric_profile(&instance.game_version, loader).await?;
-            super::loaders::apply_fabric(&mut plan, &profile, os_version)?;
+                .context("Mod loader version missing")?;
+            let profile =
+                super::loaders::loader_profile(&instance.loader, &instance.game_version, loader)
+                    .await?;
+            super::loaders::apply_loader(&mut plan, &instance.loader, &profile, os_version)?;
         }
         if plan.asset_index.size > 16 * 1024 * 1024 {
             bail!("Minecraft asset index exceeds limit")
@@ -183,6 +185,7 @@ pub async fn instance(
             }
             return Err(error.into());
         }
+        super::content::apply_modpack_if_present(store, cache, id, cancel, &mut report).await?;
         // Retain the previous runtime for recovery; never remove worlds/saves.
         store.transition(id, &["installing"], "installed").await?;
         report(Progress {

@@ -1,4 +1,4 @@
-// Labelled native IPC fixtures: verifies preview limits and device-code cancel UI.
+// Labelled native IPC fixtures: verifies preview limits, Fabric/Quilt loader picker, content install capability and device-code cancel UI.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
@@ -9,14 +9,20 @@ const assert=require('node:assert/strict');
   await context.route('https://api.modrinth.com/v2/search?**',r=>r.fulfill({json:{hits:[{project_id:'qa-mod',project_type:'mod',title:'QA preview mod',description:'Fixture only',author:'QA'}]}}));
   await context.addInitScript(()=>{
    const callbacks=new Map(),events=new Map();let next=0;
-   const state=window.__PREVIEW_QA__={calls:[],resolveLogin:null};
+   const state=window.__PREVIEW_QA__={calls:[],resolveLogin:null,failLoaders:true};
    window.__TAURI_INTERNALS__={transformCallback:fn=>{callbacks.set(++next,fn);return next},unregisterCallback:()=>{},invoke:async(command,args={})=>{
     state.calls.push({command,args});
     if(command==='plugin:event|listen'){events.set(args.event,args.handler);return events.size}
-    if(command==='launcher_capabilities')return {loaders:['vanilla'],contentInstall:false,preview:true};
-    if(command==='launcher_settings')return {memory:4096,javaPath:'java',discord:false};
+    if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt'],contentInstall:true,automaticJava:true,instanceFiles:true,modManager:true,preview:true};
+    if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:false};
     if(command==='launcher_snapshot')return {instances:[{id:'qa-failed',name:'QA interrupted install',gameVersion:'1.21.1',loader:'vanilla',state:'failed',running:false}],downloads:[],minecraftAccounts:[],localServers:[]};
     if(command==='minecraft_versions')return [{id:'1.21.1',type:'release'}];
+    if(command==='loader_versions'){
+     if(state.failLoaders){state.failLoaders=false;throw Error('Temporary Fabric metadata failure')}
+     if(args.loader==='quilt')return [{id:'0.30.1',stable:true},{id:'0.30.0-beta.1',stable:false}];
+     return [{id:'0.20.1',stable:true},{id:'0.20.0+build.1',stable:false}];
+    }
+    if(command==='create_instance')return {jobId:'qa-job',instanceId:'qa-created'};
     if(command==='minecraft_sign_in'){
      callbacks.get(events.get('minecraft-login-code'))({event:'minecraft-login-code',id:1,payload:{code:'QA-CODE',url:'https://www.microsoft.com/link',expiresIn:900}});
      return new Promise(resolve=>{state.resolveLogin=resolve});
@@ -32,9 +38,23 @@ const assert=require('node:assert/strict');
   await page.getByRole('button',{name:'Retry install',exact:true}).first().click();
   assert.equal(await page.evaluate(()=>window.__PREVIEW_QA__.calls.some(c=>c.command==='retry_instance'&&c.args.id==='qa-failed')),true);
   await page.getByRole('button',{name:'New instance',exact:true}).click();
-  assert.equal(await page.getByRole('radio').count(),1);
+  assert.equal(await page.getByRole('radio').count(),3);
   assert.equal(await page.getByRole('radio',{name:'Vanilla',exact:true}).count(),1);
-  await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+  assert.equal(await page.getByRole('radio',{name:'Fabric',exact:true}).count(),1);
+  assert.equal(await page.getByRole('radio',{name:'Quilt',exact:true}).count(),1);
+  await page.getByRole('radio',{name:'Fabric',exact:true}).click();
+  await page.getByText('Temporary Fabric metadata failure').waitFor();
+  assert.equal(await page.getByRole('button',{name:'Create instance',exact:true}).isDisabled(),true);
+  await page.getByRole('button',{name:'Try again',exact:true}).click();
+  await page.getByRole('combobox',{name:'Loader version',exact:true}).click();
+  await page.getByRole('option',{name:/0\.20\.1/}).click();
+  await page.getByRole('radio',{name:'Quilt',exact:true}).click();
+  await page.getByRole('combobox',{name:'Loader version',exact:true}).click();
+  await page.getByRole('option',{name:/0\.30\.1/}).click();
+  await page.getByPlaceholder('My next adventure',{exact:true}).fill('QA Quilt world');
+  await page.getByRole('button',{name:'Create instance',exact:true}).click();
+  await page.getByRole('dialog').waitFor({state:'hidden'});
+  assert.deepEqual(await page.evaluate(()=>window.__PREVIEW_QA__.calls.find(c=>c.command==='create_instance')?.args),{name:'QA Quilt world',gameVersion:'1.21.1',loader:'quilt',loaderVersion:'0.30.1'});
   // Locate the primary account action by its existing exact label.
   await page.getByRole('button',{name:'Add account',exact:true}).click();
   await page.getByRole('heading',{name:'Sign in to Minecraft',exact:true}).waitFor();
@@ -45,8 +65,8 @@ const assert=require('node:assert/strict');
   await page.getByRole('button',{name:'Explore mods and modpacks',exact:true}).click();
   await page.getByRole('button',{name:'Search',exact:true}).click();
   await page.getByRole('heading',{name:'QA preview mod',exact:true}).waitFor();
-  assert.equal(await page.getByRole('button',{name:'Install',exact:true}).isDisabled(),true);
+  assert.equal(await page.getByRole('button',{name:'Install',exact:true}).isDisabled(),false);
   assert.deepEqual(errors,[]);
-  console.log('Custom preview capability, interrupted-install retry and device-code cancellation fixtures passed. No real account/game used.');
+  console.log('Custom preview capability, Fabric/Quilt loader picker, content install capability, interrupted-install retry and device-code cancellation fixtures passed. No real account/game used.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

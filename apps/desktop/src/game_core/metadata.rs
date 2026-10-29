@@ -56,6 +56,9 @@ pub fn official_url(value: &str) -> Result<reqwest::Url> {
                     | "resources.download.minecraft.net"
                     | "meta.fabricmc.net"
                     | "maven.fabricmc.net"
+                    | "meta.quiltmc.org"
+                    | "maven.quiltmc.org"
+                    | "cdn.modrinth.com"
             )
         )
     {

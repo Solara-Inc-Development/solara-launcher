@@ -102,7 +102,7 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 </table>
 
 > [!NOTE]
-> **Still being built:** the local Minecraft engine is now independently written. The first testing build supports vanilla installs; mod loaders and content installation are still being added. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod management and verified Modrinth content/modpack installs (Forge/NeoForge are still being added, and the archived V-0.0.03 build predates these additions). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ---
 
@@ -119,7 +119,7 @@ The download and installed app are named **`solaralauncher.exe`**. Install once;
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
 | **Testing installer** | Temporarily withdrawn | Antivirus report under investigation; do not run V-0.0.03 yet |
-| **Minecraft core** | Custom vanilla preview | Official manifest/asset verified; mod loaders coming in later updates |
+| **Minecraft core** | Custom Vanilla / Fabric / Quilt | Official manifest, Maven & Modrinth hashes verified in source; Forge/NeoForge coming later |
 | **App updates** | Idle auto-update code ready | Signed Windows upgrade & relaunch verification pending |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Website source ready; live domain deployment pending |
 

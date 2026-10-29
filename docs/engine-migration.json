@@ -5,6 +5,20 @@
   "windowsAcceptance": false,
   "capabilities": [
     "vanilla-install",
+    "fabric-install",
+    "quilt-install",
+    "modrinth-content-mrpack-install",
+    "official-metadata",
+    "automatic-java-temurin",
+    "instance-files-editor-trash",
+    "local-mod-metadata-manager",
+    "local-device-auth",
+    "local-java-launch",
+    "verified-cache",
+    "cancel-retry"
+  ],
+  "archivedBuildCapabilities": [
+    "vanilla-install",
     "official-metadata",
     "local-device-auth",
     "local-java-launch",
@@ -14,7 +28,7 @@
   "pending": [
     "approved Microsoft client ID and licensed-account acceptance",
     "installed NSIS/update acceptance",
-    "mod loaders and content installation",
+    "Forge/NeoForge loader installation",
     "game recovery after launcher restart"
   ],
   "evidence": [
@@ -24,7 +38,8 @@
     "scripts/third-party.mjs"
   ],
   "windowsSourceCheck": {
-    "run": 40838812908,
+    "run": 40884605917,
+    "sourceCommit": "b0860a1ef612614747370d9c278584eced177fc2",
     "result": "passed"
   },
   "windowsInstallerBuild": {

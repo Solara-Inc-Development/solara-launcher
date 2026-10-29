@@ -1,12 +1,23 @@
-//! Read-only official Fabric planning; optionally verify one library, never run it.
+//! Read-only official Fabric/Quilt and Modrinth content planning; never executes game code.
 use solara_launcher::game_core::{
+    content,
     download::{Cancellation, FileCache},
+    instances::Instance,
     loaders, metadata, plan,
 };
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args: Vec<_> = std::env::args().collect();
-    let game = args.get(1).map(String::as_str).unwrap_or("1.21.1");
+    let game = args
+        .get(1)
+        .filter(|a| !a.starts_with("--"))
+        .map(String::as_str)
+        .unwrap_or("1.21.1");
+    let loader_kind = args
+        .windows(2)
+        .find(|w| w[0] == "--loader")
+        .map(|w| w[1].as_str())
+        .unwrap_or("fabric");
     let entries = metadata::versions().await?;
     let entry = entries
         .iter()
@@ -14,17 +25,19 @@ async fn main() -> anyhow::Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Official Minecraft version missing"))?;
     let document = metadata::version(entry).await?;
     let mut plan = plan::windows(&document, Some("10.0.22631"))?;
-    let loader = loaders::fabric_version(game, "").await?;
-    let profile = loaders::fabric_profile(game, &loader).await?;
-    loaders::apply_fabric(&mut plan, &profile, Some("10.0.22631"))?;
+    let loader = loaders::resolve_version(loader_kind, game, "").await?;
+    let profile = loaders::loader_profile(loader_kind, game, &loader).await?;
+    loaders::apply_loader(&mut plan, loader_kind, &profile, Some("10.0.22631"))?;
     let mut verified = 0;
     let all = args.iter().any(|a| a == "--verify-loader-libraries");
     if all || args.iter().any(|a| a == "--verify-one-library") {
-        let files = plan
-            .files
-            .iter()
-            .filter(|f| f.artifact.url.starts_with("https://maven.fabricmc.net/"));
-        let cache = FileCache::new(std::env::temp_dir().join("solara-fabric-smoke-cache"))?;
+        let files = plan.files.iter().filter(|f| {
+            f.artifact.url.starts_with("https://maven.fabricmc.net/")
+                || f.artifact
+                    .url
+                    .starts_with("https://maven.quiltmc.org/repository/release/")
+        });
+        let cache = FileCache::new(std::env::temp_dir().join("solara-loader-smoke-cache"))?;
         for file in files.take(if all { usize::MAX } else { 1 }) {
             cache
                 .obtain(&file.artifact, &Cancellation::default(), |_, _| {})
@@ -32,9 +45,36 @@ async fn main() -> anyhow::Result<()> {
             verified += 1;
         }
     }
+    let mut modrinth_summary = serde_json::Value::Null;
+    if args.iter().any(|a| a == "--verify-modrinth-smoke") {
+        let inst = Instance {
+            schema_version: 1,
+            id: uuid::Uuid::new_v4().to_string(),
+            name: "Smoke".into(),
+            game_version: game.into(),
+            loader: loader_kind.into(),
+            loader_version: Some(loader.clone()),
+            memory: 4096,
+            java_path: "auto".into(),
+            state: "installed".into(),
+        };
+        let (mod_label, mod_files) =
+            content::plan_project_install(&inst, "modmenu", "mod", None).await?;
+        let pack = content::prepare_modpack("1KVo5zza", "N276l2ON").await?;
+        modrinth_summary = serde_json::json!({
+            "modLabel": mod_label,
+            "modPlannedFilesWithDeps": mod_files.len(),
+            "modpackName": pack.name,
+            "modpackGameVersion": pack.game_version,
+            "modpackLoader": pack.loader,
+            "modpackLoaderVersion": pack.loader_version,
+            "modpackArchiveBytes": pack.mrpack_bytes.len(),
+            "modpackPlannedFiles": pack.files.len()
+        });
+    }
     println!(
         "{}",
-        serde_json::json!({"game":game,"loader":"fabric","loaderVersion":loader,"mainClass":plan.main_class,"plannedFiles":plan.files.len(),"officialLoaderLibrariesVerified":verified,"gameLaunched":false})
+        serde_json::json!({"game":game,"loader":loader_kind,"loaderVersion":loader,"mainClass":plan.main_class,"plannedFiles":plan.files.len(),"officialLoaderLibrariesVerified":verified,"modrinthSmoke":modrinth_summary,"gameLaunched":false})
     );
     Ok(())
 }

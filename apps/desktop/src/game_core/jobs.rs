@@ -121,8 +121,8 @@ impl Jobs {
                     "failed"
                 }
                 .into();
-                job.detail=if success && job.kind == "java" {"Java is ready"} else if success {"Minecraft files are ready"}else if cancelled {"Installation cancelled. Your worlds were kept."}else{"Could not install these files. Check your connection and retry. Some older versions are not supported yet."}.into();
-                job.actions = if success {
+                job.detail=if success && job.kind == "java" {"Java is ready"} else if success && job.kind == "content" {"Content installed"} else if success {"Minecraft files are ready"}else if cancelled {"Installation cancelled. Your worlds were kept."}else{"Could not install these files. Check your connection and retry. Some older versions are not supported yet."}.into();
+                job.actions = if success || job.kind == "content" {
                     vec![]
                 } else {
                     vec!["retry".into()]

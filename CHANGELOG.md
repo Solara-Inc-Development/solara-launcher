@@ -1,6 +1,14 @@
 # Changelog
 
-## Custom-core testing preview — 2026-10-29
+## Unreleased source expansion — 2026-10-29
+
+- Added official Fabric and Quilt loader version selection, profile validation and verified Maven library installation alongside vanilla.
+- Added verified Modrinth mod, resource pack, shader and `.mrpack` modpack installation with required dependency resolution, dual SHA-1 + SHA-512 checksum verification and safe override extraction.
+- Added automatic Eclipse Temurin Java runtime acquisition with origin, size, SHA-256 and archive extraction safety checks.
+- Rebuilt the home, library and per-instance workspaces with Overview, Mods, Files, Logs, recoverable Trash and Settings tabs, conflict-safe text editing and local JAR mod metadata inspection/enable/disable.
+- Testing build V-0.0.03 (`8326bb7`) remains withdrawn from public download promotion while a reported VirusTotal generic/ML detection is investigated. Newer source changes above have not been packaged into a new executable.
+
+## Custom-core testing preview (archived V-0.0.03) — 2026-10-29
 
 - Replaced the inherited engine with independently written vanilla metadata, verified downloads, isolated installs, local device sign-in and Java/process handling.
 - Added real download cancellation/retry. This first preview exposes vanilla only; mod/content installation is coming later.

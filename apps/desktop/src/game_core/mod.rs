@@ -14,6 +14,7 @@ pub mod auth;
 
 pub mod launch;
 
+pub mod content;
 pub mod files;
 pub mod java;
 pub mod jobs;

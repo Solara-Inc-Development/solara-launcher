@@ -10,13 +10,14 @@ async function settleArt(page){await page.locator('.image-art img').evaluateAll(
  const browser=await chromium.launch({headless:true,args:process.env.CI?[]:['--no-sandbox']});
  try{
   await fs.mkdir('public/screenshots',{recursive:true});await fs.mkdir('checks',{recursive:true});
-  const context=await browser.newContext({viewport:{width:1440,height:1000}});
+  const context=await browser.newContext({viewport:{width:1440,height:1360}});
   const page=await context.newPage();await page.goto(url,{waitUntil:'networkidle'});
   await page.locator('.boot-screen').waitFor({state:'hidden'});
   if(api)await page.locator('.new-home-services>button').first().waitFor();
   await settleArt(page);
   await page.screenshot({path:'public/screenshots/dashboard.png',animations:'disabled'});
-  await page.getByRole('button',{name:'Minecraft launcher',exact:true}).click();await page.waitForTimeout(500);
+  await page.getByRole('button',{name:'Minecraft launcher',exact:true}).click();
+  await page.mouse.move(720,24);await page.evaluate(()=>document.activeElement instanceof HTMLElement&&document.activeElement.blur());await page.waitForTimeout(300);
   await settleArt(page);
   await page.screenshot({path:'public/screenshots/library.png',animations:'disabled'});
   await page.getByRole('button',{name:'Create your first instance',exact:true}).click();
