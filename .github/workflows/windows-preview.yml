@@ -34,16 +34,24 @@ jobs:
         run: npm ci
       - name: Check frontend and independent native core
         run: |
-          npm test
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          npm run check
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          npm run build
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node scripts/third-party.mjs
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cargo test -p solara-launcher -p solara-local-server --lib --locked --no-default-features
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $PSNativeCommandUseErrorActionPreference = $false
+          function Run-Check([string]$Command, [string[]]$Arguments) {
+            $log = Join-Path $env:RUNNER_TEMP 'solara-preflight.log'
+            & $Command @Arguments 2>&1 | Tee-Object -FilePath $log
+            $code = $LASTEXITCODE
+            if ($code -ne 0) {
+              $tail = (Get-Content $log -Tail 55) -join "`n"
+              if ($tail.Length -gt 10000) { $tail = $tail.Substring($tail.Length - 10000) }
+              $tail = $tail.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+              Write-Output "::error title=Windows preflight diagnostics::$tail"
+              exit $code
+            }
+          }
+          Run-Check -Command npm -Arguments @('test')
+          Run-Check -Command npm -Arguments @('run', 'check')
+          Run-Check -Command npm -Arguments @('run', 'build')
+          Run-Check -Command node -Arguments @('scripts/third-party.mjs')
+          Run-Check -Command cargo -Arguments @('test', '-p', 'solara-launcher', '-p', 'solara-local-server', '--lib', '--locked', '--no-default-features')
       - name: Reserve unique testing version
         env:
           GH_TOKEN: ${{ github.token }}

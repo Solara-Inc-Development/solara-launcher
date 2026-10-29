@@ -1,0 +1,2 @@
+# Preserve verified upstream licence bytes on Windows checkouts.
+third-party/licence-supplements/*.txt text eol=lf -whitespace
