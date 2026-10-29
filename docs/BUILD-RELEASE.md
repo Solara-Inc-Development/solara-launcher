@@ -10,6 +10,14 @@ Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/Solara-Launc
 4. Configure trusted `SOLARA_UPDATER_PUBLIC_KEY`; keep `TAURI_SIGNING_PRIVATE_KEY` and optional password only in private CI secret storage. Generate keys using Tauri CLI in a private environment; never put keys into source/artifact logs. Updater signatures are distinct from Authenticode: Windows publisher signing is a separate optional configuration and must not be claimed unless supplied/verified.
 5. Run shared tests, Vue type checks, native checks, local-server tests and real Windows acceptance checks. Verify licensed launch, OS-vault persistence, independent logout, process shutdown, NSIS install/uninstall and signed update/install before public release.
 
+## Windows source checks before packaging
+
+`.github/workflows/windows-check.yml` runs on source pushes to `main` and can also be dispatched from GitHub Actions. It installs locked dependencies, checks the frontend and actual Windows desktop shell, then runs native unit tests. It has read-only repository permissions and does not use signing secrets, allocate build versions, package installers or upload binaries. The Windows runner is configured; check the actual run result before claiming compilation/tests passed.
+
+The separate `Verify and package Windows` workflow remains manual and refuses unresolved licence/signing setup before version allocation. Source checks do not clear distribution licences or replace real installed-app, OS-vault, game-launch and update acceptance.
+
+Both workflows have been checked with actionlint. In GitHub workflows, `runner.temp` belongs in the fetch step's environment, not the job-level environment. The release script runs the installed Tauri JavaScript CLI through Node (avoiding Windows npm command-shim execution) and merges the configured updater public key into the bundler config. Private signing values remain environment-only.
+
 ## Workflow
 
 ```sh
