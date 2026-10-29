@@ -1,6 +1,6 @@
 # Builds, installation and release archive
 
-Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10`. Old executables are immutable. This workspace currently has no generated installer; do not rename another file to `.exe` or claim it is signed.
+Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10`. Old executables are immutable. A genuine V-0.0.03 testing installer has been built, privately updater-signed and statically verified; see the public README for its download and exact source. Real Windows installation/login/game/upgrade acceptance is pending. Updater signatures are separate from Windows Authenticode publisher signing.
 
 ## Before a public build
 
@@ -27,7 +27,7 @@ node scripts/release.mjs package
 node scripts/release.mjs stage <actual-NSIS-installer-path> <release-notes-path> <bundled-x64-application-path>
 ```
 
-Reserve uses an exclusive filesystem lock, consumed-version reservation files and numeric counter. GitHub mode examines existing draft/published build tags and creates a new draft reservation, under serialized workflow concurrency. Failed builds consume their reserved number; they do not overwrite previous artifacts. No number has been consumed in this workspace merely by tests (tests use temporary directories).
+Reserve uses an exclusive filesystem lock, consumed-version reservation files and numeric counter. GitHub mode examines existing draft/published build tags and creates a new draft reservation, under serialized workflow concurrency. Failed builds consume their reserved number; they do not overwrite previous artifacts. Unit tests use temporary directories. Actual CI reservations 1 and 2 were consumed by failed packaging; the first genuine archived testing build is number 3.
 
 Packaging fails outside Windows, while licence review is unresolved, or without signing configuration. `tauri build` produces a real NSIS current-user installer plus updater signature. Stage checks PE structure, file size, SHA-256, Minisign/Tauri file signature and authenticated version comment before copying with exclusive-create semantics into `builds/`. NSIS uses an x86 installer bootstrapper for the x64 application, so staging accepts x86/x64 installer headers while separately requiring the actual bundled application binary to have x64 headers. Its checksum/size are recorded too; header checks do not substitute for installed-app acceptance. Release notes and both binaries are validated before archive writes. Repeated staging only accepts identical bytes. Metadata records public/internal versions, build ID, commit, architecture/platform, verified timestamp, size/hash, signature, URL, notes and staged state.
 
@@ -80,3 +80,7 @@ Automatic apply/relaunch, cache recovery, upgrade/uninstall and preservation of 
 The pipeline exports a verified x64 application separately from the NSIS installer, SHA-256/size records, and `source.zip` containing the exact tracked build source and version/lock edits. Ignored files are excluded. It preserves these on a unique `solara-candidate-N` Git branch with a testing-only README. This also allows the build host's repository deploy key to retrieve actual bytes without GitHub artifact API credentials. Never force-push/replace a candidate branch or reuse a reserved build number.
 
 On the private build host, verify the expected source commit, source archive and every artifact checksum, sign the genuine installer with Tauri CLI `signer sign --app-version <internal-version>` using the persistent private key, then use `release.mjs stage` with the corresponding reservation, release notes and x64 payload. Keep exact corresponding source with each staged build. The final name remains `builds/<publicVersion>/solaralauncher.exe`. Staging is not stable publication: actual installed-app/account/game/update acceptance must be recorded before `publish-manifest` can succeed.
+
+## Raw vs installed application hashes
+
+Pinned Tauri CLI2.12.4 changes `__TAURI_BUNDLE_TYPE_VAR_UNK` to `__TAURI_BUNDLE_TYPE_VAR_NSS` for NSIS (see its [patch_binary implementation](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle.rs)). It restores the raw Cargo file afterward. For V-0.0.03, current official 7-Zip extracted the actual payload and complete-byte comparison passed against exactly this single expected transformation. Metadata records raw and installed hashes separately. Do not patch unexplained differences or claim the two unmodified hashes match.

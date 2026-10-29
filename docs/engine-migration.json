@@ -12,7 +12,6 @@
     "cancel-retry"
   ],
   "pending": [
-    "Windows source check",
     "approved Microsoft client ID and licensed-account acceptance",
     "installed NSIS/update acceptance",
     "mod loaders and content installation",
@@ -23,5 +22,17 @@
     "apps/desktop/src/engine.rs",
     "Cargo.lock",
     "scripts/third-party.mjs"
-  ]
+  ],
+  "windowsSourceCheck": {
+    "run": 40838812908,
+    "result": "passed"
+  },
+  "windowsInstallerBuild": {
+    "run": 40842651368,
+    "result": "passed",
+    "publicVersion": "V-0.0.03",
+    "sourceCommit": "8326bb7a32da40ecb5db7725416a545de72eee1c",
+    "staticVerification": "Installer SHA256, updater signature/version, exact source privacy/version, x64 PE and complete official NSIS bundle-marker transformation passed",
+    "windowsDeviceAcceptance": false
+  }
 }

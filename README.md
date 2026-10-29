@@ -108,20 +108,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**The public Windows installer is not available yet.**
+**[Download the Windows testing build — solaralauncher.exe](https://github.com/Solara-Inc-Development/solara-launcher/raw/5bf7731a404b3164618301104b79d667aa98ccd2/builds/V-0.0.03/solaralauncher.exe)** · **7.1 MB** · `V-0.0.03`
 
-The download and installed app will be named **`solaralauncher.exe`**. Install once; signed updates are designed to download and apply automatically when games, local servers and downloads are idle. Real update and relaunch testing is still required before release.
+[Exact source for this build](https://github.com/Solara-Inc-Development/solara-launcher/raw/5bf7731a404b3164618301104b79d667aa98ccd2/builds/V-0.0.03/source.zip) · [Checksums and build files](https://github.com/Solara-Inc-Development/solara-launcher/tree/5bf7731a404b3164618301104b79d667aa98ccd2/builds/V-0.0.03)
+
+The download and installed app are named **`solaralauncher.exe`**. Install once; signed updates are designed to download and apply automatically when games, local servers and downloads are idle. Real update and relaunch testing is still required before release.
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Public installer** | Not published | Candidate build pipeline active; awaiting signing & acceptance checks |
+| **Testing installer** | Available above | Genuine NSIS build; updater signature, source and file checks passed; device testing pending |
 | **Minecraft core** | Custom vanilla preview | Official manifest/asset verified; mod loaders coming in later updates |
 | **App updates** | Idle auto-update code ready | Signed Windows upgrade & relaunch verification pending |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Website source ready; live domain deployment pending |
 
-There's still a few things to test before the first download goes up. Passing source checks alone doesn't make it a release. We'll put the real download here and on the official website once it's built and checked. You need a valid Minecraft Java licence to play.
+There's still a few things to test before we call this a stable release. The Windows build and installer files passed our checks; real installation, Microsoft login, game play and automatic upgrades still need testing. Sign-in needs an approved Solara Microsoft app ID and hosted services need their separate setup. You need a valid Minecraft Java licence to play.
 
 Found something that feels off? Tell us what happened, even the small stuff helps.
 
