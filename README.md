@@ -108,14 +108,14 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.04 available.** We investigated the false-positive heuristic flags on the previous build, completely removed hidden process calls (`cmd.exe` and `taskkill.exe`) in favour of native Win32 APIs, added full Solara Inc. PE metadata, and compiled a fresh, verified Windows installer.
+**Testing preview V-0.0.06 available.** Fresh genuine Windows release featuring smooth window dragging, a Modrinth-inspired image-rich UI overhaul, memory allocation presets, 1-click log export, and automatic cleanup of unwanted temporary files on install/update.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly from the official portal:
-- **Installer (6.0 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.04/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.04/solaralauncher.exe.sig)
-- **SHA-256**: `f4b8a14efb8ccce3069f1b500b16db6b0240afcc380b8910b871200ef07fd27a`
+- **Installer (6.4 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.06/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.06/solaralauncher.exe.sig)
+- **SHA-256**: `174d65c0d279eb19269bd9e31ad09667e412571bdcfb2ab8ee3113a422b97a58`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |

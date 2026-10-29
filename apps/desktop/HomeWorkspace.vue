@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {computed} from 'vue';
-import {ArrowRight,Plus,Play,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,Download,Sparkles} from '../../packages/ui/icons';
+import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,Download,Sparkles} from '../../packages/ui/icons';
 const props=defineProps<{instances:any[],projects:any[],services:any[],account:any,loading:boolean,apiState:string}>();
-const emit=defineEmits(['open-instance','create','navigate','external','refresh']);
+const emit=defineEmits(['open-instance','create','navigate','external','refresh','play']);
 const ready=computed(()=>props.instances.filter(i=>i.state==='installed').length);
 const activeInst=computed(()=>props.instances.find(i=>i.running)||props.instances[0]);
 const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
@@ -38,7 +38,7 @@ const popularHighlights=[
             <strong>{{activeInst.name}}</strong>
             <small>{{activeInst.gameVersion}} · <span class="capitalize">{{activeInst.loader}}</span></small>
           </div>
-          <button class="hero-active-play" :aria-label="'Play '+activeInst.name" @click.stop="emit('open-instance',activeInst)">
+          <button class="hero-active-play" :title="(activeInst.running?'Manage ':'Play ')+activeInst.name" :aria-label="(activeInst.running?'Manage ':'Play ')+activeInst.name" @click.stop="emit(activeInst.running?'open-instance':'play',activeInst)">
             <Play :size="15"/>
           </button>
         </div>

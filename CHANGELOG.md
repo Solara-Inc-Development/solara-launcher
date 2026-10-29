@@ -1,8 +1,8 @@
 # Changelog
 
-## Testing Preview V-0.0.05 — 2026-10-29
+## Testing Preview V-0.0.06 — 2026-10-29
 
-- **Smooth Window Dragging & Movement**:
+- **Smooth Window Dragging & Titlebar Movement**:
   - Fixed desktop window moving across the screen from the top titlebar and topbar with native Tauri v2 dragging permissions and platform handlers.
 - **Image-Rich Modrinth-Inspired UI Overhaul**:
   - Rebuilt the home workspace with a full-width immersive voxel landscape hero banner and a quick "Continue Playing" launch card for active instances.
@@ -11,12 +11,17 @@
   - Auto-loading Explore page displaying trending mods, modpacks, resource packs, and shaders from Modrinth with real avatar icons, author names, description clamp, download badges, and quick-filter category pills.
   - Added instance backdrop landscape artwork to Instance Workspace headers.
   - Cleaned up changelog dialog formatting with readable typography and dedicated styling.
+- **Memory Allocation Presets & 1-Click Controls**:
+  - Added quick RAM preset buttons (`2G`, `4G`, `6G`, `8G`, `12G`) with GiB conversion in launcher settings, instance settings, and creation modal.
+- **Console Log Viewer Enhancements**:
+  - 1-click clipboard log copy button in dialogs and instance logs with user feedback.
 - **Automatic Stale-File Cleanup**:
   - NSIS installer and startup engine automatically clean old temporary cache, staging directories, and legacy folders on install/update.
   - User profiles, saves, worlds, mods, servers, and preferences remain strictly preserved.
-- **Auto-Update Delivery**:
+- **Live Auto-Update Delivery**:
   - Connected live auto-update pipeline on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64`.
   - Cryptographically signed with private updater key for seamless background updates without manual installer downloads.
+
 
 ## Testing Preview V-0.0.04 — 2026-10-29
 

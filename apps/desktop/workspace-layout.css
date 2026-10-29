@@ -100,3 +100,63 @@
 .boot-screen{display:grid;grid-template-columns:1fr;place-items:center;background:#000}.boot-content{width:min(560px,calc(100% - 40px));max-width:560px;justify-self:center;padding:40px}.boot-brand img{width:34px;height:34px}
 @media(max-width:1050px){.home-hero-card .new-home-intro{flex-direction:column;align-items:flex-start;gap:24px;padding:26px}.hero-active-card{width:100%;max-width:none}}
 @media(max-width:800px){.workspace-heading{flex-wrap:nowrap;gap:13px;padding:16px 18px}.home-hero-card .new-home-intro{padding:20px;gap:18px}.instance-monogram{width:57px;height:57px;font-size:29px;border-radius:18px}.workspace-identity h1{font-size:23px;letter-spacing:-.6px}.workspace-primary-actions{width:auto;flex:none;gap:6px}.workspace-primary-actions>.workspace-play{padding:11px;font-size:10px}.workspace-tabs{margin-bottom:23px}.workspace-heading{margin-bottom:23px}}
+
+.preset-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.preset-pill {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #b3c2c8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.preset-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #f0f6fc;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.preset-pill.active {
+  background: var(--accent, #61c48c);
+  color: #0b1512;
+  border-color: var(--accent, #61c48c);
+  box-shadow: 0 0 10px rgba(97, 196, 140, 0.35);
+}
+.memory-setting-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.logs-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #b3c2c8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.logs-copy-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f0f6fc;
+}
+.logs-copy-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
