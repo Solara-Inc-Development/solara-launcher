@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.12: In-Game Screenshots Gallery, Fullscreen Lightbox, Native Image Stream, and Memory Health Gauges
+# Build testing candidate V-0.0.13: RAM Performance Ring Gauge, Modpack Exporter Archive, and Backups Folder Shortcuts
 on:
   workflow_dispatch:
   push:

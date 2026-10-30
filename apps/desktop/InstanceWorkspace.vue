@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
-import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor} from '../../packages/ui/icons';
+import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
 const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate']);
@@ -304,6 +304,72 @@ if (typeof window !== 'undefined') {
   window.addEventListener('keydown', handleKeydown);
 }
 
+// Memory Performance Gauge
+const ramCategory = computed(() => {
+  const ram = form.value.memory;
+  if (ram <= 3072) {
+    return {
+      label: 'Lightweight & Vanilla',
+      desc: 'Optimal for Vanilla Minecraft or small mod setups (up to 30 mods). Keeps system RAM completely free.',
+      color: '#38bdf8',
+      score: 'Light'
+    };
+  } else if (ram <= 6144) {
+    return {
+      label: 'Standard Modded (Sweet Spot)',
+      desc: 'Recommended for modern modpacks (50-150 mods). Provides stable FPS and garbage collection.',
+      color: '#0ea5e9',
+      score: 'Optimal'
+    };
+  } else if (ram <= 12288) {
+    return {
+      label: 'Heavy Modpacks & Shaders',
+      desc: 'Built for huge community modpacks (200+ mods) and high-resolution shader packs.',
+      color: '#38bdf8',
+      score: 'High Power'
+    };
+  } else {
+    return {
+      label: 'Extreme Workload',
+      desc: 'Large memory assignment. Ensure Windows has at least 4-8 GiB free RAM remaining for OS tasks.',
+      color: '#fbbf24',
+      score: 'Heavy'
+    };
+  }
+});
+
+// Modpack Exporter State
+const exportModalOpen = ref(false);
+const exportName = ref('');
+const exporting = ref(false);
+const exportDoneNotice = ref('');
+
+function openExportModal() {
+  exportName.value = `${props.instance.name} modpack`;
+  exportDoneNotice.value = '';
+  exportModalOpen.value = true;
+}
+
+async function executeExport() {
+  if (!exportName.value.trim()) return;
+  exporting.value = true;
+  exportDoneNotice.value = '';
+  try {
+    await native('instance_backup_action', {
+      id: props.instance.id,
+      action: 'create',
+      name: exportName.value.trim()
+    });
+    exportDoneNotice.value = 'Modpack package generated successfully and saved in instance backups.';
+    notice.value = 'Modpack export ready in Backups.';
+    await readTab();
+  } catch (e) {
+    error.value = String(e);
+  } finally {
+    exporting.value = false;
+  }
+}
+
 async function saveSettings(){await run(async()=>{await native('edit_instance',{id:props.instance.id,...form.value});saveDisplayPrefs();notice.value='Instance settings saved.';emit('refresh')})}
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
@@ -353,6 +419,9 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      </button>
      <button class="circle-action-btn" title="Duplicate instance" @click="emit('duplicate',instance)">
        <Copy :size="17"/>
+     </button>
+     <button class="circle-action-btn" title="Export modpack archive" @click="openExportModal">
+       <Download :size="17"/>
      </button>
      <button class="circle-action-btn" title="Instance settings" @click="selectTab('settings')">
        <Settings :size="17"/>
@@ -596,6 +665,9 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <div><h2>World &amp; config backups <span>{{backups.length}}</span></h2><p>Snapshots of your worlds and settings stored safely inside this instance.</p></div>
      <div class="row">
        <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+       <button type="button" class="solara-secondary-btn" title="Open backups folder in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'backups' }); })">
+         <FolderOpen :size="14"/> Backups folder
+       </button>
        <button title="Refresh backups" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
      </div>
    </div>
@@ -757,6 +829,33 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <form class="workspace-settings" @submit.prevent="saveSettings">
      <label>Instance name<input v-model="form.name" required maxlength="80"></label>
      <label>Memory limit: <strong>{{(form.memory/1024).toFixed(1)}} GiB</strong> ({{form.memory}} MiB)
+       <div class="ram-gauge-card">
+         <div class="ram-gauge-graphic">
+           <svg class="ram-gauge-svg" viewBox="0 0 100 100">
+             <circle class="gauge-bg" cx="50" cy="50" r="40" />
+             <circle
+               class="gauge-progress"
+               cx="50"
+               cy="50"
+               r="40"
+               :stroke="ramCategory.color"
+               :stroke-dasharray="251.2"
+               :stroke-dashoffset="251.2 - (251.2 * Math.min(100, Math.max(5, (form.memory / 16384) * 100))) / 100"
+             />
+           </svg>
+           <div class="gauge-center-content">
+             <span class="gauge-score" :style="{color: ramCategory.color}">{{ ramCategory.score }}</span>
+             <span class="gauge-val">{{ (form.memory/1024).toFixed(1) }}G</span>
+           </div>
+         </div>
+         <div class="ram-gauge-info">
+           <div class="ram-category-badge" :style="{borderColor: ramCategory.color, color: ramCategory.color}">
+             <Activity :size="13" />
+             <span>{{ ramCategory.label }}</span>
+           </div>
+           <p class="ram-category-desc">{{ ramCategory.desc }}</p>
+         </div>
+       </div>
        <div class="preset-pills" style="margin:6px 0">
          <button v-for="ram in [2048,4096,6144,8192,12288,16384]" :key="ram" type="button" class="preset-pill" :class="{active:form.memory===ram}" @click="form.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button>
        </div>
@@ -886,5 +985,44 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      </button>
    </div>
  </dialog>
+
+  <!-- Modpack Exporter Modal -->
+  <dialog v-if="exportModalOpen" class="solara-lightbox-dialog" open @click.self="exportModalOpen = false">
+    <div class="lightbox-header" style="max-width: 520px; width: 100%;">
+      <div class="lightbox-title-wrap">
+        <strong class="lightbox-filename" style="display:flex;align-items:center;gap:8px">
+          <Download :size="16" style="color:#38bdf8"/> Export Modpack Snapshot
+        </strong>
+        <span class="lightbox-meta">Bundle worlds, configs, and mods into a portable backup archive</span>
+      </div>
+      <button type="button" class="circle-action-btn" title="Close" @click="exportModalOpen = false">
+        <X :size="16"/>
+      </button>
+    </div>
+
+    <div class="export-modal-body" style="max-width: 520px; width: 100%; background: #0b111e; border: 1px solid rgba(56,189,248,0.2); border-radius: 12px; padding: 20px; margin-top: 12px; display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin: 0;">
+        Create an independent, packaged archive of <strong>{{ instance.name }}</strong>. You can restore this archive anytime or transfer it to another Solara installation.
+      </p>
+
+      <label style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1; font-size: 13px; font-weight: 500;">
+        Archive Name
+        <input v-model="exportName" class="solara-input" placeholder="e.g. My Modpack v1.0" maxlength="80" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; color: #f1f5f9; padding: 10px 14px; font-size: 14px; outline: none;">
+      </label>
+
+      <div v-if="exportDoneNotice" class="export-success-badge" style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; color: #4ade80; font-size: 13px;">
+        <Check :size="16" style="flex-shrink:0"/>
+        <span>{{ exportDoneNotice }}</span>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
+        <button type="button" class="solara-secondary-btn" @click="exportModalOpen = false">Close</button>
+        <button type="button" class="solara-primary-btn" :disabled="exporting || !exportName.trim()" @click="executeExport">
+          <Download :size="14" />
+          <span>{{ exporting ? 'Packaging modpack...' : 'Export Snapshot' }}</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
 </section>
 </template>
