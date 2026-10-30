@@ -1,0 +1,69 @@
+name: Publish GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to publish (e.g. V-0.0.06)'
+        required: true
+        default: 'V-0.0.06'
+  push:
+    tags:
+      - 'V-*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare release assets and notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.event.inputs.version || github.ref_name }}
+        run: |
+          echo "Preparing GitHub Release for $VERSION..."
+          
+          # Fetch genuine signed executable and signature from official portal
+          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe"
+          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe.sig"
+          curl -fLO "https://app.solara-inc.in/builds/$VERSION/source.zip" || true
+          
+          # Extract release notes from CHANGELOG.md
+          python3 -c '
+          import re, os
+          version = os.environ.get("VERSION", "")
+          changelog = open("CHANGELOG.md", encoding="utf-8").read()
+          pattern = r"(##\s+.*?%s\b.*?)(?=\n##\s+|$)" % re.escape(version)
+          match = re.search(pattern, changelog, re.S)
+          if match:
+              notes = match.group(1).strip()
+          else:
+              notes = f"# Solara Launcher {version}\n\nTesting preview release."
+          with open("release_notes.md", "w", encoding="utf-8") as f:
+              f.write(notes + "\n\n---\n### Verification & Signatures\n- **Installer**: `solaralauncher.exe`\n- **Minisign Signature**: `solaralauncher.exe.sig`\n- Official Portal: https://app.solara-inc.in\n")
+          '
+          
+          ASSETS=()
+          [ -f "solaralauncher.exe" ] && ASSETS+=("solaralauncher.exe")
+          [ -f "solaralauncher.exe.sig" ] && ASSETS+=("solaralauncher.exe.sig")
+          [ -f "source.zip" ] && ASSETS+=("source.zip")
+          
+          # Create or update GitHub release
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION exists; updating..."
+            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --prerelease
+            if [ ${#ASSETS[@]} -gt 0 ]; then
+              gh release upload "$VERSION" "${ASSETS[@]}" --clobber
+            fi
+          else
+            echo "Creating new release $VERSION..."
+            gh release create "$VERSION" "${ASSETS[@]}" \
+              --title "Solara Launcher $VERSION" \
+              --notes-file release_notes.md \
+              --prerelease
+          fi

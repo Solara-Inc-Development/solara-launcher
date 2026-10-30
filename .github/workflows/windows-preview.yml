@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.05: genuine NSIS installer, clean cache, and offline CI tests
+# Build testing candidate V-0.0.07: Modrinth UI overhaul, Minecraft ownership check, and Solara SSO fix
 on:
   workflow_dispatch:
   push:
