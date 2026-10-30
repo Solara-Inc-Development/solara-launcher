@@ -31,7 +31,7 @@ jobs:
           # Fetch genuine signed executable and signature from official portal
           curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe"
           curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe.sig"
-          curl -fLO "https://app.solara-inc.in/builds/$VERSION/source.zip" || true
+          git archive -o source.zip HEAD
           
           # Extract release notes from CHANGELOG.md
           python3 -c '
