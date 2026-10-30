@@ -1,5 +1,40 @@
 # Changelog
 
+## Testing Preview V-0.0.07 — 2026-10-30
+
+### New Features Added
+- **Modrinth-Inspired Vibrant Visual Overhaul**:
+  - Rebuilt launcher interface with neon green accents (`#1bd96a`, `#165d38`), dark slate card backgrounds (`#111713`), pill tags, and smooth cubic-bezier transitions.
+  - Interactive "Jump in" multiplayer server cards featuring server ping, live online player counts, loader badges, MOTD, and 1-click play.
+  - Modrinth-styled Library grid with 3D loader badges, quick play hover triggers, and filter pills.
+  - Live "Playing as" Minecraft account widget on the right sidebar showing player skin avatar head from `mc-heads.net` and verified ownership status.
+  - Dedicated instance details workspace with pill tabs (`Content`, `Files`, `Worlds`, `Logs`, `Settings`, `Trash`), interactive mod project table with animated toggles, and direct file import.
+  - Top bar live instance status pill (`● No instances running` / `🟢 [Instance] is running`) and active Minecraft profile badge.
+- **Minecraft Java Ownership Verification & Play Gate**:
+  - Direct integration with Mojang entitlement endpoint (`GET /entitlements/mcstore`) and profile service (`GET /minecraft/profile`).
+  - Open creation & management: users can create instances, install loaders (Fabric, Quilt, NeoForge, Forge, Vanilla), and download mods/packs freely without logging in.
+  - Strict play gating: gameplay execution strictly requires an active authenticated Microsoft account with a verified Minecraft Java Edition license. Unauthenticated launch attempts trigger the device sign-in prompt with clear guidance.
+
+### Features Removed
+- Removed legacy unstyled table views in favor of responsive Modrinth card and table grids.
+- Deprecated hardcoded OAuth client fallback in favor of environment-driven and approved client registry.
+
+### Bug Fixes & Improvements
+- **Solara Central SSO Sign-In**:
+  - Fixed Solara sign-in failure by applying missing database migration `001_launcher.sql` to `solara_accounts` database (`launcher_clients`, `launcher_rate_windows`).
+  - Registered and approved default public client `solara-launcher-desktop`.
+  - Configured nginx FastCGI location for `/native/` consent and authorization on `https://auth.solara-inc.in`.
+  - Fixed file permissions on cached appearance and status tokens in `/var/www/solara-launcher-private/var`.
+- **Motion & Accessibility Compliance**:
+  - Full adherence to system `prefers-reduced-motion` and user setting toggle with instant animation zeroing.
+  - Validated responsive layout collapsing gracefully on small viewports down to 800x620.
+
+### Release Assets & Verification
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.07/solaralauncher.exe)
+- **Source Code**: [`source.zip`](https://app.solara-inc.in/builds/V-0.0.07/source.zip)
+- **Signature**: Minisign trusted signature file (`solaralauncher.exe.minisig`)
+- **Verification**: Verified SHA-256 integrity and NSIS x64 execution bounds
+
 ## Testing Preview V-0.0.06 — 2026-10-29
 
 - **Smooth Window Dragging & Titlebar Movement**:

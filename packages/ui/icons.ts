@@ -10,7 +10,9 @@ export const Plus=glyph('Plus',['M12 5v14M5 12h14']);
 export const Settings=glyph('Settings',['m10 3-1 3-3 1-3 4 2 2v4l4 2 2 2 4-1 1-3 3-1 2-4-2-2V7l-4-2-2-2h-3Z','M15.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z']);
 export const HelpCircle=glyph('Help',['M20 12a8 8 0 1 1-4-6.9','M9 9a3 3 0 0 1 6 .5c0 2-3 2-3 4M12 17h.01']);
 export const ChevronDown=glyph('ChevronDown',['m7 9 5 5 5-5']);
+export const ChevronUp=glyph('ChevronUp',['m7 15 5-5 5 5']);
 export const ChevronRight=glyph('ChevronRight',['m9 7 5 5-5 5']);
+export const ChevronLeft=glyph('ChevronLeft',['m15 19-5-5 5-5']);
 export const ArrowRight=glyph('ArrowRight',['M4 12h15M14 7l5 5-5 5']);
 export const ArrowUpRight=glyph('ArrowUpRight',['M6 18 18 6M9 6h9v9']);
 export const Download=glyph('Download',['M12 3v12m-4-4 4 4 4-4','M4 15v5h16v-5']);
@@ -47,3 +49,12 @@ export const RotateCcw=glyph('Restart',['M5 10a7 7 0 1 1 1 8','M4 4v6h6']);
 export const Sparkles=glyph('Spark',['m13 3 2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3Z','M4 3v4M2 5h4']);
 export const GitBranch=glyph('Branch',['M6 7v9m2-11a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM20 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z','M18 8v3c0 3-5 3-10 3']);
 export const Menu=glyph('Menu',['M4 6h16M4 12h12M4 18h16']);
+export const User=glyph('User',['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2','M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z']);
+export const MoreVertical=glyph('MoreVertical',['M12 12h.01M12 5h.01M12 19h.01']);
+export const Sliders=glyph('Sliders',['M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6']);
+export const Filter=glyph('Filter',['M22 3H2l8 9.46V19l4 2v-8.54L22 3Z']);
+export const Shirt=glyph('Shirt',['M6 3h12l4 5-3 3-2-1v11H7V10l-2 1-3-3 4-5Z','M9 3a3 3 0 0 0 6 0']);
+export const Image=glyph('Image',['M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z','m3 16 5-5 4 4 3-3 6 6','M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z']);
+export const Lock=glyph('Lock',['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4']);
+
+

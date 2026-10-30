@@ -43,6 +43,7 @@ builds/**/*.sig
 # Owner-provided visual references stay local.
 /checks/
 /seelikethis/
+/here*/
 
 # Actual release bytes/source archives live on the separate immutable build branch.
 /builds/V-*/

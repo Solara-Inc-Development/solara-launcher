@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref,computed,onMounted,onUnmounted,watch,nextTick} from 'vue';
-import {Home,Layers3,Gamepad2,Server,Compass,Plus,Settings,HelpCircle,ChevronDown,ChevronRight,ArrowUpRight,ArrowRight,Download,RefreshCw,LogIn,LogOut,Play,Square,Minus,X,Maximize2,FolderOpen,Box,Globe,BookOpen,Terminal,ShieldCheck,Activity,Search,Copy,ExternalLink,Package,Cloud,Monitor,Check,Pause,RotateCcw,Sparkles,GitBranch} from '../../packages/ui/icons';
+import {Home,Layers3,Gamepad2,Server,Compass,Plus,Settings,HelpCircle,ChevronDown,ChevronRight,ChevronLeft,ArrowUpRight,ArrowRight,Download,RefreshCw,LogIn,LogOut,Play,Square,Minus,X,Maximize2,FolderOpen,Box,Globe,BookOpen,Terminal,ShieldCheck,Activity,Search,Copy,ExternalLink,Package,Cloud,Monitor,Check,Pause,RotateCcw,Sparkles,GitBranch,User,Lock} from '../../packages/ui/icons';
 import {useInteractions} from '../../packages/ui/interactions';
 import '../../packages/ui/motion.css';
 import SelectControl from '../../packages/ui/SelectControl.vue';
@@ -35,6 +35,11 @@ const loaderChoices=ref<any[]>([]),loaderLoading=ref(false),loaderError=ref('');
 const assignment=ref({name:'',endpoint:'',port:25565,serverId:'',consent:false});const nativeSettings=ref({memory:4096,javaPath:'java',discord:false});const editForm=ref({name:'',memory:4096,javaPath:''});
 const availableLoaders=computed(()=>coreCapabilities.value?.loaders?loaderInfo.filter(loader=>coreCapabilities.value.loaders.includes(loader.id)):loaderInfo);
 const tabs=[{id:'dashboard',label:'Dashboard',short:'Home',icon:Home},{id:'launcher',label:'Minecraft launcher',short:'Minecraft',icon:Gamepad2},{id:'services',label:'Solara services',short:'Services',icon:Layers3},{id:'servers',label:'Your servers',short:'Servers',icon:Server},{id:'explore',label:'Explore mods and modpacks',short:'Explore',icon:Compass}];
+const navHistory=ref<string[]>(['dashboard']),navIndex=ref(0);
+function navBack(){if(navIndex.value>0){navIndex.value--;section.value=navHistory.value[navIndex.value]}}
+function navForward(){if(navIndex.value<navHistory.value.length-1){navIndex.value++;section.value=navHistory.value[navIndex.value]}}
+const createSearch=ref('');
+function jumpToExplore(){const q=createSearch.value.trim();close();query.value=q;navigate('explore');if(q)void searchContent()}
 function projectIcon(item:any){const value=(item.name||'').toLowerCase();if(value.includes('auth'))return ShieldCheck;if(value.includes('host'))return Server;if(value.includes('network'))return Globe;if(value.includes('tool'))return Terminal;return Box}
 function statusTone(value:string|null|undefined){const s=(value||'').toLowerCase();if(['operational','online','connected'].includes(s))return 'online';if(['maintenance','degraded','partial outage'].includes(s))return 'warning';if(['offline','outage','unavailable','major outage'].includes(s))return 'offline';return 'unknown'}
 const projects=computed(()=>snapshot.value.data?.projects||[]);const services=computed(()=>snapshot.value.data?.services||[]);const publicReleases=computed(()=>snapshot.value.data?.releases||[]);
@@ -43,7 +48,7 @@ const selectedLog=ref<any>(null);let removeNativeListener:(()=>void)|null=null;c
 let timer:ReturnType<typeof setInterval>|null=null,publicTimer:ReturnType<typeof setInterval>|null=null,toastTimer:ReturnType<typeof setTimeout>|null=null;
 function toast(text:string){message.value=text;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>message.value='',7000)}
 async function run(fn:()=>Promise<unknown>){if(busy.value)return;busy.value=true;error.value='';try{await fn()}catch(e){error.value=String(e instanceof Error?e.message:e)}finally{busy.value=false}}
-async function navigate(id:string){if(workspaceRef.value&&!await workspaceRef.value.canLeave())return;activeInstanceId.value=null;section.value=id;error.value='';contentPane.value?.scrollTo({top:0,behavior:'instant'});if(id==='servers'&&serverTab.value==='hosted')void loadHosted()}
+async function navigate(id:string){if(workspaceRef.value&&!await workspaceRef.value.canLeave())return;activeInstanceId.value=null;section.value=id;error.value='';if(navHistory.value[navIndex.value]!==id){navHistory.value=navHistory.value.slice(0,navIndex.value+1);navHistory.value.push(id);navIndex.value=navHistory.value.length-1}contentPane.value?.scrollTo({top:0,behavior:'instant'});if(id==='servers'&&serverTab.value==='hosted')void loadHosted()}
 async function openInstance(instance:any){if(workspaceRef.value&&!await workspaceRef.value.canLeave())return;activeInstanceId.value=instance.id;section.value='launcher';contentPane.value?.scrollTo({top:0,behavior:'instant'});}
 
 function close(){modal.value=null;error.value=''}
@@ -81,8 +86,17 @@ async function signOut(){await run(async()=>{try{await native('solara_sign_out')
 async function mcSignIn(){await run(async()=>{try{await native('minecraft_sign_in');await pollLocal();toast('Minecraft account verified and saved on this device.')}finally{minecraftPrompt.value=null;if(modal.value==='minecraft-login')close();}})}
 async function mcLogout(id:string){await run(async()=>{await native('minecraft_sign_out',{id});await pollLocal()})}
 async function createInstance(){await run(async()=>{await native('create_instance',{...create.value});close();await pollLocal();section.value='launcher';toast('Instance installation queued. Follow its progress in Downloads.')})}
+async function createPreset(preset:any){await run(async()=>{await native('create_instance',{name:preset.name,gameVersion:preset.gameVersion,loader:preset.loader,loaderVersion:preset.loaderVersion||null});close();await pollLocal();section.value='launcher';toast(`Instance "${preset.name}" installation queued. Follow progress in Downloads.`)});}
+async function copyText(text:string){if(!text)return;await navigator.clipboard.writeText(text);toast('Copied to clipboard.')}
 async function retryInstall(instance:any){await run(async()=>{await native('retry_instance',{id:instance.id});await pollLocal();toast('Installation queued. Your worlds are kept.');})}
-async function launch(instance:any){await run(async()=>{await native('launch_instance',{id:instance.id});await pollLocal();toast('Minecraft launch requested. Follow the local process state.')})}
+async function launch(instance:any){
+  if(!minecraft.value.some(a=>a.active)){
+    toast('Sign in with a Minecraft account that owns Minecraft Java Edition to play.');
+    await mcSignIn();
+    return;
+  }
+  await run(async()=>{await native('launch_instance',{id:instance.id});await pollLocal();toast('Minecraft launch requested. Follow the local process state.')});
+}
 async function stopGame(instance:any){await run(async()=>{await native('stop_instance',{id:instance.id});await pollLocal()})}
 async function editInstance(instance:any){selectedInstance.value=instance;editForm.value={name:instance.name,memory:instance.memory||nativeSettings.value.memory,javaPath:instance.javaPath||''};show('edit-instance')}
 async function saveInstance(){await run(async()=>{await native('edit_instance',{id:selectedInstance.value.id,...editForm.value});close();await pollLocal()})}
@@ -159,10 +173,10 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
 <div class="shell" :style="{'--accent':preferences.accent||currentEvent.accent}" :data-reduced-motion="preferences.motion">
   <div class="titlebar" :inert="modal?true:undefined" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick"><span class="name" data-tauri-drag-region><img src="/logo.svg" alt="">solara<span class="titlebar-edition">launcher</span><span class="titlebar-build">{{buildInfo.publicVersion||'PREVIEW'}}</span></span><div class="window-buttons"><button title="Minimize" aria-label="Minimize" :disabled="!isDesktop" @click="windowAction('minimize')"><Minus/></button><button title="Maximize or restore" aria-label="Maximize or restore" :disabled="!isDesktop" @click="windowAction('maximize')"><Maximize2/></button><button title="Close Solara" aria-label="Close Solara" :disabled="!isDesktop" @click="windowAction('close')"><X/></button></div></div>
   <aside class="sidebar" :inert="modal||bootVisible?true:undefined"><div class="rail-brand"><img class="brand-logo" src="/logo.svg" alt="Solara"><span>SOLARA</span></div><nav aria-label="Main navigation"><button v-for="t in tabs" :key="t.id" :data-tooltip="t.label" :aria-label="t.label" :aria-current="section===t.id?'page':undefined" :class="{active:section===t.id}" @click="navigate(t.id)"><component :is="t.icon"/><span class="nav-label">{{t.short}}</span></button><button class="nav-plus" :data-tooltip="section==='servers'?'Create local server':'Create Minecraft instance'" :aria-label="section==='servers'?'Create local server':'Create Minecraft instance'" @click="plus"><Plus/></button></nav><div class="bottom-nav"><button data-tooltip="Help and support" aria-label="Help and support" @click="external(links.support)"><HelpCircle/></button><button data-tooltip="Settings" aria-label="Settings" :class="{active:section==='settings'}" @click="navigate('settings')"><Settings/></button></div></aside>
-  <div class="main-column" :inert="modal||bootVisible?true:undefined"><header class="app-topbar" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick"><div class="toolbar-location"><button class="toolbar-home" title="Go to home" aria-label="Go to home" @click="navigate('dashboard')"><Home/></button><span class="toolbar-divider"></span><span class="toolbar-current"><component :is="tabs.find(t=>t.id===section)?.icon||Settings"/><strong>{{activeInstance?activeInstance.name:section==='dashboard'?'Home':section==='launcher'?'Minecraft':title}}</strong></span></div><div class="top-right"><button class="toolbar-downloads" aria-label="Open downloads" title="Open downloads" @click="show('downloads')"><Download/><span v-if="jobs.some(j=>['running','queued','downloading'].includes(j.status))" class="toolbar-download-dot"></span></button><span v-if="busy||searching||packVersionsLoading" class="app-busy" aria-label="An operation is in progress"></span><span class="pill"><span class="dot"></span>{{account?'Signed in':'Guest mode'}}</span><button v-if="!account" class="signin" :disabled="busy" @click="signIn"><LogIn/> Sign in to Solara</button><button v-else class="signin" @click="show('account')"><ShieldCheck/>{{account.name||account.username}} <ChevronDown/></button></div></header>
+  <div class="main-column" :inert="modal||bootVisible?true:undefined"><header class="app-topbar" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick"><div class="toolbar-location"><button class="toolbar-home" title="Go to home" aria-label="Go to home" @click="navigate('dashboard')"><Home/></button><div class="nav-history-arrows"><button class="history-arrow-btn" :disabled="navIndex<=0" title="Back" @click="navBack"><ChevronLeft :size="14"/></button><button class="history-arrow-btn" :disabled="navIndex>=navHistory.length-1" title="Forward" @click="navForward"><ChevronRight :size="14"/></button></div><span class="toolbar-divider"></span><span class="toolbar-current"><component :is="tabs.find(t=>t.id===section)?.icon||Settings"/><strong>{{activeInstance?activeInstance.name:section==='dashboard'?'Home':section==='launcher'?'Minecraft':title}}</strong></span></div><div class="topbar-center-status"><span class="topbar-instance-pill" :class="{running: instances.some(i=>i.running)}"><span class="status-pulse-dot"></span><span class="status-pill-text">{{instances.find(i=>i.running)?instances.find(i=>i.running).name+' is running':'No instances running'}}</span><template v-if="instances.find(i=>i.running)"><button class="topbar-pill-btn stop" title="Stop instance" @click.stop="stopGame(instances.find(i=>i.running))"><Square :size="11"/></button><button class="topbar-pill-btn logs" title="View instance logs" @click.stop="instanceLogs(instances.find(i=>i.running))"><Terminal :size="11"/></button></template></span></div><div class="top-right"><button class="topbar-mc-account" :title="minecraft.find(a=>a.active)?'Minecraft: '+minecraft.find(a=>a.active).name:'Sign in to Minecraft'" @click="show('minecraft-login')"><img v-if="minecraft.find(a=>a.active)" :src="'https://mc-heads.net/avatar/'+minecraft.find(a=>a.active).name+'/24'" alt="" class="topbar-mc-head"><User v-else :size="14"/><span class="topbar-mc-name">{{minecraft.find(a=>a.active)?minecraft.find(a=>a.active).name:'Add Minecraft'}}</span></button><button class="topbar-update-pill" :class="{hasUpdate: appUpdate?.available}" title="Check and apply launcher updates" @click="checkUpdates"><RefreshCw :size="12"/> <span>{{appUpdate?.available?'Reload to update':'Check updates'}}</span></button><button class="toolbar-downloads" aria-label="Open downloads" title="Open downloads" @click="show('downloads')"><Download/><span v-if="jobs.some(j=>['running','queued','downloading'].includes(j.status))" class="toolbar-download-dot"></span></button><span v-if="busy||searching||packVersionsLoading" class="app-busy" aria-label="An operation is in progress"></span><span class="pill"><span class="dot"></span>{{account?'Signed in':'Guest mode'}}</span><button v-if="!account" class="signin" :disabled="busy" @click="signIn"><LogIn/> Sign in to Solara</button><button v-else class="signin" @click="show('account')"><ShieldCheck/>{{account.name||account.username}} <ChevronDown/></button></div></header>
   <main ref="contentPane" class="app-content" :aria-label="title"><div :key="section" class="section-view">
     <div v-if="error" class="banner error" role="alert" style="margin-bottom:20px">{{error}}</div>
-    <HomeWorkspace v-if="section==='dashboard'" :instances="instances" :projects="projects" :services="services" :account="account" :loading="publicLoading" :api-state="snapshot.state" @open-instance="openInstance" @create="plus" @navigate="navigate" @external="external" @refresh="refreshPublic" @play="launch"/>
+    <HomeWorkspace v-if="section==='dashboard'" :instances="instances" :projects="projects" :services="services" :account="account" :minecraft="minecraft" :loading="publicLoading" :api-state="snapshot.state" @open-instance="openInstance" @create="plus" @navigate="navigate" @external="external" @refresh="refreshPublic" @play="launch" @account="mcSignIn" @copy="copyText" @solara-signin="signIn" @create-preset="createPreset"/>
     <template v-if="section==='launcher'">
       <InstanceWorkspace v-if="activeInstance" ref="workspaceRef" :instance="activeInstance" :jobs="jobs" :account-ready="minecraft.some(a=>a.active)" :parent-busy="busy" @back="activeInstanceId=null" @play="launch" @stop="stopGame" @account="mcSignIn" @refresh="pollLocal" @browse-mods="(id?:string)=>{preferredInstanceId=id||activeInstance?.id||'';navigate('explore')}"/>
       <template v-else>
@@ -213,7 +227,70 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
   </section></Transition>
   <Transition name="dialog"><div v-if="modal" class="modal-shade" @click.self="close" @keydown="trapDialog"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" tabindex="-1"><div class="section-title"><h2 id="dialog-title">{{({'minecraft-login':'Sign in to Minecraft','create-instance':'Create an instance','create-server':'Create a local server','edit-instance':'Instance settings','assignment':'Get a server address','edit-assignment':'Update server endpoint','release-assignment':'Release server address','downloads':'Your downloads','logs':'Local console','account':'Your Solara account','changelog':"What’s new",'install-content':selectedContent?.kind==='modpack'?'Install a modpack':'Add to an instance','beta':'Experimental access','about':'About Solara'} as Record<string,string>)[modal]}}</h2><button class="close" title="Close dialog" aria-label="Close dialog" @click="close"><X/></button></div>
   <div v-if="error" class="banner error" role="alert" style="margin-bottom:18px">{{error}}</div>
-  <template v-if="modal==='create-instance'"><p style="font-size:12px">Choose a game version and loader. Each instance keeps its own mods, settings and saves.</p><form @submit.prevent="createInstance"><label class="field">Instance name<input v-model="create.name" placeholder="My next adventure" required maxlength="80"></label><label class="field">Minecraft version<SelectControl v-model="create.gameVersion" label="Minecraft version" :options="versions.map(v=>({value:v.id,label:v.id,hint:v.type}))" :placeholder="versions.length?'Choose a Minecraft version':'Versions load in the desktop app'" searchable/></label><div class="field"><label>Choose a mod loader</label><div class="loader-choices" role="radiogroup" aria-label="Mod loader"><button v-for="l in availableLoaders" :key="l.id" type="button" role="radio" :aria-checked="create.loader===l.id" :class="{chosen:create.loader===l.id}" :title="l.hint" @click="create.loader=l.id"><LoaderMark :loader="l.id"/><strong>{{l.name}}</strong><span class="loader-selected"><Check/></span></button></div></div><label v-if="create.loader!=='vanilla'" class="field">Loader version<SelectControl v-model="create.loaderVersion" label="Loader version" :options="[{value:'',label:loaderLoading?'Checking versions…':'Recommended stable version'},...loaderChoices.map(v=>({value:v.id,label:v.id,hint:v.stable?'Stable':'Preview'}))]" searchable/></label><p v-if="loaderError" class="banner error">{{loaderError}} <button type="button" @click="loadLoaderVersions">Try again</button></p><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||!create.gameVersion||loaderLoading||!!loaderError">{{busy?'Working…':'Create instance'}}</button></div></form></template>
+  <template v-if="modal==='create-instance'">
+    <div class="create-instance-dialog-wrap">
+      <div class="create-search-section">
+        <label class="create-search-label">Already know what you want to play?</label>
+        <div class="create-search-bar">
+          <Search :size="16"/>
+          <input v-model="createSearch" placeholder="Search mods, modpacks, and more…" aria-label="Search mods, modpacks, and more" @keydown.enter="jumpToExplore">
+          <button v-if="createSearch" type="button" class="create-search-go" @click="jumpToExplore"><ArrowRight :size="14"/></button>
+        </div>
+      </div>
+      <div class="create-or-divider"><span>or</span></div>
+      <div class="choose-type-header">Choose instance type</div>
+      <div class="instance-type-grid">
+        <div class="instance-type-card active">
+          <span class="type-card-icon"><Box :size="20"/></span>
+          <div class="type-card-info">
+            <strong>Custom setup</strong>
+            <p>Start from scratch by picking a loader and game version.</p>
+          </div>
+        </div>
+        <div class="instance-type-card" @click="close();navigate('explore')">
+          <span class="type-card-icon"><Compass :size="20"/></span>
+          <div class="type-card-info">
+            <strong>Start from a mod or modpack</strong>
+            <p>Choose a project and we’ll use its latest version.</p>
+          </div>
+        </div>
+        <div class="instance-type-card" @click="close();show('downloads')">
+          <span class="type-card-icon"><Download :size="20"/></span>
+          <div class="type-card-info">
+            <strong>Upload a modpack</strong>
+            <p>Install a modpack from an .mrpack file on your device.</p>
+          </div>
+        </div>
+        <div class="instance-type-card" @click="close();navigate('launcher')">
+          <span class="type-card-icon"><Package :size="20"/></span>
+          <div class="type-card-info">
+            <strong>Import instance</strong>
+            <p>Import an instance from Prism, CurseForge, or similar.</p>
+          </div>
+        </div>
+      </div>
+      <form @submit.prevent="createInstance" class="custom-instance-form">
+        <label class="field">Instance name<input v-model="create.name" placeholder="My next adventure" required maxlength="80"></label>
+        <label class="field">Minecraft version<SelectControl v-model="create.gameVersion" label="Minecraft version" :options="versions.map(v=>({value:v.id,label:v.id,hint:v.type}))" :placeholder="versions.length?'Choose a Minecraft version':'Versions load in the desktop app'" searchable/></label>
+        <div class="field">
+          <label>Choose a mod loader</label>
+          <div class="loader-choices" role="radiogroup" aria-label="Mod loader">
+            <button v-for="l in availableLoaders" :key="l.id" type="button" role="radio" :aria-checked="create.loader===l.id" :class="{chosen:create.loader===l.id}" :title="l.hint" @click="create.loader=l.id">
+              <LoaderMark :loader="l.id"/>
+              <strong>{{l.name}}</strong>
+              <span class="loader-selected"><Check/></span>
+            </button>
+          </div>
+        </div>
+        <label v-if="create.loader!=='vanilla'" class="field">Loader version<SelectControl v-model="create.loaderVersion" label="Loader version" :options="[{value:'',label:loaderLoading?'Checking versions…':'Recommended stable version'},...loaderChoices.map(v=>({value:v.id,label:v.id,hint:v.stable?'Stable':'Preview'}))]" searchable/></label>
+        <p v-if="loaderError" class="banner error">{{loaderError}} <button type="button" @click="loadLoaderVersions">Try again</button></p>
+        <div class="actions">
+          <button type="button" @click="close">Cancel</button>
+          <button class="primary" :disabled="busy||!engineReady||!create.gameVersion||loaderLoading||!!loaderError">{{busy?'Working…':'Create instance'}}</button>
+        </div>
+      </form>
+    </div>
+  </template>
   <form v-if="modal==='edit-instance'" @submit.prevent="saveInstance"><label class="field">Name<input v-model="editForm.name" required maxlength="80"></label><label class="field">Maximum memory: <strong>{{(editForm.memory/1024).toFixed(1)}} GiB</strong> ({{editForm.memory}} MiB)<div class="preset-pills" style="margin:6px 0"><button v-for="ram in [2048,4096,6144,8192,12288]" :key="ram" type="button" class="preset-pill" :class="{active:editForm.memory===ram}" @click="editForm.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button></div><input type="number" min="512" max="65536" step="512" v-model.number="editForm.memory" required></label><label class="field">Java executable (blank to use Settings)<input v-model="editForm.javaPath"></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy">Save instance</button></div></form>
   <template v-if="modal==='create-server'"><p style="font-size:12px">Vanilla server files download directly from Mojang. A compatible local Java installation is required.</p><form @submit.prevent="saveServer"><label class="field">Server name<input v-model="serverForm.name" required maxlength="80"></label><label class="field">Minecraft version<SelectControl v-model="serverForm.version" label="Server Minecraft version" :options="versions.filter(v=>v.type==='release').map(v=>({value:v.id,label:v.id}))" placeholder="Choose a server version" searchable/></label><label class="field">Java executable<input v-model="serverForm.javaPath" required></label><div class="split"><label class="field">Memory (MiB)<input type="number" v-model.number="serverForm.memory" min="512" max="65536" required></label><label class="field">Port<input type="number" v-model.number="serverForm.port" min="1024" max="65535" required></label></div><label class="row"><input type="checkbox" v-model="serverForm.eula" required><span>I accept the <a href="https://www.minecraft.net/eula" target="_blank" rel="noopener" style="color:var(--accent)">Minecraft EULA</a> for this server.</span></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||!serverForm.eula||!serverForm.version">Set up server</button></div></form></template>
   <template v-if="modal==='assignment'||modal==='edit-assignment'"><p style="font-size:12px">{{modal==='edit-assignment'?'Update the verified public endpoint for '+(assignmentTarget?.hostname||assignmentTarget?.name)+'.':'Use a public IP address you control. Your router and firewall must allow players to connect.'}}</p><form @submit.prevent="saveAssignment"><template v-if="modal==='assignment'"><label class="field">Requested name<input v-model="assignment.name" pattern="[a-z0-9][a-z0-9-]{1,30}[a-z0-9]" required></label><label class="field">Local server<SelectControl v-model="assignment.serverId" label="Local server" :options="localServers.map(s=>({value:s.id,label:s.name}))" placeholder="Choose a server"/></label><p v-if="!localServers.length" class="banner">Create a local server on this device before requesting an address.</p></template><label class="field">Public IP address<input v-model="assignment.endpoint" placeholder="Your public IPv4 or IPv6" required maxlength="45"></label><label class="field">Public port<input type="number" min="1024" max="65535" v-model.number="assignment.port" required></label><p class="banner">Control of this endpoint must be verified before the address can be changed.</p><label class="row"><input type="checkbox" required v-model="assignment.consent"><span>I control this endpoint and understand its IP address becomes public.</span></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!account||!assignment.consent||(modal==='assignment'&&!assignment.serverId)">{{busy?'Saving…':modal==='edit-assignment'?'Update endpoint':'Request assignment'}}</button></div></form></template>

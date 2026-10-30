@@ -28,7 +28,7 @@
       "capabilities": [
         "main"
       ],
-      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.solara-inc.in https://api.modrinth.com; img-src 'self' data: https://cdn.modrinth.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'"
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.solara-inc.in https://api.modrinth.com; img-src 'self' data: https://cdn.modrinth.com https://mc-heads.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'"
     }
   },
   "bundle": {

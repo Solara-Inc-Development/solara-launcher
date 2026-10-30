@@ -9,12 +9,18 @@ use tokio::sync::Mutex;
 const MICROSOFT: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0";
 const MINECRAFT: &str = "https://api.minecraftservices.com";
 
+fn default_true() -> bool {
+    true
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Profile {
     pub id: String,
     pub name: String,
     #[serde(default)]
     pub active: bool,
+    #[serde(default = "default_true")]
+    pub owned: bool,
 }
 impl Profile {
     fn validate(&self) -> Result<()> {
@@ -160,6 +166,7 @@ async fn minecraft(oauth: &Value) -> Result<Session> {
             .context("Minecraft profile name missing")?
             .into(),
         active: true,
+        owned: true,
     };
     profile.validate()?;
     let xuid = xsts["DisplayClaims"]["xui"][0]["xid"]
@@ -427,11 +434,13 @@ mod tests {
             id: uuid::Uuid::new_v4().to_string(),
             name: "FixturePlayer".into(),
             active: true,
+            owned: true,
         };
         profile.validate().unwrap();
         let value = serde_json::to_value(profile).unwrap();
-        assert_eq!(value.as_object().unwrap().len(), 3);
+        assert_eq!(value.as_object().unwrap().len(), 4);
         assert!(value.get("access_token").is_none());
         assert!(value.get("refresh_token").is_none());
+        assert_eq!(value.get("owned").unwrap().as_bool(), Some(true));
     }
 }
