@@ -108,21 +108,21 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.08 available.** Fresh genuine Windows release featuring direct interactive auto-update triggering, background update resilience, and complete removal of upstream branding.
+**Testing preview V-0.0.09 available.** Fresh genuine Windows release featuring the luminous Electric Cyan design system, Solara SSO sign-in loop fix, full Forge and NeoForge mod loaders, and hardened Discord Rich Presence.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly from the official portal:
-- **Installer (6.5 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.08/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.08/solaralauncher.exe.sig)
-- **SHA-256**: `da4189065f5bdc2f2c013e9ec72e5df57789e3f27151f0abf5a7b5a6757fb1e0`
+- **Installer (6.5 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.09/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.09/solaralauncher.exe.sig)
+- **SHA-256**: `d4392014097ea6acf787bc3f924b3d39f63dbc083d25fc33e4d4b5cbfc6fe9e6`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.04 live | Clean native Win32 calls, signed with persistent Minisign key |
-| **Minecraft core** | Custom Vanilla / Fabric / Quilt | Official manifest, Maven & package hashes verified in source; Forge/NeoForge coming later |
+| **Testing installer** | V-0.0.09 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
 
