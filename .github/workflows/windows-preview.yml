@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.11: Instance Notebook Scratchpad, Batch Mod Controls, RAM Meter, Instance Pinning, Display Settings
+# Build testing candidate V-0.0.12: In-Game Screenshots Gallery, Fullscreen Lightbox, Native Image Stream, and Memory Health Gauges
 on:
   workflow_dispatch:
   push:

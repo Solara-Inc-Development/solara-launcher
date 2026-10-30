@@ -76,6 +76,10 @@ async fn instance_text(id: String, path: String) -> Result<Value, String> {
     engine::read_text(&id, &path).await.map_err(err)
 }
 #[tauri::command]
+async fn instance_image(id: String, path: String) -> Result<String, String> {
+    engine::read_image(&id, &path).await.map_err(err)
+}
+#[tauri::command]
 async fn instance_trash(id: String) -> Result<Value, String> {
     engine::list_trash(&id).await.map_err(err)
 }
@@ -379,6 +383,7 @@ pub fn run() {
             instance_logs,
             instance_files,
             instance_text,
+            instance_image,
             instance_trash,
             instance_mods,
             instance_file_action,

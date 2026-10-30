@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
-import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor} from '../../packages/ui/icons';
+import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
 const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate']);
@@ -65,6 +65,7 @@ const crumbs=computed(()=>path.value?path.value.split('/').map((name,i,parts)=>(
 const tabs=[
   {id:'mods',name:'Mods',icon:Package},
   {id:'files',name:'Files',icon:FolderOpen},
+  {id:'screenshots',name:'Screenshots',icon:Monitor},
   {id:'backups',name:'Backups',icon:Globe},
   {id:'notes',name:'Notes',icon:FileText},
   {id:'logs',name:'Logs',icon:Terminal},
@@ -79,6 +80,7 @@ async function run(fn:()=>Promise<void>){if(busy.value)return;busy.value=true;er
 async function readTab(){loading.value=true;error.value='';try{
  if(tab.value==='files')entries.value=await native('instance_files',{id:props.instance.id,path:path.value});
  if(tab.value==='mods')mods.value=await native('instance_mods',{id:props.instance.id});
+ if(tab.value==='screenshots')await loadScreenshots();
  if(tab.value==='backups')backups.value=await native('instance_backups',{id:props.instance.id});
  if(tab.value==='trash')trash.value=await native('instance_trash',{id:props.instance.id});
  if(tab.value==='logs')await refreshLogs();
@@ -204,15 +206,113 @@ function saveDisplayPrefs(){
   }catch{}
 }
 
+// Screenshots Gallery & Lightbox Viewer
+interface ScreenshotItem {
+  name: string;
+  path: string;
+  size: number;
+  modifiedAt?: number;
+  dataUrl?: string;
+}
+const screenshots = ref<ScreenshotItem[]>([]);
+const screenshotQuery = ref('');
+const activeLightbox = ref<ScreenshotItem | null>(null);
+
+const visibleScreenshots = computed(() => {
+  if (!screenshotQuery.value.trim()) return screenshots.value;
+  const q = screenshotQuery.value.trim().toLowerCase();
+  return screenshots.value.filter(s => s.name.toLowerCase().includes(q));
+});
+
+const lightboxIndex = computed(() => {
+  if (!activeLightbox.value) return -1;
+  return visibleScreenshots.value.findIndex(s => s.path === activeLightbox.value?.path);
+});
+
+async function loadScreenshots() {
+  try {
+    const raw = await native('instance_files', { id: props.instance.id, path: 'screenshots' });
+    if (Array.isArray(raw)) {
+      const filtered: ScreenshotItem[] = raw
+        .filter((f: any) => !f.directory && /\.(png|jpg|jpeg|webp)$/i.test(f.name))
+        .map((f: any) => ({
+          name: f.name,
+          path: f.path,
+          size: f.size,
+          modifiedAt: f.modifiedAt || f.modified_at
+        }))
+        .sort((a, b) => (b.modifiedAt || 0) - (a.modifiedAt || 0));
+      screenshots.value = filtered;
+      // Preload thumbnails for instant display
+      for (const item of filtered.slice(0, 30)) {
+        if (!item.dataUrl) {
+          native('instance_image', { id: props.instance.id, path: item.path })
+            .then(url => { item.dataUrl = url; })
+            .catch(() => {});
+        }
+      }
+    } else {
+      screenshots.value = [];
+    }
+  } catch {
+    screenshots.value = [];
+  }
+}
+
+async function openLightbox(item: ScreenshotItem) {
+  if (!item.dataUrl) {
+    try {
+      item.dataUrl = await native('instance_image', { id: props.instance.id, path: item.path });
+    } catch {}
+  }
+  activeLightbox.value = item;
+}
+
+function closeLightbox() {
+  activeLightbox.value = null;
+}
+
+function prevScreenshot() {
+  const idx = lightboxIndex.value;
+  if (idx > 0) {
+    openLightbox(visibleScreenshots.value[idx - 1]);
+  }
+}
+
+function nextScreenshot() {
+  const idx = lightboxIndex.value;
+  if (idx >= 0 && idx < visibleScreenshots.value.length - 1) {
+    openLightbox(visibleScreenshots.value[idx + 1]);
+  }
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (activeLightbox.value) {
+    if (e.key === 'Escape') {
+      closeLightbox();
+      e.preventDefault();
+    } else if (e.key === 'ArrowLeft') {
+      prevScreenshot();
+      e.preventDefault();
+    } else if (e.key === 'ArrowRight') {
+      nextScreenshot();
+      e.preventDefault();
+    }
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', handleKeydown);
+}
+
 async function saveSettings(){await run(async()=>{await native('edit_instance',{id:props.instance.id,...form.value});saveDisplayPrefs();notice.value='Instance settings saved.';emit('refresh')})}
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();},{immediate:true});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
 watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
-onUnmounted(()=>{if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
+onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keydown',handleKeydown);if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
 
 const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
 function instanceScene(name?:string):string{if(!name)return scenes[0];let hash=0;for(let i=0;i<name.length;i++){hash=(hash<<5)-hash+name.charCodeAt(i);hash|=0}return scenes[Math.abs(hash)%scenes.length]}
@@ -248,7 +348,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <button class="circle-action-btn" title="Open instance folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id})})">
        <FolderOpen :size="17"/>
      </button>
-     <button class="circle-action-btn" title="Open screenshots folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'screenshots'})})">
+     <button class="circle-action-btn" title="Screenshots gallery" @click="selectTab('screenshots')">
        <Monitor :size="17"/>
      </button>
      <button class="circle-action-btn" title="Duplicate instance" @click="emit('duplicate',instance)">
@@ -286,6 +386,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <component :is="item.icon" :size="16"/>
      <span>{{item.name}}</span>
      <span v-if="item.id==='mods'&&mods.length" class="tab-badge">{{mods.length}}</span>
+     <span v-if="item.id==='screenshots'&&screenshots.length" class="tab-badge">{{screenshots.length}}</span>
      <span v-if="item.id==='backups'&&backups.length" class="tab-badge">{{backups.length}}</span>
    </button>
  </nav>
@@ -426,6 +527,67 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        </article>
      </div>
    </template>
+ </template>
+
+ <!-- Screenshots Tab -->
+ <template v-if="tab==='screenshots'">
+   <div class="workspace-section-heading">
+     <div>
+       <h2>In-game screenshots <span>{{screenshots.length}}</span></h2>
+       <p>High-resolution captures taken in Minecraft with F2. Saved directly inside this instance.</p>
+     </div>
+     <div class="row">
+       <button type="button" class="solara-secondary-btn" title="Open screenshots folder in system file explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'screenshots' }); })">
+         <FolderOpen :size="14"/> Open folder
+       </button>
+       <button type="button" class="solara-secondary-btn" title="Refresh screenshots" :disabled="loading" @click="readTab">
+         <RefreshCw :size="14"/> Refresh
+       </button>
+     </div>
+   </div>
+
+   <div v-if="loading" class="workspace-empty">Reading screenshots…</div>
+   <div v-else-if="!screenshots.length" class="workspace-empty">
+     <Monitor :size="32"/>
+     <h3>No screenshots captured yet</h3>
+     <p>Press <strong>F2</strong> while playing Minecraft to take screenshots. They will automatically appear in this gallery.</p>
+     <button type="button" class="solara-primary-btn" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'screenshots' }); })">
+       <FolderOpen :size="14"/> Open screenshots folder
+     </button>
+   </div>
+   <div v-else>
+     <div class="solara-content-toolbar" style="margin-bottom:14px">
+       <div class="content-search-wrap">
+         <Search :size="16"/>
+         <input v-model="screenshotQuery" placeholder="Filter screenshots by filename…" aria-label="Filter screenshots">
+       </div>
+     </div>
+
+     <div class="screenshots-gallery-grid">
+       <article v-for="item in visibleScreenshots" :key="item.path" class="screenshot-card" @click="openLightbox(item)">
+         <div class="screenshot-thumb-wrap">
+           <img v-if="item.dataUrl" :src="item.dataUrl" :alt="item.name" loading="lazy">
+           <div v-else class="screenshot-thumb-loading">
+             <Monitor :size="24"/>
+             <span>Loading photo…</span>
+           </div>
+           <div class="screenshot-hover-overlay">
+             <span class="hover-view-text">Click to expand</span>
+           </div>
+         </div>
+         <div class="screenshot-meta-row">
+           <span class="screenshot-name" :title="item.name">{{ item.name }}</span>
+           <span class="screenshot-size">{{ bytes(item.size) }}</span>
+         </div>
+         <div class="screenshot-sub-meta">
+           <span>{{ item.modifiedAt ? new Date(item.modifiedAt * 1000).toLocaleDateString(undefined, {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '' }}</span>
+           <button type="button" class="screenshot-delete-btn" title="Move to Trash" @click.stop="ask('trash', item)">
+             <Trash2 :size="13"/>
+           </button>
+         </div>
+       </article>
+     </div>
+   </div>
  </template>
 
  <!-- Worlds & Backups Tab -->
@@ -689,6 +851,40 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        </button>
      </footer>
    </form>
+ </dialog>
+
+ <!-- Screenshot Lightbox Modal -->
+ <dialog v-if="activeLightbox" class="solara-lightbox-dialog" open @click.self="closeLightbox">
+   <div class="lightbox-header">
+     <div class="lightbox-title-wrap">
+       <strong class="lightbox-filename">{{ activeLightbox.name }}</strong>
+       <span class="lightbox-meta">{{ bytes(activeLightbox.size) }} · {{ activeLightbox.modifiedAt ? new Date(activeLightbox.modifiedAt * 1000).toLocaleString() : '' }} · {{ lightboxIndex + 1 }} of {{ visibleScreenshots.length }}</span>
+     </div>
+     <div class="lightbox-actions">
+       <button type="button" class="solara-secondary-btn" title="Open in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: activeLightbox?.path }); })">
+         <FolderOpen :size="14"/> Show in folder
+       </button>
+       <button type="button" class="circle-action-btn" title="Close" @click="closeLightbox">
+         <X :size="16"/>
+       </button>
+     </div>
+   </div>
+
+   <div class="lightbox-viewport">
+     <button v-if="lightboxIndex > 0" type="button" class="lightbox-nav-btn prev" aria-label="Previous screenshot" @click.stop="prevScreenshot">
+       <ChevronLeft :size="24"/>
+     </button>
+     <div class="lightbox-img-wrapper">
+       <img v-if="activeLightbox.dataUrl" :src="activeLightbox.dataUrl" :alt="activeLightbox.name">
+       <div v-else class="lightbox-loading">
+         <Monitor :size="32"/>
+         <span>Loading high-resolution screenshot…</span>
+       </div>
+     </div>
+     <button v-if="lightboxIndex < visibleScreenshots.length - 1" type="button" class="lightbox-nav-btn next" aria-label="Next screenshot" @click.stop="nextScreenshot">
+       <ChevronRight :size="24"/>
+     </button>
+   </div>
  </dialog>
 </section>
 </template>

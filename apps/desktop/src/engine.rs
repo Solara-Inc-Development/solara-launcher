@@ -353,6 +353,29 @@ pub async fn read_text(id: &str, path: &str) -> Result<Value> {
         e.files.read(&e.instances, id, path).await?,
     )?)
 }
+pub async fn read_image(id: &str, relative: &str) -> Result<String> {
+    use base64::Engine as _;
+    let engine = get().await?;
+    let path = crate::game_core::files::resolve(&engine.instances, id, relative, false).await?;
+    let meta = tokio::fs::metadata(&path).await?;
+    if !meta.is_file() || meta.len() > 10 * 1024 * 1024 {
+        bail!("Choose an image smaller than 10 MiB");
+    }
+    let ext = path
+        .extension()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+    let mime = match ext.as_str() {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "webp" => "image/webp",
+        _ => bail!("Unsupported image format"),
+    };
+    let bytes = tokio::fs::read(&path).await?;
+    let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+    Ok(format!("data:{mime};base64,{b64}"))
+}
 pub async fn list_trash(id: &str) -> Result<Value> {
     let e = get().await?;
     Ok(serde_json::to_value(
