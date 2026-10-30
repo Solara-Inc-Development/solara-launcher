@@ -46,9 +46,9 @@
   },
   "windowsInstallerBuild": {
     "result": "passed",
-    "publicVersion": "V-0.0.09",
-    "sourceCommit": "6a41f4b64157db5d4922095951c136656a31363c",
-    "staticVerification": "Genuine NSIS installer and x64 application PE headers verified; cryptographically signed with persistent Minisign key; Electric Cyan theme, Forge/NeoForge mod loaders, SSO loop fix, and Discord Rich Presence verified",
+    "publicVersion": "V-0.0.10",
+    "sourceCommit": "4c3286d414bdeb988cc42a728207b46423e22627",
+    "staticVerification": "Genuine NSIS installer and x64 application PE headers verified; cryptographically signed with persistent Minisign key; interactive console viewer, library sorting and loader filters, duplicate instance, and global keyboard shortcuts verified",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live"

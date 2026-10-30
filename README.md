@@ -108,20 +108,20 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.09 available.** Fresh genuine Windows release featuring the luminous Electric Cyan design system, Solara SSO sign-in loop fix, full Forge and NeoForge mod loaders, and hardened Discord Rich Presence.
+**Testing preview V-0.0.10 available.** Fresh genuine Windows release featuring an interactive game console log viewer with error filtering, dynamic library sorting and loader filters, 1-click instance duplication, and global keyboard shortcuts.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly from the official portal:
-- **Installer (6.5 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.09/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.09/solaralauncher.exe.sig)
-- **SHA-256**: `d4392014097ea6acf787bc3f924b3d39f63dbc083d25fc33e4d4b5cbfc6fe9e6`
+- **Installer (6.8 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe.sig)
+- **SHA-256**: `7b423a95c216f9074d11a54cbeb6f3a33d8a50eb85a30d4a712fe1a3244eb3c5`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.09 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.10 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
