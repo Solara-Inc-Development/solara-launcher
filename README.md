@@ -108,20 +108,20 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.10 available.** Fresh genuine Windows release featuring an interactive game console log viewer with error filtering, dynamic library sorting and loader filters, 1-click instance duplication, and global keyboard shortcuts.
+**Testing preview V-0.0.11 available.** Fresh genuine Windows release featuring per-instance Notebook scratchpad with auto-save and snippet helpers, batch mod controls (enable/disable all, mods folder shortcut), visual RAM distribution meter, instance favorite pinning, and display resolution preferences.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly from the official portal:
-- **Installer (6.8 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe.sig)
-- **SHA-256**: `7b423a95c216f9074d11a54cbeb6f3a33d8a50eb85a30d4a712fe1a3244eb3c5`
+- **Installer (6.8 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.11/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.11/solaralauncher.exe.sig)
+- **SHA-256**: `5112a2ce4592d54a346bce4b754d65e5ec6ff5dc0b24938ed4156e6911bf073e`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.10 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.11 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
