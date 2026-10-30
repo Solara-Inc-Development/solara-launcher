@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
-import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check} from '../../packages/ui/icons';
+import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
 const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate']);
@@ -66,6 +66,7 @@ const tabs=[
   {id:'mods',name:'Mods',icon:Package},
   {id:'files',name:'Files',icon:FolderOpen},
   {id:'backups',name:'Backups',icon:Globe},
+  {id:'notes',name:'Notes',icon:FileText},
   {id:'logs',name:'Logs',icon:Terminal},
   {id:'settings',name:'Settings',icon:Settings},
   {id:'trash',name:'Trash',icon:Trash2}
@@ -125,11 +126,89 @@ async function importModFile(event:Event){
 
 async function restore(entry:any){await run(async()=>{await native('instance_file_action',{id:props.instance.id,action:'restore',path:entry.id});await readTab();notice.value='Restored to its original folder.'})}
 async function toggle(mod:any){await run(async()=>{await native('toggle_instance_mod',{id:props.instance.id,path:mod.path,enabled:!mod.enabled});await readTab()})}
-async function saveSettings(){await run(async()=>{await native('edit_instance',{id:props.instance.id,...form.value});notice.value='Instance settings saved.';emit('refresh')})}
+async function toggleAllMods(enable:boolean){
+  const targetMods=mods.value.filter(m=>m.enabled!==enable);
+  if(!targetMods.length)return;
+  await run(async()=>{
+    for(const m of targetMods){
+      await native('toggle_instance_mod',{id:props.instance.id,path:m.path,enabled:enable});
+    }
+    await readTab();
+    notice.value=enable?`Enabled ${targetMods.length} mods.`:`Disabled ${targetMods.length} mods.`;
+  });
+}
+
+// Instance Notes state
+const instanceNotes=ref('');
+const notesSavedNotice=ref(false);
+let notesSaveTimer:ReturnType<typeof setTimeout>|null=null;
+function loadInstanceNotes(){
+  try{
+    instanceNotes.value=localStorage.getItem(`solara:notes:${props.instance.id}`)||'';
+  }catch{
+    instanceNotes.value='';
+  }
+}
+function saveInstanceNotes(manual=false){
+  try{
+    localStorage.setItem(`solara:notes:${props.instance.id}`,instanceNotes.value);
+    notesSavedNotice.value=true;
+    if(manual)notice.value='Instance notebook saved.';
+    setTimeout(()=>{notesSavedNotice.value=false;},2500);
+  }catch{
+    error.value='Failed to save note locally.';
+  }
+}
+function handleNotesInput(){
+  if(notesSaveTimer)clearTimeout(notesSaveTimer);
+  notesSaveTimer=setTimeout(()=>{saveInstanceNotes(false);},800);
+}
+function insertSnippet(type:'coords'|'server'|'todo'){
+  let snippet='';
+  if(type==='coords'){
+    snippet=`\n📍 Coordinates:\n- Base: X: 0, Y: 70, Z: 0\n- Nether Portal: X: 0, Y: 60, Z: 0\n- Stronghold: X: 1200, Y: 30, Z: -800\n- Ancient City: X: -600, Y: -51, Z: 450\n`;
+  }else if(type==='server'){
+    snippet=`\n🌐 Server Details:\n- Address: mc.solara-inc.in\n- Port: 25565\n- Version: Minecraft ${props.instance.gameVersion}\n`;
+  }else if(type==='todo'){
+    snippet=`\n📋 To-Do List:\n- [ ] Gather Netherite upgrade template\n- [ ] Build automated iron farm\n- [ ] Set up villager trading hall\n- [ ] Brew fire resistance potions\n`;
+  }
+  instanceNotes.value=(instanceNotes.value?instanceNotes.value+'\n':'')+snippet;
+  saveInstanceNotes(false);
+}
+const noteStats=computed(()=>{
+  const t=instanceNotes.value;
+  const chars=t.length;
+  const words=t.trim()?t.trim().split(/\s+/).length:0;
+  const lines=t?t.split('\n').length:0;
+  return{chars,words,lines};
+});
+
+// Window Display Preferences & Custom JVM Arguments
+const displayPrefs=ref({
+  resolution:'default',
+  fullscreen:false,
+  customWidth:1920,
+  customHeight:1080,
+  jvmPreset:'default',
+  jvmCustomArgs:''
+});
+function loadDisplayPrefs(){
+  try{
+    const raw=localStorage.getItem(`solara:display:${props.instance.id}`);
+    if(raw)Object.assign(displayPrefs.value,JSON.parse(raw));
+  }catch{}
+}
+function saveDisplayPrefs(){
+  try{
+    localStorage.setItem(`solara:display:${props.instance.id}`,JSON.stringify(displayPrefs.value));
+  }catch{}
+}
+
+async function saveSettings(){await run(async()=>{await native('edit_instance',{id:props.instance.id,...form.value});saveDisplayPrefs();notice.value='Instance settings saved.';emit('refresh')})}
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'}},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();},{immediate:true});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
 watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
@@ -168,6 +247,9 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-primary-actions">
      <button class="circle-action-btn" title="Open instance folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id})})">
        <FolderOpen :size="17"/>
+     </button>
+     <button class="circle-action-btn" title="Open screenshots folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'screenshots'})})">
+       <Monitor :size="17"/>
      </button>
      <button class="circle-action-btn" title="Duplicate instance" @click="emit('duplicate',instance)">
        <Copy :size="17"/>
@@ -237,6 +319,15 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        <button type="button" class="filter-pill" :class="{active: modFilter==='problems'}" @click="modFilter='problems'">Problems</button>
      </div>
      <div class="mod-row-tools">
+       <button v-if="mods.length" type="button" class="link-action-btn" :disabled="locked||!mods.some(m=>!m.enabled)" title="Enable all mods" @click="toggleAllMods(true)">
+         <Check :size="13"/> Enable all
+       </button>
+       <button v-if="mods.length" type="button" class="link-action-btn" :disabled="locked||!mods.some(m=>m.enabled)" title="Disable all mods" @click="toggleAllMods(false)">
+         <X :size="13"/> Disable all
+       </button>
+       <button type="button" class="link-action-btn" title="Open mods folder in system explorer" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'mods'})})">
+         <FolderOpen :size="13"/> Mods folder
+       </button>
        <button class="link-action-btn" title="Refresh mods" :disabled="loading" @click="readTab">
          <RefreshCw :size="13"/> Refresh
        </button>
@@ -367,6 +458,46 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    </div>
  </template>
 
+ <!-- Notes Tab -->
+ <template v-if="tab==='notes'">
+   <div class="workspace-section-heading">
+     <div>
+       <h2>Instance notebook</h2>
+       <p>Keep coordinates, server addresses, modpack notes, and todos safely stored on this device.</p>
+     </div>
+     <div class="row">
+       <button type="button" class="solara-secondary-btn" @click="insertSnippet('coords')"><Compass :size="14"/> Coordinates</button>
+       <button type="button" class="solara-secondary-btn" @click="insertSnippet('todo')"><Check :size="14"/> Todo list</button>
+       <button type="button" class="solara-secondary-btn" @click="insertSnippet('server')"><Globe :size="14"/> Server info</button>
+       <button type="button" class="solara-secondary-btn" :disabled="!instanceNotes" @click="copy(instanceNotes)"><Copy :size="14"/> Copy</button>
+       <button type="button" class="solara-primary-btn" @click="saveInstanceNotes(true)"><Save :size="14"/> Save note</button>
+     </div>
+   </div>
+
+   <div class="notes-workspace-container">
+     <div class="notes-meta-bar">
+       <div class="notes-stats">
+         <span>{{ noteStats.lines }} {{ noteStats.lines === 1 ? 'line' : 'lines' }}</span>
+         <span>·</span>
+         <span>{{ noteStats.words }} {{ noteStats.words === 1 ? 'word' : 'words' }}</span>
+         <span>·</span>
+         <span>{{ noteStats.chars }} characters</span>
+       </div>
+       <div class="notes-status-badge">
+         <span v-if="notesSavedNotice" class="badge-saved"><Check :size="12"/> Saved to device</span>
+         <span v-else class="badge-autosave">⚡ Auto-saves locally</span>
+       </div>
+     </div>
+     <textarea
+       v-model="instanceNotes"
+       class="notes-textarea"
+       placeholder="Write coordinates, seeds, server IPs, or modpack ideas here... Content is preserved per-instance and auto-saves automatically as you type."
+       spellcheck="false"
+       @input="handleNotesInput"
+     />
+   </div>
+ </template>
+
  <!-- Trash Tab -->
  <template v-if="tab==='trash'">
    <div class="workspace-section-heading">
@@ -483,6 +614,48 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        <input v-model="form.javaPath" placeholder="auto" required>
        <small>Use auto for managed Java, java for PATH, or choose your own executable path.</small>
      </label>
+
+     <!-- Display & Window Preferences -->
+     <div class="settings-subgroup">
+       <h3 class="settings-subgroup-title">Display &amp; Window Preferences</h3>
+       <p class="settings-subgroup-hint">Configure launch window dimensions and presentation for this instance.</p>
+       <label>Window size preset
+         <select v-model="displayPrefs.resolution" class="solara-select" @change="saveDisplayPrefs">
+           <option value="default">Default (Standard windowed)</option>
+           <option value="1080p">1920 × 1080 (Full HD 1080p)</option>
+           <option value="720p">1280 × 720 (HD 720p)</option>
+           <option value="1440p">2560 × 1440 (QHD 1440p)</option>
+           <option value="custom">Custom dimensions</option>
+         </select>
+       </label>
+       <div v-if="displayPrefs.resolution==='custom'" class="row-inputs" style="display:flex;gap:12px">
+         <label style="flex:1">Width (px)
+           <input v-model.number="displayPrefs.customWidth" type="number" min="640" max="7680" step="10" @input="saveDisplayPrefs">
+         </label>
+         <label style="flex:1">Height (px)
+           <input v-model.number="displayPrefs.customHeight" type="number" min="480" max="4320" step="10" @input="saveDisplayPrefs">
+         </label>
+       </div>
+       <label class="checkbox-option" style="margin-top:6px;display:flex;align-items:center;gap:8px;cursor:pointer">
+         <input v-model="displayPrefs.fullscreen" type="checkbox" @change="saveDisplayPrefs">
+         <span>Launch Minecraft in Fullscreen mode</span>
+       </label>
+     </div>
+
+     <!-- JVM & Garbage Collector Flags -->
+     <div class="settings-subgroup">
+       <h3 class="settings-subgroup-title">Java Virtual Machine Flags</h3>
+       <p class="settings-subgroup-hint">Tune garbage collector presets for smoother frame rates and stutter reduction.</p>
+       <div class="preset-pills" style="margin:8px 0">
+         <button type="button" class="preset-pill" :class="{active:displayPrefs.jvmPreset==='default'}" @click="displayPrefs.jvmPreset='default';saveDisplayPrefs()">Solara Default</button>
+         <button type="button" class="preset-pill" :class="{active:displayPrefs.jvmPreset==='g1gc'}" @click="displayPrefs.jvmPreset='g1gc';saveDisplayPrefs()">G1GC Balanced</button>
+         <button type="button" class="preset-pill" :class="{active:displayPrefs.jvmPreset==='zgc'}" @click="displayPrefs.jvmPreset='zgc';saveDisplayPrefs()">Low-Latency ZGC</button>
+         <button type="button" class="preset-pill" :class="{active:displayPrefs.jvmPreset==='custom'}" @click="displayPrefs.jvmPreset='custom';saveDisplayPrefs()">Custom</button>
+       </div>
+       <label v-if="displayPrefs.jvmPreset==='custom'">Custom JVM Arguments
+         <input v-model="displayPrefs.jvmCustomArgs" placeholder="-XX:+UseG1GC -XX:G1ReservePercent=20" @input="saveDisplayPrefs">
+       </label>
+     </div>
      <button class="workspace-play solara-primary-btn" :disabled="locked"><Save :size="14"/> Save changes</button>
      <p v-if="instance.running" class="workspace-message">Close Minecraft before changing files or settings.</p>
    </form>
