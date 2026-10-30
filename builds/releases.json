@@ -259,6 +259,43 @@
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDBXQU5kZlRKRS9xbmMwNjd5ajFDVDFxVmRIbUJBZDFLaStUQXNvSUVFWGxKT0N2THlGS0NnbnRNU1FHcStSUlpaYXdmWXF2citURyt0cWMrWGRHbkFBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMzk0ODIyCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjExCkp6Mk1kRTVra1d5cjNVdHF5V2dHeGZBZnAxQnpEaTg0WTVxZjBMaUQvbVV2RCtOV0FvZXFJSlVHR1RjQk5lcmErRWNSWitUUEFXTzFkR3dkN1QvVkFnPT0K",
       "notes": "# Changelog\n\n## Testing Preview V-0.0.11 — 2026-10-31\n\n### What's New & What Feels Better\n- **Instance Notebook & Scratchpad**:\n  - Keep your coordinates, world seeds, server addresses, modpack ideas, and to-do lists stored safely with each instance.\n  - Auto-saves locally as you type so you never lose your notes.\n  - One-click snippet buttons quickly insert coordinates, todo checklists, and server info.\n  - Includes line, word, and character counters, plus a 1-click copy button.\n- **Batch Mod Controls & Folder Shortcuts**:\n  - Quickly enable or disable all your installed mods at once with \"Enable all\" and \"Disable all\" buttons.\n  - 1-Click \"Mods folder\" and \"Screenshots\" buttons open the exact directory directly in your system file explorer.\n- **Visual RAM Allocation Meter**:\n  - A smooth gradient visual bar now shows exactly how much memory you've allocated for Minecraft relative to your system limit.\n  - Convenient preset buttons (2G, 4G, 6G, 8G, 12G, 16G) and reference scale markers.\n- **Instance Favorite Pinning**:\n  - Pin your favorite instances to keep them right at the top of your library grid with glowing cyan star badges.\n- **Display & Resolution Preferences**:\n  - Set launch window dimensions with resolution presets (1080p, 720p, 1440p, or custom pixel dimensions) and a fullscreen toggle.\n  - Choose JVM garbage collector tuning presets (Balanced G1GC, Low-Latency ZGC) or custom arguments for smoother frames.\n\n### Release Status & Verification\n- **Status**: Genuine Windows testing release signed with private Minisign key.\n- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.\n",
       "url": "https://app.solara-inc.in/builds/V-0.0.11/solaralauncher.exe"
+    },
+    {
+      "buildId": "5bf2a529-3e48-4e2a-a59b-e12d3ad5a356",
+      "publicVersion": "V-0.0.12",
+      "internalVersion": "0.0.12",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.12/solaralauncher.exe",
+      "commit": "c1678a7a814bc9b5ad021b2b8be707017dc7b622",
+      "allocatedAt": "2026-10-30T21:27:20.502Z",
+      "state": "published",
+      "applicationSha256": "cc22626502320f854c3e377b59b7a43653ce3ccba25ad6d8038efc93546c85ab",
+      "applicationSize": 18606592,
+      "sourceTree": "121ed611af4621e3b7c361e79eedfa95ea6b1591",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 6821872,
+          "sha256": "bdd662b7aa5f6d672d59e643f7ecf14629f7237186041a4406732e3c81be89cd"
+        },
+        "application/solaralauncher.exe": {
+          "size": 18606592,
+          "sha256": "cc22626502320f854c3e377b59b7a43653ce3ccba25ad6d8038efc93546c85ab"
+        },
+        "source.zip": {
+          "size": 18427779,
+          "sha256": "00c39462a88127e77023a044e4964e96b591c43a3af420710627b63c3ee1e1d4"
+        }
+      },
+      "size": 6821872,
+      "sha256": "bdd662b7aa5f6d672d59e643f7ecf14629f7237186041a4406732e3c81be89cd",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-10-30T21:37:38.124Z",
+      "verifiedAt": "2026-10-30T21:37:18.830Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDFjMHJuRjFBYkVaUExSejl4emdNZEkxSVdiQjkyMGF5NzdHSFRMNXhzam1sZ0s0Q2Zyc3QxdzYvQXh5RWhIS2p3MUFuL0lpZDk5NDlYTTl4VUZrZHd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMzk2MjM4CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEyCnQ3SUxtYmRnL0kvMS9RdElsS05RalBEVmc2WGt0TFNhNDNjQmhOR0tvRnZSOExMMDNTMGgrcjBZWVZhMHJyWXQxOG9TcDFFdWhTU1dOc3MyOVNTWkF3PT0K",
+      "notes": "# Changelog\n\n## Testing Preview V-0.0.12 — 2026-10-31\n\n### What's New & What Feels Better\n- **In-Game Screenshot Gallery**:\n  - Automatically finds all your F2 Minecraft photos and displays them in a clean, visual photo grid right inside the launcher.\n  - See filename, file size, and the exact date and time each photo was captured.\n  - Search filter lets you quickly find screenshots by world name or timestamp.\n- **Fullscreen Lightbox Image Viewer**:\n  - Click any screenshot to open a high-resolution, full-screen lightbox preview with dark frosted backdrop.\n  - Navigate between screenshots with the on-screen arrows or using your keyboard Left and Right arrow keys (and Esc to exit).\n  - One-click \"Show in folder\" button reveals the image directly in your system file explorer.\n- **Native Image Streaming Pipeline**:\n  - Built an independent, secure native image reader with strict path boundary validation and memory safeguards.\n- **Clean Photo Management**:\n  - Delete unwanted screenshots with 1 click, moving them safely to the instance Trash with full recovery capability.\n\n### Release Status & Verification\n- **Status**: Genuine Windows testing release signed with private Minisign key.\n- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.\n",
+      "url": "https://app.solara-inc.in/builds/V-0.0.12/solaralauncher.exe"
     }
   ]
 }

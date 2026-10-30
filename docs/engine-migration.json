@@ -46,9 +46,9 @@
   },
   "windowsInstallerBuild": {
     "result": "passed",
-    "publicVersion": "V-0.0.11",
-    "sourceCommit": "d50aab272ec27edb15cd7d4eb381914e08e26c47",
-    "staticVerification": "Genuine NSIS installer and x64 application PE headers verified; cryptographically signed with persistent Minisign key; instance notebook scratchpad, batch mod controls, visual RAM meter, instance favorite pinning, and display preferences verified",
+    "publicVersion": "V-0.0.12",
+    "sourceCommit": "c1678a7a814bc9b5ad021b2b8be707017dc7b622",
+    "staticVerification": "Genuine NSIS installer and x64 application PE headers verified; cryptographically signed with persistent Minisign key; in-game screenshots gallery, fullscreen lightbox image viewer, native image streaming pipeline, and safe trash recovery verified",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live"
