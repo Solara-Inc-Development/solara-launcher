@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.07: Modrinth UI overhaul, Minecraft ownership check, and Solara SSO fix
+# Build testing candidate V-0.0.08: Modrinth branding removal & interactive auto-update trigger
 on:
   workflow_dispatch:
   push:

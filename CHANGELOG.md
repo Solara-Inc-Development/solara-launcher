@@ -1,12 +1,34 @@
 # Changelog
 
+## Testing Preview V-0.0.08 — 2026-10-30
+
+### New Features Added
+- **Direct Interactive Auto-Update Execution**:
+  - Clicking "Check updates" now immediately initiates the live update check, background download, and silent replacement without waiting for the 15-minute background polling cycle.
+  - Interactive top bar update pills report live download progress percentage and automatic reload.
+
+### Features Removed
+- **Upstream Branding Removal**:
+  - Removed all third-party branding and references from UI cards, search inputs, explore placeholders, instance workspace, and user-facing copy.
+  - Renamed design tokens to native Solara color palette (`--solara-green`, `--solara-slate-bg`, `--solara-border`).
+
+### Bug Fixes & Improvements
+- **Updater Background Resilience**:
+  - Hardened auto-updater thread lifecycle to guarantee instant update processing when instances and downloads are idle.
+
+### Release Assets & Verification
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.08/solaralauncher.exe)
+- **Source Code**: [`source.zip`](https://app.solara-inc.in/builds/V-0.0.08/source.zip)
+- **Signature**: Minisign trusted signature file (`solaralauncher.exe.minisig`)
+- **Verification**: Verified SHA-256 integrity and NSIS x64 execution bounds
+
 ## Testing Preview V-0.0.07 — 2026-10-30
 
 ### New Features Added
-- **Modrinth-Inspired Vibrant Visual Overhaul**:
+- **Vibrant Modern Visual Overhaul**:
   - Rebuilt launcher interface with neon green accents (`#1bd96a`, `#165d38`), dark slate card backgrounds (`#111713`), pill tags, and smooth cubic-bezier transitions.
   - Interactive "Jump in" multiplayer server cards featuring server ping, live online player counts, loader badges, MOTD, and 1-click play.
-  - Modrinth-styled Library grid with 3D loader badges, quick play hover triggers, and filter pills.
+  - Modern Library grid with 3D loader badges, quick play hover triggers, and filter pills.
   - Live "Playing as" Minecraft account widget on the right sidebar showing player skin avatar head from `mc-heads.net` and verified ownership status.
   - Dedicated instance details workspace with pill tabs (`Content`, `Files`, `Worlds`, `Logs`, `Settings`, `Trash`), interactive mod project table with animated toggles, and direct file import.
   - Top bar live instance status pill (`● No instances running` / `🟢 [Instance] is running`) and active Minecraft profile badge.
@@ -16,7 +38,7 @@
   - Strict play gating: gameplay execution strictly requires an active authenticated Microsoft account with a verified Minecraft Java Edition license. Unauthenticated launch attempts trigger the device sign-in prompt with clear guidance.
 
 ### Features Removed
-- Removed legacy unstyled table views in favor of responsive Modrinth card and table grids.
+- Removed legacy unstyled table views in favor of responsive card and table grids.
 - Deprecated hardcoded OAuth client fallback in favor of environment-driven and approved client registry.
 
 ### Bug Fixes & Improvements
@@ -39,11 +61,11 @@
 
 - **Smooth Window Dragging & Titlebar Movement**:
   - Fixed desktop window moving across the screen from the top titlebar and topbar with native Tauri v2 dragging permissions and platform handlers.
-- **Image-Rich Modrinth-Inspired UI Overhaul**:
+- **Image-Rich Modern UI Overhaul**:
   - Rebuilt the home workspace with a full-width immersive voxel landscape hero banner and a quick "Continue Playing" launch card for active instances.
   - Added deterministic voxel landscape biome artwork and loader tags to instance cards in your library, featuring smooth hover zoom.
-  - Added a "Trending on Modrinth" community showcase grid on the home screen with real mod icons and download counters.
-  - Auto-loading Explore page displaying trending mods, modpacks, resource packs, and shaders from Modrinth with real avatar icons, author names, description clamp, download badges, and quick-filter category pills.
+  - Added a "Trending Content" community showcase grid on the home screen with real mod icons and download counters.
+  - Auto-loading Explore page displaying trending mods, modpacks, resource packs, and shaders with real avatar icons, author names, description clamp, download badges, and quick-filter category pills.
   - Added instance backdrop landscape artwork to Instance Workspace headers.
   - Cleaned up changelog dialog formatting with readable typography and dedicated styling.
 - **Memory Allocation Presets & 1-Click Controls**:
@@ -69,7 +91,7 @@
   - Cryptographically signed with persistent Minisign key; updates download and apply automatically when idle.
 - **Official Mod Loaders**:
   - Added official Fabric and Quilt loader version resolution, version picker, and launch profile integration.
-- **Modrinth Content & Modpacks**:
+- **Community Content & Modpacks**:
   - Added verified installation of mods, resource packs, shader packs, and `.mrpack` modpack archives with dual SHA-1/SHA-512 checks.
 - **Local Mod & Backup Management**:
   - Added local `.jar` mod file importer with manifest verification, uncompressed bounds, and conflict protection.

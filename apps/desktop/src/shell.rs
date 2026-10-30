@@ -1,12 +1,11 @@
 use crate::{engine, identity};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
 use tauri::WindowEvent;
 use tauri_plugin_opener::OpenerExt;
-use tauri_plugin_updater::UpdaterExt;
 fn err(e: impl std::fmt::Display) -> String {
     e.to_string()
 }
@@ -354,33 +353,9 @@ fn window_action(window: tauri::Window, action: String) -> Result<(), String> {
 fn start_dragging(window: tauri::Window) -> Result<(), String> {
     window.start_dragging().map_err(err)
 }
-fn updater(app: &tauri::AppHandle) -> Result<tauri_plugin_updater::Updater, String> {
-    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY")
-        .unwrap_or(include_str!("../updater.pub"))
-        .trim();
-    if key.is_empty() {
-        return Err(
-            "Verified updates are not configured: trusted public signing key missing".into(),
-        );
-    };
-    app.updater_builder()
-        .pubkey(key)
-        .endpoints(vec![
-            "https://api.solara-inc.in/v1/launcher/update/windows/x86_64"
-                .parse()
-                .map_err(err)?,
-        ])
-        .map_err(err)?
-        .build()
-        .map_err(err)
-}
 #[tauri::command]
 async fn check_update(app: tauri::AppHandle) -> Result<Value, String> {
-    let result = updater(&app)?.check().await.map_err(err)?;
-    Ok(match result {
-        Some(u) => json!({"available":true,"version":u.version}),
-        None => json!({"available":false}),
-    })
+    crate::app_updates::trigger(&app).await.map_err(err)
 }
 #[tauri::command]
 fn app_update_status() -> Value {

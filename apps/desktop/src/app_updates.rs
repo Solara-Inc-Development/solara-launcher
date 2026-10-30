@@ -103,6 +103,36 @@ async fn cycle(app: &tauri::AppHandle) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub async fn trigger(app: &tauri::AppHandle) -> anyhow::Result<Value> {
+    READY.store(true, Ordering::SeqCst);
+    let key = option_env!("SOLARA_UPDATER_PUBLIC_KEY")
+        .unwrap_or(include_str!("../updater.pub"))
+        .trim();
+    if key.is_empty() {
+        status("unconfigured", 0, None);
+        return Ok(json!({"available": false, "error": "unconfigured"}));
+    }
+    status("checking", 0, None);
+    let updater = app
+        .updater_builder()
+        .pubkey(key)
+        .timeout(std::time::Duration::from_secs(60))
+        .endpoints(vec![
+            "https://api.solara-inc.in/v1/launcher/update/windows/x86_64".parse()?,
+        ])?
+        .build()?;
+    let Some(update) = updater.check().await? else {
+        status("up-to-date", 0, None);
+        return Ok(json!({"available": false}));
+    };
+    let version = update.version.clone();
+    let app_handle = app.clone();
+    tauri::async_runtime::spawn(async move {
+        let _ = cycle(&app_handle).await;
+    });
+    Ok(json!({"available": true, "version": version}))
+}
+
 pub fn start(app: tauri::AppHandle) {
     tauri::async_runtime::spawn(async move {
         if !cfg!(windows) || cfg!(debug_assertions) {

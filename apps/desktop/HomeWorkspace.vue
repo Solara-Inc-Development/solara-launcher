@@ -272,7 +272,7 @@ const popularHighlights=[
     </header>
   </div>
 
-  <!-- Main Modrinth-Style 2-Column Layout -->
+  <!-- Main 2-Column Layout -->
   <div class="home-main-layout">
     <!-- Left Column: Jump In + Library -->
     <div class="home-content-column">
@@ -321,7 +321,7 @@ const popularHighlights=[
         </Transition>
       </section>
 
-      <!-- 2. Modrinth-Style Library Section -->
+      <!-- 2. Library Section -->
       <section class="home-library-section">
         <div class="library-header-row">
           <div class="library-title-group">
@@ -416,10 +416,10 @@ const popularHighlights=[
         </template>
       </section>
 
-      <!-- 3. Trending on Modrinth Section -->
+      <!-- 3. Community Highlights Section -->
       <section class="home-community-section">
         <div class="workspace-section-heading">
-          <div><span class="workspace-kicker">TRENDING ON MODRINTH</span><h2>Popular mods & modpacks</h2></div>
+          <div><span class="workspace-kicker">COMMUNITY SHOWCASE</span><h2>Popular mods & modpacks</h2></div>
           <button class="text-link" @click="emit('navigate','explore')">Browse all <ArrowRight :size="15"/></button>
         </div>
         <div class="home-trending-grid">

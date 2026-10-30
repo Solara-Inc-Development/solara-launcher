@@ -100,7 +100,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
 <section class="instance-workspace">
  <button class="workspace-back" @click="back"><ArrowLeft :size="16"/> Your library</button>
 
- <!-- Modrinth Style Instance Header -->
+ <!-- Modern Instance Header -->
  <header class="workspace-heading modrinth-instance-header">
    <div class="workspace-heading-bg">
      <img :src="instanceArtSrc(instance.name)" alt="" loading="eager">
@@ -152,7 +152,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <button @click="cancelTask">Cancel</button>
  </div>
 
- <!-- Modrinth Style Tabs -->
+ <!-- Modern Navigation Tabs -->
  <nav class="workspace-tabs modrinth-tabs" aria-label="Instance pages">
    <button v-for="item in tabs" :key="item.id" :class="{active:tab===item.id}" :aria-current="tab===item.id?'page':undefined" @click="selectTab(item.id)">
      <component :is="item.icon" :size="16"/>
@@ -204,7 +204,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <Package/>
      <h3>{{mods.length?'No mods match your filter':'No content installed yet'}}</h3>
      <p>{{mods.length?'Try another search term or reset filter.':'Add mods, resource packs or shaders to customize your game.'}}</p>
-     <button class="modrinth-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Modrinth</button>
+     <button class="modrinth-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Mods & Addons</button>
    </div>
    <div v-else class="project-table">
      <div class="project-table-header">

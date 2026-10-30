@@ -70,7 +70,7 @@
 .workspace-heading-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,7,9,0.96) 0%,rgba(7,7,9,0.85) 50%,rgba(7,7,9,0.45) 100%)}
 .instance-monogram,.workspace-identity,.workspace-primary-actions{position:relative;z-index:1}
 
-.modrinth-results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:24px}
+.solara-results-grid, .modrinth-results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:24px}
 .mod-card{padding:20px;border-radius:19px;border:1px solid #28242e;background:#08080a;display:flex;flex-direction:column;gap:14px;transition:border-color 160ms,transform 160ms}
 .mod-card:hover{border-color:#3d3648;transform:translateY(-2px)}
 .mod-card-top{display:flex;gap:14px;align-items:center}
@@ -159,8 +159,18 @@
   cursor: not-allowed;
 }
 
-/* Modrinth-inspired Colorful, Animated & Vibrant Design System */
+/* Solara Colorful, Animated & Modern Design System */
 :root {
+  --solara-green: #1bd96a;
+  --solara-green-dark: #165d38;
+  --solara-green-glow: rgba(27, 217, 106, 0.25);
+  --solara-slate-bg: #0d120f;
+  --solara-slate-card: #111713;
+  --solara-slate-card-hover: #151d18;
+  --solara-border: #1f2e24;
+  --solara-border-hover: #2e4435;
+  --solara-text: #f0f6fc;
+  --solara-text-muted: #83968c;
   --modrinth-green: #1bd96a;
   --modrinth-green-dark: #165d38;
   --modrinth-green-glow: rgba(27, 217, 106, 0.25);
