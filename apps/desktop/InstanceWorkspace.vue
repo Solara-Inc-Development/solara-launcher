@@ -465,7 +465,16 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <label>Instance name<input v-model="form.name" required maxlength="80"></label>
      <label>Memory limit: <strong>{{(form.memory/1024).toFixed(1)}} GiB</strong> ({{form.memory}} MiB)
        <div class="preset-pills" style="margin:6px 0">
-         <button v-for="ram in [2048,4096,6144,8192,12288]" :key="ram" type="button" class="preset-pill" :class="{active:form.memory===ram}" @click="form.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button>
+         <button v-for="ram in [2048,4096,6144,8192,12288,16384]" :key="ram" type="button" class="preset-pill" :class="{active:form.memory===ram}" @click="form.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button>
+       </div>
+       <div class="ram-meter-bar">
+         <div class="ram-meter-fill" :style="{width: Math.min(100, Math.max(5, (form.memory / 16384) * 100)) + '%'}"></div>
+       </div>
+       <div class="ram-meter-labels">
+         <span>512M</span>
+         <span>4G (Standard)</span>
+         <span>8G (Modpacks)</span>
+         <span>16G+</span>
        </div>
        <input v-model.number="form.memory" type="number" min="512" max="65536" step="512" required>
        <small>Leave enough memory for Windows and other apps.</small>

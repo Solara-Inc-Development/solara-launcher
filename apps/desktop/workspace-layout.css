@@ -1654,6 +1654,60 @@
   box-shadow: 0 2px 0 #1e293b;
 }
 
+/* RAM Allocation Meter */
+.ram-meter-bar {
+  width: 100%;
+  height: 8px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 6px 0 3px;
+}
+.ram-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 70%, #38bdf8 100%);
+  border-radius: 999px;
+  transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+.ram-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+/* Card Pin / Favorite */
+.solara-instance-card.pinned {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.08);
+}
+.card-pin-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #0b111e;
+  border: 1px solid #1e293b;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.card-pin-btn:hover {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+.card-pin-btn.pinned {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+}
+
 
 
 

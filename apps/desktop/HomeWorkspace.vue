@@ -125,6 +125,10 @@ const visibleInstances=computed(()=>{
     list=list.filter(i=>`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(q));
   }
   list.sort((a,b)=>{
+    const aPin=pinnedInstances.value.includes(a.id);
+    const bPin=pinnedInstances.value.includes(b.id);
+    if(aPin&&!bPin)return -1;
+    if(!aPin&&bPin)return 1;
     if(sortBy.value==='played'){
       if(a.running&&!b.running)return -1;
       if(!a.running&&b.running)return 1;
@@ -150,6 +154,14 @@ const sortLabels:Record<string,string>={
   version:'📦 Game version',
   loader:'⚡ Mod loader'
 };
+
+const pinnedInstances=ref<string[]>(JSON.parse(localStorage.getItem('solara:pinned-instances')||'[]'));
+function togglePin(id:string){
+  const idx=pinnedInstances.value.indexOf(id);
+  if(idx>=0)pinnedInstances.value.splice(idx,1);
+  else pinnedInstances.value.push(id);
+  localStorage.setItem('solara:pinned-instances',JSON.stringify(pinnedInstances.value));
+}
 
 const visiblePresets=computed(()=>{
   const q=librarySearch.value.trim().toLowerCase();
@@ -299,15 +311,18 @@ const popularHighlights=[
         <!-- 2A. Instance Cards Grid -->
         <template v-if="activeLibraryTab==='instances'">
           <div v-if="visibleInstances.length" class="solara-instance-grid">
-            <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" @click="emit('open-instance', inst)">
+            <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" :class="{pinned: pinnedInstances.includes(inst.id)}" @click="emit('open-instance', inst)">
               <div class="instance-cyan-badge">
-                <div class="instance-3d-block">⚡</div>
+                <div class="instance-3d-block">{{ pinnedInstances.includes(inst.id) ? '★' : '⚡' }}</div>
               </div>
               <div class="instance-card-meta">
                 <h3>{{inst.name}}</h3>
                 <p>{{inst.loader}} {{inst.gameVersion}}</p>
               </div>
               <div class="instance-card-actions" @click.stop>
+                <button type="button" class="card-action-btn pin-btn" :class="{pinned: pinnedInstances.includes(inst.id)}" :title="pinnedInstances.includes(inst.id)?'Unpin from top':'Pin to top of library'" @click="togglePin(inst.id)">
+                  ★
+                </button>
                 <button class="card-action-btn" title="Duplicate instance" @click="emit('duplicate', inst)">
                   <Copy :size="13"/>
                 </button>
