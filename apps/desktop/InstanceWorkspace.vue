@@ -4,13 +4,56 @@ import {native} from '../../packages/shared/client';
 import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
-const emit=defineEmits(['back','play','stop','account','refresh','browse-mods']);
+const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate']);
 const tab=ref('mods'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('');
 const path=ref(''),entries=ref<any[]>([]),mods=ref<any[]>([]),trash=ref<any[]>([]),backups=ref<any[]>([]),query=ref(''),modFilter=ref('all');
 const editor=ref<any>(null),text=ref(''),consoleText=ref(''),liveLogs=ref(true),modInput=ref<HTMLInputElement|null>(null);
+const logSearch=ref(''),logSeverity=ref<'all'|'error'|'warn'|'info'|'chat'>('all'),wrapLogs=ref(false),autoScroll=ref(true),consoleContainer=ref<HTMLElement|null>(null);
 const form=ref({name:'',memory:4096,javaPath:'auto'});
 const dialog=ref<string|null>(null),dialogElement=ref<HTMLDialogElement|null>(null),dialogName=ref(''),selected=ref<any>(null);
 let leaveAnswer:((value:boolean)=>void)|null=null;let logTimer:ReturnType<typeof setInterval>|null=null;
+
+interface LogLine{id:number;text:string;level:'error'|'warn'|'info'|'chat'|'normal';}
+const parsedLogs=computed<LogLine[]>(()=>{
+  if(!consoleText.value)return [];
+  const lines=consoleText.value.split('\n');
+  return lines.map((line,idx)=>{
+    let level:LogLine['level']='normal';
+    if(/\[ERROR\]|\[FATAL\]|Exception|Error:|Caused by:/i.test(line))level='error';
+    else if(/\[WARN(?:ING)?\]/i.test(line))level='warn';
+    else if(/<[^>]+>|\[CHAT\]/i.test(line))level='chat';
+    else if(/\[INFO\]/i.test(line))level='info';
+    return{id:idx,text:line,level};
+  });
+});
+const logCounts=computed(()=>{
+  let error=0,warn=0,info=0,chat=0;
+  for(const line of parsedLogs.value){
+    if(line.level==='error')error++;
+    else if(line.level==='warn')warn++;
+    else if(line.level==='info')info++;
+    else if(line.level==='chat')chat++;
+  }
+  return{total:parsedLogs.value.length,error,warn,info,chat};
+});
+const visibleLogLines=computed(()=>{
+  let lines=parsedLogs.value;
+  if(logSeverity.value!=='all'){
+    lines=lines.filter(l=>l.level===logSeverity.value);
+  }
+  if(logSearch.value.trim()){
+    const q=logSearch.value.trim().toLowerCase();
+    lines=lines.filter(l=>l.text.toLowerCase().includes(q));
+  }
+  return lines;
+});
+async function copyFilteredLogs(){
+  const content=visibleLogLines.value.map(l=>l.text).join('\n');
+  await copy(content||consoleText.value);
+}
+function clearLogView(){
+  consoleText.value='';
+}
 
 const dirty=computed(()=>!!editor.value&&text.value!==editor.value.content);
 const task=computed(()=>props.jobs.find(j=>j.instanceId===props.instance.id&&['queued','running'].includes(j.status)));
@@ -89,6 +132,7 @@ async function cancelTask(){try{await native('download_action',{id:task.value.id
 watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'}},{immediate:true});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
+watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
 onUnmounted(()=>{if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
 
 const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
@@ -124,6 +168,9 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-primary-actions">
      <button class="circle-action-btn" title="Open instance folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id})})">
        <FolderOpen :size="17"/>
+     </button>
+     <button class="circle-action-btn" title="Duplicate instance" @click="emit('duplicate',instance)">
+       <Copy :size="17"/>
      </button>
      <button class="circle-action-btn" title="Instance settings" @click="selectTab('settings')">
        <Settings :size="17"/>
@@ -347,14 +394,66 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
  <!-- Logs Tab -->
  <template v-if="tab==='logs'">
    <div class="workspace-section-heading">
-     <div><h2>Game output</h2><p>Recent local output. Account tokens are redacted before this log is stored.</p></div>
+     <div><h2>Game output</h2><p>Live game console and log records. Account credentials are automatically redacted.</p></div>
      <div class="row">
-       <button class="solara-secondary-btn" @click="liveLogs=!liveLogs">{{liveLogs?'Pause refresh':'Resume refresh'}}</button>
-       <button class="solara-secondary-btn" :disabled="!consoleText" @click="copy(consoleText)"><Copy :size="14"/> Copy</button>
+       <button class="solara-secondary-btn" @click="liveLogs=!liveLogs">{{liveLogs?'Pause live stream':'Resume live stream'}}</button>
+       <button class="solara-secondary-btn" :disabled="!visibleLogLines.length" @click="copyFilteredLogs"><Copy :size="14"/> Copy logs</button>
        <button title="Refresh game logs" @click="refreshLogs"><RefreshCw :size="14"/></button>
      </div>
    </div>
-   <pre class="workspace-console" tabindex="0">{{consoleText||'No output yet.'}}</pre>
+
+   <div class="console-controls-bar">
+     <div class="console-search-wrap">
+       <Search :size="14"/>
+       <input v-model="logSearch" placeholder="Filter log output…" aria-label="Filter log output">
+       <button v-if="logSearch" type="button" class="search-clear-btn" @click="logSearch=''">
+         <X :size="12"/>
+       </button>
+     </div>
+
+     <div class="console-filter-pills">
+       <button type="button" class="filter-pill" :class="{active: logSeverity==='all'}" @click="logSeverity='all'">
+         All ({{ logCounts.total }})
+       </button>
+       <button type="button" class="filter-pill pill-error" :class="{active: logSeverity==='error'}" @click="logSeverity='error'">
+         Errors ({{ logCounts.error }})
+       </button>
+       <button type="button" class="filter-pill pill-warn" :class="{active: logSeverity==='warn'}" @click="logSeverity='warn'">
+         Warnings ({{ logCounts.warn }})
+       </button>
+       <button type="button" class="filter-pill pill-info" :class="{active: logSeverity==='info'}" @click="logSeverity='info'">
+         Info ({{ logCounts.info }})
+       </button>
+       <button type="button" class="filter-pill pill-chat" :class="{active: logSeverity==='chat'}" @click="logSeverity='chat'">
+         Chat ({{ logCounts.chat }})
+       </button>
+     </div>
+
+     <div class="console-toggles">
+       <button type="button" class="toggle-pill-btn" :class="{active: wrapLogs}" title="Wrap long lines" @click="wrapLogs=!wrapLogs">
+         Wrap
+       </button>
+       <button type="button" class="toggle-pill-btn" :class="{active: autoScroll}" title="Auto-scroll to latest output" @click="autoScroll=!autoScroll">
+         Scroll
+       </button>
+       <button type="button" class="toggle-pill-btn" title="Clear console view" @click="clearLogView">
+         Clear
+       </button>
+     </div>
+   </div>
+
+   <div ref="consoleContainer" class="solara-console-viewport" :class="{'wrap-lines': wrapLogs}">
+     <div v-if="!visibleLogLines.length" class="console-empty-state">
+       <Terminal :size="24"/>
+       <p>{{ logSearch || logSeverity!=='all' ? 'No log lines match your active filters.' : 'No output yet. Start this instance to see live console output.' }}</p>
+     </div>
+     <div v-else class="console-lines-wrapper">
+       <div v-for="line in visibleLogLines" :key="line.id" class="console-line" :class="'line-'+line.level">
+         <span class="line-gutter">{{ line.id + 1 }}</span>
+         <span class="line-text">{{ line.text }}</span>
+       </div>
+     </div>
+   </div>
  </template>
 
  <!-- Settings Tab -->

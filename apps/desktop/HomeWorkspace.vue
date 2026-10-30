@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref,computed} from 'vue';
-import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,Download,Sparkles,Check,ChevronDown,ChevronUp,MoreVertical,Copy,ExternalLink,User,Lock} from '../../packages/ui/icons';
+import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,Download,Sparkles,Check,ChevronDown,ChevronUp,MoreVertical,Copy,FolderOpen,ExternalLink,User,Lock} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{
   instances:any[],
@@ -14,10 +14,13 @@ const props=withDefaults(defineProps<{
   minecraft:()=>[]
 });
 
-const emit=defineEmits(['open-instance','create','navigate','external','refresh','play','account','copy','solara-signin','create-preset']);
+const emit=defineEmits(['open-instance','create','navigate','external','refresh','play','account','copy','solara-signin','create-preset','duplicate','open-folder']);
 const librarySearch=ref('');
 const avatarFailed=ref(false);
 const activeLibraryTab=ref<'instances'|'presets'>('instances');
+const sortBy=ref<'played'|'name'|'version'|'loader'>('played');
+const loaderFilter=ref<string>('all');
+const sortDropdownOpen=ref(false);
 
 const ready=computed(()=>props.instances.filter(i=>i.state==='installed').length);
 const activeInst=computed(()=>props.instances.find(i=>i.running)||props.instances[0]);
@@ -103,11 +106,50 @@ const instancePresets=ref([
   }
 ]);
 
-const visibleInstances=computed(()=>{
-  const q=librarySearch.value.trim().toLowerCase();
-  if(!q)return props.instances;
-  return props.instances.filter(i=>`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(q));
+const loaderCounts=computed(()=>{
+  const counts:Record<string,number>={all:props.instances.length,fabric:0,forge:0,neoforge:0,quilt:0,vanilla:0};
+  for(const inst of props.instances){
+    const l=(inst.loader||'vanilla').toLowerCase();
+    if(counts[l]!==undefined)counts[l]++;
+  }
+  return counts;
 });
+
+const visibleInstances=computed(()=>{
+  let list=[...props.instances];
+  if(loaderFilter.value!=='all'){
+    list=list.filter(i=>(i.loader||'vanilla').toLowerCase()===loaderFilter.value);
+  }
+  const q=librarySearch.value.trim().toLowerCase();
+  if(q){
+    list=list.filter(i=>`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(q));
+  }
+  list.sort((a,b)=>{
+    if(sortBy.value==='played'){
+      if(a.running&&!b.running)return -1;
+      if(!a.running&&b.running)return 1;
+      return a.name.localeCompare(b.name);
+    }
+    if(sortBy.value==='name'){
+      return a.name.localeCompare(b.name);
+    }
+    if(sortBy.value==='version'){
+      return (b.gameVersion||'').localeCompare(a.gameVersion||'',undefined,{numeric:true});
+    }
+    if(sortBy.value==='loader'){
+      return (a.loader||'').localeCompare(b.loader||'');
+    }
+    return 0;
+  });
+  return list;
+});
+
+const sortLabels:Record<string,string>={
+  played:'⇅ Last played / Active',
+  name:'🔤 Name (A - Z)',
+  version:'📦 Game version',
+  loader:'⚡ Mod loader'
+};
 
 const visiblePresets=computed(()=>{
   const q=librarySearch.value.trim().toLowerCase();
@@ -208,15 +250,48 @@ const popularHighlights=[
           <div class="library-search-box">
             <input v-model="librarySearch" :placeholder="activeLibraryTab==='instances'?'Search instances…':'Search instance templates…'" aria-label="Search instances">
           </div>
-          <div class="library-filter-pills">
-            <button class="filter-pill-dropdown">
-              <span>⇅ Last played</span> <ChevronDown :size="13"/>
+          <div v-if="activeLibraryTab==='instances'" class="library-filter-pills">
+            <div class="sort-dropdown-wrap">
+              <button type="button" class="filter-pill-dropdown" :class="{active: sortDropdownOpen}" @click="sortDropdownOpen = !sortDropdownOpen">
+                <span>{{ sortLabels[sortBy] || 'Sort' }}</span> <ChevronDown :size="13"/>
+              </button>
+              <div v-if="sortDropdownOpen" class="sort-dropdown-menu">
+                <button type="button" class="sort-menu-item" :class="{active: sortBy==='played'}" @click="sortBy='played'; sortDropdownOpen=false">
+                  <span>⇅ Last played / Active</span>
+                  <Check v-if="sortBy==='played'" :size="13"/>
+                </button>
+                <button type="button" class="sort-menu-item" :class="{active: sortBy==='name'}" @click="sortBy='name'; sortDropdownOpen=false">
+                  <span>🔤 Name (A - Z)</span>
+                  <Check v-if="sortBy==='name'" :size="13"/>
+                </button>
+                <button type="button" class="sort-menu-item" :class="{active: sortBy==='version'}" @click="sortBy='version'; sortDropdownOpen=false">
+                  <span>📦 Game version</span>
+                  <Check v-if="sortBy==='version'" :size="13"/>
+                </button>
+                <button type="button" class="sort-menu-item" :class="{active: sortBy==='loader'}" @click="sortBy='loader'; sortDropdownOpen=false">
+                  <span>⚡ Mod loader</span>
+                  <Check v-if="sortBy==='loader'" :size="13"/>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="filter-pill" :class="{active: loaderFilter==='all'}" @click="loaderFilter='all'">
+              All ({{ loaderCounts.all }})
             </button>
-            <button class="filter-pill-dropdown">
-              <span>⊞ Custom group</span> <ChevronDown :size="13"/>
+            <button v-if="loaderCounts.fabric > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='fabric'}" @click="loaderFilter='fabric'">
+              Fabric ({{ loaderCounts.fabric }})
             </button>
-            <button class="filter-pill-btn">
-              <span>+ Add filter</span>
+            <button v-if="loaderCounts.forge > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='forge'}" @click="loaderFilter='forge'">
+              Forge ({{ loaderCounts.forge }})
+            </button>
+            <button v-if="loaderCounts.neoforge > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='neoforge'}" @click="loaderFilter='neoforge'">
+              NeoForge ({{ loaderCounts.neoforge }})
+            </button>
+            <button v-if="loaderCounts.vanilla > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='vanilla'}" @click="loaderFilter='vanilla'">
+              Vanilla ({{ loaderCounts.vanilla }})
+            </button>
+            <button v-if="loaderCounts.quilt > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='quilt'}" @click="loaderFilter='quilt'">
+              Quilt ({{ loaderCounts.quilt }})
             </button>
           </div>
         </div>
@@ -232,9 +307,15 @@ const popularHighlights=[
                 <h3>{{inst.name}}</h3>
                 <p>{{inst.loader}} {{inst.gameVersion}}</p>
               </div>
-              <div class="instance-hover-action" @click.stop="handlePlayInstance(inst)">
-                <button class="instance-quick-play" :title="hasLicense?'Play '+inst.name:'Sign in with Minecraft Java account to play'">
-                  <Play :size="16"/>
+              <div class="instance-card-actions" @click.stop>
+                <button class="card-action-btn" title="Duplicate instance" @click="emit('duplicate', inst)">
+                  <Copy :size="13"/>
+                </button>
+                <button class="card-action-btn" title="Open instance folder" @click="emit('open-folder', inst)">
+                  <FolderOpen :size="13"/>
+                </button>
+                <button class="instance-quick-play" :title="hasLicense?'Play '+inst.name:'Sign in with Minecraft Java account to play'" @click="handlePlayInstance(inst)">
+                  <Play :size="15"/>
                 </button>
               </div>
             </article>

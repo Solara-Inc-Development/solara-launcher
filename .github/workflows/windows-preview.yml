@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.09: Electric Cyan design system, Forge/NeoForge mod loaders & SSO fix
+# Build testing candidate V-0.0.10: Interactive Console Viewer, Library Sorting & Filters, Duplicate Instance, Shortcuts
 on:
   workflow_dispatch:
   push:
