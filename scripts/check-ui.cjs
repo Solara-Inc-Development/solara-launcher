@@ -23,7 +23,7 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByRole('dialog').isVisible(), 'Nested Escape closes dropdown before dialog');
     await page.keyboard.press('Escape');
     await page.getByRole('dialog').waitFor({state:'hidden'});
-    for (const name of ['Solara services', 'Your servers', 'Explore mods and modpacks', 'Settings']) {
+    for (const name of ['Solara services', 'Explore mods and modpacks', 'Settings']) {
       await page.getByRole('button', { name, exact: true }).click();
     }
     await page.getByRole('button', { name: 'Soft iris', exact: true }).click();

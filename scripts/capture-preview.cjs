@@ -38,7 +38,7 @@ async function settleArt(page){await page.locator('.image-art img').evaluateAll(
   await motion.getByRole('button',{name:'Create your first instance',exact:true}).click();await motion.waitForTimeout(600);
   for(const name of ['Fabric','Forge','NeoForge']){await motion.getByRole('radio',{name,exact:true}).hover();await motion.getByRole('radio',{name,exact:true}).click();await motion.waitForTimeout(350)}
   await motion.keyboard.press('Escape');await motion.getByRole('dialog').waitFor({state:'hidden'});
-  await motion.getByRole('button',{name:'Your servers',exact:true}).hover();await motion.waitForTimeout(450);await motion.getByRole('button',{name:'Your servers',exact:true}).click();await motion.waitForTimeout(600);
+  await motion.getByRole('button',{name:'Solara services',exact:true}).hover();await motion.waitForTimeout(450);await motion.getByRole('button',{name:'Solara services',exact:true}).click();await motion.waitForTimeout(600);
   await settleArt(motion);await motion.waitForTimeout(800);await motion.getByRole('button',{name:'Explore mods and modpacks',exact:true}).click();await settleArt(motion);await motion.waitForTimeout(1100);
   await motion.getByRole('button',{name:'Dashboard',exact:true}).click();await motion.waitForTimeout(1500);
   const video=motion.video();await videoContext.close();await video.saveAs('checks/solara-motion.webm');

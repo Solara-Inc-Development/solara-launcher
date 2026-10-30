@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 pub const MANIFEST: &str = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
-const METADATA_LIMIT: usize = 8 * 1024 * 1024;
+const METADATA_LIMIT: usize = 32 * 1024 * 1024;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VersionEntry {
@@ -58,6 +58,9 @@ pub fn official_url(value: &str) -> Result<reqwest::Url> {
                     | "maven.fabricmc.net"
                     | "meta.quiltmc.org"
                     | "maven.quiltmc.org"
+                    | "files.minecraftforge.net"
+                    | "maven.minecraftforge.net"
+                    | "maven.neoforged.net"
                     | "cdn.modrinth.com"
             )
         )

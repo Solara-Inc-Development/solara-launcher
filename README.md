@@ -108,14 +108,14 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.07 available.** Fresh genuine Windows release featuring smooth window dragging, a vibrant modern UI overhaul with live server browsing, 8 instant instance presets, player skin avatars, official Minecraft Java ownership verification, and seamless auto-updates.
+**Testing preview V-0.0.08 available.** Fresh genuine Windows release featuring direct interactive auto-update triggering, background update resilience, and complete removal of upstream branding.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly from the official portal:
-- **Installer (6.5 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.07/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.07/solaralauncher.exe.sig)
-- **SHA-256**: `a71048d827c6759bcde0d9c0d4deb46077c622aee8cfa654b46c30f731a2ce41`
+- **Installer (6.5 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.08/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.08/solaralauncher.exe.sig)
+- **SHA-256**: `da4189065f5bdc2f2c013e9ec72e5df57789e3f27151f0abf5a7b5a6757fb1e0`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |

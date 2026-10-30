@@ -1,5 +1,27 @@
 # Changelog
 
+## Testing Preview V-0.0.09 — 2026-10-31
+
+### What's New & What Feels Better
+- **Brand New Electric Cyan Theme**:
+  - We gave the whole launcher a fresh new look! All the old neon green is gone, replaced with a smooth Electric Light Blue and Cyan theme with deep navy slate backgrounds.
+  - Buttons now have smooth hover animations and a soft glow, making everything feel snappy and fun to use.
+- **Solara Sign-In Loop Fixed**:
+  - Fixed the annoying issue where logging in kept looping back to the login page instead of verifying your account. Now when you sign in, it works the first time and keeps you logged in.
+- **Full Forge & NeoForge Support**:
+  - You can now play Forge and NeoForge mods! When creating a new instance, just pick Forge or NeoForge from the loader list. Solara handles all the version setup and files automatically behind the scenes.
+- **Discord Status Fixed**:
+  - Connecting with Discord is now fast and smooth. It detects your running Discord client without freezing the launcher.
+- **Cleaner Home Screen & Navigation**:
+  - We took out the featured servers section and removed the servers tab to give you a clean, focused launcher for your worlds and modpacks.
+- **100% Original Solara Look**:
+  - Every button, card, and tab has been redesigned specifically for Solara.
+
+### Release Status & Verification
+- **Status**: Source development preview in workspace (`/var/www/solara-launcher`).
+- **Verification**: All Rust and JavaScript test suites passed 100% (`npm test`, `cargo test`, `npm run check`).
+- **Packaging Note**: Windows installer executable packaging is pending integration testing on a physical Windows device. Testing preview release `V-0.0.08` is published with the interactive auto-updater and zero upstream branding.
+
 ## Testing Preview V-0.0.08 — 2026-10-30
 
 ### New Features Added

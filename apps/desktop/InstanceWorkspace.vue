@@ -20,9 +20,9 @@ const visibleMods=computed(()=>mods.value.filter(m=>(modFilter.value==='all'||(m
 const crumbs=computed(()=>path.value?path.value.split('/').map((name,i,parts)=>({name,path:parts.slice(0,i+1).join('/')})):[]);
 
 const tabs=[
-  {id:'mods',name:'Content',icon:Package},
+  {id:'mods',name:'Mods',icon:Package},
   {id:'files',name:'Files',icon:FolderOpen},
-  {id:'backups',name:'Worlds',icon:Globe},
+  {id:'backups',name:'Backups',icon:Globe},
   {id:'logs',name:'Logs',icon:Terminal},
   {id:'settings',name:'Settings',icon:Settings},
   {id:'trash',name:'Trash',icon:Trash2}
@@ -101,13 +101,13 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
  <button class="workspace-back" @click="back"><ArrowLeft :size="16"/> Your library</button>
 
  <!-- Modern Instance Header -->
- <header class="workspace-heading modrinth-instance-header">
+ <header class="workspace-heading solara-instance-header">
    <div class="workspace-heading-bg">
      <img :src="instanceArtSrc(instance.name)" alt="" loading="eager">
      <div class="workspace-heading-overlay"></div>
    </div>
    <div class="instance-loader-badge" :class="instance.loader">
-     <div class="instance-3d-cube">🍰</div>
+     <div class="instance-3d-cube">⚡</div>
    </div>
    <div class="workspace-identity">
      <div class="instance-top-tagline">
@@ -118,8 +118,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <div class="workspace-tags">
        <span class="tag-version">Minecraft {{instance.gameVersion}}</span>
        <span class="tag-loader">{{instance.loader}}{{instance.loaderVersion?' '+instance.loaderVersion:''}}</span>
-       <span class="tag-meta">⏱ 142 hours</span>
-       <span class="tag-meta">🕒 Last played 2 days ago</span>
+       <span class="tag-meta">⚡ Solara Optimized</span>
      </div>
    </div>
    <div class="workspace-primary-actions">
@@ -129,13 +128,13 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <button class="circle-action-btn" title="Instance settings" @click="selectTab('settings')">
        <Settings :size="17"/>
      </button>
-     <button v-if="instance.running" class="workspace-play stop modrinth-play-btn" :disabled="busy||parentBusy" @click="emit('stop',instance)">
+     <button v-if="instance.running" class="workspace-play stop solara-play-btn" :disabled="busy||parentBusy" @click="emit('stop',instance)">
        <Square :size="16"/> Stop game
      </button>
-     <button v-else-if="!accountReady" class="workspace-play modrinth-play-btn gate-signin" :disabled="busy||parentBusy||!!task" @click="emit('account')">
+     <button v-else-if="!accountReady" class="workspace-play solara-play-btn gate-signin" :disabled="busy||parentBusy||!!task" @click="emit('account')">
        <Plus :size="16"/> Add Minecraft account
      </button>
-     <button v-else class="workspace-play modrinth-play-btn" :disabled="busy||parentBusy||!!task||instance.state!=='installed'" @click="emit('play',instance)">
+     <button v-else class="workspace-play solara-play-btn" :disabled="busy||parentBusy||!!task||instance.state!=='installed'" @click="emit('play',instance)">
        <Play :size="16"/> Play
      </button>
    </div>
@@ -153,7 +152,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
  </div>
 
  <!-- Modern Navigation Tabs -->
- <nav class="workspace-tabs modrinth-tabs" aria-label="Instance pages">
+ <nav class="workspace-tabs solara-tabs" aria-label="Instance pages">
    <button v-for="item in tabs" :key="item.id" :class="{active:tab===item.id}" :aria-current="tab===item.id?'page':undefined" @click="selectTab(item.id)">
      <component :is="item.icon" :size="16"/>
      <span>{{item.name}}</span>
@@ -167,23 +166,23 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
 
  <!-- Content (Mods & Packs) Tab -->
  <template v-if="tab==='mods'">
-   <div class="modrinth-content-toolbar">
+   <div class="solara-content-toolbar">
      <div class="content-search-wrap">
        <Search :size="16"/>
        <input v-model="query" :placeholder="'Search ' + (mods.length ? mods.length : '') + ' projects…'" aria-label="Search installed mods">
      </div>
      <div class="content-action-group">
        <input ref="modInput" type="file" accept=".jar,application/java-archive" aria-label="Import mod .jar file" hidden @change="importModFile">
-       <button class="modrinth-secondary-btn" :disabled="locked||instance.loader==='vanilla'" @click="modInput?.click()">
-         <Plus :size="14"/> Upload files
+       <button class="solara-btn-secondary" :disabled="locked||instance.loader==='vanilla'" aria-label="Add .jar file" @click="modInput?.click()">
+         <Plus :size="14"/> Add .jar file
        </button>
-       <button class="modrinth-primary-btn" @click="emit('browse-mods')">
+       <button class="solara-btn-primary" @click="emit('browse-mods')">
          <Compass :size="14"/> Browse content
        </button>
      </div>
    </div>
 
-   <div class="modrinth-filter-row">
+   <div class="solara-filter-row">
      <div class="mod-filter-pills">
        <button type="button" class="filter-pill" :class="{active: modFilter==='all'}" @click="modFilter='all'">All</button>
        <button type="button" class="filter-pill" :class="{active: modFilter==='enabled'}" @click="modFilter='enabled'">Mods</button>
@@ -204,7 +203,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <Package/>
      <h3>{{mods.length?'No mods match your filter':'No content installed yet'}}</h3>
      <p>{{mods.length?'Try another search term or reset filter.':'Add mods, resource packs or shaders to customize your game.'}}</p>
-     <button class="modrinth-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Mods & Addons</button>
+     <button class="solara-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Mods & Addons</button>
    </div>
    <div v-else class="project-table">
      <div class="project-table-header">
@@ -244,8 +243,8 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-section-heading">
      <div><h2>Instance files</h2><p>Files inside this instance. Saves stay separate from game updates.</p></div>
      <div class="row">
-       <button class="modrinth-secondary-btn" :disabled="locked" @click="ask('new-folder')"><Plus :size="14"/> Folder</button>
-       <button class="modrinth-secondary-btn" :disabled="locked" @click="ask('new-file')"><FileText :size="14"/> Text file</button>
+       <button class="solara-secondary-btn" :disabled="locked" @click="ask('new-folder')"><Plus :size="14"/> Folder</button>
+       <button class="solara-secondary-btn" :disabled="locked" @click="ask('new-file')"><FileText :size="14"/> Text file</button>
      </div>
    </div>
    <div class="workspace-tools">
@@ -263,7 +262,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        <span><FileText/>{{editor.path}} <em v-if="dirty">Unsaved</em></span>
        <div class="row">
          <button v-if="/\.(json|mcmeta)$/i.test(editor.path)" :disabled="locked" @click="formatJson">Format JSON</button>
-         <button :disabled="locked||!dirty" class="modrinth-primary-btn" @click="save"><Save :size="14"/> Save</button>
+         <button :disabled="locked||!dirty" class="solara-primary-btn" @click="save"><Save :size="14"/> Save</button>
          <button aria-label="Close file editor" @click="canLeave().then(ok=>{if(ok)editor=null})"><X :size="14"/></button>
        </div>
      </div>
@@ -296,7 +295,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-section-heading">
      <div><h2>World &amp; config backups <span>{{backups.length}}</span></h2><p>Snapshots of your worlds and settings stored safely inside this instance.</p></div>
      <div class="row">
-       <button class="modrinth-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+       <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
        <button title="Refresh backups" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
      </div>
    </div>
@@ -305,7 +304,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <Globe/>
      <h3>No world backups yet</h3>
      <p>Save a snapshot of your worlds and config files before changing mods or updating.</p>
-     <button class="modrinth-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+     <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
    </div>
    <div v-else class="workspace-file-list">
      <article v-for="entry in backups" :key="entry.id" class="workspace-file-row">
@@ -315,7 +314,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
          <span>{{entry.worldCount||0}} {{entry.worldCount===1?'world':'worlds'}} · {{entry.fileCount||0}} {{entry.fileCount===1?'file':'files'}} · {{new Date(entry.createdAt).toLocaleString()}}</span>
        </div>
        <span class="workspace-file-size">{{bytes(entry.size||0)}}</span>
-       <button :aria-label="'Restore backup '+entry.name" :disabled="locked" class="modrinth-secondary-btn" @click="ask('restore-backup',entry)"><RotateCcw :size="14"/> Restore</button>
+       <button :aria-label="'Restore backup '+entry.name" :disabled="locked" class="solara-secondary-btn" @click="ask('restore-backup',entry)"><RotateCcw :size="14"/> Restore</button>
        <button :aria-label="'Delete backup '+entry.name" :disabled="locked" class="workspace-icon-button" @click="ask('delete-backup',entry)"><Trash2/></button>
      </article>
    </div>
@@ -340,7 +339,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
          <strong>{{entry.originalPath}}</strong>
          <span>{{new Date(entry.removedAt).toLocaleString()}}</span>
        </div>
-       <button :disabled="locked" class="modrinth-secondary-btn" @click="restore(entry)"><RotateCcw :size="14"/> Restore</button>
+       <button :disabled="locked" class="solara-secondary-btn" @click="restore(entry)"><RotateCcw :size="14"/> Restore</button>
      </article>
    </div>
  </template>
@@ -350,8 +349,8 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-section-heading">
      <div><h2>Game output</h2><p>Recent local output. Account tokens are redacted before this log is stored.</p></div>
      <div class="row">
-       <button class="modrinth-secondary-btn" @click="liveLogs=!liveLogs">{{liveLogs?'Pause refresh':'Resume refresh'}}</button>
-       <button class="modrinth-secondary-btn" :disabled="!consoleText" @click="copy(consoleText)"><Copy :size="14"/> Copy</button>
+       <button class="solara-secondary-btn" @click="liveLogs=!liveLogs">{{liveLogs?'Pause refresh':'Resume refresh'}}</button>
+       <button class="solara-secondary-btn" :disabled="!consoleText" @click="copy(consoleText)"><Copy :size="14"/> Copy</button>
        <button title="Refresh game logs" @click="refreshLogs"><RefreshCw :size="14"/></button>
      </div>
    </div>
@@ -376,7 +375,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        <input v-model="form.javaPath" placeholder="auto" required>
        <small>Use auto for managed Java, java for PATH, or choose your own executable path.</small>
      </label>
-     <button class="workspace-play modrinth-primary-btn" :disabled="locked"><Save :size="14"/> Save changes</button>
+     <button class="workspace-play solara-primary-btn" :disabled="locked"><Save :size="14"/> Save changes</button>
      <p v-if="instance.running" class="workspace-message">Close Minecraft before changing files or settings.</p>
    </form>
  </template>

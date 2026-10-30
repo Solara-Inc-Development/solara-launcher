@@ -100,14 +100,14 @@ pub async fn versions() -> Result<Value> {
 pub async fn loader_versions(game: &str, loader: &str) -> Result<Value> {
     match loader {
         "vanilla" => Ok(json!([])),
-        "fabric" | "quilt" => Ok(serde_json::to_value(
+        "fabric" | "quilt" | "forge" | "neoforge" => Ok(serde_json::to_value(
             crate::game_core::loaders::versions(loader, game).await?,
         )?),
         _ => bail!("This loader is not available yet"),
     }
 }
 pub fn capabilities() -> Value {
-    json!({"loaders":["vanilla","fabric","quilt"],"contentInstall":true,"automaticJava":true,"instanceFiles":true,"modManager":true,"instanceBackups":true,"preview":true})
+    json!({"loaders":["vanilla","fabric","quilt","forge","neoforge"],"contentInstall":true,"automaticJava":true,"instanceFiles":true,"modManager":true,"instanceBackups":true,"preview":true})
 }
 
 async fn windows_version() -> Result<Option<String>> {
@@ -171,8 +171,10 @@ pub async fn create_instance(
     loader: String,
     loader_version: String,
 ) -> Result<Value> {
-    if !matches!(loader.as_str(), "vanilla" | "fabric" | "quilt")
-        || (loader == "vanilla" && !loader_version.is_empty())
+    if !matches!(
+        loader.as_str(),
+        "vanilla" | "fabric" | "quilt" | "forge" | "neoforge"
+    ) || (loader == "vanilla" && !loader_version.is_empty())
     {
         bail!("Choose a supported loader. More loaders are being added.")
     }
@@ -185,7 +187,7 @@ pub async fn create_instance(
     {
         bail!("Choose a version from the official Minecraft list")
     }
-    let resolved = if matches!(loader.as_str(), "fabric" | "quilt") {
+    let resolved = if matches!(loader.as_str(), "fabric" | "quilt" | "forge" | "neoforge") {
         Some(
             crate::game_core::loaders::resolve_version(&loader, &game_version, &loader_version)
                 .await?,
@@ -664,6 +666,20 @@ fn validate_preferences(value: &Preferences) -> Result<()> {
     };
     Ok(())
 }
+pub fn discord_client_id() -> Option<String> {
+    if let Some(val) = option_env!("SOLARA_DISCORD_CLIENT_ID") {
+        if !val.trim().is_empty() {
+            return Some(val.trim().to_string());
+        }
+    }
+    if let Ok(val) = std::env::var("SOLARA_DISCORD_CLIENT_ID") {
+        if !val.trim().is_empty() {
+            return Some(val.trim().to_string());
+        }
+    }
+    // Default Discord application client ID for Solara Rich Presence
+    Some("1557970379111276665".to_string())
+}
 pub async fn save_preferences(memory: u32, java_path: String, discord: bool) -> Result<()> {
     let value = Preferences {
         memory,
@@ -671,11 +687,7 @@ pub async fn save_preferences(memory: u32, java_path: String, discord: bool) -> 
         discord,
     };
     validate_preferences(&value)?;
-    if discord
-        && option_env!("SOLARA_DISCORD_CLIENT_ID")
-            .unwrap_or_default()
-            .is_empty()
-    {
+    if discord && discord_client_id().is_none() {
         bail!("Discord activity is not configured in this build")
     }
     write_json(&get().await?.data.join("preferences.json"), &value).await

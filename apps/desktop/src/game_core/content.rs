@@ -318,8 +318,11 @@ pub async fn plan_project_install(
     provider_id(project_id)?;
     let folder = match content_type {
         "mod" => {
-            if !matches!(instance.loader.as_str(), "fabric" | "quilt") {
-                bail!("Choose a Fabric or Quilt instance to install mods")
+            if !matches!(
+                instance.loader.as_str(),
+                "fabric" | "quilt" | "forge" | "neoforge"
+            ) {
+                bail!("Choose a Fabric, Quilt, Forge, or NeoForge instance to install mods")
             }
             "mods"
         }
@@ -570,9 +573,6 @@ pub fn parse_mrpack(
     let deps = index_value["dependencies"]
         .as_object()
         .context("Modpack dependencies missing")?;
-    if deps.contains_key("forge") || deps.contains_key("neoforge") {
-        bail!("This modpack requires Forge or NeoForge. Choose a Fabric or Quilt modpack in this build.")
-    }
     for key in deps.keys() {
         if !matches!(
             key.as_str(),
@@ -581,8 +581,12 @@ pub fn parse_mrpack(
             bail!("Modpack requires an unsupported dependency: {key}");
         }
     }
-    if deps.contains_key("fabric-loader") && deps.contains_key("quilt-loader") {
-        bail!("Modpack cannot require both Fabric and Quilt loaders simultaneously");
+    let loader_count = ["fabric-loader", "quilt-loader", "forge", "neoforge"]
+        .into_iter()
+        .filter(|k| deps.contains_key(*k))
+        .count();
+    if loader_count > 1 {
+        bail!("Modpack cannot require multiple loaders simultaneously");
     }
     let game_version = deps
         .get("minecraft")
@@ -597,6 +601,12 @@ pub fn parse_mrpack(
         } else if let Some(v) = deps.get("quilt-loader").and_then(Value::as_str) {
             loaders::loader_id(v)?;
             ("quilt".to_string(), Some(v.to_string()))
+        } else if let Some(v) = deps.get("neoforge").and_then(Value::as_str) {
+            loaders::loader_id(v)?;
+            ("neoforge".to_string(), Some(v.to_string()))
+        } else if let Some(v) = deps.get("forge").and_then(Value::as_str) {
+            loaders::loader_id(v)?;
+            ("forge".to_string(), Some(v.to_string()))
         } else {
             ("vanilla".to_string(), None)
         };
@@ -841,7 +851,7 @@ pub async fn prepare_modpack(project_id: &str, version_id: &str) -> Result<Prepa
     }
     let resolved_loader = match loader.as_str() {
         "vanilla" => None,
-        "fabric" | "quilt" => Some(
+        "fabric" | "quilt" | "forge" | "neoforge" => Some(
             loaders::resolve_version(
                 &loader,
                 &game_version,

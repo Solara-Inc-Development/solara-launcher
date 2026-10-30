@@ -444,17 +444,17 @@ pub fn run() {
     let handle = app.handle().clone();
     tauri::async_runtime::spawn(async move {
         use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};
-        let id = option_env!("SOLARA_DISCORD_CLIENT_ID").unwrap_or_default();
-        if id.is_empty() {
-            return;
+        let client_id = match engine::discord_client_id() {
+            Some(id) if !id.is_empty() => id,
+            _ => return,
         };
-        let mut client = DiscordIpcClient::new(id);
+        let mut client: Option<DiscordIpcClient> = None;
         let mut connected = false;
         loop {
             if thread_stop.load(Ordering::Relaxed) {
-                if connected {
-                    let _ = client.clear_activity();
-                    let _ = client.close();
+                if let Some(mut c) = client.take() {
+                    let _ = c.clear_activity();
+                    let _ = c.close();
                 }
                 break;
             };
@@ -464,28 +464,73 @@ pub fn run() {
                 .unwrap_or(false);
             if enabled {
                 if !connected {
-                    connected = client.connect().is_ok()
-                };
+                    let cid = client_id.clone();
+                    let connect_attempt = tokio::time::timeout(
+                        std::time::Duration::from_secs(3),
+                        tokio::task::spawn_blocking(move || {
+                            let mut c = DiscordIpcClient::new(&cid);
+                            match c.connect() {
+                                Ok(()) => Ok(c),
+                                Err(e) => Err(e),
+                            }
+                        }),
+                    )
+                    .await;
+                    match connect_attempt {
+                        Ok(Ok(Ok(c))) => {
+                            client = Some(c);
+                            connected = true;
+                        }
+                        _ => {
+                            client = None;
+                            connected = false;
+                        }
+                    }
+                }
                 if connected {
-                    let running = engine::game_running().await;
-                    if client
-                        .set_activity(Activity::new().state(if running {
+                    if let Some(mut c) = client.take() {
+                        let running = engine::game_running().await;
+                        let state_str = if running {
                             "Minecraft running"
                         } else {
                             "Solara open"
-                        }))
-                        .is_err()
-                    {
-                        connected = false;
-                        let _ = client.close();
+                        };
+                        let update_attempt = tokio::time::timeout(
+                            std::time::Duration::from_secs(2),
+                            tokio::task::spawn_blocking(move || {
+                                let act = Activity::new()
+                                    .state(state_str)
+                                    .details("Solara Launcher");
+                                let ok = c.set_activity(act).is_ok();
+                                (c, ok)
+                            }),
+                        )
+                        .await;
+                        match update_attempt {
+                            Ok(Ok((c, true))) => {
+                                client = Some(c);
+                            }
+                            Ok(Ok((mut c, false))) => {
+                                let _ = c.close();
+                                connected = false;
+                            }
+                            _ => {
+                                connected = false;
+                            }
+                        }
                     }
                 }
             } else if connected {
-                let _ = client.clear_activity();
-                let _ = client.close();
-                connected = false
+                if let Some(mut c) = client.take() {
+                    let _ = tokio::task::spawn_blocking(move || {
+                        let _ = c.clear_activity();
+                        let _ = c.close();
+                    })
+                    .await;
+                }
+                connected = false;
             };
-            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
     });
     app.run(move|app,event|match event{tauri::RunEvent::WindowEvent{label,event:WindowEvent::CloseRequested{api,..},..}if label=="main"=>{api.prevent_close();if closing.swap(true,Ordering::SeqCst){return};let app=app.clone();let closing=closing.clone();let stop=presence_stop.clone();tauri::async_runtime::spawn(async move{match engine::stop_all().await{Ok(())=>{stop.store(true,Ordering::Relaxed);tokio::time::sleep(std::time::Duration::from_millis(100)).await;app.exit(0)},Err(_)=>{closing.store(false,Ordering::SeqCst);use tauri::Emitter;let _=app.emit("shutdown-error","Local server is still saving. Check its console and stop it before closing Solara.");}}});},_=>{}});

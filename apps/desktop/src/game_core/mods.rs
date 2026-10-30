@@ -308,7 +308,7 @@ pub async fn import_bytes(
 ) -> Result<Mod> {
     let instance = store.get(id).await?;
     if instance.loader == "vanilla" {
-        bail!("Vanilla instances do not load mods. Use a Fabric or Quilt instance.")
+        bail!("Vanilla instances do not load mods. Use a Fabric, Quilt, Forge, or NeoForge instance.")
     }
     let clean_name = validate_jar_file_name(file_name)?;
     if bytes.is_empty() || bytes.len() > 128 * 1024 * 1024 {

@@ -15,7 +15,6 @@ const props=withDefaults(defineProps<{
 });
 
 const emit=defineEmits(['open-instance','create','navigate','external','refresh','play','account','copy','solara-signin','create-preset']);
-const jumpInOpen=ref(true);
 const librarySearch=ref('');
 const avatarFailed=ref(false);
 const activeLibraryTab=ref<'instances'|'presets'>('instances');
@@ -28,89 +27,6 @@ const hasLicense=computed(()=>!!activeMinecraftAccount.value);
 const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
 function instanceScene(inst:any):string{const name=inst?.name||'';let hash=0;for(let i=0;i<name.length;i++){hash=(hash<<5)-hash+name.charCodeAt(i);hash|=0}return scenes[Math.abs(hash)%scenes.length]}
 function instanceArtSrc(inst:any):string{return `/art/${instanceScene(inst)}-v1-small.webp`}
-
-const jumpInServers=ref([
-  {
-    id:'solara',
-    name:'Solara Network',
-    ip:'play.solaranetwork.in',
-    online:true,
-    players:'142 online',
-    subtitle:'Solara 1.21.1 · Official',
-    motd:'Solara Official Network [1.21.1] Survival, Creative & Minigames',
-    loader:'Fabric'
-  },
-  {
-    id:'hypixel',
-    name:'Hypixel Network',
-    ip:'mc.hypixel.net',
-    online:true,
-    players:'25,697 online',
-    subtitle:'Fabric 1.21.1 · 2 days ago',
-    motd:'Hypixel Network [1.8/1.21]  5B GHOST VISITORS! SPOOKY EVENT',
-    loader:'Fabric'
-  },
-  {
-    id:'cubecraft',
-    name:'CubeCraft Games',
-    ip:'play.cubecraft.net',
-    online:true,
-    players:'3,450 online',
-    subtitle:'Vanilla 1.21.1 · 1 day ago',
-    motd:'CubeCraft Network · SkyWars, EggWars, Lucky Islands & Parkour',
-    loader:'Vanilla'
-  },
-  {
-    id:'arix',
-    name:'Arix SMP',
-    ip:'play.arix.gg',
-    online:true,
-    players:'2 online',
-    subtitle:'Fabric 1.21.1 · 2 days ago',
-    motd:'A Minecraft Server · Vanilla Survival Community',
-    loader:'Fabric'
-  },
-  {
-    id:'wynncraft',
-    name:'Wynncraft MMORPG',
-    ip:'play.wynncraft.com',
-    online:true,
-    players:'1,840 online',
-    subtitle:'Fabric 1.21.1 · 3 days ago',
-    motd:'Wynncraft · The Largest Minecraft MMORPG with Quests & Dungeons',
-    loader:'Fabric'
-  },
-  {
-    id:'manacube',
-    name:'ManaCube Network',
-    ip:'play.manacube.com',
-    online:true,
-    players:'1,220 online',
-    subtitle:'Fabric 1.21.1 · 4 days ago',
-    motd:'ManaCube · Survival, Islands, Earth SMP, Parkour & KitPvP',
-    loader:'Fabric'
-  },
-  {
-    id:'2b2t',
-    name:'2b2t Anarchy',
-    ip:'2b2t.org',
-    online:true,
-    players:'420 online',
-    subtitle:'Vanilla 1.21.1 · 1 week ago',
-    motd:'2b2t · The Oldest Anarchy Server in Minecraft',
-    loader:'Vanilla'
-  },
-  {
-    id:'spinex',
-    name:'Spinex',
-    ip:'spinex.solara.network',
-    online:false,
-    players:'Offline',
-    subtitle:'Quilt 1.21 · 2 weeks ago',
-    motd:"Can't connect to server",
-    loader:'Quilt'
-  }
-]);
 
 const instancePresets=ref([
   {
@@ -199,18 +115,6 @@ const visiblePresets=computed(()=>{
   return instancePresets.value.filter(p=>`${p.name} ${p.gameVersion} ${p.loader} ${p.desc}`.toLowerCase().includes(q));
 });
 
-function handlePlayServer(server:any){
-  if(!hasLicense.value){
-    emit('account');
-    return;
-  }
-  const target=props.instances.find(i=>i.state==='installed')||props.instances[0];
-  if(target){
-    emit('play',target);
-  }else{
-    emit('create');
-  }
-}
 
 function handlePlayInstance(instance:any){
   if(!hasLicense.value){
@@ -229,10 +133,10 @@ function installPreset(p:any){
 }
 
 const popularHighlights=[
-  {id:'fabulously-optimized',title:'Fabulously Optimized',type:'modpack',description:'Fast, smooth Minecraft with shaders and mod support.',icon:'https://cdn.modrinth.com/data/1KVo5zza/d8152911f8fd5d7e9a8c499fe89045af81fe816e_96.webp',downloads:'19.5M'},
-  {id:'sodium',title:'Sodium',type:'mod',description:'Modern rendering engine providing massive FPS gains.',icon:'https://cdn.modrinth.com/data/AANobbMI/295862f4724dc3f78df3447ad6072b2dcd3ef0c9_96.webp',downloads:'256.8M'},
-  {id:'iris',title:'Iris Shaders',type:'mod',description:'Modern shader pack support with full Sodium optimization.',icon:'https://cdn.modrinth.com/data/YL57xq9U/18d0e7f076d3d6ed5bedd472b853909aac5da202_96.webp',downloads:'198.6M'},
-  {id:'cobblemon',title:'Cobblemon',type:'modpack',description:'Catch, train, and battle Pokemon in open Minecraft.',icon:'https://cdn.modrinth.com/data/5FFgwNNP/e7f9ee2e9d361623847853fe2ddce42f519ee64f.png',downloads:'11.6M'}
+  {id:'fabulously-optimized',title:'Fabulously Optimized',type:'modpack',description:'Fast, smooth Minecraft with shaders and mod support.',glyph:'🚀',downloads:'19.5M',accent:'#38bdf8'},
+  {id:'sodium',title:'Sodium',type:'mod',description:'Modern rendering engine providing massive FPS gains.',glyph:'⚡',downloads:'256.8M',accent:'#0ea5e9'},
+  {id:'iris',title:'Iris Shaders',type:'mod',description:'Modern shader pack support with full Sodium optimization.',glyph:'✨',downloads:'198.6M',accent:'#38bdf8'},
+  {id:'cobblemon',title:'Cobblemon',type:'modpack',description:'Catch, train, and battle Pokémon in open Minecraft.',glyph:'🔴',downloads:'11.6M',accent:'#f43f5e'}
 ];
 </script>
 
@@ -274,54 +178,9 @@ const popularHighlights=[
 
   <!-- Main 2-Column Layout -->
   <div class="home-main-layout">
-    <!-- Left Column: Jump In + Library -->
+    <!-- Left Column: Library -->
     <div class="home-content-column">
-      <!-- 1. Jump In Servers Section -->
-      <section class="home-jumpin-section">
-        <div class="jumpin-header" @click="jumpInOpen = !jumpInOpen">
-          <div class="jumpin-title">
-            <h2>Jump in</h2>
-            <span class="jumpin-count-badge">{{jumpInServers.length}} servers</span>
-            <component :is="jumpInOpen ? ChevronUp : ChevronDown" :size="18"/>
-          </div>
-        </div>
-
-        <Transition name="expand">
-          <div v-if="jumpInOpen" class="jumpin-list">
-            <article v-for="srv in jumpInServers" :key="srv.id" class="jumpin-card" :class="{offline: !srv.online}">
-              <div class="jumpin-icon-wrap">
-                <span class="jumpin-icon">⚡</span>
-              </div>
-              <div class="jumpin-body">
-                <div class="jumpin-title-row">
-                  <h3>{{srv.name}}</h3>
-                  <span class="jumpin-link-badge">🔗</span>
-                  <span class="jumpin-ping" :class="{online: srv.online, offline: !srv.online}">
-                    <span class="ping-bars">📶</span> {{srv.players}}
-                  </span>
-                </div>
-                <div class="jumpin-sub-row">
-                  <span class="cake-badge">🍰</span>
-                  <span class="jumpin-subtitle">{{srv.subtitle}}</span>
-                </div>
-                <div class="jumpin-motd" :class="{problem: !srv.online}">
-                  {{srv.motd}}
-                </div>
-              </div>
-              <div class="jumpin-actions">
-                <button class="modrinth-play-pill" :disabled="!srv.online" :title="hasLicense?'Play on '+srv.name:'Sign in with Minecraft Java account to play'" @click="handlePlayServer(srv)">
-                  <Play :size="14"/> Play
-                </button>
-                <button class="jumpin-dots-btn" title="Copy server address" @click.stop="emit('copy', srv.ip)">
-                  <MoreVertical :size="15"/>
-                </button>
-              </div>
-            </article>
-          </div>
-        </Transition>
-      </section>
-
-      <!-- 2. Library Section -->
+      <!-- Library Section -->
       <section class="home-library-section">
         <div class="library-header-row">
           <div class="library-title-group">
@@ -336,10 +195,10 @@ const popularHighlights=[
             </div>
           </div>
           <div class="library-action-buttons">
-            <button class="modrinth-secondary-btn" @click="emit('create')">
+            <button class="solara-btn-secondary" @click="emit('create')">
               <Plus :size="14"/> New group
             </button>
-            <button class="modrinth-primary-btn" @click="emit('create')">
+            <button class="solara-btn-primary" @click="emit('create')">
               <Plus :size="14"/> New instance
             </button>
           </div>
@@ -364,10 +223,10 @@ const popularHighlights=[
 
         <!-- 2A. Instance Cards Grid -->
         <template v-if="activeLibraryTab==='instances'">
-          <div v-if="visibleInstances.length" class="modrinth-instance-grid">
-            <article v-for="inst in visibleInstances" :key="inst.id" class="modrinth-instance-card" @click="emit('open-instance', inst)">
-              <div class="instance-lime-badge">
-                <div class="instance-3d-block">🍰</div>
+          <div v-if="visibleInstances.length" class="solara-instance-grid">
+            <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" @click="emit('open-instance', inst)">
+              <div class="instance-cyan-badge">
+                <div class="instance-3d-block">⚡</div>
               </div>
               <div class="instance-card-meta">
                 <h3>{{inst.name}}</h3>
@@ -388,13 +247,13 @@ const popularHighlights=[
               <h3>Your first world starts here.</h3>
               <p>Pick a Minecraft version or 1-click template. We will take care of its files and Java.</p>
             </div>
-            <button class="modrinth-primary-btn" @click="emit('create')">Create your first instance <ArrowRight :size="16"/></button>
+            <button class="solara-btn-primary" @click="emit('create')">Create your first instance <ArrowRight :size="16"/></button>
           </div>
         </template>
 
         <!-- 2B. Instance Templates & Presets Grid -->
         <template v-else>
-          <div class="modrinth-preset-grid">
+          <div class="solara-preset-grid">
             <article v-for="preset in visiblePresets" :key="preset.id" class="preset-card">
               <div class="preset-top">
                 <span class="preset-icon">{{preset.icon}}</span>
@@ -408,7 +267,7 @@ const popularHighlights=[
                   <span class="version-chip">{{preset.gameVersion}}</span>
                 </div>
               </div>
-              <button class="modrinth-primary-btn preset-install-btn" @click="installPreset(preset)">
+              <button class="solara-btn-primary preset-install-btn" @click="installPreset(preset)">
                 <Plus :size="14"/> Install instance
               </button>
             </article>
@@ -425,7 +284,9 @@ const popularHighlights=[
         <div class="home-trending-grid">
           <article v-for="item in popularHighlights" :key="item.id" class="card home-mod-card" @click="emit('navigate','explore')">
             <div class="home-mod-top">
-              <img :src="item.icon" :alt="item.title" class="home-mod-icon" loading="lazy">
+              <div class="home-mod-glyph-badge" :style="{background: item.accent + '1a', color: item.accent, borderColor: item.accent + '33'}">
+                <span>{{item.glyph}}</span>
+              </div>
               <div class="home-mod-meta">
                 <h3>{{item.title}}</h3>
                 <span class="pill download-pill"><Download :size="11"/> {{item.downloads}}</span>
@@ -490,8 +351,8 @@ const popularHighlights=[
         <div class="hosting-badge"><span class="brand-glyph">✦</span> solara hosting</div>
         <h3>Get your next server on Solara.</h3>
         <p>Instant provisioning, dedicated IP addresses, and DDoS protection.</p>
-        <button class="modrinth-primary-btn hosting-btn" @click="emit('navigate', 'servers')">
-          Explore servers <ArrowUpRight :size="14"/>
+        <button class="solara-btn-primary hosting-btn" @click="emit('navigate', 'services')">
+          Explore services <ArrowUpRight :size="14"/>
         </button>
       </div>
 

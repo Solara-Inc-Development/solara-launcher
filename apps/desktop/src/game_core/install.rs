@@ -28,7 +28,10 @@ pub async fn instance(
 ) -> Result<()> {
     cancel.check()?;
     let instance = store.get(id).await?;
-    if !matches!(instance.loader.as_str(), "vanilla" | "fabric" | "quilt") {
+    if !matches!(
+        instance.loader.as_str(),
+        "vanilla" | "fabric" | "quilt" | "forge" | "neoforge"
+    ) {
         bail!("This loader is not supported by the installer yet")
     }
     store
@@ -51,7 +54,7 @@ pub async fn instance(
             .context("Minecraft version is not in the official list")?;
         let document = metadata::version(entry).await?;
         let mut plan = plan::windows(&document, os_version)?;
-        if matches!(instance.loader.as_str(), "fabric" | "quilt") {
+        if matches!(instance.loader.as_str(), "fabric" | "quilt" | "forge" | "neoforge") {
             cancel.check()?;
             let loader = instance
                 .loader_version

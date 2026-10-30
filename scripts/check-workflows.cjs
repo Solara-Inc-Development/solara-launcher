@@ -94,7 +94,7 @@ const fs=require('node:fs/promises');
   await page.getByText('Content installed.',{exact:true}).waitFor();
   assert.equal(await page.getByRole('progressbar',{name:'Installing QA content installation',exact:true}).count(),0);
   await page.getByRole('button',{name:'Close dialog',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
-  await page.getByRole('button',{name:'Your servers',exact:true}).click();await page.getByRole('button',{name:'Public subdomain',exact:true}).click();
+  await page.getByRole('button',{name:'Solara services',exact:true}).click();await page.getByRole('button',{name:'Hosting',exact:true}).click();
   await page.getByRole('heading',{name:'qa-world.games.solara-inc.in',exact:true}).waitFor();
   await page.getByRole('button',{name:'Request a subdomain',exact:true}).click();
   await page.getByLabel('Requested name',{exact:true}).fill('qa-new-world');await page.getByLabel('Public IP address',{exact:true}).fill('8.8.4.4');
