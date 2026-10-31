@@ -333,6 +333,46 @@
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDZhTnZ0VFRkWUpGMkxtOGlBTXZQditGdEFFcHNNMFFvLzZZbW5ZMkFOdmFJenFlMFVJcjlHRUR6UUVBMmVXTUJONllMOElFeXg5OFgwWUVmdEtwaGdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzNDA4MDI3CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEzCkcyOC9ma0c5Sk5leXB0Y0F1bmZSVnJGSDlhYWFEVVFlRndVVEJLS2pBd1ZoK3ZqV2l4Vzh5RGF2U0NqNFg4MDJ0OW9YZ3pyRGl5MmdIVlpWU1FCWURBPT0K",
       "notes": "# Changelog\n\n## Testing Preview V-0.0.13 — 2026-10-31\n\n### What's New & What Feels Better\n- **RAM Performance Ring Gauge**:\n  - Brand new visual circular gauge with live progress arc showing allocated system memory and health classification.\n  - Real-time performance hints explaining whether your current RAM setting is ideal for Vanilla, moderate modpacks, or heavy shader packs.\n- **Modpack Exporter Archive**:\n  - Export your complete Minecraft instance (configs, world saves, and installed mods) into a clean, portable modpack package with a single click.\n  - Instant access from the workspace header or backups panel.\n- **Quick Backups Folder Shortcut**:\n  - Open your instance backups folder directly in Windows Explorer with 1 click.\n\n### Release Status & Verification\n- **Status**: Genuine Windows testing release signed with private Minisign key.\n- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.\n",
       "url": "https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe"
+    },
+    {
+      "buildId": "ae450391-f0ae-45df-acfb-71c6464458ec",
+      "publicVersion": "V-0.0.14",
+      "internalVersion": "0.0.14",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.14/solaralauncher.exe",
+      "commit": "fa10bfc8fff6c9ef7877703fe662d26c3ebce3a1",
+      "allocatedAt": "2026-10-31T05:38:55.542Z",
+      "state": "published",
+      "applicationSha256": "9536eb44a3d4d7d68d9ea8fe7dc1e8cf7b5fc5aee3c29504ec82a5fd404cdf0a",
+      "applicationSize": 18554880,
+      "sourceTree": "4e07c694fad4d238e286abf8b1685a2abca1dd3e",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 6770894,
+          "sha256": "ba733a4ba4426c29824ec328b5aa054de2189a3c5ead2f04ea947f6149f6d631"
+        },
+        "application/solaralauncher.exe": {
+          "size": 18554880,
+          "sha256": "9536eb44a3d4d7d68d9ea8fe7dc1e8cf7b5fc5aee3c29504ec82a5fd404cdf0a"
+        },
+        "source.zip": {
+          "size": 18416043,
+          "sha256": "67edd7c9717d0d71fdaf7b180e201dab5e4c16e8d65e212de23e32fe18cdf05b"
+        }
+      },
+      "size": 6770894,
+      "sha256": "ba733a4ba4426c29824ec328b5aa054de2189a3c5ead2f04ea947f6149f6d631",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-10-31T05:52:09.301Z",
+      "verifiedAt": "2026-10-31T05:43:43.626Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHhKcVBhT0lVZERlNGZCSWE3akRtZEpUT2FiZVo4cUNVSzBON0c3VTRDd0NvRWZmbEU5S2p2L2s4QndqTm9WWFFGalg1K2E3YVBTdVF4QVpxNjd2QWdZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzNDI1NDIzCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjE0CmUzN3NQTXV6VnFUNk5IL2h5dzlDVlBKR2djTElyamVqWVBnRG9zM2lnVHVqU0VrVEhIc3puRTY2M0FqT2RKVmVZTStMcEVjWS9lWlM4RkZpVVpQMUNBPT0K",
+      "notes": "- Redesigned the desktop around a slim icon sidebar, one toolbar, a dark workspace and colourful mint controls.\n- Added a persistent account/services column, local Jump back in rows, artwork library tiles, clearer discovery results and rounded instance navigation.\n- Refreshed settings, dialogs, screenshot viewing, file tools and small-window layouts.\n- Improved global search, loader filters, quick starts, initial mod loading, screenshot keyboard controls and protection for unsaved file edits.\n- Clarified that snapshots contain worlds/configuration; creating a similar instance starts a fresh setup.\n- Release publication now keeps the signed installer and its exact CI-exported source together, without replacing previous release assets.\n\nThis is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.",
+      "url": "https://app.solara-inc.in/builds/V-0.0.14/solaralauncher.exe",
+      "windowsBuildRun": 41173315988,
+      "windowsSourceRun": 41173315706,
+      "channel": "testing-preview"
     }
   ]
 }

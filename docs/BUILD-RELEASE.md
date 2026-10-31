@@ -1,6 +1,6 @@
 # Builds, installation and release archive
 
-Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10` → `13`. Old executables are immutable. The latest genuine testing installer is **V-0.0.13** (`solaralauncher.exe`, SHA-256: `579e2457...`), privately updater-signed with Minisign, published on GitHub Releases as the Latest Release, and live on the auto-updater endpoint (`api.solara-inc.in`). Real Windows physical device acceptance testing remains pending. Updater signatures are separate from Windows Authenticode publisher signing.
+Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10` → `13`. Old executables are immutable. The latest genuine testing installer is **V-0.0.14** (`solaralauncher.exe`, SHA-256: `ba733a4b...`), privately updater-signed with Minisign, published on GitHub Releases as the Latest Release, and live on the auto-updater endpoint (`api.solara-inc.in`). Real Windows physical device acceptance testing remains pending. Updater signatures are separate from Windows Authenticode publisher signing.
 
 ## Before a public build
 
@@ -84,3 +84,5 @@ On the private build host, verify the expected source commit, source archive and
 ## Raw vs installed application hashes
 
 Pinned Tauri CLI2.12.4 changes `__TAURI_BUNDLE_TYPE_VAR_UNK` to `__TAURI_BUNDLE_TYPE_VAR_NSS` for NSIS (see its [patch_binary implementation](https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.12.4/crates/tauri-bundler/src/bundle.rs)). It restores the raw Cargo file afterward. For V-0.0.03, current official 7-Zip extracted the actual payload and complete-byte comparison passed against exactly this single expected transformation. Metadata records raw and installed hashes separately. Do not patch unexplained differences or claim the two unmodified hashes match.
+
+Testing preview publication uses `node scripts/release.mjs publish-preview-manifest <version>` after private staging and public installer/signature/source verification. This keeps acceptance false and leaves stable publication gates in place. GitHub publication runs only for explicit version tags/manual requests and verifies the immutable CI source archive; it never substitutes a new HEAD archive or clobbers old assets.

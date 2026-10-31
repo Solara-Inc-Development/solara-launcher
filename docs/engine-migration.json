@@ -30,7 +30,7 @@
   "pending": [
     "approved Microsoft client ID and licensed-account acceptance",
     "installed NSIS/update acceptance",
-    "Forge/NeoForge loader installation",
+    "physical Windows Forge/NeoForge installation and gameplay acceptance",
     "game recovery after launcher restart"
   ],
   "evidence": [
@@ -40,15 +40,18 @@
     "scripts/third-party.mjs"
   ],
   "windowsSourceCheck": {
-    "run": 40920806149,
-    "sourceCommit": "31f04bf2eb43f7d19363a0a382da2246c4ee6197",
+    "run": 41173315706,
+    "sourceCommit": "fa10bfc8fff6c9ef7877703fe662d26c3ebce3a1",
     "result": "passed"
   },
   "windowsInstallerBuild": {
+    "run": 41173315988,
     "result": "passed",
-    "publicVersion": "V-0.0.13",
-    "sourceCommit": "7c3fd265b718d8e7caea1ee928dfa69c0e8ede64",
-    "staticVerification": "Genuine NSIS installer and x64 application PE headers verified; cryptographically signed with persistent Minisign key; RAM Performance Ring Gauge with dynamic workload scoring, Modpack Exporter Archive generation, and Backups folder system shortcuts verified",
+    "publicVersion": "V-0.0.14",
+    "sourceCommit": "fa10bfc8fff6c9ef7877703fe662d26c3ebce3a1",
+    "staticVerification": "Genuine CI-built NSIS installer and x64 PE headers, artifact SHA-256, source privacy/version/public-key checks and persistent Minisign updater signature verified. The original CI source ZIP is preserved unchanged.",
+    "installerSha256": "ba733a4ba4426c29824ec328b5aa054de2189a3c5ead2f04ea947f6149f6d631",
+    "sourceArchiveSha256": "67edd7c9717d0d71fdaf7b180e201dab5e4c16e8d65e212de23e32fe18cdf05b",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live"

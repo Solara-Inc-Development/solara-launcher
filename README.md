@@ -31,10 +31,10 @@
 A black desktop, a small sidebar and your account right where you need it. Open your worlds, check your services, or just look around. We wanted the everyday stuff to feel easy.
 
 <p align="center">
-  <img src="public/screenshots/dashboard.png" alt="Actual Solara development dashboard with compact navigation, original landscape artwork, real Solara listings and account sidebar" width="100%" />
+  <img src="public/screenshots/dashboard.png" alt="Solara redesigned browser guest dashboard with a slim icon rail and account sidebar" width="100%" />
 </p>
 
-<p align="center"><sub>Actual development interface. Listings come from a local development API using existing Solara sources. This is not a release or a live sign-in demo.</sub></p>
+<p align="center"><sub>Actual browser guest preview of the redesigned interface, with the service catalogue unavailable. It does not demonstrate live sign-in or game launch.</sub></p>
 
 <table>
 <tr>
@@ -108,22 +108,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.13 available.** Fresh genuine Windows release featuring dynamic RAM Performance Ring Gauge with optimal workload feedback, one-click Modpack Exporter Archive generation, streamlined instance creation, and instant Backups folder system shortcuts.
+**Testing preview V-0.0.14 available.** A new desktop layout with a slim icon rail, one toolbar, a dark workspace, mint controls, a persistent account column and refreshed library/instance pages.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.13 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (6.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/source.zip)
-- **SHA-256**: `579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8`
+- **GitHub Release**: [Solara Launcher V-0.0.14 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.14/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.14/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.14/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.14/source.zip)
+- **SHA-256**: `ba733a4ba4426c29824ec328b5aa054de2189a3c5ead2f04ea947f6149f6d631`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.13 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.14 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
