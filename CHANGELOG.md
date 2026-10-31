@@ -1,5 +1,84 @@
 # Changelog
 
+## Testing Preview V-0.0.13 — 2026-10-31
+
+### What's New & What Feels Better
+- **RAM Performance Ring Gauge**:
+  - Brand new visual circular gauge with live progress arc showing allocated system memory and health classification.
+  - Real-time performance hints explaining whether your current RAM setting is ideal for Vanilla, moderate modpacks, or heavy shader packs.
+- **Modpack Exporter Archive**:
+  - Export your complete Minecraft instance (configs, world saves, and installed mods) into a clean, portable modpack package with a single click.
+  - Instant access from the workspace header or backups panel.
+- **Quick Backups Folder Shortcut**:
+  - Open your instance backups folder directly in Windows Explorer with 1 click.
+
+### Release Status & Verification
+- **Status**: Genuine Windows release signed with private Minisign key.
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe) (SHA-256: `579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8`).
+- **Signature**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.
+
+## Testing Preview V-0.0.12 — 2026-10-31
+
+### What's New & What Feels Better
+- **In-Game Screenshot Gallery**:
+  - Dedicated gallery tab automatically listing all F2 screenshots from your instance's `screenshots/` directory, sorted descending by capture date.
+  - Visual photo grid showing image thumbnails, exact resolution, capture timestamp, and file size.
+- **Fullscreen Lightbox Image Viewer**:
+  - Immersive lightbox modal with dark frosted backdrop (`rgba(6, 9, 19, 0.94)`).
+  - High-resolution preview with smooth keyboard arrow navigation (`ArrowLeft`, `ArrowRight`, `Esc`).
+  - 1-click "Show in folder" button to reveal the image directly in Windows Explorer.
+- **Native Image Streaming Pipeline**:
+  - Built an independent, secure Base64 streaming pipeline with strict path traversal boundaries and memory safeguards.
+- **Safe Photo Management**:
+  - 1-click delete action safely moving screenshots to the instance Trash with full recovery capability.
+
+### Release Status & Verification
+- **Status**: Genuine Windows release signed with private Minisign key.
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.12/solaralauncher.exe) (SHA-256: `bdd662b7aa5f6d672d59e643f7ecf14629f7237186041a4406732e3c81be89cd`).
+- **Signature**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.12/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.
+
+## Testing Preview V-0.0.11 — 2026-10-31
+
+### What's New & What Feels Better
+- **Instance Notebook / Scratchpad**:
+  - Monospace notes editor with automatic `localStorage` persistence, character/line counters, and quick snippet insertion (coordinates, todo lists, server details).
+- **Batch Mod Controls**:
+  - "Enable all" and "Disable all" buttons in Mods toolbar with instant reactive feedback.
+- **Visual RAM Allocation Meter**:
+  - Gradient RAM meter with capacity thresholds and scale markers (`512M`, `4G Standard`, `8G Modpacks`, `16G+`).
+- **Favorite & Pinning System**:
+  - Pinned instances float to top of Library with glowing cyan star badges.
+- **Display & Window Preferences**:
+  - Resolution presets (`1080p`, `720p`, `1440p`, `Custom`), Fullscreen toggle, and JVM Garbage Collector presets (`Default`, `G1GC Balanced`, `Low-Latency ZGC`, `Custom`).
+
+### Release Status & Verification
+- **Status**: Genuine Windows release signed with private Minisign key.
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.11/solaralauncher.exe) (SHA-256: `61d33190be9d52eb9b807cf9058b8efc0f4f91ef382b9508bc5c4b18c89c892b`).
+- **Signature**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.11/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.
+
+## Testing Preview V-0.0.10 — 2026-10-31
+
+### What's New & What Feels Better
+- **Interactive Console Log Viewer**:
+  - Real-time game output streaming with log severity color-coding (Errors in red, Warnings in amber, Info in cyan, Chat in emerald).
+  - Live search bar filtering lines as you type.
+  - Line gutter numbers, line-wrap toggle, auto-scroll locking, and a 1-click "Copy filtered logs" button.
+- **Library Sorting & Loader Filtering**:
+  - Dynamic sorting (A-Z, Minecraft version, last played) and loader pill toggles (All, Fabric, Quilt, Forge, NeoForge, Vanilla).
+- **Instance Duplication**:
+  - 1-click clone action duplicating instance directory, configs, and worlds safely with sanitized new names.
+- **Global Keyboard Shortcuts**:
+  - Cheatsheet overlay (`Ctrl+N` new instance, `Ctrl+F` search, `F5` refresh, `Esc` dismiss).
+
+### Release Status & Verification
+- **Status**: Genuine Windows release signed with private Minisign key.
+- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe) (SHA-256: `99723ec08d1a1b162fb167df381bb593a5ea4dd1f68153096b4bf2c622a578ba`).
+- **Signature**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.10/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.
+
 ## Testing Preview V-0.0.09 — 2026-10-31
 
 ### What's New & What Feels Better

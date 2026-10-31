@@ -26,6 +26,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.event.inputs.version || github.ref_name }}
         run: |
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
+            VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('builds/current-build.json', 'utf8')).publicVersion)")
+          fi
           echo "Preparing GitHub Release for $VERSION..."
           
           # Fetch genuine signed executable and signature from official portal
@@ -53,10 +56,10 @@ jobs:
           [ -f "solaralauncher.exe.sig" ] && ASSETS+=("solaralauncher.exe.sig")
           [ -f "source.zip" ] && ASSETS+=("source.zip")
           
-          # Create or update GitHub release
+          # Create or update GitHub release as latest release
           if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "Release $VERSION exists; updating..."
-            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --prerelease
+            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --latest
             if [ ${#ASSETS[@]} -gt 0 ]; then
               gh release upload "$VERSION" "${ASSETS[@]}" --clobber
             fi
@@ -65,5 +68,5 @@ jobs:
             gh release create "$VERSION" "${ASSETS[@]}" \
               --title "Solara Launcher $VERSION" \
               --notes-file release_notes.md \
-              --prerelease
+              --latest
           fi

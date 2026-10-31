@@ -271,20 +271,6 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
             <p>Choose a project and we’ll use its latest version.</p>
           </div>
         </div>
-        <div class="instance-type-card" @click="close();show('downloads')">
-          <span class="type-card-icon"><Download :size="20"/></span>
-          <div class="type-card-info">
-            <strong>Upload a modpack</strong>
-            <p>Install a modpack from an .mrpack file on your device.</p>
-          </div>
-        </div>
-        <div class="instance-type-card" @click="close();navigate('launcher')">
-          <span class="type-card-icon"><Package :size="20"/></span>
-          <div class="type-card-info">
-            <strong>Import instance</strong>
-            <p>Import an instance from Prism, CurseForge, or similar.</p>
-          </div>
-        </div>
       </div>
       <form @submit.prevent="createInstance" class="custom-instance-form">
         <label class="field">Instance name<input v-model="create.name" placeholder="My next adventure" required maxlength="80"></label>

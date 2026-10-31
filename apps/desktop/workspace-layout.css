@@ -278,9 +278,10 @@
 
 /* Solara Interactive Buttons */
 .solara-btn-primary, .solara-primary-btn {
-  background: #38bdf8;
-  color: #031424;
-  border: 0;
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: #060913;
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
   border-radius: 10px;
   padding: 8px 14px;
   font-size: 12px;
@@ -289,16 +290,22 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 140ms ease;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.solara-btn-primary, .solara-primary-btn:hover:not(:disabled) {
-  background: #7dd3fc;
+.solara-btn-primary:hover:not(:disabled), .solara-primary-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%);
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.5);
+}
+.solara-btn-primary:active:not(:disabled), .solara-primary-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
 }
 .solara-btn-secondary, .solara-secondary-btn {
-  background: #0f172a;
+  background: #0b111e;
   color: #e0f2fe;
-  border: 1px solid #334155;
+  border: 1px solid #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
   padding: 8px 14px;
   font-size: 12px;
@@ -307,12 +314,17 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 140ms ease;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.solara-btn-secondary, .solara-secondary-btn:hover:not(:disabled) {
-  background: #1e293b;
-  border-color: #334155;
-  color: #ffffff;
+.solara-btn-secondary:hover:not(:disabled), .solara-secondary-btn:hover:not(:disabled) {
+  background: #0f172a;
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.2);
+}
+.solara-btn-secondary:active:not(:disabled), .solara-secondary-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 /* Library Section */
@@ -1304,28 +1316,31 @@
 }
 .instance-type-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
 }
 .instance-type-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 16px;
-  border-radius: 14px;
+  padding: 14px 18px;
+  border-radius: 16px;
   background: #060913;
   border: 1px solid #1e293b;
   cursor: pointer;
-  transition: all 140ms ease;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 .instance-type-card:hover {
-  border-color: #334155;
+  border-color: rgba(56, 189, 248, 0.45);
   background: #0b111e;
-  transform: translateX(2px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.15);
 }
 .instance-type-card.active {
-  border-color: rgba(56, 189, 248, 0.4);
-  background: rgba(56, 189, 248, 0.06);
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.18);
 }
 .type-card-icon {
   width: 40px;
@@ -2210,6 +2225,170 @@
   line-height: 1.4;
   margin: 0;
 }
+
+/* ========================================================
+   Refined Button Glows, Card Ambience & Micro-Interactions
+   ======================================================== */
+
+/* Polished Play & Action Buttons */
+.workspace-play,
+.solara-play-btn {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+  color: #060913 !important;
+  border: 1px solid rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.workspace-play:hover:not(:disabled),
+.solara-play-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%) !important;
+  border-color: #7dd3fc !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.55), 0 0 20px rgba(56, 189, 248, 0.3) !important;
+}
+
+.workspace-play:active:not(:disabled),
+.solara-play-btn:active:not(:disabled) {
+  transform: scale(0.97) translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Topbar Sign In & Account Controls */
+.top-right .signin {
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  border-radius: 13px !important;
+  padding: 9px 15px !important;
+  background: linear-gradient(135deg, #0b111e 0%, #0f172a 100%) !important;
+  color: #f1f5f9 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.top-right .signin:hover:not(:disabled) {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #38bdf8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.28) !important;
+}
+
+.top-right .signin:active:not(:disabled) {
+  transform: scale(0.97) !important;
+}
+
+/* Hero Launch Actions */
+.new-home-actions > button:not(.workspace-play) {
+  background: #0b111e !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #1e293b !important;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.new-home-actions > button:not(.workspace-play):hover:not(:disabled) {
+  background: #0f172a !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  color: #38bdf8 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* Ambient Card Glows & Elevation */
+.home-hero-card,
+.hero-active-card,
+.home-mod-card,
+.instance-card {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4), 0 0 1px rgba(56, 189, 248, 0.12) !important;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 180ms ease,
+              background 180ms ease,
+              box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hero-active-card:hover {
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6), 0 0 24px rgba(56, 189, 248, 0.25) !important;
+}
+
+.home-mod-card:hover {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2) !important;
+}
+
+.instance-card:hover {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Modal Form Buttons */
+.modal .actions,
+.custom-instance-form .actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.modal .actions button.primary,
+.custom-instance-form .actions button.primary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+  color: #060913 !important;
+  border: 1px solid rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  border-radius: 12px !important;
+  padding: 11px 22px !important;
+  cursor: pointer;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.modal .actions button.primary:hover:not(:disabled),
+.custom-instance-form .actions button.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5) !important;
+}
+
+.modal .actions button.primary:disabled,
+.custom-instance-form .actions button.primary:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.modal .actions button:not(.primary),
+.custom-instance-form .actions button:not(.primary) {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border: 1px solid #1e293b !important;
+  border-radius: 12px !important;
+  padding: 11px 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 140ms ease !important;
+}
+
+.modal .actions button:not(.primary):hover {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
 
 
 

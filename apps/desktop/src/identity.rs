@@ -109,7 +109,10 @@ pub async fn sign_in(open: impl FnOnce(String) -> Result<()>) -> Result<Value> {
     if !cfg!(windows) {
         bail!("Native sign-in requires Windows secure credential storage")
     };
-    let listener = tokio::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await?;
+    let listener = match tokio::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 54321)).await {
+        Ok(l) => l,
+        Err(_) => tokio::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await?,
+    };
     let port = listener.local_addr()?.port();
     let redirect = format!("http://127.0.0.1:{port}/solara/callback");
     let verifier = random();
@@ -126,7 +129,63 @@ pub async fn sign_in(open: impl FnOnce(String) -> Result<()>) -> Result<Value> {
         ("code_challenge_method", "S256"),
     ]);
     open(url.into())?;
-    let code=tokio::time::timeout(std::time::Duration::from_secs(180),async{loop{let (mut socket,peer)=listener.accept().await?;if !peer.ip().is_loopback(){continue};let mut buf=vec![0;8192];let count=tokio::time::timeout(std::time::Duration::from_secs(4),socket.read(&mut buf)).await??;let raw=String::from_utf8_lossy(&buf[..count]);let line=raw.lines().next().unwrap_or_default();let mut parts=line.split_whitespace();let method=parts.next().unwrap_or_default();let path=parts.next().unwrap_or_default();let callback=reqwest::Url::parse(&format!("http://127.0.0.1:{port}{path}"))?;let params=callback.query_pairs().collect::<std::collections::HashMap<_,_>>();let valid=method=="GET"&&callback.path()=="/solara/callback"&&params.get("state").map(|s|s.as_ref())==Some(state.as_str());let response=if valid{"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nCache-Control: no-store\r\nConnection: close\r\n\r\nReturn to Solara. You can close this browser tab."}else{"HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\nInvalid callback"};socket.write_all(response.as_bytes()).await?;if !valid{continue};if params.contains_key("error"){bail!("Solara sign-in was cancelled")};return Ok::<String,anyhow::Error>(params.get("code").context("Missing authorization code")?.to_string())}}).await.context("Solara sign-in timed out")??;
+    let code = tokio::time::timeout(std::time::Duration::from_secs(180), async {
+        loop {
+            let (mut socket, peer) = match listener.accept().await {
+                Ok(conn) => conn,
+                Err(_) => continue,
+            };
+            if !peer.ip().is_loopback() {
+                continue;
+            }
+            let mut buf = vec![0; 8192];
+            let count = match tokio::time::timeout(std::time::Duration::from_secs(5), socket.read(&mut buf)).await {
+                Ok(Ok(c)) if c > 0 => c,
+                _ => continue,
+            };
+            let raw = String::from_utf8_lossy(&buf[..count]);
+            let line = raw.lines().next().unwrap_or_default();
+            let mut parts = line.split_whitespace();
+            let method = parts.next().unwrap_or_default();
+            let path = parts.next().unwrap_or_default();
+            if path.is_empty() || path == "/favicon.ico" {
+                let _ = socket.write_all(b"HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n").await;
+                continue;
+            }
+            let callback = match reqwest::Url::parse(&format!("http://127.0.0.1:{port}{path}")) {
+                Ok(u) => u,
+                Err(_) => {
+                    let _ = socket.write_all(b"HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\nInvalid URL").await;
+                    continue;
+                }
+            };
+            let params = callback.query_pairs().collect::<std::collections::HashMap<_, _>>();
+            let valid = method == "GET"
+                && callback.path() == "/solara/callback"
+                && params.get("state").map(|s| s.as_ref()) == Some(state.as_str());
+            let html_response = if valid {
+                "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n<!DOCTYPE html><html><head><meta charset='utf-8'><title>Sign-in Complete</title><style>body{background:#09090b;color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}.box{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:32px;text-align:center;max-width:380px}h2{color:#38bdf8;margin:0 0 8px 0}p{color:#a1a1aa;font-size:14px;margin:0}</style></head><body><div class='box'><h2>Signed in to Solara</h2><p>You can close this tab and return to the launcher.</p></div></body></html>"
+            } else {
+                "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nInvalid callback request"
+            };
+            let _ = socket.write_all(html_response.as_bytes()).await;
+            let _ = socket.flush().await;
+            if !valid {
+                continue;
+            }
+            if params.contains_key("error") {
+                bail!("Solara sign-in was cancelled")
+            }
+            return Ok::<String, anyhow::Error>(
+                params
+                    .get("code")
+                    .context("Missing authorization code")?
+                    .to_string(),
+            );
+        }
+    })
+    .await
+    .context("Solara sign-in timed out")??;
     let session = token_request(&[
         ("grant_type", "authorization_code"),
         ("client_id", client_id()?),
