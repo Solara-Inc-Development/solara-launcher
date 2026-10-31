@@ -14,7 +14,10 @@ export function resetInstanceIcon(id:string){
   localStorage.setItem(storageKey,JSON.stringify(next));instanceIcons.value=next;
 }
 export async function uploadInstanceIcon(id:string,file:File){
-  if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw Error('Choose a PNG, JPG or WebP image.');
+  const lowerType=(file.type||'').toLowerCase(),lowerName=(file.name||'').toLowerCase();
+  const validTypes=['image/png','image/jpeg','image/jpg','image/webp'];
+  const validExts=['.png','.jpg','.jpeg','.webp'];
+  if(!validTypes.includes(lowerType)&&!validExts.some(ext=>lowerName.endsWith(ext)))throw Error('Choose a PNG, JPG or WebP image.');
   if(file.size>5*1024*1024)throw Error('Choose an image smaller than 5 MB.');
   const url=await new Promise<string>((resolve,reject)=>{
     const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));
@@ -23,6 +26,7 @@ export async function uploadInstanceIcon(id:string,file:File){
   {
     const image=new Image();image.src=url;
     try {await image.decode()}catch {throw Error('This image could not be opened. Try another PNG, JPG or WebP.')}
+    if(image.width<=0||image.height<=0)throw Error('This image has invalid dimensions.');
     if(image.width*image.height>16777216)throw Error('Choose an image up to 16 megapixels.');
     const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;
     const ctx=canvas.getContext('2d');if(!ctx)throw Error('Image processing is unavailable.');

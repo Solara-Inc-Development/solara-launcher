@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>Built for Minecraft Java and everyday Solara tools.</strong><br />
-  Pure black layout. Simple controls. Nothing noisy in your way.
+  Bright colourful layout. Large accessible controls. Nothing noisy in your way.
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 
 ## Meet your launcher
 
-A black desktop, a small sidebar and your account right where you need it. Open your worlds, check your services, or just look around. We wanted the everyday stuff to feel easy.
+A bright, welcoming desktop, an accessible navigation rail and your account right where you need it. Open your worlds, check your services, or just look around. We wanted the everyday stuff to feel easy.
 
 <p align="center">
   <img src="public/screenshots/dashboard.png" alt="Solara redesigned browser guest dashboard with a slim icon rail and account sidebar" width="100%" />

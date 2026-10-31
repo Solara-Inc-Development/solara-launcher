@@ -21,7 +21,7 @@ import {snapshot,publicLoading,currentEvent,preferences,refreshPublic,savePrefer
 function accentInk(hex:string){const rgb=hex.replace('#','').match(/.{2}/g)?.map(v=>parseInt(v,16)/255)||[.3,.3,.5];const light=rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*light[0]+.7152*light[1]+.0722*light[2]>.25?'#271e3c':'#ffffff'}
 if(!localStorage.getItem('solara:accent'))preferences.value.accent='#7650dc';
 useInteractions();
-function downloadFraction(job:any):number|undefined {if(job.total>0&&typeof job.downloaded==='number')return Math.max(0,Math.min(1,job.downloaded/job.total));return typeof job.progress==='number'?Math.max(0,Math.min(1,job.progress)):undefined}
+function downloadFraction(job:any):number|undefined {if(!job)return undefined;if(job.total>0&&typeof job.downloaded==='number')return Math.max(0,Math.min(1,job.downloaded/job.total));return typeof job.progress==='number'?Math.max(0,Math.min(1,job.progress)):undefined}
 const section=ref('dashboard'),modal=ref<string|null>(null),busy=ref(false),error=ref(''),message=ref(''),engineReady=ref(false);
 const activeInstanceId=ref<string|null>(null),workspaceRef=ref<any>(null);
 const activeInstance=computed(()=>instances.value.find(i=>i.id===activeInstanceId.value)||null);
