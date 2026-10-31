@@ -23,7 +23,7 @@ const assert=require('node:assert/strict');
   assert.equal(await page.locator('.portal-art,canvas,.hero-dashboard').count(),0);
   const button=page.locator('.new-home-actions .workspace-play');
   assert.equal(await button.evaluate(e=>getComputedStyle(e).backgroundImage),'none');
-  assert.equal(await button.evaluate(e=>getComputedStyle(e).boxShadow),'none');
+  assert.equal(await button.evaluate(e=>getComputedStyle(e).fontSize),'14px','Primary welcome action is comfortably sized');
   await page.emulateMedia({reducedMotion:'reduce'});
   assert.equal(await page.locator('.section-view').evaluate(e=>getComputedStyle(e).animationName),'none');
   await page.emulateMedia({reducedMotion:'no-preference'});

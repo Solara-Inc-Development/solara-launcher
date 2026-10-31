@@ -38,7 +38,7 @@ const output=path.resolve('checks/redesign');
       ]}});
     });
     await context.addInitScript(()=>{
-      const state=window.__REDESIGN_QA__={calls:[],backups:[],files:{'options.txt':{content:'QA file contents',sha256:'qa-original'}},instances:[
+      const state=window.__REDESIGN_QA__={calls:[],backups:[],downloads:[],update:{state:'development'},files:{'options.txt':{content:'QA file contents',sha256:'qa-original'}},instances:[
         {id:'qa-evergreen',name:'QA · Evergreen',gameVersion:'1.21.1',loader:'fabric',loaderVersion:'0.20.1',state:'installed',running:false,memory:4096,javaPath:'auto'},
         {id:'qa-coastal',name:'QA · Coastal creative',gameVersion:'1.21.1',loader:'vanilla',loaderVersion:'',state:'installed',running:false,memory:4096,javaPath:'auto'},
         {id:'qa-workshop',name:'QA · Workshop',gameVersion:'1.20.1',loader:'forge',loaderVersion:'47.4.28',state:'installed',running:false,memory:6144,javaPath:'auto'}
@@ -48,10 +48,10 @@ const output=path.resolve('checks/redesign');
         if(command==='plugin:event|listen')return 1;
         if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt','forge','neoforge'],contentInstall:true,automaticJava:true,preview:false};
         if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:false};
-        if(command==='launcher_snapshot')return structuredClone({instances:state.instances,minecraftAccounts:[{id:'qa-profile',name:'QA player',active:true}],localServers:[],downloads:[]});
+        if(command==='launcher_snapshot')return structuredClone({instances:state.instances,minecraftAccounts:[{id:'qa-profile',name:'QA player',active:true}],localServers:[],downloads:state.downloads});
         if(command==='solara_profile')return {id:'qa-user',name:'QA player'};
         if(command==='solara_request')return {assignments:[],servers:[]};
-        if(command==='app_update_status')return {state:'development'};
+        if(command==='app_update_status')return structuredClone(state.update);
         if(command==='minecraft_versions')return [{id:'1.21.1',type:'release'},{id:'1.20.1',type:'release'}];
         if(command==='loader_versions')return [{id:'0.20.1',stable:true}];
         if(command==='instance_mods')return [
@@ -78,17 +78,17 @@ const output=path.resolve('checks/redesign');
     const rail=await page.locator('.sidebar').boundingBox();
     const toolbar=await page.locator('.app-topbar').boundingBox();
     const content=await page.locator('.app-content').boundingBox();
-    assert.ok(rail.width<=80,'Reference layout uses a narrow icon rail');
+    assert.ok(rail.width>=76&&rail.width<=100,'Larger labelled icon rail stays compact');
     assert.ok(toolbar.y+toolbar.height<=content.y+1,'Toolbar shares the titlebar row rather than adding a second row');
     assert.equal(await page.getByRole('complementary',{name:'Your accounts and services',exact:true}).isVisible(),true);
-    await page.screenshot({path:path.join(output,'home-populated-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'home-populated-fixture.png')});
 
     // Global search must actually transfer the query to discovery.
     await page.getByRole('textbox',{name:'Search all content',exact:true}).fill('adventure');
     await page.getByRole('textbox',{name:'Search all content',exact:true}).press('Enter');
     await page.getByRole('heading',{name:'QA · A new perspective',exact:true}).waitFor();
     assert.equal(await page.getByRole('textbox',{name:'Search mods, modpacks and more',exact:true}).inputValue(),'adventure');
-    await page.screenshot({path:path.join(output,'discover-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'discover-fixture.png')});
 
     await page.getByRole('button',{name:'Minecraft launcher',exact:true}).click();
     assert.equal(await page.getByRole('complementary',{name:'Your accounts and services',exact:true}).isVisible(),true,'Account column persists when opening the library');
@@ -96,12 +96,12 @@ const output=path.resolve('checks/redesign');
     assert.equal(await page.locator('.instance-collection .instance-card').count(),1);
     await page.getByRole('heading',{name:'QA · Workshop',exact:true}).waitFor();
     await page.getByRole('button',{name:'All instances',exact:true}).click();
-    await page.screenshot({path:path.join(output,'library-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'library-fixture.png')});
 
     // New instance shortcuts must open the right workspace and load its mods.
     await page.getByRole('button',{name:'Open sidebar instance QA · Evergreen',exact:true}).click();
     await page.getByText('QA · Better horizons',{exact:true}).waitFor();
-    await page.screenshot({path:path.join(output,'instance-mods-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'instance-mods-fixture.png')});
     const nav=page.getByRole('navigation',{name:'Instance pages'});
     await nav.getByRole('button',{name:'Screenshots',exact:true}).click();
     await page.getByRole('button',{name:'View screenshot QA first.png',exact:true}).getByRole('img').waitFor();
@@ -128,21 +128,40 @@ const output=path.resolve('checks/redesign');
     assert.equal(await page.evaluate(()=>window.__REDESIGN_QA__.calls.filter(c=>c.command==='instance_backup_action').length),1);
     await page.keyboard.press('Escape');await snapshot.waitFor({state:'hidden'});
     await nav.getByRole('button',{name:'Settings',exact:true}).click();
-    await page.screenshot({path:path.join(output,'instance-settings-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'instance-settings-fixture.png')});
+    // Personal icons are local, validated, persistent, and shared across the shell.
+    assert.equal(await page.locator('.instance-loader-badge img').count(),0,'Default instance icon is a vector loader glyph');
+    const iconInput=page.getByLabel('Upload instance icon',{exact:true});
+    await iconInput.setInputFiles({name:'unsafe.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg/>')});
+    await page.getByRole('alert').filter({hasText:'Choose a PNG, JPG or WebP image.'}).waitFor();
+    const iconBase64=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=100;c.height=100;const ctx=c.getContext('2d');ctx.fillStyle='#ea8da9';ctx.fillRect(0,0,100,100);ctx.fillStyle='#ffda94';ctx.fillRect(25,25,50,50);return c.toDataURL('image/png').split(',')[1]});
+    await iconInput.setInputFiles({name:'my-qa-icon.png',mimeType:'image/png',buffer:Buffer.from(iconBase64,'base64')});
+    await page.getByRole('status').filter({hasText:'Your icon is saved on this device.'}).waitFor();
+    await page.locator('.instance-loader-badge img').waitFor();
+    await page.screenshot({animations:'disabled',path:path.join(output,'custom-icon-fixture.png')});
+    await page.reload({waitUntil:'networkidle'});await page.locator('.boot-screen').waitFor({state:'hidden'});
+    await page.getByRole('button',{name:'Open sidebar instance QA · Evergreen',exact:true}).locator('img').waitFor();
+    await page.getByRole('button',{name:'Open sidebar instance QA · Evergreen',exact:true}).click();
+    await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Settings',exact:true}).click();
+    await page.getByRole('region',{name:'Instance icon'}).getByRole('button',{name:'Reset',exact:true}).click();
+    assert.equal(await page.locator('.instance-loader-badge img').count(),0,'Reset restores the loader glyph everywhere');
+
 
     await page.locator('.sidebar').getByRole('button',{name:'Settings',exact:true}).click();
-    await page.screenshot({path:path.join(output,'settings-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'settings-fixture.png')});
     await page.getByRole('button',{name:'Solara services',exact:true}).click();
-    await page.screenshot({path:path.join(output,'services-fixture.png')});
+    await page.screenshot({animations:'disabled',path:path.join(output,'services-fixture.png')});
     await page.getByRole('button',{name:'Create Minecraft instance',exact:true}).click();
     await page.getByRole('dialog',{name:'Create an instance',exact:true}).waitFor();
     await page.waitForFunction(()=>getComputedStyle(document.querySelector('.modal-shade')).opacity==='1');
-    await page.screenshot({path:path.join(output,'create-instance-fixture.png'),animations:'disabled'});
+    await page.screenshot({animations:'disabled',path:path.join(output,'create-instance-fixture.png')});
     await page.getByRole('button',{name:'Close dialog',exact:true}).click();
 
     // Quick starts are honest loader setups and carry native-compatible args.
     await page.getByRole('button',{name:'Dashboard',exact:true}).click();
     await page.getByRole('button',{name:'Quick starts',exact:true}).click();
+    assert.equal(await page.locator('.preset-card img').count(),0,'Quick starts also use vector loader icons');
+    await page.screenshot({animations:'disabled',path:path.join(output,'quick-starts-fixture.png')});
     await page.locator('.preset-card').filter({hasText:'Fabric essentials'}).getByRole('button',{name:'Create instance',exact:true}).click();
     assert.deepEqual(await page.evaluate(()=>window.__REDESIGN_QA__.calls.find(c=>c.command==='create_instance').args),{name:'Fabric essentials',gameVersion:'1.21.1',loader:'fabric',loaderVersion:''});
     if(await page.getByRole('button',{name:'Dismiss notification',exact:true}).isVisible())await page.getByRole('button',{name:'Dismiss notification',exact:true}).click();
@@ -157,13 +176,23 @@ const output=path.resolve('checks/redesign');
         const settings=await page.locator('.sidebar').getByRole('button',{name:'Settings',exact:true}).boundingBox();
         assert.ok(settings&&settings.y+settings.height<=footer.y,'Sidebar settings stays above footer at '+width);
       }
-      if(width===800){await page.getByRole('button',{name:'Dashboard',exact:true}).click();await page.mouse.move(700,55);await page.screenshot({path:path.join(output,'small-window-fixture.png'),animations:'disabled'});}
+      if(width===800){await page.getByRole('button',{name:'Dashboard',exact:true}).click();await page.mouse.move(700,55);await page.screenshot({animations:'disabled',path:path.join(output,'small-window-fixture.png')});}
     }
+    await page.setViewportSize({width:1440,height:1000});
+    await page.getByRole('button',{name:'Dashboard',exact:true}).click();
+    await page.evaluate(()=>{window.__REDESIGN_QA__.update={state:'downloading',downloaded:3145728,total:6291456};window.__REDESIGN_QA__.downloads=[{id:'qa-download',name:'QA game files',status:'downloading',downloaded:1048576,total:4194304}]});
+    await page.waitForFunction(()=>document.querySelector('.app-update-banner progress')?.value===.5);
+    assert.equal(await page.locator('.app-update-banner').getByText('50%',{exact:true}).count(),1,'Update percent comes from native bytes');
+    assert.equal(await page.locator('.dock-progress').evaluate(e=>e.value),.25,'Download dock uses actual task bytes');
+    await page.screenshot({animations:'disabled',path:path.join(output,'update-progress-fixture.png')});
+    await page.evaluate(()=>{window.__REDESIGN_QA__.update={state:'checking'};window.__REDESIGN_QA__.downloads=[]});
+    await page.waitForFunction(()=>document.querySelector('.app-update-banner progress')&&!document.querySelector('.app-update-banner progress').hasAttribute('value'));
+    assert.equal(await page.locator('.app-update-banner').getByText('%').count(),0,'Unknown totals never invent a percent');
     await page.emulateMedia({reducedMotion:'reduce'});
     assert.equal(await page.locator('.section-view').evaluate(e=>getComputedStyle(e).animationName),'none');
     assert.deepEqual(errors,[]);
-    await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:true,globalSearch:true,libraryFilter:true,sidebarInstance:true,initialModLoad:true,historyUnsavedGuard:true,snapshotModal:true,quickStartNativeArguments:true,responsiveWidths:[1440,1100,800,650],osReducedMotion:true,errors,note:'Browser-only fixtures. No Windows/game/auth/provider acceptance is implied.'},null,2));
-    const pictures=[['home-guest.png','Home · actual browser guest state, API unavailable'],['home-populated-fixture.png','Home · illustrative QA accounts and instances'],['library-fixture.png','Library · QA instance fixtures'],['discover-fixture.png','Discover · QA content provider fixtures'],['instance-mods-fixture.png','Instance mods · QA local IPC fixtures'],['instance-settings-fixture.png','Instance settings · QA local IPC fixtures'],['services-fixture.png','Services · QA catalogue fixtures'],['settings-fixture.png','Settings · browser preferences with QA native values'],['create-instance-fixture.png','Create instance · QA version metadata'],['small-window-fixture.png','800 × 620 window · QA fixtures']];
+    await fs.writeFile(path.join(output,'results.json'),JSON.stringify({passed:true,globalSearch:true,libraryFilter:true,sidebarInstance:true,initialModLoad:true,historyUnsavedGuard:true,snapshotModal:true,quickStartNativeArguments:true,localIconUploadPersistenceReset:true,realByteProgress:true,responsiveWidths:[1440,1100,800,650],osReducedMotion:true,errors,note:'Browser-only fixtures. No Windows/game/auth/provider acceptance is implied.'},null,2));
+    const pictures=[['home-guest.png','Home · actual browser guest state, API unavailable'],['home-populated-fixture.png','Home · illustrative QA accounts and instances'],['library-fixture.png','Library · QA instance fixtures'],['discover-fixture.png','Discover · QA content provider fixtures'],['instance-mods-fixture.png','Instance mods · QA local IPC fixtures'],['instance-settings-fixture.png','Instance settings · QA local IPC fixtures'],['services-fixture.png','Services · QA catalogue fixtures'],['settings-fixture.png','Settings · browser preferences with QA native values'],['create-instance-fixture.png','Create instance · QA version metadata'],['small-window-fixture.png','800 × 620 window · QA fixtures'],['quick-starts-fixture.png','Quick starts · vector loader symbols'],['custom-icon-fixture.png','Personal image upload · explicit browser QA fixture'],['update-progress-fixture.png','Native byte progress · explicit browser IPC fixture']];
     await fs.writeFile(path.join(output,'index.html'),'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solara desktop redesign preview</title><style>body{margin:0;background:#181a22;color:#e3e8f2;font:15px/1.65 system-ui;padding:35px;max-width:1500px;margin:auto}h1{letter-spacing:-1px}p,figcaption{color:#9baabd}figure{margin:32px 0 48px}img{width:100%;border:1px solid #ffffff12;border-radius:13px;margin-top:12px}a{color:#8ccbdd}</style><h1>Solara · a little more colourful.</h1><p>Desktop UI redesign preview. Populated screens use explicit browser QA fixtures. They do not demonstrate a live game, account or hosting integration.</p>'+pictures.map(([file,label])=>'<figure><figcaption>'+label+'</figcaption><a href="'+file+'"><img src="'+file+'" alt="'+label+'" loading="lazy"></a></figure>').join('')+'</html>');
     await context.close();
     console.log('Redesigned search, library filters, sidebar, unsaved history, snapshot modal, quick starts, responsive windows and reduced motion PASS. Browser fixtures only. Preview: checks/redesign/index.html');

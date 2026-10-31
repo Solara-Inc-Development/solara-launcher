@@ -1,5 +1,26 @@
 # Changelog
 
+## Testing Preview V-0.0.15 — 2026-10-31
+
+- **Bright & Cheerful Visual Design**:
+  - Welcoming lilac and white surfaces with vibrant violet, sky blue, peach, and pink accents.
+  - Large illustrated welcome banner on the dashboard for a friendly first impression.
+- **Larger Controls & Accessible Typography**:
+  - Enlarged interactive elements: 94px labelled navigation rail with 28px glyphs, ~44px primary action buttons, and 14–16px readable text.
+  - Generous card padding, enhanced hierarchy, and spacious dialogs and account sidebars.
+- **Personal Instance Avatars & Vector Defaults**:
+  - Upload custom PNG, JPG, or WebP avatar images for any instance with interactive 256px crop and preview.
+  - Crisp vector loader badges (Vanilla, Fabric, Quilt, Forge, NeoForge) replace AI landscape defaults.
+  - Avatars persist securely in local device storage without sending files to remote servers.
+- **Real-Time Task & Download Progress**:
+  - Live progress bars reporting byte-accurate download and update progress percentage from native engine events.
+  - Indeterminate progress animations for pending requests and clear waiting labels.
+- **Responsive & Motion Polish**:
+  - Responsive layout scaling comfortably across small viewports down to 800x620.
+  - Full adherence to reduced-motion preferences with instantaneous animation zeroing.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.14 — 2026-10-31
 
 - Redesigned the desktop around a slim icon sidebar, one toolbar, a dark workspace and colourful mint controls.

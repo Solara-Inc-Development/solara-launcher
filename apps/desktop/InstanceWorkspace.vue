@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import InstanceAppearance from './InstanceAppearance.vue';
+import TaskProgress from './TaskProgress.vue';
+import InstanceAvatar from './InstanceAvatar.vue';
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
 import LoaderMark from '../../packages/ui/LoaderMark.vue';
@@ -384,9 +387,6 @@ watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)cle
 watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
 onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keydown',handleKeydown);if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
 
-const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
-function instanceScene(name?:string):string{if(!name)return scenes[0];let hash=0;for(let i=0;i<name.length;i++){hash=(hash<<5)-hash+name.charCodeAt(i);hash|=0}return scenes[Math.abs(hash)%scenes.length]}
-function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}-v1.webp`}
 </script>
 
 <template>
@@ -395,13 +395,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
 
  <!-- Modern Instance Header -->
  <header class="workspace-heading solara-instance-header">
-   <div class="workspace-heading-bg">
-     <img :src="instanceArtSrc(instance.name)" alt="" loading="eager">
-     <div class="workspace-heading-overlay"></div>
-   </div>
-   <div class="instance-loader-badge" :class="instance.loader">
-     <LoaderMark :loader="instance.loader"/>
-   </div>
+   <InstanceAvatar :instance="instance" class="instance-loader-badge"/>
    <div class="workspace-identity">
      <div class="instance-top-tagline">
        <span class="workspace-kicker">YOUR MINECRAFT INSTANCE</span>
@@ -509,7 +503,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
 
    <p v-if="instance.loader==='vanilla'" class="workspace-message">Vanilla does not load mods. Use a Fabric, Quilt or Forge instance to add community mods.</p>
 
-   <div v-if="loading" class="workspace-empty">Reading mod files…</div>
+   <TaskProgress v-if="loading" title="Reading mod files…" detail="Reading your local library. Your files stay on this device."/>
    <div v-else-if="!visibleMods.length" class="workspace-empty">
      <Package/>
      <h3>{{mods.length?'No mods match your filter':'No content installed yet'}}</h3>
@@ -581,7 +575,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    </template>
    <template v-else>
      <label class="workspace-search"><Search/><input v-model="query" aria-label="Search instance files" placeholder="Search this folder…"></label>
-     <div v-if="loading" class="workspace-empty">Reading files…</div>
+     <TaskProgress v-if="loading" title="Reading files…" detail="Reading your local library. Your files stay on this device."/>
      <div v-else-if="!visibleFiles.length" class="workspace-empty">
        <FolderOpen/>
        <h3>{{query?'No matching files':'This folder is empty'}}</h3>
@@ -618,7 +612,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      </div>
    </div>
 
-   <div v-if="loading" class="workspace-empty">Reading screenshots…</div>
+   <TaskProgress v-if="loading" title="Reading screenshots…" detail="Reading your local library. Your files stay on this device."/>
    <div v-else-if="!screenshots.length" class="workspace-empty">
      <Monitor :size="32"/>
      <h3>No screenshots captured yet</h3>
@@ -674,7 +668,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
        <button title="Refresh backups" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
      </div>
    </div>
-   <div v-if="loading" class="workspace-empty">Reading backups…</div>
+   <TaskProgress v-if="loading" title="Reading backups…" detail="Reading your local library. Your files stay on this device."/>
    <div v-else-if="!backups.length" class="workspace-empty">
      <Globe/>
      <h3>No world backups yet</h3>
@@ -741,7 +735,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <div><h2>Nothing lost.</h2><p>Files removed here can be restored to their original folder.</p></div>
      <button title="Refresh Trash" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
    </div>
-   <div v-if="loading" class="workspace-empty">Reading Trash…</div>
+   <TaskProgress v-if="loading" title="Reading Trash…" detail="Reading your local library. Your files stay on this device."/>
    <div v-else-if="!trash.length" class="workspace-empty">
      <Trash2/>
      <h3>Trash is empty</h3>
@@ -829,7 +823,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    <div class="workspace-section-heading">
      <div><h2>Instance preferences</h2><p>Settings apply to this instance only.</p></div>
    </div>
-   <form class="workspace-settings" @submit.prevent="saveSettings">
+   <form class="workspace-settings" @submit.prevent="saveSettings"><InstanceAppearance :instance="instance"/>
      <label>Instance name<input v-model="form.name" required maxlength="80"></label>
      <label>Memory limit: <strong>{{(form.memory/1024).toFixed(1)}} GiB</strong> ({{form.memory}} MiB)
        <div class="ram-gauge-card">

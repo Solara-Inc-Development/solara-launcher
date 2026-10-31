@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved redesigned desktop candidate; privately signed after CI export.
+# Owner-approved bright multicolour UI preview candidate (V-0.0.15); privately signed after CI export.
 on:
   workflow_dispatch:
   push:

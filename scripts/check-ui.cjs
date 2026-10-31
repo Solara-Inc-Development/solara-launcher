@@ -26,9 +26,9 @@ const assert = require('node:assert/strict');
     for (const name of ['Solara services', 'Explore mods and modpacks', 'Settings']) {
       await page.getByRole('button', { name, exact: true }).click();
     }
-    await page.getByRole('button', { name: 'Soft iris', exact: true }).click();
-    assert.equal(await page.locator('.shell').evaluate(e => e.style.getPropertyValue('--accent')), '#a6a3ff');
-    await page.getByRole('button', { name: 'Solara cyan', exact: true }).click();
+    await page.getByRole('button', { name: 'Solara violet', exact: true }).click();
+    assert.equal(await page.locator('.shell').evaluate(e => e.style.getPropertyValue('--accent')), '#7650dc');
+    await page.getByRole('button', { name: 'Sky blue', exact: true }).click();
     await page.getByRole('checkbox', { name: 'Reduce motion', exact: true }).check();
     await page.getByRole('button', { name: 'Dashboard', exact: true }).click();
     assert.equal(await page.locator('.section-view').evaluate(e => getComputedStyle(e).animationName), 'none');
