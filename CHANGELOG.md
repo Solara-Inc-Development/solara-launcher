@@ -1,5 +1,20 @@
 # Changelog
 
+## Testing Preview V-0.0.18 — 2026-10-31
+
+- **Compact Desktop Topbar Layout**:
+  - Compacted the desktop topbar height from 70px down to a sleek 48px, freeing ~30px of vertical workspace for game cards and navigation.
+  - Slimmed search bar, running status indicator, and window controls to match desktop ergonomics.
+- **Dedicated Decoupled Dark UI**:
+  - Fully decoupled Dark and Light theme styling, eliminating residual white borders and overlay artifacts.
+  - Native dark palette with true deep background, glass borders, and consistent contrast across all panels.
+- **In-Launcher Instance Deletion & Safety**:
+  - Safe instance deletion workflow with confirmation dialog and runtime safety guards (preventing deletion while an instance is running).
+  - 1-click folder shortcuts in Files tab (Open Instance Folder, Saves Folder, Mods Folder).
+  - Global `Escape` shortcut to dismiss open modals immediately.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.17 — 2026-10-31
 
 - **Responsive Window Controls**:
