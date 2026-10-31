@@ -14,7 +14,7 @@ const assert=require('node:assert/strict');
     state.calls.push({command,args});
     if(command==='plugin:event|listen'){events.set(args.event,args.handler);return events.size}
     if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt'],contentInstall:true,automaticJava:true,instanceFiles:true,modManager:true,preview:true};
-    if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:false};
+    if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:true};
     if(command==='launcher_snapshot')return structuredClone({instances:state.instances,downloads:[],minecraftAccounts:[],localServers:[]});
     if(command==='minecraft_versions')return [{id:'1.21.1',type:'release'}];
     if(command==='loader_versions'){

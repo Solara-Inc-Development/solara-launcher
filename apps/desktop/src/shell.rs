@@ -454,13 +454,18 @@ pub fn run() {
     crate::app_updates::start(app.handle().clone());
     let handle = app.handle().clone();
     tauri::async_runtime::spawn(async move {
-        use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};
+        use discord_rich_presence::{
+            activity::{Activity, Assets, Timestamps},
+            DiscordIpc, DiscordIpcClient,
+        };
         let client_id = match engine::discord_client_id() {
             Some(id) if !id.is_empty() => id,
             _ => return,
         };
         let mut client: Option<DiscordIpcClient> = None;
         let mut connected = false;
+        let mut session_start: Option<i64> = None;
+        let mut was_running = false;
         loop {
             if thread_stop.load(Ordering::Relaxed) {
                 if let Some(mut c) = client.take() {
@@ -472,7 +477,7 @@ pub fn run() {
             let enabled = engine::preferences()
                 .await
                 .map(|p| p.discord)
-                .unwrap_or(false);
+                .unwrap_or(true);
             if enabled {
                 if !connected {
                     let cid = client_id.clone();
@@ -500,18 +505,31 @@ pub fn run() {
                 }
                 if connected {
                     if let Some(mut c) = client.take() {
-                        let running = engine::game_running().await;
-                        let state_str = if running {
-                            "Minecraft running"
-                        } else {
-                            "Solara open"
-                        };
+                        let info = engine::discord_activity_info().await;
+                        let now_secs = chrono::Utc::now().timestamp();
+                        if info.is_running {
+                            if !was_running || session_start.is_none() {
+                                session_start = Some(now_secs);
+                                was_running = true;
+                            }
+                        } else if was_running || session_start.is_none() {
+                            session_start = Some(now_secs);
+                            was_running = false;
+                        }
+
+                        let start_time = session_start.unwrap_or(now_secs);
                         let update_attempt = tokio::time::timeout(
                             std::time::Duration::from_secs(2),
                             tokio::task::spawn_blocking(move || {
                                 let act = Activity::new()
-                                    .state(state_str)
-                                    .details("Solara Launcher");
+                                    .state(&info.state)
+                                    .details(&info.details)
+                                    .timestamps(Timestamps::new().start(start_time))
+                                    .assets(
+                                        Assets::new()
+                                            .large_image("solara")
+                                            .large_text("Solara Launcher"),
+                                    );
                                 let ok = c.set_activity(act).is_ok();
                                 (c, ok)
                             }),

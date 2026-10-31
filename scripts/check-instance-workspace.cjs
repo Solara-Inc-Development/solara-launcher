@@ -10,7 +10,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
    state.calls.push({command,args});
    if(command==='plugin:event|listen')return 1;
    if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt'],contentInstall:true,automaticJava:true,instanceFiles:true,modManager:true,instanceBackups:true,preview:true};
-   if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:false};
+   if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:true};
    if(command==='launcher_snapshot')return structuredClone({instances:[state.instance],minecraftAccounts:[{id:'qa-account',name:'QA player',active:true}],localServers:[],downloads:[]});
    if(command==='instance_files')return Object.keys(state.files).map(path=>({name:path,path,directory:false,size:state.files[path].content.length}));
    if(command==='instance_text')return {path:args.path,...state.files[args.path]};

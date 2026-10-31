@@ -527,6 +527,73 @@ pub async fn game_running() -> bool {
     }
 }
 
+#[derive(Clone, Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiscordActivityInfo {
+    pub is_running: bool,
+    pub instance_name: Option<String>,
+    pub game_version: Option<String>,
+    pub loader: Option<String>,
+    pub details: String,
+    pub state: String,
+}
+
+pub async fn discord_activity_info() -> DiscordActivityInfo {
+    let engine = match get().await {
+        Ok(e) => e,
+        Err(_) => {
+            return DiscordActivityInfo {
+                is_running: false,
+                instance_name: None,
+                game_version: None,
+                loader: None,
+                details: "Solara Launcher".into(),
+                state: "Exploring worlds & mods".into(),
+            }
+        }
+    };
+
+    let running_ids = engine.games.running().await.unwrap_or_default();
+    if let Some(active_id) = running_ids.first() {
+        if let Ok(instances) = engine.instances.list().await {
+            if let Some(inst) = instances.into_iter().find(|i| &i.id == active_id) {
+                let loader_display = match inst.loader.to_lowercase().as_str() {
+                    "fabric" => "Fabric",
+                    "quilt" => "Quilt",
+                    "forge" => "Forge",
+                    "neoforge" => "NeoForge",
+                    _ => "Vanilla",
+                };
+                return DiscordActivityInfo {
+                    is_running: true,
+                    instance_name: Some(inst.name.clone()),
+                    game_version: Some(inst.game_version.clone()),
+                    loader: Some(loader_display.into()),
+                    details: format!("Playing {}", inst.name),
+                    state: format!("{} · Minecraft {}", loader_display, inst.game_version),
+                };
+            }
+        }
+        return DiscordActivityInfo {
+            is_running: true,
+            instance_name: None,
+            game_version: None,
+            loader: None,
+            details: "Playing Minecraft".into(),
+            state: "In-game session".into(),
+        };
+    }
+
+    DiscordActivityInfo {
+        is_running: false,
+        instance_name: None,
+        game_version: None,
+        loader: None,
+        details: "Solara Launcher".into(),
+        state: "Exploring worlds & mods".into(),
+    }
+}
+
 pub async fn install_content(
     instance_id: Option<String>,
     project_id: String,
@@ -670,7 +737,7 @@ impl Default for Preferences {
         Self {
             memory: 4096,
             java_path: "auto".into(),
-            discord: false,
+            discord: true,
         }
     }
 }

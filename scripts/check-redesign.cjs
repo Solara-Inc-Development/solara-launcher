@@ -47,7 +47,7 @@ const output=path.resolve('checks/redesign');
         state.calls.push({command,args});
         if(command==='plugin:event|listen')return 1;
         if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt','forge','neoforge'],contentInstall:true,automaticJava:true,preview:false};
-        if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:false};
+        if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:true};
         if(command==='launcher_snapshot')return structuredClone({instances:state.instances,minecraftAccounts:[{id:'qa-profile',name:'QA player',active:true}],localServers:[],downloads:state.downloads});
         if(command==='solara_profile')return {id:'qa-user',name:'QA player'};
         if(command==='solara_request')return {assignments:[],servers:[]};

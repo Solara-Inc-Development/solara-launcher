@@ -51,7 +51,7 @@ const assert=require('node:assert/strict');
    window.__TAURI_INTERNALS__={transformCallback:()=>1,unregisterCallback:()=>{},invoke:async command=>{
     if(command==='plugin:event|listen')return 1;
     if(command==='initialize_launcher'){attempts++;if(attempts===1)throw Error('QA fixture: local library unavailable');return null}
-    if(command==='launcher_settings')return {memory:4096,javaPath:'java',discord:false};
+    if(command==='launcher_settings')return {memory:4096,javaPath:'java',discord:true};
     if(command==='launcher_snapshot')return {instances:[],localServers:[],downloads:[],minecraftAccounts:[]};
     if(command==='solara_profile')return null;
     return null;

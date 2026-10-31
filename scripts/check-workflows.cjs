@@ -17,7 +17,7 @@ const fs=require('node:fs/promises');
     if(command==='plugin:event|listen')return 1;
     if(command==='initialize_launcher')return null;
     if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','forge','quilt','neoforge'],contentInstall:true,preview:false};
-    if(command==='launcher_settings')return {memory:4096,javaPath:'java',discord:false};
+    if(command==='launcher_settings')return {memory:4096,javaPath:'java',discord:true};
     if(command==='launcher_snapshot')return structuredClone({instances:state.instances,localServers:[{id:original.serverId,name:'QA local server',version:'1.21.1',state:'stopped',port:25565}],downloads:state.downloads,minecraftAccounts:[]});
     if(command==='install_content'&&args.contentType!=='modpack'){state.downloads=[{id:'qa-content-job',name:'QA content installation',status:'running',detail:'Downloading and installing content…',actions:[]}];return null}
     if(command==='solara_profile')return {id:state.owner,name:'QA fixture user'};

@@ -14,7 +14,7 @@ const assert = require('node:assert/strict');
         invoke: async (command, args = {}) => {
           if (command === 'plugin:event|listen') return 1;
           if (command === 'initialize_launcher') return null;
-          if (command === 'launcher_settings') return { memory: 4096, javaPath: '', discord: false };
+          if (command === 'launcher_settings') return { memory: 4096, javaPath: '', discord: true };
           if (command === 'launcher_snapshot') return { instances: [], localServers: [], downloads: [], minecraftAccounts: [] };
           if (command === 'launcher_capabilities') return { loaders: ['vanilla', 'fabric', 'quilt'], contentInstall: true };
           if (command === 'window_action') {
