@@ -32,7 +32,19 @@ jobs:
           VERSION: ${{ github.event.inputs.version || github.ref_name }}
         run: |
           if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
-            VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('builds/current-build.json', 'utf8')).publicVersion)")
+            VERSION=$(node -e "
+              const fs = require('fs');
+              let v = '';
+              if (fs.existsSync('packages/shared/build.json')) {
+                v = JSON.parse(fs.readFileSync('packages/shared/build.json', 'utf8')).publicVersion;
+              } else if (fs.existsSync('builds/current-build.json')) {
+                v = JSON.parse(fs.readFileSync('builds/current-build.json', 'utf8')).publicVersion;
+              } else if (fs.existsSync('builds/releases.json')) {
+                const rel = JSON.parse(fs.readFileSync('builds/releases.json', 'utf8')).releases;
+                if (rel && rel.length) v = rel[rel.length - 1].publicVersion;
+              }
+              console.log(v || 'V-0.0.13');
+            ")
           fi
           echo "Preparing GitHub Release for $VERSION..."
           
