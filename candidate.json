@@ -1,0 +1,28 @@
+{
+  "buildId": "4657ad40-520d-4f27-a828-f3d70fd7299a",
+  "publicVersion": "V-0.0.15",
+  "internalVersion": "0.0.15",
+  "filename": "solaralauncher.exe",
+  "artifactPath": "V-0.0.15/solaralauncher.exe",
+  "commit": "d35dfc9a69f3c9db985ef31520a42ac23a6cbb9e",
+  "allocatedAt": "2026-10-31T06:27:59.821Z",
+  "state": "unsigned-testing-candidate",
+  "applicationSha256": "8e92f2944a3b4219f7662c6a7dad2d4f33f26babde2b9b5fe99d4f8c62e6b2a0",
+  "applicationSize": 18694144,
+  "sourceTree": "a1b09652c029d1babf56fe8e8b76754781577311",
+  "acceptance": false,
+  "artifacts": {
+    "solaralauncher.exe": {
+      "size": 6913226,
+      "sha256": "b86a84ad32649a75f6c12ea7e7f9b76cea5e3ade6e56a04074ca9147e577f862"
+    },
+    "application/solaralauncher.exe": {
+      "size": 18694144,
+      "sha256": "8e92f2944a3b4219f7662c6a7dad2d4f33f26babde2b9b5fe99d4f8c62e6b2a0"
+    },
+    "source.zip": {
+      "size": 18564577,
+      "sha256": "843d914981a4ed7d00977c4af565dbb941b1868d67eadc7b90f8d749ea2cf0b5"
+    }
+  }
+}
