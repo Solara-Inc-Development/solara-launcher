@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved V-0.0.16 preview candidate: reliable window dragging controls, default dark theme, and SSO approval fix; privately signed after CI export.
+# Owner-approved V-0.0.16 preview candidate: hardened window dragging hit-testing, controls event deduplication, default clean dark theme, and SSO approval fix; privately signed after CI export.
 on:
   workflow_dispatch:
   push:

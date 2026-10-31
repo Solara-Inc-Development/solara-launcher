@@ -16,7 +16,8 @@
     "capture:preview": "node scripts/capture-preview.cjs",
     "test:workflows": "node scripts/check-workflows.cjs",
     "test:redesign": "node scripts/check-redesign.cjs",
-    "test:csp": "node scripts/check-csp.cjs"
+    "test:csp": "node scripts/check-csp.cjs",
+    "test:window-controls": "node scripts/check-window-controls.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.10.0",

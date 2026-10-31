@@ -66,7 +66,39 @@ async function openInstance(instance:any){if(workspaceRef.value&&!await workspac
 function close(){modal.value=null;error.value=''}
 function show(kind:string){modal.value=kind;error.value=''}
 async function external(url:string){try{await openExternal(url)}catch(e){toast(String(e))}}
-async function windowAction(action:string){try{await native('window_action',{action})}catch(e){console.error('Window action failed:',e)}}
+let lastWindowActionTime=0;
+let lastWindowActionType='';
+async function windowAction(action:string){
+  const now=Date.now();
+  if(lastWindowActionType===action&&now-lastWindowActionTime<300)return;
+  lastWindowActionTime=now;
+  lastWindowActionType=action;
+  try{
+    await native('window_action',{action});
+  }catch(e){
+    if(isDesktop){
+      try{
+        const{getCurrentWindow}=await import('@tauri-apps/api/window');
+        const win=getCurrentWindow();
+        if(action==='close')await win.close();
+        else if(action==='minimize')await win.minimize();
+        else if(action==='maximize')await win.toggleMaximize();
+      }catch(err){
+        console.error('Window action fallback failed:',err);
+      }
+    }else{
+      console.error('Window action failed:',e);
+    }
+  }
+}
+function onWindowButtonUp(action:string,e:MouseEvent|PointerEvent){
+  const btn=e.currentTarget as HTMLElement|null;
+  if(!btn)return;
+  const rect=btn.getBoundingClientRect();
+  if(e.clientX>=rect.left&&e.clientX<=rect.right&&e.clientY>=rect.top&&e.clientY<=rect.bottom){
+    void windowAction(action);
+  }
+}
 async function onTitlebarMouseDown(e:MouseEvent){if(e.button!==0)return;const target=e.target as HTMLElement|null;if(target?.closest('.window-buttons,button,input,select,textarea,a,.titlebar-build'))return;if(isDesktop){try{const{getCurrentWindow}=await import('@tauri-apps/api/window');await getCurrentWindow().startDragging()}catch{void native('start_dragging').catch(()=>{})}}}
 function onTitlebarDblClick(e:MouseEvent){if((e.target as HTMLElement)?.closest('.window-buttons,button')===null){void windowAction('maximize')}}
 function formatDownloads(num:number|null|undefined):string{if(!num||num<=0)return '';if(num>=1_000_000)return (num/1_000_000).toFixed(1).replace(/\.0$/,'')+'M';if(num>=1_000)return (num/1_000).toFixed(1).replace(/\.0$/,'')+'k';return String(num)}
@@ -204,15 +236,15 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
 </script>
 <template>
 <div class="shell" :data-theme="effectiveTheme" :style="{'--accent':preferences.accent||currentEvent.accent,'--accent-ink':accentInk(preferences.accent||currentEvent.accent)}" :data-reduced-motion="preferences.motion" :data-section="section">
-  <div class="titlebar" :inert="modal?true:undefined" @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick">
-    <div class="titlebar-drag-area" data-tauri-drag-region>
+  <div class="titlebar" :inert="modal?true:undefined">
+    <div class="titlebar-drag-area" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick">
       <span class="name" data-tauri-drag-region><img src="/logo.svg" alt="">solara<span class="titlebar-edition">LAUNCHER</span><span class="titlebar-build">{{buildInfo.publicVersion||'PREVIEW'}}</span></span>
       <span class="titlebar-caption" data-tauri-drag-region>Your games. Your little universe.</span>
     </div>
-    <div class="window-buttons" @mousedown.stop>
-      <button type="button" title="Minimize" aria-label="Minimize" :disabled="!isDesktop" @mousedown.stop @click.stop="windowAction('minimize')"><Minus/></button>
-      <button type="button" title="Maximize or restore" aria-label="Maximize or restore" :disabled="!isDesktop" @mousedown.stop @click.stop="windowAction('maximize')"><Maximize2/></button>
-      <button type="button" title="Close Solara" aria-label="Close Solara" :disabled="!isDesktop" @mousedown.stop @click.stop="windowAction('close')"><X/></button>
+    <div class="window-buttons" data-tauri-drag-region="false" @pointerdown.stop @mousedown.stop>
+      <button type="button" data-tauri-drag-region="false" title="Minimize" aria-label="Minimize" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('minimize',$event)" @mouseup.stop="onWindowButtonUp('minimize',$event)" @click.stop="windowAction('minimize')"><Minus/></button>
+      <button type="button" data-tauri-drag-region="false" title="Maximize or restore" aria-label="Maximize or restore" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('maximize',$event)" @mouseup.stop="onWindowButtonUp('maximize',$event)" @click.stop="windowAction('maximize')"><Maximize2/></button>
+      <button type="button" data-tauri-drag-region="false" title="Close Solara" aria-label="Close Solara" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('close',$event)" @mouseup.stop="onWindowButtonUp('close',$event)" @click.stop="windowAction('close')"><X/></button>
     </div>
   </div>
   <aside class="sidebar" :inert="modal||bootVisible?true:undefined">
