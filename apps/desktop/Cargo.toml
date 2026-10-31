@@ -1,7 +1,7 @@
 [package]
 name = "solara-launcher"
 default-run = "solaralauncher"
-version = "0.0.15"
+version = "0.0.17"
 edition = "2021"
 license = "GPL-3.0-only"
 description = "Solara desktop hub and Minecraft Java launcher"

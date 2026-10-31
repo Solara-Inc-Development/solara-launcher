@@ -1,6 +1,6 @@
 # Changelog
 
-## Testing Preview V-0.0.16 — 2026-10-31
+## Testing Preview V-0.0.17 — 2026-10-31
 
 - **Responsive Window Controls**:
   - Close, minimize, and maximize buttons now remain responsive and reliable during and after dragging the application window.

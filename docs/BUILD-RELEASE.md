@@ -1,6 +1,6 @@
 # Builds, installation and release archive
 
-Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10` → `13` → `15`. Old executables are immutable. The latest genuine testing installer is **V-0.0.15** (`solaralauncher.exe`, SHA-256: `b86a84ad...`), privately updater-signed with Minisign, published on GitHub Releases as the Latest Release, and live on the auto-updater endpoint (`api.solara-inc.in`). Real Windows physical device acceptance testing remains pending. Updater signatures are separate from Windows Authenticode publisher signing.
+Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10` → `13` → `15` → `17`. Old executables are immutable. The latest genuine testing installer is **V-0.0.17** (`solaralauncher.exe`, SHA-256: `493730a4...`), privately updater-signed with Minisign, published on GitHub Releases as the Latest Release, and live on the auto-updater endpoint (`api.solara-inc.in`). Real Windows physical device acceptance testing remains pending. Updater signatures are separate from Windows Authenticode publisher signing.
 
 ## Before a public build
 
