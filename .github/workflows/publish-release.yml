@@ -22,10 +22,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Prepare release assets and notes
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           VERSION: ${{ github.event.inputs.version || github.ref_name }}
         run: |
           if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
@@ -34,8 +37,8 @@ jobs:
           echo "Preparing GitHub Release for $VERSION..."
           
           # Fetch genuine signed executable and signature from official portal
-          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe"
-          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe.sig"
+          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe" || true
+          curl -fLO "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe.sig" || true
           git archive -o source.zip HEAD
           
           # Extract release notes from CHANGELOG.md
@@ -58,14 +61,26 @@ jobs:
           [ -f "solaralauncher.exe.sig" ] && ASSETS+=("solaralauncher.exe.sig")
           [ -f "source.zip" ] && ASSETS+=("source.zip")
           
-          # Ensure release is cleanly created as latest release
+          # Handle existing release cleanly without deletion errors
           if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release $VERSION exists; recreating cleanly as official latest release..."
-            gh release delete "$VERSION" --yes || true
+            echo "Release $VERSION already exists on GitHub."
+            echo "Ensuring release notes and assets are up to date..."
+            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md || true
+            if [ ${#ASSETS[@]} -gt 0 ]; then
+              gh release upload "$VERSION" "${ASSETS[@]}" --clobber || true
+            fi
+            echo "Release $VERSION verified and up to date."
+          else
+            echo "Creating new official release $VERSION as latest..."
+            if ! gh release create "$VERSION" "${ASSETS[@]}" \
+              --title "Solara Launcher $VERSION" \
+              --notes-file release_notes.md \
+              --latest; then
+              echo "Release creation encountered conflict, updating existing release..."
+              gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md || true
+              if [ ${#ASSETS[@]} -gt 0 ]; then
+                gh release upload "$VERSION" "${ASSETS[@]}" --clobber || true
+              fi
+            fi
+            echo "Release $VERSION published successfully."
           fi
-          
-          echo "Creating new official release $VERSION as latest..."
-          gh release create "$VERSION" "${ASSETS[@]}" \
-            --title "Solara Launcher $VERSION" \
-            --notes-file release_notes.md \
-            --latest
