@@ -8,7 +8,7 @@ import LoaderMark from '../../packages/ui/LoaderMark.vue';
 import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
-const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate']);
+const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate','delete']);
 const tab=ref('mods'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('');
 const path=ref(''),entries=ref<any[]>([]),mods=ref<any[]>([]),trash=ref<any[]>([]),backups=ref<any[]>([]),query=ref(''),modFilter=ref('all');
 const editor=ref<any>(null),text=ref(''),consoleText=ref(''),liveLogs=ref(true),modInput=ref<HTMLInputElement|null>(null);
@@ -114,6 +114,7 @@ async function confirm(){
   if(action==='new-backup'){const name=dialogName.value.trim();if(!name)throw Error('Enter a backup name.');await native('instance_backup_action',{id,action:'create',name})}
   if(action==='restore-backup')await native('instance_backup_action',{id,action:'restore',backupId:selected.value.id});
   if(action==='delete-backup')await native('instance_backup_action',{id,action:'delete',backupId:selected.value.id});
+  if(action==='delete-instance'){dialog.value=null;emit('delete',id);return}
   dialog.value=null;await readTab();notice.value=action==='trash'?'Moved to Trash. You can restore it later.':action==='new-backup'?'Backup saved on this device.':action==='restore-backup'?'Backup restored to this instance.':action==='delete-backup'?'Backup deleted.':'Done.';
  })
 }
@@ -316,28 +317,28 @@ const ramCategory = computed(() => {
     return {
       label: 'Lightweight & Vanilla',
       desc: 'Optimal for Vanilla Minecraft or small mod setups (up to 30 mods). Keeps system RAM completely free.',
-      color: '#38bdf8',
+      color: 'var(--accent)',
       score: 'Light'
     };
   } else if (ram <= 6144) {
     return {
       label: 'Standard Modded (Sweet Spot)',
       desc: 'Recommended for modern modpacks (50-150 mods). Provides stable FPS and garbage collection.',
-      color: '#0ea5e9',
+      color: 'var(--accent)',
       score: 'Optimal'
     };
   } else if (ram <= 12288) {
     return {
       label: 'Heavy Modpacks & Shaders',
       desc: 'Built for huge community modpacks (200+ mods) and high-resolution shader packs.',
-      color: '#38bdf8',
+      color: 'var(--accent)',
       score: 'High Power'
     };
   } else {
     return {
       label: 'Extreme Workload',
       desc: 'Large memory assignment. Ensure Windows has at least 4-8 GiB free RAM remaining for OS tasks.',
-      color: '#fbbf24',
+      color: 'var(--warning)',
       score: 'Heavy'
     };
   }
@@ -548,6 +549,9 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
    <div class="workspace-section-heading">
      <div><h2>Instance files</h2><p>Files inside this instance. Saves stay separate from game updates.</p></div>
      <div class="row">
+       <button type="button" class="solara-secondary-btn" title="Open root instance folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id})})"><FolderOpen :size="14"/> Explorer</button>
+       <button type="button" class="solara-secondary-btn" title="Open saves folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'saves'})})"><Box :size="14"/> Saves</button>
+       <button type="button" class="solara-secondary-btn" title="Open mods folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'mods'})})"><Package :size="14"/> Mods</button>
        <button class="solara-secondary-btn" :disabled="locked" @click="ask('new-folder')"><Plus :size="14"/> Folder</button>
        <button class="solara-secondary-btn" :disabled="locked" @click="ask('new-file')"><FileText :size="14"/> Text file</button>
      </div>
@@ -914,6 +918,18 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
          <input v-model="displayPrefs.jvmCustomArgs" placeholder="-XX:+UseG1GC -XX:G1ReservePercent=20" @input="saveDisplayPrefs">
        </label>
      </div>
+     <div class="settings-subgroup danger-zone" style="margin-top:28px;padding-top:20px;border-top:1px solid var(--line)">
+       <h3 class="settings-subgroup-title" style="color:var(--error, #ef4444)">Instance Actions &amp; Danger Zone</h3>
+       <p class="settings-subgroup-hint">Duplicate or permanently delete this Minecraft instance.</p>
+       <div class="row" style="margin-top:12px;gap:12px">
+         <button type="button" class="solara-secondary-btn" @click="emit('duplicate', instance)">
+           <Copy :size="14"/> Duplicate instance
+         </button>
+         <button type="button" class="solara-secondary-btn danger-btn" :disabled="instance.running" style="color:var(--error, #ef4444);border-color:rgba(239,68,68,0.3)" @click="ask('delete-instance')">
+           <Trash2 :size="14"/> Delete instance
+         </button>
+       </div>
+     </div>
      <button class="workspace-play solara-primary-btn" :disabled="locked"><Save :size="14"/> Save changes</button>
      <p v-if="instance.running" class="workspace-message">Close Minecraft before changing files or settings.</p>
    </form>
@@ -922,7 +938,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
  <dialog ref="dialogElement" class="workspace-dialog" aria-labelledby="workspace-dialog-title" @cancel.prevent="dismiss">
    <form @submit.prevent="confirm">
      <header>
-       <h2 id="workspace-dialog-title">{{({'new-folder':'New folder','new-file':'New text file','new-backup':'Create backup','restore-backup':'Restore backup?','delete-backup':'Delete backup?',rename:'Rename',trash:'Move to Trash?',discard:'Unsaved changes',details:'File details'} as Record<string,string>)[dialog||'']}}</h2>
+       <h2 id="workspace-dialog-title">{{({'new-folder':'New folder','new-file':'New text file','new-backup':'Create backup','restore-backup':'Restore backup?','delete-backup':'Delete backup?','delete-instance':'Delete instance?',rename:'Rename',trash:'Move to Trash?',discard:'Unsaved changes',details:'File details'} as Record<string,string>)[dialog||'']}}</h2>
        <button type="button" aria-label="Close instance dialog" @click="dismiss"><X :size="16"/></button>
      </header>
      <template v-if="dialog==='new-folder'||dialog==='new-file'||dialog==='rename'||dialog==='new-backup'">
@@ -933,6 +949,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <p v-if="dialog==='trash'">{{selected?.name}} will move to this instance's Trash. You can restore it later.</p>
      <p v-if="dialog==='restore-backup'">Restore {{selected?.name}}? Saved worlds and config files from this snapshot will be restored to this instance.</p>
      <p v-if="dialog==='delete-backup'">Delete backup {{selected?.name}} permanently from this instance?</p>
+     <p v-if="dialog==='delete-instance'">Are you sure you want to permanently delete <strong>{{instance.name}}</strong>? All installed mods, worlds, and configs will be removed. This cannot be undone.</p>
      <p v-if="dialog==='discard'">This file has unsaved changes. Leave without saving?</p>
      <dl v-if="dialog==='details'" class="workspace-facts">
        <div><dt>Path</dt><dd>{{selected?.path}}</dd></div>
@@ -942,8 +959,8 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <p v-if="error" role="alert" class="workspace-message problem">{{error}}</p>
      <footer>
        <button type="button" @click="dismiss">{{dialog==='details'?'Close':'Cancel'}}</button>
-       <button v-if="dialog!=='details'" :disabled="busy" class="workspace-play" :class="{danger:dialog==='trash'||dialog==='delete-backup'}">
-         {{dialog==='trash'?'Move to Trash':dialog==='delete-backup'?'Delete backup':dialog==='restore-backup'?'Restore backup':dialog==='new-backup'?'Create backup':dialog==='discard'?'Discard changes':'Save'}}
+       <button v-if="dialog!=='details'" :disabled="busy" class="workspace-play" :class="{danger:dialog==='trash'||dialog==='delete-backup'||dialog==='delete-instance'}">
+         {{dialog==='delete-instance'?'Permanently Delete':dialog==='trash'?'Move to Trash':dialog==='delete-backup'?'Delete backup':dialog==='restore-backup'?'Restore backup':dialog==='new-backup'?'Create backup':dialog==='discard'?'Discard changes':'Save'}}
        </button>
      </footer>
    </form>

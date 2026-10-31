@@ -48,6 +48,11 @@ async fn retry_instance(id: String) -> Result<String, String> {
     engine::retry_instance(id).await.map_err(err)
 }
 #[tauri::command]
+async fn delete_instance(id: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::delete_instance(&id).await.map_err(err)
+}
+#[tauri::command]
 async fn launch_instance(id: String) -> Result<Value, String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::launch(id).await.map_err(err)
@@ -376,6 +381,7 @@ pub fn run() {
             minecraft_versions,
             loader_versions,
             create_instance,
+            delete_instance,
             launch_instance,
             retry_instance,
             stop_instance,

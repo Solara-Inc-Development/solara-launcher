@@ -218,6 +218,15 @@ pub async fn retry_instance(id: String) -> Result<String> {
     }
     queue_install(record.id, record.name).await
 }
+pub async fn delete_instance(id: &str) -> Result<()> {
+    let engine = get().await?;
+    let running = engine.games.running().await?;
+    if running.contains(&id.to_string()) {
+        bail!("Cannot delete an instance while the game is running");
+    }
+    engine.instances.delete(id).await?;
+    Ok(())
+}
 async fn resolve_java(
     id: &str,
     cancel: &Cancellation,

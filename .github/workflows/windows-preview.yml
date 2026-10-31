@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved V-0.0.16 preview candidate: hardened window dragging hit-testing, controls event deduplication, default clean dark theme, and SSO approval fix; privately signed after CI export.
+# Owner-approved preview candidate: fully decoupled standalone Dark/Light design systems, sleek compact 48px/36px toolbar, in-launcher instance deletion, duplication, and 1-click folder shortcuts.
 on:
   workflow_dispatch:
   push:

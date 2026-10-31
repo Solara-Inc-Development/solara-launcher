@@ -167,6 +167,12 @@ impl Instances {
         write_json(&self.safe_dir(id).await?.join("instance.json"), &record).await?;
         Ok(record)
     }
+    pub async fn delete(&self, id: &str) -> Result<()> {
+        let _guard = self.writes.lock().await;
+        let dir = self.safe_dir(id).await?;
+        tokio::fs::remove_dir_all(&dir).await?;
+        Ok(())
+    }
     pub async fn game_dir(&self, id: &str) -> Result<PathBuf> {
         let dir = self.safe_dir(id).await?.join("game");
         let meta = tokio::fs::symlink_metadata(&dir).await?;
@@ -242,6 +248,8 @@ mod tests {
             .await
             .is_err());
         assert_eq!(store.get(&first.id).await.unwrap().id, first.id);
+        store.delete(&first.id).await.unwrap();
+        assert!(store.get(&first.id).await.is_err());
         tokio::fs::remove_dir_all(root).await.unwrap();
     }
 }

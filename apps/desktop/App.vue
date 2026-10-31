@@ -19,7 +19,12 @@ import InstanceWorkspace from './InstanceWorkspace.vue';
 import LoadingCards from './WorkspaceLoading.vue';
 import {snapshot,publicLoading,currentEvent,preferences,refreshPublic,savePreferences,native,isDesktop,openExternal,eventOptions,preview,latest,links} from '../../packages/shared/client';
 const effectiveTheme=computed(()=>preferences.value.theme==='light'?'light':'dark');
-function accentInk(hex:string){const rgb=hex.replace('#','').match(/.{2}/g)?.map(v=>parseInt(v,16)/255)||[.3,.3,.5];const light=rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*light[0]+.7152*light[1]+.0722*light[2]>.25?'#271e3c':'#ffffff'}
+const effectiveAccent=computed(()=>{
+  if(currentEvent.value?.accent)return currentEvent.value.accent;
+  if(effectiveTheme.value==='light')return preferences.value.accent==='#38bdf8'?'#0284c7':(preferences.value.accent||'#0284c7');
+  return preferences.value.accent||'#38bdf8';
+});
+function accentInk(hex:string){const rgb=hex.replace('#','').match(/.{2}/g)?.map(v=>parseInt(v,16)/255)||[.3,.3,.5];const light=rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*light[0]+.7152*light[1]+.0722*light[2]>.25?'#041220':'#ffffff'}
 useInteractions();
 function downloadFraction(job:any):number|undefined {if(!job)return undefined;if(job.total>0&&typeof job.downloaded==='number')return Math.max(0,Math.min(1,job.downloaded/job.total));return typeof job.progress==='number'?Math.max(0,Math.min(1,job.progress)):undefined}
 const section=ref('dashboard'),modal=ref<string|null>(null),busy=ref(false),error=ref(''),message=ref(''),engineReady=ref(false);
@@ -129,6 +134,7 @@ async function mcLogout(id:string){await run(async()=>{await native('minecraft_s
 async function createInstance(){await run(async()=>{await native('create_instance',{...create.value});close();await pollLocal();section.value='launcher';toast('Instance installation queued. Follow its progress in Downloads.')})}
 async function createPreset(preset:any){await run(async()=>{await native('create_instance',{name:preset.name,gameVersion:preset.gameVersion,loader:preset.loader,loaderVersion:preset.loaderVersion||''});close();await pollLocal();section.value='launcher';toast(`Instance "${preset.name}" installation queued. Follow progress in Downloads.`)});}
 async function duplicateInstance(instance:any){const newName=`${instance.name} (New)`;await run(async()=>{await native('create_instance',{name:newName,gameVersion:instance.gameVersion,loader:instance.loader,loaderVersion:instance.loaderVersion||''});close();await pollLocal();toast(`Created a fresh setup "${newName}". Existing worlds and mods stay in the original instance.`)});}
+async function deleteInstance(id:string){await run(async()=>{await native('delete_instance',{id});if(activeInstanceId.value===id){activeInstanceId.value=null}await pollLocal();toast('Instance deleted.');});}
 async function copyText(text:string){if(!text)return;await navigator.clipboard.writeText(text);toast('Copied to clipboard.')}
 async function retryInstall(instance:any){await run(async()=>{await native('retry_instance',{id:instance.id});await pollLocal();toast('Installation queued. Your worlds are kept.');})}
 async function launch(instance:any){
@@ -208,6 +214,7 @@ async function loadEntitlements(){await run(async()=>{const d=await native('sola
 watch(engineReady,v=>{if(v&&['create-instance','create-server'].includes(modal.value||''))void loadVersions()});watch(preferences,()=>savePreferences(),{deep:true});watch(modal,async v=>{if(v!=='logs')selectedLog.value=null;if(v){lastFocus=document.activeElement as HTMLElement;await nextTick();(document.querySelector('.modal input,.modal [role=combobox],.modal .close') as HTMLElement)?.focus();}else{lastFocus?.focus();}});
 function trapDialog(e:KeyboardEvent){if(e.key==='Escape'){close();return};if(e.key!=='Tab')return;const nodes=[...document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal a[href]')].filter(el=>el.offsetParent!==null&&el.tabIndex!==-1);const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
 function handleGlobalKey(e:KeyboardEvent){
+  if(e.key==='Escape'&&modal.value){e.preventDefault();close();return}
   const tag=(e.target as HTMLElement)?.tagName;
   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();plus()}
@@ -235,7 +242,7 @@ async function copyAddress(){await navigator.clipboard.writeText(snapshot.value.
 const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
 </script>
 <template>
-<div class="shell" :data-theme="effectiveTheme" :style="{'--accent':preferences.accent||currentEvent.accent,'--accent-ink':accentInk(preferences.accent||currentEvent.accent)}" :data-reduced-motion="preferences.motion" :data-section="section">
+<div class="shell" :data-theme="effectiveTheme" :style="{'--accent':effectiveAccent,'--accent-ink':accentInk(effectiveAccent)}" :data-reduced-motion="preferences.motion" :data-section="section">
   <div class="titlebar" :inert="modal?true:undefined">
     <div class="titlebar-drag-area" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick">
       <span class="name" data-tauri-drag-region><img src="/logo.svg" alt="">solara<span class="titlebar-edition">LAUNCHER</span><span class="titlebar-build">{{buildInfo.publicVersion||'PREVIEW'}}</span></span>
@@ -264,7 +271,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
     <div v-if="error" class="banner error" role="alert" style="margin-bottom:20px">{{error}}</div>
     <HomeWorkspace v-if="section==='dashboard'" :instances="instances" :projects="projects" :services="services" :account="account" :minecraft="minecraft" :loading="publicLoading" :api-state="snapshot.state" @open-instance="openInstance" @create="plus" @navigate="navigate" @external="external" @refresh="refreshPublic" @play="launch" @stop="stopGame" @discover="discover" @account="mcSignIn" @copy="copyText" @solara-signin="signIn" @create-preset="createPreset" @duplicate="duplicateInstance" @open-folder="(i)=>run(()=>native('open_instance_folder',{id:i.id}))"/>
     <template v-if="section==='launcher'">
-      <InstanceWorkspace v-if="activeInstance" ref="workspaceRef" :instance="activeInstance" :jobs="jobs" :account-ready="minecraft.some(a=>a.active)" :parent-busy="busy" @back="activeInstanceId=null" @play="launch" @stop="stopGame" @account="mcSignIn" @refresh="pollLocal" @browse-mods="(id?:string)=>{preferredInstanceId=id||activeInstance?.id||'';navigate('explore')}" @duplicate="duplicateInstance"/>
+      <InstanceWorkspace v-if="activeInstance" ref="workspaceRef" :instance="activeInstance" :jobs="jobs" :account-ready="minecraft.some(a=>a.active)" :parent-busy="busy" @back="activeInstanceId=null" @play="launch" @stop="stopGame" @account="mcSignIn" @refresh="pollLocal" @browse-mods="(id?:string)=>{preferredInstanceId=id||activeInstance?.id||'';navigate('explore')}" @duplicate="duplicateInstance" @delete="deleteInstance"/>
       <template v-else>
       <p v-if="coreCapabilities?.preview" class="banner notice" style="margin-bottom:18px">Testing build: {{availableLoaders.map(l=>l.name).join(', ')}}. More loader support is being added.</p>
       <div class="library-workspace-header"><div><span class="workspace-kicker">ALL YOUR WORLDS, IN ONE PLACE</span><h1>Your library.</h1><p>Open an instance to manage its mods, files and settings.</p></div><button class="workspace-play" @click="plus"><Plus/> New instance</button></div>
