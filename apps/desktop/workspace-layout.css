@@ -2389,6 +2389,91 @@
   border-color: #334155 !important;
 }
 
+.modal .actions button:not(.primary):active,
+.custom-instance-form .actions button:not(.primary):active {
+  transform: scale(0.97) !important;
+}
+
+/* Instance Type Selection & Presets Polish */
+.instance-type-card:active {
+  transform: scale(0.98) !important;
+}
+
+.preset-card {
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.4), 0 0 1px rgba(56, 189, 248, 0.1) !important;
+}
+
+.preset-card:hover {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.22) !important;
+}
+
+.preset-card:active {
+  transform: scale(0.99) !important;
+}
+
+.preset-install-btn {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+  color: #060913 !important;
+  border: 1px solid rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 3px 12px rgba(56, 189, 248, 0.3) !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.preset-install-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.45) !important;
+}
+
+.preset-install-btn:active:not(:disabled) {
+  transform: scale(0.97) !important;
+}
+
+/* Instance Quick Play Glow & Tactile Scale */
+.instance-quick-play {
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.instance-quick-play:hover {
+  transform: scale(1.14) !important;
+  background: #7dd3fc !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.8) !important;
+}
+
+.instance-quick-play:active {
+  transform: scale(0.94) !important;
+}
+
+/* Topbar Account & Update Controls Micro-Interactions */
+.topbar-mc-account {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.topbar-mc-account:hover {
+  background: #0f172a !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.topbar-mc-account:active {
+  transform: scale(0.97) !important;
+}
+
+.topbar-update-pill:active,
+.toolbar-downloads:active,
+.toolbar-home:active,
+.history-arrow-btn:active:not(:disabled) {
+  transform: scale(0.95) !important;
+}
+
 
 
 

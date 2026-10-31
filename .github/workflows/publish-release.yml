@@ -8,6 +8,8 @@ on:
         required: true
         default: 'V-0.0.06'
   push:
+    branches:
+      - main
     tags:
       - 'V-*'
 
@@ -56,17 +58,14 @@ jobs:
           [ -f "solaralauncher.exe.sig" ] && ASSETS+=("solaralauncher.exe.sig")
           [ -f "source.zip" ] && ASSETS+=("source.zip")
           
-          # Create or update GitHub release as latest release
+          # Ensure release is cleanly created as latest release
           if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release $VERSION exists; updating..."
-            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --latest
-            if [ ${#ASSETS[@]} -gt 0 ]; then
-              gh release upload "$VERSION" "${ASSETS[@]}" --clobber
-            fi
-          else
-            echo "Creating new release $VERSION..."
-            gh release create "$VERSION" "${ASSETS[@]}" \
-              --title "Solara Launcher $VERSION" \
-              --notes-file release_notes.md \
-              --latest
+            echo "Release $VERSION exists; recreating cleanly as official latest release..."
+            gh release delete "$VERSION" --yes || true
           fi
+          
+          echo "Creating new official release $VERSION as latest..."
+          gh release create "$VERSION" "${ASSETS[@]}" \
+            --title "Solara Launcher $VERSION" \
+            --notes-file release_notes.md \
+            --latest
