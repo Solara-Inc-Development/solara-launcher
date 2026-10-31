@@ -2474,6 +2474,68 @@
   transform: scale(0.95) !important;
 }
 
+.category-pill {
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.category-pill:active {
+  transform: scale(0.95) !important;
+}
+
+.mod-install-btn {
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.mod-install-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent, #38bdf8), white 12%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4) !important;
+}
+.mod-install-btn:active:not(:disabled) {
+  transform: scale(0.96) !important;
+}
+
+.preset-pill:active {
+  transform: scale(0.95) !important;
+}
+
+.topbar-pill-btn:active {
+  transform: scale(0.92) !important;
+}
+
+.loader-choices button {
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.loader-choices button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+.loader-choices button:active {
+  transform: scale(0.97) !important;
+}
+
+.side-solara-signin-link {
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.side-solara-signin-link:hover {
+  color: #38bdf8 !important;
+}
+.side-solara-signin-link:active {
+  transform: scale(0.98) !important;
+}
+
+.playing-account-card {
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.playing-account-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 12px rgba(56, 189, 248, 0.12);
+}
+.playing-account-card:active {
+  transform: scale(0.98) !important;
+}
+
+
 
 
 
