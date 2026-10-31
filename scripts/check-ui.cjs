@@ -26,9 +26,10 @@ const assert = require('node:assert/strict');
     for (const name of ['Solara services', 'Explore mods and modpacks', 'Settings']) {
       await page.getByRole('button', { name, exact: true }).click();
     }
-    await page.getByRole('button', { name: 'Solara violet', exact: true }).click();
-    assert.equal(await page.locator('.shell').evaluate(e => e.style.getPropertyValue('--accent')), '#7650dc');
-    await page.getByRole('button', { name: 'Sky blue', exact: true }).click();
+    await page.getByRole('button', { name: 'Light', exact: true }).click();
+    assert.equal(await page.locator('.shell').getAttribute('data-theme'), 'light');
+    await page.getByRole('button', { name: 'Dark', exact: true }).click();
+    assert.equal(await page.locator('.shell').getAttribute('data-theme'), 'dark');
     await page.getByRole('checkbox', { name: 'Reduce motion', exact: true }).check();
     await page.getByRole('button', { name: 'Dashboard', exact: true }).click();
     assert.equal(await page.locator('.section-view').evaluate(e => getComputedStyle(e).animationName), 'none');
@@ -54,7 +55,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click();
     await page.getByRole('link', { name: 'Features', exact: true }).click();
     assert.deepEqual(errors, []);
-    await writeFile('checks/ui-results.json', JSON.stringify({ passed: true, desktopNavigation: true, customLoaderDropdown: true, nestedEscape: true, downloads: true, accent: true, reducedMotion: true, desktopSmall: true, mobileNavigation: true, seasonsDeferred: true, errors }, null, 2));
+    await writeFile('checks/ui-results.json', JSON.stringify({ passed: true, desktopNavigation: true, customLoaderDropdown: true, nestedEscape: true, downloads: true, themeToggle: true, reducedMotion: true, desktopSmall: true, mobileNavigation: true, seasonsDeferred: true, errors }, null, 2));
     console.log('Desktop/website interaction, accessibility and responsive checks passed.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

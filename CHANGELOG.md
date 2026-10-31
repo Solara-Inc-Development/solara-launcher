@@ -1,5 +1,19 @@
 # Changelog
 
+## Testing Preview V-0.0.16 — 2026-10-31
+
+- **Responsive Window Controls**:
+  - Close, minimize, and maximize buttons now remain responsive and reliable during and after dragging the application window.
+  - Separated window titlebar drag region from control action buttons and enforced `-webkit-app-region: no-drag !important` to eliminate drag event interference.
+  - Window control actions run independently and are never blocked by background task busy states.
+- **Clean Theme Simplification (Default Dark)**:
+  - Defaults to a clean, focused **Dark** theme out of the box with consistent deep slate styling.
+  - Removed colorful custom accent swatches in favor of a clean, dedicated Light/Dark toggle in Settings.
+- **SSO Consent Redirect Hardening**:
+  - Resolved cross-scheme redirect hanging on the authentication consent page by updating loopback CSP `form-action` rules and providing a resilient auto-redirect fallback upon user approval.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.15 — 2026-10-31
 
 - **Bright & Cheerful Visual Design**:

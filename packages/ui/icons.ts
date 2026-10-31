@@ -56,5 +56,7 @@ export const Filter=glyph('Filter',['M22 3H2l8 9.46V19l4 2v-8.54L22 3Z']);
 export const Shirt=glyph('Shirt',['M6 3h12l4 5-3 3-2-1v11H7V10l-2 1-3-3 4-5Z','M9 3a3 3 0 0 0 6 0']);
 export const Image=glyph('Image',['M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z','m3 16 5-5 4 4 3-3 6 6','M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z']);
 export const Lock=glyph('Lock',['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4']);
+export const Sun=glyph('Sun',['M12 3v2M12 19v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M3 12h2M19 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z']);
+export const Moon=glyph('Moon',['M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1Z']);
 
 
