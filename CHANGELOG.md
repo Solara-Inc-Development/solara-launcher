@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.14 — 2026-10-31
+
+- Redesigned the desktop around a slim icon sidebar, one toolbar, a dark workspace and colourful mint controls.
+- Added a persistent account/services column, local Jump back in rows, artwork library tiles, clearer discovery results and rounded instance navigation.
+- Refreshed settings, dialogs, screenshot viewing, file tools and small-window layouts.
+- Improved global search, loader filters, quick starts, initial mod loading, screenshot keyboard controls and protection for unsaved file edits.
+- Clarified that snapshots contain worlds/configuration; creating a similar instance starts a fresh setup.
+- Release publication now keeps the signed installer and its exact CI-exported source together, without replacing previous release assets.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.13 — 2026-10-31
 
 ### What's New & What Feels Better

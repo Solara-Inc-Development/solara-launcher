@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Build testing candidate V-0.0.13: RAM Performance Ring Gauge, Modpack Exporter Archive, and Backups Folder Shortcuts
+# Owner-approved redesigned desktop candidate; privately signed after CI export.
 on:
   workflow_dispatch:
   push:

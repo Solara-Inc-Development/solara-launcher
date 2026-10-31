@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
+import LoaderMark from '../../packages/ui/LoaderMark.vue';
 import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
@@ -217,6 +218,7 @@ interface ScreenshotItem {
 const screenshots = ref<ScreenshotItem[]>([]);
 const screenshotQuery = ref('');
 const activeLightbox = ref<ScreenshotItem | null>(null);
+const lightboxDialog=ref<HTMLDialogElement|null>(null),snapshotDialog=ref<HTMLDialogElement|null>(null);
 
 const visibleScreenshots = computed(() => {
   if (!screenshotQuery.value.trim()) return screenshots.value;
@@ -244,7 +246,7 @@ async function loadScreenshots() {
         .sort((a, b) => (b.modifiedAt || 0) - (a.modifiedAt || 0));
       screenshots.value = filtered;
       // Preload thumbnails for instant display
-      for (const item of filtered.slice(0, 30)) {
+      for (const item of screenshots.value.slice(0, 30)) {
         if (!item.dataUrl) {
           native('instance_image', { id: props.instance.id, path: item.path })
             .then(url => { item.dataUrl = url; })
@@ -345,7 +347,7 @@ const exporting = ref(false);
 const exportDoneNotice = ref('');
 
 function openExportModal() {
-  exportName.value = `${props.instance.name} modpack`;
+  exportName.value = `${props.instance.name} snapshot`;
   exportDoneNotice.value = '';
   exportModalOpen.value = true;
 }
@@ -360,8 +362,8 @@ async function executeExport() {
       action: 'create',
       name: exportName.value.trim()
     });
-    exportDoneNotice.value = 'Modpack package generated successfully and saved in instance backups.';
-    notice.value = 'Modpack export ready in Backups.';
+    exportDoneNotice.value = 'World and configuration snapshot saved in Backups.';
+    notice.value = 'Your snapshot is ready in Backups.';
     await readTab();
   } catch (e) {
     error.value = String(e);
@@ -374,7 +376,9 @@ async function saveSettings(){await run(async()=>{await native('edit_instance',{
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+watch(activeLightbox,async value=>{await nextTick();if(value&&!lightboxDialog.value?.open)lightboxDialog.value?.showModal()});
+watch(exportModalOpen,async value=>{await nextTick();if(value&&!snapshotDialog.value?.open)snapshotDialog.value?.showModal()});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
 watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
@@ -396,18 +400,17 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <div class="workspace-heading-overlay"></div>
    </div>
    <div class="instance-loader-badge" :class="instance.loader">
-     <div class="instance-3d-cube">⚡</div>
+     <LoaderMark :loader="instance.loader"/>
    </div>
    <div class="workspace-identity">
      <div class="instance-top-tagline">
-       <span class="workspace-kicker">INSTALLED INSTANCE</span>
+       <span class="workspace-kicker">YOUR MINECRAFT INSTANCE</span>
        <span class="instance-status-pill" :class="{running: instance.running}">{{instance.running ? 'Running' : instance.state}}</span>
      </div>
      <h1>{{instance.name}}</h1>
      <div class="workspace-tags">
        <span class="tag-version">Minecraft {{instance.gameVersion}}</span>
        <span class="tag-loader">{{instance.loader}}{{instance.loaderVersion?' '+instance.loaderVersion:''}}</span>
-       <span class="tag-meta">⚡ Solara Optimized</span>
      </div>
    </div>
    <div class="workspace-primary-actions">
@@ -417,10 +420,10 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      <button class="circle-action-btn" title="Screenshots gallery" @click="selectTab('screenshots')">
        <Monitor :size="17"/>
      </button>
-     <button class="circle-action-btn" title="Duplicate instance" @click="emit('duplicate',instance)">
+     <button class="circle-action-btn" title="Create similar instance" aria-label="Create similar instance" @click="emit('duplicate',instance)">
        <Copy :size="17"/>
      </button>
-     <button class="circle-action-btn" title="Export modpack archive" @click="openExportModal">
+     <button class="circle-action-btn" title="Create world snapshot" aria-label="Create world snapshot" :disabled="locked" @click="openExportModal">
        <Download :size="17"/>
      </button>
      <button class="circle-action-btn" title="Instance settings" @click="selectTab('settings')">
@@ -633,8 +636,8 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
      </div>
 
      <div class="screenshots-gallery-grid">
-       <article v-for="item in visibleScreenshots" :key="item.path" class="screenshot-card" @click="openLightbox(item)">
-         <div class="screenshot-thumb-wrap">
+       <article v-for="item in visibleScreenshots" :key="item.path" class="screenshot-card">
+         <button type="button" class="screenshot-thumb-wrap" :aria-label="'View screenshot '+item.name" @click="openLightbox(item)">
            <img v-if="item.dataUrl" :src="item.dataUrl" :alt="item.name" loading="lazy">
            <div v-else class="screenshot-thumb-loading">
              <Monitor :size="24"/>
@@ -643,7 +646,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
            <div class="screenshot-hover-overlay">
              <span class="hover-view-text">Click to expand</span>
            </div>
-         </div>
+         </button>
          <div class="screenshot-meta-row">
            <span class="screenshot-name" :title="item.name">{{ item.name }}</span>
            <span class="screenshot-size">{{ bytes(item.size) }}</span>
@@ -953,7 +956,7 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
  </dialog>
 
  <!-- Screenshot Lightbox Modal -->
- <dialog v-if="activeLightbox" class="solara-lightbox-dialog" open @click.self="closeLightbox">
+ <dialog v-if="activeLightbox" ref="lightboxDialog" class="solara-lightbox-dialog" aria-label="Screenshot viewer" @cancel.prevent="closeLightbox" @click.self="closeLightbox">
    <div class="lightbox-header">
      <div class="lightbox-title-wrap">
        <strong class="lightbox-filename">{{ activeLightbox.name }}</strong>
@@ -986,43 +989,10 @@ function instanceArtSrc(name?:string):string{return `/art/${instanceScene(name)}
    </div>
  </dialog>
 
-  <!-- Modpack Exporter Modal -->
-  <dialog v-if="exportModalOpen" class="solara-lightbox-dialog" open @click.self="exportModalOpen = false">
-    <div class="lightbox-header" style="max-width: 520px; width: 100%;">
-      <div class="lightbox-title-wrap">
-        <strong class="lightbox-filename" style="display:flex;align-items:center;gap:8px">
-          <Download :size="16" style="color:#38bdf8"/> Export Modpack Snapshot
-        </strong>
-        <span class="lightbox-meta">Bundle worlds, configs, and mods into a portable backup archive</span>
-      </div>
-      <button type="button" class="circle-action-btn" title="Close" @click="exportModalOpen = false">
-        <X :size="16"/>
-      </button>
-    </div>
-
-    <div class="export-modal-body" style="max-width: 520px; width: 100%; background: #0b111e; border: 1px solid rgba(56,189,248,0.2); border-radius: 12px; padding: 20px; margin-top: 12px; display: flex; flex-direction: column; gap: 16px;">
-      <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin: 0;">
-        Create an independent, packaged archive of <strong>{{ instance.name }}</strong>. You can restore this archive anytime or transfer it to another Solara installation.
-      </p>
-
-      <label style="display: flex; flex-direction: column; gap: 6px; color: #cbd5e1; font-size: 13px; font-weight: 500;">
-        Archive Name
-        <input v-model="exportName" class="solara-input" placeholder="e.g. My Modpack v1.0" maxlength="80" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; color: #f1f5f9; padding: 10px 14px; font-size: 14px; outline: none;">
-      </label>
-
-      <div v-if="exportDoneNotice" class="export-success-badge" style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 10px; color: #4ade80; font-size: 13px;">
-        <Check :size="16" style="flex-shrink:0"/>
-        <span>{{ exportDoneNotice }}</span>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
-        <button type="button" class="solara-secondary-btn" @click="exportModalOpen = false">Close</button>
-        <button type="button" class="solara-primary-btn" :disabled="exporting || !exportName.trim()" @click="executeExport">
-          <Download :size="14" />
-          <span>{{ exporting ? 'Packaging modpack...' : 'Export Snapshot' }}</span>
-        </button>
-      </div>
-    </div>
+  <dialog v-if="exportModalOpen" ref="snapshotDialog" class="solara-lightbox-dialog snapshot-dialog" aria-labelledby="snapshot-title" @cancel.prevent="exportModalOpen=false">
+    <div class="lightbox-header"><div class="lightbox-title-wrap"><strong id="snapshot-title" class="lightbox-filename">Save a world snapshot</strong><span class="lightbox-meta">A little peace of mind before your next adventure.</span></div><button type="button" class="circle-action-btn" aria-label="Close snapshot dialog" @click="exportModalOpen=false"><X :size="16"/></button></div>
+    <form class="snapshot-dialog-body" @submit.prevent="executeExport"><p>Save the worlds and configuration files in <strong>{{instance.name}}</strong>. Mods, resource packs and shaders are excluded from this backup.</p><label>Snapshot name<input v-model="exportName" placeholder="Before my next adventure" maxlength="80" required></label><div v-if="exportDoneNotice" class="export-success-badge" role="status"><Check/><span>{{exportDoneNotice}}</span></div><p v-if="error" class="workspace-message problem" role="alert">{{error}}</p><div class="actions"><button type="button" @click="exportModalOpen=false">Close</button><button class="solara-primary-btn" :disabled="exporting||locked||!exportName.trim()">{{exporting?'Saving snapshot…':'Save snapshot'}}</button></div></form>
   </dialog>
+
 </section>
 </template>

@@ -15,6 +15,7 @@
     "test:motion": "node scripts/check-future-ui.cjs",
     "capture:preview": "node scripts/capture-preview.cjs",
     "test:workflows": "node scripts/check-workflows.cjs",
+    "test:redesign": "node scripts/check-redesign.cjs",
     "test:csp": "node scripts/check-csp.cjs"
   },
   "dependencies": {

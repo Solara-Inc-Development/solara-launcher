@@ -1,5 +1,5 @@
 import {releaseArtifactPath} from '../packages/shared/domain.mjs';
-import {readFile,writeFile,readdir,mkdir} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import path from 'node:path';import {fileURLToPath} from 'node:url';import {reserveBuild,immutableCopy,verifyArtifact,verifyApplication} from './release-lib.mjs';
+import {readFile,writeFile,readdir,mkdir,rename} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import {createHash} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';import {reserveBuild,immutableCopy,verifyArtifact,verifyApplication} from './release-lib.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),dir=path.join(root,'builds');
 const mode=process.argv[2];const run=(bin,args,opts={})=>execFileSync(bin,args,{cwd:root,stdio:'inherit',...opts});
 const readJson=async p=>JSON.parse(await readFile(p,'utf8'));const json=async(p,d)=>writeFile(p,JSON.stringify(d,null,2)+'\n');
@@ -29,6 +29,24 @@ if(mode==='reserve'){
  await mkdir(path.dirname(path.join(dir,artifactPath)),{recursive:true});
  await immutableCopy(source,path.join(dir,artifactPath));await immutableCopy(source+'.sig',path.join(dir,artifactPath+'.sig'));
  const metadata={...r,...checked,...appChecked,artifactPath,platform:'windows',arch:'x86_64',publishedAt:null,verifiedAt:new Date().toISOString(),signature:sig,notes,url:`https://app.solara-inc.in/builds/${artifactPath}`,state:'staged'};await json(path.join(dir,r.publicVersion+'.json'),metadata);console.log(`${r.filename} staged, x64 application, checksum and updater signature verified.`);
+}else if(mode==='publish-preview-manifest'){
+ const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='preview'||migration.inheritedEngineRemoved!==true)throw Error('Testing publication requires the independent preview core');
+ const version=process.argv[3];if(!version)throw Error('Pass the staged testing version');
+ const r=await readJson(path.join(dir,version+'.json'));if(r.state!=='staged'||r.acceptance!==false)throw Error('Expected an explicitly unaccepted staged testing candidate');
+ const key=(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim();
+ await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,key,r.internalVersion);
+ const files={'solaralauncher.exe':{size:r.size,sha256:r.sha256},'source.zip':r.artifacts?.['source.zip']};
+ for(const [name,expected] of Object.entries(files)){
+  if(!expected?.sha256||!expected.size)throw Error('CI artifact size/hash is required');
+  const url=`https://app.solara-inc.in/builds/${version}/${name}`;
+  const response=await fetch(url,{signal:AbortSignal.timeout(60000),redirect:'error'});if(!response.ok)throw Error('Reviewed testing artifact is not publicly reachable');
+  const bytes=Buffer.from(await response.arrayBuffer());if(bytes.length!==expected.size||createHash('sha256').update(bytes).digest('hex')!==expected.sha256)throw Error('Public testing artifact differs from reviewed CI bytes');
+ }
+ const sigResponse=await fetch(r.url+'.sig',{signal:AbortSignal.timeout(30000),redirect:'error'});if(!sigResponse.ok||(await sigResponse.text()).trim()!==r.signature.trim())throw Error('Public updater signature differs from staged signature');
+ const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===version))throw Error('This version is already recorded; immutable versions cannot be republished');
+ r.state='published';r.channel='testing-preview';r.publishedAt=new Date().toISOString();archive.releases.push(r);
+ const temp=path.join(dir,'.releases-'+r.buildId+'.tmp');await json(temp,archive);await rename(temp,path.join(dir,'releases.json'));
+ console.log('Published signed testing preview metadata. Physical Windows acceptance remains pending.');
 }else if(mode==='publish-manifest'){
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='ready'||migration.windowsAcceptance!==true)throw Error('Stable publication requires recorded Windows acceptance');
  const version=process.argv[3];if(!version)throw Error('Pass the staged public version');const r=await readJson(path.join(dir,version+'.json'));await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,process.env.SOLARA_UPDATER_PUBLIC_KEY||'',r.internalVersion);
@@ -36,4 +54,4 @@ if(mode==='reserve'){
  const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===r.publicVersion))throw Error('Release already exists; use withdrawal for revoked versions');r.state='published';r.publishedAt=new Date().toISOString();archive.releases.push(r);await json(path.join(dir,'releases.json'),archive);console.log('Published metadata only after public artifact verification.');
 }else if(mode==='withdraw'){
  const version=process.argv[3],reason=process.argv[4];if(!reason)throw Error('Pass public version and withdrawal reason');const archive=await readJson(path.join(dir,'releases.json'));const r=archive.releases.find(x=>x.publicVersion===version);if(!r)throw Error('Release not found');r.state='withdrawn';r.withdrawnAt=new Date().toISOString();r.withdrawalReason=reason;await json(path.join(dir,'releases.json'),archive);console.log('Release withdrawn; immutable artifact preserved.');
-}else{throw Error('Use reserve [--github], package, stage <installer> <notes> <application>, publish-manifest <version>, or withdraw <version> <reason>');}
+}else{throw Error('Use reserve [--github], package, stage <installer> <notes> <application>, publish-preview-manifest <version>, publish-manifest <version>, or withdraw <version> <reason>');}

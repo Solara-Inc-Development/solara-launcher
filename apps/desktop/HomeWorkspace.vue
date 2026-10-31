@@ -1,464 +1,62 @@
 <script setup lang="ts">
 import {ref,computed} from 'vue';
-import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,Download,Sparkles,Check,ChevronDown,ChevronUp,MoreVertical,Copy,FolderOpen,ExternalLink,User,Lock} from '../../packages/ui/icons';
-
-const props=withDefaults(defineProps<{
-  instances:any[],
-  projects:any[],
-  services:any[],
-  account:any,
-  minecraft?:any[],
-  loading:boolean,
-  apiState:string
-}>(),{
-  minecraft:()=>[]
-});
-
-const emit=defineEmits(['open-instance','create','navigate','external','refresh','play','account','copy','solara-signin','create-preset','duplicate','open-folder']);
-const librarySearch=ref('');
-const avatarFailed=ref(false);
-const activeLibraryTab=ref<'instances'|'presets'>('instances');
-const sortBy=ref<'played'|'name'|'version'|'loader'>('played');
-const loaderFilter=ref<string>('all');
-const sortDropdownOpen=ref(false);
-
-const ready=computed(()=>props.instances.filter(i=>i.state==='installed').length);
-const activeInst=computed(()=>props.instances.find(i=>i.running)||props.instances[0]);
-const activeMinecraftAccount=computed(()=>props.minecraft?.find(a=>a.active)||props.minecraft?.[0]||null);
-const hasLicense=computed(()=>!!activeMinecraftAccount.value);
-
+import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,ChevronDown,FolderOpen,User,Search,Sparkles,Globe,Package} from '../../packages/ui/icons';
+import LoaderMark from '../../packages/ui/LoaderMark.vue';
+import SelectControl from '../../packages/ui/SelectControl.vue';
+const props=withDefaults(defineProps<{instances:any[],projects:any[],services:any[],account:any,minecraft?:any[],loading:boolean,apiState:string}>(),{minecraft:()=>[]});
+const emit=defineEmits(['open-instance','create','navigate','external','refresh','play','stop','account','copy','solara-signin','create-preset','duplicate','open-folder','discover']);
+const librarySearch=ref(''),activeLibraryTab=ref('instances'),sortBy=ref('name'),loaderFilter=ref('all'),avatarFailed=ref(false);
+const activeAccount=computed(()=>props.minecraft.find(a=>a.active)||null);
+const recentInstances=computed(()=>[...props.instances].filter(i=>i.running||i.state==='installed').sort((a,b)=>Number(b.running)-Number(a.running)).slice(0,3));
+const today=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'short'}).format(new Date());
 const scenes=['forest-valley','alpine-lake','coastal-hamlet','canyon-settlement','moss-cave','workshop'];
-function instanceScene(inst:any):string{const name=inst?.name||'';let hash=0;for(let i=0;i<name.length;i++){hash=(hash<<5)-hash+name.charCodeAt(i);hash|=0}return scenes[Math.abs(hash)%scenes.length]}
-function instanceArtSrc(inst:any):string{return `/art/${instanceScene(inst)}-v1-small.webp`}
-
-const instancePresets=ref([
-  {
-    id:'fabric-1.21.1',
-    name:'Modern Fabric 1.21.1',
-    loader:'fabric',
-    gameVersion:'1.21.1',
-    desc:'Lightweight & ultra fast. Compatible with Sodium, Iris shaders, and modern mods.',
-    tag:'Recommended',
-    icon:'⚡'
-  },
-  {
-    id:'fabulously-optimized',
-    name:'Fabulously Optimized',
-    loader:'fabric',
-    gameVersion:'1.21.1',
-    desc:'Maximum FPS, shaders support, dynamic lights, and zoom out-of-the-box.',
-    tag:'Extreme FPS',
-    icon:'🚀'
-  },
-  {
-    id:'cobblemon-modpack',
-    name:'Cobblemon Adventure',
-    loader:'fabric',
-    gameVersion:'1.20.1',
-    desc:'Catch, train, and battle Pokémon with open-world Minecraft exploration.',
-    tag:'Modpack',
-    icon:'🔴'
-  },
-  {
-    id:'neoforge-1.21.1',
-    name:'NeoForge Standard',
-    loader:'neoforge',
-    gameVersion:'1.21.1',
-    desc:'The modern standard fork of Forge for 1.21+ mod compatibility.',
-    tag:'Modern Forge',
-    icon:'🔥'
-  },
-  {
-    id:'forge-1.20.1',
-    name:'Forge Classic 1.20.1',
-    loader:'forge',
-    gameVersion:'1.20.1',
-    desc:'Massive mod library support: Create, Twilight Forest, Mekanism, and more.',
-    tag:'Classic Mods',
-    icon:'🛠'
-  },
-  {
-    id:'pvp-1.8.9',
-    name:'PvP Legacy 1.8.9',
-    loader:'vanilla',
-    gameVersion:'1.8.9',
-    desc:'Classic 1.8 combat mechanics for Hypixel and competitive Bedwars.',
-    tag:'PvP Arena',
-    icon:'⚔'
-  },
-  {
-    id:'quilt-1.21.1',
-    name:'Quilt Performance',
-    loader:'quilt',
-    gameVersion:'1.21.1',
-    desc:'Modern community-driven loader with full Fabric mod compatibility.',
-    tag:'Next-Gen',
-    icon:'💎'
-  },
-  {
-    id:'vanilla-1.21.1',
-    name:'Pure Vanilla 1.21.1',
-    loader:'vanilla',
-    gameVersion:'1.21.1',
-    desc:'Untouched vanilla release with latest Tricky Trials updates.',
-    tag:'Vanilla',
-    icon:'🟩'
-  }
-]);
-
-const loaderCounts=computed(()=>{
-  const counts:Record<string,number>={all:props.instances.length,fabric:0,forge:0,neoforge:0,quilt:0,vanilla:0};
-  for(const inst of props.instances){
-    const l=(inst.loader||'vanilla').toLowerCase();
-    if(counts[l]!==undefined)counts[l]++;
-  }
-  return counts;
-});
-
-const visibleInstances=computed(()=>{
-  let list=[...props.instances];
-  if(loaderFilter.value!=='all'){
-    list=list.filter(i=>(i.loader||'vanilla').toLowerCase()===loaderFilter.value);
-  }
-  const q=librarySearch.value.trim().toLowerCase();
-  if(q){
-    list=list.filter(i=>`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(q));
-  }
-  list.sort((a,b)=>{
-    const aPin=pinnedInstances.value.includes(a.id);
-    const bPin=pinnedInstances.value.includes(b.id);
-    if(aPin&&!bPin)return -1;
-    if(!aPin&&bPin)return 1;
-    if(sortBy.value==='played'){
-      if(a.running&&!b.running)return -1;
-      if(!a.running&&b.running)return 1;
-      return a.name.localeCompare(b.name);
-    }
-    if(sortBy.value==='name'){
-      return a.name.localeCompare(b.name);
-    }
-    if(sortBy.value==='version'){
-      return (b.gameVersion||'').localeCompare(a.gameVersion||'',undefined,{numeric:true});
-    }
-    if(sortBy.value==='loader'){
-      return (a.loader||'').localeCompare(b.loader||'');
-    }
-    return 0;
-  });
-  return list;
-});
-
-const sortLabels:Record<string,string>={
-  played:'⇅ Last played / Active',
-  name:'🔤 Name (A - Z)',
-  version:'📦 Game version',
-  loader:'⚡ Mod loader'
-};
-
-const pinnedInstances=ref<string[]>(JSON.parse(localStorage.getItem('solara:pinned-instances')||'[]'));
-function togglePin(id:string){
-  const idx=pinnedInstances.value.indexOf(id);
-  if(idx>=0)pinnedInstances.value.splice(idx,1);
-  else pinnedInstances.value.push(id);
-  localStorage.setItem('solara:pinned-instances',JSON.stringify(pinnedInstances.value));
-}
-
-const visiblePresets=computed(()=>{
-  const q=librarySearch.value.trim().toLowerCase();
-  if(!q)return instancePresets.value;
-  return instancePresets.value.filter(p=>`${p.name} ${p.gameVersion} ${p.loader} ${p.desc}`.toLowerCase().includes(q));
-});
-
-
-function handlePlayInstance(instance:any){
-  if(!hasLicense.value){
-    emit('account');
-    return;
-  }
-  emit('play',instance);
-}
-
-function installPreset(p:any){
-  emit('create-preset',{
-    name:p.name,
-    loader:p.loader,
-    gameVersion:p.gameVersion
-  });
-}
-
-const popularHighlights=[
-  {id:'fabulously-optimized',title:'Fabulously Optimized',type:'modpack',description:'Fast, smooth Minecraft with shaders and mod support.',glyph:'🚀',downloads:'19.5M',accent:'#38bdf8'},
-  {id:'sodium',title:'Sodium',type:'mod',description:'Modern rendering engine providing massive FPS gains.',glyph:'⚡',downloads:'256.8M',accent:'#0ea5e9'},
-  {id:'iris',title:'Iris Shaders',type:'mod',description:'Modern shader pack support with full Sodium optimization.',glyph:'✨',downloads:'198.6M',accent:'#38bdf8'},
-  {id:'cobblemon',title:'Cobblemon',type:'modpack',description:'Catch, train, and battle Pokémon in open Minecraft.',glyph:'🔴',downloads:'11.6M',accent:'#f43f5e'}
+function art(instance:any){let hash=0;for(const char of instance.name||'')hash=(hash*31+char.charCodeAt(0))|0;return '/art/'+scenes[Math.abs(hash)%scenes.length]+'-v1-small.webp'}
+function readPins():string[]{try{const value=JSON.parse(localStorage.getItem('solara:pinned-instances')||'[]');return Array.isArray(value)?value.filter(v=>typeof v==='string'):[]}catch{return []}}
+const pinned=ref(readPins());
+function togglePin(id:string){pinned.value=pinned.value.includes(id)?pinned.value.filter(v=>v!==id):[...pinned.value,id];try{localStorage.setItem('solara:pinned-instances',JSON.stringify(pinned.value))}catch{}}
+const visibleInstances=computed(()=>props.instances.filter(i=>(loaderFilter.value==='all'||i.loader===loaderFilter.value)&&`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(librarySearch.value.trim().toLowerCase())).sort((a,b)=>Number(pinned.value.includes(b.id))-Number(pinned.value.includes(a.id))||(sortBy.value==='version'?(b.gameVersion||'').localeCompare(a.gameVersion||'',undefined,{numeric:true}):sortBy.value==='active'?Number(b.running)-Number(a.running)||a.name.localeCompare(b.name):a.name.localeCompare(b.name))));
+const templates=[
+ {id:'fabric',name:'Fabric essentials',loader:'fabric',gameVersion:'1.21.1',desc:'A lightweight foundation for your favourite mods.',tone:'mint',scene:'forest-valley'},
+ {id:'vanilla',name:'Simply Minecraft',loader:'vanilla',gameVersion:'1.21.1',desc:'The original game. A fresh world of possibilities.',tone:'amber',scene:'coastal-hamlet'},
+ {id:'forge',name:'Forge workshop',loader:'forge',gameVersion:'1.20.1',desc:'Start a classic Forge setup and add your own mods.',tone:'rose',scene:'workshop'},
+ {id:'neoforge',name:'A new adventure',loader:'neoforge',gameVersion:'1.21.1',desc:'A clean NeoForge instance, ready to make your own.',tone:'violet',scene:'alpine-lake'},
+ {id:'quilt',name:'Quilt canvas',loader:'quilt',gameVersion:'1.21.1',desc:'Build a personal mod collection with Quilt.',tone:'sky',scene:'canyon-settlement'}
 ];
+const visibleTemplates=computed(()=>templates.filter(t=>`${t.name} ${t.loader}`.toLowerCase().includes(librarySearch.value.trim().toLowerCase())));
+const discoveries=[{type:'mod',name:'A little more possibility.',label:'EXPLORE MODS',copy:'Small additions. A whole new experience.',scene:'workshop',tone:'amber',icon:Package},{type:'modpack',name:'Your next obsession.',label:'DISCOVER MODPACKS',copy:'Find a world someone else dreamed up.',scene:'coastal-hamlet',tone:'mint',icon:Box},{type:'shader',name:'See it differently.',label:'FIND SHADERS',copy:'Give a familiar world a fresh perspective.',scene:'alpine-lake',tone:'violet',icon:Sparkles}];
+function play(instance:any){if(instance.running){emit('stop',instance);return}if(!activeAccount.value){emit('account');return}emit('play',instance)}
+function status(value:string){return ['online','operational','connected'].includes(value?.toLowerCase())?'Available':value||'Status not reported'}
 </script>
-
 <template>
 <section class="new-home">
-  <!-- Top Hero Banner -->
-  <div class="home-hero-card">
-    <img src="/art/forest-valley-v1.webp" alt="" class="home-hero-bg" loading="eager">
-    <div class="home-hero-overlay"></div>
-    <header class="new-home-intro">
-      <div class="hero-left-copy">
-        <span class="workspace-kicker">{{account?'WELCOME BACK, '+(account.name||account.username||'PLAYER').toUpperCase():'WELCOME TO SOLARA'}}</span>
-        <h1>Less setup.<br><span>More Minecraft.</span></h1>
-        <p>Your versions, mods and worlds. High performance, zero bloat, independent.</p>
-        <div class="new-home-actions">
-          <button class="workspace-play" @click="emit('navigate','launcher')"><Play :size="18"/> Open Minecraft</button>
-          <button @click="emit('create')"><Plus :size="18"/> New instance</button>
-        </div>
-      </div>
-      <div v-if="activeInst" class="hero-active-card" @click="emit('open-instance',activeInst)">
-        <span class="hero-card-kicker">{{activeInst.running?'CURRENTLY RUNNING':'CONTINUE PLAYING'}}</span>
-        <div class="hero-active-content">
-          <img :src="instanceArtSrc(activeInst)" alt="" class="hero-active-thumb">
-          <div class="hero-active-info">
-            <strong>{{activeInst.name}}</strong>
-            <small>{{activeInst.gameVersion}} · <span class="capitalize">{{activeInst.loader}}</span></small>
-          </div>
-          <button class="hero-active-play" :title="(activeInst.running?'Manage ':'Play ')+activeInst.name" :aria-label="(activeInst.running?'Manage ':'Play ')+activeInst.name" @click.stop="handlePlayInstance(activeInst)">
-            <Play :size="15"/>
-          </button>
-        </div>
-      </div>
-      <div v-else class="new-home-wordmark" aria-hidden="true">
-        <span>SO</span><span>LA<span class="wordmark-accent">R</span>A<span class="wordmark-dot">.</span></span>
-        <small>MAKE IT YOUR WORLD</small>
-      </div>
-    </header>
-  </div>
-
-  <!-- Main 2-Column Layout -->
+  <div class="home-welcome"><div><span class="workspace-kicker">YOUR SPACE TO PLAY</span><h1>{{account?'Welcome back, '+(account.name||account.username)+'.':'Welcome to Solara.'}}</h1></div><div class="new-home-actions"><button class="workspace-play" @click="emit('create')"><Plus/> Create a world</button></div></div>
+   <section v-if="recentInstances.length" class="jump-back-section" aria-label="Jump back in">
+     <div class="workspace-section-heading"><h2>Jump back in</h2><span class="jump-section-note">Your local instances</span></div>
+     <article v-for="inst in recentInstances" :key="inst.id" class="jump-instance-row"><button class="jump-instance-open" :aria-label="'Continue '+inst.name" @click="emit('open-instance',inst)"><img :src="art(inst)" alt=""><span><strong>{{inst.name}}</strong><small><LoaderMark :loader="inst.loader"/>{{inst.loader}} · Minecraft {{inst.gameVersion}}</small></span></button><span class="jump-instance-state" :class="{running:inst.running}"><span class="dot"/>{{inst.running?'Running':'Ready to play'}}</span><button class="workspace-play" :aria-label="(inst.running?'Stop recent instance ':'Play recent instance ')+inst.name" @click="play(inst)"><Square v-if="inst.running"/><Play v-else/>{{inst.running?'Stop':'Play'}}</button><button class="jump-manage" :aria-label="'Manage recent instance '+inst.name" @click="emit('open-instance',inst)"><ArrowUpRight/></button></article>
+   </section>
   <div class="home-main-layout">
-    <!-- Left Column: Library -->
     <div class="home-content-column">
-      <!-- Library Section -->
       <section class="home-library-section">
-        <div class="library-header-row">
-          <div class="library-title-group">
-            <h2>Library</h2>
-            <div class="library-tab-pills">
-              <button class="library-tab-pill" :class="{active: activeLibraryTab==='instances'}" @click="activeLibraryTab='instances'">
-                Installed ({{instances.length}})
-              </button>
-              <button class="library-tab-pill" :class="{active: activeLibraryTab==='presets'}" @click="activeLibraryTab='presets'">
-                ✨ Instance Templates ({{instancePresets.length}})
-              </button>
-            </div>
-          </div>
-          <div class="library-action-buttons">
-            <button class="solara-btn-secondary" @click="emit('create')">
-              <Plus :size="14"/> New group
-            </button>
-            <button class="solara-btn-primary" @click="emit('create')">
-              <Plus :size="14"/> New instance
-            </button>
-          </div>
-        </div>
-
-        <div class="library-controls-bar">
-          <div class="library-search-box">
-            <input v-model="librarySearch" :placeholder="activeLibraryTab==='instances'?'Search instances…':'Search instance templates…'" aria-label="Search instances">
-          </div>
-          <div v-if="activeLibraryTab==='instances'" class="library-filter-pills">
-            <div class="sort-dropdown-wrap">
-              <button type="button" class="filter-pill-dropdown" :class="{active: sortDropdownOpen}" @click="sortDropdownOpen = !sortDropdownOpen">
-                <span>{{ sortLabels[sortBy] || 'Sort' }}</span> <ChevronDown :size="13"/>
-              </button>
-              <div v-if="sortDropdownOpen" class="sort-dropdown-menu">
-                <button type="button" class="sort-menu-item" :class="{active: sortBy==='played'}" @click="sortBy='played'; sortDropdownOpen=false">
-                  <span>⇅ Last played / Active</span>
-                  <Check v-if="sortBy==='played'" :size="13"/>
-                </button>
-                <button type="button" class="sort-menu-item" :class="{active: sortBy==='name'}" @click="sortBy='name'; sortDropdownOpen=false">
-                  <span>🔤 Name (A - Z)</span>
-                  <Check v-if="sortBy==='name'" :size="13"/>
-                </button>
-                <button type="button" class="sort-menu-item" :class="{active: sortBy==='version'}" @click="sortBy='version'; sortDropdownOpen=false">
-                  <span>📦 Game version</span>
-                  <Check v-if="sortBy==='version'" :size="13"/>
-                </button>
-                <button type="button" class="sort-menu-item" :class="{active: sortBy==='loader'}" @click="sortBy='loader'; sortDropdownOpen=false">
-                  <span>⚡ Mod loader</span>
-                  <Check v-if="sortBy==='loader'" :size="13"/>
-                </button>
-              </div>
-            </div>
-
-            <button type="button" class="filter-pill" :class="{active: loaderFilter==='all'}" @click="loaderFilter='all'">
-              All ({{ loaderCounts.all }})
-            </button>
-            <button v-if="loaderCounts.fabric > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='fabric'}" @click="loaderFilter='fabric'">
-              Fabric ({{ loaderCounts.fabric }})
-            </button>
-            <button v-if="loaderCounts.forge > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='forge'}" @click="loaderFilter='forge'">
-              Forge ({{ loaderCounts.forge }})
-            </button>
-            <button v-if="loaderCounts.neoforge > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='neoforge'}" @click="loaderFilter='neoforge'">
-              NeoForge ({{ loaderCounts.neoforge }})
-            </button>
-            <button v-if="loaderCounts.vanilla > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='vanilla'}" @click="loaderFilter='vanilla'">
-              Vanilla ({{ loaderCounts.vanilla }})
-            </button>
-            <button v-if="loaderCounts.quilt > 0" type="button" class="filter-pill" :class="{active: loaderFilter==='quilt'}" @click="loaderFilter='quilt'">
-              Quilt ({{ loaderCounts.quilt }})
-            </button>
-          </div>
-        </div>
-
-        <!-- 2A. Instance Cards Grid -->
+        <div class="library-header-row"><div class="library-title-group"><h2>Your library <span class="count-badge">{{instances.length}}</span></h2><p>A home for every kind of Minecraft.</p></div><button class="solara-btn-primary" @click="emit('create')"><Plus :size="15"/> New instance</button></div>
+        <div class="library-tab-row"><div class="library-tab-pills" aria-label="Library categories"><button class="library-tab-pill" :class="{active:activeLibraryTab==='instances'}" :aria-pressed="activeLibraryTab==='instances'" @click="activeLibraryTab='instances'">My instances</button><button class="library-tab-pill" :class="{active:activeLibraryTab==='templates'}" :aria-pressed="activeLibraryTab==='templates'" @click="activeLibraryTab='templates'"><Sparkles :size="14"/> Quick starts</button></div><button class="text-link" @click="emit('navigate','launcher')">View library <ArrowRight :size="14"/></button></div>
+        <div class="library-controls-bar"><label class="library-search-box"><Search :size="16"/><input v-model="librarySearch" placeholder="Find an instance…" aria-label="Search instances"></label><SelectControl v-if="activeLibraryTab==='instances'" v-model="sortBy" label="Sort home instances" :options="[{value:'name',label:'Name'},{value:'active',label:'Running first'},{value:'version',label:'Game version'}]"/></div>
+        <div v-if="activeLibraryTab==='instances'&&instances.length" class="library-filter-pills"><button v-for="loader in ['all','fabric','quilt','forge','neoforge','vanilla'].filter(l=>l==='all'||instances.some(i=>i.loader===l))" :key="loader" class="filter-pill" :class="{active:loaderFilter===loader}" :aria-pressed="loaderFilter===loader" @click="loaderFilter=loader">{{loader==='all'?'All instances':loader}}</button></div>
         <template v-if="activeLibraryTab==='instances'">
           <div v-if="visibleInstances.length" class="solara-instance-grid">
-            <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" :class="{pinned: pinnedInstances.includes(inst.id)}" @click="emit('open-instance', inst)">
-              <div class="instance-cyan-badge">
-                <div class="instance-3d-block">{{ pinnedInstances.includes(inst.id) ? '★' : '⚡' }}</div>
-              </div>
-              <div class="instance-card-meta">
-                <h3>{{inst.name}}</h3>
-                <p>{{inst.loader}} {{inst.gameVersion}}</p>
-              </div>
-              <div class="instance-card-actions" @click.stop>
-                <button type="button" class="card-action-btn pin-btn" :class="{pinned: pinnedInstances.includes(inst.id)}" :title="pinnedInstances.includes(inst.id)?'Unpin from top':'Pin to top of library'" @click="togglePin(inst.id)">
-                  ★
-                </button>
-                <button class="card-action-btn" title="Duplicate instance" @click="emit('duplicate', inst)">
-                  <Copy :size="13"/>
-                </button>
-                <button class="card-action-btn" title="Open instance folder" @click="emit('open-folder', inst)">
-                  <FolderOpen :size="13"/>
-                </button>
-                <button class="instance-quick-play" :title="hasLicense?'Play '+inst.name:'Sign in with Minecraft Java account to play'" @click="handlePlayInstance(inst)">
-                  <Play :size="15"/>
-                </button>
-              </div>
+            <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" :class="{pinned:pinned.includes(inst.id)}">
+              <button class="home-instance-cover" :aria-label="'Manage '+inst.name" @click="emit('open-instance',inst)"><img :src="art(inst)" alt="" loading="lazy"><span class="cover-loader"><LoaderMark :loader="inst.loader"/>{{inst.loader}}</span><span v-if="inst.running" class="cover-running"><span class="dot"/> Running</span></button>
+              <div class="home-instance-body"><button class="home-instance-name" @click="emit('open-instance',inst)"><h3>{{inst.name}}</h3><span>Minecraft {{inst.gameVersion}}</span></button><div class="instance-card-actions"><button class="card-action-btn pin-btn" :class="{pinned:pinned.includes(inst.id)}" :aria-label="(pinned.includes(inst.id)?'Unpin ':'Pin ')+inst.name" :aria-pressed="pinned.includes(inst.id)" @click="togglePin(inst.id)">★</button><button class="card-action-btn" title="Open instance folder" @click="emit('open-folder',inst)"><FolderOpen :size="14"/></button><button class="instance-quick-play" :disabled="!inst.running&&inst.state!=='installed'" :aria-label="(inst.running?'Stop ':'Play ')+inst.name" @click="play(inst)"><Square v-if="inst.running" :size="14"/><Play v-else :size="14"/></button></div></div>
             </article>
           </div>
-
-          <!-- Empty State -->
-          <div v-else class="new-home-empty">
-            <div>
-              <span class="empty-library-symbol"><Plus/></span>
-              <h3>Your first world starts here.</h3>
-              <p>Pick a Minecraft version or 1-click template. We will take care of its files and Java.</p>
-            </div>
-            <button class="solara-btn-primary" @click="emit('create')">Create your first instance <ArrowRight :size="16"/></button>
-          </div>
+          <div v-else-if="instances.length" class="workspace-empty"><Search/><h3>No matching instances</h3><p>Try a different name or loader.</p><button @click="librarySearch='';loaderFilter='all'">Clear filters</button></div>
+          <div v-else class="new-home-empty"><div class="empty-blocks" aria-hidden="true"><Box/><span><Plus/></span></div><h3>Your first world starts here.</h3><p>A fresh survival world? A modded adventure?<br>Start with a version and make it your own.</p><button class="solara-btn-primary" @click="emit('create')"><Plus :size="15"/> Create your first instance</button><button class="text-link" @click="activeLibraryTab='templates'">Or try a quick start <ArrowRight :size="13"/></button></div>
         </template>
-
-        <!-- 2B. Instance Templates & Presets Grid -->
-        <template v-else>
-          <div class="solara-preset-grid">
-            <article v-for="preset in visiblePresets" :key="preset.id" class="preset-card">
-              <div class="preset-top">
-                <span class="preset-icon">{{preset.icon}}</span>
-                <span class="preset-tag">{{preset.tag}}</span>
-              </div>
-              <div class="preset-body">
-                <h3>{{preset.name}}</h3>
-                <p class="preset-desc">{{preset.desc}}</p>
-                <div class="preset-chips">
-                  <span class="loader-chip">{{preset.loader}}</span>
-                  <span class="version-chip">{{preset.gameVersion}}</span>
-                </div>
-              </div>
-              <button class="solara-btn-primary preset-install-btn" @click="installPreset(preset)">
-                <Plus :size="14"/> Install instance
-              </button>
-            </article>
-          </div>
-        </template>
+        <template v-else><p class="template-explanation">Clean game and loader setups. Add the mods you love afterwards.</p><div class="solara-preset-grid"><article v-for="preset in visibleTemplates" :key="preset.id" class="preset-card" :data-tone="preset.tone"><img :src="'/art/'+preset.scene+'-v1-small.webp'" alt="" loading="lazy"><div class="preset-body"><span class="preset-loader"><LoaderMark :loader="preset.loader"/>{{preset.loader}} · {{preset.gameVersion}}</span><h3>{{preset.name}}</h3><p>{{preset.desc}}</p><button class="solara-btn-secondary" @click="emit('create-preset',preset)"><Plus :size="14"/> Create instance</button></div></article></div><div v-if="!visibleTemplates.length" class="workspace-empty"><Search/><p>No quick starts match your search.</p></div></template>
       </section>
-
-      <!-- 3. Community Highlights Section -->
-      <section class="home-community-section">
-        <div class="workspace-section-heading">
-          <div><span class="workspace-kicker">COMMUNITY SHOWCASE</span><h2>Popular mods & modpacks</h2></div>
-          <button class="text-link" @click="emit('navigate','explore')">Browse all <ArrowRight :size="15"/></button>
-        </div>
-        <div class="home-trending-grid">
-          <article v-for="item in popularHighlights" :key="item.id" class="card home-mod-card" @click="emit('navigate','explore')">
-            <div class="home-mod-top">
-              <div class="home-mod-glyph-badge" :style="{background: item.accent + '1a', color: item.accent, borderColor: item.accent + '33'}">
-                <span>{{item.glyph}}</span>
-              </div>
-              <div class="home-mod-meta">
-                <h3>{{item.title}}</h3>
-                <span class="pill download-pill"><Download :size="11"/> {{item.downloads}}</span>
-              </div>
-            </div>
-            <p class="home-mod-desc">{{item.description}}</p>
-            <span class="text-link home-mod-explore">Explore <ArrowUpRight :size="14"/></span>
-          </article>
-        </div>
-      </section>
+      <section class="home-community-section"><div class="workspace-section-heading"><div><span class="workspace-kicker">A LITTLE INSPIRATION</span><h2>Make something of your own.</h2></div><button class="text-link" @click="emit('navigate','explore')">Discover more <ArrowRight :size="14"/></button></div><div class="home-discovery-grid"><button v-for="item in discoveries" :key="item.type" class="home-discovery-card" :data-tone="item.tone" @click="emit('discover',item.type)"><div class="discovery-card-art"><img :src="'/art/'+item.scene+'-v1-small.webp'" alt="" loading="lazy"><span><component :is="item.icon"/></span></div><div class="discovery-card-copy"><small>{{item.label}}</small><h3>{{item.name}}</h3><p>{{item.copy}}</p><ArrowUpRight :size="16"/></div></button></div></section>
+      <section v-if="projects.length" class="home-projects"><div class="workspace-section-heading"><div><span class="workspace-kicker">THE SOLARA ECOSYSTEM</span><h2>More to explore.</h2></div></div><div class="home-project-grid"><button v-for="project in projects.slice(0,4)" :key="project.id" :disabled="!project.url" @click="emit('external',project.url)"><span class="project-sigil"><Layers3/></span><span><strong>{{project.name}}</strong><small>{{project.description}}</small></span><ArrowUpRight :size="15"/></button></div></section>
     </div>
 
-    <!-- Right Column: Playing As & News -->
-    <aside class="home-side-column">
-      <!-- Playing As Box -->
-      <div class="side-playing-box">
-        <span class="side-kicker">Playing as</span>
-        <div class="playing-account-card" @click="emit('account')">
-          <div class="playing-avatar-wrap">
-            <img v-if="activeMinecraftAccount && !avatarFailed" :src="'https://mc-heads.net/avatar/' + activeMinecraftAccount.name + '/48'" alt="" class="playing-avatar" @error="avatarFailed = true">
-            <div v-else class="playing-avatar-placeholder">
-              <User :size="20"/>
-            </div>
-          </div>
-          <div class="playing-info">
-            <strong>{{activeMinecraftAccount ? activeMinecraftAccount.name : 'No Minecraft account'}}</strong>
-            <small v-if="activeMinecraftAccount" class="verified-tag"><Check :size="10"/> Java License Verified</small>
-            <small v-else class="unverified-tag">Click to sign in &amp; play</small>
-          </div>
-          <ChevronDown :size="15" class="playing-chevron"/>
-        </div>
-
-        <div class="side-solara-account">
-          <button v-if="!account" class="side-solara-signin-link" @click="emit('solara-signin')">
-            Sign in to a Solara account to sync settings and see what your friends are playing!
-          </button>
-          <div v-else class="side-solara-connected">
-            <ShieldCheck :size="14"/>
-            <span>Solara: <strong>{{account.name || account.username}}</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- News & Feature Promo -->
-      <div class="side-news-box">
-        <span class="side-kicker">News</span>
-        <div class="side-news-card" @click="emit('navigate', 'explore')">
-          <div class="side-news-art">
-            <div class="news-art-sliders">
-              <div class="news-slider-line"><span></span></div>
-              <div class="news-slider-line"><span></span></div>
-            </div>
-            <span class="news-link-badge">🔗</span>
-          </div>
-          <h4>Sync settings across instances</h4>
-          <p>Easily copy configs and options between your local setups.</p>
-        </div>
-      </div>
-
-      <!-- Solara Hosting Promo Banner -->
-      <div class="side-hosting-card">
-        <div class="hosting-badge"><span class="brand-glyph">✦</span> solara hosting</div>
-        <h3>Get your next server on Solara.</h3>
-        <p>Instant provisioning, dedicated IP addresses, and DDoS protection.</p>
-        <button class="solara-btn-primary hosting-btn" @click="emit('navigate', 'services')">
-          Explore services <ArrowUpRight :size="14"/>
-        </button>
-      </div>
-
-      <!-- Quick Feature Setup -->
-      <div class="side-feature-pills">
-        <div class="feature-item"><Coffee :size="16"/><span>Automatic Java</span></div>
-        <div class="feature-item"><Box :size="16"/><span>Isolated Worlds</span></div>
-        <div class="feature-item"><ShieldCheck :size="16"/><span>Independent Auth</span></div>
-      </div>
-    </aside>
   </div>
 </section>
 </template>

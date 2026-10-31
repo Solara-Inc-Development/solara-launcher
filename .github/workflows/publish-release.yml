@@ -4,148 +4,50 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag to publish (e.g. V-0.0.06)'
+        description: 'Exact verified version tag (for example V-0.0.14)'
         required: true
-        default: 'V-0.0.06'
   push:
-    branches:
-      - main
     tags:
       - 'V-*'
 
 permissions:
   contents: write
+concurrency:
+  group: solara-release-${{ github.event.inputs.version || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-
-      - name: Prepare release assets and notes
+          node-version: '22'
+      - name: Verify signed installer and exact corresponding source
+        env:
+          VERSION: ${{ github.event.inputs.version || github.ref_name }}
+        run: node scripts/prepare-github-release.mjs "$VERSION" release-assets
+      - name: Publish immutable assets as latest release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ github.event.inputs.version || github.ref_name }}
         run: |
-          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
-            VERSION=$(node -e "
-              const fs = require('fs');
-              const { execSync } = require('child_process');
-              let v = '';
-              if (fs.existsSync('builds/releases.json')) {
-                try {
-                  const data = JSON.parse(fs.readFileSync('builds/releases.json', 'utf8'));
-                  const published = (data.releases || []).filter(r => r.state === 'published');
-                  if (published.length) v = published[published.length - 1].publicVersion;
-                } catch {}
-              }
-              if (!v && fs.existsSync('packages/shared/build.json')) {
-                try {
-                  const data = JSON.parse(fs.readFileSync('packages/shared/build.json', 'utf8'));
-                  if (data.publicVersion) v = data.publicVersion;
-                } catch {}
-              }
-              if (!v && fs.existsSync('builds/current-build.json')) {
-                try {
-                  const data = JSON.parse(fs.readFileSync('builds/current-build.json', 'utf8'));
-                  if (data.publicVersion) v = data.publicVersion;
-                } catch {}
-              }
-              if (!v) {
-                try {
-                  v = execSync('git describe --tags --abbrev=0 --match \"V-*\"', { encoding: 'utf8' }).trim();
-                } catch {}
-              }
-              console.log(v || 'V-0.0.13');
-            ")
-          fi
-
-          # Normalize version to official V-X.Y.Z tag format if bare numbers supplied
-          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            VERSION="V-$VERSION"
-          elif [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            VERSION="V-${VERSION#v}"
-          fi
-          echo "Preparing GitHub Release for $VERSION..."
-
-          # Fetch genuine signed executable and signature from official portal or workspace
-          if [ ! -f "solaralauncher.exe" ]; then
-            if [ -f "builds/$VERSION/solaralauncher.exe" ]; then
-              cp "builds/$VERSION/solaralauncher.exe" ./solaralauncher.exe
-            else
-              curl -fLO --retry 5 --retry-delay 2 --retry-connrefused --connect-timeout 20 "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe" || true
-            fi
-          fi
-          if [ ! -f "solaralauncher.exe.sig" ]; then
-            if [ -f "builds/$VERSION/solaralauncher.exe.sig" ]; then
-              cp "builds/$VERSION/solaralauncher.exe.sig" ./solaralauncher.exe.sig
-            else
-              curl -fLO --retry 5 --retry-delay 2 --retry-connrefused --connect-timeout 20 "https://app.solara-inc.in/builds/$VERSION/solaralauncher.exe.sig" || true
-            fi
-          fi
-
-          if [ -f "solaralauncher.exe" ]; then
-            echo "Verified installer binary: solaralauncher.exe ($(wc -c < solaralauncher.exe) bytes)"
-          else
-            echo "Notice: solaralauncher.exe not found locally or remotely for $VERSION"
-          fi
-
-          # Archive source tree from tag if available, otherwise from HEAD
-          if git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null 2>&1; then
-            echo "Archiving source tree from git tag $VERSION..."
-            git archive -o source.zip "$VERSION"
-          else
-            echo "Archiving source tree from HEAD..."
-            git archive -o source.zip HEAD
-          fi
-
-          # Extract release notes from CHANGELOG.md
-          python3 -c '
-          import re, os
-          version = os.environ.get("VERSION", "")
-          clean_ver = re.sub(r"^[vV]-?", "", version)
-          notes = ""
-          if os.path.exists("CHANGELOG.md"):
-              changelog = open("CHANGELOG.md", encoding="utf-8").read()
-              pattern = r"(##\s+.*?(?:%s|V-%s|%s)\b.*?)(?=\n##\s+|$)" % (re.escape(version), re.escape(clean_ver), re.escape(clean_ver))
-              match = re.search(pattern, changelog, re.S)
-              if match:
-                  notes = match.group(1).strip()
-          if not notes:
-              notes = f"# Solara Launcher {version}\n\nTesting preview release."
-          with open("release_notes.md", "w", encoding="utf-8") as f:
-              f.write(notes + "\n\n---\n### Verification & Signatures\n- **Installer**: `solaralauncher.exe`\n- **Minisign Signature**: `solaralauncher.exe.sig`\n- Official Portal: https://app.solara-inc.in\n")
-          '
-
-          ASSETS=()
-          [ -f "solaralauncher.exe" ] && ASSETS+=("solaralauncher.exe")
-          [ -f "solaralauncher.exe.sig" ] && ASSETS+=("solaralauncher.exe.sig")
-          [ -f "source.zip" ] && ASSETS+=("source.zip")
-
-          # Handle existing release cleanly without deletion errors
+          set -euo pipefail
           if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release $VERSION already exists on GitHub."
-            echo "Ensuring release notes and assets are up to date..."
-            gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --latest
-            if [ ${#ASSETS[@]} -gt 0 ]; then
-              gh release upload "$VERSION" "${ASSETS[@]}" --clobber
-            fi
-            echo "Release $VERSION verified and up to date."
+            mkdir existing-assets
+            for asset in solaralauncher.exe solaralauncher.exe.sig source.zip; do
+              gh release download "$VERSION" --pattern "$asset" --dir existing-assets
+              cmp "release-assets/$asset" "existing-assets/$asset"
+            done
+            gh release edit "$VERSION" --latest
           else
-            echo "Creating new official release $VERSION as latest..."
-            if ! gh release create "$VERSION" "${ASSETS[@]}" \
+            gh release create "$VERSION" \
+              release-assets/solaralauncher.exe \
+              release-assets/solaralauncher.exe.sig \
+              release-assets/source.zip \
+              --verify-tag --latest \
               --title "Solara Launcher $VERSION" \
-              --notes-file release_notes.md \
-              --latest; then
-              echo "Release creation encountered conflict; updating existing release..."
-              gh release edit "$VERSION" --title "Solara Launcher $VERSION" --notes-file release_notes.md --latest
-              if [ ${#ASSETS[@]} -gt 0 ]; then
-                gh release upload "$VERSION" "${ASSETS[@]}" --clobber
-              fi
-            fi
-            echo "Release $VERSION published successfully."
+              --notes-file release-assets/release_notes.md
           fi
