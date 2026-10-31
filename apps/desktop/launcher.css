@@ -3,7 +3,18 @@
    Fully decoupled, autonomous design systems for Dark and Light appearance.
    ========================================================================== */
 
-/* 1. Base Shell Layout */
+/* 1. Base Shell Layout & Viewport Canvas */
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0a0c10 !important;
+  color: #f3f5f9;
+  color-scheme: dark;
+}
+
 .shell {
   color: var(--text);
   background: var(--canvas);
@@ -14,7 +25,7 @@
   overflow: hidden;
   display: grid;
   grid-template-columns: 94px minmax(0, 1fr);
-  grid-template-rows: 48px minmax(0, 1fr) 32px;
+  grid-template-rows: 42px minmax(0, 1fr) 30px;
 }
 
 /* 2. Theme Tokens */
@@ -421,10 +432,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 20px;
-  height: 48px;
-  min-height: 48px;
-  max-height: 48px;
+  padding-left: 18px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   background: var(--titlebar-bg);
   border-bottom: 1px solid var(--line);
   user-select: none;
@@ -490,7 +501,7 @@
   padding: 0;
   border: 0;
   border-radius: 0;
-  width: 44px;
+  width: 40px;
   height: 100%;
   background: none;
   color: var(--window-btn-color);
@@ -717,20 +728,20 @@
 }
 .app-topbar {
   position: absolute;
-  top: -42px;
-  left: 235px;
-  right: 150px;
-  height: 36px;
-  min-height: 36px;
-  border-radius: 9px;
+  top: -37px;
+  left: 215px;
+  right: 140px;
+  height: 32px;
+  min-height: 32px;
+  border-radius: 8px;
   background: var(--topbar-bg);
   border: 1px solid var(--line);
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
-  gap: 10px;
+  padding: 0 8px;
+  gap: 8px;
   z-index: 101;
 }
 .toolbar-location {
@@ -775,13 +786,13 @@
   gap: 6px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 6px;
   padding: 0 8px;
-  height: 28px;
+  height: 26px;
   flex: 1;
   max-width: 280px;
 }
-.global-search svg { color: var(--muted); width: 14px; height: 14px; }
+.global-search svg { color: var(--muted); width: 13px; height: 13px; }
 .shell .global-search input {
   background: transparent;
   border: 0;
@@ -800,7 +811,7 @@
 .top-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .toolbar-running {
   display: flex;
@@ -810,10 +821,10 @@
   color: var(--muted);
   background: var(--surface);
   border: 1px solid var(--line);
-  padding: 0 8px;
-  height: 28px;
+  padding: 0 7px;
+  height: 26px;
   border-radius: 6px;
-  max-width: 160px;
+  max-width: 150px;
 }
 .toolbar-running .dot {
   width: 6px;
@@ -833,10 +844,10 @@
   background: transparent;
   color: var(--muted);
 }
-.shell .toolbar-running button svg { width: 12px; height: 12px; }
+.shell .toolbar-running button svg { width: 11px; height: 11px; }
 .shell .toolbar-downloads {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -847,7 +858,7 @@
   align-items: center;
   justify-content: center;
 }
-.shell .toolbar-downloads svg { width: 14px; height: 14px; }
+.shell .toolbar-downloads svg { width: 13px; height: 13px; }
 .toolbar-download-dot {
   position: absolute;
   top: 3px;
@@ -859,8 +870,8 @@
 }
 .shell .topbar-mc-account,
 .shell .signin {
-  height: 28px;
-  padding: 0 9px;
+  height: 26px;
+  padding: 0 8px;
   border-radius: 6px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -948,6 +959,53 @@
   font-weight: 650;
   gap: 6px;
 }
+.shell[data-theme="dark"] .home-welcome {
+  min-height: 250px;
+  padding: 30px 36px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0d1017 0%, #131722 50%, #0a0d14 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.shell[data-theme="dark"] .welcome-scene {
+  position: absolute;
+  right: 28px;
+  top: 20px;
+  height: calc(100% - 40px);
+  width: 35%;
+  border-radius: 16px;
+  transform: none;
+  background: #11141d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.shell[data-theme="dark"] .welcome-scene > img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  opacity: 0.88;
+}
+.shell[data-theme="dark"] .welcome-sticker {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  transform: none;
+  border-radius: 8px;
+  background: rgba(10, 12, 16, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f3f5f9;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.shell[data-theme="dark"] .welcome-star {
+  display: none !important;
+}
+
 .welcome-scene {
   position: absolute;
   right: -28px;
@@ -2022,6 +2080,30 @@
   border-color: transparent;
   box-shadow: 0 2px 8px var(--accent-glow);
 }
+.accent-palette {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.shell .swatch-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #020e1a;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.shell .swatch-btn:hover {
+  transform: scale(1.15);
+}
+.shell .swatch-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 10px var(--accent);
+}
 .memory-setting-group { display: flex; align-items: center; gap: 12px; }
 .preset-pills { display: flex; gap: 6px; }
 
@@ -2336,7 +2418,7 @@
 /* Boot Loading Screen */
 .boot-screen {
   position: fixed;
-  inset: 70px 0 34px;
+  inset: 42px 0 30px;
   z-index: 150;
   background: var(--canvas);
   display: flex;
@@ -2442,7 +2524,7 @@
 }
 
 @media(max-width: 800px) {
-  .shell { grid-template-columns: 82px minmax(0, 1fr); grid-template-rows: 46px minmax(0, 1fr) 26px; }
+  .shell { grid-template-columns: 82px minmax(0, 1fr); grid-template-rows: 40px minmax(0, 1fr) 26px; }
   .sidebar { padding: 10px 6px; overflow: hidden; }
   .rail-brand { padding: 0 0 10px; }
   .brand-logo-wrap { width: 36px; height: 36px; }
@@ -2455,15 +2537,15 @@
   .shell .sidebar-instance { height: 42px; width: 42px; }
   .shell .sidebar-instance > .instance-avatar { height: 40px; width: 40px; }
   .shell .bottom-nav > button { width: 58px; height: 34px; min-height: 34px; padding: 4px 2px; }
-  .titlebar { padding-left: 16px; height: 46px; min-height: 46px; max-height: 46px; }
+  .titlebar { padding-left: 14px; height: 40px; min-height: 40px; max-height: 40px; }
   .titlebar .name { font-size: 18px; }
-  .shell .window-buttons button { width: 36px; }
-  .app-topbar { left: 175px; right: 125px; gap: 8px; min-height: 32px; height: 32px; top: -39px; padding: 0 6px; }
+  .shell .window-buttons button { width: 34px; }
+  .app-topbar { left: 165px; right: 115px; gap: 8px; min-height: 28px; height: 28px; top: -34px; padding: 0 6px; }
   .toolbar-current { display: none; }
   .global-search { max-width: 220px; }
   .app-content { padding: 22px; }
-  .home-welcome { min-height: 280px; padding: 26px; gap: 14px; margin-bottom: 24px; }
-  .shell .home-welcome h1 { font-size: 34px; }
+  .home-welcome { min-height: 260px; padding: 24px; gap: 14px; margin-bottom: 24px; }
+  .shell .home-welcome h1 { font-size: 32px; }
   .welcome-copy { max-width: 75%; }
   .welcome-sticker { display: none; }
   .home-discovery-grid { grid-template-columns: 1fr; }
@@ -2482,7 +2564,7 @@
   .download-dock { min-height: 60px; padding: 10px 18px; left: 82px; }
   .boot-illustration { display: none; }
   .boot-content { width: 460px; }
-  .boot-screen { inset: 46px 0 26px; }
+  .boot-screen { inset: 40px 0 26px; }
   .shell .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .app-footer { font-size: 9px; padding: 0 10px; }
   .app-footer .footer-group { gap: 10px; }
@@ -2498,8 +2580,8 @@
   .sidebar nav .nav-label { font-size: 10px; }
   .global-search { display: none; }
   .titlebar .name { font-size: 17px; }
-  .shell .window-buttons button { width: 32px; }
-  .app-topbar { left: 150px; right: 95px; min-height: 32px; height: 32px; top: -39px; }
+  .shell .window-buttons button { width: 30px; }
+  .app-topbar { left: 140px; right: 90px; min-height: 28px; height: 28px; top: -34px; }
   .app-content { padding: 18px; }
   .home-welcome { min-height: 310px; padding: 24px; }
   .welcome-copy { max-width: 100%; }
