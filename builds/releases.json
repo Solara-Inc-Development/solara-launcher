@@ -296,6 +296,43 @@
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDFjMHJuRjFBYkVaUExSejl4emdNZEkxSVdiQjkyMGF5NzdHSFRMNXhzam1sZ0s0Q2Zyc3QxdzYvQXh5RWhIS2p3MUFuL0lpZDk5NDlYTTl4VUZrZHd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzMzk2MjM4CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEyCnQ3SUxtYmRnL0kvMS9RdElsS05RalBEVmc2WGt0TFNhNDNjQmhOR0tvRnZSOExMMDNTMGgrcjBZWVZhMHJyWXQxOG9TcDFFdWhTU1dOc3MyOVNTWkF3PT0K",
       "notes": "# Changelog\n\n## Testing Preview V-0.0.12 — 2026-10-31\n\n### What's New & What Feels Better\n- **In-Game Screenshot Gallery**:\n  - Automatically finds all your F2 Minecraft photos and displays them in a clean, visual photo grid right inside the launcher.\n  - See filename, file size, and the exact date and time each photo was captured.\n  - Search filter lets you quickly find screenshots by world name or timestamp.\n- **Fullscreen Lightbox Image Viewer**:\n  - Click any screenshot to open a high-resolution, full-screen lightbox preview with dark frosted backdrop.\n  - Navigate between screenshots with the on-screen arrows or using your keyboard Left and Right arrow keys (and Esc to exit).\n  - One-click \"Show in folder\" button reveals the image directly in your system file explorer.\n- **Native Image Streaming Pipeline**:\n  - Built an independent, secure native image reader with strict path boundary validation and memory safeguards.\n- **Clean Photo Management**:\n  - Delete unwanted screenshots with 1 click, moving them safely to the instance Trash with full recovery capability.\n\n### Release Status & Verification\n- **Status**: Genuine Windows testing release signed with private Minisign key.\n- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.\n",
       "url": "https://app.solara-inc.in/builds/V-0.0.12/solaralauncher.exe"
+    },
+    {
+      "buildId": "4663141e-858a-4b9c-bc9c-e4343a250fd8",
+      "publicVersion": "V-0.0.13",
+      "internalVersion": "0.0.13",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.13/solaralauncher.exe",
+      "commit": "7c3fd265b718d8e7caea1ee928dfa69c0e8ede64",
+      "allocatedAt": "2026-10-30T21:51:21.245Z",
+      "state": "published",
+      "applicationSha256": "f95bfe3d1abc14f9048e0fad39d762988181b1474c0aa68558cff5c90393e53a",
+      "applicationSize": 18606592,
+      "sourceTree": "9022435b6712917d2df4c9fee100ed5c77bc4dfc",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 6823197,
+          "sha256": "579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8"
+        },
+        "application/solaralauncher.exe": {
+          "size": 18606592,
+          "sha256": "f95bfe3d1abc14f9048e0fad39d762988181b1474c0aa68558cff5c90393e53a"
+        },
+        "source.zip": {
+          "size": 18430628,
+          "sha256": "ba780664937aadaa6ff75df2e44c59c9f5bd62eff6e6822873e9f8b57894ebac"
+        }
+      },
+      "size": 6823197,
+      "sha256": "579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-10-31T00:54:00.000Z",
+      "verifiedAt": "2026-10-31T00:53:40.000Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDZhTnZ0VFRkWUpGMkxtOGlBTXZQditGdEFFcHNNMFFvLzZZbW5ZMkFOdmFJenFlMFVJcjlHRUR6UUVBMmVXTUJONllMOElFeXg5OFgwWUVmdEtwaGdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzkzNDA4MDI3CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEzCkcyOC9ma0c5Sk5leXB0Y0F1bmZSVnJGSDlhYWFEVVFlRndVVEJLS2pBd1ZoK3ZqV2l4Vzh5RGF2U0NqNFg4MDJ0OW9YZ3pyRGl5MmdIVlpWU1FCWURBPT0K",
+      "notes": "# Changelog\n\n## Testing Preview V-0.0.13 — 2026-10-31\n\n### What's New & What Feels Better\n- **RAM Performance Ring Gauge**:\n  - Brand new visual circular gauge with live progress arc showing allocated system memory and health classification.\n  - Real-time performance hints explaining whether your current RAM setting is ideal for Vanilla, moderate modpacks, or heavy shader packs.\n- **Modpack Exporter Archive**:\n  - Export your complete Minecraft instance (configs, world saves, and installed mods) into a clean, portable modpack package with a single click.\n  - Instant access from the workspace header or backups panel.\n- **Quick Backups Folder Shortcut**:\n  - Open your instance backups folder directly in Windows Explorer with 1 click.\n\n### Release Status & Verification\n- **Status**: Genuine Windows testing release signed with private Minisign key.\n- **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.\n",
+      "url": "https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe"
     }
   ]
 }
