@@ -797,71 +797,90 @@ html, body, #app {
 .toolbar-location {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .nav-history-arrows {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 .shell .history-arrow-btn {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--muted);
-  border-radius: 5px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
 }
 .shell .history-arrow-btn:hover:not(:disabled) {
   background: var(--surface);
   color: var(--text);
 }
+.shell .history-arrow-btn svg {
+  width: 13px;
+  height: 13px;
+}
 .toolbar-divider {
   width: 1px;
-  height: 14px;
+  height: 12px;
   background: var(--line);
 }
 .toolbar-current {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 11.5px;
   color: var(--text);
 }
-.toolbar-current strong { font-weight: 650; }
+.toolbar-current svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.toolbar-current strong {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
 .global-search {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 0 8px;
-  height: 26px;
+  border-radius: 5px;
+  padding: 0 6px;
+  height: 22px;
   flex: 1;
-  max-width: 280px;
+  max-width: 240px;
 }
-.global-search svg { color: var(--muted); width: 13px; height: 13px; }
+.global-search svg { color: var(--muted); width: 11px; height: 11px; flex-shrink: 0; }
 .shell .global-search input {
   background: transparent;
   border: 0;
   padding: 0;
-  font-size: 12px;
+  font-size: 11px;
   width: 100%;
+  color: var(--text);
+  line-height: 22px;
 }
 .global-search kbd {
-  font-size: 9px;
+  font-size: 8.5px;
   color: var(--muted);
   background: var(--raised);
-  padding: 1px 4px;
+  padding: 0 3px;
   border-radius: 3px;
   border: 1px solid var(--line);
+  line-height: 1.3;
 }
 .top-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
 }
 .shell .toolbar-downloads,
@@ -875,21 +894,22 @@ html, body, #app {
 .toolbar-running {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 10.5px;
   color: var(--muted);
   background: var(--surface);
   border: 1px solid var(--line);
-  padding: 0 7px;
-  height: 26px;
-  border-radius: 6px;
-  max-width: 150px;
+  padding: 0 6px;
+  height: 22px;
+  border-radius: 5px;
+  max-width: 130px;
 }
 .toolbar-running .dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--muted);
+  flex-shrink: 0;
 }
 .toolbar-running.running .dot { background: var(--success); }
 .toolbar-running span:nth-child(2) {
@@ -902,41 +922,49 @@ html, body, #app {
   border: 0;
   background: transparent;
   color: var(--muted);
+  display: grid;
+  place-items: center;
 }
-.shell .toolbar-running button svg { width: 11px; height: 11px; }
+.shell .toolbar-running button svg { width: 9px; height: 9px; }
 .shell .toolbar-downloads {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: 1px solid var(--line);
   background: var(--surface);
-  border-radius: 6px;
+  border-radius: 5px;
   position: relative;
   color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.shell .toolbar-downloads svg { width: 13px; height: 13px; }
+.shell .toolbar-downloads svg { width: 11.5px; height: 11.5px; }
 .toolbar-download-dot {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 5px;
-  height: 5px;
+  top: 2px;
+  right: 2px;
+  width: 4px;
+  height: 4px;
   background: var(--accent);
   border-radius: 50%;
 }
+.top-right .app-busy {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+  margin: 0 2px;
+}
 .shell .topbar-mc-account,
 .shell .signin {
-  height: 26px;
-  padding: 0 8px;
-  border-radius: 6px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 5px;
   background: var(--surface);
   border: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text);
-  gap: 6px;
+  gap: 4px;
   display: flex;
   align-items: center;
 }
@@ -945,11 +973,21 @@ html, body, #app {
   place-items: center;
   color: var(--accent);
 }
+.shell .topbar-avatar svg {
+  width: 11px;
+  height: 11px;
+}
 .topbar-mc-name {
-  max-width: 110px;
+  max-width: 85px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 11px;
+}
+.shell .signin svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
 }
 
 .app-content {
@@ -957,7 +995,8 @@ html, body, #app {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 28px 32px 36px;
+  padding: 28px 32px 52px;
+  scroll-padding-bottom: 52px;
 }
 .section-view { max-width: 1380px; margin: 0 auto; }
 
@@ -2701,21 +2740,45 @@ html, body, #app {
 .download-dock {
   position: fixed;
   bottom: 34px;
-  left: 94px;
-  right: 0;
-  height: 64px;
+  right: 20px;
+  left: auto;
+  height: 28px;
   background: var(--panel);
-  border-top: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 999px;
   display: flex;
   align-items: center;
-  padding: 0 26px;
-  gap: 16px;
+  padding: 0 10px;
+  gap: 8px;
   z-index: 90;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+  transition: all 180ms ease;
+  max-width: calc(100% - 100px);
+}
+@media (min-width: 1251px) {
+  .shell:has(.context-rail) .download-dock {
+    right: 300px;
+  }
+}
+@media (min-width: 1101px) and (max-width: 1250px) {
+  .shell:has(.context-rail) .download-dock {
+    right: 270px;
+  }
+}
+.download-dock.is-active {
+  height: 32px;
+  border-radius: 8px;
+  padding: 0 12px;
+  gap: 10px;
+  border-color: var(--accent-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 1px var(--accent);
 }
 .download-dock-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--accent);
@@ -2723,10 +2786,69 @@ html, body, #app {
   place-items: center;
   flex: none;
 }
-.download-dock strong { font-size: 13px; color: var(--text); display: block; font-weight: 650; }
-.download-dock small { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
-.shell .dock-progress { width: 140px; margin-left: auto; }
-.shell .downloads-button { font-size: 12px; padding: 8px 14px; border-radius: 9px; margin-left: 12px; }
+.download-dock-icon svg {
+  width: 11px;
+  height: 11px;
+}
+.download-dock.is-active .download-dock-icon {
+  width: 20px;
+  height: 20px;
+}
+.download-dock.is-active .download-dock-icon svg {
+  width: 12px;
+  height: 12px;
+}
+.download-dock-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.download-dock strong {
+  font-size: 11px;
+  color: var(--muted);
+  display: inline-block;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.download-dock.is-active strong {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+.download-dock small {
+  display: none;
+}
+.shell .dock-progress {
+  width: 100px;
+  height: 4px;
+  margin-left: auto;
+}
+.shell .downloads-button {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-left: 2px;
+  height: 20px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+.shell .downloads-button:hover:not(:disabled) {
+  background: var(--raised-hover);
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+.download-dock.is-active .downloads-button {
+  border-radius: 6px;
+  height: 22px;
+  padding: 2px 8px;
+}
 
 .app-footer {
   grid-column: 1 / -1;
@@ -2813,14 +2935,14 @@ html, body, #app {
 
 @media(max-width: 1250px) {
   .main-column { grid-template-columns: minmax(0, 1fr) 250px; }
-  .app-content { padding: 24px; }
-  .app-topbar { left: 195px; right: 136px; padding: 0 12px; gap: 10px; }
+  .app-content { padding: 24px; padding-bottom: 52px; }
+  .app-topbar { left: 195px; right: 136px; padding: 0 8px; gap: 6px; }
   .titlebar .name { font-size: 24px; }
   .titlebar .name img { width: 26px; height: 26px; }
-  .toolbar-current strong { font-size: 14px; max-width: 140px; }
-  .global-search { max-width: 200px; }
-  .toolbar-running { max-width: 150px; font-size: 12px; }
-  .top-right { gap: 7px; }
+  .toolbar-current strong { font-size: 11.5px; max-width: 120px; }
+  .global-search { max-width: 180px; }
+  .toolbar-running { max-width: 130px; font-size: 10.5px; }
+  .top-right { gap: 4px; }
   .context-rail > section { padding: 20px 16px; }
   .home-discovery-grid { grid-template-columns: 1fr; }
   .shell .home-discovery-card { display: flex; }
@@ -2839,7 +2961,7 @@ html, body, #app {
   .main-column { grid-template-columns: minmax(0, 1fr); }
   .context-rail { display: none; }
   .app-topbar .global-search { display: none; }
-  .app-content { padding: 22px; }
+  .app-content { padding: 22px; padding-bottom: 52px; }
   .app-topbar { left: 190px; right: 136px; max-width: calc(100% - 330px); }
   .toolbar-running { display: none; }
   .home-welcome { min-height: 190px; padding: 20px 24px; }
@@ -2876,10 +2998,10 @@ html, body, #app {
   .titlebar .name { font-size: 17px; }
   .shell .window-buttons { width: 102px; min-width: 102px; }
   .shell .window-buttons button { width: 34px; }
-  .app-topbar { left: 155px; right: 114px; gap: 6px; min-height: 28px; height: 28px; top: -34px; padding: 0 6px; max-width: calc(100% - 275px); }
+  .app-topbar { left: 155px; right: 114px; gap: 4px; min-height: 28px; height: 28px; top: -34px; padding: 0 5px; max-width: calc(100% - 275px); }
   .toolbar-current { display: none; }
-  .global-search { max-width: 180px; }
-  .app-content { padding: 18px; }
+  .global-search { max-width: 160px; }
+  .app-content { padding: 18px; padding-bottom: 48px; }
   .home-welcome { min-height: 180px; padding: 18px 20px; gap: 12px; margin-bottom: 16px; }
   .shell .home-welcome h1 { font-size: 22px; }
   .welcome-copy { max-width: 75%; }
@@ -2898,7 +3020,7 @@ html, body, #app {
   .shell .mod-card { grid-template-columns: 50px minmax(0, 1fr) auto; padding: 14px; column-gap: 12px; }
   .shell .mod-card .mod-avatar { width: 50px; height: 50px; }
   .shell .mod-card-head h3 { font-size: 16px !important; }
-  .download-dock { min-height: 52px; padding: 8px 14px; left: 78px; }
+  .download-dock { height: 26px; padding: 0 8px; right: 16px; bottom: 32px; left: auto; }
   .boot-illustration { display: none; }
   .boot-content { width: 420px; }
   .boot-screen { inset: 40px 0 26px; }
@@ -2919,8 +3041,10 @@ html, body, #app {
   .titlebar .name { font-size: 16px; }
   .shell .window-buttons { width: 90px; min-width: 90px; }
   .shell .window-buttons button { width: 30px; }
-  .app-topbar { left: 125px; right: 98px; min-height: 28px; height: 28px; top: -34px; max-width: calc(100% - 230px); }
-  .app-content { padding: 14px; }
+  .app-topbar { left: 125px; right: 98px; min-height: 28px; height: 28px; top: -34px; padding: 0 5px; max-width: calc(100% - 230px); }
+  .app-topbar .top-right { gap: 3px; }
+  .app-topbar .signin, .app-topbar .topbar-mc-account { height: 20px; padding: 0 5px; font-size: 10px; }
+  .app-content { padding: 14px; padding-bottom: 44px; }
   .home-welcome { min-height: 170px; padding: 16px 18px; }
   .welcome-copy { max-width: 100%; }
   .welcome-scene { width: 45%; opacity: .16; right: -20px; z-index: -1; }
@@ -2948,7 +3072,7 @@ html, body, #app {
   .shell .mod-card-head h3 { font-size: 15px !important; }
   .download-dock small { display: none; }
   .shell .dock-progress { width: 50px; }
-  .download-dock { padding: 10px 14px; gap: 8px; left: 70px; }
+  .download-dock { height: 26px; padding: 0 8px; right: 12px; bottom: 32px; left: auto; }
   .shell .modal { padding: 20px; }
   .boot-screen { padding: 16px; }
   .boot-content { padding: 22px; }
