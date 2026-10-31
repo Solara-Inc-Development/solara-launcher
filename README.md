@@ -102,19 +102,21 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 </table>
 
 > [!NOTE]
-> **Still being built:** the local Minecraft engine is independently written. Current source supports vanilla, Fabric and Quilt setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified community content/modpack installs (Forge/NeoForge are still being added). Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Still being built:** the local Minecraft engine is independently written. Current source supports Vanilla, Fabric, Quilt, Forge, and NeoForge setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified community content/modpack installs. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ---
 
 ## Download
 
-**Testing preview V-0.0.13 available.** Fresh genuine Windows release featuring dynamic RAM Performance Ring Gauge with optimal workload feedback, one-click Modpack Exporter Archive generation, and instant Backups folder system shortcuts.
+**Testing preview V-0.0.13 available.** Fresh genuine Windows release featuring dynamic RAM Performance Ring Gauge with optimal workload feedback, one-click Modpack Exporter Archive generation, streamlined instance creation, and instant Backups folder system shortcuts.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
-Download the testing build directly from the official portal:
-- **Installer (6.8 MB)**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe.sig)
+Download the testing build directly:
+- **GitHub Release**: [Solara Launcher V-0.0.13 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/source.zip)
 - **SHA-256**: `579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8`
 
 | Area | Current status | Details |

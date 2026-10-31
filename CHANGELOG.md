@@ -11,11 +11,19 @@
   - Instant access from the workspace header or backups panel.
 - **Quick Backups Folder Shortcut**:
   - Open your instance backups folder directly in Windows Explorer with 1 click.
+- **Streamlined Instance Creation Modal**:
+  - Cleaned up the creation dialog by removing redundant "Import an instance" and "Upload a modpack" options. Users now have a clear choice between Custom setup and Community project exploration.
+- **Solara Central SSO Login & Auto-Closing Callback**:
+  - Resolved session token forwarding on `auth.solara-inc.in` so users are never bounced back to the login screen. Added an automated tab closure script to the loopback success screen (`http://127.0.0.1:54321/solara/callback`).
+- **Tactile Button Polish & Micro-Interactions**:
+  - Added smooth click compression (`scale(0.92)` to `scale(0.98)`), ambient Electric Cyan hover glows, and snappy cubic-bezier transitions across all buttons and category pills.
 
 ### Release Status & Verification
-- **Status**: Genuine Windows release signed with private Minisign key.
-- **Installer**: [`solaralauncher.exe`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe) (SHA-256: `579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8`).
-- **Signature**: [`solaralauncher.exe.sig`](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Status**: Genuine Windows release signed with private Minisign key, marked as **Latest Release** on GitHub.
+- **GitHub Release**: [`Solara Launcher V-0.0.13`](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer**: [`solaralauncher.exe`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.13/solaralauncher.exe) (SHA-256: `579e24573222afd6063d8d66e59baaa182d3e0bb2d08fb971fbeaa4a9d235cc8`).
+- **Signature**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/solaralauncher.exe.sig) (Minisign trusted signature).
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.13/source.zip)
 - **Verification**: Verified SHA-256 integrity, PE bounds, and all test suites passing 100%.
 
 ## Testing Preview V-0.0.12 — 2026-10-31

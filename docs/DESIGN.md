@@ -1,6 +1,6 @@
 # Solara visual design — current direction
 
-Latest owner direction, 2026-10-29: clean, simple and dark, with Modrinth-like clarity, original high-quality images, smooth animation and useful loading screens. No glow, neon, glossy buttons or floating portal artwork. The result should feel natural and carefully designed rather than generic AI fantasy artwork. This supersedes the earlier futuristic/glossy direction. Seasons and festivals remain deferred with `features.seasons=false`.
+Latest owner direction, 2026-10-31: Clean, modern, independent Solara design system in Electric Light Blue and Cyan (`#38bdf8`, `#0ea5e9`, `#0284c7`) with dark slate cards (`#0b111e`, `#0f172a`) and deep space canvas (`#060913`). All upstream Modrinth branding has been removed and replaced with native Solara tokens. Interactive controls feature tactile click compression (`scale(0.92)` to `scale(0.98)`), ambient cyan glows, and smooth cubic-bezier transitions. The instance creation modal is streamlined into a two-path layout (Custom setup & Community discovery). Seasons and festivals remain deferred with `features.seasons=false`.
 
 ## Layout and imagery
 

@@ -2,7 +2,7 @@
 
 All application/data calls use `https://api.solara-inc.in`. Existing SSO remains at `https://auth.solara-inc.in`; this is an identity service on the same VPS, not another application API. The separately maintained private PHP module is `/var/www/solara-launcher-private`.
 
-These launcher routes are newly implemented source contracts, **not yet deployed**. Existing corporate `/api/v1/platforms`, `/api/v1/status` and Theme Studio public state are inspected upstream sources; the private module normalizes their public data into the single launcher API.
+These launcher routes are implemented and deployed on this VPS via `/var/www/solara-launcher-private`. Key routes including `/v1/launcher/update/windows/x86_64`, `/native/authorize`, `/native/token`, and `/v1/launcher/me` are active, serving verified releases and central SSO tokens.
 
 | Method/path | Authentication | Response / rules |
 | --- | --- | --- |
