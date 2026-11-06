@@ -16,9 +16,18 @@ export const latest=computed(()=>latestRelease(snapshot.value.data?.releases||[]
 export const publicLoading=ref(false);
 export async function refreshPublic() {if(publicLoading.value)return;publicLoading.value=true;try{snapshot.value=await cache.refresh()}finally{publicLoading.value=false}}
 export function savePreferences(){localStorage.setItem('solara:accent',preferences.value.accent);localStorage.setItem('solara:theme',preferences.value.theme);localStorage.setItem('solara:motion',String(preferences.value.motion));}
+type InvokeFn = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
+let invokePromise: Promise<InvokeFn | null> | null = null;
+if (isDesktop) {
+  invokePromise = import('@tauri-apps/api/core').then(m => m.invoke as InvokeFn).catch(() => null);
+}
 export async function native<T=any>(command:string,args:Record<string,unknown>={}) : Promise<T> {
   if(!isDesktop) throw new Error('This action needs the installed Solara desktop app.');
-  const {invoke}=await import('@tauri-apps/api/core');return invoke<T>(command,args);
+  if (!invokePromise) {
+    invokePromise = import('@tauri-apps/api/core').then(m => m.invoke as InvokeFn);
+  }
+  const invoke = (await invokePromise) || ((await import('@tauri-apps/api/core')).invoke as InvokeFn);
+  return invoke<T>(command,args);
 }
 export async function openExternal(url:string){
   const u=new URL(url);if(u.protocol!=='https:')throw new Error('Only HTTPS destinations are allowed');
