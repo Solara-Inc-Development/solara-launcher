@@ -63,8 +63,28 @@ const dirty=computed(()=>!!editor.value&&text.value!==editor.value.content);
 const task=computed(()=>props.jobs.find(j=>j.instanceId===props.instance.id&&['queued','running'].includes(j.status)));
 const locked=computed(()=>busy.value||props.parentBusy||props.instance.running||!!task.value);
 const visibleFiles=computed(()=>entries.value.filter(f=>f.name.toLowerCase().includes(query.value.toLowerCase())));
-const visibleMods=computed(()=>mods.value.filter(m=>(modFilter.value==='all'||(modFilter.value==='enabled'&&m.enabled)||(modFilter.value==='disabled'&&!m.enabled)||(modFilter.value==='problems'&&m.issue))&&`${m.name} ${m.modId||''} ${m.version||''}`.toLowerCase().includes(query.value.toLowerCase())));
+const modSort=ref<'name'|'size'|'status'>('name');
+const selectedModPaths=ref<Set<string>>(new Set());
+const visibleMods=computed(()=>{
+  const list=mods.value.filter(m=>(modFilter.value==='all'||(modFilter.value==='enabled'&&m.enabled)||(modFilter.value==='disabled'&&!m.enabled)||(modFilter.value==='problems'&&m.issue))&&`${m.name} ${m.modId||''} ${m.version||''}`.toLowerCase().includes(query.value.toLowerCase()));
+  if(modSort.value==='size'){
+    return [...list].sort((a,b)=>(b.size||0)-(a.size||0));
+  }else if(modSort.value==='status'){
+    return [...list].sort((a,b)=>Number(b.enabled)-Number(a.enabled)||a.name.localeCompare(b.name));
+  }
+  return [...list].sort((a,b)=>a.name.localeCompare(b.name));
+});
 const crumbs=computed(()=>path.value?path.value.split('/').map((name,i,parts)=>({name,path:parts.slice(0,i+1).join('/')})):[]);
+
+interface WorldSave {
+  name: string;
+  path: string;
+  size: number;
+  modifiedAt?: number;
+  iconUrl?: string;
+}
+const worldSaves=ref<WorldSave[]>([]);
+const backupSubtab=ref<'saves'|'backups'>('saves');
 
 const tabs=[
   {id:'mods',name:'Mods',icon:Package},
@@ -81,11 +101,35 @@ const bytes=(n:number)=>n>=1048576?`${(n/1048576).toFixed(1)} MB`:n>=1024?`${(n/
 const edited=(name:string)=>/\.(txt|json|json5|toml|yaml|yml|properties|log|cfg|ini|conf|md|csv|xml|mcmeta)$/i.test(name);
 
 async function run(fn:()=>Promise<void>){if(busy.value)return;busy.value=true;error.value='';notice.value='';try{await fn()}catch(e){error.value=String(e)}finally{busy.value=false}}
+async function loadWorldSaves(){
+  try{
+    const raw=await native('instance_files',{id:props.instance.id,path:'saves'});
+    if(Array.isArray(raw)){
+      const dirs:WorldSave[]=raw.filter((f:any)=>f.directory).map((f:any)=>({
+        name:f.name,
+        path:f.path,
+        size:f.size||0,
+        modifiedAt:f.modifiedAt||f.modified_at||0,
+        iconUrl:''
+      })).sort((a,b)=>(b.modifiedAt||0)-(a.modifiedAt||0));
+      worldSaves.value=dirs;
+      for(const w of dirs){
+        native('instance_image',{id:props.instance.id,path:`saves/${w.name}/icon.png`})
+          .then(url=>{w.iconUrl=url;})
+          .catch(()=>{});
+      }
+    }else{
+      worldSaves.value=[];
+    }
+  }catch{
+    worldSaves.value=[];
+  }
+}
 async function readTab(){loading.value=true;error.value='';try{
  if(tab.value==='files')entries.value=await native('instance_files',{id:props.instance.id,path:path.value});
  if(tab.value==='mods')mods.value=await native('instance_mods',{id:props.instance.id});
  if(tab.value==='screenshots')await loadScreenshots();
- if(tab.value==='backups')backups.value=await native('instance_backups',{id:props.instance.id});
+ if(tab.value==='backups'){backups.value=await native('instance_backups',{id:props.instance.id});await loadWorldSaves();}
  if(tab.value==='trash')trash.value=await native('instance_trash',{id:props.instance.id});
  if(tab.value==='logs')await refreshLogs();
 }catch(e){error.value=String(e)}finally{loading.value=false}}
@@ -142,6 +186,46 @@ async function toggleAllMods(enable:boolean){
     }
     await readTab();
     notice.value=enable?`Enabled ${targetMods.length} mods.`:`Disabled ${targetMods.length} mods.`;
+  });
+}
+
+function toggleSelectMod(modPath:string){
+  const next=new Set(selectedModPaths.value);
+  if(next.has(modPath))next.delete(modPath);
+  else next.add(modPath);
+  selectedModPaths.value=next;
+}
+
+function toggleSelectAllMods(){
+  if(selectedModPaths.value.size>=visibleMods.value.length&&visibleMods.value.length>0){
+    selectedModPaths.value=new Set();
+  }else{
+    selectedModPaths.value=new Set(visibleMods.value.map(m=>m.path));
+  }
+}
+
+async function batchToggleSelected(enable:boolean){
+  const targetMods=mods.value.filter(m=>selectedModPaths.value.has(m.path)&&m.enabled!==enable);
+  if(!targetMods.length)return;
+  await run(async()=>{
+    for(const m of targetMods){
+      await native('toggle_instance_mod',{id:props.instance.id,path:m.path,enabled:enable});
+    }
+    await readTab();
+    notice.value=enable?`Enabled ${targetMods.length} selected mods.`:`Disabled ${targetMods.length} selected mods.`;
+  });
+}
+
+async function batchTrashSelected(){
+  const targetMods=mods.value.filter(m=>selectedModPaths.value.has(m.path));
+  if(!targetMods.length)return;
+  await run(async()=>{
+    for(const m of targetMods){
+      await native('instance_file_action',{id:props.instance.id,action:'trash',path:m.path});
+    }
+    selectedModPaths.value=new Set();
+    await readTab();
+    notice.value=`Moved ${targetMods.length} mods to Trash.`;
   });
 }
 
@@ -380,7 +464,7 @@ async function saveSettings(){await run(async()=>{await native('edit_instance',{
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
 watch(activeLightbox,async value=>{await nextTick();if(value&&!lightboxDialog.value?.open)lightboxDialog.value?.showModal()});
 watch(exportModalOpen,async value=>{await nextTick();if(value&&!snapshotDialog.value?.open)snapshotDialog.value?.showModal()});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
@@ -406,6 +490,23 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <div class="workspace-tags">
        <span class="tag-version">Minecraft {{instance.gameVersion}}</span>
        <span class="tag-loader">{{instance.loader}}{{instance.loaderVersion?' '+instance.loaderVersion:''}}</span>
+     </div>
+     <div class="workspace-folder-chips">
+       <button type="button" class="quick-folder-chip" title="Open root instance folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id})})">
+         <FolderOpen :size="11"/> Folder
+       </button>
+       <button type="button" class="quick-folder-chip" title="Open mods folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'mods'})})">
+         <Package :size="11"/> Mods
+       </button>
+       <button type="button" class="quick-folder-chip" title="Open saves folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'saves'})})">
+         <Globe :size="11"/> Saves
+       </button>
+       <button type="button" class="quick-folder-chip" title="Open screenshots folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'screenshots'})})">
+         <Monitor :size="11"/> Screenshots
+       </button>
+       <button type="button" class="quick-folder-chip" title="Open config folder" @click="run(async()=>{await native('open_instance_folder',{id:instance.id,path:'config'})})">
+         <Settings :size="11"/> Config
+       </button>
      </div>
    </div>
    <div class="workspace-primary-actions">
@@ -467,6 +568,9 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <div class="content-search-wrap">
        <Search :size="16"/>
        <input v-model="query" :placeholder="'Search ' + (mods.length ? mods.length : '') + ' projects…'" aria-label="Search installed mods">
+       <button v-if="query" type="button" class="search-clear-btn" aria-label="Clear mod search" @click="query=''">
+         <X :size="12"/>
+       </button>
      </div>
      <div class="content-action-group">
        <input ref="modInput" type="file" accept=".jar,application/java-archive" aria-label="Import mod .jar file" hidden @change="importModFile">
@@ -486,6 +590,13 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        <button type="button" class="filter-pill" :class="{active: modFilter==='disabled'}" @click="modFilter='disabled'">Disabled</button>
        <button type="button" class="filter-pill" :class="{active: modFilter==='problems'}" @click="modFilter='problems'">Problems</button>
      </div>
+     <div class="mod-sort-wrap">
+       <select v-model="modSort" class="solara-mini-select" aria-label="Sort installed mods">
+         <option value="name">Sort: Name A–Z</option>
+         <option value="size">Sort: File Size</option>
+         <option value="status">Sort: Status</option>
+       </select>
+     </div>
      <div class="mod-row-tools">
        <button v-if="mods.length" type="button" class="link-action-btn" :disabled="locked||!mods.some(m=>!m.enabled)" title="Enable all mods" @click="toggleAllMods(true)">
          <Check :size="13"/> Enable all
@@ -502,6 +613,27 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      </div>
    </div>
 
+   <div v-if="selectedModPaths.size > 0" class="mod-batch-bar">
+     <div class="batch-bar-count">
+       <Check :size="13"/>
+       <span>{{ selectedModPaths.size }} of {{ visibleMods.length }} selected</span>
+     </div>
+     <div class="batch-bar-actions">
+       <button type="button" class="batch-action-btn" :disabled="locked" @click="batchToggleSelected(true)">
+         <Check :size="12"/> Enable
+       </button>
+       <button type="button" class="batch-action-btn" :disabled="locked" @click="batchToggleSelected(false)">
+         <X :size="12"/> Disable
+       </button>
+       <button type="button" class="batch-action-btn danger" :disabled="locked" @click="batchTrashSelected">
+         <Trash2 :size="12"/> Move to Trash
+       </button>
+       <button type="button" class="batch-action-btn-clear" @click="selectedModPaths.clear()">
+         Deselect
+       </button>
+     </div>
+   </div>
+
    <p v-if="instance.loader==='vanilla'" class="workspace-message">Vanilla does not load mods. Use a Fabric, Quilt or Forge instance to add community mods.</p>
 
    <TaskProgress v-if="loading" title="Reading mod files…" detail="Reading your local library. Your files stay on this device."/>
@@ -513,13 +645,17 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
    </div>
    <div v-else class="project-table">
      <div class="project-table-header">
-       <span>Project</span>
+       <span style="display:flex;align-items:center;gap:6px">
+         <input type="checkbox" :checked="selectedModPaths.size >= visibleMods.length && visibleMods.length > 0" :indeterminate.prop="selectedModPaths.size > 0 && selectedModPaths.size < visibleMods.length" aria-label="Select all visible mods" style="cursor:pointer;accent-color:var(--accent)" @change="toggleSelectAllMods">
+         <span>Project</span>
+       </span>
        <span>Loader</span>
        <span>Size</span>
        <span style="text-align:right">Actions</span>
      </div>
-     <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled}">
+     <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled, selected: selectedModPaths.has(mod.path)}">
        <div class="mod-project-details">
+         <input type="checkbox" :checked="selectedModPaths.has(mod.path)" :aria-label="'Select ' + mod.name" style="cursor:pointer;accent-color:var(--accent);margin-right:4px" @change="toggleSelectMod(mod.path)">
          <div class="mod-project-avatar">
            <Package :size="18"/>
          </div>
@@ -663,34 +799,89 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
  <!-- Worlds & Backups Tab -->
  <template v-if="tab==='backups'">
    <div class="workspace-section-heading">
-     <div><h2>World &amp; config backups <span>{{backups.length}}</span></h2><p>Snapshots of your worlds and settings stored safely inside this instance.</p></div>
+     <div><h2>Worlds &amp; backups <span>{{backupSubtab==='saves'?worldSaves.length:backups.length}}</span></h2><p>Manage your singleplayer worlds and safe snapshot archives for this instance.</p></div>
      <div class="row">
-       <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
-       <button type="button" class="solara-secondary-btn" title="Open backups folder in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'backups' }); })">
+       <button v-if="backupSubtab==='saves'" class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+       <button v-else class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> New backup</button>
+       <button v-if="backupSubtab==='saves'" type="button" class="solara-secondary-btn" title="Open saves folder in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'saves' }); })">
+         <FolderOpen :size="14"/> Saves folder
+       </button>
+       <button v-else type="button" class="solara-secondary-btn" title="Open backups folder in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'backups' }); })">
          <FolderOpen :size="14"/> Backups folder
        </button>
-       <button title="Refresh backups" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
+       <button title="Refresh" :disabled="loading" @click="readTab"><RefreshCw :size="14"/></button>
      </div>
    </div>
-   <TaskProgress v-if="loading" title="Reading backups…" detail="Reading your local library. Your files stay on this device."/>
-   <div v-else-if="!backups.length" class="workspace-empty">
-     <Globe/>
-     <h3>No world backups yet</h3>
-     <p>Save a snapshot of your worlds and config files before changing mods or updating.</p>
-     <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+
+   <div class="solara-filter-row" style="margin-bottom:14px">
+     <div class="mod-filter-pills">
+       <button type="button" class="filter-pill" :class="{active: backupSubtab==='saves'}" @click="backupSubtab='saves'">
+         <Box :size="13"/> Local Worlds ({{ worldSaves.length }})
+       </button>
+       <button type="button" class="filter-pill" :class="{active: backupSubtab==='backups'}" @click="backupSubtab='backups'">
+         <Globe :size="13"/> Snapshots &amp; Backups ({{ backups.length }})
+       </button>
+     </div>
    </div>
-   <div v-else class="workspace-file-list">
-     <article v-for="entry in backups" :key="entry.id" class="workspace-file-row">
-       <span class="workspace-file-symbol"><Globe/></span>
-       <div class="workspace-row-name">
-         <strong>{{entry.name}}</strong>
-         <span>{{entry.worldCount||0}} {{entry.worldCount===1?'world':'worlds'}} · {{entry.fileCount||0}} {{entry.fileCount===1?'file':'files'}} · {{new Date(entry.createdAt).toLocaleString()}}</span>
-       </div>
-       <span class="workspace-file-size">{{bytes(entry.size||0)}}</span>
-       <button :aria-label="'Restore backup '+entry.name" :disabled="locked" class="solara-secondary-btn" @click="ask('restore-backup',entry)"><RotateCcw :size="14"/> Restore</button>
-       <button :aria-label="'Delete backup '+entry.name" :disabled="locked" class="workspace-icon-button" @click="ask('delete-backup',entry)"><Trash2/></button>
-     </article>
-   </div>
+
+   <TaskProgress v-if="loading" title="Reading worlds and backups…" detail="Reading your local library. Your files stay on this device."/>
+
+   <template v-else-if="backupSubtab==='saves'">
+     <div v-if="!worldSaves.length" class="workspace-empty">
+       <Box :size="32"/>
+       <h3>No world saves created yet</h3>
+       <p>Singleplayer worlds created in Minecraft will appear here automatically. Launch your game to create a new world.</p>
+       <button type="button" class="solara-secondary-btn" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: 'saves' }); })">
+         <FolderOpen :size="14"/> Open saves folder
+       </button>
+     </div>
+     <div v-else class="worlds-gallery-grid">
+       <article v-for="world in worldSaves" :key="world.path" class="world-card">
+         <div class="world-card-icon-wrap">
+           <img v-if="world.iconUrl" :src="world.iconUrl" :alt="world.name" class="world-icon-img" />
+           <div v-else class="world-icon-fallback">
+             <Box :size="24"/>
+           </div>
+         </div>
+         <div class="world-card-content">
+           <strong class="world-name" :title="world.name">{{ world.name }}</strong>
+           <span class="world-meta">{{ bytes(world.size) }} · {{ world.modifiedAt ? new Date(world.modifiedAt * 1000).toLocaleDateString() : 'Active save' }}</span>
+         </div>
+         <div class="world-card-actions">
+           <button type="button" class="solara-secondary-btn mini-btn" title="Create backup snapshot of this world" :disabled="locked" @click="ask('new-backup', { name: `${instance.name} - ${world.name}` })">
+             <Download :size="12"/> Snapshot
+           </button>
+           <button type="button" class="circle-action-btn mini" title="Open world folder in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: world.path }); })">
+             <FolderOpen :size="13"/>
+           </button>
+           <button type="button" class="circle-action-btn mini danger" title="Move world to Trash" :disabled="locked" @click="ask('trash', world)">
+             <Trash2 :size="13"/>
+           </button>
+         </div>
+       </article>
+     </div>
+   </template>
+
+   <template v-else>
+     <div v-if="!backups.length" class="workspace-empty">
+       <Globe/>
+       <h3>No world backups yet</h3>
+       <p>Save a snapshot of your worlds and config files before changing mods or updating.</p>
+       <button class="solara-primary-btn" :disabled="locked" @click="ask('new-backup')"><Plus :size="14"/> Create backup</button>
+     </div>
+     <div v-else class="workspace-file-list">
+       <article v-for="entry in backups" :key="entry.id" class="workspace-file-row">
+         <span class="workspace-file-symbol"><Globe/></span>
+         <div class="workspace-row-name">
+           <strong>{{entry.name}}</strong>
+           <span>{{entry.worldCount||0}} {{entry.worldCount===1?'world':'worlds'}} · {{entry.fileCount||0}} {{entry.fileCount===1?'file':'files'}} · {{new Date(entry.createdAt).toLocaleString()}}</span>
+         </div>
+         <span class="workspace-file-size">{{bytes(entry.size||0)}}</span>
+         <button :aria-label="'Restore backup '+entry.name" :disabled="locked" class="solara-secondary-btn" @click="ask('restore-backup',entry)"><RotateCcw :size="14"/> Restore</button>
+         <button :aria-label="'Delete backup '+entry.name" :disabled="locked" class="workspace-icon-button" @click="ask('delete-backup',entry)"><Trash2/></button>
+       </article>
+     </div>
+   </template>
  </template>
 
  <!-- Notes Tab -->

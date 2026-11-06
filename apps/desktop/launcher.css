@@ -2405,6 +2405,280 @@ html, body, #app {
 .shell .workspace-switch[aria-checked=true] { background: var(--accent); border-color: transparent; }
 .workspace-switch[aria-checked=true] i { transform: translateX(18px); background: var(--accent-ink, #020e1a); }
 
+/* Quick Folder Chips */
+.workspace-folder-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.quick-folder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 550;
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.quick-folder-chip:hover {
+  background: var(--raised);
+  border-color: var(--line-strong);
+  color: var(--accent);
+}
+
+/* Mod Batch Actions & Clear Button */
+.search-clear-btn {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.search-clear-btn:hover {
+  color: var(--text);
+  background: var(--surface-raised);
+}
+.mod-sort-wrap {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+.solara-mini-select {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 550;
+  padding: 4px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  outline: none;
+}
+.solara-mini-select:focus {
+  border-color: var(--accent);
+}
+.mod-batch-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--surface-raised);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+.batch-bar-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.batch-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.batch-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 550;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.batch-action-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.batch-action-btn.danger:hover:not(:disabled) {
+  border-color: var(--error);
+  color: var(--error);
+}
+.batch-action-btn-clear {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.batch-action-btn-clear:hover {
+  color: var(--text);
+}
+.project-table-row.selected {
+  background: rgba(56, 189, 248, 0.05);
+}
+
+/* Worlds Gallery Grid */
+.worlds-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.world-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--card-shadow);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.world-card:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+.world-card-icon-wrap {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+.world-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.world-icon-fallback {
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+.world-card-content {
+  min-width: 0;
+  margin-bottom: 12px;
+}
+.world-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.world-meta {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.world-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+.circle-action-btn.mini {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  padding: 0;
+}
+.circle-action-btn.mini.danger:hover {
+  color: var(--error);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.mini-btn {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  flex: 1;
+}
+
+/* Explore Controls & Loader Badges */
+.explore-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+.explore-loader-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.explore-sort-wrap {
+  margin-left: auto;
+}
+.mod-card-loaders {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+.mod-card-loaders .loader-chip {
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+/* Settings Range Slider & Runtime System Grid */
+.solara-range-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 6px;
+}
+.system-runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.runtime-fact {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fact-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+.fact-val {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 650;
+}
+
 /* RAM Gauge */
 .ram-gauge-card { display: flex; align-items: center; gap: 24px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
 .ram-gauge-graphic { position: relative; height: 96px; width: 96px; flex: none; }

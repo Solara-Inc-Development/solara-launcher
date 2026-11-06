@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: obsidian glass theme overhaul, collision-free embedded topbar, responsive navigation labels, refined home shelf and library hierarchy.
+# Owner-approved preview candidate: Milestone 175 - Worlds & Saves Visual Hub, Mod Multi-Select Batch Actions, Discover Compatibility Badges, Fine Memory Slider, and Environment Telemetry.
 on:
   workflow_dispatch:
   push:

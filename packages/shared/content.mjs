@@ -19,10 +19,26 @@ export function providerIcon(value) {
     return url.protocol === 'https:' && url.hostname === 'cdn.modrinth.com' && !url.username && !url.password && !url.port ? url.href : null;
   } catch { return null; }
 }
-/** @param {string} query @param {string} kind */
-export function searchUrl(query, kind) {
+/** @param {string} query @param {string} kind @param {{loader?: string, gameVersion?: string, index?: string}} [options] */
+export function searchUrl(query, kind, options = {}) {
   const url = new URL('https://api.modrinth.com/v2/search');
-  url.search = new URLSearchParams({query: query.trim().slice(0, 200), limit: '18', facets: JSON.stringify([[`project_type:${contentKind(kind)}`]])}).toString();
+  const facetList = [[`project_type:${contentKind(kind)}`]];
+  if (options.loader && options.loader !== 'all') {
+    facetList.push([`categories:${options.loader}`]);
+  }
+  if (options.gameVersion && options.gameVersion !== 'all') {
+    facetList.push([`versions:${options.gameVersion}`]);
+  }
+  /** @type {Record<string, string>} */
+  const params = {
+    query: query.trim().slice(0, 200),
+    limit: '18',
+    facets: JSON.stringify(facetList)
+  };
+  if (options.index && ['relevance', 'downloads', 'follows', 'newest', 'updated'].includes(options.index)) {
+    params.index = options.index;
+  }
+  url.search = new URLSearchParams(params).toString();
   return url.href;
 }
 /** @param {string} project */
@@ -38,6 +54,8 @@ export function normalizeHits(data, kind) {
     title: hit.title.slice(0, 160), description: typeof hit.description === 'string' ? hit.description.slice(0, 1000) : '',
     author: typeof hit.author === 'string' ? hit.author.slice(0, 100) : '', icon_url: providerIcon(hit.icon_url),
     downloads: Number.isSafeInteger(hit.downloads) && hit.downloads >= 0 ? hit.downloads : null,
+    categories: Array.isArray(hit.categories) ? hit.categories.filter((/** @type {any} */ c) => typeof c === 'string').slice(0, 8) : [],
+    versions: Array.isArray(hit.versions) ? hit.versions.filter((/** @type {any} */ v) => typeof v === 'string').slice(0, 6) : [],
   }));
 }
 /** @param {any} data @param {string} project */
