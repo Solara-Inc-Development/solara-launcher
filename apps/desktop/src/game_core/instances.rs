@@ -181,11 +181,16 @@ impl Instances {
         if target_name.is_empty() {
             bail!("Duplicate instance name cannot be empty");
         }
+        let safe_name: String = if target_name.chars().count() > 80 {
+            target_name.chars().take(80).collect()
+        } else {
+            target_name.to_string()
+        };
         let new_id = uuid::Uuid::new_v4().to_string();
         let record = Instance {
             schema_version: source.schema_version,
             id: new_id.clone(),
-            name: target_name.to_string(),
+            name: safe_name,
             game_version: source.game_version.clone(),
             loader: source.loader.clone(),
             loader_version: source.loader_version.clone(),
@@ -242,14 +247,23 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
         std::fs::create_dir_all(dst)?;
     }
     for entry in std::fs::read_dir(src)? {
-        let entry = entry?;
-        let file_type = entry.file_type()?;
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        let file_type = match entry.file_type() {
+            Ok(ft) => ft,
+            Err(_) => continue,
+        };
         // Ignore symlinks to prevent path escape
         if file_type.is_symlink() {
             continue;
         }
         let file_name = entry.file_name().to_string_lossy().to_string();
-        if file_name.ends_with(".lock") || file_name == "session.lock" {
+        if file_name.ends_with(".lock")
+            || file_name.ends_with(".lck")
+            || file_name == "session.lock"
+        {
             continue;
         }
         let src_path = entry.path();
@@ -396,6 +410,13 @@ mod tests {
 
         // Empty duplicate name is rejected
         assert!(store.duplicate(&original.id, "   ").await.is_err());
+
+        // Long duplicate names exceeding 80 characters are safely clamped and pass validation
+        let long_name = "A".repeat(120);
+        let long_copy = store.duplicate(&original.id, &long_name).await.unwrap();
+        assert_eq!(long_copy.name.chars().count(), 80);
+        assert_eq!(long_copy.name, "A".repeat(80));
+        store.delete(&long_copy.id).await.unwrap();
 
         store.delete(&original.id).await.unwrap();
         // Copy still exists after original deleted

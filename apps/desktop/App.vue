@@ -2,6 +2,7 @@
 import InstanceAppearance from './InstanceAppearance.vue';
 import TaskProgress from './TaskProgress.vue';
 import InstanceAvatar from './InstanceAvatar.vue';
+import {instanceIcons,resetInstanceIcon} from './instance-icons';
 import {ref,computed,onMounted,onUnmounted,watch,nextTick} from 'vue';
 import {Home,Layers3,Gamepad2,Server,Compass,Plus,Settings,HelpCircle,ChevronDown,ChevronRight,ChevronLeft,ArrowUpRight,ArrowRight,Download,RefreshCw,LogIn,LogOut,Play,Square,Minus,X,Maximize2,FolderOpen,Box,Globe,BookOpen,Terminal,ShieldCheck,Activity,Search,Copy,ExternalLink,Package,Cloud,Monitor,Check,Pause,RotateCcw,Sparkles,GitBranch,User,Lock,Filter,Sliders,Sun,Moon} from '../../packages/ui/icons';
 import {useInteractions} from '../../packages/ui/interactions';
@@ -139,7 +140,8 @@ const isDuplicating = ref(false);
 
 function duplicateInstance(instance:any){
   duplicateTarget.value = instance;
-  duplicateName.value = `${instance.name} (Copy)`;
+  const raw = `${instance.name} (Copy)`;
+  duplicateName.value = raw.length > 80 ? raw.slice(0, 80) : raw;
   isDuplicating.value = false;
   show('duplicate-instance');
 }
@@ -147,11 +149,29 @@ function duplicateInstance(instance:any){
 async function performDuplicate(){
   if(!duplicateTarget.value||isDuplicating.value)return;
   const source=duplicateTarget.value;
-  const targetName=duplicateName.value.trim()||`${source.name} (Copy)`;
+  const rawTarget=duplicateName.value.trim()||`${source.name} (Copy)`;
+  const targetName=rawTarget.length > 80 ? rawTarget.slice(0, 80) : rawTarget;
   isDuplicating.value=true;
   await run(async()=>{
     try{
-      await native('duplicate_instance',{id:source.id,name:targetName});
+      const duplicated: any = await native('duplicate_instance',{id:source.id,name:targetName});
+      if(duplicated?.id){
+        // Preserve custom instance icon if one was set on source
+        if(instanceIcons.value[source.id]){
+          instanceIcons.value={...instanceIcons.value,[duplicated.id]:instanceIcons.value[source.id]};
+          try{localStorage.setItem('solara:instance-icons:v1',JSON.stringify(instanceIcons.value))}catch{}
+        }
+        // Preserve instance notes if set on source
+        const sourceNotes=localStorage.getItem(`solara:notes:${source.id}`);
+        if(sourceNotes){
+          try{localStorage.setItem(`solara:notes:${duplicated.id}`,sourceNotes)}catch{}
+        }
+        // Preserve custom display preferences if set on source
+        const sourceDisplay=localStorage.getItem(`solara:display:${source.id}`);
+        if(sourceDisplay){
+          try{localStorage.setItem(`solara:display:${duplicated.id}`,sourceDisplay)}catch{}
+        }
+      }
       close();
       await pollLocal();
       toast(`Duplicated "${source.name}" into "${targetName}". Worlds, mods, and settings cloned.`);
@@ -160,7 +180,19 @@ async function performDuplicate(){
     }
   });
 }
-async function deleteInstance(id:string){await run(async()=>{await native('delete_instance',{id});if(activeInstanceId.value===id){activeInstanceId.value=null}await pollLocal();toast('Instance deleted.');});}
+async function deleteInstance(id:string){
+  await run(async()=>{
+    await native('delete_instance',{id});
+    if(activeInstanceId.value===id){activeInstanceId.value=null}
+    resetInstanceIcon(id);
+    try{
+      localStorage.removeItem(`solara:notes:${id}`);
+      localStorage.removeItem(`solara:display:${id}`);
+    }catch{}
+    await pollLocal();
+    toast('Instance deleted.');
+  });
+}
 async function copyText(text:string){if(!text)return;await navigator.clipboard.writeText(text);toast('Copied to clipboard.')}
 async function retryInstall(instance:any){await run(async()=>{await native('retry_instance',{id:instance.id});await pollLocal();toast('Installation queued. Your worlds are kept.');})}
 async function launch(instance:any){
@@ -331,7 +363,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
       <div class="library-loader-filters" aria-label="Filter library by loader"><button v-for="loader in ['all','vanilla','fabric','quilt','forge','neoforge']" :key="loader" class="filter-pill" :class="{active:libraryLoader===loader}" :aria-pressed="libraryLoader===loader" @click="libraryLoader=loader">{{loader==='all'?'All instances':loaderInfo.find(l=>l.id===loader)?.name||loader}}</button></div><div class="card account-box" style="margin-bottom:24px"><div class="account-details"><span class="account-emblem"><User/></span><div><h3>{{minecraft.length?minecraft.find(a=>a.active)?.name||'Minecraft accounts':'Add your Minecraft account'}}</h3><p>Sign in with Microsoft on this device. Your Solara account is separate.</p></div></div><button :disabled="busy||!engineReady" @click="mcSignIn"><Plus/> Add account</button></div>
       <div v-if="!isDesktop" class="banner notice" style="margin-bottom:20px">App preview. Playing Minecraft needs the installed desktop app.</div>
       <div v-if="!instances.length" class="new-home-empty"><div><span class="empty-library-symbol"><Plus/></span><h3>A fresh start.</h3><p>Pick a version. Give it a name. We will handle the game files and Java.</p></div><button class="workspace-play" @click="plus">Create your first instance <ArrowUpRight/></button></div>
-      <div v-else :class="['grid','instance-collection',{'as-list':libraryView==='list'}]"><article v-for="i in visibleInstances" :key="i.id" class="instance-card"><button class="instance-banner-wrap" :aria-label="'Open artwork for '+i.name" @click="openInstance(i)"><InstanceAvatar :instance="i"/><span class="instance-loader-tag" :class="i.loader">{{ i.loader }}</span><span v-if="i.running" class="instance-status-tag running">Running</span></button><div class="details"><button class="library-instance-open" :aria-label="'Open instance '+i.name" @click="openInstance(i)"><span class="instance-letter">{{i.name.slice(0,1).toUpperCase()}}</span><span><h3>{{i.name}}</h3><p>{{i.gameVersion}} · <span class="instance-loader-name">{{i.loader}}</span> · <span :class="{running:i.running}">{{i.running?'Running':i.state}}</span></p></span></button><div class="actions"><button @click="openInstance(i)">Manage <ArrowRight/></button><button v-if="['created','failed','cancelled'].includes(i.state)" :disabled="busy" @click="retryInstall(i)">Retry install</button><button v-else-if="!i.running" class="primary" :disabled="busy||i.state!=='installed'" @click="launch(i)"><Play/> Play</button><button v-else :disabled="busy" @click="stopGame(i)"><Square/> Stop game</button><button title="Edit instance" :disabled="busy" @click="editInstance(i)"><Settings/></button><button title="View game logs" :disabled="busy" @click="instanceLogs(i)"><Terminal/></button><button title="Open instance folder" @click="run(()=>native('open_instance_folder',{id:i.id}))"><FolderOpen/></button></div></div></article></div>
+      <div v-else :class="['grid','instance-collection',{'as-list':libraryView==='list'}]"><article v-for="i in visibleInstances" :key="i.id" class="instance-card"><button class="instance-banner-wrap" :aria-label="'Open artwork for '+i.name" @click="openInstance(i)"><InstanceAvatar :instance="i"/><span class="instance-loader-tag" :class="i.loader">{{ i.loader }}</span><span v-if="i.running" class="instance-status-tag running">Running</span></button><div class="details"><button class="library-instance-open" :aria-label="'Open instance '+i.name" @click="openInstance(i)"><span class="instance-letter">{{i.name.slice(0,1).toUpperCase()}}</span><span><h3>{{i.name}}</h3><p>{{i.gameVersion}} · <span class="instance-loader-name">{{i.loader}}</span> · <span :class="{running:i.running}">{{i.running?'Running':i.state}}</span></p></span></button><div class="actions"><button @click="openInstance(i)">Manage <ArrowRight/></button><button v-if="['created','failed','cancelled'].includes(i.state)" :disabled="busy" @click="retryInstall(i)">Retry install</button><button v-else-if="!i.running" class="primary" :disabled="busy||i.state!=='installed'" @click="launch(i)"><Play/> Play</button><button v-else :disabled="busy" @click="stopGame(i)"><Square/> Stop game</button><button title="Duplicate instance" :disabled="busy||i.running" @click="duplicateInstance(i)"><Copy/></button><button title="Edit instance" :disabled="busy" @click="editInstance(i)"><Settings/></button><button title="View game logs" :disabled="busy" @click="instanceLogs(i)"><Terminal/></button><button title="Open instance folder" @click="run(()=>native('open_instance_folder',{id:i.id}))"><FolderOpen/></button></div></div></article></div>
       <div v-if="instances.length&&!visibleInstances.length" class="empty"><Search/><h3>No instances match</h3><p>Try a different name, game version or loader.</p><button @click="libraryQuery='';libraryLoader='all'">Clear search</button></div>
       <div v-if="minecraft.length" class="stack" style="margin-top:25px"><div class="section-title"><h2>Local Minecraft accounts</h2></div><div class="card account-box" v-for="a in minecraft" :key="a.id"><div><h3>{{a.name}}</h3><p>{{a.active?'Selected account':'Saved on this device'}}</p></div><div class="row"><button v-if="!a.active" @click="run(async()=>{await native('select_minecraft_account',{id:a.id});await pollLocal()})">Select</button><button title="Remove this Minecraft account from this device" @click="mcLogout(a.id)"><LogOut/> Remove</button></div></div></div>
       </template>

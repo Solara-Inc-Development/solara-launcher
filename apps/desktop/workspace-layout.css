@@ -2093,6 +2093,7 @@
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 1px rgba(56, 189, 248, 0.3);
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lightbox-loading {

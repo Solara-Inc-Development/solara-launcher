@@ -76,14 +76,18 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='import_instance_mod'&&c.args.fileName==='custom-zoom.jar')),true);
  await page.getByRole('switch',{name:'Disable QA mod',exact:true}).click();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).getAttribute('aria-checked'),'false');
 
- // Exercise smart archive drop routing for .zip and .mrpack archives
- await page.locator('input[type="file"]').setInputFiles({name:'faithful32.zip',mimeType:'application/zip',buffer:Buffer.from('PK\x03\x04fixture-zip')});
+ // Exercise smart archive drop routing for multi-file .zip archives
+ await page.locator('input[type="file"]').setInputFiles([
+   {name:'faithful32.zip',mimeType:'application/zip',buffer:Buffer.from('PK\x03\x04fixture-zip1')},
+   {name:'barebones.zip',mimeType:'application/zip',buffer:Buffer.from('PK\x03\x04fixture-zip2')}
+ ]);
  await page.getByRole('dialog').getByText('Archive File Detected',{exact:true}).waitFor();
+ await page.getByRole('dialog').getByText('2 archive files (faithful32.zip + 1 more)',{exact:true}).waitFor();
  await page.getByRole('dialog').getByText('Open Resource Packs Folder',{exact:true}).waitFor();
  await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
  await page.getByRole('dialog').waitFor({state:'hidden'});
 
- // Exercise screenshot gallery and lightbox with zoom & copy
+ // Exercise screenshot gallery and lightbox with zoom, copy & trash trigger
  await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Screenshots',exact:true}).click();
  await page.getByRole('button',{name:'View screenshot 2026-11-06_18.20.15.png',exact:true}).click();
  const lightbox=page.locator('.solara-lightbox-dialog');
@@ -93,8 +97,9 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await lightbox.getByRole('button',{name:'Reset zoom',exact:true}).click();
  assert.equal((await lightbox.locator('.zoom-level-btn').textContent()).trim(),'100%');
  await lightbox.getByRole('button',{name:'Copy screenshot',exact:true}).click();
- await lightbox.getByRole('button',{name:'Close screenshot viewer',exact:true}).click();
- await lightbox.waitFor({state:'hidden'});
+ await lightbox.getByRole('button',{name:'Move screenshot to Trash',exact:true}).click();
+ await page.getByRole('dialog').getByText("will move to this instance's Trash",{exact:false}).waitFor();
+ await page.getByRole('dialog').getByRole('button',{name:'Cancel'}).click();
 
  // Exercise instance duplication dialog and feedback
  await page.getByRole('button',{name:'Create similar instance',exact:true}).click();

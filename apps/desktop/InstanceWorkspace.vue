@@ -201,7 +201,7 @@ async function onModDrop(e:DragEvent){
   e.preventDefault();
   isDraggingMods.value=false;
   dragCounter=0;
-  if(props.instance.running||locked.value||props.instance.loader==='vanilla')return;
+  if(props.instance.running||locked.value)return;
   const files=Array.from(e.dataTransfer?.files||[]);
   if(!files.length)return;
   const jarFiles=files.filter(f=>f.name.toLowerCase().endsWith('.jar'));
@@ -219,9 +219,13 @@ async function onModDrop(e:DragEvent){
   }
 
   if(jarFiles.length>0){
+    if(props.instance.loader==='vanilla'){
+      error.value='Vanilla Minecraft does not support .jar mods. Create a Fabric, Quilt, or Forge instance to install mods.';
+      return;
+    }
     await importModFiles(jarFiles);
   } else if(archiveFiles.length===0){
-    error.value='Choose or drop valid .jar mod files.';
+    error.value='Choose or drop valid .jar mod files or .zip resource packs.';
   }
 }
 async function importModFileInput(event:Event){
@@ -244,9 +248,13 @@ async function importModFileInput(event:Event){
   }
 
   if(jarFiles.length>0){
+    if(props.instance.loader==='vanilla'){
+      error.value='Vanilla Minecraft does not support .jar mods. Create a Fabric, Quilt, or Forge instance to install mods.';
+      return;
+    }
     await importModFiles(jarFiles);
   } else if(archiveFiles.length===0){
-    error.value='Choose or drop valid .jar mod files.';
+    error.value='Choose or drop valid .jar mod files or .zip resource packs.';
   }
 }
 async function importModFiles(fileList:FileList|File[]){
@@ -456,18 +464,28 @@ async function loadScreenshots() {
 async function openLightbox(item: ScreenshotItem) {
   lightboxZoom.value = 1;
   imageCopied.value = false;
+  activeLightbox.value = item;
   if (!item.dataUrl) {
     try {
-      item.dataUrl = await native('instance_image', { id: props.instance.id, path: item.path });
+      const url = await native('instance_image', { id: props.instance.id, path: item.path });
+      if (activeLightbox.value?.path === item.path) {
+        item.dataUrl = url;
+      }
     } catch {}
   }
-  activeLightbox.value = item;
 }
 
 function closeLightbox() {
   activeLightbox.value = null;
   lightboxZoom.value = 1;
   imageCopied.value = false;
+}
+
+function trashActiveScreenshot() {
+  if (!activeLightbox.value) return;
+  const target = activeLightbox.value;
+  closeLightbox();
+  ask('trash', target);
 }
 
 function onImageLoaded(e: Event) {
@@ -515,16 +533,20 @@ async function copyScreenshot() {
           new ClipboardItem({ [blob.type || 'image/png']: blob })
         ]);
         imageCopied.value = true;
+        notice.value = 'Screenshot copied to clipboard.';
       } catch {
         await navigator.clipboard.writeText(activeLightbox.value.name);
         imageCopied.value = true;
+        notice.value = `Copied screenshot name (${activeLightbox.value.name}) to clipboard.`;
       }
     } else if (navigator?.clipboard) {
       await navigator.clipboard.writeText(activeLightbox.value.name);
       imageCopied.value = true;
+      notice.value = `Copied screenshot name (${activeLightbox.value.name}) to clipboard.`;
     }
   } catch {
     imageCopied.value = true;
+    notice.value = 'Copied to clipboard.';
   }
   if (copyTimeout) clearTimeout(copyTimeout);
   copyTimeout = setTimeout(() => { imageCopied.value = false; }, 2500);
@@ -532,11 +554,14 @@ async function copyScreenshot() {
 
 async function openInSystemViewer() {
   if (!activeLightbox.value) return;
+  const target = activeLightbox.value;
   await run(async () => {
     try {
-      await native('open_instance_file', { id: props.instance.id, path: activeLightbox.value!.path });
+      await native('open_instance_file', { id: props.instance.id, path: target.path });
+      notice.value = `Opened ${target.name} in system viewer.`;
     } catch {
-      await native('open_instance_folder', { id: props.instance.id, path: activeLightbox.value!.path });
+      await native('open_instance_folder', { id: props.instance.id, path: target.path });
+      notice.value = `Opened screenshots folder for ${target.name}.`;
     }
   });
 }
@@ -705,7 +730,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <button class="circle-action-btn" title="Screenshots gallery" @click="selectTab('screenshots')">
        <Monitor :size="17"/>
      </button>
-     <button class="circle-action-btn" title="Create similar instance" aria-label="Create similar instance" @click="emit('duplicate',instance)">
+     <button class="circle-action-btn" title="Create similar instance" aria-label="Create similar instance" :disabled="locked" @click="emit('duplicate',instance)">
        <Copy :size="17"/>
      </button>
      <button class="circle-action-btn" title="Create world snapshot" aria-label="Create world snapshot" :disabled="locked" @click="openExportModal">
@@ -1308,7 +1333,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        <h3 class="settings-subgroup-title" style="color:var(--error, #ef4444)">Instance Actions &amp; Danger Zone</h3>
        <p class="settings-subgroup-hint">Duplicate or permanently delete this Minecraft instance.</p>
        <div class="row" style="margin-top:12px;gap:12px">
-         <button type="button" class="solara-secondary-btn" @click="emit('duplicate', instance)">
+         <button type="button" class="solara-secondary-btn" :disabled="locked" @click="emit('duplicate', instance)">
            <Copy :size="14"/> Duplicate instance
          </button>
          <button type="button" class="solara-secondary-btn danger-btn" :disabled="instance.running" style="color:var(--error, #ef4444);border-color:rgba(239,68,68,0.3)" @click="ask('delete-instance')">
@@ -1392,6 +1417,11 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
          <FolderOpen :size="14"/> Folder
        </button>
 
+       <!-- Move to Trash -->
+       <button type="button" class="solara-secondary-btn danger-btn" title="Move to Trash" aria-label="Move screenshot to Trash" @click.stop="trashActiveScreenshot">
+         <Trash2 :size="14"/>
+       </button>
+
        <button type="button" class="circle-action-btn" title="Close (Esc)" aria-label="Close screenshot viewer" @click="closeLightbox">
          <X :size="16"/>
        </button>
@@ -1432,7 +1462,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
    </header>
    <div class="archive-dialog-body">
      <div class="archive-file-badge">
-       <strong class="archive-file-name">{{ archiveRoutingItem.name }}</strong>
+       <strong class="archive-file-name">{{ archiveRoutingItem.count > 1 ? `${archiveRoutingItem.count} archive files (${archiveRoutingItem.name} + ${archiveRoutingItem.count - 1} more)` : archiveRoutingItem.name }}</strong>
        <span class="archive-file-meta">{{ bytes(archiveRoutingItem.size) }} · {{ archiveRoutingItem.isMrpack ? 'Modrinth Modpack' : 'ZIP Archive' }}</span>
      </div>
 

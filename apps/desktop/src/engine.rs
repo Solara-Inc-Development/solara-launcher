@@ -215,8 +215,27 @@ pub async fn duplicate_instance(id: String, name: Option<String>) -> Result<Valu
     let engine = get().await?;
     let source = engine.instances.get(&id).await?;
     let target_name = match name.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()) {
-        Some(n) => n,
-        None => format!("{} (Copy)", source.name),
+        Some(n) => {
+            if n.chars().count() > 80 {
+                n.chars().take(80).collect()
+            } else {
+                n
+            }
+        }
+        None => {
+            let base = format!("{} (Copy)", source.name);
+            if base.chars().count() > 80 {
+                let suffix = " (Copy)";
+                let keep = 80usize.saturating_sub(suffix.chars().count());
+                format!(
+                    "{}{}",
+                    source.name.chars().take(keep).collect::<String>().trim_end(),
+                    suffix
+                )
+            } else {
+                base
+            }
+        }
     };
     let duplicated = engine.instances.duplicate(&id, &target_name).await?;
     Ok(serde_json::to_value(duplicated)?)
