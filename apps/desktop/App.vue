@@ -43,7 +43,17 @@ const assignmentTarget=ref<Assignment|null>(null),releaseConsent=ref(false);
 const libraryQuery=ref(''),libraryView=ref(localStorage.getItem('solara:library-view')==='list'?'list':'grid'),libraryLoader=ref('all'),librarySort=ref('name'),globalSearch=ref('');
 const visibleInstances=computed(()=>instances.value.filter(i=>(libraryLoader.value==='all'||i.loader===libraryLoader.value)&&`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(libraryQuery.value.trim().toLowerCase())).sort((a,b)=>librarySort.value==='version'?(b.gameVersion||'').localeCompare(a.gameVersion||'',undefined,{numeric:true}):librarySort.value==='active'?Number(b.running)-Number(a.running)||a.name.localeCompare(b.name):a.name.localeCompare(b.name)));
 watch(libraryView,value=>localStorage.setItem('solara:library-view',value));
-const versions=ref<any[]>([]),selectedInstance=ref<any>(null),logs=ref(''),serverTab=ref('local'),serviceFilter=ref('all'),query=ref(''),results=ref<any[]>([]),contentType=ref('mod'),exploreLoader=ref('all'),exploreSort=ref('relevance');
+const versions=ref<any[]>([]),selectedInstance=ref<any>(null),logs=ref(''),serverTab=ref('local'),serviceFilter=ref('all'),query=ref(''),results=ref<any[]>([]),contentType=ref('mod'),exploreLoader=ref('all'),exploreGameVersion=ref('all'),exploreSort=ref('relevance');
+const exploreSortOptions=[{value:'relevance',label:'Sort: Relevance'},{value:'downloads',label:'Sort: Most downloads'},{value:'updated',label:'Sort: Recently updated'},{value:'follows',label:'Sort: Most followers'},{value:'newest',label:'Sort: Newest'}];
+const exploreLoaderOptions=[{value:'all',label:'All loaders'},{value:'fabric',label:'Fabric'},{value:'forge',label:'Forge'},{value:'neoforge',label:'NeoForge'},{value:'quilt',label:'Quilt'}];
+const exploreGameVersionOptions=computed(()=>{
+  const list=versions.value.filter(v=>v.type==='release').slice(0,16).map(v=>({value:v.id,label:'MC '+v.id}));
+  if(!list.length){
+    const common=['1.21.4','1.21.1','1.20.4','1.20.1','1.19.4','1.18.2','1.16.5'];
+    return [{value:'all',label:'All game versions'},...common.map(v=>({value:v,label:'MC '+v}))];
+  }
+  return [{value:'all',label:'All game versions'},...list];
+});
 const selectedContent=ref<any>(null),packVersionsLoading=ref(false);let searchController:AbortController|null=null,packController:AbortController|null=null;
 const create=ref({name:'',gameVersion:'',loader:'vanilla',loaderVersion:''});const serverForm=ref({name:'',version:'',javaPath:'java',memory:2048,port:25565,eula:false});
 const loaderChoices=ref<any[]>([]),loaderLoading=ref(false),loaderError=ref('');let loaderRequest=0;
@@ -234,7 +244,8 @@ async function searchContent(){
   const kind=contentType.value;searching.value=true;error.value='';
   try{
     const options:any={};
-    if(kind==='mod'&&exploreLoader.value!=='all')options.loader=exploreLoader.value;
+    if(['mod','modpack'].includes(kind)&&exploreLoader.value!=='all')options.loader=exploreLoader.value;
+    if(exploreGameVersion.value!=='all')options.gameVersion=exploreGameVersion.value;
     if(exploreSort.value!=='relevance')options.index=exploreSort.value;
     const data=await providerJson(searchUrl(query.value,kind,options),AbortSignal.any([controller.signal,AbortSignal.timeout(10000)]));
     if(searchController!==controller)return;
@@ -243,7 +254,7 @@ async function searchContent(){
   catch(e){if(!controller.signal.aborted)error.value=String(e instanceof Error?e.message:e)}
   finally{if(searchController===controller){searchController=null;searching.value=false}}
 }
-watch([contentType,exploreLoader,exploreSort],()=>{searchController?.abort();searchController=null;searching.value=false;results.value=[];hasSearched.value=false;error.value='';void searchContent();});
+watch([contentType,exploreLoader,exploreGameVersion,exploreSort],()=>{searchController?.abort();searchController=null;searching.value=false;results.value=[];hasSearched.value=false;error.value='';void searchContent();});
 watch(section,sec=>{if(sec==='explore'&&!results.value.length&&!searching.value)void searchContent()});
 const eligibleTargetInstances=computed(()=>{const kind=selectedContent.value?.kind;if(!kind||kind==='modpack')return [];return kind==='mod'?instances.value.filter(i=>i.loader&&i.loader!=='vanilla'):instances.value});
 async function installContent(hit:any){
@@ -383,19 +394,16 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
       <div class="explore-layout">
         <aside class="explore-filter-panel" aria-label="Discover categories"><div class="explore-filter-title"><Filter/> Browse content</div><small>PROJECT TYPE</small><div class="explore-category-pills"><button v-for="cat in [{value:'mod',label:'Mods',icon:Package},{value:'modpack',label:'Modpacks',icon:Box},{value:'resourcepack',label:'Resource packs',icon:Layers3},{value:'shader',label:'Shaders',icon:Sparkles}]" :key="cat.value" type="button" class="category-pill" :class="{active:contentType===cat.value}" :aria-pressed="contentType===cat.value" @click="contentType=cat.value"><component :is="cat.icon"/>{{cat.label}}</button></div><div class="provider-note"><strong>Community creations</strong>Content is provided by Modrinth. Compatible versions are checked before installing.</div></aside>
         <div class="explore-results"><div class="results-heading"><strong>{{contentType==='mod'?'Mods':contentType==='modpack'?'Modpacks':contentType==='shader'?'Shaders':'Resource packs'}}</strong><span>{{searching?'Finding your next favourite…':hasSearched?results.length+' results in this search':'Something for every kind of player'}}</span></div>
-          <div v-if="contentType==='mod'" class="explore-controls-row">
-            <div class="explore-loader-pills" role="radiogroup" aria-label="Filter by mod loader">
+          <div class="explore-controls-row">
+            <div v-if="contentType==='mod'||contentType==='modpack'" class="explore-loader-pills" role="radiogroup" aria-label="Filter by mod loader">
               <button v-for="l in ['all','fabric','forge','neoforge','quilt']" :key="l" type="button" class="filter-pill" :class="{active: exploreLoader===l}" @click="exploreLoader=l">
                 {{ l==='all' ? 'All loaders' : l[0].toUpperCase()+l.slice(1) }}
               </button>
             </div>
-            <div class="explore-sort-wrap">
-              <select v-model="exploreSort" class="solara-mini-select" aria-label="Sort search results">
-                <option value="relevance">Sort: Relevance</option>
-                <option value="downloads">Sort: Most downloads</option>
-                <option value="newest">Sort: Newest</option>
-                <option value="updated">Sort: Recently updated</option>
-              </select>
+            <div class="explore-filter-selects">
+              <SelectControl v-if="contentType==='mod'||contentType==='modpack'" v-model="exploreLoader" label="Filter by mod loader" :options="exploreLoaderOptions"/>
+              <SelectControl v-model="exploreGameVersion" label="Filter by game version" :options="exploreGameVersionOptions" searchable/>
+              <SelectControl v-model="exploreSort" label="Sort search results" :options="exploreSortOptions"/>
             </div>
           </div>
           <LoadingCards v-if="searching" label="Searching community catalogue…" :count="6"/>

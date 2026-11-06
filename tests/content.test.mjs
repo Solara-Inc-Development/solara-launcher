@@ -21,17 +21,22 @@ test('modpack versions require matching project and mrpack files and sort by act
   assert.deepEqual(versions.map(v=>v.id),['new','old']);assert.equal(versions[1].type,'release');assert.equal(versions[0].games,'1.21.1');
 });
 test('searchUrl validates loader and sorting index options safely', () => {
-  const u1 = new URL(searchUrl('iris', 'mod', { loader: 'fabric', index: 'downloads' }));
-  assert.deepEqual(JSON.parse(u1.searchParams.get('facets')), [['project_type:mod'], ['categories:fabric']]);
+  const u1 = new URL(searchUrl('iris', 'mod', { loader: 'fabric', gameVersion: '1.21.1', index: 'downloads' }));
+  assert.deepEqual(JSON.parse(u1.searchParams.get('facets')), [['project_type:mod'], ['categories:fabric'], ['versions:1.21.1']]);
   assert.equal(u1.searchParams.get('index'), 'downloads');
 
-  const u2 = new URL(searchUrl('test', 'mod', { loader: 'all', index: 'relevance' }));
+  const u2 = new URL(searchUrl('test', 'mod', { loader: 'all', gameVersion: 'all', index: 'relevance' }));
   assert.deepEqual(JSON.parse(u2.searchParams.get('facets')), [['project_type:mod']]);
   assert.equal(u2.searchParams.get('index'), null);
 
-  const u3 = new URL(searchUrl('test', 'mod', { loader: '../../evil', index: 'drop_database' }));
+  const u3 = new URL(searchUrl('test', 'mod', { loader: '../../evil', gameVersion: ';rm -rf', index: 'drop_database' }));
   assert.deepEqual(JSON.parse(u3.searchParams.get('facets')), [['project_type:mod']]);
   assert.equal(u3.searchParams.get('index'), null);
+
+  for (const idx of ['updated', 'follows', 'newest']) {
+    const u = new URL(searchUrl('test', 'mod', { index: idx }));
+    assert.equal(u.searchParams.get('index'), idx);
+  }
 
   const normalized = normalizeHits({
     hits: [{

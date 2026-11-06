@@ -55,6 +55,22 @@ async function copyFilteredLogs(){
   const content=visibleLogLines.value.map(l=>l.text).join('\n');
   await copy(content||consoleText.value);
 }
+function exportLogsToFile(){
+  const content=visibleLogLines.value.map(l=>l.text).join('\n')||consoleText.value;
+  if(!content)return;
+  const safeName=(props.instance.name||'instance').toLowerCase().replace(/[^a-z0-9_-]/g,'_');
+  const filename=`${safeName}_logs_${new Date().toISOString().slice(0,10)}.txt`;
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  notice.value=`Exported logs to ${filename}`;
+}
 function clearLogView(){
   consoleText.value='';
 }
@@ -340,10 +356,13 @@ async function batchTrashSelected(){
 // Instance Notes state
 const instanceNotes=ref('');
 const notesSavedNotice=ref(false);
+const notesSaving=ref(false);
 let notesSaveTimer:ReturnType<typeof setTimeout>|null=null;
 function loadInstanceNotes(){
   try{
     instanceNotes.value=localStorage.getItem(`solara:notes:${props.instance.id}`)||'';
+    notesSavedNotice.value=false;
+    notesSaving.value=false;
   }catch{
     instanceNotes.value='';
   }
@@ -351,28 +370,34 @@ function loadInstanceNotes(){
 function saveInstanceNotes(manual=false){
   try{
     localStorage.setItem(`solara:notes:${props.instance.id}`,instanceNotes.value);
+    notesSaving.value=false;
     notesSavedNotice.value=true;
     if(manual)notice.value='Instance notebook saved.';
-    setTimeout(()=>{notesSavedNotice.value=false;},2500);
+    setTimeout(()=>{notesSavedNotice.value=false;},3000);
   }catch{
+    notesSaving.value=false;
     error.value='Failed to save note locally.';
   }
 }
 function handleNotesInput(){
+  notesSaving.value=true;
   if(notesSaveTimer)clearTimeout(notesSaveTimer);
-  notesSaveTimer=setTimeout(()=>{saveInstanceNotes(false);},800);
+  notesSaveTimer=setTimeout(()=>{saveInstanceNotes(false);},750);
+}
+function insertStarterTemplate(type:'server'|'todo'|'coords'){
+  let snippet='';
+  if(type==='server'){
+    snippet=`\n🌐 Server Details & Connection:\n- Server Name: ${props.instance.name} SMP\n- Address: mc.solara-inc.in\n- Port: 25565\n- Version: Minecraft ${props.instance.gameVersion}\n- Rules & Info: Keep inventory ON, claim chunks with golden shovel.\n`;
+  }else if(type==='todo'){
+    snippet=`\n📋 To-Do List & Objectives:\n- [ ] Build starter house & perimeter wall\n- [ ] Gather 24 diamonds & craft diamond armor\n- [ ] Find Nether Fortress & collect Blaze rods\n- [ ] Set up automated sugarcane & iron farms\n- [ ] Locate Stronghold & defeat the Ender Dragon\n`;
+  }else if(type==='coords'){
+    snippet=`\n📍 Coordinates & Landmarks:\n- Base / Spawn: X: 0, Y: 72, Z: 0\n- Nether Portal: X: 0, Y: 64, Z: 0\n- Stronghold: X: 1240, Y: 32, Z: -780\n- Ancient City: X: -580, Y: -51, Z: 430\n- Village: X: 320, Y: 68, Z: 150\n`;
+  }
+  instanceNotes.value=(instanceNotes.value?instanceNotes.value.trimEnd()+'\n\n':'')+snippet.trimStart();
+  saveInstanceNotes(false);
 }
 function insertSnippet(type:'coords'|'server'|'todo'){
-  let snippet='';
-  if(type==='coords'){
-    snippet=`\n📍 Coordinates:\n- Base: X: 0, Y: 70, Z: 0\n- Nether Portal: X: 0, Y: 60, Z: 0\n- Stronghold: X: 1200, Y: 30, Z: -800\n- Ancient City: X: -600, Y: -51, Z: 450\n`;
-  }else if(type==='server'){
-    snippet=`\n🌐 Server Details:\n- Address: mc.solara-inc.in\n- Port: 25565\n- Version: Minecraft ${props.instance.gameVersion}\n`;
-  }else if(type==='todo'){
-    snippet=`\n📋 To-Do List:\n- [ ] Gather Netherite upgrade template\n- [ ] Build automated iron farm\n- [ ] Set up villager trading hall\n- [ ] Brew fire resistance potions\n`;
-  }
-  instanceNotes.value=(instanceNotes.value?instanceNotes.value+'\n':'')+snippet;
-  saveInstanceNotes(false);
+  insertStarterTemplate(type);
 }
 const noteStats=computed(()=>{
   const t=instanceNotes.value;
@@ -1112,9 +1137,9 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        <p>Keep coordinates, server addresses, modpack notes, and todos safely stored on this device.</p>
      </div>
      <div class="row">
-       <button type="button" class="solara-secondary-btn" @click="insertSnippet('coords')"><Compass :size="14"/> Coordinates</button>
-       <button type="button" class="solara-secondary-btn" @click="insertSnippet('todo')"><Check :size="14"/> Todo list</button>
-       <button type="button" class="solara-secondary-btn" @click="insertSnippet('server')"><Globe :size="14"/> Server info</button>
+       <button type="button" class="solara-secondary-btn" @click="insertStarterTemplate('server')"><Globe :size="14"/> + Server IP &amp; notes</button>
+       <button type="button" class="solara-secondary-btn" @click="insertStarterTemplate('todo')"><Check :size="14"/> + To-do list</button>
+       <button type="button" class="solara-secondary-btn" @click="insertStarterTemplate('coords')"><Compass :size="14"/> + Coordinates</button>
        <button type="button" class="solara-secondary-btn" :disabled="!instanceNotes" @click="copy(instanceNotes)"><Copy :size="14"/> Copy</button>
        <button type="button" class="solara-primary-btn" @click="saveInstanceNotes(true)"><Save :size="14"/> Save note</button>
      </div>
@@ -1130,8 +1155,26 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
          <span>{{ noteStats.chars }} characters</span>
        </div>
        <div class="notes-status-badge">
-         <span v-if="notesSavedNotice" class="badge-saved"><Check :size="12"/> Saved to device</span>
-         <span v-else class="badge-autosave">⚡ Auto-saves locally</span>
+         <span v-if="notesSaving" class="badge-saving"><span class="saving-dot"></span> Saving…</span>
+         <span v-else-if="notesSavedNotice" class="badge-saved pulse-indicator"><span class="pulse-dot"></span> Saved locally</span>
+         <span v-else class="badge-autosave"><span class="pulse-dot idle"></span> Saved locally</span>
+       </div>
+     </div>
+     <div v-if="!instanceNotes.trim()" class="notes-starter-banner">
+       <div class="starter-banner-heading">
+         <Sparkles :size="14"/>
+         <span>Quick starter templates:</span>
+       </div>
+       <div class="starter-banner-buttons">
+         <button type="button" class="starter-template-pill" @click="insertStarterTemplate('server')">
+           <Globe :size="13"/> + Server IP &amp; notes
+         </button>
+         <button type="button" class="starter-template-pill" @click="insertStarterTemplate('todo')">
+           <Check :size="13"/> + To-do list
+         </button>
+         <button type="button" class="starter-template-pill" @click="insertStarterTemplate('coords')">
+           <Compass :size="13"/> + Coordinates
+         </button>
        </div>
      </div>
      <textarea
@@ -1175,6 +1218,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <div class="row">
        <button class="solara-secondary-btn" @click="liveLogs=!liveLogs">{{liveLogs?'Pause live stream':'Resume live stream'}}</button>
        <button class="solara-secondary-btn" :disabled="!visibleLogLines.length" @click="copyFilteredLogs"><Copy :size="14"/> Copy logs</button>
+       <button class="solara-secondary-btn" :disabled="!visibleLogLines.length" @click="exportLogsToFile"><Download :size="14"/> Export logs</button>
        <button title="Refresh game logs" @click="refreshLogs"><RefreshCw :size="14"/></button>
      </div>
    </div>
@@ -1183,26 +1227,27 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
      <div class="console-search-wrap">
        <Search :size="14"/>
        <input v-model="logSearch" placeholder="Filter log output…" aria-label="Filter log output">
-       <button v-if="logSearch" type="button" class="search-clear-btn" @click="logSearch=''">
+       <span v-if="logSearch.trim()" class="search-match-badge">{{ visibleLogLines.length }} {{ visibleLogLines.length === 1 ? 'match' : 'matches' }}</span>
+       <button v-if="logSearch" type="button" class="search-clear-btn" aria-label="Clear log search" @click="logSearch=''">
          <X :size="12"/>
        </button>
      </div>
 
      <div class="console-filter-pills">
        <button type="button" class="filter-pill" :class="{active: logSeverity==='all'}" @click="logSeverity='all'">
-         All ({{ logCounts.total }})
+         All <span class="pill-count">{{ logCounts.total }}</span>
        </button>
        <button type="button" class="filter-pill pill-error" :class="{active: logSeverity==='error'}" @click="logSeverity='error'">
-         Errors ({{ logCounts.error }})
+         Errors <span class="pill-count count-error">{{ logCounts.error }}</span>
        </button>
        <button type="button" class="filter-pill pill-warn" :class="{active: logSeverity==='warn'}" @click="logSeverity='warn'">
-         Warnings ({{ logCounts.warn }})
+         Warnings <span class="pill-count count-warn">{{ logCounts.warn }}</span>
        </button>
        <button type="button" class="filter-pill pill-info" :class="{active: logSeverity==='info'}" @click="logSeverity='info'">
-         Info ({{ logCounts.info }})
+         Info <span class="pill-count">{{ logCounts.info }}</span>
        </button>
        <button type="button" class="filter-pill pill-chat" :class="{active: logSeverity==='chat'}" @click="logSeverity='chat'">
-         Chat ({{ logCounts.chat }})
+         Chat <span class="pill-count">{{ logCounts.chat }}</span>
        </button>
      </div>
 

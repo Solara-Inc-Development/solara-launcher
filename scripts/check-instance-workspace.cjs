@@ -110,9 +110,28 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await dupModal.waitFor({state:'hidden'});
  assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='duplicate_instance'&&c.args.name==='Cloned QA Adventure')),true);
 
+ // Exercise console log viewer ergonomics: search match count, export logs action, and pill counts
+ await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Logs',exact:true}).click();
+ await page.getByRole('button',{name:'Export logs',exact:true}).waitFor();
+ await page.locator('.console-search-wrap input').fill('QA');
+ await page.locator('.search-match-badge').waitFor();
+ assert.equal(await page.locator('.search-match-badge').textContent(),'1 match');
+ assert.equal(await page.locator('.pill-count').first().isVisible(),true);
+
+ // Exercise instance notebook: autosave, pulse indicator, and starter templates
+ await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Notes',exact:true}).click();
+ await page.locator('.badge-saved, .badge-autosave').waitFor();
+ assert.equal((await page.locator('.notes-status-badge').textContent()).includes('Saved locally'),true);
+ await page.getByRole('button',{name:'+ Server IP & notes',exact:true}).first().click();
+ let noteVal=await page.locator('.notes-textarea').inputValue();
+ assert.equal(noteVal.includes('Server Details'),true);
+ await page.getByRole('button',{name:'+ To-do list',exact:true}).first().click();
+ noteVal=await page.locator('.notes-textarea').inputValue();
+ assert.equal(noteVal.includes('To-Do List'),true);
+
  // Return to mods tab for running locks test
  await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:/^Mods/}).click();
  await page.evaluate(()=>window.__WORKSPACE_QA__.instance.running=true);await page.getByRole('button',{name:'Stop game',exact:true}).waitFor();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'Add .jar file',exact:true}).isDisabled(),true);
  await page.setViewportSize({width:800,height:700});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'checks/instance-workspace-fixture.png',animations:'disabled'});
- assert.deepEqual(errors,[]);console.log('Instance workspace edit/save, unsaved navigation, rename/trash/restore, backups, local .jar mod import, mod toggle and running locks PASS. Explicit IPC fixtures only.');
+ assert.deepEqual(errors,[]);console.log('Instance workspace edit/save, unsaved navigation, rename/trash/restore, backups, local .jar mod import, mod toggle, console logs, notebook templates and running locks PASS. Explicit IPC fixtures only.');
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

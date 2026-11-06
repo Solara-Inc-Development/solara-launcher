@@ -2656,6 +2656,30 @@ html, body, #app {
 .explore-sort-wrap {
   margin-left: auto;
 }
+.explore-filter-selects {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.explore-filter-selects .solara-select {
+  min-width: 135px;
+}
+.explore-filter-selects .solara-select button {
+  padding: 5px 11px;
+  font-size: 11.5px;
+  border-radius: 9px;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  transition: all 150ms ease;
+}
+.explore-filter-selects .solara-select button:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);
+}
 .mod-card-loaders {
   display: flex;
   align-items: center;
