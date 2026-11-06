@@ -1667,27 +1667,60 @@
 }
 
 /* Shortcuts Modal */
+.shortcuts-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 10px;
+}
+@media (max-width: 650px) {
+  .shortcuts-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.shortcuts-group {
+  display: flex;
+  flex-direction: column;
+}
+.shortcuts-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent, #38bdf8);
+  margin: 0 0 10px 2px;
+}
+.shortcuts-desc {
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
 .shortcuts-modal-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
 }
 .shortcut-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   background: #060913;
   border: 1px solid #1e293b;
-  border-radius: 10px;
-  font-size: 13px;
+  border-radius: 9px;
+  font-size: 12.5px;
   color: #cbd5e1;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.shortcut-row:hover {
+  background: #0b1222;
+  border-color: rgba(56, 189, 248, 0.3);
 }
 .shortcut-keys {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 .shortcut-keys kbd {
   background: #0b111e;
@@ -1698,6 +1731,57 @@
   font-family: inherit;
   color: #38bdf8;
   box-shadow: 0 2px 0 #1e293b;
+}
+
+/* Downloads Modal Header & Summary Pills */
+.downloads-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: 12px;
+}
+.downloads-summary-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.downloads-summary-pills .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  color: #94a3b8;
+}
+.downloads-summary-pills .queue-count-pill.is-active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+.downloads-summary-pills .speed-pill {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+.clear-downloads-btn {
+  font-size: 11.5px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
 }
 
 /* RAM Allocation Meter */
@@ -2825,6 +2909,182 @@
 }
 .duplicate-progress-wrap {
   padding: 16px 0;
+}
+
+/* Mod Inspector Dialog */
+.mod-inspector-dialog {
+  max-width: 620px;
+  width: 95vw;
+}
+.mod-inspector-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mod-inspector-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent, #38bdf8);
+  flex-shrink: 0;
+}
+.mod-inspector-name {
+  font-size: 19px !important;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 4px 0;
+}
+.mod-inspector-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mod-pill-enabled {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+}
+.mod-pill-disabled {
+  background: rgba(100, 116, 139, 0.15) !important;
+  border-color: rgba(100, 116, 139, 0.35) !important;
+  color: #94a3b8 !important;
+}
+.mod-inspector-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 18px 0;
+}
+.mod-inspector-banner.warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 10px;
+  color: #facc15;
+  font-size: 12.5px;
+}
+.inspector-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent, #38bdf8);
+  margin: 0 0 8px 0;
+}
+.mod-inspector-description {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0;
+}
+.mod-inspector-specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+@media (max-width: 600px) {
+  .mod-inspector-specs {
+    grid-template-columns: 1fr;
+  }
+}
+.spec-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.spec-row dt {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.spec-row dd {
+  font-size: 12.5px;
+  color: #e2e8f0;
+  margin: 0;
+}
+.spec-row dd code {
+  font-family: monospace;
+  font-size: 11.5px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #38bdf8;
+}
+.file-name-text {
+  font-family: monospace;
+  font-size: 11.5px !important;
+  color: #94a3b8 !important;
+  word-break: break-all;
+}
+.mod-delete-confirm-box {
+  padding: 12px 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mod-delete-confirm-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.mod-delete-confirm-msg strong {
+  font-size: 13px;
+  color: #f87171;
+  display: block;
+  margin-bottom: 2px;
+}
+.mod-delete-confirm-msg p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0;
+}
+.mod-delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.mod-inspector-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(51, 65, 85, 0.35);
+  margin-top: 4px;
+}
+.mod-inspector-left-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.danger-hover:hover {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #ef4444 !important;
 }
 
 

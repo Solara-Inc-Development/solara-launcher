@@ -755,6 +755,11 @@ pub async fn download_action(id: &str, action: &str) -> Result<()> {
     };
     Ok(())
 }
+pub async fn clear_finished_downloads() -> Result<()> {
+    let engine = get().await?;
+    engine.jobs.clear_finished();
+    Ok(())
+}
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Preferences {

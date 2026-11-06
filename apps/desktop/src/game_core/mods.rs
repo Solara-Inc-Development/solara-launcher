@@ -20,6 +20,7 @@ pub struct Mod {
     pub mod_id: Option<String>,
     pub version: Option<String>,
     pub description: Option<String>,
+    pub authors: Option<Vec<String>>,
     pub loaders: Vec<String>,
     pub enabled: bool,
     pub size: u64,
@@ -29,6 +30,26 @@ fn bounded(text: Option<&str>, limit: usize) -> Option<String> {
     text.map(|t| t.chars().take(limit).collect::<String>())
         .filter(|s| !s.is_empty())
 }
+fn parse_authors(val: Option<&Value>) -> Option<Vec<String>> {
+    let arr = val?.as_array()?;
+    let mut list = Vec::new();
+    for a in arr {
+        if let Some(s) = a.as_str() {
+            if let Some(name) = bounded(Some(s), 100) {
+                list.push(name);
+            }
+        } else if let Some(s) = a.get("name").and_then(Value::as_str) {
+            if let Some(name) = bounded(Some(s), 100) {
+                list.push(name);
+            }
+        }
+    }
+    if list.is_empty() {
+        None
+    } else {
+        Some(list)
+    }
+}
 fn inspect(
     path: &Path,
 ) -> Result<(
@@ -36,6 +57,7 @@ fn inspect(
     Option<String>,
     Option<String>,
     Option<String>,
+    Option<Vec<String>>,
     Vec<String>,
 )> {
     let mut file = std::fs::File::open(path)?;
@@ -88,6 +110,7 @@ fn inspect(
             bounded(v["id"].as_str(), 160),
             bounded(v["version"].as_str(), 100),
             bounded(v["description"].as_str(), 2000),
+            parse_authors(v.get("authors")),
             vec!["fabric".into()],
         ));
     }
@@ -99,6 +122,7 @@ fn inspect(
             bounded(q["id"].as_str(), 160),
             bounded(q["version"].as_str(), 100),
             bounded(q["metadata"]["description"].as_str(), 2000),
+            parse_authors(q.get("metadata").and_then(|m| m.get("authors"))),
             vec!["quilt".into()],
         ));
     }
@@ -115,11 +139,19 @@ fn inspect(
                 .context("Mod manifest has no mod entry")?;
             let value = |key: &str| m.get(key).and_then(toml::Value::as_str);
             let version = bounded(value("version"), 100).filter(|v| !v.starts_with("${"));
+            let authors = value("authors").map(|s| {
+                s.split(',')
+                    .map(|p| p.trim().to_string())
+                    .filter(|p| !p.is_empty())
+                    .take(10)
+                    .collect::<Vec<_>>()
+            }).filter(|v| !v.is_empty());
             return Ok((
                 bounded(value("displayName"), 160),
                 bounded(value("modId"), 160),
                 version,
                 bounded(value("description"), 2000),
+                authors,
                 vec![loader.into()],
             ));
         }
@@ -136,10 +168,11 @@ fn inspect(
             bounded(m["modid"].as_str(), 160),
             bounded(m["version"].as_str(), 100),
             bounded(m["description"].as_str(), 2000),
+            parse_authors(m.get("authorList").or_else(|| m.get("authors"))),
             vec!["forge".into()],
         ));
     }
-    Ok((None, None, None, None, vec![]))
+    Ok((None, None, None, None, None, vec![]))
 }
 pub async fn list(store: &Instances, files: &Files, id: &str) -> Result<Vec<Mod>> {
     if !tokio::fs::try_exists(store.game_dir(id).await?.join("mods")).await? {
@@ -157,9 +190,10 @@ pub async fn list(store: &Instances, files: &Files, id: &str) -> Result<Vec<Mod>
         }
         let path = files::resolve(store, id, &entry.path, false).await?;
         let parsed = tokio::task::spawn_blocking(move || inspect(&path)).await?;
-        let (name, mod_id, version, description, loaders, issue) = match parsed {
-            Ok((a, b, c, d, e)) => (a, b, c, d, e, None),
+        let (name, mod_id, version, description, authors, loaders, issue) = match parsed {
+            Ok((a, b, c, d, e, f)) => (a, b, c, d, e, f, None),
             Err(_) => (
+                None,
                 None,
                 None,
                 None,
@@ -181,6 +215,7 @@ pub async fn list(store: &Instances, files: &Files, id: &str) -> Result<Vec<Mod>
             mod_id,
             version,
             description,
+            authors,
             loaders,
             enabled: lower.ends_with(".jar"),
             size: entry.size,
@@ -253,6 +288,7 @@ fn verify_imported_jar(
     Option<String>,
     Option<String>,
     Option<String>,
+    Option<Vec<String>>,
     Vec<String>,
 )> {
     let parsed = inspect(path)?;
@@ -264,7 +300,7 @@ fn verify_imported_jar(
     if zip.len() > 8_192 {
         bail!("Mod .jar archive contains too many entries")
     }
-    let mut has_manifest_or_class = !parsed.4.is_empty();
+    let mut has_manifest_or_class = !parsed.5.is_empty();
     let mut total_uncompressed = 0u64;
     for i in 0..zip.len() {
         let entry = zip.by_index_raw(i)?;
@@ -344,7 +380,7 @@ pub async fn import_bytes(
     }
     let temp_check = temp.clone();
     let verified = tokio::task::spawn_blocking(move || verify_imported_jar(&temp_check)).await?;
-    let (name, mod_id, version, description, loaders) = match verified {
+    let (name, mod_id, version, description, authors, loaders) = match verified {
         Ok(v) => v,
         Err(e) => {
             let _ = tokio::fs::remove_file(&temp).await;
@@ -372,6 +408,7 @@ pub async fn import_bytes(
         mod_id,
         version,
         description,
+        authors,
         loaders,
         enabled: true,
         size: bytes.len() as u64,
@@ -409,13 +446,14 @@ mod tests {
         let mut zip = zip::ZipWriter::new(std::fs::File::create(&path).unwrap());
         zip.start_file("fabric.mod.json", zip::write::SimpleFileOptions::default())
             .unwrap();
-        zip.write_all(br#"{"id":"fixture","name":"Fixture mod","version":"1.2.3"}"#)
+        zip.write_all(br#"{"id":"fixture","name":"Fixture mod","version":"1.2.3","authors":["Alice","Bob"]}"#)
             .unwrap();
         zip.finish().unwrap();
         let result = inspect(&path).unwrap();
         assert_eq!(result.1.as_deref(), Some("fixture"));
         assert_eq!(result.2.as_deref(), Some("1.2.3"));
-        assert_eq!(result.4, vec!["fabric"]);
+        assert_eq!(result.4, Some(vec!["Alice".into(), "Bob".into()]));
+        assert_eq!(result.5, vec!["fabric"]);
         std::fs::remove_dir_all(dir).unwrap();
     }
 

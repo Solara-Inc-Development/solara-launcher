@@ -293,6 +293,10 @@ async function confirmInstall(){
 watch(modal,value=>{if(value!=='minecraft-login'&&minecraftPrompt.value){void native('cancel_minecraft_sign_in').catch(()=>{});minecraftPrompt.value=null;}if(value!=='install-content'){packController?.abort();packController=null;packVersionsLoading.value=false;selectedContent.value=null}});
 
 async function downloadAction(job:any,action:string){if(action==='cancel'){try{await native('download_action',{id:job.id,action});await pollLocal()}catch(e){error.value=String(e)}return}await run(async()=>{await native('download_action',{id:job.id,action});await pollLocal()})}
+const activeJobsCount=computed(()=>jobs.value.filter(j=>['running','queued','downloading'].includes(j.status)).length);
+const hasCompletedJobs=computed(()=>jobs.value.some(j=>['completed','failed','cancelled'].includes(j.status)));
+const totalDownloadSpeed=computed(()=>jobs.value.filter(j=>['running','downloading'].includes(j.status)&&typeof j.speed==='number').reduce((acc,j)=>acc+(j.speed||0),0));
+async function clearCompletedDownloads(){if(isDesktop&&engineReady.value){try{await native('clear_finished_downloads');await pollLocal();}catch{jobs.value=jobs.value.filter(j=>['running','queued','downloading'].includes(j.status));}}else{jobs.value=jobs.value.filter(j=>['running','queued','downloading'].includes(j.status));}toast('Completed downloads cleared.');}
 async function saveNative(){await run(async()=>{await native('save_launcher_settings',{...nativeSettings.value});toast('Local launcher preferences saved.')})}
 async function checkUpdates(){await run(async()=>{const r=await native('check_update');toast(r.available?`Update ${r.version?'v'+r.version+' ':''}is available. Solara will apply it automatically when your games and downloads are finished.`:'You are up to date.');})}
 
@@ -301,11 +305,29 @@ watch(engineReady,v=>{if(v&&['create-instance','create-server'].includes(modal.v
 function trapDialog(e:KeyboardEvent){if(e.key==='Escape'){close();return};if(e.key!=='Tab')return;const nodes=[...document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal a[href]')].filter(el=>el.offsetParent!==null&&el.tabIndex!==-1);const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
 function handleGlobalKey(e:KeyboardEvent){
   if(e.key==='Escape'&&modal.value){e.preventDefault();close();return}
-  if(modal.value)return;
   const target=e.target as HTMLElement|null;
   const tag=target?.tagName;
   if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||target?.isContentEditable)return;
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();plus()}
+  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='d'||e.key.toLowerCase()==='j')){
+    e.preventDefault();
+    if(modal.value==='downloads'){
+      close();
+    }else{
+      show('downloads');
+    }
+    return;
+  }
+  if(modal.value)return;
+  if((e.ctrlKey||e.metaKey)&&(e.key==='1'||e.key==='2'||e.key==='3'||e.key==='4')){
+    e.preventDefault();
+    const tabMap: Record<string, string>={'1':'dashboard','2':'launcher','3':'services','4':'explore'};
+    if(tabMap[e.key]) navigate(tabMap[e.key]);
+  }
+  else if((e.ctrlKey||e.metaKey)&&e.key===','){
+    e.preventDefault();
+    navigate('settings');
+  }
+  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();plus()}
   else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='f'||e.key.toLowerCase()==='k')){
     e.preventDefault();
     if(section.value==='dashboard'||section.value==='launcher'){
@@ -516,7 +538,33 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
   <template v-if="modal==='assignment'||modal==='edit-assignment'"><p style="font-size:12px">{{modal==='edit-assignment'?'Update the verified public endpoint for '+(assignmentTarget?.hostname||assignmentTarget?.name)+'.':'Use a public IP address you control. Your router and firewall must allow players to connect.'}}</p><form @submit.prevent="saveAssignment"><template v-if="modal==='assignment'"><label class="field">Requested name<input v-model="assignment.name" pattern="[a-z0-9][a-z0-9-]{1,30}[a-z0-9]" required></label><label class="field">Local server<SelectControl v-model="assignment.serverId" label="Local server" :options="localServers.map(s=>({value:s.id,label:s.name}))" placeholder="Choose a server"/></label><p v-if="!localServers.length" class="banner">Create a local server on this device before requesting an address.</p></template><label class="field">Public IP address<input v-model="assignment.endpoint" placeholder="Your public IPv4 or IPv6" required maxlength="45"></label><label class="field">Public port<input type="number" min="1024" max="65535" v-model.number="assignment.port" required></label><p class="banner">Control of this endpoint must be verified before the address can be changed.</p><label class="row"><input type="checkbox" required v-model="assignment.consent"><span>I control this endpoint and understand its IP address becomes public.</span></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!account||!assignment.consent||(modal==='assignment'&&!assignment.serverId)">{{busy?'Saving…':modal==='edit-assignment'?'Update endpoint':'Request assignment'}}</button></div></form></template>
   <template v-if="modal==='release-assignment'"><p style="font-size:13px">Release <strong>{{assignmentTarget?.hostname||assignmentTarget?.name}}</strong>?</p><p style="font-size:12px">Players will no longer be able to join using this address. Your local server and its files will stay on your device.</p><form @submit.prevent="releaseAssignment"><label class="row"><input type="checkbox" v-model="releaseConsent" required><span>I understand this removes the server address.</span></label><div class="actions"><button type="button" @click="close">Keep address</button><button class="danger-button" :disabled="busy||!releaseConsent">{{busy?'Releasing…':'Release address'}}</button></div></form></template>
   <template v-if="modal==='minecraft-login'&&minecraftPrompt"><p>Open Microsoft's sign-in page and enter this code. Only continue if Microsoft shows the Solara app you expected.</p><div class="minecraft-device-code" aria-label="Your one-time Microsoft sign-in code">{{minecraftPrompt.code}}</div><p class="muted">Your password stays on Microsoft's website. This code expires soon.</p><div class="actions"><button @click="close">Cancel sign-in</button><button class="primary" @click="external(minecraftPrompt.url)">Open Microsoft sign-in <ArrowUpRight/></button></div></template>
-  <template v-if="modal==='downloads'"><div v-if="!jobs.length" class="empty"><Download/><h3>Nothing in the queue</h3><p>Real download activity appears here as you install game files, content or local servers.</p></div><div v-for="j in jobs" :key="j.id" class="download-item"><div class="section-title"><h3>{{j.name}}</h3><span class="pill">{{j.status}}</span></div><progress v-if="typeof j.progress==='number'&&!j.total" :value="j.progress" :max="1"></progress><progress v-if="j.total" :value="j.downloaded" :max="j.total"></progress><div v-if="['running','queued','downloading'].includes(j.status)&&typeof j.progress!=='number'&&!j.total" class="boot-track job-indeterminate" role="progressbar" :aria-label="'Installing '+j.name"></div><p>{{j.detail||''}} <span v-if="j.total">{{Math.round(j.downloaded/1048576)}} / {{Math.round(j.total/1048576)}} MiB</span><span v-if="j.speed"> · {{(j.speed/1048576).toFixed(1)}} MiB/s</span></p><div class="row"><button v-for="a in j.actions||[]" :key="a" :disabled="busy&&a!=='cancel'" @click="downloadAction(j,a)">{{a}}</button></div></div></template>
+  <template v-if="modal==='downloads'">
+    <div v-if="jobs.length" class="downloads-modal-header">
+      <div class="downloads-summary-pills">
+        <span class="pill queue-count-pill" :class="{ 'is-active': activeJobsCount > 0 }">
+          <Activity :size="12"/>
+          {{ activeJobsCount ? `${activeJobsCount} in queue` : 'Queue idle' }}
+        </span>
+        <span v-if="totalDownloadSpeed > 0" class="pill speed-pill">
+          <Download :size="12"/>
+          {{ (totalDownloadSpeed / 1048576).toFixed(1) }} MiB/s
+        </span>
+        <span v-else-if="activeJobsCount > 0" class="pill speed-pill speed-pill-standby">
+          <Download :size="12"/>
+          Active
+        </span>
+      </div>
+      <button
+        v-if="hasCompletedJobs"
+        type="button"
+        class="solara-secondary-btn clear-downloads-btn"
+        title="Clear finished downloads"
+        @click="clearCompletedDownloads"
+      >
+        <RotateCcw :size="12"/> Clear completed
+      </button>
+    </div>
+    <div v-if="!jobs.length" class="empty"><Download/><h3>Nothing in the queue</h3><p>Real download activity appears here as you install game files, content or local servers.</p></div><div v-for="j in jobs" :key="j.id" class="download-item"><div class="section-title"><h3>{{j.name}}</h3><span class="pill">{{j.status}}</span></div><progress v-if="typeof j.progress==='number'&&!j.total" :value="j.progress" :max="1"></progress><progress v-if="j.total" :value="j.downloaded" :max="j.total"></progress><div v-if="['running','queued','downloading'].includes(j.status)&&typeof j.progress!=='number'&&!j.total" class="boot-track job-indeterminate" role="progressbar" :aria-label="'Installing '+j.name"></div><p>{{j.detail||''}} <span v-if="j.total">{{Math.round(j.downloaded/1048576)}} / {{Math.round(j.total/1048576)}} MiB</span><span v-if="j.speed"> · {{(j.speed/1048576).toFixed(1)}} MiB/s</span></p><div class="row"><button v-for="a in j.actions||[]" :key="a" :disabled="busy&&a!=='cancel'" @click="downloadAction(j,a)">{{a}}</button></div></div></template>
   <template v-if="modal==='logs'"><div class="logs-header-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><p style="font-size:11px;margin:0">These logs stay on your device. Account tokens are hidden.</p><button type="button" class="logs-copy-btn" :disabled="!logs" @click="copyLogs"><Copy :size="12"/> Copy logs</button></div><pre class="console">{{logs||'No messages yet.'}}</pre><form v-if="selectedLog" class="row" style="margin-top:12px" @submit.prevent="run(async()=>{await native('local_server_command',{id:selectedLog.id,command:query});query='';logs=await native('local_server_logs',{id:selectedLog.id})})"><input aria-label="Local server command" v-model="query" maxlength="500" placeholder="Local server command"><button :disabled="busy">Send</button></form></template>
   <template v-if="modal==='account'"><div class="card"><h3>{{account?.name||account?.username}}</h3><p>Solara identity and service permissions. Your Microsoft/Minecraft account is managed separately on this device.</p><button @click="signOut();close()"><LogOut/> Sign out of Solara</button></div><button class="text-link" style="margin-top:20px" @click="external('https://auth.solara-inc.in')">Manage your central account <ArrowUpRight/></button></template>
   <template v-if="modal==='changelog'"><div v-if="!publicReleases.length" class="empty"><GitBranch/><h3>The first release is taking shape</h3><p>No published release metadata is available. Release notes will appear here when the first verified build is published.</p></div><article v-for="r in publicReleases" :key="r.buildId" class="download-item"><h3>{{r.publicVersion}} · {{r.state}}</h3><p class="changelog-notes">{{r.notes}}</p><small class="muted">{{r.publishedAt?new Date(r.publishedAt).toLocaleDateString(): 'Not published'}}</small></article><p style="margin-top:18px">Updates download and install automatically when your games, servers and downloads are finished.</p></template>
@@ -526,7 +574,71 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
     <div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||packVersionsLoading||(selectedContent.kind==='modpack'?!selectedContent.versionId:!selectedContent.instanceId)">{{busy?'Installing…':selectedContent.kind==='modpack'?'Install modpack':'Install content'}}</button></div></form></template>
   <template v-if="modal==='beta'"><p v-if="!entitlements.length" class="banner">Your account has no active beta features yet.</p><div v-for="e in entitlements" :key="e.feature" class="download-item"><h3>{{e.feature}}</h3><p>{{e.active?'Active':'Expired or revoked'}} · {{e.expiresAt||'No expiry reported'}}</p></div></template>
   <template v-if="modal==='about'"><p>Solara Launcher is an independent desktop app for Minecraft Java and Solara services. This testing build uses Solara's own local Minecraft core.</p><p style="font-size:12px">The interface and native source are GPL-3.0-only. Required library and font notices are included in LICENSE and THIRD_PARTY_NOTICES.md. Solara is not affiliated with Mojang or Microsoft. A licensed Minecraft Java account is required to play.</p></template>
-  <template v-if="modal==='shortcuts'"><div class="shortcuts-modal-grid"><div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>N</kbd></span><span>Create new Minecraft instance</span></div><div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>F</kbd></span><span>Search library or explore catalogue</span></div><div class="shortcut-row"><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>R</kbd></span><span>Refresh library, local servers and status</span></div><div class="shortcut-row"><span class="shortcut-keys"><kbd>Esc</kbd></span><span>Dismiss active modal or popup</span></div><div class="shortcut-row"><span class="shortcut-keys"><kbd>?</kbd></span><span>View keyboard shortcuts cheatsheet</span></div></div><div class="actions" style="margin-top:20px"><button class="primary" @click="close">Got it</button></div></template>
+  <template v-if="modal==='shortcuts'">
+    <div class="shortcuts-columns">
+      <div class="shortcuts-group">
+        <h4 class="shortcuts-group-title">Navigation</h4>
+        <div class="shortcuts-modal-grid">
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Home / Dashboard</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>1</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Library</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>2</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Services</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>3</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Discover &amp; Explore</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>4</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Launcher Settings</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>,</kbd></span>
+          </div>
+        </div>
+      </div>
+      <div class="shortcuts-group">
+        <h4 class="shortcuts-group-title">Actions &amp; Search</h4>
+        <div class="shortcuts-modal-grid">
+          <div class="shortcut-row">
+            <span class="shortcut-desc">New Minecraft instance</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>N</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Toggle downloads queue</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>D</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Quick search</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>F</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Focus search box</span>
+            <span class="shortcut-keys"><kbd>/</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Refresh ecosystem</span>
+            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>R</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Dismiss active dialog</span>
+            <span class="shortcut-keys"><kbd>Esc</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">Shortcuts cheatsheet</span>
+            <span class="shortcut-keys"><kbd>?</kbd></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:20px">
+      <button class="primary" @click="close">Got it</button>
+    </div>
+  </template>
   </section></div></Transition><Transition name="toast"><div v-if="message" class="toast" role="status"><Check/><span>{{message}}</span><button class="toast-close" aria-label="Dismiss notification" @click="message=''"><X/></button></div></Transition>
 </div>
 </template>

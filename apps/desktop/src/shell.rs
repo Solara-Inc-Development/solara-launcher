@@ -235,6 +235,10 @@ async fn download_action(id: String, action: String) -> Result<(), String> {
     engine::download_action(&id, &action).await.map_err(err)
 }
 #[tauri::command]
+async fn clear_finished_downloads() -> Result<(), String> {
+    engine::clear_finished_downloads().await.map_err(err)
+}
+#[tauri::command]
 async fn launcher_settings() -> Result<engine::Preferences, String> {
     engine::preferences().await.map_err(err)
 }
@@ -443,6 +447,7 @@ pub fn run() {
             open_instance_file,
             install_content,
             download_action,
+            clear_finished_downloads,
             launcher_settings,
             save_launcher_settings,
             create_local_server,

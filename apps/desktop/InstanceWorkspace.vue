@@ -5,12 +5,13 @@ import InstanceAvatar from './InstanceAvatar.vue';
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
 import LoaderMark from '../../packages/ui/LoaderMark.vue';
-import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity,ZoomIn,ZoomOut} from '../../packages/ui/icons';
+import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity,ZoomIn,ZoomOut,Sliders} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
 const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate','delete']);
 const tab=ref('mods'),loading=ref(false),busy=ref(false),error=ref(''),notice=ref('');
 const path=ref(''),entries=ref<any[]>([]),mods=ref<any[]>([]),trash=ref<any[]>([]),backups=ref<any[]>([]),query=ref(''),modFilter=ref('all');
+const activeModInspector=ref<any|null>(null),modInspectorDialog=ref<HTMLDialogElement|null>(null),inspectorDeleteConfirm=ref(false);
 const editor=ref<any>(null),text=ref(''),consoleText=ref(''),liveLogs=ref(true),modInput=ref<HTMLInputElement|null>(null);
 const logSearch=ref(''),logSeverity=ref<'all'|'error'|'warn'|'info'|'chat'>('all'),wrapLogs=ref(false),autoScroll=ref(true),consoleContainer=ref<HTMLElement|null>(null);
 const form=ref({name:'',memory:4096,javaPath:'auto'});
@@ -298,6 +299,36 @@ async function importModFiles(fileList:FileList|File[]){
 
 async function restore(entry:any){await run(async()=>{await native('instance_file_action',{id:props.instance.id,action:'restore',path:entry.id});await readTab();notice.value='Restored to its original folder.'})}
 async function toggle(mod:any){await run(async()=>{await native('toggle_instance_mod',{id:props.instance.id,path:mod.path,enabled:!mod.enabled});await readTab()})}
+function openModInspector(mod:any){activeModInspector.value=mod;inspectorDeleteConfirm.value=false;}
+function closeModInspector(){activeModInspector.value=null;inspectorDeleteConfirm.value=false;}
+async function toggleInspectorMod(){
+  if(!activeModInspector.value||locked.value)return;
+  const mod=activeModInspector.value;
+  await run(async()=>{
+    await native('toggle_instance_mod',{id:props.instance.id,path:mod.path,enabled:!mod.enabled});
+    await readTab();
+    const updated=mods.value.find(m=>m.path===mod.path||m.fileName===mod.fileName||m.name===mod.name);
+    if(updated){activeModInspector.value=updated;}else{activeModInspector.value.enabled=!activeModInspector.value.enabled;}
+    notice.value=activeModInspector.value.enabled?`Enabled ${mod.name}.`:`Disabled ${mod.name}.`;
+  });
+}
+async function openInspectorModFolder(){
+  if(!activeModInspector.value)return;
+  await run(async()=>{
+    await native('open_instance_folder',{id:props.instance.id,path:'mods'});
+    notice.value='Opened mods directory in file explorer.';
+  });
+}
+async function deleteInspectorMod(){
+  if(!activeModInspector.value||locked.value)return;
+  const mod=activeModInspector.value;
+  await run(async()=>{
+    await native('instance_file_action',{id:props.instance.id,action:'trash',path:mod.path});
+    closeModInspector();
+    await readTab();
+    notice.value=`Moved ${mod.name} to Trash. You can restore it later.`;
+  });
+}
 async function toggleAllMods(enable:boolean){
   const targetMods=mods.value.filter(m=>m.enabled!==enable);
   if(!targetMods.length)return;
@@ -704,7 +735,8 @@ async function saveSettings(){await run(async()=>{await native('edit_instance',{
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;lightboxZoom.value=1;imageCopied.value=false;archiveRoutingItem.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();activeModInspector.value=null;inspectorDeleteConfirm.value=false;worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;lightboxZoom.value=1;imageCopied.value=false;archiveRoutingItem.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+watch(activeModInspector,async value=>{await nextTick();if(value&&!modInspectorDialog.value?.open)modInspectorDialog.value?.showModal();if(!value&&modInspectorDialog.value?.open)modInspectorDialog.value.close();});
 watch(activeLightbox,async value=>{await nextTick();if(value&&!lightboxDialog.value?.open)lightboxDialog.value?.showModal()});
 watch(archiveRoutingItem,async value=>{await nextTick();if(value&&!archiveRoutingDialog.value?.open)archiveRoutingDialog.value?.showModal()});
 watch(exportModalOpen,async value=>{await nextTick();if(value&&!snapshotDialog.value?.open)snapshotDialog.value?.showModal()});
@@ -899,9 +931,9 @@ onUnmounted(()=>{if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=
          <span>Size</span>
          <span style="text-align:right">Actions</span>
        </div>
-       <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled, selected: selectedModPaths.has(mod.path)}">
+       <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled, selected: selectedModPaths.has(mod.path)}" style="cursor:pointer" @click="openModInspector(mod)">
          <div class="mod-project-details">
-           <input type="checkbox" :checked="selectedModPaths.has(mod.path)" :aria-label="'Select ' + mod.name" style="cursor:pointer;accent-color:var(--accent);margin-right:4px" @change="toggleSelectMod(mod.path)">
+           <input type="checkbox" :checked="selectedModPaths.has(mod.path)" :aria-label="'Select ' + mod.name" style="cursor:pointer;accent-color:var(--accent);margin-right:4px" @click.stop @change="toggleSelectMod(mod.path)">
            <div class="mod-project-avatar">
              <Package :size="18"/>
            </div>
@@ -914,11 +946,14 @@ onUnmounted(()=>{if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=
            <span class="loader-chip">{{mod.loaders?.join(', ')||instance.loader}}</span>
          </div>
          <span class="version-chip">{{bytes(mod.size)}}</span>
-         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
-           <button role="switch" :aria-checked="mod.enabled" :aria-label="(mod.enabled?'Disable ':'Enable ')+mod.name" :disabled="locked" class="workspace-switch" @click="toggle(mod)">
+         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px" @click.stop>
+           <button type="button" class="workspace-icon-button" :aria-label="'Inspect ' + mod.name" title="Inspect mod details" @click.stop="openModInspector(mod)">
+             <Sliders :size="15"/>
+           </button>
+           <button role="switch" :aria-checked="mod.enabled" :aria-label="(mod.enabled?'Disable ':'Enable ')+mod.name" :disabled="locked" class="workspace-switch" @click.stop="toggle(mod)">
              <i/>
            </button>
-           <button :aria-label="'Move '+mod.name+' to Trash'" :disabled="locked" class="workspace-icon-button" @click="ask('trash',{...mod,name:mod.fileName})">
+           <button :aria-label="'Move '+mod.name+' to Trash'" :disabled="locked" class="workspace-icon-button" @click.stop="ask('trash',{...mod,name:mod.fileName})">
              <Trash2 :size="15"/>
            </button>
          </div>
@@ -1552,6 +1587,134 @@ onUnmounted(()=>{if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=
   <dialog v-if="exportModalOpen" ref="snapshotDialog" class="solara-lightbox-dialog snapshot-dialog" aria-labelledby="snapshot-title" @cancel.prevent="exportModalOpen=false">
     <div class="lightbox-header"><div class="lightbox-title-wrap"><strong id="snapshot-title" class="lightbox-filename">Save a world snapshot</strong><span class="lightbox-meta">A little peace of mind before your next adventure.</span></div><button type="button" class="circle-action-btn" aria-label="Close snapshot dialog" @click="exportModalOpen=false"><X :size="16"/></button></div>
     <form class="snapshot-dialog-body" @submit.prevent="executeExport"><p>Save the worlds and configuration files in <strong>{{instance.name}}</strong>. Mods, resource packs and shaders are excluded from this backup.</p><label>Snapshot name<input v-model="exportName" placeholder="Before my next adventure" maxlength="80" required></label><div v-if="exportDoneNotice" class="export-success-badge" role="status"><Check/><span>{{exportDoneNotice}}</span></div><p v-if="error" class="workspace-message problem" role="alert">{{error}}</p><div class="actions"><button type="button" @click="exportModalOpen=false">Close</button><button class="solara-primary-btn" :disabled="exporting||locked||!exportName.trim()">{{exporting?'Saving snapshot…':'Save snapshot'}}</button></div></form>
+  </dialog>
+
+  <!-- Mod Inspector Dialog -->
+  <dialog v-if="activeModInspector" ref="modInspectorDialog" class="workspace-dialog mod-inspector-dialog" aria-labelledby="mod-inspector-title" @cancel.prevent="closeModInspector" @click.self="closeModInspector">
+    <div class="workspace-dialog-header">
+      <div class="mod-inspector-title-wrap">
+        <div class="mod-inspector-avatar">
+          <Package :size="22"/>
+        </div>
+        <div>
+          <h2 id="mod-inspector-title" class="mod-inspector-name">{{ activeModInspector.name }}</h2>
+          <div class="mod-inspector-badges">
+            <span class="pill" :class="activeModInspector.enabled ? 'mod-pill-enabled' : 'mod-pill-disabled'">
+              <span class="dot" :class="{ running: activeModInspector.enabled }"></span>
+              {{ activeModInspector.enabled ? 'Enabled' : 'Disabled' }}
+            </span>
+            <span class="pill loader-chip">{{ activeModInspector.loaders?.join(', ') || instance.loader }}</span>
+            <span v-if="activeModInspector.version" class="pill version-chip">v{{ activeModInspector.version }}</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="close" title="Close inspector" aria-label="Close inspector" @click="closeModInspector">
+        <X :size="16"/>
+      </button>
+    </div>
+
+    <div class="mod-inspector-body">
+      <!-- Problem/Issue Warning if present -->
+      <div v-if="activeModInspector.issue" class="mod-inspector-banner warning" role="alert">
+        <Activity :size="14"/>
+        <span>{{ activeModInspector.issue }}</span>
+      </div>
+
+      <!-- Description -->
+      <div class="mod-inspector-section">
+        <h4 class="inspector-section-label">Description</h4>
+        <p class="mod-inspector-description">
+          {{ activeModInspector.description || 'No description provided in mod manifest.' }}
+        </p>
+      </div>
+
+      <!-- Specifications Grid -->
+      <div class="mod-inspector-section">
+        <h4 class="inspector-section-label">Mod Specifications</h4>
+        <dl class="mod-inspector-specs">
+          <div class="spec-row">
+            <dt>Mod ID</dt>
+            <dd><code>{{ activeModInspector.modId || 'Not specified' }}</code></dd>
+          </div>
+          <div class="spec-row">
+            <dt>Filename</dt>
+            <dd class="file-name-text" :title="activeModInspector.fileName">{{ activeModInspector.fileName }}</dd>
+          </div>
+          <div class="spec-row">
+            <dt>File Size</dt>
+            <dd>{{ bytes(activeModInspector.size) }} ({{ activeModInspector.size?.toLocaleString() }} bytes)</dd>
+          </div>
+          <div class="spec-row">
+            <dt>Status</dt>
+            <dd>{{ activeModInspector.enabled ? 'Enabled and active' : 'Disabled (.disabled)' }}</dd>
+          </div>
+          <div class="spec-row">
+            <dt>Authors</dt>
+            <dd>{{ (activeModInspector.authors && activeModInspector.authors.length) ? activeModInspector.authors.join(', ') : 'Not specified' }}</dd>
+          </div>
+          <div class="spec-row">
+            <dt>Loaders</dt>
+            <dd>{{ activeModInspector.loaders?.join(', ') || instance.loader }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Inline Delete Confirmation Prompt -->
+      <div v-if="inspectorDeleteConfirm" class="mod-delete-confirm-box" role="alert">
+        <div class="mod-delete-confirm-msg">
+          <Trash2 :size="16" style="color:#ef4444;flex-shrink:0"/>
+          <div>
+            <strong>Move {{ activeModInspector.name }} to Trash?</strong>
+            <p>This mod file will be moved to the instance Trash. You can restore it later.</p>
+          </div>
+        </div>
+        <div class="mod-delete-confirm-actions">
+          <button type="button" class="solara-secondary-btn" @click="inspectorDeleteConfirm = false">Cancel</button>
+          <button type="button" class="danger-button" :disabled="locked" @click="deleteInspectorMod">Confirm Move to Trash</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mod-inspector-footer">
+      <div class="mod-inspector-left-actions">
+        <!-- 1-Click Toggle Enable/Disable -->
+        <button
+          type="button"
+          class="solara-secondary-btn"
+          :disabled="locked"
+          :title="(activeModInspector.enabled ? 'Disable ' : 'Enable ') + activeModInspector.name"
+          @click="toggleInspectorMod"
+        >
+          <RotateCcw :size="13"/>
+          {{ activeModInspector.enabled ? 'Disable Mod' : 'Enable Mod' }}
+        </button>
+
+        <!-- 1-Click Open in Explorer -->
+        <button
+          type="button"
+          class="solara-secondary-btn"
+          title="Open mods folder in system file manager"
+          @click="openInspectorModFolder"
+        >
+          <FolderOpen :size="13"/>
+          Open in Explorer
+        </button>
+
+        <!-- 1-Click Delete mod -->
+        <button
+          v-if="!inspectorDeleteConfirm"
+          type="button"
+          class="solara-secondary-btn danger-hover"
+          title="Move mod to Trash"
+          :disabled="locked"
+          @click="inspectorDeleteConfirm = true"
+        >
+          <Trash2 :size="13"/>
+          Delete mod
+        </button>
+      </div>
+      <button type="button" class="solara-primary-btn" @click="closeModInspector">Done</button>
+    </footer>
   </dialog>
 
 </section>

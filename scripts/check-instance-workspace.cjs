@@ -5,13 +5,14 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await context.route('**/v1/launcher/bootstrap',r=>r.fulfill({status:503,body:'QA outage'}));
  await context.addInitScript(()=>{
   const id='12345678-1234-4234-8234-123456789abc';
-  const state=window.__WORKSPACE_QA__={calls:[],instance:{id,name:'QA test world',gameVersion:'1.21.1',loader:'fabric',loaderVersion:'0.20.1',state:'installed',running:false,memory:4096,javaPath:'auto'},files:{'options.txt':{content:'fixture-original',sha256:'fixture-v1'}},trash:[],backups:[],importedMods:[],modEnabled:true};
+  const state=window.__WORKSPACE_QA__={calls:[],instance:{id,name:'QA test world',gameVersion:'1.21.1',loader:'fabric',loaderVersion:'0.20.1',state:'installed',running:false,memory:4096,javaPath:'auto'},files:{'options.txt':{content:'fixture-original',sha256:'fixture-v1'}},trash:[],backups:[],importedMods:[],modEnabled:true,downloads:[]};
   window.__TAURI_INTERNALS__={transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(command,args={})=>{
    state.calls.push({command,args});
    if(command==='plugin:event|listen')return 1;
    if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt'],contentInstall:true,automaticJava:true,instanceFiles:true,modManager:true,instanceBackups:true,preview:true};
    if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:true};
-   if(command==='launcher_snapshot')return structuredClone({instances:[state.instance],minecraftAccounts:[{id:'qa-account',name:'QA player',active:true}],localServers:[],downloads:[]});
+   if(command==='launcher_snapshot')return structuredClone({instances:[state.instance],minecraftAccounts:[{id:'qa-account',name:'QA player',active:true}],localServers:[],downloads:state.downloads||[]});
+   if(command==='clear_finished_downloads'){state.downloads=(state.downloads||[]).filter(j=>['running','queued','downloading'].includes(j.status));return null;}
    if(command==='instance_files'){
      if(args.path==='screenshots')return [{name:'2026-11-06_18.20.15.png',path:'screenshots/2026-11-06_18.20.15.png',directory:false,size:1024,modifiedAt:1730900000}];
      return Object.keys(state.files).map(path=>({name:path,path,directory:false,size:state.files[path].content.length}));
@@ -31,7 +32,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
     if(args.action==='restore'){const entry=state.backups.find(b=>b.id===args.backupId);state.files=structuredClone(entry.snapshot);return entry}
     if(args.action==='delete'){state.backups=state.backups.filter(b=>b.id!==args.backupId);return {ok:true}}
    }
-   if(command==='instance_mods')return [{path:'mods/fixture.jar'+(state.modEnabled?'':'.disabled'),fileName:'fixture.jar',name:'QA mod',version:'1.2.3',loaders:['fabric'],enabled:state.modEnabled,size:128},...state.importedMods];
+   if(command==='instance_mods')return [{path:'mods/fixture.jar'+(state.modEnabled?'':'.disabled'),fileName:'fixture.jar',name:'QA mod',modId:'qa_mod',version:'1.2.3',description:'Essential performance and rendering optimization mod',authors:['QA Author'],loaders:['fabric'],enabled:state.modEnabled,size:128},...state.importedMods];
    if(command==='toggle_instance_mod'){state.modEnabled=args.enabled;return null}
    if(command==='import_instance_mod'){const mod={path:`mods/${args.fileName}`,fileName:args.fileName,name:'Imported QA mod',version:'2.0.0',loaders:['fabric'],enabled:true,size:256};state.importedMods.push(mod);return mod}
    if(command==='instance_logs')return 'Explicit QA log fixture';
@@ -75,6 +76,29 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await page.getByText('Imported QA mod',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='import_instance_mod'&&c.args.fileName==='custom-zoom.jar')),true);
  await page.getByRole('switch',{name:'Disable QA mod',exact:true}).click();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).getAttribute('aria-checked'),'false');
+
+ // Exercise Mod Inspector Dialog
+ await page.getByRole('button',{name:'Inspect QA mod',exact:true}).click();
+ const modInspector=page.locator('.mod-inspector-dialog');
+ await modInspector.waitFor({state:'visible'});
+ await modInspector.getByRole('heading',{name:'QA mod',exact:true}).waitFor();
+ await modInspector.getByText('v1.2.3',{exact:true}).waitFor();
+ await modInspector.getByText('QA Author',{exact:true}).waitFor();
+ await modInspector.getByText('qa_mod',{exact:true}).waitFor();
+ // Exercise 1-click toggle inside inspector (enable and disable)
+ await modInspector.getByRole('button',{name:'Enable Mod',exact:true}).click();
+ await modInspector.getByRole('button',{name:'Disable Mod',exact:true}).waitFor();
+ await modInspector.getByRole('button',{name:'Disable Mod',exact:true}).click();
+ await modInspector.getByRole('button',{name:'Enable Mod',exact:true}).waitFor();
+ // Exercise 1-click open in explorer action
+ await modInspector.getByRole('button',{name:'Open in Explorer',exact:true}).click();
+ assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='open_instance_folder'&&c.args.path==='mods')),true);
+ // Exercise 1-click delete mod action with confirmation
+ await modInspector.getByRole('button',{name:'Delete mod',exact:true}).click();
+ await modInspector.getByText('Move QA mod to Trash?',{exact:true}).waitFor();
+ await modInspector.getByRole('button',{name:'Cancel',exact:true}).click();
+ await modInspector.getByRole('button',{name:'Done',exact:true}).click();
+ await modInspector.waitFor({state:'hidden'});
 
  // Exercise smart archive drop routing for multi-file .zip archives
  await page.locator('input[type="file"]').setInputFiles([
@@ -136,9 +160,54 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  noteVal=await page.locator('.notes-textarea').inputValue();
  assert.equal(noteVal.includes('To-Do List'),true);
 
+ // Exercise Global Keyboard Shortcuts (Ctrl+1..4, Ctrl+,, Ctrl+D, and ? modal)
+ await page.keyboard.press('Control+1');
+ await page.locator('.toolbar-current strong').filter({hasText:'Home'}).waitFor();
+ await page.keyboard.press('Control+3');
+ await page.locator('.toolbar-current strong').filter({hasText:'Services'}).waitFor();
+ await page.keyboard.press('Control+4');
+ await page.locator('.toolbar-current strong').filter({hasText:'Discover'}).waitFor();
+ await page.keyboard.press('Control+,');
+ await page.locator('.toolbar-current strong').filter({hasText:'Settings'}).waitFor();
+ await page.keyboard.press('Control+2');
+ await page.locator('.toolbar-current strong').filter({hasText:'Library'}).waitFor();
+
+ // Exercise ? Shortcuts Cheatsheet modal with two-column layout
+ await page.keyboard.press('?');
+ const shortcutsModal=page.getByRole('dialog').filter({hasText:'Keyboard shortcuts'});
+ await shortcutsModal.waitFor({state:'visible'});
+ await shortcutsModal.getByText('Navigation',{exact:true}).waitFor();
+ await shortcutsModal.getByText('Actions & Search',{exact:true}).waitFor();
+ await shortcutsModal.getByText('Home / Dashboard',{exact:true}).waitFor();
+ await shortcutsModal.getByText('Toggle downloads queue',{exact:true}).waitFor();
+ await shortcutsModal.getByRole('button',{name:'Got it',exact:true}).click();
+ await shortcutsModal.waitFor({state:'hidden'});
+
+ // Exercise Downloads Modal toggle via Ctrl+D and Queue Management
+ await page.evaluate(()=>{
+   window.__WORKSPACE_QA__.downloads=[
+     {id:'dl-1',name:'Sodium Fabric 1.21.1',status:'completed',detail:'Minecraft files are ready',downloaded:1048576,total:1048576},
+     {id:'dl-2',name:'Iris Shaders',status:'failed',detail:'Could not install',actions:['retry']},
+     {id:'dl-3',name:'Fabric Loader 0.16.9',status:'running',detail:'Downloading',speed:2097152,downloaded:524288,total:1048576,actions:['cancel']}
+   ];
+ });
+ await page.keyboard.press('Control+d');
+ const downloadsModal=page.getByRole('dialog').filter({hasText:'Your downloads'});
+ await downloadsModal.waitFor({state:'visible'});
+ await downloadsModal.locator('.queue-count-pill').getByText('1 in queue',{exact:false}).waitFor();
+ await downloadsModal.locator('.speed-pill').getByText('2.0 MiB/s',{exact:false}).waitFor();
+ // Exercise Clear completed downloads
+ await downloadsModal.getByRole('button',{name:'Clear completed',exact:true}).click();
+ assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='clear_finished_downloads')),true);
+ await page.keyboard.press('Control+d');
+ await downloadsModal.waitFor({state:'hidden'});
+
+ // Return to instance QA test world
+ await page.getByRole('button',{name:'Open instance QA test world',exact:true}).click();
+
  // Return to mods tab for running locks test
  await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:/^Mods/}).click();
  await page.evaluate(()=>window.__WORKSPACE_QA__.instance.running=true);await page.getByRole('button',{name:'Stop game',exact:true}).waitFor();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'Add .jar file',exact:true}).isDisabled(),true);
  await page.setViewportSize({width:800,height:700});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'checks/instance-workspace-fixture.png',animations:'disabled'});
- assert.deepEqual(errors,[]);console.log('Instance workspace edit/save, unsaved navigation, rename/trash/restore, backups, local .jar mod import, mod toggle, console logs, notebook templates and running locks PASS. Explicit IPC fixtures only.');
+ assert.deepEqual(errors,[]);console.log('Instance workspace edit/save, unsaved navigation, rename/trash/restore, backups, local .jar mod import, mod inspector & toggle, keyboard shortcuts, downloads queue, console logs, notebook templates and running locks PASS. Explicit IPC fixtures only.');
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

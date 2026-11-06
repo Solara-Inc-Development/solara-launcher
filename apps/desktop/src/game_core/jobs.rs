@@ -150,6 +150,11 @@ impl Jobs {
             }
         }
     }
+    pub fn clear_finished(&self) {
+        if let Ok(mut jobs) = self.items.lock() {
+            jobs.retain(|j| matches!(j.status.as_str(), "queued" | "running"));
+        }
+    }
 }
 
 #[cfg(test)]
@@ -193,5 +198,24 @@ mod tests {
         assert_eq!(json[0]["instanceId"], "instance");
         assert!(json[0].get("cancel").is_none());
         assert!(json[2].get("content_files").is_none());
+    }
+
+    #[test]
+    fn clear_finished_retains_active_downloads_and_removes_terminal_jobs() {
+        let jobs = Jobs::default();
+        let running = jobs.begin("instance-1", "Minecraft 1.21.1").unwrap();
+        let to_fail = jobs.begin("instance-2", "Sodium Fabric").unwrap();
+        let to_cancel = jobs.begin("instance-3", "Java Runtime").unwrap();
+
+        jobs.finish(&to_fail.id, false, false);
+        jobs.finish(&to_cancel.id, false, true);
+
+        assert_eq!(jobs.list().unwrap().len(), 3);
+        jobs.clear_finished();
+
+        let remaining = jobs.list().unwrap();
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(remaining[0].id, running.id);
+        assert_eq!(remaining[0].status, "queued");
     }
 }
