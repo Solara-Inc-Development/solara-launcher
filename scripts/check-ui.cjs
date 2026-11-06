@@ -23,9 +23,14 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByRole('dialog').isVisible(), 'Nested Escape closes dropdown before dialog');
     await page.keyboard.press('Escape');
     await page.getByRole('dialog').waitFor({state:'hidden'});
-    for (const name of ['Solara services', 'Explore mods and modpacks', 'Settings']) {
-      await page.getByRole('button', { name, exact: true }).click();
-    }
+    await page.getByRole('button', { name: 'Solara services', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore mods and modpacks', exact: true }).click();
+    assert.equal(await page.locator('.explore-filter-selects').isVisible(), true, 'Explore filter SelectControls are visible');
+    assert.equal(await page.getByRole('combobox', { name: 'Filter by mod loader' }).isVisible(), true);
+    assert.equal(await page.getByRole('combobox', { name: 'Filter by game version' }).isVisible(), true);
+    assert.equal(await page.getByRole('combobox', { name: 'Sort search results' }).isVisible(), true);
+    assert.equal(await page.locator('.explore-loader-pills').count(), 0, 'No duplicate loader pills in explore controls');
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
     await page.getByRole('button', { name: 'Light', exact: true }).click();
     assert.equal(await page.locator('.shell').getAttribute('data-theme'), 'light');
     await page.getByRole('button', { name: 'Dark', exact: true }).click();

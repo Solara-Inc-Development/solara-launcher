@@ -47,9 +47,9 @@ const versions=ref<any[]>([]),selectedInstance=ref<any>(null),logs=ref(''),serve
 const exploreSortOptions=[{value:'relevance',label:'Sort: Relevance'},{value:'downloads',label:'Sort: Most downloads'},{value:'updated',label:'Sort: Recently updated'},{value:'follows',label:'Sort: Most followers'},{value:'newest',label:'Sort: Newest'}];
 const exploreLoaderOptions=[{value:'all',label:'All loaders'},{value:'fabric',label:'Fabric'},{value:'forge',label:'Forge'},{value:'neoforge',label:'NeoForge'},{value:'quilt',label:'Quilt'}];
 const exploreGameVersionOptions=computed(()=>{
-  const list=versions.value.filter(v=>v.type==='release').slice(0,16).map(v=>({value:v.id,label:'MC '+v.id}));
+  const list=versions.value.filter(v=>v.type==='release').map(v=>({value:v.id,label:'MC '+v.id}));
   if(!list.length){
-    const common=['1.21.4','1.21.1','1.20.4','1.20.1','1.19.4','1.18.2','1.16.5'];
+    const common=['1.21.4','1.21.1','1.20.4','1.20.1','1.19.4','1.19.2','1.18.2','1.16.5','1.12.2','1.7.10'];
     return [{value:'all',label:'All game versions'},...common.map(v=>({value:v,label:'MC '+v}))];
   }
   return [{value:'all',label:'All game versions'},...list];
@@ -395,11 +395,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
         <aside class="explore-filter-panel" aria-label="Discover categories"><div class="explore-filter-title"><Filter/> Browse content</div><small>PROJECT TYPE</small><div class="explore-category-pills"><button v-for="cat in [{value:'mod',label:'Mods',icon:Package},{value:'modpack',label:'Modpacks',icon:Box},{value:'resourcepack',label:'Resource packs',icon:Layers3},{value:'shader',label:'Shaders',icon:Sparkles}]" :key="cat.value" type="button" class="category-pill" :class="{active:contentType===cat.value}" :aria-pressed="contentType===cat.value" @click="contentType=cat.value"><component :is="cat.icon"/>{{cat.label}}</button></div><div class="provider-note"><strong>Community creations</strong>Content is provided by Modrinth. Compatible versions are checked before installing.</div></aside>
         <div class="explore-results"><div class="results-heading"><strong>{{contentType==='mod'?'Mods':contentType==='modpack'?'Modpacks':contentType==='shader'?'Shaders':'Resource packs'}}</strong><span>{{searching?'Finding your next favourite…':hasSearched?results.length+' results in this search':'Something for every kind of player'}}</span></div>
           <div class="explore-controls-row">
-            <div v-if="contentType==='mod'||contentType==='modpack'" class="explore-loader-pills" role="radiogroup" aria-label="Filter by mod loader">
-              <button v-for="l in ['all','fabric','forge','neoforge','quilt']" :key="l" type="button" class="filter-pill" :class="{active: exploreLoader===l}" @click="exploreLoader=l">
-                {{ l==='all' ? 'All loaders' : l[0].toUpperCase()+l.slice(1) }}
-              </button>
-            </div>
+            <div class="explore-filter-caption"><Filter :size="13"/> Filters &amp; Sort</div>
             <div class="explore-filter-selects">
               <SelectControl v-if="contentType==='mod'||contentType==='modpack'" v-model="exploreLoader" label="Filter by mod loader" :options="exploreLoaderOptions"/>
               <SelectControl v-model="exploreGameVersion" label="Filter by game version" :options="exploreGameVersionOptions" searchable/>

@@ -19,8 +19,9 @@ let leaveAnswer:((value:boolean)=>void)|null=null;let logTimer:ReturnType<typeof
 
 interface LogLine{id:number;text:string;level:'error'|'warn'|'info'|'chat'|'normal';}
 const parsedLogs=computed<LogLine[]>(()=>{
-  if(!consoleText.value)return [];
-  const lines=consoleText.value.split('\n');
+  const text=consoleText.value?.trimEnd()||'';
+  if(!text)return [];
+  const lines=text.split('\n');
   return lines.map((line,idx)=>{
     let level:LogLine['level']='normal';
     if(/\[ERROR\]|\[FATAL\]|Exception|Error:|Caused by:/i.test(line))level='error';
@@ -58,7 +59,7 @@ async function copyFilteredLogs(){
 function exportLogsToFile(){
   const content=visibleLogLines.value.map(l=>l.text).join('\n')||consoleText.value;
   if(!content)return;
-  const safeName=(props.instance.name||'instance').toLowerCase().replace(/[^a-z0-9_-]/g,'_');
+  const safeName=(props.instance?.name||'instance').toLowerCase().replace(/[^a-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'')||'instance';
   const filename=`${safeName}_logs_${new Date().toISOString().slice(0,10)}.txt`;
   const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
   const url=URL.createObjectURL(blob);
@@ -359,6 +360,7 @@ const notesSavedNotice=ref(false);
 const notesSaving=ref(false);
 let notesSaveTimer:ReturnType<typeof setTimeout>|null=null;
 function loadInstanceNotes(){
+  if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=null;saveInstanceNotes(false);}
   try{
     instanceNotes.value=localStorage.getItem(`solara:notes:${props.instance.id}`)||'';
     notesSavedNotice.value=false;
@@ -709,7 +711,7 @@ watch(exportModalOpen,async value=>{await nextTick();if(value&&!snapshotDialog.v
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
 watch(visibleLogLines,async()=>{if(autoScroll.value&&tab.value==='logs'){await nextTick();if(consoleContainer.value)consoleContainer.value.scrollTop=consoleContainer.value.scrollHeight}});
-onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keydown',handleKeydown);if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
+onUnmounted(()=>{if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=null;saveInstanceNotes(false);}if(typeof window!=='undefined')window.removeEventListener('keydown',handleKeydown);if(logTimer)clearInterval(logTimer);leaveAnswer?.(false)});
 
 </script>
 

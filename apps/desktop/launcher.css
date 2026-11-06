@@ -2647,14 +2647,23 @@ html, body, #app {
   gap: 10px;
   margin: 10px 0 16px;
 }
-.explore-loader-pills {
-  display: flex;
+.explore-filter-caption {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-.explore-sort-wrap {
-  margin-left: auto;
+.explore-error-empty {
+  padding: 40px 20px;
+  gap: 12px;
+}
+.explore-error-empty p {
+  color: #f87171;
+  max-width: 440px;
 }
 .explore-filter-selects {
   display: flex;

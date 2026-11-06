@@ -1047,7 +1047,7 @@
   .section-view {
     animation-name: none !important;
   }
-  .solara-instance-card, .status-pulse-dot {
+  .solara-instance-card, .status-pulse-dot, .pulse-dot, .saving-dot {
     transition: none !important;
     animation: none !important;
     transform: none !important;

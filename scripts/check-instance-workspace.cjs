@@ -117,6 +117,13 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await page.locator('.search-match-badge').waitFor();
  assert.equal(await page.locator('.search-match-badge').textContent(),'1 match');
  assert.equal(await page.locator('.pill-count').first().isVisible(),true);
+ // Verify regex bracket character search safety
+ await page.locator('.console-search-wrap input').fill('[');
+ assert.ok(await page.locator('.search-match-badge').textContent());
+ await page.locator('.console-search-wrap input').fill('');
+ // Trigger export logs
+ await page.getByRole('button',{name:'Export logs',exact:true}).click();
+ await page.locator('.workspace-message').filter({hasText:/Exported logs to/}).waitFor();
 
  // Exercise instance notebook: autosave, pulse indicator, and starter templates
  await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Notes',exact:true}).click();

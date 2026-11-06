@@ -23,11 +23,13 @@ export function providerIcon(value) {
 export function searchUrl(query, kind, options = {}) {
   const url = new URL('https://api.modrinth.com/v2/search');
   const facetList = [[`project_type:${contentKind(kind)}`]];
-  if (options.loader && options.loader !== 'all' && typeof options.loader === 'string' && /^[a-z0-9_-]{1,32}$/i.test(options.loader)) {
-    facetList.push([`categories:${options.loader.toLowerCase()}`]);
+  const loader = typeof options.loader === 'string' ? options.loader.trim().toLowerCase() : '';
+  if (loader && loader !== 'all' && /^[a-z0-9_-]{1,32}$/.test(loader)) {
+    facetList.push([`categories:${loader}`]);
   }
-  if (options.gameVersion && options.gameVersion !== 'all' && typeof options.gameVersion === 'string' && /^[0-9a-z._-]{1,32}$/i.test(options.gameVersion)) {
-    facetList.push([`versions:${options.gameVersion}`]);
+  const version = typeof options.gameVersion === 'string' ? options.gameVersion.trim() : '';
+  if (version && version !== 'all' && /^[0-9a-z._-]{1,32}$/i.test(version)) {
+    facetList.push([`versions:${version}`]);
   }
   /** @type {Record<string, string>} */
   const params = {

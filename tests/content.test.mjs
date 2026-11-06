@@ -33,6 +33,9 @@ test('searchUrl validates loader and sorting index options safely', () => {
   assert.deepEqual(JSON.parse(u3.searchParams.get('facets')), [['project_type:mod']]);
   assert.equal(u3.searchParams.get('index'), null);
 
+  const u4 = new URL(searchUrl('test', 'mod', { loader: '  Fabric  ', gameVersion: ' 1.21.1 ' }));
+  assert.deepEqual(JSON.parse(u4.searchParams.get('facets')), [['project_type:mod'], ['categories:fabric'], ['versions:1.21.1']]);
+
   for (const idx of ['updated', 'follows', 'newest']) {
     const u = new URL(searchUrl('test', 'mod', { index: idx }));
     assert.equal(u.searchParams.get('index'), idx);
