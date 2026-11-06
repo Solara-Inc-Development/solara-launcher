@@ -12,6 +12,7 @@
     "build:windows": "node scripts/release.mjs package",
     "check": "vue-tsc --noEmit",
     "test:ui": "node scripts/check-ui.cjs",
+    "test:workspace": "node scripts/check-instance-workspace.cjs",
     "test:motion": "node scripts/check-future-ui.cjs",
     "capture:preview": "node scripts/capture-preview.cjs",
     "test:workflows": "node scripts/check-workflows.cjs",

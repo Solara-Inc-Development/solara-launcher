@@ -2526,6 +2526,33 @@ html, body, #app {
 .project-table-row.selected {
   background: rgba(56, 189, 248, 0.05);
 }
+.mods-view-wrap {
+  position: relative;
+  min-height: 180px;
+  transition: all 180ms ease;
+}
+.mods-view-wrap.is-drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+.mods-drag-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(10, 10, 15, 0.88);
+  backdrop-filter: blur(8px);
+  border: 2px dashed var(--accent);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--accent);
+  font-size: 14.5px;
+  pointer-events: none;
+}
 
 /* Worlds Gallery Grid */
 .worlds-gallery-grid {

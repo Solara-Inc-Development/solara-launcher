@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 175 - Worlds & Saves Visual Hub, Mod Multi-Select Batch Actions, Discover Compatibility Badges, Fine Memory Slider, and Environment Telemetry.
+# Owner-approved preview candidate: Milestone 176 - Mod Drag-and-Drop, Multi-file Import, Safe Folder Creation, Backup Subtab Fix, and Robust Shortcuts Isolation.
 on:
   workflow_dispatch:
   push:

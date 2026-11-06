@@ -162,10 +162,29 @@ async fn open_instance_folder(
     path: Option<String>,
 ) -> Result<(), String> {
     let e = engine::get().await.map_err(err)?;
-    let mut p =
-        crate::game_core::files::resolve(&e.instances, &id, path.as_deref().unwrap_or(""), false)
-            .await
-            .map_err(err)?;
+    let req = path.as_deref().unwrap_or("").trim();
+    let mut p = match crate::game_core::files::resolve(&e.instances, &id, req, false).await {
+        Ok(resolved) => resolved,
+        Err(_) if !req.is_empty() => {
+            if let Ok(safe_new) =
+                crate::game_core::files::resolve(&e.instances, &id, req, true).await
+            {
+                let _ = tokio::fs::create_dir_all(&safe_new).await;
+                if safe_new.is_dir() {
+                    safe_new
+                } else {
+                    crate::game_core::files::resolve(&e.instances, &id, "", false)
+                        .await
+                        .map_err(err)?
+                }
+            } else {
+                crate::game_core::files::resolve(&e.instances, &id, "", false)
+                    .await
+                    .map_err(err)?
+            }
+        }
+        Err(e) => return Err(err(e)),
+    };
     if !p.is_dir() {
         p = p.parent().ok_or("File folder unavailable")?.to_path_buf();
     }

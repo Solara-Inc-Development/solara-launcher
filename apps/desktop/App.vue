@@ -198,6 +198,16 @@ async function installContent(hit:any){
   }
   selectedContent.value={project:hit,kind,instanceId:'',versionId:'',versions:[],error:''};show('install-content');void loadPackVersions();
 }
+function cardCompatibilityChips(hit:any):string[]{
+  if(!Array.isArray(hit?.categories))return [];
+  const map:Record<string,string>={fabric:'Fabric',forge:'Forge',neoforge:'NeoForge',quilt:'Quilt',iris:'Iris',optifine:'OptiFine',canvas:'Canvas'};
+  const set=new Set<string>();
+  for(const c of hit.categories){
+    const label=map[String(c).toLowerCase()];
+    if(label)set.add(label);
+  }
+  return Array.from(set).slice(0,4);
+}
 async function loadPackVersions(){
   const draft=selectedContent.value;if(!draft||draft.kind!=='modpack')return;
   packController?.abort();const controller=new AbortController();packController=controller;packVersionsLoading.value=true;draft.error='';
@@ -222,8 +232,10 @@ watch(engineReady,v=>{if(v&&['create-instance','create-server'].includes(modal.v
 function trapDialog(e:KeyboardEvent){if(e.key==='Escape'){close();return};if(e.key!=='Tab')return;const nodes=[...document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal a[href]')].filter(el=>el.offsetParent!==null&&el.tabIndex!==-1);const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
 function handleGlobalKey(e:KeyboardEvent){
   if(e.key==='Escape'&&modal.value){e.preventDefault();close();return}
-  const tag=(e.target as HTMLElement)?.tagName;
-  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  if(modal.value)return;
+  const target=e.target as HTMLElement|null;
+  const tag=target?.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||target?.isContentEditable)return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();plus()}
   else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='f'||e.key.toLowerCase()==='k')){
     e.preventDefault();
@@ -331,7 +343,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
           <LoadingCards v-if="searching" label="Searching community catalogue…" :count="6"/>
           <div v-else-if="!results.length&&!hasSearched" class="discovery-welcome"><WorldArt scene="canyon-settlement" eager/><div><span class="eyebrow">SOMETHING NEW TO PLAY</span><h3>Make it your kind<br>of Minecraft.</h3><p>Search for a mod, a modpack or a fresh look for your world.</p></div></div>
           <div v-else-if="!results.length" class="empty"><Search/><h3>No results found</h3><p>Try another name or a different content type.</p></div>
-          <div v-else class="solara-results-grid"><article v-for="r in results" :key="r.project_id" class="card mod-card"><div class="mod-card-top"><span class="card-icon provider-icon mod-avatar"><img v-if="r.icon_url" :src="r.icon_url" :alt="r.title" loading="lazy" referrerpolicy="no-referrer" @error="r.icon_url=null"><Package v-else/></span><div class="mod-card-head"><h3>{{r.title}}</h3><p class="mod-author">by <span>{{r.author}}</span></p></div></div><p class="mod-desc">{{r.description}}</p><div v-if="r.categories?.length" class="mod-card-loaders"><span v-for="cat in r.categories.filter((c:string)=>['fabric','forge','neoforge','quilt'].includes(c.toLowerCase())).slice(0,3)" :key="cat" class="loader-chip">{{ cat }}</span></div><div class="mod-card-footer"><div class="mod-card-chips"><span v-if="r.downloads" class="pill download-pill"><Download :size="11"/> {{formatDownloads(r.downloads)}}</span><span class="pill type-pill">{{r.project_type}}</span></div><button class="primary mod-install-btn" :disabled="busy||!engineReady||coreCapabilities?.contentInstall===false" @click="installContent(r)">Install <Download :size="12"/></button></div><button class="text-link mod-provider-link" @click="external(projectUrl(r))">Provider page <ArrowUpRight/></button></article></div>
+          <div v-else class="solara-results-grid"><article v-for="r in results" :key="r.project_id" class="card mod-card"><div class="mod-card-top"><span class="card-icon provider-icon mod-avatar"><img v-if="r.icon_url" :src="r.icon_url" :alt="r.title" loading="lazy" referrerpolicy="no-referrer" @error="r.icon_url=null"><Package v-else/></span><div class="mod-card-head"><h3>{{r.title}}</h3><p class="mod-author">by <span>{{r.author}}</span></p></div></div><p class="mod-desc">{{r.description}}</p><div v-if="cardCompatibilityChips(r).length" class="mod-card-loaders"><span v-for="cat in cardCompatibilityChips(r)" :key="cat" class="loader-chip">{{ cat }}</span></div><div class="mod-card-footer"><div class="mod-card-chips"><span v-if="r.downloads" class="pill download-pill"><Download :size="11"/> {{formatDownloads(r.downloads)}}</span><span class="pill type-pill">{{r.project_type}}</span></div><button class="primary mod-install-btn" :disabled="busy||!engineReady||coreCapabilities?.contentInstall===false" @click="installContent(r)">Install <Download :size="12"/></button></div><button class="text-link mod-provider-link" @click="external(projectUrl(r))">Provider page <ArrowUpRight/></button></article></div>
         </div>
       </div>
     </template>

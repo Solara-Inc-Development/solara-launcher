@@ -20,3 +20,28 @@ test('modpack versions require matching project and mrpack files and sort by act
   const versions=normalizeVersions([make('old','release','2025-01-01'),make('new','beta','2026-01-01'),make('foreign','release','2026-01-02',{project_id:'other'}),make('notpack','release','2026-01-02',{files:[{filename:'mod.jar'}]})],'pack123');
   assert.deepEqual(versions.map(v=>v.id),['new','old']);assert.equal(versions[1].type,'release');assert.equal(versions[0].games,'1.21.1');
 });
+test('searchUrl validates loader and sorting index options safely', () => {
+  const u1 = new URL(searchUrl('iris', 'mod', { loader: 'fabric', index: 'downloads' }));
+  assert.deepEqual(JSON.parse(u1.searchParams.get('facets')), [['project_type:mod'], ['categories:fabric']]);
+  assert.equal(u1.searchParams.get('index'), 'downloads');
+
+  const u2 = new URL(searchUrl('test', 'mod', { loader: 'all', index: 'relevance' }));
+  assert.deepEqual(JSON.parse(u2.searchParams.get('facets')), [['project_type:mod']]);
+  assert.equal(u2.searchParams.get('index'), null);
+
+  const u3 = new URL(searchUrl('test', 'mod', { loader: '../../evil', index: 'drop_database' }));
+  assert.deepEqual(JSON.parse(u3.searchParams.get('facets')), [['project_type:mod']]);
+  assert.equal(u3.searchParams.get('index'), null);
+
+  const normalized = normalizeHits({
+    hits: [{
+      project_id: 'sample123',
+      project_type: 'mod',
+      title: 'Sample Mod',
+      categories: ['fabric', 'forge', '<script>'],
+      versions: ['1.21.1', '1.20.4']
+    }]
+  }, 'mod');
+  assert.deepEqual(normalized[0].categories, ['fabric', 'forge']);
+  assert.deepEqual(normalized[0].versions, ['1.21.1', '1.20.4']);
+});

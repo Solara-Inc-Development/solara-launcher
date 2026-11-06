@@ -144,7 +144,7 @@ async function openFolder(value:string){if(!await canLeave())return;editor.value
 async function openFile(entry:any){if(entry.directory){await openFolder(entry.path);return}if(!edited(entry.name)){selected.value=entry;dialog.value='details';return}await run(async()=>{if(!await canLeave())return;editor.value=await native('instance_text',{id:props.instance.id,path:entry.path});text.value=editor.value.content})}
 async function save(){await run(async()=>{const result=await native('instance_file_action',{id:props.instance.id,action:'save',path:editor.value.path,content:text.value,expectedSha256:editor.value.sha256});editor.value={...editor.value,content:text.value,sha256:result.sha256};notice.value='Saved on this device.'})}
 function formatJson(){try{text.value=JSON.stringify(JSON.parse(text.value),null,2)+'\n';error.value=''}catch{error.value='This JSON has a syntax error. Fix it before formatting.'}}
-function ask(kind:string,entry?:any){error.value='';selected.value=entry||null;dialogName.value=kind==='rename'?entry.name:kind==='new-backup'?`${props.instance.name} backup`:'';dialog.value=kind}
+function ask(kind:string,entry?:any){error.value='';selected.value=entry||null;dialogName.value=kind==='rename'?entry?.name:kind==='new-backup'?(entry?.name||`${props.instance.name} backup`):'';dialog.value=kind}
 
 async function confirm(){
  if(dialog.value==='discard'){editor.value=null;dialog.value=null;leaveAnswer?.(true);leaveAnswer=null;return}
@@ -155,7 +155,7 @@ async function confirm(){
   }
   if(action==='rename'){const name=dialogName.value.trim();if(!name||name.includes('/')||name.includes('\\'))throw Error('Enter a single name.');const parent=selected.value.path.split('/').slice(0,-1).join('/');await native('instance_file_action',{id,action:'rename',path:selected.value.path,target:parent?`${parent}/${name}`:name})}
   if(action==='trash')await native('instance_file_action',{id,action:'trash',path:selected.value.path});
-  if(action==='new-backup'){const name=dialogName.value.trim();if(!name)throw Error('Enter a backup name.');await native('instance_backup_action',{id,action:'create',name})}
+  if(action==='new-backup'){const name=dialogName.value.trim();if(!name)throw Error('Enter a backup name.');await native('instance_backup_action',{id,action:'create',name});backupSubtab.value='backups';}
   if(action==='restore-backup')await native('instance_backup_action',{id,action:'restore',backupId:selected.value.id});
   if(action==='delete-backup')await native('instance_backup_action',{id,action:'delete',backupId:selected.value.id});
   if(action==='delete-instance'){dialog.value=null;emit('delete',id);return}
@@ -163,16 +163,46 @@ async function confirm(){
  })
 }
 
-async function importModFile(event:Event){
- const input=event.target as HTMLInputElement;const file=input.files?.[0];input.value='';if(!file)return;
- await run(async()=>{
-  if(!file.name.toLowerCase().endsWith('.jar'))throw Error('Choose a valid .jar mod file.');
-  if(!file.size||file.size>128*1024*1024)throw Error('Choose a .jar mod file up to 128 MiB.');
-  const buf=new Uint8Array(await file.arrayBuffer());let binary='';const chunk=0x8000;
-  for(let i=0;i<buf.length;i+=chunk)binary+=String.fromCharCode(...buf.subarray(i,i+chunk));
-  await native('import_instance_mod',{id:props.instance.id,fileName:file.name,bytesBase64:btoa(binary)});
-  await readTab();notice.value=`Imported ${file.name}.`;
- });
+const isDraggingMods=ref(false);
+let dragCounter=0;
+function onDragEnter(e:DragEvent){e.preventDefault();dragCounter++;isDraggingMods.value=true;}
+function onDragLeave(e:DragEvent){e.preventDefault();dragCounter--;if(dragCounter<=0){isDraggingMods.value=false;dragCounter=0;}}
+function onDragOver(e:DragEvent){e.preventDefault();}
+async function onModDrop(e:DragEvent){
+  e.preventDefault();
+  isDraggingMods.value=false;
+  dragCounter=0;
+  if(props.instance.running||locked.value||props.instance.loader==='vanilla')return;
+  const files=e.dataTransfer?.files;
+  if(files&&files.length)await importModFiles(files);
+}
+async function importModFileInput(event:Event){
+  const input=event.target as HTMLInputElement;
+  const files=Array.from(input.files||[]);
+  input.value='';
+  if(!files.length)return;
+  await importModFiles(files);
+}
+async function importModFiles(fileList:FileList|File[]){
+  const files=Array.from(fileList);
+  const jarFiles=files.filter(f=>f.name.toLowerCase().endsWith('.jar'));
+  if(!jarFiles.length){
+    error.value='Choose or drop valid .jar mod files.';
+    return;
+  }
+  await run(async()=>{
+    let imported=0;
+    for(const file of jarFiles){
+      if(!file.size||file.size>128*1024*1024)continue;
+      const buf=new Uint8Array(await file.arrayBuffer());
+      let binary='';const chunk=0x8000;
+      for(let i=0;i<buf.length;i+=chunk)binary+=String.fromCharCode(...buf.subarray(i,i+chunk));
+      await native('import_instance_mod',{id:props.instance.id,fileName:file.name,bytesBase64:btoa(binary)});
+      imported++;
+    }
+    await readTab();
+    notice.value=imported===1?`Imported ${jarFiles[0].name}.`:`Imported ${imported} mod files.`;
+  });
 }
 
 async function restore(entry:any){await run(async()=>{await native('instance_file_action',{id:props.instance.id,action:'restore',path:entry.id});await readTab();notice.value='Restored to its original folder.'})}
@@ -187,6 +217,10 @@ async function toggleAllMods(enable:boolean){
     await readTab();
     notice.value=enable?`Enabled ${targetMods.length} mods.`:`Disabled ${targetMods.length} mods.`;
   });
+}
+
+function clearModSelection(){
+  selectedModPaths.value=new Set();
 }
 
 function toggleSelectMod(modPath:string){
@@ -573,7 +607,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        </button>
      </div>
      <div class="content-action-group">
-       <input ref="modInput" type="file" accept=".jar,application/java-archive" aria-label="Import mod .jar file" hidden @change="importModFile">
+       <input ref="modInput" type="file" accept=".jar,application/java-archive" multiple aria-label="Import mod .jar file" hidden @change="importModFileInput">
        <button class="solara-btn-secondary" :disabled="locked||instance.loader==='vanilla'" aria-label="Add .jar file" @click="modInput?.click()">
          <Plus :size="14"/> Add .jar file
        </button>
@@ -616,7 +650,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
    <div v-if="selectedModPaths.size > 0" class="mod-batch-bar">
      <div class="batch-bar-count">
        <Check :size="13"/>
-       <span>{{ selectedModPaths.size }} of {{ visibleMods.length }} selected</span>
+       <span>{{ selectedModPaths.size }} {{ selectedModPaths.size === 1 ? 'mod' : 'mods' }} selected</span>
      </div>
      <div class="batch-bar-actions">
        <button type="button" class="batch-action-btn" :disabled="locked" @click="batchToggleSelected(true)">
@@ -628,7 +662,7 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        <button type="button" class="batch-action-btn danger" :disabled="locked" @click="batchTrashSelected">
          <Trash2 :size="12"/> Move to Trash
        </button>
-       <button type="button" class="batch-action-btn-clear" @click="selectedModPaths.clear()">
+       <button type="button" class="batch-action-btn-clear" @click="clearModSelection">
          Deselect
        </button>
      </div>
@@ -636,47 +670,53 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
 
    <p v-if="instance.loader==='vanilla'" class="workspace-message">Vanilla does not load mods. Use a Fabric, Quilt or Forge instance to add community mods.</p>
 
-   <TaskProgress v-if="loading" title="Reading mod files…" detail="Reading your local library. Your files stay on this device."/>
-   <div v-else-if="!visibleMods.length" class="workspace-empty">
-     <Package/>
-     <h3>{{mods.length?'No mods match your filter':'No content installed yet'}}</h3>
-     <p>{{mods.length?'Try another search term or reset filter.':'Add mods, resource packs or shaders to customize your game.'}}</p>
-     <button class="solara-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Mods & Addons</button>
-   </div>
-   <div v-else class="project-table">
-     <div class="project-table-header">
-       <span style="display:flex;align-items:center;gap:6px">
-         <input type="checkbox" :checked="selectedModPaths.size >= visibleMods.length && visibleMods.length > 0" :indeterminate.prop="selectedModPaths.size > 0 && selectedModPaths.size < visibleMods.length" aria-label="Select all visible mods" style="cursor:pointer;accent-color:var(--accent)" @change="toggleSelectAllMods">
-         <span>Project</span>
-       </span>
-       <span>Loader</span>
-       <span>Size</span>
-       <span style="text-align:right">Actions</span>
+   <div class="mods-view-wrap" :class="{'is-drag-over': isDraggingMods}" @dragenter="onDragEnter" @dragleave="onDragLeave" @dragover="onDragOver" @drop="onModDrop">
+     <div v-if="isDraggingMods" class="mods-drag-overlay">
+       <Package :size="32"/>
+       <strong>Drop .jar mod files here to install</strong>
      </div>
-     <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled, selected: selectedModPaths.has(mod.path)}">
-       <div class="mod-project-details">
-         <input type="checkbox" :checked="selectedModPaths.has(mod.path)" :aria-label="'Select ' + mod.name" style="cursor:pointer;accent-color:var(--accent);margin-right:4px" @change="toggleSelectMod(mod.path)">
-         <div class="mod-project-avatar">
-           <Package :size="18"/>
+     <TaskProgress v-if="loading" title="Reading mod files…" detail="Reading your local library. Your files stay on this device."/>
+     <div v-else-if="!visibleMods.length" class="workspace-empty">
+       <Package/>
+       <h3>{{mods.length?'No mods match your filter':'No content installed yet'}}</h3>
+       <p>{{mods.length?'Try another search term or reset filter.':'Add mods, resource packs or shaders to customize your game.'}}</p>
+       <button class="solara-primary-btn" @click="emit('browse-mods')"><Compass :size="14"/> Browse Mods & Addons</button>
+     </div>
+     <div v-else class="project-table">
+       <div class="project-table-header">
+         <span style="display:flex;align-items:center;gap:6px">
+           <input type="checkbox" :checked="selectedModPaths.size >= visibleMods.length && visibleMods.length > 0" :indeterminate.prop="selectedModPaths.size > 0 && selectedModPaths.size < visibleMods.length" aria-label="Select all visible mods" style="cursor:pointer;accent-color:var(--accent)" @change="toggleSelectAllMods">
+           <span>Project</span>
+         </span>
+         <span>Loader</span>
+         <span>Size</span>
+         <span style="text-align:right">Actions</span>
+       </div>
+       <article v-for="mod in visibleMods" :key="mod.path" class="project-table-row" :class="{disabled:!mod.enabled, selected: selectedModPaths.has(mod.path)}">
+         <div class="mod-project-details">
+           <input type="checkbox" :checked="selectedModPaths.has(mod.path)" :aria-label="'Select ' + mod.name" style="cursor:pointer;accent-color:var(--accent);margin-right:4px" @change="toggleSelectMod(mod.path)">
+           <div class="mod-project-avatar">
+             <Package :size="18"/>
+           </div>
+           <div class="mod-project-info">
+             <strong>{{mod.name}}</strong>
+             <span>{{mod.version||'Release'}}<template v-if="mod.issue"> · <span class="problem-text">{{mod.issue}}</span></template></span>
+           </div>
          </div>
-         <div class="mod-project-info">
-           <strong>{{mod.name}}</strong>
-           <span>{{mod.version||'Release'}}<template v-if="mod.issue"> · <span class="problem-text">{{mod.issue}}</span></template></span>
+         <div class="mod-project-chips">
+           <span class="loader-chip">{{mod.loaders?.join(', ')||instance.loader}}</span>
          </div>
-       </div>
-       <div class="mod-project-chips">
-         <span class="loader-chip">{{mod.loaders?.join(', ')||instance.loader}}</span>
-       </div>
-       <span class="version-chip">{{bytes(mod.size)}}</span>
-       <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
-         <button role="switch" :aria-checked="mod.enabled" :aria-label="(mod.enabled?'Disable ':'Enable ')+mod.name" :disabled="locked" class="workspace-switch" @click="toggle(mod)">
-           <i/>
-         </button>
-         <button :aria-label="'Move '+mod.name+' to Trash'" :disabled="locked" class="workspace-icon-button" @click="ask('trash',{...mod,name:mod.fileName})">
-           <Trash2 :size="15"/>
-         </button>
-       </div>
-     </article>
+         <span class="version-chip">{{bytes(mod.size)}}</span>
+         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+           <button role="switch" :aria-checked="mod.enabled" :aria-label="(mod.enabled?'Disable ':'Enable ')+mod.name" :disabled="locked" class="workspace-switch" @click="toggle(mod)">
+             <i/>
+           </button>
+           <button :aria-label="'Move '+mod.name+' to Trash'" :disabled="locked" class="workspace-icon-button" @click="ask('trash',{...mod,name:mod.fileName})">
+             <Trash2 :size="15"/>
+           </button>
+         </div>
+       </article>
+     </div>
    </div>
  </template>
 

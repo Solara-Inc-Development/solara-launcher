@@ -23,10 +23,10 @@ export function providerIcon(value) {
 export function searchUrl(query, kind, options = {}) {
   const url = new URL('https://api.modrinth.com/v2/search');
   const facetList = [[`project_type:${contentKind(kind)}`]];
-  if (options.loader && options.loader !== 'all') {
-    facetList.push([`categories:${options.loader}`]);
+  if (options.loader && options.loader !== 'all' && typeof options.loader === 'string' && /^[a-z0-9_-]{1,32}$/i.test(options.loader)) {
+    facetList.push([`categories:${options.loader.toLowerCase()}`]);
   }
-  if (options.gameVersion && options.gameVersion !== 'all') {
+  if (options.gameVersion && options.gameVersion !== 'all' && typeof options.gameVersion === 'string' && /^[0-9a-z._-]{1,32}$/i.test(options.gameVersion)) {
     facetList.push([`versions:${options.gameVersion}`]);
   }
   /** @type {Record<string, string>} */
@@ -35,7 +35,7 @@ export function searchUrl(query, kind, options = {}) {
     limit: '18',
     facets: JSON.stringify(facetList)
   };
-  if (options.index && ['relevance', 'downloads', 'follows', 'newest', 'updated'].includes(options.index)) {
+  if (options.index && ['downloads', 'follows', 'newest', 'updated'].includes(options.index)) {
     params.index = options.index;
   }
   url.search = new URLSearchParams(params).toString();
@@ -54,8 +54,8 @@ export function normalizeHits(data, kind) {
     title: hit.title.slice(0, 160), description: typeof hit.description === 'string' ? hit.description.slice(0, 1000) : '',
     author: typeof hit.author === 'string' ? hit.author.slice(0, 100) : '', icon_url: providerIcon(hit.icon_url),
     downloads: Number.isSafeInteger(hit.downloads) && hit.downloads >= 0 ? hit.downloads : null,
-    categories: Array.isArray(hit.categories) ? hit.categories.filter((/** @type {any} */ c) => typeof c === 'string').slice(0, 8) : [],
-    versions: Array.isArray(hit.versions) ? hit.versions.filter((/** @type {any} */ v) => typeof v === 'string').slice(0, 6) : [],
+    categories: Array.isArray(hit.categories) ? hit.categories.filter((/** @type {any} */ c) => typeof c === 'string' && /^[a-z0-9_-]{1,32}$/i.test(c)).slice(0, 8) : [],
+    versions: Array.isArray(hit.versions) ? hit.versions.filter((/** @type {any} */ v) => typeof v === 'string' && /^[0-9a-z._-]{1,32}$/i.test(v)).slice(0, 6) : [],
   }));
 }
 /** @param {any} data @param {string} project */
