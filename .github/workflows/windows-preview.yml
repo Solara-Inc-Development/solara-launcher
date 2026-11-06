@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: fully decoupled standalone Dark/Light design systems, sleek compact 48px/36px toolbar, in-launcher instance deletion, duplication, and 1-click folder shortcuts.
+# Owner-approved preview candidate: obsidian glass theme overhaul, collision-free embedded topbar, responsive navigation labels, refined home shelf and library hierarchy.
 on:
   workflow_dispatch:
   push:

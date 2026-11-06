@@ -96,6 +96,7 @@ const output=path.resolve('checks/redesign');
     assert.equal(await page.locator('.instance-collection .instance-card').count(),1);
     await page.getByRole('heading',{name:'QA · Workshop',exact:true}).waitFor();
     await page.getByRole('button',{name:'All instances',exact:true}).click();
+    await page.evaluate(()=>document.querySelector('.app-content')?.scrollTo(0,0));
     await page.screenshot({animations:'disabled',path:path.join(output,'library-fixture.png')});
 
     // New instance shortcuts must open the right workspace and load its mods.
@@ -148,6 +149,7 @@ const output=path.resolve('checks/redesign');
 
 
     await page.locator('.sidebar').getByRole('button',{name:'Settings',exact:true}).click();
+    await page.mouse.move(500,200);
     await page.screenshot({animations:'disabled',path:path.join(output,'settings-fixture.png')});
     await page.getByRole('button',{name:'Solara services',exact:true}).click();
     await page.screenshot({animations:'disabled',path:path.join(output,'services-fixture.png')});

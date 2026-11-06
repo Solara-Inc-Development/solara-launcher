@@ -496,9 +496,7 @@ html, body, #app {
   font-weight: 700;
 }
 .titlebar-caption {
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 0.1px;
+  display: none !important;
 }
 .window-buttons {
   height: 100%;
@@ -1406,15 +1404,19 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border-radius: 13px;
+  padding: 8px 14px;
+  border-radius: 12px;
   background: var(--panel);
   border: 1px solid var(--line);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   min-width: 0;
-  transition: border-color 150ms ease, transform 150ms ease;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.jump-instance-row:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+.jump-instance-row:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
 .shell .jump-instance-open {
   display: flex;
   justify-content: flex-start;
@@ -1470,11 +1472,12 @@ html, body, #app {
 .jump-manage > svg { height: 15px; width: 15px; }
 
 .home-library-section {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: var(--card-shadow);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  margin-top: 14px;
 }
 .library-title-group h2 {
   display: flex;
@@ -3035,7 +3038,8 @@ html, body, #app {
   .shell .window-buttons { width: 102px; min-width: 102px; }
   .shell .window-buttons button { width: 34px; }
   .app-topbar { left: 155px; right: 114px; gap: 4px; min-height: 28px; height: 28px; top: -34px; padding: 0 5px; max-width: calc(100% - 275px); }
-  .toolbar-current { display: none; }
+  .toolbar-divider { display: none; }
+  .toolbar-current strong { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
   .global-search { max-width: 160px; }
   .app-content { padding: 18px; padding-bottom: 48px; }
   .home-welcome { min-height: 180px; padding: 18px 20px; gap: 12px; margin-bottom: 16px; }
@@ -3078,6 +3082,7 @@ html, body, #app {
   .shell .window-buttons { width: 90px; min-width: 90px; }
   .shell .window-buttons button { width: 30px; }
   .app-topbar { left: 125px; right: 98px; min-height: 28px; height: 28px; top: -34px; padding: 0 5px; max-width: calc(100% - 230px); }
+  .toolbar-current strong { max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; }
   .app-topbar .top-right { gap: 3px; }
   .app-topbar .signin, .app-topbar .topbar-mc-account { height: 20px; padding: 0 5px; font-size: 10px; }
   .app-content { padding: 14px; padding-bottom: 44px; }
