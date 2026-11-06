@@ -133,7 +133,33 @@ async function mcSignIn(){await run(async()=>{try{await native('minecraft_sign_i
 async function mcLogout(id:string){await run(async()=>{await native('minecraft_sign_out',{id});await pollLocal()})}
 async function createInstance(){await run(async()=>{await native('create_instance',{...create.value});close();await pollLocal();section.value='launcher';toast('Instance installation queued. Follow its progress in Downloads.')})}
 async function createPreset(preset:any){await run(async()=>{await native('create_instance',{name:preset.name,gameVersion:preset.gameVersion,loader:preset.loader,loaderVersion:preset.loaderVersion||''});close();await pollLocal();section.value='launcher';toast(`Instance "${preset.name}" installation queued. Follow progress in Downloads.`)});}
-async function duplicateInstance(instance:any){const newName=`${instance.name} (New)`;await run(async()=>{await native('create_instance',{name:newName,gameVersion:instance.gameVersion,loader:instance.loader,loaderVersion:instance.loaderVersion||''});close();await pollLocal();toast(`Created a fresh setup "${newName}". Existing worlds and mods stay in the original instance.`)});}
+const duplicateTarget = ref<any>(null);
+const duplicateName = ref('');
+const isDuplicating = ref(false);
+
+function duplicateInstance(instance:any){
+  duplicateTarget.value = instance;
+  duplicateName.value = `${instance.name} (Copy)`;
+  isDuplicating.value = false;
+  show('duplicate-instance');
+}
+
+async function performDuplicate(){
+  if(!duplicateTarget.value||isDuplicating.value)return;
+  const source=duplicateTarget.value;
+  const targetName=duplicateName.value.trim()||`${source.name} (Copy)`;
+  isDuplicating.value=true;
+  await run(async()=>{
+    try{
+      await native('duplicate_instance',{id:source.id,name:targetName});
+      close();
+      await pollLocal();
+      toast(`Duplicated "${source.name}" into "${targetName}". Worlds, mods, and settings cloned.`);
+    }finally{
+      isDuplicating.value=false;
+    }
+  });
+}
 async function deleteInstance(id:string){await run(async()=>{await native('delete_instance',{id});if(activeInstanceId.value===id){activeInstanceId.value=null}await pollLocal();toast('Instance deleted.');});}
 async function copyText(text:string){if(!text)return;await navigator.clipboard.writeText(text);toast('Copied to clipboard.')}
 async function retryInstall(instance:any){await run(async()=>{await native('retry_instance',{id:instance.id});await pollLocal();toast('Installation queued. Your worlds are kept.');})}
@@ -365,7 +391,7 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
       <template v-else><p id="boot-error" class="boot-error" role="alert">{{startupError}}</p><div class="boot-actions"><button class="primary" @click="retryStartup"><RefreshCw/> Try again</button><button @click="bootVisible=false">Continue to app</button></div></template><small class="boot-fineprint">Your game files stay on your device.<br>Solara services load independently.</small>
     </div>
   </section></Transition>
-  <Transition name="dialog"><div v-if="modal" class="modal-shade" @click.self="close" @keydown="trapDialog"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" tabindex="-1"><div class="section-title"><h2 id="dialog-title">{{({'minecraft-login':'Sign in to Minecraft','create-instance':'Create an instance','create-server':'Create a local server','edit-instance':'Instance settings','assignment':'Get a server address','edit-assignment':'Update server endpoint','release-assignment':'Release server address','downloads':'Your downloads','logs':'Local console','account':'Your Solara account','changelog':"What’s new",'install-content':selectedContent?.kind==='modpack'?'Install a modpack':'Add to an instance','beta':'Experimental access','about':'About Solara','shortcuts':'Keyboard shortcuts'} as Record<string,string>)[modal]}}</h2><button class="close" title="Close dialog" aria-label="Close dialog" @click="close"><X/></button></div>
+  <Transition name="dialog"><div v-if="modal" class="modal-shade" @click.self="close" @keydown="trapDialog"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" tabindex="-1"><div class="section-title"><h2 id="dialog-title">{{({'minecraft-login':'Sign in to Minecraft','create-instance':'Create an instance','duplicate-instance':'Duplicate an instance','create-server':'Create a local server','edit-instance':'Instance settings','assignment':'Get a server address','edit-assignment':'Update server endpoint','release-assignment':'Release server address','downloads':'Your downloads','logs':'Local console','account':'Your Solara account','changelog':"What’s new",'install-content':selectedContent?.kind==='modpack'?'Install a modpack':'Add to an instance','beta':'Experimental access','about':'About Solara','shortcuts':'Keyboard shortcuts'} as Record<string,string>)[modal]}}</h2><button class="close" title="Close dialog" aria-label="Close dialog" @click="close"><X/></button></div>
   <div v-if="error" class="banner error" role="alert" style="margin-bottom:18px">{{error}}</div>
   <template v-if="modal==='create-instance'">
     <div class="create-instance-dialog-wrap">
@@ -413,6 +439,38 @@ const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'
         <div class="actions">
           <button type="button" @click="close">Cancel</button>
           <button class="primary" :disabled="busy||!engineReady||!create.gameVersion||loaderLoading||!!loaderError">{{busy?'Working…':'Create instance'}}</button>
+        </div>
+      </form>
+    </div>
+  </template>
+  <template v-if="modal==='duplicate-instance'&&duplicateTarget">
+    <div class="duplicate-dialog-body">
+      <div v-if="isDuplicating" class="duplicate-progress-wrap">
+        <TaskProgress
+          title="Duplicating instance…"
+          :detail="'Copying worlds, mods, and configuration files from ' + duplicateTarget.name + '. Large instances may take a few moments. All files remain on this device.'"
+        />
+      </div>
+      <form v-else @submit.prevent="performDuplicate" class="duplicate-form">
+        <div class="duplicate-source-badge">
+          <InstanceAvatar :instance="duplicateTarget"/>
+          <div class="duplicate-source-info">
+            <strong>{{ duplicateTarget.name }}</strong>
+            <p>{{ duplicateTarget.gameVersion }} · {{ duplicateTarget.loader }} · {{ duplicateTarget.memory }} MB RAM</p>
+          </div>
+        </div>
+        <p class="duplicate-explainer">
+          Creates a complete independent copy of this instance, including all installed mods, resource packs, shaders, options, and save files.
+        </p>
+        <label class="field">
+          New instance name
+          <input v-model="duplicateName" placeholder="Name for the cloned instance" required maxlength="80">
+        </label>
+        <div class="actions">
+          <button type="button" @click="close">Cancel</button>
+          <button type="submit" class="primary" :disabled="!duplicateName.trim()||busy||isDuplicating">
+            <Copy :size="14"/> Duplicate instance
+          </button>
         </div>
       </form>
     </div>

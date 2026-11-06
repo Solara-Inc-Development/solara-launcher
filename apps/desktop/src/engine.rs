@@ -210,6 +210,17 @@ pub async fn create_instance(
     let job = queue_install(record.id.clone(), record.name).await?;
     Ok(json!({"jobId":job,"instanceId":record.id}))
 }
+pub async fn duplicate_instance(id: String, name: Option<String>) -> Result<Value> {
+    assert_writable(&id).await?;
+    let engine = get().await?;
+    let source = engine.instances.get(&id).await?;
+    let target_name = match name.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()) {
+        Some(n) => n,
+        None => format!("{} (Copy)", source.name),
+    };
+    let duplicated = engine.instances.duplicate(&id, &target_name).await?;
+    Ok(serde_json::to_value(duplicated)?)
+}
 pub async fn retry_instance(id: String) -> Result<String> {
     let engine = get().await?;
     let record = engine.instances.get(&id).await?;

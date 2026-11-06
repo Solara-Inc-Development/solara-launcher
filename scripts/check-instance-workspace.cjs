@@ -12,7 +12,11 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
    if(command==='launcher_capabilities')return {loaders:['vanilla','fabric','quilt'],contentInstall:true,automaticJava:true,instanceFiles:true,modManager:true,instanceBackups:true,preview:true};
    if(command==='launcher_settings')return {memory:4096,javaPath:'auto',discord:true};
    if(command==='launcher_snapshot')return structuredClone({instances:[state.instance],minecraftAccounts:[{id:'qa-account',name:'QA player',active:true}],localServers:[],downloads:[]});
-   if(command==='instance_files')return Object.keys(state.files).map(path=>({name:path,path,directory:false,size:state.files[path].content.length}));
+   if(command==='instance_files'){
+     if(args.path==='screenshots')return [{name:'2026-11-06_18.20.15.png',path:'screenshots/2026-11-06_18.20.15.png',directory:false,size:1024,modifiedAt:1730900000}];
+     return Object.keys(state.files).map(path=>({name:path,path,directory:false,size:state.files[path].content.length}));
+   }
+   if(command==='instance_image')return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
    if(command==='instance_text')return {path:args.path,...state.files[args.path]};
    if(command==='instance_file_action'){
     if(args.action==='save'){const file=state.files[args.path];if(file&&args.expectedSha256!==file.sha256)throw Error('This file changed since you opened it. Reload it before saving.');state.files[args.path]={content:args.content,sha256:'fixture-v'+Date.now()};return {sha256:state.files[args.path].sha256}}
@@ -32,6 +36,8 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
    if(command==='import_instance_mod'){const mod={path:`mods/${args.fileName}`,fileName:args.fileName,name:'Imported QA mod',version:'2.0.0',loaders:['fabric'],enabled:true,size:256};state.importedMods.push(mod);return mod}
    if(command==='instance_logs')return 'Explicit QA log fixture';
    if(command==='edit_instance'){Object.assign(state.instance,args);return null}
+   if(command==='open_instance_folder'||command==='open_instance_file')return null;
+   if(command==='duplicate_instance'){const copy={...state.instance,id:'qa-duplicate-id',name:args.name||`${state.instance.name} (Copy)`};state.duplicatedInstance=copy;return copy}
    return null;
   }};
  });
@@ -69,6 +75,38 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  await page.getByText('Imported QA mod',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='import_instance_mod'&&c.args.fileName==='custom-zoom.jar')),true);
  await page.getByRole('switch',{name:'Disable QA mod',exact:true}).click();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).getAttribute('aria-checked'),'false');
+
+ // Exercise smart archive drop routing for .zip and .mrpack archives
+ await page.locator('input[type="file"]').setInputFiles({name:'faithful32.zip',mimeType:'application/zip',buffer:Buffer.from('PK\x03\x04fixture-zip')});
+ await page.getByRole('dialog').getByText('Archive File Detected',{exact:true}).waitFor();
+ await page.getByRole('dialog').getByText('Open Resource Packs Folder',{exact:true}).waitFor();
+ await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('dialog').waitFor({state:'hidden'});
+
+ // Exercise screenshot gallery and lightbox with zoom & copy
+ await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:'Screenshots',exact:true}).click();
+ await page.getByRole('button',{name:'View screenshot 2026-11-06_18.20.15.png',exact:true}).click();
+ const lightbox=page.locator('.solara-lightbox-dialog');
+ await lightbox.waitFor({state:'visible'});
+ await lightbox.getByRole('button',{name:'Zoom in',exact:true}).click();
+ assert.equal((await lightbox.locator('.zoom-level-btn').textContent()).trim(),'125%');
+ await lightbox.getByRole('button',{name:'Reset zoom',exact:true}).click();
+ assert.equal((await lightbox.locator('.zoom-level-btn').textContent()).trim(),'100%');
+ await lightbox.getByRole('button',{name:'Copy screenshot',exact:true}).click();
+ await lightbox.getByRole('button',{name:'Close screenshot viewer',exact:true}).click();
+ await lightbox.waitFor({state:'hidden'});
+
+ // Exercise instance duplication dialog and feedback
+ await page.getByRole('button',{name:'Create similar instance',exact:true}).click();
+ const dupModal=page.getByRole('dialog').filter({hasText:'Duplicate an instance'});
+ await dupModal.waitFor({state:'visible'});
+ await dupModal.locator('input').fill('Cloned QA Adventure');
+ await dupModal.getByRole('button',{name:'Duplicate instance',exact:true}).click();
+ await dupModal.waitFor({state:'hidden'});
+ assert.equal(await page.evaluate(()=>window.__WORKSPACE_QA__.calls.some(c=>c.command==='duplicate_instance'&&c.args.name==='Cloned QA Adventure')),true);
+
+ // Return to mods tab for running locks test
+ await page.getByRole('navigation',{name:'Instance pages'}).getByRole('button',{name:/^Mods/}).click();
  await page.evaluate(()=>window.__WORKSPACE_QA__.instance.running=true);await page.getByRole('button',{name:'Stop game',exact:true}).waitFor();assert.equal(await page.getByRole('switch',{name:'Enable QA mod',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'Add .jar file',exact:true}).isDisabled(),true);
  await page.setViewportSize({width:800,height:700});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:'checks/instance-workspace-fixture.png',animations:'disabled'});
  assert.deepEqual(errors,[]);console.log('Instance workspace edit/save, unsaved navigation, rename/trash/restore, backups, local .jar mod import, mod toggle and running locks PASS. Explicit IPC fixtures only.');

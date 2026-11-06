@@ -43,6 +43,11 @@ async fn create_instance(
         .map_err(err)
 }
 #[tauri::command]
+async fn duplicate_instance(id: String, name: Option<String>) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::duplicate_instance(id, name).await.map_err(err)
+}
+#[tauri::command]
 async fn retry_instance(id: String) -> Result<String, String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
     engine::retry_instance(id).await.map_err(err)
@@ -187,6 +192,23 @@ async fn open_instance_folder(
     };
     if !p.is_dir() {
         p = p.parent().ok_or("File folder unavailable")?.to_path_buf();
+    }
+    app.opener()
+        .open_path(p.to_string_lossy().to_string(), None::<String>)
+        .map_err(err)
+}
+#[tauri::command]
+async fn open_instance_file(
+    app: tauri::AppHandle,
+    id: String,
+    path: String,
+) -> Result<(), String> {
+    let e = engine::get().await.map_err(err)?;
+    let p = crate::game_core::files::resolve(&e.instances, &id, path.trim(), false)
+        .await
+        .map_err(err)?;
+    if !p.is_file() {
+        return Err("Target is not a valid file".into());
     }
     app.opener()
         .open_path(p.to_string_lossy().to_string(), None::<String>)
@@ -400,6 +422,7 @@ pub fn run() {
             minecraft_versions,
             loader_versions,
             create_instance,
+            duplicate_instance,
             delete_instance,
             launch_instance,
             retry_instance,
@@ -417,6 +440,7 @@ pub fn run() {
             instance_backups,
             instance_backup_action,
             open_instance_folder,
+            open_instance_file,
             install_content,
             download_action,
             launcher_settings,

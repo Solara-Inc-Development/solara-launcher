@@ -173,6 +173,60 @@ impl Instances {
         tokio::fs::remove_dir_all(&dir).await?;
         Ok(())
     }
+    pub async fn duplicate(&self, source_id: &str, target_name: &str) -> Result<Instance> {
+        let _guard = self.writes.lock().await;
+        let source = self.get(source_id).await?;
+        let src_dir = self.safe_dir(source_id).await?;
+        let target_name = target_name.trim();
+        if target_name.is_empty() {
+            bail!("Duplicate instance name cannot be empty");
+        }
+        let new_id = uuid::Uuid::new_v4().to_string();
+        let record = Instance {
+            schema_version: source.schema_version,
+            id: new_id.clone(),
+            name: target_name.to_string(),
+            game_version: source.game_version.clone(),
+            loader: source.loader.clone(),
+            loader_version: source.loader_version.clone(),
+            memory: source.memory,
+            java_path: source.java_path.clone(),
+            state: if source.state == "installed" { "installed".into() } else { "created".into() },
+        };
+        record.validate()?;
+        tokio::fs::create_dir_all(&self.root).await?;
+        let dest_dir = self.path(&new_id)?;
+        tokio::fs::create_dir(&dest_dir).await?;
+
+        let copy_result = async {
+            for name in ["logs", "natives"] {
+                tokio::fs::create_dir(dest_dir.join(name)).await?;
+            }
+            tokio::fs::create_dir(dest_dir.join("game")).await?;
+
+            let src_game = src_dir.join("game");
+            let dest_game = dest_dir.join("game");
+
+            // Copy files in blocking pool so heavy I/O remains fully responsive and does not stall async runtime
+            tokio::task::spawn_blocking(move || -> Result<()> {
+                if src_game.is_dir() {
+                    copy_dir_recursive(&src_game, &dest_game)?;
+                }
+                Ok(())
+            })
+            .await??;
+
+            write_json(&dest_dir.join("instance.json"), &record).await
+        }
+        .await;
+
+        if let Err(err) = copy_result {
+            let _ = tokio::fs::remove_dir_all(&dest_dir).await;
+            return Err(err);
+        }
+
+        Ok(record)
+    }
     pub async fn game_dir(&self, id: &str) -> Result<PathBuf> {
         let dir = self.safe_dir(id).await?.join("game");
         let meta = tokio::fs::symlink_metadata(&dir).await?;
@@ -181,6 +235,32 @@ impl Instances {
         }
         Ok(dir)
     }
+}
+
+fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
+    if !dst.exists() {
+        std::fs::create_dir_all(dst)?;
+    }
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let file_type = entry.file_type()?;
+        // Ignore symlinks to prevent path escape
+        if file_type.is_symlink() {
+            continue;
+        }
+        let file_name = entry.file_name().to_string_lossy().to_string();
+        if file_name.ends_with(".lock") || file_name == "session.lock" {
+            continue;
+        }
+        let src_path = entry.path();
+        let dst_path = dst.join(entry.file_name());
+        if file_type.is_dir() {
+            copy_dir_recursive(&src_path, &dst_path)?;
+        } else if file_type.is_file() {
+            std::fs::copy(&src_path, &dst_path)?;
+        }
+    }
+    Ok(())
 }
 
 pub async fn write_json(path: &Path, value: &impl Serialize) -> Result<()> {
@@ -251,5 +331,76 @@ mod tests {
         store.delete(&first.id).await.unwrap();
         assert!(store.get(&first.id).await.is_err());
         tokio::fs::remove_dir_all(root).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn instance_duplication_copies_files_and_preserves_independence() {
+        let root =
+            std::env::temp_dir().join(format!("solara-duplicate-test-{}", uuid::Uuid::new_v4()));
+        let store = Instances::new(root.clone());
+        let original = store
+            .create(
+                "Original World".into(),
+                "1.21.1".into(),
+                "fabric".into(),
+                Some("0.16.0".into()),
+                4096,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+        let game = store.game_dir(&original.id).await.unwrap();
+        let saves_dir = game.join("saves").join("TestWorld");
+        tokio::fs::create_dir_all(&saves_dir).await.unwrap();
+        tokio::fs::write(saves_dir.join("level.dat"), b"level-data-v1")
+            .await
+            .unwrap();
+        tokio::fs::write(game.join("options.txt"), b"gamma:1.0")
+            .await
+            .unwrap();
+
+        // Duplicate
+        let copy = store
+            .duplicate(&original.id, "Original World (Copy)")
+            .await
+            .unwrap();
+        assert_ne!(copy.id, original.id);
+        assert_eq!(copy.name, "Original World (Copy)");
+        assert_eq!(copy.game_version, "1.21.1");
+        assert_eq!(copy.loader, "fabric");
+        assert_eq!(copy.loader_version.as_deref(), Some("0.16.0"));
+        assert_eq!(copy.memory, 4096);
+
+        let copy_game = store.game_dir(&copy.id).await.unwrap();
+        assert_eq!(
+            tokio::fs::read(copy_game.join("saves").join("TestWorld").join("level.dat"))
+                .await
+                .unwrap(),
+            b"level-data-v1"
+        );
+        assert_eq!(
+            tokio::fs::read(copy_game.join("options.txt"))
+                .await
+                .unwrap(),
+            b"gamma:1.0"
+        );
+
+        // Verify independent mutation
+        tokio::fs::write(copy_game.join("options.txt"), b"gamma:2.0")
+            .await
+            .unwrap();
+        assert_eq!(
+            tokio::fs::read(game.join("options.txt")).await.unwrap(),
+            b"gamma:1.0"
+        );
+
+        // Empty duplicate name is rejected
+        assert!(store.duplicate(&original.id, "   ").await.is_err());
+
+        store.delete(&original.id).await.unwrap();
+        // Copy still exists after original deleted
+        assert_eq!(store.get(&copy.id).await.unwrap().name, "Original World (Copy)");
+        store.delete(&copy.id).await.unwrap();
+        let _ = tokio::fs::remove_dir_all(root).await;
     }
 }

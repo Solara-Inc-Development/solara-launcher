@@ -58,5 +58,7 @@ export const Image=glyph('Image',['M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 
 export const Lock=glyph('Lock',['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4']);
 export const Sun=glyph('Sun',['M12 3v2M12 19v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M3 12h2M19 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z']);
 export const Moon=glyph('Moon',['M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1Z']);
+export const ZoomIn=glyph('ZoomIn',['M11 8v6M8 11h6','M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z','m14.5 14.5 6 6']);
+export const ZoomOut=glyph('ZoomOut',['M8 11h6','M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z','m14.5 14.5 6 6']);
 
 

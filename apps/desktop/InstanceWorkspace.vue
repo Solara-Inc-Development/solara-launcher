@@ -5,7 +5,7 @@ import InstanceAvatar from './InstanceAvatar.vue';
 import {ref,computed,watch,nextTick,onUnmounted} from 'vue';
 import {native} from '../../packages/shared/client';
 import LoaderMark from '../../packages/ui/LoaderMark.vue';
-import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity} from '../../packages/ui/icons';
+import {ArrowLeft,Box,Play,Square,FolderOpen,FileText,Trash2,Pencil,Save,RefreshCw,Search,Plus,X,Terminal,Settings,Package,RotateCcw,Coffee,Copy,ChevronRight,ChevronLeft,ShieldCheck,Globe,MoreVertical,ExternalLink,Compass,Check,Monitor,Download,Sparkles,Activity,ZoomIn,ZoomOut} from '../../packages/ui/icons';
 
 const props=withDefaults(defineProps<{instance:any,jobs:any[],accountReady?:boolean,parentBusy?:boolean}>(),{accountReady:false,parentBusy:false});
 const emit=defineEmits(['back','play','stop','account','refresh','browse-mods','duplicate','delete']);
@@ -165,6 +165,35 @@ async function confirm(){
 
 const isDraggingMods=ref(false);
 let dragCounter=0;
+interface ArchiveDropItem {
+  name: string;
+  size: number;
+  isMrpack: boolean;
+  isZip: boolean;
+  count: number;
+}
+const archiveRoutingItem = ref<ArchiveDropItem | null>(null);
+
+function closeArchiveRouting() {
+  archiveRoutingItem.value = null;
+}
+
+async function routeToFolder(subpath: string) {
+  const current = archiveRoutingItem.value;
+  archiveRoutingItem.value = null;
+  await run(async () => {
+    await native('open_instance_folder', { id: props.instance.id, path: subpath });
+    notice.value = `Opened ${subpath || 'instance'} folder. Move ${current ? current.name : 'your archive'} here to activate it in Minecraft.`;
+  });
+}
+
+function routeToModpackCreation() {
+  const current = archiveRoutingItem.value;
+  archiveRoutingItem.value = null;
+  emit('browse-mods');
+  notice.value = `Browse modpacks or create a new instance for ${current ? current.name : 'this modpack'}.`;
+}
+
 function onDragEnter(e:DragEvent){e.preventDefault();dragCounter++;isDraggingMods.value=true;}
 function onDragLeave(e:DragEvent){e.preventDefault();dragCounter--;if(dragCounter<=0){isDraggingMods.value=false;dragCounter=0;}}
 function onDragOver(e:DragEvent){e.preventDefault();}
@@ -173,15 +202,52 @@ async function onModDrop(e:DragEvent){
   isDraggingMods.value=false;
   dragCounter=0;
   if(props.instance.running||locked.value||props.instance.loader==='vanilla')return;
-  const files=e.dataTransfer?.files;
-  if(files&&files.length)await importModFiles(files);
+  const files=Array.from(e.dataTransfer?.files||[]);
+  if(!files.length)return;
+  const jarFiles=files.filter(f=>f.name.toLowerCase().endsWith('.jar'));
+  const archiveFiles=files.filter(f=>/\.(zip|mrpack)$/i.test(f.name));
+
+  if(archiveFiles.length>0){
+    const first=archiveFiles[0];
+    archiveRoutingItem.value={
+      name: first.name,
+      size: first.size,
+      isMrpack: first.name.toLowerCase().endsWith('.mrpack'),
+      isZip: first.name.toLowerCase().endsWith('.zip'),
+      count: archiveFiles.length
+    };
+  }
+
+  if(jarFiles.length>0){
+    await importModFiles(jarFiles);
+  } else if(archiveFiles.length===0){
+    error.value='Choose or drop valid .jar mod files.';
+  }
 }
 async function importModFileInput(event:Event){
   const input=event.target as HTMLInputElement;
   const files=Array.from(input.files||[]);
   input.value='';
   if(!files.length)return;
-  await importModFiles(files);
+  const jarFiles=files.filter(f=>f.name.toLowerCase().endsWith('.jar'));
+  const archiveFiles=files.filter(f=>/\.(zip|mrpack)$/i.test(f.name));
+
+  if(archiveFiles.length>0){
+    const first=archiveFiles[0];
+    archiveRoutingItem.value={
+      name: first.name,
+      size: first.size,
+      isMrpack: first.name.toLowerCase().endsWith('.mrpack'),
+      isZip: first.name.toLowerCase().endsWith('.zip'),
+      count: archiveFiles.length
+    };
+  }
+
+  if(jarFiles.length>0){
+    await importModFiles(jarFiles);
+  } else if(archiveFiles.length===0){
+    error.value='Choose or drop valid .jar mod files.';
+  }
 }
 async function importModFiles(fileList:FileList|File[]){
   const files=Array.from(fileList);
@@ -336,11 +402,15 @@ interface ScreenshotItem {
   size: number;
   modifiedAt?: number;
   dataUrl?: string;
+  dimensions?: { width: number; height: number };
 }
 const screenshots = ref<ScreenshotItem[]>([]);
 const screenshotQuery = ref('');
 const activeLightbox = ref<ScreenshotItem | null>(null);
-const lightboxDialog=ref<HTMLDialogElement|null>(null),snapshotDialog=ref<HTMLDialogElement|null>(null);
+const lightboxZoom = ref(1);
+const imageCopied = ref(false);
+let copyTimeout: ReturnType<typeof setTimeout> | null = null;
+const lightboxDialog=ref<HTMLDialogElement|null>(null),snapshotDialog=ref<HTMLDialogElement|null>(null),archiveRoutingDialog=ref<HTMLDialogElement|null>(null);
 
 const visibleScreenshots = computed(() => {
   if (!screenshotQuery.value.trim()) return screenshots.value;
@@ -384,6 +454,8 @@ async function loadScreenshots() {
 }
 
 async function openLightbox(item: ScreenshotItem) {
+  lightboxZoom.value = 1;
+  imageCopied.value = false;
   if (!item.dataUrl) {
     try {
       item.dataUrl = await native('instance_image', { id: props.instance.id, path: item.path });
@@ -394,6 +466,79 @@ async function openLightbox(item: ScreenshotItem) {
 
 function closeLightbox() {
   activeLightbox.value = null;
+  lightboxZoom.value = 1;
+  imageCopied.value = false;
+}
+
+function onImageLoaded(e: Event) {
+  const img = e.target as HTMLImageElement;
+  if (activeLightbox.value && img.naturalWidth && img.naturalHeight) {
+    activeLightbox.value.dimensions = {
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    };
+  }
+}
+
+function zoomIn() {
+  lightboxZoom.value = Math.min(3, +(lightboxZoom.value + 0.25).toFixed(2));
+}
+
+function zoomOut() {
+  lightboxZoom.value = Math.max(0.5, +(lightboxZoom.value - 0.25).toFixed(2));
+}
+
+function resetZoom() {
+  lightboxZoom.value = 1;
+}
+
+function toggleZoom() {
+  lightboxZoom.value = lightboxZoom.value === 1 ? 2 : 1;
+}
+
+function onLightboxWheel(e: WheelEvent) {
+  if (e.deltaY < 0) {
+    zoomIn();
+  } else if (e.deltaY > 0) {
+    zoomOut();
+  }
+}
+
+async function copyScreenshot() {
+  if (!activeLightbox.value) return;
+  try {
+    if (activeLightbox.value.dataUrl && typeof navigator !== 'undefined' && navigator.clipboard) {
+      try {
+        const res = await fetch(activeLightbox.value.dataUrl);
+        const blob = await res.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({ [blob.type || 'image/png']: blob })
+        ]);
+        imageCopied.value = true;
+      } catch {
+        await navigator.clipboard.writeText(activeLightbox.value.name);
+        imageCopied.value = true;
+      }
+    } else if (navigator?.clipboard) {
+      await navigator.clipboard.writeText(activeLightbox.value.name);
+      imageCopied.value = true;
+    }
+  } catch {
+    imageCopied.value = true;
+  }
+  if (copyTimeout) clearTimeout(copyTimeout);
+  copyTimeout = setTimeout(() => { imageCopied.value = false; }, 2500);
+}
+
+async function openInSystemViewer() {
+  if (!activeLightbox.value) return;
+  await run(async () => {
+    try {
+      await native('open_instance_file', { id: props.instance.id, path: activeLightbox.value!.path });
+    } catch {
+      await native('open_instance_folder', { id: props.instance.id, path: activeLightbox.value!.path });
+    }
+  });
 }
 
 function prevScreenshot() {
@@ -420,6 +565,15 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
     } else if (e.key === 'ArrowRight') {
       nextScreenshot();
+      e.preventDefault();
+    } else if (e.key === '+' || e.key === '=') {
+      zoomIn();
+      e.preventDefault();
+    } else if (e.key === '-') {
+      zoomOut();
+      e.preventDefault();
+    } else if (e.key === '0') {
+      resetZoom();
       e.preventDefault();
     }
   }
@@ -498,8 +652,9 @@ async function saveSettings(){await run(async()=>{await native('edit_instance',{
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;lightboxZoom.value=1;imageCopied.value=false;archiveRoutingItem.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
 watch(activeLightbox,async value=>{await nextTick();if(value&&!lightboxDialog.value?.open)lightboxDialog.value?.showModal()});
+watch(archiveRoutingItem,async value=>{await nextTick();if(value&&!archiveRoutingDialog.value?.open)archiveRoutingDialog.value?.showModal()});
 watch(exportModalOpen,async value=>{await nextTick();if(value&&!snapshotDialog.value?.open)snapshotDialog.value?.showModal()});
 watch(dialog,async value=>{await nextTick();if(value&&!dialogElement.value?.open)dialogElement.value?.showModal();if(!value&&dialogElement.value?.open)dialogElement.value.close()});
 watch(()=>[tab.value,props.instance.running,liveLogs.value],()=>{if(logTimer)clearInterval(logTimer);logTimer=null;if(tab.value==='logs'&&props.instance.running&&liveLogs.value)logTimer=setInterval(()=>void refreshLogs(),2000)});
@@ -1202,24 +1357,59 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
    <div class="lightbox-header">
      <div class="lightbox-title-wrap">
        <strong class="lightbox-filename">{{ activeLightbox.name }}</strong>
-       <span class="lightbox-meta">{{ bytes(activeLightbox.size) }} · {{ activeLightbox.modifiedAt ? new Date(activeLightbox.modifiedAt * 1000).toLocaleString() : '' }} · {{ lightboxIndex + 1 }} of {{ visibleScreenshots.length }}</span>
+       <span class="lightbox-meta">
+         <span class="lightbox-badge-fmt">{{ activeLightbox.name.split('.').pop()?.toUpperCase() || 'PNG' }}</span>
+         <span v-if="activeLightbox.dimensions">{{ activeLightbox.dimensions.width }} × {{ activeLightbox.dimensions.height }} · </span>
+         {{ bytes(activeLightbox.size) }} · {{ activeLightbox.modifiedAt ? new Date(activeLightbox.modifiedAt * 1000).toLocaleString() : '' }} · {{ lightboxIndex + 1 }} of {{ visibleScreenshots.length }}
+       </span>
      </div>
      <div class="lightbox-actions">
-       <button type="button" class="solara-secondary-btn" title="Open in system explorer" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: activeLightbox?.path }); })">
-         <FolderOpen :size="14"/> Show in folder
+       <!-- Zoom controls -->
+       <div class="lightbox-zoom-bar" role="group" aria-label="Zoom controls">
+         <button type="button" class="zoom-btn" title="Zoom out (-)" aria-label="Zoom out" :disabled="lightboxZoom <= 0.5" @click.stop="zoomOut">
+           <ZoomOut :size="14"/>
+         </button>
+         <button type="button" class="zoom-level-btn" title="Reset zoom to 100% (0)" aria-label="Reset zoom" @click.stop="resetZoom">{{ Math.round(lightboxZoom * 100) }}%</button>
+         <button type="button" class="zoom-btn" title="Zoom in (+)" aria-label="Zoom in" :disabled="lightboxZoom >= 3" @click.stop="zoomIn">
+           <ZoomIn :size="14"/>
+         </button>
+       </div>
+
+       <!-- 1-Click Copy -->
+       <button type="button" class="solara-secondary-btn copy-btn" :class="{ copied: imageCopied }" title="Copy screenshot" aria-label="Copy screenshot" @click.stop="copyScreenshot">
+         <Check v-if="imageCopied" :size="14"/>
+         <Copy v-else :size="14"/>
+         <span>{{ imageCopied ? 'Copied!' : 'Copy' }}</span>
        </button>
-       <button type="button" class="circle-action-btn" title="Close" @click="closeLightbox">
+
+       <!-- Open in system viewer -->
+       <button type="button" class="solara-secondary-btn" title="Open screenshot in system viewer" aria-label="Open screenshot in system viewer" @click.stop="openInSystemViewer">
+         <ExternalLink :size="14"/> Open
+       </button>
+
+       <!-- Show in folder -->
+       <button type="button" class="solara-secondary-btn" title="Open in system explorer" aria-label="Show in folder" @click="run(async () => { await native('open_instance_folder', { id: instance.id, path: activeLightbox?.path }); })">
+         <FolderOpen :size="14"/> Folder
+       </button>
+
+       <button type="button" class="circle-action-btn" title="Close (Esc)" aria-label="Close screenshot viewer" @click="closeLightbox">
          <X :size="16"/>
        </button>
      </div>
    </div>
 
-   <div class="lightbox-viewport">
+   <div class="lightbox-viewport" @wheel.passive="onLightboxWheel">
      <button v-if="lightboxIndex > 0" type="button" class="lightbox-nav-btn prev" aria-label="Previous screenshot" @click.stop="prevScreenshot">
        <ChevronLeft :size="24"/>
      </button>
-     <div class="lightbox-img-wrapper">
-       <img v-if="activeLightbox.dataUrl" :src="activeLightbox.dataUrl" :alt="activeLightbox.name">
+     <div class="lightbox-img-wrapper" @dblclick="toggleZoom">
+       <img
+         v-if="activeLightbox.dataUrl"
+         :src="activeLightbox.dataUrl"
+         :alt="activeLightbox.name"
+         :style="{ transform: `scale(${lightboxZoom})`, cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }"
+         @load="onImageLoaded"
+       >
        <div v-else class="lightbox-loading">
          <Monitor :size="32"/>
          <span>Loading high-resolution screenshot…</span>
@@ -1229,6 +1419,57 @@ onUnmounted(()=>{if(typeof window!=='undefined')window.removeEventListener('keyd
        <ChevronRight :size="24"/>
      </button>
    </div>
+ </dialog>
+
+ <!-- Smart Archive Drop Routing Dialog -->
+ <dialog v-if="archiveRoutingItem" ref="archiveRoutingDialog" class="workspace-dialog archive-routing-dialog" aria-labelledby="archive-dialog-title" @cancel.prevent="closeArchiveRouting">
+   <header>
+     <div class="archive-dialog-title-wrap">
+       <Package :size="20"/>
+       <h2 id="archive-dialog-title">Archive File Detected</h2>
+     </div>
+     <button type="button" class="close" title="Dismiss" aria-label="Dismiss" @click="closeArchiveRouting"><X :size="16"/></button>
+   </header>
+   <div class="archive-dialog-body">
+     <div class="archive-file-badge">
+       <strong class="archive-file-name">{{ archiveRoutingItem.name }}</strong>
+       <span class="archive-file-meta">{{ bytes(archiveRoutingItem.size) }} · {{ archiveRoutingItem.isMrpack ? 'Modrinth Modpack' : 'ZIP Archive' }}</span>
+     </div>
+
+     <div v-if="archiveRoutingItem.isMrpack" class="archive-explanation">
+       <p><strong>.mrpack</strong> is a complete Modrinth modpack archive containing game settings, loader requirements, and mod lists. It cannot be installed as an individual mod inside this instance.</p>
+       <p>Where would you like to direct this modpack?</p>
+     </div>
+     <div v-else class="archive-explanation">
+       <p>Individual Minecraft mods are packaged as <strong>.jar</strong> files. <strong>.zip</strong> archives are typically <strong>Resource Packs</strong>, <strong>Shader Packs</strong>, or custom configuration bundles.</p>
+       <p>Where would you like to direct this archive?</p>
+     </div>
+
+     <div class="archive-action-grid">
+       <template v-if="archiveRoutingItem.isMrpack">
+         <button type="button" class="solara-primary-btn" @click="routeToModpackCreation">
+           <Compass :size="15"/> Browse & Install Modpacks
+         </button>
+         <button type="button" class="solara-secondary-btn" @click="routeToFolder('')">
+           <FolderOpen :size="15"/> Open Instance Root Folder
+         </button>
+       </template>
+       <template v-else>
+         <button type="button" class="solara-primary-btn" @click="routeToFolder('resourcepacks')">
+           <Package :size="15"/> Open Resource Packs Folder
+         </button>
+         <button type="button" class="solara-secondary-btn" @click="routeToFolder('shaderpacks')">
+           <Sparkles :size="15"/> Open Shader Packs Folder
+         </button>
+         <button type="button" class="solara-secondary-btn" @click="routeToFolder('mods')">
+           <FolderOpen :size="15"/> Open Mods Folder
+         </button>
+       </template>
+     </div>
+   </div>
+   <footer>
+     <button type="button" @click="closeArchiveRouting">Close</button>
+   </footer>
  </dialog>
 
   <dialog v-if="exportModalOpen" ref="snapshotDialog" class="solara-lightbox-dialog snapshot-dialog" aria-labelledby="snapshot-title" @cancel.prevent="exportModalOpen=false">
