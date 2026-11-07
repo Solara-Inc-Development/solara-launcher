@@ -735,7 +735,16 @@ async function saveSettings(){await run(async()=>{await native('edit_instance',{
 async function copy(value:string){try{await navigator.clipboard.writeText(value);notice.value='Copied.'}catch{error.value='Clipboard is unavailable. Select the text and copy it manually.'}}
 async function cancelTask(){try{await native('download_action',{id:task.value.id,action:'cancel'});notice.value='Cancelling…';emit('refresh')}catch(e){error.value=String(e)}}
 
-watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();activeModInspector.value=null;inspectorDeleteConfirm.value=false;worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;lightboxZoom.value=1;imageCopied.value=false;archiveRoutingItem.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();},{immediate:true});
+function tabBadgeCount(id:string):number|null{
+  if(id==='mods')return mods.value.length||null;
+  if(id==='screenshots')return screenshots.value.length||null;
+  if(id==='backups')return backups.value.length||null;
+  if(id==='files')return entries.value.length||null;
+  if(id==='trash')return trash.value.length||null;
+  return null;
+}
+
+watch(()=>props.instance.id,()=>{tab.value='mods';path.value='';entries.value=[];mods.value=[];selectedModPaths.value=new Set();activeModInspector.value=null;inspectorDeleteConfirm.value=false;worldSaves.value=[];backupSubtab.value='saves';screenshots.value=[];screenshotQuery.value='';activeLightbox.value=null;lightboxZoom.value=1;imageCopied.value=false;archiveRoutingItem.value=null;backups.value=[];trash.value=[];consoleText.value='';query.value='';editor.value=null;error.value='';notice.value='';form.value={name:props.instance.name,memory:props.instance.memory||4096,javaPath:props.instance.javaPath||'auto'};loadInstanceNotes();loadDisplayPrefs();void readTab();void native('instance_files',{id:props.instance.id,path:'screenshots'}).then((res:any)=>{if(Array.isArray(res))screenshots.value=res.filter(f=>!f.directory&&/\.(png|jpg|jpeg|webp)$/i.test(f.name))}).catch(()=>{});void native('instance_backups',{id:props.instance.id}).then((res:any)=>{if(Array.isArray(res))backups.value=res}).catch(()=>{});},{immediate:true});
 watch(activeModInspector,async value=>{await nextTick();if(value&&!modInspectorDialog.value?.open)modInspectorDialog.value?.showModal();if(!value&&modInspectorDialog.value?.open)modInspectorDialog.value.close();});
 watch(activeLightbox,async value=>{await nextTick();if(value&&!lightboxDialog.value?.open)lightboxDialog.value?.showModal()});
 watch(archiveRoutingItem,async value=>{await nextTick();if(value&&!archiveRoutingDialog.value?.open)archiveRoutingDialog.value?.showModal()});
@@ -821,14 +830,59 @@ onUnmounted(()=>{if(notesSaveTimer){clearTimeout(notesSaveTimer);notesSaveTimer=
    <button @click="cancelTask">Cancel</button>
  </div>
 
+ <!-- Overview / Dashboard summary cards -->
+ <section class="instance-summary-bar" aria-label="Instance summary metrics">
+   <div class="summary-metric-card">
+     <div class="metric-icon-wrap">
+       <Coffee :size="17"/>
+     </div>
+     <div class="metric-body">
+       <span class="metric-label">RAM ALLOCATION</span>
+       <strong class="metric-value">{{ (form.memory / 1024).toFixed(1) }} GiB</strong>
+       <small class="metric-sub">{{ form.memory }} MiB · {{ ramCategory.score }}</small>
+     </div>
+   </div>
+
+   <div class="summary-metric-card">
+     <div class="metric-icon-wrap">
+       <LoaderMark :loader="instance.loader"/>
+     </div>
+     <div class="metric-body">
+       <span class="metric-label">LOADER ENGINE</span>
+       <strong class="metric-value">{{ instance.loader ? instance.loader[0].toUpperCase() + instance.loader.slice(1) : 'Vanilla' }}</strong>
+       <small class="metric-sub">{{ instance.loaderVersion || 'Official runtime' }}</small>
+     </div>
+   </div>
+
+   <div class="summary-metric-card">
+     <div class="metric-icon-wrap">
+       <Terminal :size="17"/>
+     </div>
+     <div class="metric-body">
+       <span class="metric-label">JAVA ENVIRONMENT</span>
+       <strong class="metric-value">{{ form.javaPath && form.javaPath !== 'auto' ? form.javaPath.split(/[/\\]/).pop() : 'Managed Java' }}</strong>
+       <small class="metric-sub" :title="form.javaPath">{{ form.javaPath === 'auto' ? 'Automatic Java runtime' : 'Custom binary' }}</small>
+     </div>
+   </div>
+
+   <div class="summary-metric-card">
+     <div class="metric-icon-wrap">
+       <Package :size="17"/>
+     </div>
+     <div class="metric-body">
+       <span class="metric-label">INSTALLED CONTENT</span>
+       <strong class="metric-value">{{ mods.length }} {{ mods.length === 1 ? 'mod' : 'mods' }}</strong>
+       <small class="metric-sub">{{ mods.filter(m => m.enabled).length }} enabled · {{ mods.filter(m => !m.enabled).length }} disabled</small>
+     </div>
+   </div>
+ </section>
+
  <!-- Modern Navigation Tabs -->
  <nav class="workspace-tabs solara-tabs" aria-label="Instance pages">
-   <button v-for="item in tabs" :key="item.id" :class="{active:tab===item.id}" :aria-current="tab===item.id?'page':undefined" @click="selectTab(item.id)">
+   <button v-for="item in tabs" :key="item.id" :class="{active:tab===item.id}" :aria-label="item.name" :aria-current="tab===item.id?'page':undefined" @click="selectTab(item.id)">
      <component :is="item.icon" :size="16"/>
      <span>{{item.name}}</span>
-     <span v-if="item.id==='mods'&&mods.length" class="tab-badge">{{mods.length}}</span>
-     <span v-if="item.id==='screenshots'&&screenshots.length" class="tab-badge">{{screenshots.length}}</span>
-     <span v-if="item.id==='backups'&&backups.length" class="tab-badge">{{backups.length}}</span>
+     <span v-if="tabBadgeCount(item.id)!==null" class="tab-badge" aria-hidden="true">{{tabBadgeCount(item.id)}}</span>
    </button>
  </nav>
 

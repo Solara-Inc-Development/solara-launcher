@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InstanceAvatar from './InstanceAvatar.vue';
 import {ref,computed} from 'vue';
-import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,ChevronDown,FolderOpen,User,Search,Sparkles,Globe,Package,Gamepad2,Activity,Check,Monitor,Copy} from '../../packages/ui/icons';
+import {ArrowRight,Plus,Play,Square,Layers3,Server,Compass,ArrowUpRight,RefreshCw,Box,Coffee,ShieldCheck,ChevronDown,FolderOpen,User,Search,Sparkles,Globe,Package,Gamepad2,Activity,Check,Monitor,Copy,X} from '../../packages/ui/icons';
 import LoaderMark from '../../packages/ui/LoaderMark.vue';
 import SelectControl from '../../packages/ui/SelectControl.vue';
 const props=withDefaults(defineProps<{instances:any[],projects:any[],services:any[],account:any,minecraft?:any[],loading:boolean,apiState:string}>(),{minecraft:()=>[]});
@@ -134,12 +134,21 @@ function status(value:string){return ['online','operational','connected'].includ
       <section class="home-library-section">
         <div class="library-header-row"><div class="library-title-group"><h2>Your library <span class="count-badge">{{instances.length}}</span></h2><p>A home for every kind of Minecraft.</p></div><button class="solara-btn-primary" @click="emit('create')"><Plus :size="14"/> New instance</button></div>
         <div class="library-tab-row"><div class="library-tab-pills" aria-label="Library categories"><button class="library-tab-pill" :class="{active:activeLibraryTab==='instances'}" :aria-pressed="activeLibraryTab==='instances'" @click="activeLibraryTab='instances'">My instances</button><button class="library-tab-pill" :class="{active:activeLibraryTab==='templates'}" :aria-pressed="activeLibraryTab==='templates'" @click="activeLibraryTab='templates'"><Sparkles :size="14"/> Quick starts</button></div><button class="text-link" @click="emit('navigate','launcher')">View library <ArrowRight :size="13"/></button></div>
-        <div class="library-controls-bar"><label class="library-search-box"><Search :size="15"/><input v-model="librarySearch" placeholder="Find an instance…" aria-label="Search instances"></label><SelectControl v-if="activeLibraryTab==='instances'" v-model="sortBy" label="Sort home instances" :options="[{value:'name',label:'Name'},{value:'active',label:'Running first'},{value:'version',label:'Game version'}]"/></div>
+        <div class="library-controls-bar">
+          <label class="library-search-box">
+            <Search :size="15"/>
+            <input v-model="librarySearch" placeholder="Find an instance…" aria-label="Search instances">
+            <button v-if="librarySearch" type="button" class="search-clear-btn" aria-label="Clear instance search" @click="librarySearch=''">
+              <X :size="12"/>
+            </button>
+          </label>
+          <SelectControl v-if="activeLibraryTab==='instances'" v-model="sortBy" label="Sort home instances" :options="[{value:'name',label:'Name'},{value:'active',label:'Running first'},{value:'version',label:'Game version'}]"/>
+        </div>
         <div v-if="activeLibraryTab==='instances'&&instances.length" class="library-filter-pills"><button v-for="loader in ['all','fabric','quilt','forge','neoforge','vanilla'].filter(l=>l==='all'||instances.some(i=>i.loader===l))" :key="loader" class="filter-pill" :class="{active:loaderFilter===loader}" :aria-pressed="loaderFilter===loader" @click="loaderFilter=loader">{{loader==='all'?'All instances':loader}}</button></div>
         <template v-if="activeLibraryTab==='instances'">
           <div v-if="visibleInstances.length" class="solara-instance-grid">
             <article v-for="inst in visibleInstances" :key="inst.id" class="solara-instance-card" :class="{pinned:pinned.includes(inst.id), 'is-running': inst.running}">
-              <button class="home-instance-cover" :aria-label="'Manage '+inst.name" @click="emit('open-instance',inst)"><InstanceAvatar :instance="inst"/><span class="cover-loader"><LoaderMark :loader="inst.loader"/>{{inst.loader}}</span><span v-if="inst.running" class="cover-running"><span class="dot"/> Running</span></button>
+              <button class="home-instance-cover" :aria-label="'Manage '+inst.name" @click="emit('open-instance',inst)"><InstanceAvatar :instance="inst"/><span class="cover-loader"><LoaderMark :loader="inst.loader"/>{{inst.loader}}</span><span class="cover-version">MC {{inst.gameVersion}}</span><span v-if="inst.running" class="cover-running"><span class="dot"/> Running</span></button>
               <div class="home-instance-body"><button class="home-instance-name" @click="emit('open-instance',inst)"><h3>{{inst.name}}</h3><span>Minecraft {{inst.gameVersion}} · <strong :class="{running:inst.running}">{{inst.running?'Running':inst.state}}</strong></span></button><div class="instance-card-actions"><button class="card-action-btn pin-btn" :class="{pinned:pinned.includes(inst.id)}" :aria-label="(pinned.includes(inst.id)?'Unpin ':'Pin ')+inst.name" :aria-pressed="pinned.includes(inst.id)" @click="togglePin(inst.id)">★</button><button class="card-action-btn" title="Open instance folder" @click="emit('open-folder',inst)"><FolderOpen :size="14"/></button><button class="card-action-btn" title="Duplicate instance" @click.stop="emit('duplicate',inst)"><Copy :size="14"/></button><button class="instance-quick-play" :disabled="!inst.running&&inst.state!=='installed'" :aria-label="(inst.running?'Stop ':'Play ')+inst.name" @click="play(inst)"><Square v-if="inst.running" :size="13"/><Play v-else :size="13"/></button></div></div>
             </article>
           </div>
