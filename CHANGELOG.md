@@ -1,5 +1,33 @@
 # Changelog
 
+## Testing Preview V-0.0.21 — 2026-11-07
+
+- **Comprehensive Global Keyboard Shortcuts & Cheatsheet**:
+  - Global navigation shortcuts: `Ctrl+1` (Home), `Ctrl+2` (Library), `Ctrl+3` (Services), `Ctrl+4` (Explore), and `Ctrl+,` (Settings).
+  - Quick downloads modal toggle with `Ctrl+D` and `Ctrl+J`.
+  - Redesigned two-column Obsidian glass cheatsheet modal (`?` or `Ctrl+/`) with high-contrast `<kbd>` badges.
+- **Installed Mod Inspector Details Drawer**:
+  - Interactive details drawer when clicking any mod row or clicking the dedicated inspect action button.
+  - Comprehensive metadata: mod ID, version, filename, file size, status badges, loader chips, authors/contributors extracted natively from mod manifests, and full descriptions.
+  - 1-click actions: Toggle enabled/disabled state, reveal in system Explorer, or delete to instance Trash.
+- **Downloads Queue Management & Header Summary Pills**:
+  - Native background job cleanup (`clear_finished_downloads`) removing finished/failed downloads while preserving active tasks.
+  - 1-click "Clear completed" button in downloads header.
+  - Real-time transfer rate (`X.X MiB/s`) and queue summary pills.
+- **Explore / Discover Search & Sorting Filters**:
+  - Sleek SelectControls for sort index (Relevance, Downloads, Updated, Followers, Newest), mod loader, and Minecraft game versions.
+- **Instance Console Log Viewer Ergonomics**:
+  - Live search match count badge ("X matches"), error and warning count filter pills, and 1-click "Export logs" to `.txt` file.
+- **Instance Notebook Starter Templates & Autosave Glow**:
+  - Monospace notebook with animated cyan pulse confirming local persistence, and quick starter buttons (`+ Server IP & notes`, `+ To-do list`, `+ Coordinates`).
+- **Non-Blocking Instance Duplication & Preserved Metadata**:
+  - Background asynchronous instance cloning preserving custom avatars, notebook notes, and display settings.
+- **Screenshot Lightbox Viewer & Smart Archive Routing**:
+  - Fullscreen lightbox photo viewer with mouse-wheel zoom, copy to clipboard, and trash deletion.
+  - Smart archive drop routing automatically intercepting `.zip` and `.mrpack` archives to resource packs or shader packs.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.18 — 2026-10-31
 
 - **Compact Desktop Topbar Layout**:
