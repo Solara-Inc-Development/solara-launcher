@@ -57,6 +57,7 @@ const assert = require('node:assert/strict');
     await page.mouse.up();
 
     // Verify start_dragging was called
+    await page.waitForFunction(() => window.__ACTION_LOG__.includes('start_dragging'), { timeout: 5000 });
     let log = await page.evaluate(() => window.__ACTION_LOG__);
     assert.ok(log.includes('start_dragging'), 'start_dragging was invoked on titlebar mousedown');
 
