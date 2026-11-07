@@ -1,5 +1,5 @@
 export const API_ORIGIN = 'https://api.solara-inc.in';
-export const NEUTRAL = Object.freeze({id:'none',name:'Classic',accent:'#3dd6f5',background:'#0b0e12',effects:[],banner:{title:'Make room for your next world.',copy:'Your games. Your services. One home.'}});
+export const NEUTRAL = Object.freeze({id:'none',name:'Classic',accent:'#8b5cf6',background:'#090a0f',effects:[],banner:{title:'Make room for your next world.',copy:'Your games. Your services. One home.'}});
 export function safeHttps(value) {
   try { const u=new URL(value); return u.protocol==='https:' && !u.username && !u.password ? u.href : null; } catch { return null; }
 }

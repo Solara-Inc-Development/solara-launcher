@@ -45,7 +45,7 @@
 .home-community-section{margin:40px 0}
 .home-trending-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
 .home-mod-card{padding:18px;border-radius:18px;border:1px solid #1a1e2c;background:#0f1118;cursor:pointer;display:flex;flex-direction:column;gap:12px;transition:transform 160ms,border-color 160ms,background 160ms,box-shadow 160ms}
-.home-mod-card:hover{border-color:rgba(139,92,246,0.35);background:#0f172a;transform:translateY(-2px);box-shadow:0 8px 24px -8px rgba(0,0,0,0.5),0 0 16px rgba(139,92,246,0.15)}
+.home-mod-card:hover{border-color:rgba(139,92,246,0.35);background:#141722;transform:translateY(-2px);box-shadow:0 8px 24px -8px rgba(0,0,0,0.5),0 0 16px rgba(139,92,246,0.15)}
 .home-mod-top{display:flex;gap:13px;align-items:center}
 .home-mod-icon{width:46px;height:46px;border-radius:12px;object-fit:cover;flex:none;background:#0f1118;border:1px solid rgba(255,255,255,0.06)}
 .home-mod-glyph-badge{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex:none;border:1px solid;transition:transform 160ms,box-shadow 160ms}
@@ -95,7 +95,7 @@
 
 .explore-category-pills{display:flex;gap:8px;margin:-8px 0 22px;flex-wrap:wrap}
 .category-pill{font-size:11px;font-weight:600;color:#94a3b8;background:#0f1118;border:1px solid #1a1e2c;border-radius:20px;padding:6px 14px;cursor:pointer;transition:background-color 140ms,color 140ms,border-color 140ms}
-.category-pill:hover{color:#f8fafc;border-color:rgba(139,92,246,0.3);background:#0f172a}
+.category-pill:hover{color:#f8fafc;border-color:rgba(139,92,246,0.3);background:#141722}
 .category-pill.active{color:#090a0f;background:var(--accent,#8b5cf6);border-color:var(--accent,#8b5cf6);box-shadow:0 0 12px rgba(139,92,246,0.35)}
 .modal .changelog-notes{white-space:pre-wrap;font-size:11px;line-height:1.7;color:#94a3b8;margin:10px 0;max-height:280px;overflow-y:auto;padding:12px;background:#090a0f;border-radius:12px;border:1px solid #1a1e2c}
 
@@ -169,7 +169,7 @@
   --solara-cyan-glow: rgba(139, 92, 246, 0.28);
   --solara-slate-bg: #090a0f;
   --solara-slate-card: #0f1118;
-  --solara-slate-card-hover: #0f172a;
+  --solara-slate-card-hover: #141722;
   --solara-border: #1a1e2c;
   --solara-border-hover: #334155;
   --solara-border-cyan: rgba(139, 92, 246, 0.35);
@@ -240,7 +240,7 @@
   transition: all 150ms ease;
 }
 .topbar-mc-account:hover {
-  background: #131d35;
+  background: #1a1e2c;
   border-color: #334155;
 }
 .topbar-mc-head {
@@ -317,7 +317,7 @@
   transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .solara-btn-secondary:hover:not(:disabled), .solara-secondary-btn:hover:not(:disabled) {
-  background: #0f172a;
+  background: #141722;
   border-color: rgba(139, 92, 246, 0.45);
   color: #8b5cf6;
   transform: translateY(-1px);
@@ -389,7 +389,7 @@
   transition: all 140ms ease;
 }
 .filter-pill-dropdown:hover, .filter-pill-btn:hover {
-  background: #131d35;
+  background: #1a1e2c;
   border-color: #334155;
   color: #f0f6fc;
 }
@@ -413,7 +413,7 @@
   transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .solara-instance-card:hover {
-  background: #0f172a;
+  background: #141722;
   border-color: #334155;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
@@ -507,7 +507,7 @@
   border-radius: 8px;
   overflow: hidden;
   flex: none;
-  background: #131d35;
+  background: #1a1e2c;
   display: grid;
   place-items: center;
 }
@@ -760,7 +760,7 @@
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #334155;
   color: #94a3b8;
   display: grid;
@@ -769,7 +769,7 @@
   transition: all 140ms ease;
 }
 .circle-action-btn:hover {
-  background: #131d35;
+  background: #1a1e2c;
   border-color: #334155;
   color: #f0f6fc;
 }
@@ -931,7 +931,7 @@
   border-bottom: 0;
 }
 .project-table-row:hover {
-  background: #0f172a;
+  background: #141722;
 }
 .project-table-row.disabled {
   opacity: 0.5;
@@ -940,7 +940,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: #131d35;
+  background: #1a1e2c;
   border: 1px solid #334155;
   display: grid;
   place-items: center;
@@ -1076,7 +1076,7 @@
 .history-arrow-btn:not(:disabled):hover {
   color: #f0f6fc;
   border-color: #334155;
-  background: #131d35;
+  background: #1a1e2c;
 }
 .history-arrow-btn:disabled {
   opacity: 0.35;
@@ -1174,7 +1174,7 @@
   color: #f0f6fc;
 }
 .library-tab-pill.active {
-  background: #131d35;
+  background: #1a1e2c;
   color: #8b5cf6;
   box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
@@ -1346,7 +1346,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #334155;
   display: grid;
   place-items: center;
@@ -1660,7 +1660,7 @@
   transition: all 140ms ease;
 }
 .card-action-btn:hover {
-  background: #0f172a;
+  background: #141722;
   border-color: rgba(139, 92, 246, 0.4);
   color: #8b5cf6;
   transform: translateY(-1px);
@@ -1788,7 +1788,7 @@
 .ram-meter-bar {
   width: 100%;
   height: 8px;
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #1a1e2c;
   border-radius: 999px;
   overflow: hidden;
@@ -1967,7 +1967,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #1a1e2c;
   color: #e2e8f0;
   padding: 6px 12px;
@@ -2038,7 +2038,7 @@
 }
 
 .solara-select {
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #1a1e2c;
   color: #f1f5f9;
   border-radius: 8px;
@@ -2072,7 +2072,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #0f172a;
+  background: #141722;
   border: 1px solid #1a1e2c;
   color: #94a3b8;
   padding: 5px 10px;
@@ -2376,7 +2376,7 @@
 
 .gauge-bg {
   fill: none;
-  stroke: #0f172a;
+  stroke: #141722;
   stroke-width: 8;
 }
 
@@ -2472,7 +2472,7 @@
   border: 1px solid rgba(139, 92, 246, 0.3) !important;
   border-radius: 13px !important;
   padding: 9px 15px !important;
-  background: linear-gradient(135deg, #0f1118 0%, #0f172a 100%) !important;
+  background: linear-gradient(135deg, #0f1118 0%, #141722 100%) !important;
   color: #f1f5f9 !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -2485,7 +2485,7 @@
 
 .top-right .signin:hover:not(:disabled) {
   border-color: rgba(139, 92, 246, 0.6) !important;
-  background: linear-gradient(135deg, #0f172a 0%, #1a1e2c 100%) !important;
+  background: linear-gradient(135deg, #141722 0%, #1a1e2c 100%) !important;
   color: #8b5cf6 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 18px rgba(139, 92, 246, 0.28) !important;
@@ -2506,7 +2506,7 @@
 }
 
 .new-home-actions > button:not(.workspace-play):hover:not(:disabled) {
-  background: #0f172a !important;
+  background: #141722 !important;
   border-color: rgba(139, 92, 246, 0.45) !important;
   color: #8b5cf6 !important;
   transform: translateY(-2px) !important;
@@ -2583,7 +2583,7 @@
 
 .modal .actions button:not(.primary),
 .custom-instance-form .actions button:not(.primary) {
-  background: #0f172a !important;
+  background: #141722 !important;
   color: #94a3b8 !important;
   border: 1px solid #1a1e2c !important;
   border-radius: 12px !important;
@@ -2667,7 +2667,7 @@
 }
 
 .topbar-mc-account:hover {
-  background: #0f172a !important;
+  background: #141722 !important;
   border-color: rgba(139, 92, 246, 0.45) !important;
   color: #8b5cf6 !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(139, 92, 246, 0.2) !important;

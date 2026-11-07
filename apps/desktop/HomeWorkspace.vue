@@ -21,7 +21,7 @@ const templates=[
  {id:'vanilla',name:'Simply Minecraft',loader:'vanilla',gameVersion:'1.21.1',desc:'The original game. A fresh world of possibilities.',tone:'amber'},
  {id:'forge',name:'Forge workshop',loader:'forge',gameVersion:'1.20.1',desc:'Start a classic Forge setup and add your own mods.',tone:'rose'},
  {id:'neoforge',name:'A new adventure',loader:'neoforge',gameVersion:'1.21.1',desc:'A clean NeoForge instance, ready to make your own.',tone:'violet'},
- {id:'quilt',name:'Quilt canvas',loader:'quilt',gameVersion:'1.21.1',desc:'Build a personal mod collection with Quilt.',tone:'sky'}
+ {id:'quilt',name:'Quilt canvas',loader:'quilt',gameVersion:'1.21.1',desc:'Build a personal mod collection with Quilt.',tone:'violet'}
 ];
 const visibleTemplates=computed(()=>templates.filter(t=>`${t.name} ${t.loader}`.toLowerCase().includes(librarySearch.value.trim().toLowerCase())));
 const discoveries=[{type:'mod',name:'A little more possibility.',label:'EXPLORE MODS',copy:'Small additions. A whole new experience.',scene:'workshop',tone:'amber',icon:Package},{type:'modpack',name:'Your next obsession.',label:'DISCOVER MODPACKS',copy:'Find a world someone else dreamed up.',scene:'coastal-hamlet',tone:'mint',icon:Box},{type:'shader',name:'See it differently.',label:'FIND SHADERS',copy:'Give a familiar world a fresh perspective.',scene:'alpine-lake',tone:'violet',icon:Sparkles}];

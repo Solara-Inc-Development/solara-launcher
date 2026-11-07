@@ -6,7 +6,7 @@ export const isDesktop = typeof window!=='undefined' && '__TAURI_INTERNALS__' in
 export const snapshot=ref<any>({data:null,at:null,state:'checking'});
 const savedTheme = typeof localStorage !== 'undefined' ? localStorage.getItem('solara:theme') : null;
 const savedAccent = typeof localStorage !== 'undefined' ? localStorage.getItem('solara:accent') : null;
-export const preferences=ref({theme:savedTheme==='light'?'light':'dark',motion:typeof localStorage !== 'undefined' && localStorage.getItem('solara:motion')==='true',accent:(savedAccent && savedAccent !== '#38bdf8') ? savedAccent : '#8b5cf6'});
+export const preferences=ref({theme:savedTheme==='light'?'light':'dark',motion:typeof localStorage !== 'undefined' && localStorage.getItem('solara:motion')==='true',accent:(savedAccent && savedAccent !== '#38bdf8' && savedAccent !== '#3dd6f5') ? savedAccent : '#8b5cf6'});
 export const preview=ref<string|null>(null);
 const developmentApi=import.meta.env.DEV?new URLSearchParams(location.search).get('api'):null;
 const origin=(developmentApi&&/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(developmentApi)?developmentApi:null)||import.meta.env.VITE_SOLARA_API_URL||'https://api.solara-inc.in';
