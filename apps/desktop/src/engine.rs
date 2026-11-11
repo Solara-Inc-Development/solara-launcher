@@ -802,18 +802,11 @@ pub async fn robust_remove_dir_all(path: &std::path::Path) -> std::io::Result<()
                     perms.set_readonly(false);
                     let _ = std::fs::set_permissions(p, perms);
                 }
-            }
-            if let Ok(entries) = std::fs::read_dir(p) {
-                for entry in entries.flatten() {
-                    let child = entry.path();
-                    if let Ok(meta) = std::fs::symlink_metadata(&child) {
-                        let mut perms = meta.permissions();
-                        if perms.readonly() {
-                            perms.set_readonly(false);
-                            let _ = std::fs::set_permissions(&child, perms);
-                        }
-                        if meta.is_dir() {
-                            make_writable(&child);
+                // Only recurse into real directories, never follow symlinks or junctions
+                if !meta.file_type().is_symlink() && meta.is_dir() {
+                    if let Ok(entries) = std::fs::read_dir(p) {
+                        for entry in entries.flatten() {
+                            make_writable(&entry.path());
                         }
                     }
                 }
@@ -851,7 +844,20 @@ pub async fn migrate_clean_slate_v23(data: &std::path::Path) -> Result<bool> {
         if tokio::fs::rename(&instances_dir, &wipe_stage).await.is_ok() {
             let _ = robust_remove_dir_all(&wipe_stage).await;
         } else {
-            robust_remove_dir_all(&instances_dir).await?;
+            // If renaming the custom-instances directory itself failed (e.g. directory handle held
+            // by Explorer or another tool), quarantine or remove each child instance individually.
+            if let Ok(mut rd) = tokio::fs::read_dir(&instances_dir).await {
+                while let Ok(Some(entry)) = rd.next_entry().await {
+                    let child_path = entry.path();
+                    let child_stage = data.join(format!(".wiping-instances-{}", uuid::Uuid::new_v4()));
+                    if tokio::fs::rename(&child_path, &child_stage).await.is_ok() {
+                        let _ = robust_remove_dir_all(&child_stage).await;
+                    } else if let Err(e) = robust_remove_dir_all(&child_path).await {
+                        eprintln!("[migration] could not remove {}: {e:#}", child_path.display());
+                    }
+                }
+            }
+            let _ = robust_remove_dir_all(&instances_dir).await;
         }
     }
     tokio::fs::create_dir_all(&instances_dir).await?;
@@ -861,7 +867,7 @@ pub async fn migrate_clean_slate_v23(data: &std::path::Path) -> Result<bool> {
         chrono::Utc::now().to_rfc3339(),
         env!("CARGO_PKG_VERSION")
     );
-    let tmp_sentinel = data.join(format!("{CLEAN_SLATE_V23_SENTINEL}.tmp.{}", uuid::Uuid::new_v4()));
+    let tmp_sentinel = data.join(format!("{CLEAN_SLATE_V23_SENTINEL}.{}.tmp", uuid::Uuid::new_v4()));
     tokio::fs::write(&tmp_sentinel, marker).await?;
     tokio::fs::rename(&tmp_sentinel, &sentinel).await?;
     Ok(true)
@@ -1268,6 +1274,37 @@ mod tests {
         cleanup_stale_files(data).await;
 
         assert!(!wiping_dir.exists(), "wiping staging directory must be cleaned up");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn migrate_clean_slate_v23_persists_sentinel_and_preserves_new_instances_on_fallback() -> Result<()> {
+        let dir = std::env::temp_dir()
+            .join(format!("solara-clean-slate-fallback-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        let inst = data.join("custom-instances").join("fallback-inst");
+        tokio::fs::create_dir_all(&inst).await?;
+        tokio::fs::write(inst.join("instance.json"), b"{\"id\":\"fallback-inst\"}").await?;
+
+        // Run migration (first time)
+        let first = migrate_clean_slate_v23(data).await?;
+        assert!(first, "first migration must succeed");
+        assert!(data.join(CLEAN_SLATE_V23_SENTINEL).exists(), "sentinel must exist");
+
+        // User adds new instance on V23
+        let user_inst = data.join("custom-instances").join("my-survival");
+        tokio::fs::create_dir_all(&user_inst).await?;
+        let user_file = user_inst.join("instance.json");
+        tokio::fs::write(&user_file, b"{\"id\":\"my-survival\"}").await?;
+
+        // Subsequent launch: must not wipe new instance
+        let second = migrate_clean_slate_v23(data).await?;
+        assert!(!second, "second run must do nothing");
+        assert!(user_file.exists(), "new instance must be preserved");
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())
