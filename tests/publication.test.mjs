@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {mkdtemp,rm,readFile} from 'node:fs/promises';
 import {validateRelease,verifyReleaseAssets,prepare} from '../scripts/prepare-github-release.mjs';
+import {publishGitHub} from '../scripts/release.mjs';
 
 // Header/signature fixtures live only in memory, never distributable artifacts.
 function fixture(){
@@ -47,4 +48,9 @@ test('prepare validates parameters and extracts verified release assets and note
  }finally{
   await rm(tmp,{recursive:true,force:true});
  }
+});
+test('publishGitHub validates parameters and handles local tag resolution idempotently',async()=>{
+ await assert.rejects(()=>publishGitHub(),/Pass the release public version/);
+ // V-0.0.21 tag already exists; verify publishGitHub runs without unhandled error or throwing
+ await publishGitHub('V-0.0.21',{skipPush:true});
 });

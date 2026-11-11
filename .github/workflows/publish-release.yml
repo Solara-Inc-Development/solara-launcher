@@ -7,10 +7,12 @@ on:
         description: 'Exact verified version tag (for example V-0.0.14)'
         required: false
   push:
-    tags:
-      - 'V-*'
+    branches:
+      - main
     paths:
       - 'builds/releases.json'
+    tags:
+      - 'V-*'
 
 permissions:
   contents: write
@@ -76,7 +78,8 @@ jobs:
               release-assets/solaralauncher.exe \
               release-assets/solaralauncher.exe.sig \
               release-assets/source.zip \
-              --verify-tag --latest \
+              --target "${{ github.sha }}" \
+              --latest \
               --title "Solara Launcher $VERSION" \
               --notes-file release-assets/release_notes.md
           fi

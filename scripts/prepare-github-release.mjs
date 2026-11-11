@@ -58,15 +58,11 @@ export async function prepare(version,output){
   if(!release)throw Error(`Release ${version} not found in official catalog or builds/releases.json`);
   const assets={};
   for(const name of ['solaralauncher.exe','solaralauncher.exe.sig','source.zip']){
+    const localFile=path.join(root,'builds',version,name);
     try{
+      assets[name]=await readFile(localFile);
+    }catch{
       assets[name]=await fetchBytes(prefix+name,name.endsWith('.sig')?16384:256_000_000);
-    }catch(fetchErr){
-      const localFile=path.join(root,'builds',version,name);
-      try{
-        assets[name]=await readFile(localFile);
-      }catch{
-        throw fetchErr;
-      }
     }
   }
   verifyReleaseAssets(release,version,assets,(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim());
