@@ -1,5 +1,21 @@
 # Changelog
 
+## Testing Preview V-0.0.26 — 2026-11-11
+
+- **Minimalist Oiled Black Loading Screen**:
+  - Removed all fake process and status messages completely ("Starting launcher services…", "Connecting to Solara network…", etc.).
+  - Removed the `Skip` animation button completely per user directive.
+  - Removed extra subtitles and taglines ("Your next world awaits").
+  - Minimalist layout focused exclusively on brand identity and loading progress:
+    - Deep oiled black backdrop (`#020305` / `#000000`) with subtle ambient glowing Solara logo watermark in the background.
+    - Central prominent glowing Solara brand logo (`/logo-512.png`) with soft ambient aura.
+    - Sleek, minimalist loading progress bar below the logo.
+    - Accurate numeric percentage below the bar (`X%`).
+- **Smooth 10–15s Transition**:
+  - Maintained smooth startup duration (10–15 seconds) progressing cleanly from 0% to 100%, followed by the split-curtain exit revealing the clean "HI ;)" launcher view.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.25 — 2026-11-11
 
 - **Canonical Solara Website Loading Screen**:

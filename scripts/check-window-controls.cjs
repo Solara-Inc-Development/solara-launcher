@@ -76,6 +76,10 @@ function checkServer(url) {
     });
 
     const page = await context.newPage();
+    page.on('pageerror', err => console.error('PAGE ERROR:', err));
+    page.on('console', msg => {
+      if (msg.type() === 'error') console.error('PAGE CONSOLE ERROR:', msg.text());
+    });
     await page.goto(`${base}/desktop.html`, { waitUntil: 'networkidle' });
 
     // 1. Verify CSS app-region and pointer-events
@@ -149,7 +153,7 @@ function checkServer(url) {
     await updateStatus.waitFor({ state: 'visible' });
     assert.ok((await updateStatus.textContent()).includes('You are up to date.'), 'Update status displays confirmation after checking');
 
-    // 6. Test animated loading screen overlay, progress track, status meta, and skip action
+    // 6. Test minimalist loading screen overlay, logo, watermark, progress bar, percentage, and natural transition
     const previewBtn = page.locator('.preview-anim-btn');
     await previewBtn.waitFor({ state: 'visible' });
     assert.ok((await previewBtn.textContent()).includes('Preview loading animation'), 'Preview button is labeled "Preview loading animation"');
@@ -158,23 +162,42 @@ function checkServer(url) {
     const loadingScreen = page.locator('.loading-screen');
     await loadingScreen.waitFor({ state: 'visible' });
 
-    assert.equal(await page.locator('.loading-logo').count(), 1, 'Loading screen shows animated Solara emblem');
-    assert.equal(await page.locator('.loading-track').count(), 1, 'Loading screen shows animated progress track');
-    assert.ok((await page.locator('.loading-status-text').textContent()).length > 0, 'Loading status text reports active stage');
+    assert.equal(await page.locator('.loading-logo').count(), 1, 'Loading screen shows glowing Solara brand logo');
+    const logoSrc = await page.locator('.loading-logo').getAttribute('src');
+    assert.equal(logoSrc, '/logo-512.png', 'Loading logo uses /logo-512.png');
+
+    assert.equal(await page.locator('.solara-loader-watermark').count(), 1, 'Loading screen shows background logo watermark');
+    assert.equal(await page.locator('.loading-track').count(), 1, 'Loading screen shows sleek progress track');
+    assert.equal(await page.locator('.loading-progress-bar').count(), 1, 'Loading screen shows fill progress bar');
+
+    // Verify complete removal of fake processes, skip button, and subtitles
+    assert.equal(await page.locator('.loading-status-text').count(), 0, 'Fake process text is completely removed');
+    assert.equal(await page.locator('.loading-skip-btn').count(), 0, 'Skip button is completely removed');
+    assert.equal(await page.locator('.solara-loader-title').count(), 0, 'Title heading is removed');
+    assert.equal(await page.locator('.solara-loader-subtitle').count(), 0, 'Subtitle tagline is removed');
+
+    const pctEl = page.locator('.loading-percentage');
+    const pctEval = await pctEl.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      return {
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        display: style.display,
+        visibility: style.visibility,
+        opacity: style.opacity
+      };
+    });
+    assert.ok(pctEval.rect.width > 0 && pctEval.rect.height > 0, 'Percentage element has non-zero dimensions');
+    assert.notEqual(pctEval.display, 'none', 'Percentage element is not display: none');
+    assert.notEqual(pctEval.visibility, 'hidden', 'Percentage element is not visibility: hidden');
+    const pctText = (await pctEl.textContent()) || '';
+    assert.ok(/^[0-9]{1,3}%$/.test(pctText.trim()), 'Displays accurate numeric percentage');
 
     // Wait for natural completion (animation runs 10-15s)
     await loadingScreen.waitFor({ state: 'hidden', timeout: 25000 });
     assert.equal(await greeting.isVisible(), true, 'Loading screen completes and reveals main container');
 
-    // Test skip action on loading screen
-    await previewBtn.click();
-    await loadingScreen.waitFor({ state: 'visible' });
-    const skipBtn = page.locator('.loading-skip-btn');
-    await skipBtn.click();
-    await loadingScreen.waitFor({ state: 'hidden' });
-    assert.equal(await greeting.isVisible(), true, 'Skipping loading screen reveals main launcher container immediately');
-
-    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, and animated loading screen verified successfully!');
+    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, and minimalist loading screen verified successfully!');
   } finally {
     await browser.close();
     if (devServer) {
