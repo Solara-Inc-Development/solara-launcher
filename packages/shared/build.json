@@ -1,11 +1,11 @@
 {
-  "buildId": "c1fc5310-2221-4259-bc03-222c8425c517",
-  "publicVersion": "V-0.0.27",
-  "internalVersion": "0.0.27",
+  "buildId": "a4364f43-cbd4-4e2f-a206-b38b1d352f84",
+  "publicVersion": "V-0.0.28",
+  "internalVersion": "0.0.28",
   "filename": "solaralauncher.exe",
-  "artifactPath": "V-0.0.27/solaralauncher.exe",
-  "commit": "11097923c0bd463fad78bc0e575c6a3a08ab11af",
-  "allocatedAt": "2026-11-11T16:21:04.517Z",
+  "artifactPath": "V-0.0.28/solaralauncher.exe",
+  "commit": "c0dcef8bddfd7a58db5ac825c07c5d85c7c65f50",
+  "allocatedAt": "2026-11-11T16:50:18.642Z",
   "state": "published",
   "channel": "testing-preview"
 }
