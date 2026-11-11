@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 194 - Spacious Window Dimensions (1160x700), Pure Oiled Black Theme, Fast 5-10s Loading Screen.
+# Owner-approved preview candidate: Milestone 195 - Discord-like Window Dimensions (1280x720), Pure Oiled Black Theme, Fast 5-10s Loading Screen.
 on:
   workflow_dispatch:
   push:
@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           try {
-            gh release delete solara-build-28 --yes --cleanup-tag 2>&1 | Out-Null
+            gh release delete solara-build-29 --yes --cleanup-tag 2>&1 | Out-Null
           } catch {}
           $global:LASTEXITCODE = 0
       - name: Reserve unique testing version

@@ -1,5 +1,18 @@
 # Changelog
 
+## Testing Preview V-0.0.29 — 2026-11-11
+
+- **Discord-Proportioned Window Dimensions**:
+  - Expanded launcher default window dimensions to match Discord desktop proportions: `width: 1280`, `height: 720`, with `minWidth: 940`, `minHeight: 560`, and `center: true`.
+  - Provides a wide, expansive desktop canvas while maintaining comfortable margins on all standard displays.
+- **Pure Oiled Black Theme & Startup Experience**:
+  - Solid pure oiled black (`#000000`) theme across all surfaces with zero cut-off logo watermark artifacts.
+  - 5 to 10 seconds random startup duration (`5000 + Math.random() * 5000`).
+  - Natural progress status stages ("Reading Files…", "Checking Integrity…", "Preparing Environment…", "Launching Solara-Launcher…").
+  - Prominent glowing Solara logo, sleek progress track, and accurate numeric percentage.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.28 — 2026-11-11
 
 - **Spacious & Comfortable Window Dimensions**:

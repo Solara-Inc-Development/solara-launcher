@@ -43,7 +43,7 @@ function checkServer(url) {
 
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   try {
-    const context = await browser.newContext({ viewport: { width: 1160, height: 700 } });
+    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
     await context.addInitScript(() => {
       window.__ACTION_LOG__ = [];
       window.__TAURI_INTERNALS__ = {
