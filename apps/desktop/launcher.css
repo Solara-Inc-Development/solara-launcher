@@ -122,6 +122,11 @@ html, body, #app {
   color: var(--text);
 }
 
+.shell .window-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .shell .window-buttons button:last-child:hover:not(:disabled) {
   background: #e11d48 !important;
   color: #ffffff !important;

@@ -4,6 +4,7 @@ import { Minus, Maximize2, X, RefreshCw } from '../../packages/ui/icons';
 import { native, isDesktop } from '../../packages/shared/client';
 
 const checking = ref(false);
+const hasChecked = ref(false);
 const updateMessage = ref('');
 const isError = ref(false);
 const isSuccess = ref(false);
@@ -84,6 +85,7 @@ function onTitlebarDblClick(e: MouseEvent) {
 async function checkUpdates() {
   if (checking.value) return;
   checking.value = true;
+  hasChecked.value = true;
   isError.value = false;
   isSuccess.value = false;
   updateMessage.value = 'Checking for updates…';
@@ -94,6 +96,9 @@ async function checkUpdates() {
       if (res?.available) {
         isSuccess.value = true;
         updateMessage.value = `Update ${res.version ? 'v' + res.version + ' ' : ''}is available! Downloading…`;
+      } else if (res?.error) {
+        isError.value = true;
+        updateMessage.value = res.error === 'unconfigured' ? 'Updater is not configured.' : String(res.error);
       } else {
         isSuccess.value = true;
         updateMessage.value = 'You are up to date.';
@@ -124,8 +129,10 @@ async function pollStatus() {
         updateMessage.value = 'Installing update…';
       } else if (s.state === 'waiting-for-idle') {
         updateMessage.value = 'Update downloaded. Will install when idle.';
-      } else if (s.state === 'up-to-date' && !checking.value) {
-        if (!updateMessage.value) updateMessage.value = 'You are up to date.';
+      } else if (s.state === 'up-to-date') {
+        if (hasChecked.value && !checking.value) {
+          updateMessage.value = 'You are up to date.';
+        }
       }
     }
   } catch {}
