@@ -1,5 +1,21 @@
 # Changelog
 
+## Testing Preview V-0.0.22 — 2026-11-11
+
+- **Clean Slate Minimal Launcher Interface**:
+  - Rebuilt desktop interface from a clean slate with a focused "HI ;)" minimal view, centered layout, and Electric Cyan accents.
+  - Dedicated "Check for updates" button with animated loading spinner, real-time download progress bar, and byte counter (`X.X MB of Y.Y MB (Z%)`).
+- **Frameless Window Controls & Titlebar Movement**:
+  - Native window dragging region with smooth `-webkit-app-region` isolation.
+  - Responsive Minimize, Maximize/Restore, and Close action buttons with 300ms debounce protection against rapid clicks.
+- **Live Background Auto-Update Pipeline**:
+  - Connected live auto-update pipeline on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64`.
+  - Cryptographically signed with production Minisign key; background update verification, download caching, and silent restart upon idle.
+- **Synchronized GitHub Releases & CI Delivery**:
+  - Fully automated GitHub release publication with signed installer (`solaralauncher.exe`), signature (`solaralauncher.exe.sig`), and verified source archive (`source.zip`).
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.21 — 2026-11-07
 
 - **Comprehensive Global Keyboard Shortcuts & Cheatsheet**:
