@@ -1,5 +1,21 @@
 # Changelog
 
+## Testing Preview V-0.0.24 — 2026-11-11
+
+- **Animated Loading Screen & Smooth Startup Transition**:
+  - Implemented an animated Solara loading screen displaying on application startup with an obsidian backdrop and glowing ambient radial halo.
+  - Floating, breathing Solara brand emblem with luminous purple-tinted glass tile and pulsing drop shadow.
+  - Iridescent metallic shimmer sweep animation across brand typography (`solara Launcher`).
+  - Sleek rounded progress track with live animated gradient bar and traveling shimmer highlight reflecting real engine initialization and network connectivity stages.
+  - Dynamic status messages: "Starting launcher services…", "Connecting to Solara network…", "Verifying workspace readiness…", and "Ready".
+  - Graceful fade-out transition smoothly revealing the clean minimal launcher view.
+  - Interactive "Preview loading animation" control on main view and quick `Skip` action for immediate access.
+  - Full accessibility compliance with system `prefers-reduced-motion` settings.
+- **Window Dimensions Preserved**:
+  - Window dimensions (`1280x880`, `minWidth: 800`, `minHeight: 620`) strictly preserved as-is per user directive.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.23 — 2026-11-11
 
 - **One-Time Clean-Slate Reset & Sentinel Protection**:

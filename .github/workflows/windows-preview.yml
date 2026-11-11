@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 189 - One-Time Clean Slate V23 Reset and Discord RPC Purge.
+# Owner-approved preview candidate: Milestone 190 - Animated Loading Screen Deployment.
 on:
   workflow_dispatch:
   push:
@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           try {
-            gh release delete solara-build-23 --yes --cleanup-tag 2>&1 | Out-Null
+            gh release delete solara-build-24 --yes --cleanup-tag 2>&1 | Out-Null
           } catch {}
           $global:LASTEXITCODE = 0
       - name: Reserve unique testing version

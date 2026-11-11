@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Minus, Maximize2, X, RefreshCw } from '../../packages/ui/icons';
+import { Minus, Maximize2, X, RefreshCw, Sparkles } from '../../packages/ui/icons';
 import { native, isDesktop } from '../../packages/shared/client';
 
 const checking = ref(false);
@@ -10,9 +10,16 @@ const isError = ref(false);
 const isSuccess = ref(false);
 const appUpdate = ref<any>({ state: 'idle', downloaded: 0, total: null });
 
+// Animated Loading Screen States
+const loading = ref(true);
+const loadingStage = ref('Starting launcher services…');
+const loadingProgress = ref(15);
+const loadingFading = ref(false);
+
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let lastWindowActionTime = 0;
 let lastWindowActionType = '';
+let startupAbort = false;
 
 const progressPercent = computed(() => {
   if (appUpdate.value?.total && appUpdate.value.total > 0 && typeof appUpdate.value.downloaded === 'number') {
@@ -29,6 +36,65 @@ const updateProgressText = computed(() => {
   }
   return 'Downloading signed update…';
 });
+
+async function runStartupSequence() {
+  startupAbort = false;
+  loading.value = true;
+  loadingFading.value = false;
+  loadingProgress.value = 15;
+  loadingStage.value = 'Starting launcher services…';
+
+  const p1 = new Promise(r => setTimeout(r, 350));
+  let initPromise = Promise.resolve();
+  if (isDesktop) {
+    initPromise = native('initialize_launcher').catch((e) => {
+      console.warn('Initialize launcher error:', e);
+    });
+  }
+  await Promise.all([p1, initPromise]);
+  if (startupAbort) return;
+
+  loadingProgress.value = 50;
+  loadingStage.value = 'Connecting to Solara network…';
+
+  const p2 = new Promise(r => setTimeout(r, 380));
+  let pollPromise = Promise.resolve();
+  if (isDesktop) {
+    pollPromise = pollStatus().catch(() => {});
+  }
+  await Promise.all([p2, pollPromise]);
+  if (startupAbort) return;
+
+  loadingProgress.value = 85;
+  loadingStage.value = 'Verifying workspace readiness…';
+
+  await new Promise(r => setTimeout(r, 320));
+  if (startupAbort) return;
+
+  loadingProgress.value = 100;
+  loadingStage.value = 'Ready';
+
+  await new Promise(r => setTimeout(r, 260));
+  if (startupAbort) return;
+
+  loadingFading.value = true;
+  setTimeout(() => {
+    if (!startupAbort) {
+      loading.value = false;
+      loadingFading.value = false;
+    }
+  }, 420);
+}
+
+function skipLoading() {
+  startupAbort = true;
+  loadingFading.value = false;
+  loading.value = false;
+}
+
+function replayLoading() {
+  void runStartupSequence();
+}
 
 async function windowAction(action: string) {
   const now = Date.now();
@@ -139,18 +205,14 @@ async function pollStatus() {
 }
 
 onMounted(async () => {
+  await runStartupSequence();
   if (isDesktop) {
-    try {
-      await native('initialize_launcher');
-    } catch (e) {
-      console.warn('Initialize launcher error:', e);
-    }
-    await pollStatus();
     pollTimer = setInterval(() => void pollStatus(), 3000);
   }
 });
 
 onUnmounted(() => {
+  startupAbort = true;
   if (pollTimer) clearInterval(pollTimer);
 });
 </script>
@@ -171,7 +233,47 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <main class="clean-container">
+    <!-- Animated Loading Screen Overlay -->
+    <div
+      v-if="loading"
+      class="loading-screen"
+      :class="{ 'fade-out': loadingFading }"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="loading-ambient-glow" aria-hidden="true"></div>
+      <div class="loading-content">
+        <div class="loading-emblem-wrap">
+          <div class="loading-halo" aria-hidden="true"></div>
+          <div class="loading-emblem">
+            <img src="/logo.svg" alt="Solara" class="loading-logo" />
+          </div>
+        </div>
+
+        <div class="loading-brand">
+          <h2 class="loading-title">solara</h2>
+          <span class="loading-subtitle">Launcher</span>
+        </div>
+
+        <div class="loading-track" role="progressbar" :aria-valuenow="loadingProgress" aria-valuemin="0" aria-valuemax="100">
+          <div class="loading-progress" :style="{ width: loadingProgress + '%' }">
+            <div class="loading-shimmer" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="loading-meta">
+          <span class="loading-pulse-dot" aria-hidden="true"></span>
+          <span class="loading-status-text">{{ loadingStage }}</span>
+        </div>
+
+        <button type="button" class="loading-skip-btn" @click="skipLoading" title="Skip animation">
+          Skip
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Clean Container -->
+    <main v-show="!loading || loadingFading" class="clean-container">
       <h1 class="greeting">HI ;)</h1>
       <button class="update-btn" :disabled="checking" @click="checkUpdates">
         <span v-if="checking" class="spinner"></span>
@@ -190,6 +292,11 @@ onUnmounted(() => {
         </div>
         <span class="progress-info">{{ updateProgressText }}</span>
       </div>
+
+      <button type="button" class="preview-anim-btn" @click="replayLoading">
+        <Sparkles :size="14" />
+        <span>Preview loading animation</span>
+      </button>
     </main>
   </div>
 </template>

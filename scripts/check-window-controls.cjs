@@ -149,7 +149,32 @@ function checkServer(url) {
     await updateStatus.waitFor({ state: 'visible' });
     assert.ok((await updateStatus.textContent()).includes('You are up to date.'), 'Update status displays confirmation after checking');
 
-    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, and minimal launcher UI verified successfully!');
+    // 6. Test animated loading screen overlay, progress track, status meta, and skip action
+    const previewBtn = page.locator('.preview-anim-btn');
+    await previewBtn.waitFor({ state: 'visible' });
+    assert.ok((await previewBtn.textContent()).includes('Preview loading animation'), 'Preview button is labeled "Preview loading animation"');
+
+    await previewBtn.click();
+    const loadingScreen = page.locator('.loading-screen');
+    await loadingScreen.waitFor({ state: 'visible' });
+
+    const loadingLogo = page.locator('.loading-logo');
+    assert.equal(await loadingLogo.count(), 1, 'Loading screen shows animated Solara emblem');
+
+    const loadingTrack = page.locator('.loading-track');
+    assert.equal(await loadingTrack.count(), 1, 'Loading screen shows animated progress track');
+
+    const loadingStatusText = page.locator('.loading-status-text');
+    await loadingStatusText.waitFor({ state: 'visible' });
+    assert.ok((await loadingStatusText.textContent()).length > 0, 'Loading status text reports active stage');
+
+    // Test skip action on loading screen
+    const skipBtn = page.locator('.loading-skip-btn');
+    await skipBtn.click();
+    await loadingScreen.waitFor({ state: 'hidden' });
+    assert.equal(await greeting.isVisible(), true, 'Skipping loading screen reveals main launcher container immediately');
+
+    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, and animated loading screen verified successfully!');
   } finally {
     await browser.close();
     if (devServer) {
