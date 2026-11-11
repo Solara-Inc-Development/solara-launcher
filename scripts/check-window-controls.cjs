@@ -158,17 +158,17 @@ function checkServer(url) {
     const loadingScreen = page.locator('.loading-screen');
     await loadingScreen.waitFor({ state: 'visible' });
 
-    const loadingLogo = page.locator('.loading-logo');
-    assert.equal(await loadingLogo.count(), 1, 'Loading screen shows animated Solara emblem');
+    assert.equal(await page.locator('.loading-logo').count(), 1, 'Loading screen shows animated Solara emblem');
+    assert.equal(await page.locator('.loading-track').count(), 1, 'Loading screen shows animated progress track');
+    assert.ok((await page.locator('.loading-status-text').textContent()).length > 0, 'Loading status text reports active stage');
 
-    const loadingTrack = page.locator('.loading-track');
-    assert.equal(await loadingTrack.count(), 1, 'Loading screen shows animated progress track');
-
-    const loadingStatusText = page.locator('.loading-status-text');
-    await loadingStatusText.waitFor({ state: 'visible' });
-    assert.ok((await loadingStatusText.textContent()).length > 0, 'Loading status text reports active stage');
+    // Wait for natural completion (animation runs 10-15s)
+    await loadingScreen.waitFor({ state: 'hidden', timeout: 25000 });
+    assert.equal(await greeting.isVisible(), true, 'Loading screen completes and reveals main container');
 
     // Test skip action on loading screen
+    await previewBtn.click();
+    await loadingScreen.waitFor({ state: 'visible' });
     const skipBtn = page.locator('.loading-skip-btn');
     await skipBtn.click();
     await loadingScreen.waitFor({ state: 'hidden' });

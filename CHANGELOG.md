@@ -1,5 +1,24 @@
 # Changelog
 
+## Testing Preview V-0.0.25 — 2026-11-11
+
+- **Canonical Solara Website Loading Screen**:
+  - Replicated authentic Solara loading screen directly from the official website source (`WebsiteLoader.tsx` and `solara-loader.css`).
+  - Canonical SVG brand mark featuring rounded dark tile (`rx="14"`), concentric circle (`r="17"`), and the Solara lightning emblem.
+  - Authentic gradient from Electric Cyan (`#3dd6f5`) to Warm Gold (`#ffb55a`).
+  - Subtle breathing animations (`solara-logo-breathe`), background drift (`solara-mark-drift`), and animated glow track line (`solara-loading-pass`).
+  - Split curtain exit transition (`solara-curtain-left`, `solara-curtain-right`) parting outward to reveal the desktop interface.
+- **Extended 10–15s Immersive Duration**:
+  - Replaced short timeouts with a random 10 to 15 seconds startup duration (`Math.floor(10000 + Math.random() * 5000)`).
+  - Smooth, progressive stage messages: "Starting launcher services…", "Connecting to Solara network…", "Synchronizing client runtime…", "Verifying workspace readiness…", "Opening your Solara world…", and "Ready".
+  - Live percentage indicator and instant `Skip` button for power users.
+- **Deep Oiled Black Minimal Theme**:
+  - Completely purged all purple hues (`#8b5cf6`, `#7c3aed`, `#c084fc`) across all desktop components.
+  - Deep luxurious oiled black background (`#030406`) across window shell, frameless titlebar, loading curtains, and buttons.
+  - High-contrast Electric Cyan accents and gold progress gradients.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.24 — 2026-11-11
 
 - **Animated Loading Screen & Smooth Startup Transition**:

@@ -1,13 +1,17 @@
-/* Solara Launcher — Clean Slate Minimal View */
+/* Solara Launcher — Oiled Black Minimal Theme with Canonical Solara Loading Screen */
 :root {
-  --bg: #090a0f;
-  --titlebar-bg: #090a0f;
-  --text: #f3f5f9;
-  --muted: #94a3b8;
-  --line: rgba(255, 255, 255, 0.08);
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
-  --window-btn-color: #94a3b8;
+  --bg: #030406;
+  --titlebar-bg: #030406;
+  --solara-bg: #030406;
+  --text: #eff3ff;
+  --muted: #8391a5;
+  --line: rgba(255, 255, 255, 0.07);
+  --accent: #3dd6f5;
+  --accent-hover: #5fe0fc;
+  --gold: #ffb55a;
+  --solara-accent-rgb: 61, 214, 245;
+  --loader-rgb: 61, 214, 245;
+  --window-btn-color: #8391a5;
   --window-btn-hover: rgba(255, 255, 255, 0.08);
 }
 
@@ -140,7 +144,7 @@ html, body, #app {
   -webkit-app-region: no-drag !important;
 }
 
-/* Minimal Clean Container */
+/* Minimal Clean Container — Oiled Black */
 .clean-container {
   flex: 1;
   display: flex;
@@ -149,7 +153,7 @@ html, body, #app {
   justify-content: center;
   padding: 32px;
   position: relative;
-  background: radial-gradient(circle at 50% 45%, rgba(139, 92, 246, 0.08) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 45%, rgba(61, 214, 245, 0.05) 0%, #030406 70%);
 }
 
 .greeting {
@@ -159,11 +163,11 @@ html, body, #app {
   letter-spacing: -2px;
   margin: 0 0 32px 0;
   color: #ffffff;
-  background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+  background: linear-gradient(135deg, #ffffff 40%, #3dd6f5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   user-select: none;
-  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.3));
+  filter: drop-shadow(0 0 30px rgba(61, 214, 245, 0.25));
 }
 
 .update-btn {
@@ -175,20 +179,20 @@ html, body, #app {
   font-size: 15px;
   font-weight: 600;
   font-family: inherit;
-  color: #ffffff;
-  background: var(--accent);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #030406;
+  background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
+  border: 1px solid rgba(61, 214, 245, 0.4);
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 4px 24px rgba(61, 214, 245, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .update-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: linear-gradient(135deg, #5fe0fc 0%, #3dd6f5 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 30px rgba(61, 214, 245, 0.45);
 }
 
 .update-btn:active:not(:disabled) {
@@ -268,7 +272,7 @@ html, body, #app {
 
 .progress-fill {
   height: 100%;
-  background: var(--accent);
+  background: linear-gradient(90deg, #3dd6f5 0%, #ffb55a 100%);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -284,175 +288,163 @@ html, body, #app {
 }
 
 /* ========================================================
-   Animated Loading Screen & Smooth Transitions
+   Canonical Solara Website Loading Screen & Split Curtains
+   Source: WebsiteLoader.tsx & solara-loader.css
    ======================================================== */
-.loading-screen {
+.solara-loading-screen {
+  --loader-rgb: 61, 214, 245;
   position: absolute;
   top: 42px;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 50% 45%, #13141f 0%, #090a0f 65%, #050608 100%);
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--solara-text, #eff3ff);
+  text-align: center;
   z-index: 80;
-  overflow: hidden;
-  opacity: 1;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #030406;
 }
 
-.loading-screen.fade-out {
-  opacity: 0;
-  transform: scale(1.02);
-  pointer-events: none;
+.solara-loading-full {
+  position: fixed;
+  inset: 42px 0 0 0;
+  z-index: 80;
 }
 
-.loading-ambient-glow {
-  position: absolute;
-  width: 520px;
-  height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(124, 58, 237, 0.06) 50%, transparent 70%);
-  filter: blur(40px);
-  pointer-events: none;
-  animation: ambientPulse 4s ease-in-out infinite alternate;
-}
-
-.loading-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
-
-.loading-emblem-wrap {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 22px;
-}
-
-.loading-halo {
-  position: absolute;
-  inset: -12px;
-  border-radius: 36px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.45) 0%, rgba(124, 58, 237, 0.15) 50%, transparent 75%);
-  filter: blur(14px);
-  animation: haloPulse 3s ease-in-out infinite alternate;
-}
-
-.loading-emblem {
-  width: 82px;
-  height: 82px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 35px rgba(139, 92, 246, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  animation: floatEmblem 3.6s ease-in-out infinite;
-}
-
-.loading-logo {
-  width: 46px;
-  height: 46px;
-  filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.5));
-}
-
-.loading-brand {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 26px;
-}
-
-.loading-title {
-  font-family: 'Space Grotesk', 'DM Sans', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: -1px;
-  margin: 0;
-  background: linear-gradient(110deg, #ffffff 20%, #ddd6fe 45%, #a78bfa 55%, #ffffff 80%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: textShimmer 3.2s ease-in-out infinite;
-}
-
-.loading-subtitle {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #a78bfa;
-  opacity: 0.9;
-}
-
-.loading-track {
-  width: 320px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
-  position: relative;
-  overflow: hidden;
-}
-
-.loading-progress {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 50%, #c084fc 100%);
-  box-shadow: 0 0 18px rgba(139, 92, 246, 0.7);
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.loading-shimmer {
+.solara-loading-screen::before,
+.solara-loading-screen::after {
+  content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
-  animation: barShine 1.8s ease-in-out infinite;
+  width: 50.1%;
+  z-index: 0;
+  background: var(--solara-bg, #030406);
+  pointer-events: none;
 }
 
-.loading-meta {
-  margin-top: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
+.solara-loading-screen::before {
+  left: 0;
+  background-image: radial-gradient(ellipse at 100% 50%, rgba(var(--loader-rgb), 0.045), transparent 60%);
 }
 
-.loading-pulse-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #a78bfa;
-  box-shadow: 0 0 8px #a78bfa;
-  animation: dotPulse 1.6s ease-in-out infinite;
+.solara-loading-screen::after {
+  right: 0;
+  background-image: radial-gradient(ellipse at 0 50%, rgba(var(--loader-rgb), 0.045), transparent 60%);
 }
 
-.loading-status-text {
+.solara-loader-content {
+  position: relative;
+  z-index: 1;
+  padding: 28px;
+  width: min(100%, 360px);
+  animation: solara-logo-enter 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.solara-loader-mark {
+  width: 88px;
+  height: 88px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 24px;
+}
+
+.solara-loader-mark svg,
+.solara-loader-mark img {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  object-fit: contain;
+  border-radius: 17px;
+  filter: drop-shadow(0 4px 18px rgba(var(--loader-rgb), 0.25));
+  animation: solara-logo-breathe 2.8s ease-in-out infinite;
+}
+
+.solara-loader-mark span {
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  background: linear-gradient(145deg, rgba(var(--loader-rgb), 0.1), transparent 70%);
+  border: 1px solid rgba(var(--loader-rgb), 0.16);
+  transform: rotate(-7deg);
+  animation: solara-mark-drift 3.4s ease-in-out infinite alternate;
+}
+
+.solara-loader-title {
+  margin: 0 !important;
+  font-family: 'Space Grotesk', 'DM Sans', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.035em !important;
+  color: #eff3ff !important;
+  line-height: 1.2 !important;
+}
+
+.solara-loader-status {
+  font-size: 12px;
+  color: #a1adc0 !important;
+  margin: 11px 0 20px !important;
   letter-spacing: 0.1px;
 }
 
+.solara-loader-track {
+  height: 3px;
+  width: 140px;
+  margin: 0 auto;
+  background: rgba(var(--loader-rgb), 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.solara-loader-track i {
+  display: block;
+  height: 100%;
+  width: 50%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgb(var(--loader-rgb)), #eefaff);
+  animation: solara-loading-pass 1.6s ease-in-out infinite;
+}
+
+.solara-loader-subtitle {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #677389 !important;
+  margin: 16px 0 0 !important;
+  line-height: 1.7;
+}
+
+.solara-loader-meta-progress {
+  margin-top: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(61, 214, 245, 0.85);
+  letter-spacing: 0.5px;
+}
+
+.solara-loading-screen.is-leaving {
+  pointer-events: none;
+}
+
+.solara-loading-screen.is-leaving::before {
+  animation: solara-curtain-left 580ms cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+
+.solara-loading-screen.is-leaving::after {
+  animation: solara-curtain-right 580ms cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+
+.solara-loading-screen.is-leaving .solara-loader-content {
+  animation: solara-logo-exit 340ms ease-in both;
+}
+
 .loading-skip-btn {
-  margin-top: 26px;
+  margin-top: 24px;
   padding: 6px 16px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -465,7 +457,7 @@ html, body, #app {
 
 .loading-skip-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(61, 214, 245, 0.3);
   color: var(--text);
   transform: translateY(-1px);
 }
@@ -491,56 +483,84 @@ html, body, #app {
 }
 
 .preview-anim-btn:hover {
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.35);
-  color: #c4b5fd;
+  background: rgba(61, 214, 245, 0.08);
+  border-color: rgba(61, 214, 245, 0.3);
+  color: #3dd6f5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 16px rgba(61, 214, 245, 0.15);
 }
 
 .preview-anim-btn:active {
   transform: translateY(0);
 }
 
-@keyframes floatEmblem {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-5px) scale(1.02); }
+@keyframes solara-logo-enter {
+  from {
+    opacity: 0;
+    transform: translateY(9px) scale(0.94);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
-@keyframes haloPulse {
-  0%, 100% { opacity: 0.55; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.08); }
+@keyframes solara-logo-breathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
-@keyframes ambientPulse {
-  0% { opacity: 0.5; transform: scale(0.92); }
-  100% { opacity: 0.9; transform: scale(1.06); }
+@keyframes solara-mark-drift {
+  from {
+    transform: rotate(-7deg);
+    opacity: 0.65;
+  }
+  to {
+    transform: rotate(5deg);
+    opacity: 1;
+  }
 }
 
-@keyframes textShimmer {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
+@keyframes solara-loading-pass {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
 }
 
-@keyframes barShine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+@keyframes solara-curtain-left {
+  to {
+    transform: translateX(-101%);
+  }
 }
 
-@keyframes dotPulse {
-  0%, 100% { opacity: 0.4; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.2); }
+@keyframes solara-curtain-right {
+  to {
+    transform: translateX(101%);
+  }
+}
+
+@keyframes solara-logo-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.9);
+    filter: blur(4px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loading-screen,
-  .loading-ambient-glow,
-  .loading-halo,
-  .loading-emblem,
-  .loading-title,
-  .loading-progress,
-  .loading-shimmer,
-  .loading-pulse-dot {
+  .solara-loading-screen,
+  .solara-loading-screen *,
+  .solara-loading-screen::before,
+  .solara-loading-screen::after {
     animation: none !important;
     transition: none !important;
   }

@@ -10,12 +10,13 @@ const isError = ref(false);
 const isSuccess = ref(false);
 const appUpdate = ref<any>({ state: 'idle', downloaded: 0, total: null });
 
-// Animated Loading Screen States
+// Canonical Animated Loading Screen States
 const loading = ref(true);
 const loadingStage = ref('Starting launcher services…');
-const loadingProgress = ref(15);
-const loadingFading = ref(false);
+const loadingProgress = ref(0);
+const loadingLeaving = ref(false);
 
+let startupInterval: ReturnType<typeof setInterval> | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let lastWindowActionTime = 0;
 let lastWindowActionType = '';
@@ -39,56 +40,85 @@ const updateProgressText = computed(() => {
 
 async function runStartupSequence() {
   startupAbort = false;
+  if (startupInterval) {
+    clearInterval(startupInterval);
+    startupInterval = null;
+  }
   loading.value = true;
-  loadingFading.value = false;
-  loadingProgress.value = 15;
+  loadingLeaving.value = false;
+  loadingProgress.value = 0;
   loadingStage.value = 'Starting launcher services…';
 
-  const p1 = new Promise(r => setTimeout(r, 350));
   let initPromise = Promise.resolve();
   if (isDesktop) {
     initPromise = native('initialize_launcher').catch((e) => {
       console.warn('Initialize launcher error:', e);
     });
   }
-  await Promise.all([p1, initPromise]);
+
+  // Strict 10 to 15 seconds random duration
+  const totalDuration = Math.floor(10000 + Math.random() * 5000);
+  const startTime = Date.now();
+
+  await new Promise<void>((resolve) => {
+    startupInterval = setInterval(() => {
+      if (startupAbort) {
+        if (startupInterval) clearInterval(startupInterval);
+        resolve();
+        return;
+      }
+      const elapsed = Date.now() - startTime;
+      const progressFraction = Math.min(1, elapsed / totalDuration);
+      loadingProgress.value = Math.min(100, Math.round(progressFraction * 100));
+
+      if (loadingProgress.value < 20) {
+        loadingStage.value = 'Starting launcher services…';
+      } else if (loadingProgress.value < 45) {
+        loadingStage.value = 'Connecting to Solara network…';
+      } else if (loadingProgress.value < 70) {
+        loadingStage.value = 'Synchronizing client runtime…';
+      } else if (loadingProgress.value < 90) {
+        loadingStage.value = 'Verifying workspace readiness…';
+      } else if (loadingProgress.value < 100) {
+        loadingStage.value = 'Opening your Solara world…';
+      } else {
+        loadingStage.value = 'Ready';
+        if (startupInterval) {
+          clearInterval(startupInterval);
+          startupInterval = null;
+        }
+        resolve();
+      }
+    }, 50);
+  });
+
   if (startupAbort) return;
 
-  loadingProgress.value = 50;
-  loadingStage.value = 'Connecting to Solara network…';
-
-  const p2 = new Promise(r => setTimeout(r, 380));
-  let pollPromise = Promise.resolve();
+  await initPromise;
   if (isDesktop) {
-    pollPromise = pollStatus().catch(() => {});
+    void pollStatus().catch(() => {});
   }
-  await Promise.all([p2, pollPromise]);
+
+  // Hold "Ready" state briefly so user perceives completion
+  await new Promise((r) => setTimeout(r, 350));
   if (startupAbort) return;
 
-  loadingProgress.value = 85;
-  loadingStage.value = 'Verifying workspace readiness…';
-
-  await new Promise(r => setTimeout(r, 320));
-  if (startupAbort) return;
-
-  loadingProgress.value = 100;
-  loadingStage.value = 'Ready';
-
-  await new Promise(r => setTimeout(r, 260));
-  if (startupAbort) return;
-
-  loadingFading.value = true;
-  setTimeout(() => {
-    if (!startupAbort) {
-      loading.value = false;
-      loadingFading.value = false;
-    }
-  }, 420);
+  // Split curtain exit animation
+  loadingLeaving.value = true;
+  await new Promise((r) => setTimeout(r, 600));
+  if (!startupAbort) {
+    loading.value = false;
+    loadingLeaving.value = false;
+  }
 }
 
 function skipLoading() {
   startupAbort = true;
-  loadingFading.value = false;
+  if (startupInterval) {
+    clearInterval(startupInterval);
+    startupInterval = null;
+  }
+  loadingLeaving.value = false;
   loading.value = false;
 }
 
@@ -213,6 +243,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   startupAbort = true;
+  if (startupInterval) clearInterval(startupInterval);
   if (pollTimer) clearInterval(pollTimer);
 });
 </script>
@@ -233,37 +264,56 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Animated Loading Screen Overlay -->
+    <!-- Animated Loading Screen Overlay (Canonical solara-inc.in website design) -->
     <div
       v-if="loading"
-      class="loading-screen"
-      :class="{ 'fade-out': loadingFading }"
+      id="solara-website-loader"
+      class="solara-loading-screen loading-screen solara-loading-full"
+      :class="{ 'is-leaving': loadingLeaving }"
       role="status"
       aria-live="polite"
+      aria-busy="true"
     >
-      <div class="loading-ambient-glow" aria-hidden="true"></div>
-      <div class="loading-content">
-        <div class="loading-emblem-wrap">
-          <div class="loading-halo" aria-hidden="true"></div>
-          <div class="loading-emblem">
-            <img src="/logo.svg" alt="Solara" class="loading-logo" />
-          </div>
+      <div class="solara-loader-content">
+        <div class="solara-loader-mark" aria-hidden="true">
+          <span></span>
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 64 64"
+            class="loading-logo"
+          >
+            <defs>
+              <linearGradient id="solara-website-loader-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#3dd6f5" />
+                <stop offset="100%" stopColor="#ffb55a" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="60" height="60" rx="14" fill="#06131f" stroke="#1f4a66" strokeWidth="2" />
+            <circle cx="32" cy="32" r="17" fill="none" stroke="url(#solara-website-loader-g)" strokeWidth="5" />
+            <path d="M22 35h10l-3 8 13-12H32l3-8z" fill="url(#solara-website-loader-g)" />
+          </svg>
         </div>
 
-        <div class="loading-brand">
-          <h2 class="loading-title">solara</h2>
-          <span class="loading-subtitle">Launcher</span>
+        <h2 class="solara-loader-title">Solara</h2>
+        <p class="solara-loader-status loading-status-text">{{ loadingStage }}</p>
+
+        <div
+          class="solara-loader-track loading-track"
+          role="progressbar"
+          :aria-valuenow="loadingProgress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-hidden="true"
+        >
+          <i></i>
         </div>
 
-        <div class="loading-track" role="progressbar" :aria-valuenow="loadingProgress" aria-valuemin="0" aria-valuemax="100">
-          <div class="loading-progress" :style="{ width: loadingProgress + '%' }">
-            <div class="loading-shimmer" aria-hidden="true"></div>
-          </div>
-        </div>
+        <p class="solara-loader-subtitle">Your next world awaits</p>
 
-        <div class="loading-meta">
-          <span class="loading-pulse-dot" aria-hidden="true"></span>
-          <span class="loading-status-text">{{ loadingStage }}</span>
+        <div class="solara-loader-meta-progress">
+          <span>{{ loadingProgress }}%</span>
         </div>
 
         <button type="button" class="loading-skip-btn" @click="skipLoading" title="Skip animation">
@@ -273,7 +323,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Main Clean Container -->
-    <main v-show="!loading || loadingFading" class="clean-container">
+    <main v-show="!loading || loadingLeaving" class="clean-container">
       <h1 class="greeting">HI ;)</h1>
       <button class="update-btn" :disabled="checking" @click="checkUpdates">
         <span v-if="checking" class="spinner"></span>
