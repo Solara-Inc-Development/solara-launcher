@@ -110,22 +110,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.26 available.** Minimalist oiled black loading screen with subtle logo watermark, glowing brand logo, sleek loading progress bar, numeric percentage, clean "HI ;)" launcher view, and live background auto-updates.
+**Testing preview V-0.0.27 available.** Reduced 5–10s loading screen with natural status lines, centered window dimensions (1000x600), pure solid oiled black theme, clean "HI ;)" launcher view, and live background auto-updates.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.26 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (6.8 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.26/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.26/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.26/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.26/source.zip)
-- **SHA-256**: `483e8d1acd57d0582abe805c71e2f3899c2ca5f7a2b7dbf2dce8974b777f916d`
+- **GitHub Release**: [Solara Launcher V-0.0.27 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.8 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.27/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.27/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.27/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.27/source.zip)
+- **SHA-256**: `15449b8cc883568d7a4c4f9635932fef24b018e79afe9d2d0ae9c8877abdf331`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.26 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.27 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
