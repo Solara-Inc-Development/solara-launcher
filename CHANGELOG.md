@@ -1,5 +1,17 @@
 # Changelog
 
+## Testing Preview V-0.0.28 — 2026-11-11
+
+- **Spacious & Comfortable Window Dimensions**:
+  - Increased default window dimensions from 1000x600 to `width: 1160`, `height: 700`, with `minWidth: 900`, `minHeight: 580`, and `center: true`.
+  - Balanced rectangular proportions providing ample breathing room for UI elements without overflowing vertically or touching top/bottom margins on standard laptop (768p) and desktop (1080p) screens.
+- **Preserved Loading Screen & Pure Oiled Black Theme**:
+  - Maintained 5 to 10 seconds random loading duration (`5000 + Math.random() * 5000`).
+  - Preserved natural progress stages ("Reading Files…", "Checking Integrity…", "Preparing Environment…", "Launching Solara-Launcher…").
+  - Solid pure oiled black (`#000000`) across all surfaces with zero logo cut-off artifacts, glowing brand mark, progress bar, and numeric percentage.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.27 — 2026-11-11
 
 - **Fast 5–10s Loading Screen Duration**:
