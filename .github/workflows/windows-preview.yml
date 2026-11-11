@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 188 - Purge Discord Activity and RPC from Launcher Backend.
+# Owner-approved preview candidate: Milestone 189 - One-Time Clean Slate V23 Reset and Discord RPC Purge.
 on:
   workflow_dispatch:
   push:
@@ -59,6 +59,15 @@ jobs:
           Run-Check -Command npm -Arguments @('run', 'build')
           Run-Check -Command node -Arguments @('scripts/third-party.mjs')
           Run-Check -Command cargo -Arguments @('test', '-p', 'solara-launcher', '-p', 'solara-local-server', '--lib', '--locked', '--no-default-features')
+      - name: Clean up unreleased candidate reservation draft if rerunning
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          try {
+            gh release delete solara-build-23 --yes --cleanup-tag 2>&1 | Out-Null
+          } catch {}
+          $global:LASTEXITCODE = 0
       - name: Reserve unique testing version
         env:
           GH_TOKEN: ${{ github.token }}
@@ -109,7 +118,7 @@ jobs:
           $env:GIT_CONFIG_KEY_0 = 'http.https://github.com/.extraheader'
           $auth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("x-access-token:$env:GH_TOKEN"))
           $env:GIT_CONFIG_VALUE_0 = "AUTHORIZATION: basic $auth"
-          git -C $output push "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
+          git -C $output push --force "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "Actual NSIS bytes and corresponding source preserved on $branch. Private signing/staging and Windows acceptance remain." >> $env:GITHUB_STEP_SUMMARY
       - name: Save compiler work even if later packaging needs a fix

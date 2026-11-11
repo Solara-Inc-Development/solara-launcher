@@ -38,6 +38,9 @@ pub async fn initialize() -> Result<()> {
                 .context("Local app-data folder unavailable")?
                 .join("in.solara.launcher");
             tokio::fs::create_dir_all(&data).await?;
+            if let Err(err) = migrate_clean_slate_v23(&data).await {
+                eprintln!("[migration] clean slate v23 reset warning: {err:#}");
+            }
             cleanup_stale_files(&data).await;
             let instances = Instances::new(data.join("custom-instances"));
             // A crashed/closed app cannot leave an instance permanently installing.
@@ -776,6 +779,94 @@ pub async fn stop_all() -> Result<()> {
     Ok(())
 }
 
+pub const CLEAN_SLATE_V23_SENTINEL: &str = ".clean_slate_v23_reset";
+
+/// Robust recursive directory removal that handles read-only files and folders on Windows and Unix.
+pub async fn robust_remove_dir_all(path: &std::path::Path) -> std::io::Result<()> {
+    if !path.exists() {
+        return Ok(());
+    }
+    // Attempt standard async removal first
+    if let Ok(()) = tokio::fs::remove_dir_all(path).await {
+        return Ok(());
+    }
+    // If standard removal failed (e.g. read-only file/folder permissions on Windows/Unix),
+    // clear read-only attributes recursively and retry.
+    let target = path.to_path_buf();
+    tokio::task::spawn_blocking(move || -> std::io::Result<()> {
+        fn make_writable(p: &std::path::Path) {
+            if let Ok(meta) = std::fs::symlink_metadata(p) {
+                let mut perms = meta.permissions();
+                if perms.readonly() {
+                    #[allow(clippy::permissions_set_readonly_false)]
+                    perms.set_readonly(false);
+                    let _ = std::fs::set_permissions(p, perms);
+                }
+            }
+            if let Ok(entries) = std::fs::read_dir(p) {
+                for entry in entries.flatten() {
+                    let child = entry.path();
+                    if let Ok(meta) = std::fs::symlink_metadata(&child) {
+                        let mut perms = meta.permissions();
+                        if perms.readonly() {
+                            perms.set_readonly(false);
+                            let _ = std::fs::set_permissions(&child, perms);
+                        }
+                        if meta.is_dir() {
+                            make_writable(&child);
+                        }
+                    }
+                }
+            }
+        }
+        make_writable(&target);
+        std::fs::remove_dir_all(&target)
+    })
+    .await
+    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?
+}
+
+/// Idempotent one-time migration guard for clean-slate reset in V-0.0.23.
+///
+/// If `.clean_slate_v23_reset` does not exist in the launcher data directory:
+/// - Quarantines and removes `custom-instances` once if present.
+/// - Recreates an empty `custom-instances` directory.
+/// - Atomically writes the `.clean_slate_v23_reset` sentinel marker file.
+///
+/// If the marker already exists, this function returns `Ok(false)` immediately
+/// without touching `custom-instances`, guaranteeing that user instances are
+/// strictly preserved across all future runs, subsequent restarts, and future updates.
+pub async fn migrate_clean_slate_v23(data: &std::path::Path) -> Result<bool> {
+    let sentinel = data.join(CLEAN_SLATE_V23_SENTINEL);
+    if sentinel.exists() {
+        return Ok(false);
+    }
+
+    let instances_dir = data.join("custom-instances");
+    if instances_dir.exists() {
+        // Quarantine existing custom-instances to an isolated staging directory
+        // before deletion so fresh custom-instances is available immediately and
+        // subsequent operations cannot race.
+        let wipe_stage = data.join(format!(".wiping-instances-{}", uuid::Uuid::new_v4()));
+        if tokio::fs::rename(&instances_dir, &wipe_stage).await.is_ok() {
+            let _ = robust_remove_dir_all(&wipe_stage).await;
+        } else {
+            robust_remove_dir_all(&instances_dir).await?;
+        }
+    }
+    tokio::fs::create_dir_all(&instances_dir).await?;
+
+    let marker = format!(
+        "migration=clean_slate_v23_reset\napplied_at={}\nversion={}\n",
+        chrono::Utc::now().to_rfc3339(),
+        env!("CARGO_PKG_VERSION")
+    );
+    let tmp_sentinel = data.join(format!("{CLEAN_SLATE_V23_SENTINEL}.tmp.{}", uuid::Uuid::new_v4()));
+    tokio::fs::write(&tmp_sentinel, marker).await?;
+    tokio::fs::rename(&tmp_sentinel, &sentinel).await?;
+    Ok(true)
+}
+
 /// Clean up stale temporary files, download caches, and legacy remnants
 /// while strictly preserving user data (instances, saves, configs, mods, accounts, and servers).
 pub async fn cleanup_stale_files(data: &std::path::Path) {
@@ -793,10 +884,14 @@ pub async fn cleanup_stale_files(data: &std::path::Path) {
         let _ = tokio::fs::remove_dir_all(&verified_tmp).await;
     }
 
-    // 3. Stale temporary files in launcher root data folder
+    // 3. Stale temporary files and wiping staging folders in launcher root data folder
     if let Ok(mut rd) = tokio::fs::read_dir(data).await {
         while let Ok(Some(entry)) = rd.next_entry().await {
             let file_name = entry.file_name().to_string_lossy().to_string();
+            if file_name.starts_with(".wiping-instances-") || file_name.starts_with(".stale-instances-") {
+                let _ = robust_remove_dir_all(&entry.path()).await;
+                continue;
+            }
             let is_stale_temp = file_name.ends_with(".tmp")
                 || file_name.ends_with(".pending")
                 || (file_name.starts_with(".solara-") && file_name.contains(".tmp"))
@@ -968,6 +1063,211 @@ mod tests {
             "server configurations must be preserved"
         );
         assert!(preferences.exists(), "preferences must be preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn migrate_clean_slate_v23_removes_instances_once_and_writes_sentinel() -> Result<()> {
+        let dir =
+            std::env::temp_dir().join(format!("solara-clean-slate-test-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        // Setup existing user instance data (simulating V-0.0.22 state)
+        let old_inst = data.join("custom-instances").join("old-instance");
+        let saves = old_inst.join("game").join("saves").join("MyWorld");
+        tokio::fs::create_dir_all(&saves).await?;
+        tokio::fs::write(saves.join("level.dat"), b"world data").await?;
+        tokio::fs::write(old_inst.join("instance.json"), b"{\"id\":\"old-instance\"}").await?;
+
+        // Setup accounts, servers, preferences (must be preserved)
+        let accounts_dir = data.join("custom-minecraft-accounts");
+        tokio::fs::create_dir_all(&accounts_dir).await?;
+        let accounts_file = accounts_dir.join("accounts.json");
+        tokio::fs::write(&accounts_file, b"{\"accounts\":[]}").await?;
+
+        let servers_dir = data.join("local-servers").join("my-server");
+        tokio::fs::create_dir_all(&servers_dir).await?;
+        let server_props = servers_dir.join("server.properties");
+        tokio::fs::write(&server_props, b"motd=Test").await?;
+
+        let preferences = data.join("preferences.json");
+        tokio::fs::write(&preferences, b"{\"theme\":\"dark\"}").await?;
+
+        let sentinel = data.join(CLEAN_SLATE_V23_SENTINEL);
+        assert!(!sentinel.exists(), "sentinel must not exist prior to migration");
+
+        // Run migration for the first time
+        let migrated = migrate_clean_slate_v23(data).await?;
+        assert!(migrated, "first run must report migration performed");
+        assert!(sentinel.exists(), "sentinel marker must be created");
+        let marker_content = tokio::fs::read_to_string(&sentinel).await?;
+        assert!(
+            marker_content.contains("migration=clean_slate_v23_reset"),
+            "sentinel must contain clean_slate_v23_reset identifier"
+        );
+
+        // Verify old instances folder was wiped and re-created empty
+        assert!(
+            !old_inst.exists(),
+            "old instance directory must be deleted during one-time reset"
+        );
+        assert!(
+            data.join("custom-instances").exists(),
+            "custom-instances must exist as clean empty directory"
+        );
+
+        // Verify non-instance user data was strictly preserved
+        assert!(accounts_file.exists(), "minecraft accounts must be preserved");
+        assert!(server_props.exists(), "local servers must be preserved");
+        assert!(preferences.exists(), "preferences must be preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn migrate_clean_slate_v23_idempotent_preserves_instances_on_subsequent_runs() -> Result<()> {
+        let dir =
+            std::env::temp_dir().join(format!("solara-clean-slate-idempotent-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        // First run: initializes sentinel
+        let first = migrate_clean_slate_v23(data).await?;
+        assert!(first, "first run should create sentinel");
+
+        // User now creates a new instance on V-0.0.23
+        let new_inst = data.join("custom-instances").join("v23-new-instance");
+        let world = new_inst.join("game").join("saves").join("NewWorld");
+        tokio::fs::create_dir_all(&world).await?;
+        let level_dat = world.join("level.dat");
+        tokio::fs::write(&level_dat, b"v23 world data").await?;
+        let inst_json = new_inst.join("instance.json");
+        tokio::fs::write(&inst_json, b"{\"id\":\"v23-new-instance\"}").await?;
+
+        // Second run (e.g. app restart or subsequent launch): must NOT delete user instances
+        let second = migrate_clean_slate_v23(data).await?;
+        assert!(!second, "second run must report false (already migrated)");
+        assert!(new_inst.exists(), "new instance must be strictly preserved on restart");
+        assert!(level_dat.exists(), "user saves must be preserved on restart");
+        assert!(inst_json.exists(), "instance.json must be preserved on restart");
+
+        // Third run (e.g. simulated future V-0.0.24 update): must STILL NOT delete user instances
+        let third = migrate_clean_slate_v23(data).await?;
+        assert!(!third, "third run must report false");
+        assert!(new_inst.exists(), "new instance must be strictly preserved on future updates");
+        assert!(level_dat.exists(), "user saves must be preserved on future updates");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn migrate_clean_slate_v23_fresh_install_initializes_sentinel_and_preserves() -> Result<()> {
+        let dir =
+            std::env::temp_dir().join(format!("solara-clean-slate-fresh-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        // In a completely fresh install, custom-instances does not exist yet
+        let sentinel = data.join(CLEAN_SLATE_V23_SENTINEL);
+        assert!(!sentinel.exists());
+        assert!(!data.join("custom-instances").exists());
+
+        let migrated = migrate_clean_slate_v23(data).await?;
+        assert!(migrated, "fresh install must write sentinel marker");
+        assert!(sentinel.exists(), "sentinel must exist");
+        assert!(data.join("custom-instances").exists(), "custom-instances should be ready");
+
+        // User creates instance
+        let inst = data.join("custom-instances").join("first-play");
+        tokio::fs::create_dir_all(&inst).await?;
+        let inst_file = inst.join("instance.json");
+        tokio::fs::write(&inst_file, b"{\"id\":\"first-play\"}").await?;
+
+        // Next start
+        let next = migrate_clean_slate_v23(data).await?;
+        assert!(!next, "subsequent launch must do nothing");
+        assert!(inst_file.exists(), "fresh user's instance must be preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn cleanup_stale_files_preserves_clean_slate_sentinel() -> Result<()> {
+        let dir =
+            std::env::temp_dir().join(format!("solara-clean-slate-sentinel-preservation-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        let sentinel = data.join(CLEAN_SLATE_V23_SENTINEL);
+        tokio::fs::write(&sentinel, b"migration=clean_slate_v23_reset\n").await?;
+
+        // Stale files that should be cleaned
+        let stale_tmp = data.join("stale.tmp");
+        tokio::fs::write(&stale_tmp, b"temp").await?;
+        let solara_tmp = data.join(".solara-abc.tmp");
+        tokio::fs::write(&solara_tmp, b"temp").await?;
+
+        cleanup_stale_files(data).await;
+
+        assert!(!stale_tmp.exists(), "stale .tmp should be deleted");
+        assert!(!solara_tmp.exists(), "stale .solara-*.tmp should be deleted");
+        assert!(sentinel.exists(), "clean slate sentinel marker must be strictly preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn migrate_clean_slate_v23_handles_readonly_files_and_directories() -> Result<()> {
+        let dir = std::env::temp_dir()
+            .join(format!("solara-clean-slate-readonly-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        let inst = data.join("custom-instances").join("readonly-inst");
+        let sub = inst.join("locked_folder");
+        tokio::fs::create_dir_all(&sub).await?;
+        let locked_file = sub.join("locked_file.txt");
+        tokio::fs::write(&locked_file, b"cannot touch this easily").await?;
+
+        // Mark file as readonly
+        let meta = std::fs::metadata(&locked_file)?;
+        let mut perms = meta.permissions();
+        perms.set_readonly(true);
+        std::fs::set_permissions(&locked_file, perms)?;
+
+        // Execute migration
+        let migrated = migrate_clean_slate_v23(data).await?;
+        assert!(migrated, "migration should succeed even with read-only files");
+        assert!(data.join(CLEAN_SLATE_V23_SENTINEL).exists(), "sentinel must be created");
+        assert!(!locked_file.exists(), "locked file must be removed");
+        assert!(!inst.exists(), "old instance must be removed");
+        assert!(data.join("custom-instances").exists(), "fresh custom-instances must exist");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn cleanup_stale_files_removes_wiping_instances_directory() -> Result<()> {
+        let dir = std::env::temp_dir()
+            .join(format!("solara-clean-slate-wiping-cleanup-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        let data = dir.as_path();
+
+        let wiping_dir = data.join(format!(".wiping-instances-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&wiping_dir).await?;
+        tokio::fs::write(wiping_dir.join("remnant.bin"), b"leftover data").await?;
+
+        cleanup_stale_files(data).await;
+
+        assert!(!wiping_dir.exists(), "wiping staging directory must be cleaned up");
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())

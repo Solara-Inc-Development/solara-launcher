@@ -21,7 +21,8 @@
   Delete "$LOCALAPPDATA\in.solara.launcher\.solara-*.tmp"
   Delete "$LOCALAPPDATA\in.solara.launcher\*.pending"
 
-  ; Note: User data (custom-instances, accounts, and servers) is strictly preserved.
+  ; Note: User data (custom-instances, accounts, and servers) is preserved here.
+  ; One-time clean-slate reset for V-0.0.23 is handled idempotently in the engine via .clean_slate_v23_reset sentinel.
 !macroend
 
 !macro NSIS_HOOK_POSTINSTALL

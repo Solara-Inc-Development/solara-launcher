@@ -1,5 +1,18 @@
 # Changelog
 
+## Testing Preview V-0.0.23 — 2026-11-11
+
+- **One-Time Clean-Slate Reset & Sentinel Protection**:
+  - Implemented an idempotent, one-time instance reset for V-0.0.23 (`migrate_clean_slate_v23`) in launcher initialization.
+  - Quarantines and wipes stale instances once into `.wiping-instances-*` staging, recreating a clean `custom-instances` directory.
+  - Persists atomic `.clean_slate_v23_reset` sentinel marker file immediately upon reset; subsequent launches and future updates strictly preserve all user instances, saves, mods, and servers.
+  - Added recursive read-only permissions unsetting across Windows and Unix filesystem targets, ensuring non-blocking cleanup of locked files and directories.
+- **Discord Activity & RPC Purge**:
+  - Completely purged Discord RPC client loops, IPC connection handlers, and background presence polling from the launcher backend.
+  - Eliminates unnecessary local socket scanning, reduces idle background CPU/memory footprint, and enhances user privacy.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.22 — 2026-11-11
 
 - **Clean Slate Minimal Launcher Interface**:
