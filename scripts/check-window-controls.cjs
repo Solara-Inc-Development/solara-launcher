@@ -43,7 +43,7 @@ function checkServer(url) {
 
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   try {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const context = await browser.newContext({ viewport: { width: 1000, height: 600 } });
     await context.addInitScript(() => {
       window.__ACTION_LOG__ = [];
       window.__TAURI_INTERNALS__ = {
@@ -153,7 +153,7 @@ function checkServer(url) {
     await updateStatus.waitFor({ state: 'visible' });
     assert.ok((await updateStatus.textContent()).includes('You are up to date.'), 'Update status displays confirmation after checking');
 
-    // 6. Test minimalist loading screen overlay, logo, watermark, progress bar, percentage, and natural transition
+    // 6. Test minimalist loading screen overlay, logo, clean status line, progress bar, percentage, and natural transition
     const previewBtn = page.locator('.preview-anim-btn');
     await previewBtn.waitFor({ state: 'visible' });
     assert.ok((await previewBtn.textContent()).includes('Preview loading animation'), 'Preview button is labeled "Preview loading animation"');
@@ -166,12 +166,24 @@ function checkServer(url) {
     const logoSrc = await page.locator('.loading-logo').getAttribute('src');
     assert.equal(logoSrc, '/logo-512.png', 'Loading logo uses /logo-512.png');
 
-    assert.equal(await page.locator('.solara-loader-watermark').count(), 1, 'Loading screen shows background logo watermark');
+    // Verify zero cut-off background logo watermark artifacts
+    assert.equal(await page.locator('.solara-loader-watermark').count(), 0, 'Zero cut-off background logo watermark artifacts');
     assert.equal(await page.locator('.loading-track').count(), 1, 'Loading screen shows sleek progress track');
     assert.equal(await page.locator('.loading-progress-bar').count(), 1, 'Loading screen shows fill progress bar');
 
-    // Verify complete removal of fake processes, skip button, and subtitles
-    assert.equal(await page.locator('.loading-status-text').count(), 0, 'Fake process text is completely removed');
+    // Verify clean status line below loading bar
+    const statusEl = page.locator('.loading-status-text');
+    assert.equal(await statusEl.count(), 1, 'Clean status line is displayed below the loading bar');
+    const validStatuses = [
+      'Reading Files…',
+      'Checking Integrity…',
+      'Preparing Environment…',
+      'Launching Solara-Launcher…'
+    ];
+    const statusText = (await statusEl.textContent())?.trim();
+    assert.ok(validStatuses.includes(statusText), `Status text "${statusText}" is one of the valid progress stages`);
+
+    // Verify skip button, title, and subtitles remain removed
     assert.equal(await page.locator('.loading-skip-btn').count(), 0, 'Skip button is completely removed');
     assert.equal(await page.locator('.solara-loader-title').count(), 0, 'Title heading is removed');
     assert.equal(await page.locator('.solara-loader-subtitle').count(), 0, 'Subtitle tagline is removed');
@@ -193,11 +205,11 @@ function checkServer(url) {
     const pctText = (await pctEl.textContent()) || '';
     assert.ok(/^[0-9]{1,3}%$/.test(pctText.trim()), 'Displays accurate numeric percentage');
 
-    // Wait for natural completion (animation runs 10-15s)
-    await loadingScreen.waitFor({ state: 'hidden', timeout: 25000 });
+    // Wait for natural completion (animation runs 5-10s)
+    await loadingScreen.waitFor({ state: 'hidden', timeout: 15000 });
     assert.equal(await greeting.isVisible(), true, 'Loading screen completes and reveals main container');
 
-    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, and minimalist loading screen verified successfully!');
+    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, clean status line, and minimalist loading screen verified successfully!');
   } finally {
     await browser.close();
     if (devServer) {

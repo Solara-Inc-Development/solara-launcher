@@ -1,8 +1,8 @@
 /* Solara Launcher — Oiled Black Minimal Theme with Canonical Solara Loading Screen */
 :root {
-  --bg: #030406;
-  --titlebar-bg: #030406;
-  --solara-bg: #030406;
+  --bg: #000000;
+  --titlebar-bg: #000000;
+  --solara-bg: #000000;
   --text: #eff3ff;
   --muted: #8391a5;
   --line: rgba(255, 255, 255, 0.07);
@@ -153,7 +153,7 @@ html, body, #app {
   justify-content: center;
   padding: 32px;
   position: relative;
-  background: radial-gradient(circle at 50% 45%, rgba(61, 214, 245, 0.05) 0%, #030406 70%);
+  background: #000000;
 }
 
 .greeting {
@@ -179,7 +179,7 @@ html, body, #app {
   font-size: 15px;
   font-weight: 600;
   font-family: inherit;
-  color: #030406;
+  color: #000000;
   background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
   border: 1px solid rgba(61, 214, 245, 0.4);
   border-radius: 12px;
@@ -305,7 +305,7 @@ html, body, #app {
   color: var(--solara-text, #eff3ff);
   text-align: center;
   z-index: 80;
-  background: #020305;
+  background: #000000;
 }
 
 .solara-loading-full {
@@ -322,42 +322,16 @@ html, body, #app {
   bottom: 0;
   width: 50.1%;
   z-index: 0;
-  background: #020305;
+  background: #000000;
   pointer-events: none;
 }
 
 .solara-loading-screen::before {
   left: 0;
-  background-image: radial-gradient(ellipse at 100% 50%, rgba(var(--loader-rgb), 0.045), transparent 60%);
 }
 
 .solara-loading-screen::after {
   right: 0;
-  background-image: radial-gradient(ellipse at 0 50%, rgba(var(--loader-rgb), 0.045), transparent 60%);
-}
-
-.solara-loader-watermark {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.solara-watermark-img {
-  width: 460px;
-  height: 460px;
-  max-width: 70vw;
-  max-height: 70vh;
-  object-fit: contain;
-  opacity: 0.04;
-  filter: blur(4px) drop-shadow(0 0 50px rgba(var(--loader-rgb), 0.2));
-  user-select: none;
-  pointer-events: none;
-  animation: solara-watermark-breathe 7s ease-in-out infinite alternate;
 }
 
 .solara-loader-content {
@@ -420,8 +394,20 @@ html, body, #app {
   transition: width 0.08s ease-out;
 }
 
-.solara-loader-meta-progress {
+.solara-loader-status {
   margin-top: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8391a5;
+  letter-spacing: 0.2px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 18px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+.solara-loader-meta-progress {
+  margin-top: 6px;
   font-size: 13px;
   font-weight: 500;
   font-family: 'Space Grotesk', system-ui, sans-serif;
@@ -445,11 +431,6 @@ html, body, #app {
 
 .solara-loading-screen.is-leaving .solara-loader-content {
   animation: solara-logo-exit 340ms ease-in both;
-}
-
-.solara-loading-screen.is-leaving .solara-loader-watermark {
-  opacity: 0;
-  transition: opacity 300ms ease-in;
 }
 
 .preview-anim-btn {
@@ -510,17 +491,6 @@ html, body, #app {
   100% {
     transform: scale(1.15);
     opacity: 1;
-  }
-}
-
-@keyframes solara-watermark-breathe {
-  0% {
-    transform: scale(0.96);
-    opacity: 0.03;
-  }
-  100% {
-    transform: scale(1.04);
-    opacity: 0.055;
   }
 }
 

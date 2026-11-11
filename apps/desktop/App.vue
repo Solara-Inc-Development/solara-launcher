@@ -15,6 +15,13 @@ const loading = ref(true);
 const loadingProgress = ref(0);
 const loadingLeaving = ref(false);
 
+const loadingStatusText = computed(() => {
+  if (loadingProgress.value < 25) return 'Reading Files…';
+  if (loadingProgress.value < 55) return 'Checking Integrity…';
+  if (loadingProgress.value < 85) return 'Preparing Environment…';
+  return 'Launching Solara-Launcher…';
+});
+
 let startupInterval: ReturnType<typeof setInterval> | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let lastWindowActionTime = 0;
@@ -54,8 +61,8 @@ async function runStartupSequence() {
     });
   }
 
-  // Strict 10 to 15 seconds random duration
-  const totalDuration = Math.floor(10000 + Math.random() * 5000);
+  // Strict 5 to 10 seconds random duration
+  const totalDuration = Math.floor(5000 + Math.random() * 5000);
   const startTime = Date.now();
 
   await new Promise<void>((resolve) => {
@@ -252,11 +259,6 @@ onUnmounted(() => {
       aria-live="polite"
       aria-busy="true"
     >
-      <!-- Deep oiled black backdrop with subtle glowing Solara logo watermark -->
-      <div class="solara-loader-watermark" aria-hidden="true">
-        <img src="/logo-512.png" alt="" class="solara-watermark-img" />
-      </div>
-
       <div class="solara-loader-content">
         <!-- Central prominent glowing Solara brand logo (/logo-512.png) with soft ambient aura -->
         <div class="solara-loader-mark" aria-hidden="true">
@@ -282,6 +284,11 @@ onUnmounted(() => {
             class="loading-progress-bar"
             :style="{ width: Math.min(100, Math.max(0, loadingProgress)) + '%' }"
           ></div>
+        </div>
+
+        <!-- Clean, simple status lines below the loading bar -->
+        <div class="solara-loader-status loading-status-text">
+          <span>{{ loadingStatusText }}</span>
         </div>
 
         <!-- Accurate numeric percentage below/with the bar -->

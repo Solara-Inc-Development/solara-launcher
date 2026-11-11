@@ -17,10 +17,11 @@
         "label": "main",
         "url": "desktop.html",
         "title": "Solara Launcher",
-        "width": 1280,
-        "height": 880,
+        "width": 1000,
+        "height": 600,
         "minWidth": 800,
-        "minHeight": 620,
+        "minHeight": 540,
+        "center": true,
         "decorations": false
       }
     ],

@@ -1,5 +1,23 @@
 # Changelog
 
+## Testing Preview V-0.0.27 — 2026-11-11
+
+- **Fast 5–10s Loading Screen Duration**:
+  - Reduced loading screen startup duration strictly to 5 to 10 seconds (random: `5000 + Math.random() * 5000`).
+- **Clean Progressive Status Line**:
+  - Added clean, simple status lines below the loading bar that progress naturally across the 5–10s duration:
+    - "Reading Files…"
+    - "Checking Integrity…"
+    - "Preparing Environment…"
+    - "Launching Solara-Launcher…"
+- **Centered Window Dimensions**:
+  - Set default window dimensions to `width: 1000`, `height: 600`, with `minWidth: 800`, `minHeight: 540`, and `center: true` for a balanced, centered desktop interface.
+- **Pure Oiled Black Theme**:
+  - Background is now pure, solid oiled black (`#000000`) across all container, titlebar, and curtain surfaces.
+  - Eliminated background logo watermark to ensure zero cut-off background logo artifacts while keeping the central prominent glowing brand mark.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.26 — 2026-11-11
 
 - **Minimalist Oiled Black Loading Screen**:

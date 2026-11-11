@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 192 - Minimalist Oiled Black Loading Screen.
+# Owner-approved preview candidate: Milestone 193 - Fast 5-10s Loading Screen, Status Lines, Window Size and Centering, Pure Oiled Black.
 on:
   workflow_dispatch:
   push:
@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           try {
-            gh release delete solara-build-26 --yes --cleanup-tag 2>&1 | Out-Null
+            gh release delete solara-build-27 --yes --cleanup-tag 2>&1 | Out-Null
           } catch {}
           $global:LASTEXITCODE = 0
       - name: Reserve unique testing version
