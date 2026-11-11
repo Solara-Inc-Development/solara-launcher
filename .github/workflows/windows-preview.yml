@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 176 - Mod Drag-and-Drop, Multi-file Import, Safe Folder Creation, Backup Subtab Fix, and Robust Shortcuts Isolation.
+# Owner-approved preview candidate: Milestone 187 - Clean Slate Minimal Launcher and Auto-Update Delivery.
 on:
   workflow_dispatch:
   push:
