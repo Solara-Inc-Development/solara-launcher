@@ -1,729 +1,188 @@
 <script setup lang="ts">
-import InstanceAppearance from './InstanceAppearance.vue';
-import TaskProgress from './TaskProgress.vue';
-import InstanceAvatar from './InstanceAvatar.vue';
-import {instanceIcons,resetInstanceIcon} from './instance-icons';
-import {ref,computed,onMounted,onUnmounted,watch,nextTick} from 'vue';
-import {Home,Layers3,Gamepad2,Server,Compass,Plus,Settings,HelpCircle,ChevronDown,ChevronRight,ChevronLeft,ArrowUpRight,ArrowRight,Download,RefreshCw,LogIn,LogOut,Play,Square,Minus,X,Maximize2,FolderOpen,Box,Globe,BookOpen,Terminal,ShieldCheck,Activity,Search,Copy,ExternalLink,Package,Cloud,Monitor,Check,Pause,RotateCcw,Sparkles,GitBranch,User,Lock,Filter,Sliders,Sun,Moon,Coffee,Save} from '../../packages/ui/icons';
-import {useInteractions} from '../../packages/ui/interactions';
-import '../../packages/ui/motion.css';
-import SelectControl from '../../packages/ui/SelectControl.vue';
-import LoaderMark from '../../packages/ui/LoaderMark.vue';
-import buildInfo from '../../packages/shared/build.json';
-import {useAssignments,type Assignment} from './assignments';
-import {features} from '../../packages/shared/features';
-import {searchUrl,versionsUrl,projectUrl,normalizeHits,normalizeVersions,providerJson} from '../../packages/shared/content.mjs';
-import WorldArt from '../../packages/ui/WorldArt.vue';
-import HomeWorkspace from './HomeWorkspace.vue';
-import ContextRail from './ContextRail.vue';
-import InstanceWorkspace from './InstanceWorkspace.vue';
-import LoadingCards from './WorkspaceLoading.vue';
-import {snapshot,publicLoading,currentEvent,preferences,refreshPublic,savePreferences,native,isDesktop,openExternal,eventOptions,preview,latest,links} from '../../packages/shared/client';
-const effectiveTheme=computed(()=>preferences.value.theme==='light'?'light':'dark');
-const effectiveAccent=computed(()=>{
-  if(currentEvent.value && currentEvent.value.id && currentEvent.value.id !== 'none' && currentEvent.value.accent) {
-    return currentEvent.value.accent;
-  }
-  const saved = preferences.value.accent;
-  if(effectiveTheme.value==='light') {
-    return (!saved || saved==='#38bdf8' || saved==='#3dd6f5') ? '#7c3aed' : saved;
-  }
-  return (!saved || saved==='#38bdf8' || saved==='#3dd6f5') ? '#8b5cf6' : saved;
-});
-function accentInk(hex:string){const rgb=hex.replace('#','').match(/.{2}/g)?.map(v=>parseInt(v,16)/255)||[.3,.3,.5];const light=rgb.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*light[0]+.7152*light[1]+.0722*light[2]>.4?'#090a0f':'#ffffff'}
-useInteractions();
-function downloadFraction(job:any):number|undefined {if(!job)return undefined;if(job.total>0&&typeof job.downloaded==='number')return Math.max(0,Math.min(1,job.downloaded/job.total));return typeof job.progress==='number'?Math.max(0,Math.min(1,job.progress)):undefined}
-const section=ref('dashboard'),modal=ref<string|null>(null),busy=ref(false),error=ref(''),message=ref(''),engineReady=ref(false);
-const activeInstanceId=ref<string|null>(null),workspaceRef=ref<any>(null);
-const activeInstance=computed(()=>instances.value.find(i=>i.id===activeInstanceId.value)||null);
-const preferredInstanceId=ref<string>('');
-const appUpdate=ref<any>({state:'waiting'}),coreCapabilities=ref<any>(null),minecraftPrompt=ref<any>(null);
-let removeMinecraftListener:(()=>void)|null=null;
-const bootVisible=ref(true),interfaceReady=ref(false),engineStarting=ref(isDesktop),startupError=ref(''),searching=ref(false),hasSearched=ref(false);
-const instances=ref<any[]>([]),localServers=ref<any[]>([]),hosted=ref<any[]>([]),jobs=ref<any[]>([]),account=ref<any>(null),minecraft=ref<any[]>([]),entitlements=ref<any[]>([]);
-const activeDownload=computed(()=>jobs.value.find(j=>['running','queued','downloading'].includes(j.status)));
-const updateBytes=computed(()=>appUpdate.value.total?`${(appUpdate.value.downloaded/1048576).toFixed(1)} of ${(appUpdate.value.total/1048576).toFixed(1)} MB`:'Downloading the signed app update…');
-const {items:assignments,loading:assignmentsLoading,error:assignmentsError,refresh:loadAssignments}=useAssignments(account);
-const assignmentTarget=ref<Assignment|null>(null),releaseConsent=ref(false);
-const libraryQuery=ref(''),libraryView=ref(localStorage.getItem('solara:library-view')==='list'?'list':'grid'),libraryLoader=ref('all'),librarySort=ref('name'),globalSearch=ref('');
-const visibleInstances=computed(()=>instances.value.filter(i=>(libraryLoader.value==='all'||i.loader===libraryLoader.value)&&`${i.name} ${i.gameVersion} ${i.loader}`.toLowerCase().includes(libraryQuery.value.trim().toLowerCase())).sort((a,b)=>librarySort.value==='version'?(b.gameVersion||'').localeCompare(a.gameVersion||'',undefined,{numeric:true}):librarySort.value==='active'?Number(b.running)-Number(a.running)||a.name.localeCompare(b.name):a.name.localeCompare(b.name)));
-watch(libraryView,value=>localStorage.setItem('solara:library-view',value));
-const versions=ref<any[]>([]),selectedInstance=ref<any>(null),logs=ref(''),serverTab=ref('local'),serviceFilter=ref('all'),query=ref(''),results=ref<any[]>([]),contentType=ref('mod'),exploreLoader=ref('all'),exploreGameVersion=ref('all'),exploreSort=ref('relevance');
-const exploreSortOptions=[{value:'relevance',label:'Sort: Relevance'},{value:'downloads',label:'Sort: Most downloads'},{value:'updated',label:'Sort: Recently updated'},{value:'follows',label:'Sort: Most followers'},{value:'newest',label:'Sort: Newest'}];
-const exploreLoaderOptions=[{value:'all',label:'All loaders'},{value:'fabric',label:'Fabric'},{value:'forge',label:'Forge'},{value:'neoforge',label:'NeoForge'},{value:'quilt',label:'Quilt'}];
-const exploreGameVersionOptions=computed(()=>{
-  const list=versions.value.filter(v=>v.type==='release').map(v=>({value:v.id,label:'MC '+v.id}));
-  if(!list.length){
-    const common=['1.21.4','1.21.1','1.20.4','1.20.1','1.19.4','1.19.2','1.18.2','1.16.5','1.12.2','1.7.10'];
-    return [{value:'all',label:'All game versions'},...common.map(v=>({value:v,label:'MC '+v}))];
-  }
-  return [{value:'all',label:'All game versions'},...list];
-});
-const selectedContent=ref<any>(null),packVersionsLoading=ref(false);let searchController:AbortController|null=null,packController:AbortController|null=null;
-const create=ref({name:'',gameVersion:'',loader:'vanilla',loaderVersion:''});const serverForm=ref({name:'',version:'',javaPath:'java',memory:2048,port:25565,eula:false});
-const loaderChoices=ref<any[]>([]),loaderLoading=ref(false),loaderError=ref('');let loaderRequest=0;
-const assignment=ref({name:'',endpoint:'',port:25565,serverId:'',consent:false});const nativeSettings=ref({memory:4096,javaPath:'java',discord:true});const editForm=ref({name:'',memory:4096,javaPath:''});
-const availableLoaders=computed(()=>coreCapabilities.value?.loaders?loaderInfo.filter(loader=>coreCapabilities.value.loaders.includes(loader.id)):loaderInfo);
-const tabs=[{id:'dashboard',label:'Dashboard',short:'Home',icon:Home},{id:'launcher',label:'Minecraft launcher',short:'Minecraft',icon:Gamepad2},{id:'services',label:'Solara services',short:'Services',icon:Layers3},{id:'explore',label:'Explore mods and modpacks',short:'Explore',icon:Compass}];
-const navHistory=ref<string[]>(['dashboard']),navIndex=ref(0);
-async function travelHistory(delta:number){const next=navIndex.value+delta;if(next<0||next>=navHistory.value.length)return;if(workspaceRef.value&&!await workspaceRef.value.canLeave())return;activeInstanceId.value=null;navIndex.value=next;section.value=navHistory.value[next];contentPane.value?.scrollTo({top:0,behavior:'instant'})}
-function navBack(){void travelHistory(-1)}
-function navForward(){void travelHistory(1)}
-const createSearch=ref('');
-function jumpToExplore(){const q=createSearch.value.trim();close();query.value=q;navigate('explore');if(q)void searchContent()}
-function projectIcon(item:any){const value=(item.name||'').toLowerCase();if(value.includes('auth'))return ShieldCheck;if(value.includes('host'))return Server;if(value.includes('network'))return Globe;if(value.includes('tool'))return Terminal;return Box}
-function statusTone(value:string|null|undefined){const s=(value||'').toLowerCase();if(['operational','online','connected'].includes(s))return 'online';if(['maintenance','degraded','partial outage'].includes(s))return 'warning';if(['offline','outage','unavailable','major outage'].includes(s))return 'offline';return 'unknown'}
-const projects=computed(()=>snapshot.value.data?.projects||[]);const services=computed(()=>snapshot.value.data?.services||[]);const publicReleases=computed(()=>snapshot.value.data?.releases||[]);
-const title=computed(()=>tabs.find(t=>t.id===section.value)?.label||'Settings');const filteredServices=computed(()=>services.value.filter((s:any)=>serviceFilter.value==='all'||s.category===serviceFilter.value));
-const selectedLog=ref<any>(null);let removeNativeListener:(()=>void)|null=null;const contentPane=ref<HTMLElement|null>(null);let lastFocus:HTMLElement|null=null;const loaderInfo=[{id:'vanilla',name:'Vanilla',hint:'The original experience'},{id:'fabric',name:'Fabric',hint:'Light and flexible'},{id:'forge',name:'Forge',hint:'A modding classic'},{id:'quilt',name:'Quilt',hint:'Community focused'},{id:'neoforge',name:'NeoForge',hint:'Build something new'}];
-let timer:ReturnType<typeof setInterval>|null=null,publicTimer:ReturnType<typeof setInterval>|null=null,toastTimer:ReturnType<typeof setTimeout>|null=null;
-function toast(text:string){message.value=text;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>message.value='',7000)}
-async function run(fn:()=>Promise<unknown>){if(busy.value)return;busy.value=true;error.value='';try{await fn()}catch(e){error.value=String(e instanceof Error?e.message:e)}finally{busy.value=false}}
-async function navigate(id:string){if(workspaceRef.value&&!await workspaceRef.value.canLeave())return false;activeInstanceId.value=null;section.value=id;error.value='';if(navHistory.value[navIndex.value]!==id){navHistory.value=navHistory.value.slice(0,navIndex.value+1);navHistory.value.push(id);navIndex.value=navHistory.value.length-1}contentPane.value?.scrollTo({top:0,behavior:'instant'});return true;}
-async function discover(kind:string){if(!await navigate('explore'))return;contentType.value=kind;query.value='';if(!searching.value)void searchContent()}
-async function submitGlobalSearch(){if(!await navigate('explore'))return;searchController?.abort();searchController=null;searching.value=false;query.value=globalSearch.value;void searchContent()}
-async function openInstance(instance:any){if(workspaceRef.value&&!await workspaceRef.value.canLeave())return;activeInstanceId.value=instance.id;section.value='launcher';contentPane.value?.scrollTo({top:0,behavior:'instant'});}
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Minus, Maximize2, X, RefreshCw } from '../../packages/ui/icons';
+import { native, isDesktop } from '../../packages/shared/client';
 
-function close(){modal.value=null;error.value=''}
-function show(kind:string){modal.value=kind;error.value=''}
-async function external(url:string){try{await openExternal(url)}catch(e){toast(String(e))}}
-let lastWindowActionTime=0;
-let lastWindowActionType='';
-async function windowAction(action:string){
-  const now=Date.now();
-  if(lastWindowActionType===action&&now-lastWindowActionTime<300)return;
-  lastWindowActionTime=now;
-  lastWindowActionType=action;
-  try{
-    await native('window_action',{action});
-  }catch(e){
-    if(isDesktop){
-      try{
-        const{getCurrentWindow}=await import('@tauri-apps/api/window');
-        const win=getCurrentWindow();
-        if(action==='close')await win.close();
-        else if(action==='minimize')await win.minimize();
-        else if(action==='maximize')await win.toggleMaximize();
-      }catch(err){
-        console.error('Window action fallback failed:',err);
+const checking = ref(false);
+const updateMessage = ref('');
+const isError = ref(false);
+const isSuccess = ref(false);
+const appUpdate = ref<any>({ state: 'idle', downloaded: 0, total: null });
+
+let pollTimer: ReturnType<typeof setInterval> | null = null;
+let lastWindowActionTime = 0;
+let lastWindowActionType = '';
+
+const progressPercent = computed(() => {
+  if (appUpdate.value?.total && appUpdate.value.total > 0 && typeof appUpdate.value.downloaded === 'number') {
+    return Math.min(100, Math.max(0, Math.round((appUpdate.value.downloaded / appUpdate.value.total) * 100)));
+  }
+  return 0;
+});
+
+const updateProgressText = computed(() => {
+  if (appUpdate.value?.total && appUpdate.value.total > 0) {
+    const dl = (appUpdate.value.downloaded / 1048576).toFixed(1);
+    const tot = (appUpdate.value.total / 1048576).toFixed(1);
+    return `${dl} MB of ${tot} MB (${progressPercent.value}%)`;
+  }
+  return 'Downloading signed update…';
+});
+
+async function windowAction(action: string) {
+  const now = Date.now();
+  if (lastWindowActionType === action && now - lastWindowActionTime < 300) return;
+  lastWindowActionTime = now;
+  lastWindowActionType = action;
+
+  if (isDesktop) {
+    try {
+      await native('window_action', { action });
+    } catch {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        const win = getCurrentWindow();
+        if (action === 'close') await win.close();
+        else if (action === 'minimize') await win.minimize();
+        else if (action === 'maximize') await win.toggleMaximize();
+      } catch (err) {
+        console.error('Window action failed:', err);
       }
-    }else{
-      console.error('Window action failed:',e);
     }
   }
 }
-function onWindowButtonUp(action:string,e:MouseEvent|PointerEvent){
-  const btn=e.currentTarget as HTMLElement|null;
-  if(!btn)return;
-  const rect=btn.getBoundingClientRect();
-  if(e.clientX>=rect.left&&e.clientX<=rect.right&&e.clientY>=rect.top&&e.clientY<=rect.bottom){
+
+function onWindowButtonUp(action: string, e: MouseEvent | PointerEvent) {
+  const btn = e.currentTarget as HTMLElement | null;
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
     void windowAction(action);
   }
 }
-async function onTitlebarMouseDown(e:MouseEvent){if(e.button!==0)return;const target=e.target as HTMLElement|null;if(target?.closest('.window-buttons,button,input,select,textarea,a,.titlebar-build,.app-topbar'))return;if(isDesktop){try{const{getCurrentWindow}=await import('@tauri-apps/api/window');await getCurrentWindow().startDragging()}catch{void native('start_dragging').catch(()=>{})}}}
-function onTitlebarDblClick(e:MouseEvent){if((e.target as HTMLElement)?.closest('.window-buttons,button,input,select,textarea,a,.app-topbar')===null){void windowAction('maximize')}}
-function formatDownloads(num:number|null|undefined):string{if(!num||num<=0)return '';if(num>=1_000_000)return (num/1_000_000).toFixed(1).replace(/\.0$/,'')+'M';if(num>=1_000)return (num/1_000).toFixed(1).replace(/\.0$/,'')+'k';return String(num)}
-async function plus(){show('create-instance');if(!versions.value.length)void loadVersions()}
-async function pollLocal(){if(!isDesktop||!engineReady.value)return;try{const s=await native('launcher_snapshot');if(!s)return;instances.value=Array.isArray(s.instances)?s.instances:[];localServers.value=Array.isArray(s.localServers)?s.localServers:[];jobs.value=Array.isArray(s.downloads)?s.downloads:[];minecraft.value=Array.isArray(s.minecraftAccounts)?s.minecraftAccounts:[];appUpdate.value=await native('app_update_status')||{state:'waiting'};if(selectedLog.value)logs.value=await native('local_server_logs',{id:selectedLog.value.id});}catch(e){toast(String(e))}}
-async function loadLoaderVersions(){const token=++loaderRequest;loaderChoices.value=[];loaderError.value='';if(!isDesktop||create.value.loader==='vanilla'||!create.value.gameVersion){loaderLoading.value=false;return}loaderLoading.value=true;try{const choices=await native('loader_versions',{gameVersion:create.value.gameVersion,loader:create.value.loader});if(token===loaderRequest)loaderChoices.value=choices}catch(e){if(token===loaderRequest)loaderError.value=String(e)}finally{if(token===loaderRequest)loaderLoading.value=false}}
-watch(()=>[create.value.gameVersion,create.value.loader],()=>{create.value.loaderVersion='';void loadLoaderVersions()});
-async function loadVersions(){await run(async()=>{versions.value=await native('minecraft_versions');if(!create.value.gameVersion)create.value.gameVersion=versions.value.find(v=>v.type==='release')?.id||'';if(!serverForm.value.version)serverForm.value.version=create.value.gameVersion})}
-async function prepareInterface(){
-  let deadline:ReturnType<typeof setTimeout>|undefined;
-  const artwork=(src:string)=>new Promise<void>(resolve=>{const img=new Image();img.onload=()=>{void img.decode().catch(()=>{}).then(()=>resolve())};img.onerror=()=>resolve();img.src=src});
-  try{await Promise.race([Promise.all([artwork('/logo.svg'),document.fonts.ready.catch(()=>{})]),new Promise<void>(resolve=>{deadline=setTimeout(resolve,8000)})])}finally{if(deadline)clearTimeout(deadline);interfaceReady.value=true}
-}
-async function init(){
-  void refreshPublic();if(!isDesktop)return;
-  engineStarting.value=true;startupError.value='';error.value='';
-  try{await native('initialize_launcher');coreCapabilities.value=await native('launcher_capabilities');nativeSettings.value=await native('launcher_settings');engineReady.value=true;await pollLocal();if(timer)clearInterval(timer);timer=setInterval(()=>void pollLocal(),3000);void native('solara_profile').then(value=>account.value=value).catch(e=>toast(String(e)))}
-  catch(e){engineReady.value=false;startupError.value=String(e instanceof Error?e.message:e);error.value='Local launcher could not start: '+startupError.value}
-  finally{engineStarting.value=false}
-}
-watch([interfaceReady,engineStarting],()=>{if(interfaceReady.value&&!engineStarting.value&&!startupError.value)bootVisible.value=false});
-function retryStartup(){bootVisible.value=true;void init()}
 
-async function signIn(){let signed=false;await run(async()=>{account.value=await native('solara_sign_in');signed=true;toast('Signed in to Solara. Your Minecraft account is separate.')});if(signed)await loadHosted()}
-async function signOut(){await run(async()=>{try{await native('solara_sign_out')}finally{account.value=null;hosted.value=[];entitlements.value=[];}toast('Solara session signed out. Minecraft accounts are unchanged.')})}
-async function mcSignIn(){await run(async()=>{try{await native('minecraft_sign_in');await pollLocal();toast('Minecraft account verified and saved on this device.')}finally{minecraftPrompt.value=null;if(modal.value==='minecraft-login')close();}})}
-async function mcLogout(id:string){await run(async()=>{await native('minecraft_sign_out',{id});await pollLocal()})}
-async function createInstance(){await run(async()=>{await native('create_instance',{...create.value});close();await pollLocal();section.value='launcher';toast('Instance installation queued. Follow its progress in Downloads.')})}
-async function createPreset(preset:any){await run(async()=>{await native('create_instance',{name:preset.name,gameVersion:preset.gameVersion,loader:preset.loader,loaderVersion:preset.loaderVersion||''});close();await pollLocal();section.value='launcher';toast(`Instance "${preset.name}" installation queued. Follow progress in Downloads.`)});}
-const duplicateTarget = ref<any>(null);
-const duplicateName = ref('');
-const isDuplicating = ref(false);
-
-function duplicateInstance(instance:any){
-  duplicateTarget.value = instance;
-  const raw = `${instance.name} (Copy)`;
-  duplicateName.value = raw.length > 80 ? raw.slice(0, 80) : raw;
-  isDuplicating.value = false;
-  show('duplicate-instance');
+async function onTitlebarMouseDown(e: MouseEvent) {
+  if (e.button !== 0) return;
+  const target = e.target as HTMLElement | null;
+  if (target?.closest('.window-buttons,button')) return;
+  if (isDesktop) {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      await getCurrentWindow().startDragging();
+    } catch {
+      void native('start_dragging').catch(() => {});
+    }
+  }
 }
 
-async function performDuplicate(){
-  if(!duplicateTarget.value||isDuplicating.value)return;
-  const source=duplicateTarget.value;
-  const rawTarget=duplicateName.value.trim()||`${source.name} (Copy)`;
-  const targetName=rawTarget.length > 80 ? rawTarget.slice(0, 80) : rawTarget;
-  isDuplicating.value=true;
-  await run(async()=>{
-    try{
-      const duplicated: any = await native('duplicate_instance',{id:source.id,name:targetName});
-      if(duplicated?.id){
-        // Preserve custom instance icon if one was set on source
-        if(instanceIcons.value[source.id]){
-          instanceIcons.value={...instanceIcons.value,[duplicated.id]:instanceIcons.value[source.id]};
-          try{localStorage.setItem('solara:instance-icons:v1',JSON.stringify(instanceIcons.value))}catch{}
-        }
-        // Preserve instance notes if set on source
-        const sourceNotes=localStorage.getItem(`solara:notes:${source.id}`);
-        if(sourceNotes){
-          try{localStorage.setItem(`solara:notes:${duplicated.id}`,sourceNotes)}catch{}
-        }
-        // Preserve custom display preferences if set on source
-        const sourceDisplay=localStorage.getItem(`solara:display:${source.id}`);
-        if(sourceDisplay){
-          try{localStorage.setItem(`solara:display:${duplicated.id}`,sourceDisplay)}catch{}
-        }
+function onTitlebarDblClick(e: MouseEvent) {
+  if ((e.target as HTMLElement)?.closest('.window-buttons,button') === null) {
+    void windowAction('maximize');
+  }
+}
+
+async function checkUpdates() {
+  if (checking.value) return;
+  checking.value = true;
+  isError.value = false;
+  isSuccess.value = false;
+  updateMessage.value = 'Checking for updates…';
+
+  try {
+    if (isDesktop) {
+      const res = await native('check_update');
+      if (res?.available) {
+        isSuccess.value = true;
+        updateMessage.value = `Update ${res.version ? 'v' + res.version + ' ' : ''}is available! Downloading…`;
+      } else {
+        isSuccess.value = true;
+        updateMessage.value = 'You are up to date.';
       }
-      close();
-      await pollLocal();
-      toast(`Duplicated "${source.name}" into "${targetName}". Worlds, mods, and settings cloned.`);
-    }finally{
-      isDuplicating.value=false;
+    } else {
+      // Browser preview mode
+      await new Promise(r => setTimeout(r, 400));
+      isSuccess.value = true;
+      updateMessage.value = 'You are up to date.';
     }
-  });
-}
-async function deleteInstance(id:string){
-  await run(async()=>{
-    await native('delete_instance',{id});
-    if(activeInstanceId.value===id){activeInstanceId.value=null}
-    resetInstanceIcon(id);
-    try{
-      localStorage.removeItem(`solara:notes:${id}`);
-      localStorage.removeItem(`solara:display:${id}`);
-    }catch{}
-    await pollLocal();
-    toast('Instance deleted.');
-  });
-}
-async function copyText(text:string){if(!text)return;await navigator.clipboard.writeText(text);toast('Copied to clipboard.')}
-async function retryInstall(instance:any){await run(async()=>{await native('retry_instance',{id:instance.id});await pollLocal();toast('Installation queued. Your worlds are kept.');})}
-async function launch(instance:any){
-  if(!minecraft.value.some(a=>a.active)){
-    toast('Sign in with a Minecraft account that owns Minecraft Java Edition to play.');
-    await mcSignIn();
-    return;
+  } catch (err: any) {
+    isError.value = true;
+    updateMessage.value = String(err?.message || err || 'Failed to check for updates');
+  } finally {
+    checking.value = false;
   }
-  await run(async()=>{await native('launch_instance',{id:instance.id});await pollLocal();toast('Minecraft launch requested. Follow the local process state.')});
 }
-async function stopGame(instance:any){await run(async()=>{await native('stop_instance',{id:instance.id});await pollLocal()})}
-async function editInstance(instance:any){selectedInstance.value=instance;editForm.value={name:instance.name,memory:instance.memory||nativeSettings.value.memory,javaPath:instance.javaPath||''};show('edit-instance')}
-async function saveInstance(){await run(async()=>{await native('edit_instance',{id:selectedInstance.value.id,...editForm.value});close();await pollLocal()})}
-async function instanceLogs(instance:any){await run(async()=>{logs.value=await native('instance_logs',{id:instance.id});selectedLog.value=null;show('logs')})}
-async function copyLogs(){if(!logs.value)return;await run(async()=>{await navigator.clipboard.writeText(logs.value);toast('Logs copied to clipboard.')})}
-async function saveServer(){await run(async()=>{await native('create_local_server',{...serverForm.value});close();await pollLocal();section.value='servers';toast('Local server setup queued. Files stay on this device.')})}
-async function localPower(s:any,action:string){await run(async()=>{await native('local_server_action',{id:s.id,action});await pollLocal()})}
-async function localLogs(s:any){await run(async()=>{selectedLog.value=s;logs.value=await native('local_server_logs',{id:s.id});show('logs')})}
-async function loadHosted(){if(!account.value)return;await run(async()=>{const d=await native('solara_request',{method:'GET',path:'/v1/launcher/servers',body:null});hosted.value=d.servers||[]})}
-async function remotePower(s:any,action:string){await run(async()=>{await native('solara_request',{method:'POST',path:`/v1/launcher/servers/${encodeURIComponent(s.id)}/power`,body:{action}});toast('Panel accepted the power request.');});await loadHosted()}
-function beginAssignment(){assignmentTarget.value=null;assignment.value={name:'',endpoint:'',port:25565,serverId:localServers.value.length===1?localServers.value[0].id:'',consent:false};show('assignment')}
-function editAssignment(item:Assignment){assignmentTarget.value=item;assignment.value={name:item.name,endpoint:item.endpoint,port:item.port,serverId:item.serverId,consent:false};show('edit-assignment')}
-function beginRelease(item:Assignment){assignmentTarget.value=item;releaseConsent.value=false;show('release-assignment')}
-async function saveAssignment(){
-  const target=assignmentTarget.value,editing=modal.value==='edit-assignment';
-  if(editing&&!target)return;
-  await run(async()=>{await native('solara_request',{method:editing?'PATCH':'POST',path:'/v1/launcher/assignments'+(editing?'/'+target!.id:''),body:editing?{endpoint:assignment.value.endpoint,port:assignment.value.port,consent:assignment.value.consent}:{...assignment.value}});close();toast(editing?'Server address updated.':'Server address request completed.');});await loadAssignments();
-}
-async function copyAssignment(item:Assignment){if(!item.hostname)return;await run(async()=>{await navigator.clipboard.writeText(item.hostname!);toast('Server address copied.')})}
-async function releaseAssignment(){
-  const target=assignmentTarget.value;if(!target||!releaseConsent.value)return;
-  await run(async()=>{await native('solara_request',{method:'DELETE',path:'/v1/launcher/assignments/'+target.id,body:null});close();toast('Server address released. Your local server files stay on this device.');});await loadAssignments();
-}
-watch([section,serviceFilter,()=>account.value?.id],()=>{if(section.value==='services'&&(serviceFilter.value==='all'||serviceFilter.value==='hosting'))void loadAssignments()});
 
-async function searchContent(){
-  if(searching.value)return;
-  searchController?.abort();const controller=new AbortController();searchController=controller;
-  const kind=contentType.value;searching.value=true;error.value='';
-  try{
-    const options:any={};
-    if(['mod','modpack'].includes(kind)&&exploreLoader.value!=='all')options.loader=exploreLoader.value;
-    if(exploreGameVersion.value!=='all')options.gameVersion=exploreGameVersion.value;
-    if(exploreSort.value!=='relevance')options.index=exploreSort.value;
-    const data=await providerJson(searchUrl(query.value,kind,options),AbortSignal.any([controller.signal,AbortSignal.timeout(10000)]));
-    if(searchController!==controller)return;
-    results.value=normalizeHits(data,kind);hasSearched.value=true;
-  }
-  catch(e){if(!controller.signal.aborted)error.value=String(e instanceof Error?e.message:e)}
-  finally{if(searchController===controller){searchController=null;searching.value=false}}
-}
-watch([contentType,exploreLoader,exploreGameVersion,exploreSort],()=>{searchController?.abort();searchController=null;searching.value=false;results.value=[];hasSearched.value=false;error.value='';void searchContent();});
-watch(section,sec=>{if(sec==='explore'&&!results.value.length&&!searching.value)void searchContent()});
-const eligibleTargetInstances=computed(()=>{const kind=selectedContent.value?.kind;if(!kind||kind==='modpack')return [];return kind==='mod'?instances.value.filter(i=>i.loader&&i.loader!=='vanilla'):instances.value});
-async function installContent(hit:any){
-  const kind=hit.project_type;
-  if(kind!=='modpack'){
-    const targets=kind==='mod'?instances.value.filter(i=>i.loader&&i.loader!=='vanilla'):instances.value;
-    if(!targets.length){toast(kind==='mod'?'Create a Fabric or Quilt instance before adding mods.':'Create an instance before adding mods or packs.');return}
-    const defaultTarget=(preferredInstanceId.value&&targets.find(t=>t.id===preferredInstanceId.value))||targets[0];
-    selectedContent.value={project:hit,kind,instanceId:defaultTarget?.id||'',versionId:'',versions:[],error:''};show('install-content');return;
-  }
-  selectedContent.value={project:hit,kind,instanceId:'',versionId:'',versions:[],error:''};show('install-content');void loadPackVersions();
-}
-function cardCompatibilityChips(hit:any):string[]{
-  if(!Array.isArray(hit?.categories))return [];
-  const map:Record<string,string>={fabric:'Fabric',forge:'Forge',neoforge:'NeoForge',quilt:'Quilt',iris:'Iris',optifine:'OptiFine',canvas:'Canvas'};
-  const set=new Set<string>();
-  for(const c of hit.categories){
-    const label=map[String(c).toLowerCase()];
-    if(label)set.add(label);
-  }
-  return Array.from(set).slice(0,4);
-}
-async function loadPackVersions(){
-  const draft=selectedContent.value;if(!draft||draft.kind!=='modpack')return;
-  packController?.abort();const controller=new AbortController();packController=controller;packVersionsLoading.value=true;draft.error='';
-  try{const data=await providerJson(versionsUrl(draft.project.project_id),AbortSignal.any([controller.signal,AbortSignal.timeout(10000)]));if(packController!==controller)return;const supported=Array.isArray(coreCapabilities.value?.loaders)?new Set([...coreCapabilities.value.loaders,'minecraft']):null;draft.versions=normalizeVersions(data,draft.project.project_id).filter((v:any)=>!supported||!v.loaders||v.loaders.split(', ').some((l:string)=>supported.has(l.toLowerCase())));draft.versionId=(draft.versions.find((v:any)=>v.type==='release')||draft.versions[0])?.id||''}
-  catch(e){if(!controller.signal.aborted)draft.error=String(e instanceof Error?e.message:e)}
-  finally{if(packController===controller){packController=null;packVersionsLoading.value=false}}
-}
-async function confirmInstall(){
-  const draft=selectedContent.value;if(!draft||!engineReady.value)return;
-  if(draft.kind==='modpack'&&!draft.versions.some((v:any)=>v.id===draft.versionId))return;
-  if(draft.kind!=='modpack'&&!eligibleTargetInstances.value.some(i=>i.id===draft.instanceId))return;
-  await run(async()=>{await native('install_content',{instanceId:draft.kind==='modpack'?null:draft.instanceId,projectId:draft.project.project_id,contentType:draft.kind,versionId:draft.kind==='modpack'?draft.versionId:null});if(modal.value==='install-content'&&selectedContent.value===draft)close();toast(draft.kind==='modpack'?'Modpack installation queued. Follow its progress in Downloads.':'Content installation requested for your instance.');await pollLocal();if(draft.kind==='modpack'&&section.value==='explore')navigate('launcher')});
-}
-watch(modal,value=>{if(value!=='minecraft-login'&&minecraftPrompt.value){void native('cancel_minecraft_sign_in').catch(()=>{});minecraftPrompt.value=null;}if(value!=='install-content'){packController?.abort();packController=null;packVersionsLoading.value=false;selectedContent.value=null}});
-
-async function downloadAction(job:any,action:string){if(action==='cancel'){try{await native('download_action',{id:job.id,action});await pollLocal()}catch(e){error.value=String(e)}return}await run(async()=>{await native('download_action',{id:job.id,action});await pollLocal()})}
-const activeJobsCount=computed(()=>jobs.value.filter(j=>['running','queued','downloading'].includes(j.status)).length);
-const hasCompletedJobs=computed(()=>jobs.value.some(j=>['completed','failed','cancelled'].includes(j.status)));
-const totalDownloadSpeed=computed(()=>jobs.value.filter(j=>['running','downloading'].includes(j.status)&&typeof j.speed==='number').reduce((acc,j)=>acc+(j.speed||0),0));
-async function clearCompletedDownloads(){if(isDesktop&&engineReady.value){try{await native('clear_finished_downloads');await pollLocal();}catch{jobs.value=jobs.value.filter(j=>['running','queued','downloading'].includes(j.status));}}else{jobs.value=jobs.value.filter(j=>['running','queued','downloading'].includes(j.status));}toast('Completed downloads cleared.');}
-async function saveNative(){await run(async()=>{await native('save_launcher_settings',{...nativeSettings.value});toast('Local launcher preferences saved.')})}
-async function checkUpdates(){await run(async()=>{const r=await native('check_update');toast(r.available?`Update ${r.version?'v'+r.version+' ':''}is available. Solara will apply it automatically when your games and downloads are finished.`:'You are up to date.');})}
-
-async function loadEntitlements(){await run(async()=>{const d=await native('solara_request',{method:'GET',path:'/v1/launcher/entitlements',body:null});entitlements.value=d.entitlements||[];show('beta')})}
-watch(engineReady,v=>{if(v&&['create-instance','create-server'].includes(modal.value||''))void loadVersions()});watch(preferences,()=>savePreferences(),{deep:true});watch(modal,async v=>{if(v!=='logs')selectedLog.value=null;if(v){lastFocus=document.activeElement as HTMLElement;await nextTick();(document.querySelector('.modal input,.modal [role=combobox],.modal .close') as HTMLElement)?.focus();}else{lastFocus?.focus();}});
-function trapDialog(e:KeyboardEvent){if(e.key==='Escape'){close();return};if(e.key!=='Tab')return;const nodes=[...document.querySelectorAll<HTMLElement>('.modal button:not(:disabled),.modal input:not(:disabled),.modal select:not(:disabled),.modal a[href]')].filter(el=>el.offsetParent!==null&&el.tabIndex!==-1);const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
-function handleGlobalKey(e:KeyboardEvent){
-  if(e.key==='Escape'&&modal.value){e.preventDefault();close();return}
-  const target=e.target as HTMLElement|null;
-  const tag=target?.tagName;
-  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||target?.isContentEditable)return;
-  if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='d'||e.key.toLowerCase()==='j')){
-    e.preventDefault();
-    if(modal.value==='downloads'){
-      close();
-    }else{
-      show('downloads');
+async function pollStatus() {
+  if (!isDesktop) return;
+  try {
+    const s = await native('app_update_status');
+    if (s && typeof s === 'object') {
+      appUpdate.value = s;
+      if (s.state === 'downloading') {
+        updateMessage.value = 'Downloading update…';
+      } else if (s.state === 'installing') {
+        updateMessage.value = 'Installing update…';
+      } else if (s.state === 'waiting-for-idle') {
+        updateMessage.value = 'Update downloaded. Will install when idle.';
+      } else if (s.state === 'up-to-date' && !checking.value) {
+        if (!updateMessage.value) updateMessage.value = 'You are up to date.';
+      }
     }
-    return;
-  }
-  if(modal.value)return;
-  if((e.ctrlKey||e.metaKey)&&(e.key==='1'||e.key==='2'||e.key==='3'||e.key==='4')){
-    e.preventDefault();
-    const tabMap: Record<string, string>={'1':'dashboard','2':'launcher','3':'services','4':'explore'};
-    if(tabMap[e.key]) navigate(tabMap[e.key]);
-  }
-  else if((e.ctrlKey||e.metaKey)&&e.key===','){
-    e.preventDefault();
-    navigate('settings');
-  }
-  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'){e.preventDefault();plus()}
-  else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='f'||e.key.toLowerCase()==='k')){
-    e.preventDefault();
-    if(section.value==='dashboard'||section.value==='launcher'){
-      const input=document.querySelector('.library-search-box input,.library-search input,.global-search input') as HTMLInputElement|null;
-      input?.focus();
-      input?.select();
-    }else{
-      navigate('explore');
-    }
-  }
-  else if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
-    e.preventDefault();
-    const globalInput=document.querySelector('.global-search input,.library-search-box input,.library-search input') as HTMLInputElement|null;
-    globalInput?.focus();
-    globalInput?.select();
-  }
-  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='r'){
-    e.preventDefault();
-    void pollLocal();
-    void refreshPublic();
-    toast('Refreshed library and ecosystem status.');
-  }
-  else if(e.key==='?'&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
-    show('shortcuts');
-  }
+  } catch {}
 }
-onMounted(()=>{window.addEventListener('keydown',handleGlobalKey);if(isDesktop)void import('@tauri-apps/api/event').then(async({listen})=>{removeNativeListener=await listen('shutdown-error',event=>toast(String(event.payload)));removeMinecraftListener=await listen('minecraft-login-code',event=>{minecraftPrompt.value=event.payload;show('minecraft-login')})});void prepareInterface();void init();publicTimer=setInterval(()=>void refreshPublic(),60000)});onUnmounted(()=>{window.removeEventListener('keydown',handleGlobalKey);searchController?.abort();packController?.abort();removeNativeListener?.();removeMinecraftListener?.();if(timer)clearInterval(timer);if(publicTimer)clearInterval(publicTimer);if(toastTimer)clearTimeout(toastTimer)});
-async function copyAddress(){await navigator.clipboard.writeText(snapshot.value.data.network.address);toast('Server address copied.')}
-const date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+
+onMounted(async () => {
+  if (isDesktop) {
+    try {
+      await native('initialize_launcher');
+    } catch (e) {
+      console.warn('Initialize launcher error:', e);
+    }
+    await pollStatus();
+    pollTimer = setInterval(() => void pollStatus(), 3000);
+  }
+});
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer);
+});
 </script>
+
 <template>
-<div class="shell" :data-theme="effectiveTheme" :style="{'--accent':effectiveAccent,'--accent-ink':accentInk(effectiveAccent)}" :data-reduced-motion="preferences.motion" :data-section="section">
-  <div class="titlebar" :inert="modal?true:undefined">
-    <div class="titlebar-drag-area" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick">
-      <span class="name" data-tauri-drag-region><img src="/logo.svg" alt="">solara<span class="titlebar-edition">LAUNCHER</span><span class="titlebar-build">{{buildInfo.publicVersion||'PREVIEW'}}</span></span>
-      <span class="titlebar-caption" data-tauri-drag-region>Your games. Your little universe.</span>
-    </div>
-    <div class="window-buttons" data-tauri-drag-region="false" @pointerdown.stop @mousedown.stop>
-      <button type="button" data-tauri-drag-region="false" title="Minimize" aria-label="Minimize" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('minimize',$event)" @mouseup.stop="onWindowButtonUp('minimize',$event)" @click.stop="windowAction('minimize')"><Minus/></button>
-      <button type="button" data-tauri-drag-region="false" title="Maximize or restore" aria-label="Maximize or restore" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('maximize',$event)" @mouseup.stop="onWindowButtonUp('maximize',$event)" @click.stop="windowAction('maximize')"><Maximize2/></button>
-      <button type="button" data-tauri-drag-region="false" title="Close Solara" aria-label="Close Solara" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('close',$event)" @mouseup.stop="onWindowButtonUp('close',$event)" @click.stop="windowAction('close')"><X/></button>
-    </div>
-  </div>
-  <aside class="sidebar" :inert="modal||bootVisible?true:undefined">
-    <div class="rail-brand"><span class="brand-logo-wrap"><img class="brand-logo" src="/logo.svg" alt="Solara"></span><span>Make it your world.<small>THE SOLARA WORKSPACE</small></span></div>
-    <span class="sidebar-caption">WORKSPACE</span>
-    <nav aria-label="Main navigation"><button v-for="t in tabs" :key="t.id" :data-tooltip="t.label" :aria-label="t.label" :aria-current="section===t.id?'page':undefined" :class="{active:section===t.id}" @click="navigate(t.id)"><component :is="t.icon"/><span class="nav-label">{{t.id==='launcher'?'Library':t.id==='explore'?'Discover':t.short}}</span><span v-if="t.id==='launcher'&&instances.length" class="nav-count">{{instances.length}}</span></button></nav>
-    <button class="nav-plus" data-tooltip="Create Minecraft instance" aria-label="Create Minecraft instance" @click="plus"><Plus/><span class="nav-label">Create instance</span><kbd>N</kbd></button>
-    <div class="sidebar-library"><div class="sidebar-section-heading"><span>YOUR INSTANCES</span><button title="Open your library" aria-label="Open your library" @click="navigate('launcher')"><ChevronRight :size="14"/></button></div><div v-if="!instances.length" class="sidebar-library-empty"><Box :size="22"/><p>Your next adventure<br>will live here.</p></div><button v-for="i in instances.slice(0,6)" :key="i.id" class="sidebar-instance" :class="{selected:activeInstanceId===i.id}" :title="i.name" :aria-label="'Open sidebar instance '+i.name" @click="openInstance(i)"><InstanceAvatar :instance="i"/><span><strong>{{i.name}}</strong><small>{{i.gameVersion}} · {{i.loader}}</small></span><span v-if="i.running" class="dot"/></button></div>
-    <div class="sidebar-bottom"><button class="sidebar-discover" @click="navigate('explore')"><Sparkles/><span>Find your next favourite.<small>Explore mods &amp; modpacks</small></span><ArrowUpRight :size="14"/></button><div class="bottom-nav"><button data-tooltip="Help and support" aria-label="Help and support" @click="external(links.support)"><HelpCircle/><span class="nav-label">Help &amp; support</span></button><button data-tooltip="Settings" aria-label="Settings" :class="{active:section==='settings'}" @click="navigate('settings')"><Settings/><span class="nav-label">Settings</span></button></div></div>
-  </aside>
-  <div class="main-column" :inert="modal||bootVisible?true:undefined">
-    <header class="app-topbar" data-tauri-drag-region="false" @pointerdown.stop @mousedown.stop><div class="toolbar-location"><div class="nav-history-arrows"><button class="history-arrow-btn" :disabled="navIndex<=0" title="Back" aria-label="Go back" @click="navBack"><ChevronLeft :size="13"/></button><button class="history-arrow-btn" :disabled="navIndex>=navHistory.length-1" title="Forward" aria-label="Go forward" @click="navForward"><ChevronRight :size="13"/></button></div><span class="toolbar-divider"></span><span class="toolbar-current"><component :is="tabs.find(t=>t.id===section)?.icon||Settings" :size="13"/><strong>{{activeInstance?activeInstance.name:section==='dashboard'?'Home':section==='launcher'?'Library':section==='explore'?'Discover':section==='services'?'Services':'Settings'}}</strong></span></div>
-      <form class="global-search" role="search" @submit.prevent="submitGlobalSearch"><Search :size="12"/><input v-model="globalSearch" aria-label="Search all content" placeholder="Find your next adventure…"><kbd>↵</kbd></form>
-      <div class="top-right"><span class="toolbar-running" :class="{running:instances.some(i=>i.running)}"><span class="dot"/><span>{{instances.find(i=>i.running)?.name||'No games running'}}</span><button v-if="instances.some(i=>i.running)" aria-label="Stop running game" @click="stopGame(instances.find(i=>i.running))"><Square :size="9"/></button><button v-if="instances.some(i=>i.running)" aria-label="View running game logs" @click="instanceLogs(instances.find(i=>i.running))"><Terminal :size="9"/></button></span><button class="toolbar-downloads" aria-label="Open downloads" title="Open downloads" @click="show('downloads')"><Download :size="11"/><span v-if="jobs.some(j=>['running','queued','downloading'].includes(j.status))" class="toolbar-download-dot"></span></button><span v-if="busy||searching||packVersionsLoading" class="app-busy" aria-label="An operation is in progress"></span><button class="topbar-mc-account" :disabled="busy||!engineReady" :title="minecraft.find(a=>a.active)?'Manage Minecraft account':'Sign in to Minecraft'" @click="minecraft.some(a=>a.active)?navigate('launcher'):mcSignIn()"><span class="topbar-avatar"><User :size="12"/></span><span class="topbar-mc-name">{{minecraft.find(a=>a.active)?.name||'Minecraft account'}}</span></button><button v-if="!account" class="signin" aria-label="Sign in to Solara" :disabled="busy||!isDesktop" @click="signIn"><LogIn :size="11"/> <span>Sign in</span></button><button v-else class="signin" @click="show('account')"><ShieldCheck :size="11"/><span>{{account.name||account.username}}</span><ChevronDown :size="10"/></button></div>
-    </header>
-  <main ref="contentPane" class="app-content" :aria-label="title"><div :key="section" class="section-view">
-    <div v-if="error" class="banner error" role="alert" style="margin-bottom:20px">{{error}}</div>
-    <HomeWorkspace v-if="section==='dashboard'" :instances="instances" :projects="projects" :services="services" :account="account" :minecraft="minecraft" :loading="publicLoading" :api-state="snapshot.state" @open-instance="openInstance" @create="plus" @navigate="navigate" @external="external" @refresh="refreshPublic" @play="launch" @stop="stopGame" @discover="discover" @account="mcSignIn" @copy="copyText" @solara-signin="signIn" @create-preset="createPreset" @duplicate="duplicateInstance" @open-folder="(i)=>run(()=>native('open_instance_folder',{id:i.id}))"/>
-    <template v-if="section==='launcher'">
-      <InstanceWorkspace v-if="activeInstance" ref="workspaceRef" :instance="activeInstance" :jobs="jobs" :account-ready="minecraft.some(a=>a.active)" :parent-busy="busy" @back="activeInstanceId=null" @play="launch" @stop="stopGame" @account="mcSignIn" @refresh="pollLocal" @browse-mods="(id?:string)=>{preferredInstanceId=id||activeInstance?.id||'';navigate('explore')}" @duplicate="duplicateInstance" @delete="deleteInstance"/>
-      <template v-else>
-      <p v-if="coreCapabilities?.preview" class="banner notice" style="margin-bottom:18px">Testing build: {{availableLoaders.map(l=>l.name).join(', ')}}. More loader support is being added.</p>
-      <div class="library-workspace-header"><div><span class="workspace-kicker">ALL YOUR WORLDS, IN ONE PLACE</span><h1>Your library.</h1><p>Open an instance to manage its mods, files and settings.</p></div><button class="workspace-play" @click="plus"><Plus/> New instance</button></div>
-      <div class="library-toolbar"><label class="library-search"><Search/><input v-model="libraryQuery" aria-label="Search your library" placeholder="Search your library…"><button v-if="libraryQuery" type="button" class="search-clear-btn" aria-label="Clear library search" @click="libraryQuery=''"><X :size="12"/></button></label><SelectControl v-model="librarySort" label="Sort library" :options="[{value:'name',label:'Name: A–Z'},{value:'active',label:'Running first'},{value:'version',label:'Game version'}]"/><span class="library-count">{{instances.length}} {{instances.length===1?'instance':'instances'}}</span><div class="library-view-toggle" aria-label="Library view"><button :aria-pressed="libraryView==='grid'" aria-label="Show grid view" @click="libraryView='grid'"><Box/> Grid</button><button :aria-pressed="libraryView==='list'" aria-label="Show list view" @click="libraryView='list'"><Layers3/> List</button></div></div>
-      <div class="library-loader-filters" aria-label="Filter library by loader"><button v-for="loader in ['all','vanilla','fabric','quilt','forge','neoforge']" :key="loader" class="filter-pill" :class="{active:libraryLoader===loader}" :aria-pressed="libraryLoader===loader" @click="libraryLoader=loader">{{loader==='all'?'All instances':loaderInfo.find(l=>l.id===loader)?.name||loader}}</button></div><div class="card account-box" style="margin-bottom:24px"><div class="account-details"><span class="account-emblem"><User/></span><div><h3>{{minecraft.length?minecraft.find(a=>a.active)?.name||'Minecraft accounts':'Add your Minecraft account'}}</h3><p>Sign in with Microsoft on this device. Your Solara account is separate.</p></div></div><button :disabled="busy||!engineReady" @click="mcSignIn"><Plus/> Add account</button></div>
-      <div v-if="!isDesktop" class="banner notice" style="margin-bottom:20px">App preview. Playing Minecraft needs the installed desktop app.</div>
-      <div v-if="!instances.length" class="new-home-empty"><div><span class="empty-library-symbol"><Plus/></span><h3>A fresh start.</h3><p>Pick a version. Give it a name. We will handle the game files and Java.</p></div><button class="workspace-play" @click="plus">Create your first instance <ArrowUpRight/></button></div>
-      <div v-else :class="['grid','instance-collection',{'as-list':libraryView==='list'}]">
-        <div v-if="libraryView==='list'" class="library-list-table-header" aria-hidden="true">
-          <span class="col-th col-instance">Instance</span>
-          <span class="col-th col-loader">Loader</span>
-          <span class="col-th col-version">Game Version</span>
-          <span class="col-th col-state">Status</span>
-          <span class="col-th col-actions">Actions</span>
-        </div>
-        <article v-for="i in visibleInstances" :key="i.id" class="instance-card"><button class="instance-banner-wrap" :aria-label="'Open artwork for '+i.name" @click="openInstance(i)"><InstanceAvatar :instance="i"/><span class="instance-loader-tag" :class="i.loader">{{ i.loader }}</span><span v-if="i.running" class="instance-status-tag running">Running</span></button><div class="details"><button class="library-instance-open" :aria-label="'Open instance '+i.name" @click="openInstance(i)"><span class="instance-letter">{{i.name.slice(0,1).toUpperCase()}}</span><span class="instance-info-col"><h3>{{i.name}}</h3><p class="instance-mobile-meta">{{i.gameVersion}} · <span class="instance-loader-name">{{i.loader}}</span> · <span :class="{running:i.running}">{{i.running?'Running':i.state}}</span></p></span><span class="list-col col-loader"><LoaderMark :loader="i.loader"/><span>{{i.loader}}</span></span><span class="list-col col-version"><span class="version-chip">MC {{i.gameVersion}}</span></span><span class="list-col col-state" :class="{running:i.running}"><span class="dot"/><span>{{i.running?'Running':i.state}}</span></span></button><div class="actions"><button @click="openInstance(i)">Manage <ArrowRight/></button><button v-if="['created','failed','cancelled'].includes(i.state)" :disabled="busy" @click="retryInstall(i)">Retry install</button><button v-else-if="!i.running" class="primary" :disabled="busy||i.state!=='installed'" @click="launch(i)"><Play/> Play</button><button v-else :disabled="busy" @click="stopGame(i)"><Square/> Stop game</button><button title="Duplicate instance" :disabled="busy||i.running" @click="duplicateInstance(i)"><Copy/></button><button title="Edit instance" :disabled="busy" @click="editInstance(i)"><Settings/></button><button title="View game logs" :disabled="busy" @click="instanceLogs(i)"><Terminal/></button><button title="Open instance folder" @click="run(()=>native('open_instance_folder',{id:i.id}))"><FolderOpen/></button></div></div></article>
-      </div>
-      <div v-if="instances.length&&!visibleInstances.length" class="empty"><Search/><h3>No instances match</h3><p>Try a different name, game version or loader.</p><button @click="libraryQuery='';libraryLoader='all'">Clear search</button></div>
-      <div v-if="minecraft.length" class="stack" style="margin-top:25px"><div class="section-title"><h2>Local Minecraft accounts</h2></div><div class="card account-box" v-for="a in minecraft" :key="a.id"><div><h3>{{a.name}}</h3><p>{{a.active?'Selected account':'Saved on this device'}}</p></div><div class="row"><button v-if="!a.active" @click="run(async()=>{await native('select_minecraft_account',{id:a.id});await pollLocal()})">Select</button><button title="Remove this Minecraft account from this device" @click="mcLogout(a.id)"><LogOut/> Remove</button></div></div></div>
-      </template>
-    </template>
-    <template v-if="section==='services'">
-      <div class="page-heading"><div><div class="eyebrow">THE SOLARA ECOSYSTEM</div><h1>A little more connected.</h1><p>Your tools, hosting and help, in one place.</p></div><button @click="refreshPublic"><RefreshCw/> Refresh</button></div><div class="services-hero"><span><Layers3/></span><div><h2>Your world goes beyond the game.</h2><p>Find your Solara services, manage public server addresses and connect with your community.</p></div></div>
-      <div class="tab-row"><button v-for="f in ['all','tools','hosting','documentation']" :key="f" :class="{selected:serviceFilter===f}" @click="serviceFilter=f">{{f[0].toUpperCase()+f.slice(1)}}</button></div>
-      <div v-if="filteredServices.length" class="grid"><article v-for="s in filteredServices" :key="s.id" class="card service-card"><span class="card-icon"><component :is="projectIcon(s)"/></span><h3>{{s.name}}</h3><p>{{s.description}}</p><span class="pill">{{s.status||'Status not reported'}}</span><button v-if="s.url" class="text-link" style="display:block;margin-top:20px" @click="external(s.url)">Open {{s.kind==='web'?'website':'service'}} <ExternalLink/></button></article></div>
-      <LoadingCards v-else-if="publicLoading" label="Loading services…"/><div v-else class="empty"><Cloud/><h3>{{snapshot.state==='connected'?'No services in this category':'Service catalogue unavailable'}}</h3><p>{{snapshot.at?'Last public refresh: '+new Date(snapshot.at).toLocaleString():'We haven’t received a public catalogue from the main API yet.'}}</p><button @click="external(links.home)">Browse Solara's website <ArrowUpRight/></button></div>
-      <div class="section-title" style="margin-top:30px"><h2>Solara Services &amp; Hosting</h2></div><div class="grid"><button class="card service-card" style="text-align:left" @click="external('https://panel.solara-inc.in')"><span class="card-icon"><Server/></span><h3>Game Panel Manager</h3><p>Your permitted hosting resources through the main Solara API.</p><span class="text-link">Open game panel <ArrowUpRight/></span></button><button class="card service-card" style="text-align:left" @click="external('https://solara-inc.in')"><span class="card-icon"><Globe/></span><h3>Solara Cloud &amp; Web</h3><p>Community platform, account settings, and live ecosystem services.</p><span class="text-link">Visit Solara <ArrowUpRight/></span></button><button class="card service-card" style="text-align:left" @click="external(links.support)"><span class="card-icon"><ShieldCheck/></span><h3>Help &amp; Documentation</h3><p>Guides, support channels, and community assistance.</p><span class="text-link">Get help <ArrowUpRight/></span></button></div>
-      <section v-if="serviceFilter==='all'||serviceFilter==='hosting'" class="assignment-section" style="margin-top:30px"><div class="section-title"><div><h2>Public subdomains</h2><p>Addresses linked to your Solara account.</p></div><div class="row"><button :disabled="assignmentsLoading||busy" @click="loadAssignments"><RefreshCw/> Refresh addresses</button><button class="primary" :disabled="!account" @click="beginAssignment">Request a subdomain <Plus/></button></div></div><div v-if="assignmentsError" class="banner error" role="alert" style="margin-bottom:17px">{{assignmentsError}}<span v-if="assignments.length"> Previously loaded addresses are shown below.</span></div><LoadingCards v-if="assignmentsLoading&&!assignments.length" label="Loading your server addresses…"/><div v-else-if="!assignments.length&&!assignmentsError" class="empty"><Globe/><h3>No server addresses yet</h3><p>When a verified address is assigned to your account, you can manage it here.</p><button @click="beginAssignment">Request an address <Plus/></button></div><div v-else class="stack" :aria-busy="assignmentsLoading"><article v-for="item in assignments" :key="item.id" class="card assignment-card"><div class="assignment-summary"><span class="card-icon"><Globe/></span><div><h3>{{item.hostname||item.name}}</h3><p>{{item.endpoint.includes(':')?'['+item.endpoint+']':item.endpoint}}:{{item.port}}</p></div><span class="assignment-status" :data-state="item.status"><span class="dot"></span>{{item.status==='active'?'Active':item.status==='pending'?'Pending':item.status==='error'?'Needs attention':'Status unknown'}}</span></div><p v-if="item.lastError" class="assignment-error">{{item.lastError}}</p><div class="assignment-actions"><small v-if="item.updatedAt">Updated {{new Date(item.updatedAt).toLocaleString()}}</small><button v-if="item.hostname" :disabled="busy||assignmentsLoading" @click="copyAssignment(item)"><Copy/> Copy address</button><button :disabled="busy||assignmentsLoading" @click="editAssignment(item)">Update endpoint</button><button class="danger-text" :disabled="busy||assignmentsLoading" @click="beginRelease(item)">Release address</button></div></article></div></section>
-    </template>
-    <template v-if="section==='explore'">
-      <p v-if="coreCapabilities?.contentInstall===false" class="banner notice" style="margin-bottom:18px">You can browse content here. Installing it is coming in a later testing build.</p>
-      <div class="explore-heading"><img src="/art/alpine-lake-v1-small.webp" alt=""><span class="workspace-kicker">A WORLD OF POSSIBILITIES</span><h1>Find your next favourite.</h1><p>From one little mod to a whole new adventure. Make Minecraft feel like you.</p></div>
-      <form class="search-row" @submit.prevent="searchContent"><input v-model="query" aria-label="Search mods, modpacks and more" placeholder="Search mods, modpacks and more…"><SelectControl v-model="contentType" label="Content type" :options="[{value:'mod',label:'Mods'},{value:'modpack',label:'Modpacks'},{value:'resourcepack',label:'Resource packs'},{value:'shader',label:'Shaders'}]"/><button class="primary" aria-label="Search" :disabled="searching"><Search/> {{searching?'Searching…':'Search'}}</button></form>
-      <div class="explore-layout">
-        <aside class="explore-filter-panel" aria-label="Discover categories"><div class="explore-filter-title"><Filter/> Browse content</div><small>PROJECT TYPE</small><div class="explore-category-pills"><button v-for="cat in [{value:'mod',label:'Mods',icon:Package},{value:'modpack',label:'Modpacks',icon:Box},{value:'resourcepack',label:'Resource packs',icon:Layers3},{value:'shader',label:'Shaders',icon:Sparkles}]" :key="cat.value" type="button" class="category-pill" :class="{active:contentType===cat.value}" :aria-pressed="contentType===cat.value" @click="contentType=cat.value"><component :is="cat.icon"/>{{cat.label}}</button></div><div class="provider-note"><strong>Community creations</strong>Content is provided by Modrinth. Compatible versions are checked before installing.</div></aside>
-        <div class="explore-results"><div class="results-heading"><strong>{{contentType==='mod'?'Mods':contentType==='modpack'?'Modpacks':contentType==='shader'?'Shaders':'Resource packs'}}</strong><span>{{searching?'Finding your next favourite…':hasSearched?results.length+' results in this search':'Something for every kind of player'}}</span></div>
-          <div class="explore-controls-row">
-            <div class="explore-filter-caption"><Filter :size="13"/> Filters &amp; Sort</div>
-            <div class="explore-filter-selects">
-              <SelectControl v-if="contentType==='mod'||contentType==='modpack'" v-model="exploreLoader" label="Filter by mod loader" :options="exploreLoaderOptions"/>
-              <SelectControl v-model="exploreGameVersion" label="Filter by game version" :options="exploreGameVersionOptions" searchable/>
-              <SelectControl v-model="exploreSort" label="Sort search results" :options="exploreSortOptions"/>
-            </div>
-          </div>
-          <LoadingCards v-if="searching" label="Searching community catalogue…" :count="6"/>
-          <div v-else-if="!results.length&&!hasSearched" class="discovery-welcome"><WorldArt scene="canyon-settlement" eager/><div><span class="eyebrow">SOMETHING NEW TO PLAY</span><h3>Make it your kind<br>of Minecraft.</h3><p>Search for a mod, a modpack or a fresh look for your world.</p></div></div>
-          <div v-else-if="!results.length" class="empty"><Search/><h3>No results found</h3><p>Try another name or a different content type.</p></div>
-          <div v-else class="solara-results-grid"><article v-for="r in results" :key="r.project_id" class="card mod-card"><div class="mod-card-top"><span class="card-icon provider-icon mod-avatar"><img v-if="r.icon_url" :src="r.icon_url" :alt="r.title" loading="lazy" referrerpolicy="no-referrer" @error="r.icon_url=null"><Package v-else/></span><div class="mod-card-head"><h3>{{r.title}}</h3><p class="mod-author">by <span>{{r.author}}</span></p></div></div><p class="mod-desc">{{r.description}}</p><div v-if="cardCompatibilityChips(r).length" class="mod-card-loaders"><span v-for="cat in cardCompatibilityChips(r)" :key="cat" class="loader-chip">{{ cat }}</span></div><div class="mod-card-footer"><div class="mod-card-chips"><span v-if="r.downloads" class="pill download-pill"><Download :size="11"/> {{formatDownloads(r.downloads)}}</span><span class="pill type-pill">{{r.project_type}}</span></div><button class="primary mod-install-btn" :disabled="busy||!engineReady||coreCapabilities?.contentInstall===false" @click="installContent(r)">Install <Download :size="12"/></button></div><button class="text-link mod-provider-link" @click="external(projectUrl(r))">Provider page <ArrowUpRight/></button></article></div>
-        </div>
-      </div>
-    </template>
-    <template v-if="section==='settings'">
-      <div class="page-heading"><div><div class="eyebrow">JUST THE WAY YOU LIKE IT</div><h1>Make yourself at home.</h1><p>Your look, game settings and accounts.</p></div></div>
-      <div class="settings-organized-grid">
-        <!-- Card 1: Appearance & Theme -->
-        <div class="card settings-domain-card">
-          <div class="settings-card-header"><div class="settings-card-title"><Sparkles :size="17"/><h2>Appearance &amp; Theme</h2></div><span class="domain-tag">Visuals &amp; Feel</span></div>
-          <div class="setting-row"><div><h3>Theme</h3><p>Choose between dark and light appearance. Defaults to Solara dark.</p></div><div class="theme-toggle" role="group" aria-label="Interface theme"><button type="button" class="theme-toggle-btn" :class="{active:effectiveTheme==='dark'}" :aria-pressed="effectiveTheme==='dark'" @click="preferences.theme='dark'"><Moon :size="15"/> <span>Dark</span></button><button type="button" class="theme-toggle-btn" :class="{active:effectiveTheme==='light'}" :aria-pressed="effectiveTheme==='light'" @click="preferences.theme='light'"><Sun :size="15"/> <span>Light</span></button></div></div>
-          <div class="setting-row"><div><h3>Dark theme accent</h3><p>Custom accent highlight and glowing buttons for your launcher.</p></div><div class="accent-palette" role="group" aria-label="Accent highlight"><button v-for="swatch in [{hex:'#8b5cf6',name:'Violet'},{hex:'#6366f1',name:'Indigo'},{hex:'#10b981',name:'Emerald'},{hex:'#f59e0b',name:'Amber'},{hex:'#f43f5e',name:'Rose'},{hex:'#d946ef',name:'Fuchsia'}]" :key="swatch.hex" type="button" class="swatch-btn" :class="{active:effectiveAccent===swatch.hex}" :style="{backgroundColor:swatch.hex}" :aria-label="'Set accent to '+swatch.name" @click="preferences.accent=swatch.hex"><Check v-if="effectiveAccent===swatch.hex" :size="12"/></button></div></div>
-          <!-- Live Accent Preview Card -->
-          <div class="accent-preview-card" :style="{ '--preview-accent': effectiveAccent }">
-            <div class="preview-card-header">
-              <div class="preview-badge-row">
-                <span class="preview-swatch-chip" :style="{ backgroundColor: effectiveAccent }"></span>
-                <strong>Live Accent Preview</strong>
-              </div>
-              <span class="preview-hex-tag">{{ effectiveAccent }}</span>
-            </div>
-            <div class="preview-card-body">
-              <p>See how your chosen accent transforms controls, active tabs, and primary action glows across the launcher.</p>
-              <div class="preview-mockup-row">
-                <button type="button" class="preview-sample-btn sample-primary" :style="{ backgroundColor: effectiveAccent, borderColor: effectiveAccent }">
-                  <Play :size="12"/> <span>Launch Game</span>
-                </button>
-                <div class="preview-sample-tab active" :style="{ borderColor: effectiveAccent, color: effectiveAccent }">
-                  <Package :size="12"/> <span>Mods</span>
-                  <span class="preview-sample-badge" :style="{ backgroundColor: effectiveAccent }">12</span>
-                </div>
-                <div class="preview-sample-pill active" :style="{ borderColor: effectiveAccent, color: effectiveAccent }">
-                  <Sparkles :size="11"/> <span>Active</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="setting-row"><div><h3>Reduce motion</h3><p>System reduced-motion preferences are always respected.</p></div><input type="checkbox" v-model="preferences.motion" aria-label="Reduce motion"></div>
-        </div>
-
-        <!-- Card 2: Java & Memory -->
-        <div class="card settings-domain-card">
-          <div class="settings-card-header"><div class="settings-card-title"><Coffee :size="17"/><h2>Java &amp; Memory</h2></div><span class="domain-tag">Runtime &amp; Limits</span></div>
-          <div class="setting-row"><div><h3>Minecraft memory</h3><p>Memory limit for new instances: {{(nativeSettings.memory/1024).toFixed(1)}} GiB ({{nativeSettings.memory}} MiB).</p></div><div class="memory-setting-group"><div class="preset-pills"><button v-for="ram in [2048,4096,6144,8192,12288]" :key="ram" type="button" class="preset-pill" :class="{active:nativeSettings.memory===ram}" @click="nativeSettings.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button></div><div class="slider-with-input" style="display:flex;align-items:center;gap:10px"><input type="range" min="1024" max="16384" step="512" v-model.number="nativeSettings.memory" class="solara-range-slider" aria-label="Fine memory slider"><input style="width:105px" type="number" min="512" max="65536" step="512" v-model.number="nativeSettings.memory" aria-label="Maximum memory in MiB"></div></div></div>
-          <div class="setting-row"><div><h3>Java executable</h3><p>Use a compatible Java installation on this device.</p></div><input style="width:200px" v-model="nativeSettings.javaPath" aria-label="Java executable"></div>
-          <div class="setting-row"><div><h3>Discord activity</h3><p>Share what you're playing and exploring on Discord Rich Presence. No personal or server tokens shared.</p></div><input type="checkbox" v-model="nativeSettings.discord" aria-label="Discord activity"></div>
-          <div style="margin-top:14px"><button :disabled="busy||!engineReady" @click="saveNative">Save local preferences</button></div>
-        </div>
-
-        <!-- Card 3: Solara Account -->
-        <div class="card settings-domain-card">
-          <div class="settings-card-header"><div class="settings-card-title"><ShieldCheck :size="17"/><h2>Solara Account</h2></div><span class="domain-tag">Identity &amp; Cloud</span></div>
-          <div class="setting-account-box">
-            <div class="setting-account-info">
-              <div class="account-avatar-circle"><User :size="18"/></div>
-              <div>
-                <h3>{{ account ? (account.name || account.username) : 'Guest Explorer' }}</h3>
-                <p>{{ account ? 'Connected to Solara Services. Your Minecraft accounts are separate.' : 'Browsing as a guest. Public listings and local Minecraft do not need Solara login.' }}</p>
-              </div>
-            </div>
-            <div class="account-row-actions">
-              <button v-if="account" @click="signOut"><LogOut/> Sign out</button>
-              <button v-else @click="signIn"><LogIn/> Sign in</button>
-              <button :disabled="!account||busy" @click="loadEntitlements">View access</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4: About & Updates -->
-        <div class="card settings-domain-card">
-          <div class="settings-card-header"><div class="settings-card-title"><RefreshCw :size="17"/><h2>About &amp; Updates</h2></div><span class="domain-tag">System &amp; Engine</span></div>
-          <div class="updates-box">
-            <div><h3>Updates & what's new</h3><p>Install once. Solara checks for updates and applies them automatically when it is safe.</p></div>
-            <div class="row" style="gap:10px"><button @click="checkUpdates">Check updates</button><button @click="show('changelog')">Changelog</button></div>
-          </div>
-          <div class="system-runtime-grid" style="margin-top:16px"><div class="runtime-fact"><span class="fact-label">Core Engine</span><strong class="fact-val">Solara Game Core v0.0.1</strong></div><div class="runtime-fact"><span class="fact-label">Theme Styling</span><strong class="fact-val">Obsidian Velvet v2</strong></div><div class="runtime-fact"><span class="fact-label">Garbage Collector</span><strong class="fact-val">Managed G1GC / ZGC</strong></div><div class="runtime-fact"><span class="fact-label">Security &amp; Auth</span><strong class="fact-val">Isolated Microsoft OAuth</strong></div></div>
-          <div class="row" style="margin-top:14px;gap:10px"><button type="button" class="solara-secondary-btn" @click="show('shortcuts')"><BookOpen :size="13"/> Keyboard shortcuts</button><button type="button" class="solara-secondary-btn" @click="show('about')"><ShieldCheck :size="13"/> Engine licences</button></div>
-        </div>
-      </div>
-      <div class="banner about-banner" style="margin-top:24px;margin-bottom:36px">Solara is an independent Minecraft launcher. Built with Solara's independent local Minecraft core (GPL-3.0-only); no warranty. Source and third-party notices are included with the application. <button class="text-link" @click="show('about')">About & licences</button></div>
-    </template>
-  </div></main>
-  <ContextRail v-if="section!=='explore'" :minecraft="minecraft" :account="account" :services="services" :api-state="snapshot.state" :loading="publicLoading" :busy="busy" :desktop="isDesktop" @account="mcSignIn" @navigate="navigate" @solara-signin="signIn" @external="external" @refresh="refreshPublic"/>
-  <TaskProgress v-if="['checking','downloading','installing','waiting-for-idle','retry-later'].includes(appUpdate.state)" class="app-update-banner" :title="appUpdate.state==='downloading'?'A fresh Solara is on its way':appUpdate.state==='installing'?'Applying your update':appUpdate.state==='waiting-for-idle'?'Your update can wait':appUpdate.state==='retry-later'?'We will try again later':'Checking for something new'" :detail="appUpdate.state==='downloading'?updateBytes:appUpdate.state==='installing'?'Solara will reopen automatically.':appUpdate.state==='waiting-for-idle'?'Finish your games and downloads. We will update when it is safe.':appUpdate.state==='retry-later'?'Could not reach the update service. Your app is ready to use.':'Your game files stay right where they are.'" :value="appUpdate.state==='downloading'&&appUpdate.total?appUpdate.downloaded/appUpdate.total:null" :paused="['waiting-for-idle','retry-later'].includes(appUpdate.state)"/>
-  <div class="download-dock" :class="{ 'is-idle': !activeDownload, 'is-active': !!activeDownload }"><span class="download-dock-icon"><Download :size="11"/></span><div class="download-dock-info"><strong>{{jobs.filter(j=>['running','queued','downloading'].includes(j.status)).length?jobs.filter(j=>['running','queued','downloading'].includes(j.status)).length+' downloads in progress':'No active downloads'}}</strong><small v-if="activeDownload">{{jobs.length?jobs.length+' local download records':'Game files and updates will appear here.'}}</small></div><progress v-if="activeDownload" class="dock-progress" :value="downloadFraction(activeDownload)" max="1" :aria-label="'Download progress for '+activeDownload.name"/><button class="downloads-button" @click="show('downloads')">Downloads <ChevronRight :size="9"/></button></div></div>
-  <footer class="app-footer" :inert="modal||bootVisible?true:undefined"><div class="footer-group"><span>SOLARA <span class="optional">LAUNCHER</span></span><span>{{buildInfo.publicVersion||'DEV'}} · {{buildInfo.internalVersion}}</span><span class="connection-status" :data-state="statusTone(snapshot.state)"><span class="dot"/> API {{snapshot.state}}</span><span class="optional" v-if="snapshot.at">Refreshed {{new Date(snapshot.at).toLocaleTimeString()}}</span></div><div class="footer-group"><button v-if="latest" @click="show('changelog')">{{latest.publicVersion}} available</button><button @click="show('changelog')">What's new</button><button class="optional" @click="external(links.docs)">Docs</button><button v-if="links.github" @click="external(links.github)">GitHub</button><button @click="external(links.support)">Support <ArrowUpRight :size="8"/></button></div></footer>
-
-  <Transition name="boot"><section v-if="bootVisible" class="boot-screen" role="dialog" aria-modal="true" aria-labelledby="boot-title" :aria-describedby="startupError?'boot-error':'boot-description'">
-    <div class="boot-illustration" aria-hidden="true"><span class="boot-orbit orbit-a"/><span class="boot-orbit orbit-b"/><span class="boot-cube cube-a"><Box/></span><span class="boot-cube cube-b"><Gamepad2/></span><span class="boot-cube cube-c"><Sparkles/></span><img src="/logo.svg" alt=""></div><div class="boot-content"><div class="boot-brand"><img src="/logo.svg" alt="">SOLARA</div><span class="eyebrow">MAKE YOURSELF AT HOME</span><h1 id="boot-title" style="margin-top:15px">{{startupError?'A little help needed.':'A whole world awaits.'}}</h1><p id="boot-description">{{startupError?'Your local launcher could not start. You can retry or browse the app.':'Just a moment. We are getting your space ready to play.'}}</p>
-      <template v-if="!startupError"><div class="boot-status" role="status" aria-live="polite"><i class="loading-ring" aria-hidden="true"></i>{{!interfaceReady?'Loading your workspace…':'Starting your local launcher…'}}</div><div class="boot-track" role="progressbar" aria-label="Starting Solara"></div><div class="boot-steps"><span><Check v-if="interfaceReady"/><i v-else class="waiting"></i>Interface and artwork</span><span v-if="isDesktop"><Check v-if="engineReady"/><i v-else class="waiting"></i>Local game library</span><span v-else><Check/>Browser preview</span></div></template>
-      <template v-else><p id="boot-error" class="boot-error" role="alert">{{startupError}}</p><div class="boot-actions"><button class="primary" @click="retryStartup"><RefreshCw/> Try again</button><button @click="bootVisible=false">Continue to app</button></div></template><small class="boot-fineprint">Your game files stay on your device.<br>Solara services load independently.</small>
-    </div>
-  </section></Transition>
-  <Transition name="dialog"><div v-if="modal" class="modal-shade" @click.self="close" @keydown="trapDialog"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" tabindex="-1"><div class="section-title"><h2 id="dialog-title">{{({'minecraft-login':'Sign in to Minecraft','create-instance':'Create an instance','duplicate-instance':'Duplicate an instance','create-server':'Create a local server','edit-instance':'Instance settings','assignment':'Get a server address','edit-assignment':'Update server endpoint','release-assignment':'Release server address','downloads':'Your downloads','logs':'Local console','account':'Your Solara account','changelog':"What’s new",'install-content':selectedContent?.kind==='modpack'?'Install a modpack':'Add to an instance','beta':'Experimental access','about':'About Solara','shortcuts':'Keyboard shortcuts'} as Record<string,string>)[modal]}}</h2><button class="close" title="Close dialog" aria-label="Close dialog" @click="close"><X/></button></div>
-  <div v-if="error" class="banner error" role="alert" style="margin-bottom:18px">{{error}}</div>
-  <template v-if="modal==='create-instance'">
-    <div class="create-instance-dialog-wrap">
-      <div class="create-search-section">
-        <label class="create-search-label">Already know what you want to play?</label>
-        <div class="create-search-bar">
-          <Search :size="16"/>
-          <input v-model="createSearch" placeholder="Search mods, modpacks, and more…" aria-label="Search mods, modpacks, and more" @keydown.enter="jumpToExplore">
-          <button v-if="createSearch" type="button" class="create-search-go" @click="jumpToExplore"><ArrowRight :size="14"/></button>
-        </div>
-      </div>
-      <div class="create-or-divider"><span>or</span></div>
-      <div class="choose-type-header">Choose instance type</div>
-      <div class="instance-type-grid">
-        <div class="instance-type-card active">
-          <span class="type-card-icon"><Box :size="20"/></span>
-          <div class="type-card-info">
-            <strong>Custom setup</strong>
-            <p>Start from scratch by picking a loader and game version.</p>
-          </div>
-        </div>
-        <button type="button" class="instance-type-card" @click="close();navigate('explore')">
-          <span class="type-card-icon"><Compass :size="20"/></span>
-          <div class="type-card-info">
-            <strong>Start from a mod or modpack</strong>
-            <p>Choose a project and we’ll use its latest version.</p>
-          </div>
-        </button>
-      </div>
-      <form @submit.prevent="createInstance" class="custom-instance-form">
-        <label class="field">Instance name<input v-model="create.name" placeholder="My next adventure" required maxlength="80"></label>
-        <label class="field">Minecraft version<SelectControl v-model="create.gameVersion" label="Minecraft version" :options="versions.map(v=>({value:v.id,label:v.id,hint:v.type}))" :placeholder="versions.length?'Choose a Minecraft version':'Versions load in the desktop app'" searchable/></label>
-        <div class="field">
-          <label>Choose a mod loader</label>
-          <div class="loader-choices" role="radiogroup" aria-label="Mod loader">
-            <button v-for="l in availableLoaders" :key="l.id" type="button" role="radio" :aria-checked="create.loader===l.id" :class="{chosen:create.loader===l.id}" :title="l.hint" @click="create.loader=l.id">
-              <LoaderMark :loader="l.id"/>
-              <strong>{{l.name}}</strong>
-              <span class="loader-selected"><Check/></span>
-            </button>
-          </div>
-        </div>
-        <label v-if="create.loader!=='vanilla'" class="field">Loader version<SelectControl v-model="create.loaderVersion" label="Loader version" :options="[{value:'',label:loaderLoading?'Checking versions…':'Recommended stable version'},...loaderChoices.map(v=>({value:v.id,label:v.id,hint:v.stable?'Stable':'Preview'}))]" searchable/></label>
-        <p v-if="loaderError" class="banner error">{{loaderError}} <button type="button" @click="loadLoaderVersions">Try again</button></p>
-        <div class="actions">
-          <button type="button" @click="close">Cancel</button>
-          <button class="primary" :disabled="busy||!engineReady||!create.gameVersion||loaderLoading||!!loaderError">{{busy?'Working…':'Create instance'}}</button>
-        </div>
-      </form>
-    </div>
-  </template>
-  <template v-if="modal==='duplicate-instance'&&duplicateTarget">
-    <div class="duplicate-dialog-body">
-      <div v-if="isDuplicating" class="duplicate-progress-wrap">
-        <TaskProgress
-          title="Duplicating instance…"
-          :detail="'Copying worlds, mods, and configuration files from ' + duplicateTarget.name + '. Large instances may take a few moments. All files remain on this device.'"
-        />
-      </div>
-      <form v-else @submit.prevent="performDuplicate" class="duplicate-form">
-        <div class="duplicate-source-badge">
-          <InstanceAvatar :instance="duplicateTarget"/>
-          <div class="duplicate-source-info">
-            <strong>{{ duplicateTarget.name }}</strong>
-            <p>{{ duplicateTarget.gameVersion }} · {{ duplicateTarget.loader }} · {{ duplicateTarget.memory }} MB RAM</p>
-          </div>
-        </div>
-        <p class="duplicate-explainer">
-          Creates a complete independent copy of this instance, including all installed mods, resource packs, shaders, options, and save files.
-        </p>
-        <label class="field">
-          New instance name
-          <input v-model="duplicateName" placeholder="Name for the cloned instance" required maxlength="80">
-        </label>
-        <div class="actions">
-          <button type="button" @click="close">Cancel</button>
-          <button type="submit" class="primary" :disabled="!duplicateName.trim()||busy||isDuplicating">
-            <Copy :size="14"/> Duplicate instance
-          </button>
-        </div>
-      </form>
-    </div>
-  </template>
-  <form v-if="modal==='edit-instance'" @submit.prevent="saveInstance"><InstanceAppearance v-if="selectedInstance" :instance="selectedInstance"/><label class="field">Name<input v-model="editForm.name" required maxlength="80"></label><label class="field">Maximum memory: <strong>{{(editForm.memory/1024).toFixed(1)}} GiB</strong> ({{editForm.memory}} MiB)<div class="preset-pills" style="margin:6px 0"><button v-for="ram in [2048,4096,6144,8192,12288]" :key="ram" type="button" class="preset-pill" :class="{active:editForm.memory===ram}" @click="editForm.memory=ram">{{ram>=1024?(ram/1024)+'G':ram+'M'}}</button></div><input type="number" min="512" max="65536" step="512" v-model.number="editForm.memory" required></label><label class="field">Java executable (blank to use Settings)<input v-model="editForm.javaPath"></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy">Save instance</button></div></form>
-  <template v-if="modal==='create-server'"><p style="font-size:12px">Vanilla server files download directly from Mojang. A compatible local Java installation is required.</p><form @submit.prevent="saveServer"><label class="field">Server name<input v-model="serverForm.name" required maxlength="80"></label><label class="field">Minecraft version<SelectControl v-model="serverForm.version" label="Server Minecraft version" :options="versions.filter(v=>v.type==='release').map(v=>({value:v.id,label:v.id}))" placeholder="Choose a server version" searchable/></label><label class="field">Java executable<input v-model="serverForm.javaPath" required></label><div class="split"><label class="field">Memory (MiB)<input type="number" v-model.number="serverForm.memory" min="512" max="65536" required></label><label class="field">Port<input type="number" v-model.number="serverForm.port" min="1024" max="65535" required></label></div><label class="row"><input type="checkbox" v-model="serverForm.eula" required><span>I accept the <a href="https://www.minecraft.net/eula" target="_blank" rel="noopener" style="color:var(--accent)">Minecraft EULA</a> for this server.</span></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||!serverForm.eula||!serverForm.version">Set up server</button></div></form></template>
-  <template v-if="modal==='assignment'||modal==='edit-assignment'"><p style="font-size:12px">{{modal==='edit-assignment'?'Update the verified public endpoint for '+(assignmentTarget?.hostname||assignmentTarget?.name)+'.':'Use a public IP address you control. Your router and firewall must allow players to connect.'}}</p><form @submit.prevent="saveAssignment"><template v-if="modal==='assignment'"><label class="field">Requested name<input v-model="assignment.name" pattern="[a-z0-9][a-z0-9-]{1,30}[a-z0-9]" required></label><label class="field">Local server<SelectControl v-model="assignment.serverId" label="Local server" :options="localServers.map(s=>({value:s.id,label:s.name}))" placeholder="Choose a server"/></label><p v-if="!localServers.length" class="banner">Create a local server on this device before requesting an address.</p></template><label class="field">Public IP address<input v-model="assignment.endpoint" placeholder="Your public IPv4 or IPv6" required maxlength="45"></label><label class="field">Public port<input type="number" min="1024" max="65535" v-model.number="assignment.port" required></label><p class="banner">Control of this endpoint must be verified before the address can be changed.</p><label class="row"><input type="checkbox" required v-model="assignment.consent"><span>I control this endpoint and understand its IP address becomes public.</span></label><div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!account||!assignment.consent||(modal==='assignment'&&!assignment.serverId)">{{busy?'Saving…':modal==='edit-assignment'?'Update endpoint':'Request assignment'}}</button></div></form></template>
-  <template v-if="modal==='release-assignment'"><p style="font-size:13px">Release <strong>{{assignmentTarget?.hostname||assignmentTarget?.name}}</strong>?</p><p style="font-size:12px">Players will no longer be able to join using this address. Your local server and its files will stay on your device.</p><form @submit.prevent="releaseAssignment"><label class="row"><input type="checkbox" v-model="releaseConsent" required><span>I understand this removes the server address.</span></label><div class="actions"><button type="button" @click="close">Keep address</button><button class="danger-button" :disabled="busy||!releaseConsent">{{busy?'Releasing…':'Release address'}}</button></div></form></template>
-  <template v-if="modal==='minecraft-login'&&minecraftPrompt"><p>Open Microsoft's sign-in page and enter this code. Only continue if Microsoft shows the Solara app you expected.</p><div class="minecraft-device-code" aria-label="Your one-time Microsoft sign-in code">{{minecraftPrompt.code}}</div><p class="muted">Your password stays on Microsoft's website. This code expires soon.</p><div class="actions"><button @click="close">Cancel sign-in</button><button class="primary" @click="external(minecraftPrompt.url)">Open Microsoft sign-in <ArrowUpRight/></button></div></template>
-  <template v-if="modal==='downloads'">
-    <div v-if="jobs.length" class="downloads-modal-header">
-      <div class="downloads-summary-pills">
-        <span class="pill queue-count-pill" :class="{ 'is-active': activeJobsCount > 0 }">
-          <Activity :size="12"/>
-          {{ activeJobsCount ? `${activeJobsCount} in queue` : 'Queue idle' }}
-        </span>
-        <span v-if="totalDownloadSpeed > 0" class="pill speed-pill">
-          <Download :size="12"/>
-          {{ (totalDownloadSpeed / 1048576).toFixed(1) }} MiB/s
-        </span>
-        <span v-else-if="activeJobsCount > 0" class="pill speed-pill speed-pill-standby">
-          <Download :size="12"/>
-          Active
+  <div class="shell" data-theme="dark">
+    <div class="titlebar">
+      <div class="titlebar-drag-area" data-tauri-drag-region @mousedown="onTitlebarMouseDown" @dblclick="onTitlebarDblClick">
+        <span class="name" data-tauri-drag-region>
+          <img src="/logo.svg" alt="Solara">
+          <span>solara</span>
         </span>
       </div>
-      <button
-        v-if="hasCompletedJobs"
-        type="button"
-        class="solara-secondary-btn clear-downloads-btn"
-        title="Clear finished downloads"
-        @click="clearCompletedDownloads"
-      >
-        <RotateCcw :size="12"/> Clear completed
+      <div class="window-buttons" data-tauri-drag-region="false" @pointerdown.stop @mousedown.stop>
+        <button type="button" data-tauri-drag-region="false" title="Minimize" aria-label="Minimize" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('minimize',$event)" @mouseup.stop="onWindowButtonUp('minimize',$event)" @click.stop="windowAction('minimize')"><Minus/></button>
+        <button type="button" data-tauri-drag-region="false" title="Maximize or restore" aria-label="Maximize or restore" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('maximize',$event)" @mouseup.stop="onWindowButtonUp('maximize',$event)" @click.stop="windowAction('maximize')"><Maximize2/></button>
+        <button type="button" data-tauri-drag-region="false" title="Close Solara" aria-label="Close Solara" :disabled="!isDesktop" @pointerdown.stop @mousedown.stop @pointerup.stop="onWindowButtonUp('close',$event)" @mouseup.stop="onWindowButtonUp('close',$event)" @click.stop="windowAction('close')"><X/></button>
+      </div>
+    </div>
+
+    <main class="clean-container">
+      <h1 class="greeting">HI ;)</h1>
+      <button class="update-btn" :disabled="checking" @click="checkUpdates">
+        <span v-if="checking" class="spinner"></span>
+        <RefreshCw v-else :size="16" />
+        <span>{{ checking ? 'Checking for updates…' : 'Check for updates' }}</span>
       </button>
-    </div>
-    <div v-if="!jobs.length" class="empty"><Download/><h3>Nothing in the queue</h3><p>Real download activity appears here as you install game files, content or local servers.</p></div><div v-for="j in jobs" :key="j.id" class="download-item"><div class="section-title"><h3>{{j.name}}</h3><span class="pill">{{j.status}}</span></div><progress v-if="typeof j.progress==='number'&&!j.total" :value="j.progress" :max="1"></progress><progress v-if="j.total" :value="j.downloaded" :max="j.total"></progress><div v-if="['running','queued','downloading'].includes(j.status)&&typeof j.progress!=='number'&&!j.total" class="boot-track job-indeterminate" role="progressbar" :aria-label="'Installing '+j.name"></div><p>{{j.detail||''}} <span v-if="j.total">{{Math.round(j.downloaded/1048576)}} / {{Math.round(j.total/1048576)}} MiB</span><span v-if="j.speed"> · {{(j.speed/1048576).toFixed(1)}} MiB/s</span></p><div class="row"><button v-for="a in j.actions||[]" :key="a" :disabled="busy&&a!=='cancel'" @click="downloadAction(j,a)">{{a}}</button></div></div></template>
-  <template v-if="modal==='logs'"><div class="logs-header-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><p style="font-size:11px;margin:0">These logs stay on your device. Account tokens are hidden.</p><button type="button" class="logs-copy-btn" :disabled="!logs" @click="copyLogs"><Copy :size="12"/> Copy logs</button></div><pre class="console">{{logs||'No messages yet.'}}</pre><form v-if="selectedLog" class="row" style="margin-top:12px" @submit.prevent="run(async()=>{await native('local_server_command',{id:selectedLog.id,command:query});query='';logs=await native('local_server_logs',{id:selectedLog.id})})"><input aria-label="Local server command" v-model="query" maxlength="500" placeholder="Local server command"><button :disabled="busy">Send</button></form></template>
-  <template v-if="modal==='account'"><div class="card"><h3>{{account?.name||account?.username}}</h3><p>Solara identity and service permissions. Your Microsoft/Minecraft account is managed separately on this device.</p><button @click="signOut();close()"><LogOut/> Sign out of Solara</button></div><button class="text-link" style="margin-top:20px" @click="external('https://auth.solara-inc.in')">Manage your central account <ArrowUpRight/></button></template>
-  <template v-if="modal==='changelog'"><div v-if="!publicReleases.length" class="empty"><GitBranch/><h3>The first release is taking shape</h3><p>No published release metadata is available. Release notes will appear here when the first verified build is published.</p></div><article v-for="r in publicReleases" :key="r.buildId" class="download-item"><h3>{{r.publicVersion}} · {{r.state}}</h3><p class="changelog-notes">{{r.notes}}</p><small class="muted">{{r.publishedAt?new Date(r.publishedAt).toLocaleDateString(): 'Not published'}}</small></article><p style="margin-top:18px">Updates download and install automatically when your games, servers and downloads are finished.</p></template>
-  <template v-if="modal==='install-content'&&selectedContent"><div class="install-project"><span class="card-icon provider-icon"><img v-if="selectedContent.project.icon_url" :src="selectedContent.project.icon_url" alt="" referrerpolicy="no-referrer" @error="selectedContent.project.icon_url=null"><Package v-else/></span><div><h3>{{selectedContent.project.title}}</h3><p>{{selectedContent.kind==='modpack'?'A new instance with its own mods, settings and saves.':'Choose the instance you want to change.'}}</p></div></div><form @submit.prevent="confirmInstall">
-    <template v-if="selectedContent.kind==='modpack'"><div v-if="packVersionsLoading" class="loading-caption" role="status"><i class="loading-ring" aria-hidden="true"></i>Loading modpack versions…</div><div v-else-if="selectedContent.error" class="banner error" role="alert">{{selectedContent.error}} <button type="button" class="text-link" @click="loadPackVersions">Try again</button></div><label v-else-if="selectedContent.versions.length" class="field">Modpack version<SelectControl v-model="selectedContent.versionId" label="Modpack version" :options="selectedContent.versions.map((v:any)=>({value:v.id,label:v.name+' · '+v.type,hint:'Minecraft '+v.games+(v.loaders?' · '+v.loaders:'')}))" searchable/></label><div v-else class="banner">No supported modpack files are available. <button type="button" class="text-link" @click="loadPackVersions">Refresh versions</button></div><p class="banner">This creates a separate instance. Your existing worlds and mods stay in place.</p></template>
-    <template v-else><label class="field">Install into<SelectControl v-model="selectedContent.instanceId" label="Install into" :options="eligibleTargetInstances.map(i=>({value:i.id,label:i.name,hint:i.gameVersion+' · '+i.loader}))"/></label><p style="font-size:12px">The launcher checks compatible versions and required dependencies before adding content.</p></template>
-    <div class="actions"><button type="button" @click="close">Cancel</button><button class="primary" :disabled="busy||!engineReady||packVersionsLoading||(selectedContent.kind==='modpack'?!selectedContent.versionId:!selectedContent.instanceId)">{{busy?'Installing…':selectedContent.kind==='modpack'?'Install modpack':'Install content'}}</button></div></form></template>
-  <template v-if="modal==='beta'"><p v-if="!entitlements.length" class="banner">Your account has no active beta features yet.</p><div v-for="e in entitlements" :key="e.feature" class="download-item"><h3>{{e.feature}}</h3><p>{{e.active?'Active':'Expired or revoked'}} · {{e.expiresAt||'No expiry reported'}}</p></div></template>
-  <template v-if="modal==='about'"><p>Solara Launcher is an independent desktop app for Minecraft Java and Solara services. This testing build uses Solara's own local Minecraft core.</p><p style="font-size:12px">The interface and native source are GPL-3.0-only. Required library and font notices are included in LICENSE and THIRD_PARTY_NOTICES.md. Solara is not affiliated with Mojang or Microsoft. A licensed Minecraft Java account is required to play.</p></template>
-  <template v-if="modal==='shortcuts'">
-    <div class="shortcuts-columns">
-      <div class="shortcuts-group">
-        <h4 class="shortcuts-group-title">Navigation</h4>
-        <div class="shortcuts-modal-grid">
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Home / Dashboard</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>1</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Library</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>2</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Services</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>3</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Discover &amp; Explore</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>4</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Launcher Settings</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>,</kbd></span>
-          </div>
-        </div>
+
+      <div v-if="updateMessage" class="update-status" :class="{ error: isError, success: isSuccess }">
+        <span class="status-dot"></span>
+        <span>{{ updateMessage }}</span>
       </div>
-      <div class="shortcuts-group">
-        <h4 class="shortcuts-group-title">Actions &amp; Search</h4>
-        <div class="shortcuts-modal-grid">
-          <div class="shortcut-row">
-            <span class="shortcut-desc">New Minecraft instance</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>N</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Toggle downloads queue</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>D</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Quick search</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>F</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Focus search box</span>
-            <span class="shortcut-keys"><kbd>/</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Refresh ecosystem</span>
-            <span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>R</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Dismiss active dialog</span>
-            <span class="shortcut-keys"><kbd>Esc</kbd></span>
-          </div>
-          <div class="shortcut-row">
-            <span class="shortcut-desc">Shortcuts cheatsheet</span>
-            <span class="shortcut-keys"><kbd>?</kbd></span>
-          </div>
+
+      <div v-if="appUpdate?.state === 'downloading'" class="download-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
         </div>
+        <span class="progress-info">{{ updateProgressText }}</span>
       </div>
-    </div>
-    <div class="actions" style="margin-top:20px">
-      <button class="primary" @click="close">Got it</button>
-    </div>
-  </template>
-  </section></div></Transition><Transition name="toast"><div v-if="message" class="toast" role="status"><Check/><span>{{message}}</span><button class="toast-close" aria-label="Dismiss notification" @click="message=''"><X/></button></div></Transition>
-</div>
+    </main>
+  </div>
 </template>
