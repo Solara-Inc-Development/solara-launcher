@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 187 - Clean Slate Minimal Launcher and Auto-Update Delivery.
+# Owner-approved preview candidate: Milestone 188 - Purge Discord Activity and RPC from Launcher Backend.
 on:
   workflow_dispatch:
   push:
@@ -20,7 +20,6 @@ jobs:
       CARGO_PROFILE_TEST_DEBUG: '0'
       SOLARA_MICROSOFT_CLIENT_ID: ${{ vars.SOLARA_MICROSOFT_CLIENT_ID }}
       SOLARA_CLIENT_ID: ${{ vars.SOLARA_CLIENT_ID }}
-      SOLARA_DISCORD_CLIENT_ID: ${{ vars.SOLARA_DISCORD_CLIENT_ID }}
       VITE_SOLARA_GITHUB_URL: https://github.com/${{ github.repository }}
     steps:
       - uses: actions/checkout@v4

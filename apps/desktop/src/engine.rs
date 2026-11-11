@@ -557,73 +557,6 @@ pub async fn game_running() -> bool {
     }
 }
 
-#[derive(Clone, Debug, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct DiscordActivityInfo {
-    pub is_running: bool,
-    pub instance_name: Option<String>,
-    pub game_version: Option<String>,
-    pub loader: Option<String>,
-    pub details: String,
-    pub state: String,
-}
-
-pub async fn discord_activity_info() -> DiscordActivityInfo {
-    let engine = match get().await {
-        Ok(e) => e,
-        Err(_) => {
-            return DiscordActivityInfo {
-                is_running: false,
-                instance_name: None,
-                game_version: None,
-                loader: None,
-                details: "Solara Launcher".into(),
-                state: "Exploring worlds & mods".into(),
-            }
-        }
-    };
-
-    let running_ids = engine.games.running().await.unwrap_or_default();
-    if let Some(active_id) = running_ids.first() {
-        if let Ok(instances) = engine.instances.list().await {
-            if let Some(inst) = instances.into_iter().find(|i| &i.id == active_id) {
-                let loader_display = match inst.loader.to_lowercase().as_str() {
-                    "fabric" => "Fabric",
-                    "quilt" => "Quilt",
-                    "forge" => "Forge",
-                    "neoforge" => "NeoForge",
-                    _ => "Vanilla",
-                };
-                return DiscordActivityInfo {
-                    is_running: true,
-                    instance_name: Some(inst.name.clone()),
-                    game_version: Some(inst.game_version.clone()),
-                    loader: Some(loader_display.into()),
-                    details: format!("Playing {}", inst.name),
-                    state: format!("{} · Minecraft {}", loader_display, inst.game_version),
-                };
-            }
-        }
-        return DiscordActivityInfo {
-            is_running: true,
-            instance_name: None,
-            game_version: None,
-            loader: None,
-            details: "Playing Minecraft".into(),
-            state: "In-game session".into(),
-        };
-    }
-
-    DiscordActivityInfo {
-        is_running: false,
-        instance_name: None,
-        game_version: None,
-        loader: None,
-        details: "Solara Launcher".into(),
-        state: "Exploring worlds & mods".into(),
-    }
-}
-
 pub async fn install_content(
     instance_id: Option<String>,
     project_id: String,
@@ -765,6 +698,7 @@ pub async fn clear_finished_downloads() -> Result<()> {
 pub struct Preferences {
     pub memory: u32,
     pub java_path: String,
+    #[serde(default)]
     pub discord: bool,
 }
 impl Default for Preferences {
@@ -772,7 +706,7 @@ impl Default for Preferences {
         Self {
             memory: 4096,
             java_path: "auto".into(),
-            discord: true,
+            discord: false,
         }
     }
 }
@@ -800,30 +734,17 @@ fn validate_preferences(value: &Preferences) -> Result<()> {
     };
     Ok(())
 }
-pub fn discord_client_id() -> Option<String> {
-    if let Some(val) = option_env!("SOLARA_DISCORD_CLIENT_ID") {
-        if !val.trim().is_empty() {
-            return Some(val.trim().to_string());
-        }
-    }
-    if let Ok(val) = std::env::var("SOLARA_DISCORD_CLIENT_ID") {
-        if !val.trim().is_empty() {
-            return Some(val.trim().to_string());
-        }
-    }
-    // Default Discord application client ID for Solara Rich Presence
-    Some("1557970379111276665".to_string())
-}
-pub async fn save_preferences(memory: u32, java_path: String, discord: bool) -> Result<()> {
+pub async fn save_preferences(
+    memory: u32,
+    java_path: String,
+    discord: Option<bool>,
+) -> Result<()> {
     let value = Preferences {
         memory,
         java_path,
-        discord,
+        discord: discord.unwrap_or(false),
     };
     validate_preferences(&value)?;
-    if discord && discord_client_id().is_none() {
-        bail!("Discord activity is not configured in this build")
-    }
     write_json(&get().await?.data.join("preferences.json"), &value).await
 }
 pub async fn create_local(

@@ -6,7 +6,7 @@ Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/sol
 
 1. The inherited engine and its blocked dependencies have been removed. Generate notices with `node scripts/third-party.mjs` after the frontend build. Preserve exact corresponding source and both lockfiles alongside every executable. Do not remove remaining library/font licences.
 2. Supply a Windows x64 build machine/Actions repository with Rust stable, MSVC/Windows SDK, Node 22. `.github/workflows/windows.yml` is explicit workflow_dispatch and serializes build allocation.
-3. Register an approved Solara PKCE public client and Microsoft Entra public-client device-code app (see [Authentication setup guide](AUTH-SETUP.md)). Configure public native IDs `SOLARA_CLIENT_ID`, `SOLARA_MICROSOFT_CLIENT_ID`, optional `SOLARA_DISCORD_CLIENT_ID`; Microsoft's app must have the necessary Xbox/Minecraft permissions and public-client device flow enabled. No upstream ID is reused and no secret is embedded.
+3. Register an approved Solara PKCE public client and Microsoft Entra public-client device-code app (see [Authentication setup guide](AUTH-SETUP.md)). Configure public native IDs `SOLARA_CLIENT_ID`, `SOLARA_MICROSOFT_CLIENT_ID`; Microsoft's app must have the necessary Xbox/Minecraft permissions and public-client device flow enabled. No upstream ID is reused and no secret is embedded.
 4. Configure trusted `SOLARA_UPDATER_PUBLIC_KEY`; keep `TAURI_SIGNING_PRIVATE_KEY` and optional password only in private CI secret storage. Generate keys using Tauri CLI in a private environment; never put keys into source/artifact logs. Updater signatures are distinct from Authenticode: Windows publisher signing is a separate optional configuration and must not be claimed unless supplied/verified.
 5. Run shared tests, Vue type checks, native checks, local-server tests and real Windows acceptance checks. Verify licensed launch, OS-vault persistence, independent logout, process shutdown, NSIS install/uninstall and signed update/install before public release.
 
@@ -49,7 +49,7 @@ Withdrawal preserves the executable and records state/reason/time. For rollback,
 
 Solara-specific preferences/local-server files: platform local app-data directory under `in.solara.launcher`. Custom instances live in `custom-instances/<uuid>/`, with worlds in `game/`, isolated world/config snapshots in `backups/`, recoverable deletions in `trash/`, and replaceable files in `runtime/`. Verified content is cached separately in `verified-game-files/`. Managed Temurin runtimes live in `java-runtimes/`. The old engine namespace is never overwritten. Windows tokens use Credential Manager services `in.solara.launcher.solara` and `in.solara.launcher.minecraft.custom`; `custom-minecraft-accounts/accounts.json` holds local profile metadata only. No plaintext credential fallback is allowed. Back up instance/local-server folders before manual relocation; don't overwrite existing worlds or upstream app directories.
 
-Tauri updater public-key verification is mandatory. Missing keys produce a useful unconfigured state. No public update is available when the archive is empty. Discord is optional and does not block game launch if missing/not running; it only emits coarse app/game state and clears on exit.
+Tauri updater public-key verification is mandatory. Missing keys produce a useful unconfigured state. No public update is available when the archive is empty. Discord activity and Rich Presence are completely purged from the application.
 
 ## Custom-core verification and preview limits
 
