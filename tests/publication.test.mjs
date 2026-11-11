@@ -1,7 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {generateKeyPairSync,sign,createHash} from 'node:crypto';
-import {validateRelease,verifyReleaseAssets} from '../scripts/prepare-github-release.mjs';
+import os from 'node:os';
+import path from 'node:path';
+import {mkdtemp,rm,readFile} from 'node:fs/promises';
+import {validateRelease,verifyReleaseAssets,prepare} from '../scripts/prepare-github-release.mjs';
 
 // Header/signature fixtures live only in memory, never distributable artifacts.
 function fixture(){
@@ -30,4 +33,18 @@ test('release publication rejects changed installer, signature or corresponding 
   assert.throws(()=>verifyReleaseAssets(release,'V-0.0.14',{...assets,[name]:changed},key),/match/);
  }
  assert.throws(()=>verifyReleaseAssets(release,'V-0.0.14',{...assets,'solaralauncher.exe.sig':Buffer.from('wrong signature')},key),/Signature/);
+});
+test('prepare validates parameters and extracts verified release assets and notes',async()=>{
+ await assert.rejects(()=>prepare(),/Pass the exact release version/);
+ await assert.rejects(()=>prepare('V-9.9.99','/tmp/nonexistent-release-target'),/not found/);
+ const tmp=await mkdtemp(path.join(os.tmpdir(),'solara-gh-prep-'));
+ try{
+  await prepare('V-0.0.21',tmp);
+  const notes=await readFile(path.join(tmp,'release_notes.md'),'utf8');
+  assert.match(notes,/# Solara Launcher V-0.0.21/);
+  // Verify idempotent overwrite succeeds without error
+  await prepare('V-0.0.21',tmp);
+ }finally{
+  await rm(tmp,{recursive:true,force:true});
+ }
 });

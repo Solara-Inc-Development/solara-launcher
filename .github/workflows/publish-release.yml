@@ -5,10 +5,12 @@ on:
     inputs:
       version:
         description: 'Exact verified version tag (for example V-0.0.14)'
-        required: true
+        required: false
   push:
     tags:
       - 'V-*'
+    paths:
+      - 'builds/releases.json'
 
 permissions:
   contents: write
@@ -21,27 +23,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Determine verified release version
+        id: release-version
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "main" ]; then
+            if [[ "${{ github.ref_name }}" =~ ^V-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              VERSION="${{ github.ref_name }}"
+            else
+              VERSION=$(node -e "
+                const r = JSON.parse(require('fs').readFileSync('builds/releases.json', 'utf8')).releases;
+                const published = r.filter(x => x.state === 'published');
+                if (!published.length) throw Error('No published releases found in builds/releases.json');
+                console.log(published[published.length - 1].publicVersion);
+              ")
+            fi
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Target release version: $VERSION"
       - name: Verify signed installer and exact corresponding source
         env:
-          VERSION: ${{ github.event.inputs.version || github.ref_name }}
+          VERSION: ${{ steps.release-version.outputs.version }}
         run: node scripts/prepare-github-release.mjs "$VERSION" release-assets
       - name: Publish immutable assets as latest release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          VERSION: ${{ github.event.inputs.version || github.ref_name }}
+          VERSION: ${{ steps.release-version.outputs.version }}
         run: |
           set -euo pipefail
           if gh release view "$VERSION" >/dev/null 2>&1; then
-            mkdir existing-assets
+            mkdir -p existing-assets
             for asset in solaralauncher.exe solaralauncher.exe.sig source.zip; do
-              gh release download "$VERSION" --pattern "$asset" --dir existing-assets
-              cmp "release-assets/$asset" "existing-assets/$asset"
+              if gh release download "$VERSION" --pattern "$asset" --dir existing-assets 2>/dev/null; then
+                cmp "release-assets/$asset" "existing-assets/$asset"
+              else
+                gh release upload "$VERSION" "release-assets/$asset"
+              fi
             done
-            gh release edit "$VERSION" --latest
+            gh release edit "$VERSION" \
+              --title "Solara Launcher $VERSION" \
+              --notes-file release-assets/release_notes.md \
+              --latest
           else
             gh release create "$VERSION" \
               release-assets/solaralauncher.exe \

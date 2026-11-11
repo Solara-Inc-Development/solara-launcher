@@ -6,7 +6,7 @@ const readJson=async p=>JSON.parse(await readFile(p,'utf8'));const json=async(p,
 if(mode==='reserve'){
  let minimum=1;let commit='uncommitted';try{commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()}catch{}
  if(process.argv.includes('--github')){const pages=JSON.parse(execFileSync('gh',['api','--paginate','--slurp','repos/{owner}/{repo}/releases'],{cwd:root,encoding:'utf8'}));const tags=pages.flat().map(release=>release.tag_name);minimum=Math.max(1,...tags.filter(t=>/^solara-build-\d+$/.test(t)).map(t=>Number(t.slice(13))+1));}
- const r=await reserveBuild(dir,{commit,minimum});if(process.argv.includes('--github'))run('gh',['release','create','solara-build-'+Number(r.internalVersion.split('.').at(-1)),'--draft','--title',r.publicVersion,'--notes','Reserved immutable Solara build. Pending packaging, verification and publication.']);
+ const r=await reserveBuild(dir,{commit,minimum});if(process.argv.includes('--github'))run('gh',['release','create','solara-build-'+Number(r.internalVersion.split('.').at(-1)),'--draft','--latest=false','--title',r.publicVersion,'--notes','Reserved immutable Solara build. Pending packaging, verification and publication.']);
  await json(path.join(dir,'current-build.json'),r);await json(path.join(root,'packages/shared/build.json'),{...r,channel:'release-candidate'});
  const config=await readJson(path.join(root,'apps/desktop/tauri.conf.json'));config.version=r.internalVersion;await json(path.join(root,'apps/desktop/tauri.conf.json'),config);
  const cargo=path.join(root,'apps/desktop/Cargo.toml');await writeFile(cargo,(await readFile(cargo,'utf8')).replace(/version = "[^"]+"/,`version = "${r.internalVersion}"`));run('cargo',['update','--workspace','--offline']);console.log(`${r.publicVersion} allocated; never reuse if this build fails.`);
@@ -47,11 +47,65 @@ if(mode==='reserve'){
  r.state='published';r.channel='testing-preview';r.publishedAt=new Date().toISOString();archive.releases.push(r);
  const temp=path.join(dir,'.releases-'+r.buildId+'.tmp');await json(temp,archive);await rename(temp,path.join(dir,'releases.json'));
  console.log('Published signed testing preview metadata. Physical Windows acceptance remains pending.');
+ if(!process.argv.includes('--skip-github'))await publishGitHub(version);
 }else if(mode==='publish-manifest'){
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='ready'||migration.windowsAcceptance!==true)throw Error('Stable publication requires recorded Windows acceptance');
  const version=process.argv[3];if(!version)throw Error('Pass the staged public version');const r=await readJson(path.join(dir,version+'.json'));await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,process.env.SOLARA_UPDATER_PUBLIC_KEY||'',r.internalVersion);
  const response=await fetch(r.url,{signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('Uploaded installer URL is not publicly reachable');const remote=Buffer.from(await response.arrayBuffer());const local=await readFile(path.join(dir,releaseArtifactPath(r)));if(!remote.equals(local))throw Error('Public artifact bytes do not match verified local artifact');
  const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===r.publicVersion))throw Error('Release already exists; use withdrawal for revoked versions');r.state='published';r.publishedAt=new Date().toISOString();archive.releases.push(r);await json(path.join(dir,'releases.json'),archive);console.log('Published metadata only after public artifact verification.');
+ if(!process.argv.includes('--skip-github'))await publishGitHub(version);
+}else if(mode==='publish-github'){
+ const version=process.argv[3];if(!version)throw Error('Pass the release public version (e.g. V-0.0.21)');
+ await publishGitHub(version);
 }else if(mode==='withdraw'){
  const version=process.argv[3],reason=process.argv[4];if(!reason)throw Error('Pass public version and withdrawal reason');const archive=await readJson(path.join(dir,'releases.json'));const r=archive.releases.find(x=>x.publicVersion===version);if(!r)throw Error('Release not found');r.state='withdrawn';r.withdrawnAt=new Date().toISOString();r.withdrawalReason=reason;await json(path.join(dir,'releases.json'),archive);console.log('Release withdrawn; immutable artifact preserved.');
-}else{throw Error('Use reserve [--github], package, stage <installer> <notes> <application>, publish-preview-manifest <version>, publish-manifest <version>, or withdraw <version> <reason>');}
+}else{throw Error('Use reserve [--github], package, stage <installer> <notes> <application>, publish-preview-manifest <version>, publish-manifest <version>, publish-github <version>, or withdraw <version> <reason>');}
+
+async function publishGitHub(version){
+ let tagExists=false;
+ try{execFileSync('git',['rev-parse','-q','--verify','refs/tags/'+version],{cwd:root,stdio:'ignore'});tagExists=true;}catch{}
+ if(!tagExists){
+  const archive=await readJson(path.join(dir,'releases.json')).catch(()=>({releases:[]}));
+  const r=archive.releases?.find(x=>x.publicVersion===version);
+  const commit=r?.commit||'HEAD';
+  console.log(`Tagging ${version} at ${commit}...`);
+  try{execFileSync('git',['tag','-a',version,commit,'-m','Release '+version],{cwd:root,stdio:'inherit'});}catch(e){console.warn(`Git tag warning: ${e.message}`);}
+ }
+ try{
+  console.log(`Pushing release tag ${version} to origin...`);
+  execFileSync('git',['push','origin',version],{cwd:root,stdio:'inherit'});
+  console.log(`Pushed tag ${version} to origin successfully.`);
+ }catch(e){
+  console.warn(`Notice: Failed pushing tag ${version} to origin: ${e.message}`);
+ }
+ let ghAuthed=false;
+ try{execFileSync('gh',['auth','status'],{cwd:root,stdio:'ignore'});ghAuthed=true;}catch{if(process.env.GH_TOKEN||process.env.GITHUB_TOKEN)ghAuthed=true;}
+ if(ghAuthed){
+  console.log(`GitHub CLI authenticated. Preparing and publishing GitHub release for ${version}...`);
+  const tempDir=path.join(dir,'.gh-release-'+version+'-'+Date.now());
+  try{
+   const {prepare}=await import('./prepare-github-release.mjs');
+   await prepare(version,tempDir);
+   let releaseExists=false;
+   try{execFileSync('gh',['release','view',version],{cwd:root,stdio:'ignore'});releaseExists=true;}catch{}
+   const exe=path.join(tempDir,'solaralauncher.exe');
+   const sig=path.join(tempDir,'solaralauncher.exe.sig');
+   const src=path.join(tempDir,'source.zip');
+   const notes=path.join(tempDir,'release_notes.md');
+   if(releaseExists){
+    console.log(`Updating existing GitHub release ${version} as latest...`);
+    execFileSync('gh',['release','upload',version,exe,sig,src,'--clobber'],{cwd:root,stdio:'inherit'});
+    execFileSync('gh',['release','edit',version,'--title','Solara Launcher '+version,'--notes-file',notes,'--latest'],{cwd:root,stdio:'inherit'});
+   }else{
+    console.log(`Creating GitHub release ${version} as latest...`);
+    execFileSync('gh',['release','create',version,exe,sig,src,'--verify-tag','--latest','--title','Solara Launcher '+version,'--notes-file',notes],{cwd:root,stdio:'inherit'});
+   }
+   console.log(`GitHub release ${version} published with installer, signature, and exact source archive.`);
+  }finally{
+   const {rm}=await import('node:fs/promises');
+   await rm(tempDir,{recursive:true,force:true}).catch(()=>{});
+  }
+ }else{
+  console.log(`GitHub CLI not authenticated locally. Release tag ${version} pushed to origin triggers CI publication workflow.`);
+ }
+}

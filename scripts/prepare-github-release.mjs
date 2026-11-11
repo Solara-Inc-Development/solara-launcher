@@ -38,18 +38,41 @@ async function fetchBytes(url,limit){
   return Buffer.concat(chunks);
 }
 
-async function prepare(version,output){
+export async function prepare(version,output){
   if(!version)throw Error('Pass the exact release version');
-  const bootstrap=JSON.parse((await fetchBytes('https://api.solara-inc.in/v1/launcher/bootstrap',5_000_000)).toString());
-  const release=bootstrap.releases?.find(r=>r.publicVersion===version);
-  const prefix=validateRelease(release,version);
-  const assets={};
-  for(const name of ['solaralauncher.exe','solaralauncher.exe.sig','source.zip'])assets[name]=await fetchBytes(prefix+name,name.endsWith('.sig')?16384:256_000_000);
   const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+  let release;
+  let prefix;
+  try{
+    const bootstrap=JSON.parse((await fetchBytes('https://api.solara-inc.in/v1/launcher/bootstrap',5_000_000)).toString());
+    release=bootstrap.releases?.find(r=>r.publicVersion===version);
+    if(release) prefix=validateRelease(release,version);
+  }catch{}
+  if(!release){
+    try{
+      const archive=JSON.parse(await readFile(path.join(root,'builds/releases.json'),'utf8'));
+      release=archive.releases?.find(r=>r.publicVersion===version);
+      if(release) prefix=validateRelease(release,version);
+    }catch{}
+  }
+  if(!release)throw Error(`Release ${version} not found in official catalog or builds/releases.json`);
+  const assets={};
+  for(const name of ['solaralauncher.exe','solaralauncher.exe.sig','source.zip']){
+    try{
+      assets[name]=await fetchBytes(prefix+name,name.endsWith('.sig')?16384:256_000_000);
+    }catch(fetchErr){
+      const localFile=path.join(root,'builds',version,name);
+      try{
+        assets[name]=await readFile(localFile);
+      }catch{
+        throw fetchErr;
+      }
+    }
+  }
   verifyReleaseAssets(release,version,assets,(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim());
   await mkdir(output,{recursive:true});
-  for(const [name,bytes] of Object.entries(assets))await writeFile(path.join(output,name),bytes,{flag:'wx'});
-  await writeFile(path.join(output,'release_notes.md'),`# Solara Launcher ${version}\n\n${release.notes}\n\nUpdater-signed Windows testing preview. Physical Windows install, game and update acceptance remain pending.\n`,{flag:'wx'});
+  for(const [name,bytes] of Object.entries(assets))await writeFile(path.join(output,name),bytes);
+  await writeFile(path.join(output,'release_notes.md'),`# Solara Launcher ${version}\n\n${release.notes}\n\nUpdater-signed Windows testing preview. Physical Windows install, game and update acceptance remain pending.\n`);
   console.log(`Verified ${version}: installer signature/version, SHA-256 and exact CI source archive.`);
 }
 
