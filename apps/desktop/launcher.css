@@ -184,19 +184,18 @@ html, body, #app {
 }
 
 /* ========================================================
-   Sidebar: Sleek Minimal Horizon-Inspired Icon Dock
+   Sidebar: Sleek Minimal Horizon-Inspired Sidebar (~210px)
    ======================================================== */
 .horizon-sidebar {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: 210px;
+  min-width: 210px;
+  max-width: 210px;
   height: 100%;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 14px 0;
+  padding: 14px 10px;
   box-sizing: border-box;
   user-select: none;
   flex-shrink: 0;
@@ -205,8 +204,8 @@ html, body, #app {
 .dock-top {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  gap: 6px;
+  width: 100%;
 }
 
 .dock-spacer {
@@ -216,25 +215,46 @@ html, body, #app {
 .dock-bottom {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  gap: 6px;
+  width: 100%;
 }
 
 .dock-item {
-  width: 40px;
+  width: 100%;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  padding: 0 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0;
   box-sizing: border-box;
+}
+
+.dock-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dock-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  line-height: 1;
+  color: inherit;
+  white-space: nowrap;
 }
 
 .dock-item:hover {
@@ -251,21 +271,34 @@ html, body, #app {
   box-shadow: 0 0 14px rgba(61, 214, 245, 0.2);
 }
 
+.dock-item.is-active .dock-label {
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .horizon-discord-btn {
   text-decoration: none;
 }
 
 .horizon-discord-btn:hover {
-  background: rgba(61, 214, 245, 0.15);
-  border-color: rgba(61, 214, 245, 0.45);
-  color: var(--accent);
-  box-shadow: 0 0 16px rgba(61, 214, 245, 0.3);
-  transform: scale(1.05);
+  background: rgba(88, 101, 242, 0.15);
+  border-color: rgba(88, 101, 242, 0.4);
+  color: #7289da;
+  box-shadow: 0 0 16px rgba(88, 101, 242, 0.25);
+  transform: translateY(-1px);
+}
+
+.horizon-discord-btn:hover .discord-icon {
+  color: #5865f2;
+}
+
+.horizon-discord-btn:hover .dock-label {
+  color: #ffffff;
 }
 
 .discord-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 /* ========================================================

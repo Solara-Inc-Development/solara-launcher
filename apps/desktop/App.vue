@@ -227,7 +227,12 @@ function openDiscord() {
   void openExternal('https://discord.solara-inc.in/');
 }
 
+function onContextMenu(e: MouseEvent) {
+  e.preventDefault();
+}
+
 onMounted(async () => {
+  window.addEventListener('contextmenu', onContextMenu, { capture: true });
   await runStartupSequence();
   if (isDesktop && !startupAbort) {
     pollTimer = setInterval(() => void pollStatus(), 3000);
@@ -235,6 +240,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener('contextmenu', onContextMenu, { capture: true });
   startupAbort = true;
   currentSequenceId++;
   if (startupInterval) clearInterval(startupInterval);
@@ -243,7 +249,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="shell" data-theme="dark">
+  <div class="shell" data-theme="dark" @contextmenu.prevent>
     <!-- Top Bar / Header: Clean Minimal Modrinth-Inspired Top Bar -->
     <header class="titlebar">
       <div
@@ -363,11 +369,11 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- App Body: Sleek Horizon-inspired icon dock Sidebar + Minimal Clean Main View -->
+    <!-- App Body: Wider Horizon-inspired sidebar (~200px - 220px) + Minimal Clean Main View -->
     <div class="launcher-layout">
-      <!-- Sidebar: Sleek minimal Horizon-inspired icon dock with a Discord button that opens https://discord.solara-inc.in/ -->
+      <!-- Sidebar: Wider Horizon-inspired sidebar (~200px - 220px) with Icon + Text labels -->
       <aside class="horizon-sidebar" aria-label="Sidebar Navigation">
-        <!-- Top Dock Item (Home active indicator) -->
+        <!-- Top Dock Item (Home active indicator with Icon + Text) -->
         <div class="dock-top">
           <button
             type="button"
@@ -375,13 +381,14 @@ onUnmounted(() => {
             title="Home"
             aria-label="Home"
           >
-            <Home :size="20" />
+            <Home :size="18" class="dock-icon" />
+            <span class="dock-label">Home</span>
           </button>
         </div>
 
         <div class="dock-spacer"></div>
 
-        <!-- Bottom Dock Item: Discord button opening https://discord.solara-inc.in/ -->
+        <!-- Bottom Dock Item: Discord button opening https://discord.solara-inc.in/ (Icon + Text) -->
         <div class="dock-bottom">
           <a
             href="https://discord.solara-inc.in/"
@@ -392,7 +399,8 @@ onUnmounted(() => {
             aria-label="Join the Discord"
             @click.prevent="openDiscord"
           >
-            <Discord :size="20" class="discord-icon" />
+            <Discord :size="18" class="discord-icon dock-icon" />
+            <span class="dock-label">Discord</span>
           </a>
         </div>
       </aside>

@@ -238,20 +238,69 @@ function checkServer(url) {
     assert.equal(await page.locator('.header-nav-history').count(), 0, 'Nav history buttons are completely removed from header');
     assert.equal(await page.locator('.instance-status-pill').count(), 0, 'Instance status pill is completely removed from header');
 
-    // Horizon Sidebar Icon Dock checks:
+    // Horizon Sidebar checks (wider sidebar ~200px - 220px with Icon + Text labels):
     const sidebar = page.locator('.horizon-sidebar');
-    assert.equal(await sidebar.count(), 1, 'Horizon sidebar icon dock exists');
+    assert.equal(await sidebar.count(), 1, 'Horizon sidebar exists');
 
+    const sidebarBox = await sidebar.boundingBox();
+    assert.ok(sidebarBox, 'Sidebar bounding box exists');
+    assert.ok(sidebarBox.width >= 200 && sidebarBox.width <= 220, `Sidebar width (${sidebarBox.width}px) is in the ~200px - 220px range`);
+
+    // Verify Home item has icon and text label "Home"
+    const homeBtn = page.locator('.horizon-sidebar .dock-top .dock-item');
+    assert.equal(await homeBtn.count(), 1, 'Home button exists in dock');
+    assert.ok((await homeBtn.textContent()).includes('Home'), 'Home button has "Home" text label');
+
+    // Verify Discord item has icon and text label "Discord"
     const discordBtn = page.locator('.horizon-discord-btn');
     assert.equal(await discordBtn.count(), 1, 'Discord button exists in sidebar dock');
     assert.equal(await discordBtn.getAttribute('href'), 'https://discord.solara-inc.in/', 'Discord button links to https://discord.solara-inc.in/');
     assert.equal(await discordBtn.getAttribute('title'), 'Join the Discord', 'Discord button has title "Join the Discord"');
+    assert.ok((await discordBtn.textContent()).includes('Discord'), 'Discord button has "Discord" text label');
 
     // Click Discord button and verify native open_external is invoked with canonical discord URL
     await discordBtn.click();
     await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('open_external:')), { timeout: 5000 });
     log = await page.evaluate(() => window.__ACTION_LOG__);
     assert.ok(log.includes('open_external:https://discord.solara-inc.in/'), 'Clicking Discord button calls open_external with https://discord.solara-inc.in/');
+
+    // 9. Verify Default Browser Context Menu is Disabled Globally
+    const contextMenuResults = await page.evaluate(() => {
+      let preventedCount = 0;
+      const targets = [
+        document.body,
+        document.querySelector('.shell'),
+        document.querySelector('.titlebar'),
+        document.querySelector('.horizon-sidebar'),
+        document.querySelector('.launcher-main'),
+        document.querySelector('.greeting')
+      ].filter(Boolean);
+
+      for (const target of targets) {
+        const ev = new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          buttons: 2
+        });
+        target.dispatchEvent(ev);
+        if (ev.defaultPrevented) preventedCount++;
+      }
+      return { total: targets.length, preventedCount };
+    });
+    assert.ok(contextMenuResults.total >= 5, 'Found application targets for contextmenu test');
+    assert.equal(contextMenuResults.preventedCount, contextMenuResults.total, 'All contextmenu events are prevented across all application targets');
+
+    // Real right click via Playwright mouse
+    await page.evaluate(() => {
+      window.__RIGHT_CLICK_PREVENTED__ = null;
+      window.addEventListener('contextmenu', (e) => {
+        window.__RIGHT_CLICK_PREVENTED__ = e.defaultPrevented;
+      }, { capture: true, once: true });
+    });
+    await page.mouse.click(500, 300, { button: 'right' });
+    const rightClickPrevented = await page.evaluate(() => window.__RIGHT_CLICK_PREVENTED__);
+    assert.equal(rightClickPrevented, true, 'Real mouse right-click contextmenu event default was prevented');
 
     // Confirm all bloat (instances card, nav tabs, edition badges, play bars, views, settings) are completely removed
     assert.equal(await page.locator('.horizon-instance-card').count(), 0, 'Premade instance cards are completely removed');
