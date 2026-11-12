@@ -32,6 +32,16 @@ export async function native<T=any>(command:string,args:Record<string,unknown>={
 }
 export async function openExternal(url:string){
   const u=new URL(url);if(u.protocol!=='https:')throw new Error('Only HTTPS destinations are allowed');
-  if(isDesktop){await native('open_external',{url:u.href});}else window.open(u.href,'_blank','noopener,noreferrer');
+  if(isDesktop){
+    try {
+      await native('open_external',{url:u.href});
+    } catch(e) {
+      if(typeof window!=='undefined'){
+        window.open(u.href,'_blank','noopener,noreferrer');
+      }
+    }
+  } else if(typeof window!=='undefined'){
+    window.open(u.href,'_blank','noopener,noreferrer');
+  }
 }
 export const links={home:'https://www.solara-inc.in',docs:'https://auth.solara-inc.in/docs.php',support:'https://www.solara-inc.in/contact',github:import.meta.env.VITE_SOLARA_GITHUB_URL||'https://github.com/Solara-Inc-Development/solara-launcher'};

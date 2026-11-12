@@ -66,6 +66,10 @@ function checkServer(url) {
             window.__ACTION_LOG__.push(args.action);
             return null;
           }
+          if (command === 'open_external') {
+            window.__ACTION_LOG__.push(`open_external:${args.url}`);
+            return null;
+          }
           if (command === 'start_dragging') {
             window.__ACTION_LOG__.push('start_dragging');
             return null;
@@ -242,6 +246,12 @@ function checkServer(url) {
     assert.equal(await discordBtn.count(), 1, 'Discord button exists in sidebar dock');
     assert.equal(await discordBtn.getAttribute('href'), 'https://discord.solara-inc.in/', 'Discord button links to https://discord.solara-inc.in/');
     assert.equal(await discordBtn.getAttribute('title'), 'Join the Discord', 'Discord button has title "Join the Discord"');
+
+    // Click Discord button and verify native open_external is invoked with canonical discord URL
+    await discordBtn.click();
+    await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('open_external:')), { timeout: 5000 });
+    log = await page.evaluate(() => window.__ACTION_LOG__);
+    assert.ok(log.includes('open_external:https://discord.solara-inc.in/'), 'Clicking Discord button calls open_external with https://discord.solara-inc.in/');
 
     // Confirm all bloat (instances card, nav tabs, edition badges, play bars, views, settings) are completely removed
     assert.equal(await page.locator('.horizon-instance-card').count(), 0, 'Premade instance cards are completely removed');

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Minus, Maximize2, X, RefreshCw, Sparkles, Home, Discord } from '../../packages/ui/icons';
-import { native, isDesktop } from '../../packages/shared/client';
+import { native, isDesktop, openExternal } from '../../packages/shared/client';
 
 const checking = ref(false);
 const hasChecked = ref(false);
@@ -139,8 +139,8 @@ async function windowAction(action: string) {
 }
 
 function onWindowButtonUp(action: string, e: MouseEvent | PointerEvent) {
-  const btn = e.currentTarget as HTMLElement | null;
-  if (!btn) return;
+  const btn = e.currentTarget as HTMLButtonElement | null;
+  if (!btn || btn.disabled) return;
   const rect = btn.getBoundingClientRect();
   if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
     void windowAction(action);
@@ -223,30 +223,13 @@ async function pollStatus() {
   } catch {}
 }
 
-async function openExternal(url: string) {
-  if (isDesktop) {
-    try {
-      await native('open_url', { url });
-      return;
-    } catch {}
-    try {
-      const { openUrl } = await import('@tauri-apps/plugin-opener');
-      await openUrl(url);
-      return;
-    } catch {}
-  }
-  if (typeof window !== 'undefined') {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-}
-
 function openDiscord() {
   void openExternal('https://discord.solara-inc.in/');
 }
 
 onMounted(async () => {
   await runStartupSequence();
-  if (isDesktop) {
+  if (isDesktop && !startupAbort) {
     pollTimer = setInterval(() => void pollStatus(), 3000);
   }
 });
