@@ -5,8 +5,9 @@ import {publicVersion,buildNumber} from '../packages/shared/domain.mjs';
 export async function reserveBuild(dir,{commit='unknown',minimum=1}={}){
  await mkdir(dir,{recursive:true});const lock=path.join(dir,'.allocation.lock');const guard=await open(lock,'wx').catch(()=>{throw Error('Another build is allocating a version; retry after it completes')});
  try{let registry={schemaVersion:1,allocations:[]};try{registry=JSON.parse(await readFile(path.join(dir,'allocations.json'),'utf8'))}catch(e){if(e.code!=='ENOENT')throw e}
+ let releases=[];try{releases=JSON.parse(await readFile(path.join(dir,'releases.json'),'utf8')).releases||[]}catch(e){if(e.code!=='ENOENT')throw e}
  const existing=await readdir(dir);const consumed=existing.flatMap(name=>{const m=/^(V-0\.0\.\d+)\.reservation\.json$/.exec(name);return m?[buildNumber(m[1])+1]:[]});
- let n=Math.max(minimum,...consumed,...registry.allocations.map(a=>buildNumber(a.publicVersion)+1));if(!Number.isSafeInteger(n))throw Error('Invalid build counter');
+ let n=Math.max(minimum,...consumed,...registry.allocations.map(a=>buildNumber(a.publicVersion)+1),...releases.map(r=>buildNumber(r.publicVersion)+1));if(!Number.isSafeInteger(n))throw Error('Invalid build counter');
  const reservation={buildId:crypto.randomUUID(),publicVersion:publicVersion(n),internalVersion:`0.0.${n}`,filename:'solaralauncher.exe',artifactPath:`${publicVersion(n)}/solaralauncher.exe`,commit,allocatedAt:new Date().toISOString(),state:'allocated'};
  await writeFile(path.join(dir,reservation.publicVersion+'.reservation.json'),JSON.stringify(reservation,null,2),{flag:'wx'});registry.allocations.push(reservation);const temp=path.join(dir,'.allocations.'+reservation.buildId+'.tmp');await writeFile(temp,JSON.stringify(registry,null,2));await rename(temp,path.join(dir,'allocations.json'));return reservation;
  }finally{await guard.close();await unlink(lock)}
