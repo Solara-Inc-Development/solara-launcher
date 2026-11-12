@@ -4,8 +4,8 @@
   "internalVersion": "0.0.34",
   "filename": "solaralauncher.exe",
   "artifactPath": "V-0.0.34/solaralauncher.exe",
-  "commit": "58688593086ea6874be36d69431c0a288e467e42",
-  "allocatedAt": "2026-11-12T06:57:06.289Z",
-  "state": "allocated",
-  "channel": "release-candidate"
+  "commit": "15b27b09989d4d057b85e84b2ff9ccc839ba92e9",
+  "allocatedAt": "2026-11-12T07:01:32.802Z",
+  "state": "published",
+  "channel": "testing-preview"
 }
