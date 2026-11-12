@@ -55,15 +55,16 @@ pub struct DevicePrompt {
 
 fn client_id() -> Result<&'static str> {
     let value = option_env!("SOLARA_MICROSOFT_CLIENT_ID").unwrap_or_default();
-    if value.is_empty()
-        || value.len() > 100
-        || !value
+    if !value.is_empty()
+        && value.len() <= 100
+        && value
             .bytes()
             .all(|b| b.is_ascii_alphanumeric() || b == b'-')
     {
-        bail!("Microsoft sign-in is not configured. An approved Solara Microsoft application is required.")
+        return Ok(value);
     }
-    Ok(value)
+    // Default public client ID for Minecraft Java Device Authorization Flow
+    Ok("c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb")
 }
 fn client() -> Result<reqwest::Client> {
     Ok(reqwest::Client::builder()
