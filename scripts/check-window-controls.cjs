@@ -222,7 +222,64 @@ function checkServer(url) {
     await loadingScreen.waitFor({ state: 'hidden', timeout: 15000 });
     assert.equal(await greeting.isVisible(), true, 'Greeting is visible after final sequence');
 
-    console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, clean status line, and minimalist loading screen verified successfully!');
+    // 8. Verify Modrinth Header integration (nav history, breadcrumb, search, status pill) & Horizon Sidebar (instances card, tabs, bottom widgets)
+    // Modrinth Header checks:
+    const headerBrand = page.locator('.header-brand');
+    assert.equal(await headerBrand.count(), 1, 'Header brand exists');
+    assert.ok((await headerBrand.textContent()).includes('solara'), 'Brand text contains "solara"');
+
+    const breadcrumb = page.locator('.header-breadcrumb');
+    assert.equal(await breadcrumb.count(), 1, 'Breadcrumb exists');
+    assert.ok((await breadcrumb.textContent()).includes('Home'), 'Breadcrumb starts at Home');
+
+    const searchBox = page.locator('.header-search-box');
+    assert.equal(await searchBox.count(), 1, 'Search box exists in header');
+
+    const statusPill = page.locator('.instance-status-pill');
+    assert.equal(await statusPill.count(), 1, 'Instances status pill exists in header');
+    assert.ok((await statusPill.textContent()).includes('No instances running'), 'Status pill shows No instances running');
+
+    // Horizon Sidebar checks:
+    const sidebar = page.locator('.horizon-sidebar');
+    assert.equal(await sidebar.count(), 1, 'Horizon sidebar exists');
+
+    const instanceCard = page.locator('.horizon-instance-card');
+    assert.equal(await instanceCard.count(), 1, 'Horizon instance card exists');
+    assert.ok((await instanceCard.textContent()).includes('Solara Main'), 'Instance card displays Solara Main');
+    assert.ok((await instanceCard.textContent()).includes('Ready'), 'Instance card displays Ready status');
+
+    const navTabs = page.locator('.sidebar-nav .nav-tab-btn');
+    assert.equal(await navTabs.count(), 5, 'Sidebar has 5 navigation tabs');
+
+    // Test tab navigation
+    const instancesTab = page.locator('.sidebar-nav .nav-tab-btn:has-text("Instances")');
+    await instancesTab.click();
+    assert.ok((await breadcrumb.textContent()).includes('Instances'), 'Breadcrumb updates to Instances');
+    assert.equal(await page.locator('.view-instances').count(), 1, 'Instances view is visible');
+
+    // Test history back navigation
+    const backBtn = page.locator('.nav-history-btn[title="Go back"]');
+    await backBtn.click();
+    assert.ok((await breadcrumb.textContent()).includes('Home'), 'History back returns breadcrumb to Home');
+    assert.equal(await page.locator('.view-home').count(), 1, 'Home view is active again');
+
+    // Test Horizon Play bar and status pill update
+    const playBtn = page.locator('.hero-play-btn');
+    await playBtn.click();
+    assert.ok((await statusPill.textContent()).includes('1 instance running'), 'Status pill updates to 1 instance running when played');
+    await playBtn.click();
+    assert.ok((await statusPill.textContent()).includes('No instances running'), 'Status pill updates back when stopped');
+
+    // Horizon Bottom Widgets checks:
+    const discordBtn = page.locator('.horizon-discord-btn');
+    assert.equal(await discordBtn.count(), 1, 'Join Discord button exists in sidebar');
+    assert.ok((await discordBtn.textContent()).includes('Join the Discord'), 'Discord button is labeled Join the Discord');
+
+    const auxLinks = page.locator('.sidebar-aux-links .aux-link-btn');
+    assert.equal(await auxLinks.count(), 2, 'Sponsor and Website links exist');
+
+    console.log('PASS: Window controls, Modrinth header, Horizon sidebar, and loading screen verified successfully!');
+
   } finally {
     await browser.close();
     if (devServer) {

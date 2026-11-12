@@ -1,5 +1,25 @@
 # Changelog
 
+## Testing Preview V-0.0.30 — 2026-11-12
+
+- **Modrinth-Inspired Top Bar / Header**:
+  - Frameless obsidian titlebar with window drag regions (`data-tauri-drag-region`) and click deduplication.
+  - Solara brand mark, history navigation controls (`<` and `>`), and active breadcrumb indicator (`▷ Home`, `▷ Instances`, `▷ Mods`, `▷ Servers`, `▷ Settings`).
+  - Integrated quick search bar with `Ctrl K` badge and downloads/tasks tray button.
+  - Dynamic instance status indicator pill (`● No instances running` / `● 1 instance running`).
+- **Horizon-Inspired Sleek Sidebar**:
+  - Floating obsidian panel (`#09090b`) with Electric Cyan (`#3dd6f5`) accents and strictly zero purple.
+  - "Instances" section header with quick add button and Horizon instance card (`Solara Main`, `● Ready`, and options menu).
+  - Modern navigation rail tabs (Home, Instances, Mods, Servers, Settings) with active cyan indicators.
+  - Horizon bottom widgets: update status card, "Join the Discord" pill button, Sponsor/Website links, and version footer.
+- **Horizon Hero Section & Interactive Workspace**:
+  - Hero play section featuring `HI ;)`, edition badges (⚡ Rust Edition, ☕ Java Edition), and instance launch stats.
+  - Horizon Play bar with primary Play/Stop toggle, version selector (`Fabric 1.21.4`), and directory explorer button.
+  - Direct server invite code box and direct join action.
+  - Preserved 5-10s startup loading animation, glowing logo, status progression, numeric percentage, and auto-updater core.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.29 — 2026-11-11
 
 - **Discord-Proportioned Window Dimensions**:

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 195 - Discord-like Window Dimensions (1280x720), Pure Oiled Black Theme, Fast 5-10s Loading Screen.
+# Owner-approved preview candidate: Milestone 196 - Modrinth Header, Horizon Sidebar, Oiled Black Theme (V-0.0.30).
 on:
   workflow_dispatch:
   push:
