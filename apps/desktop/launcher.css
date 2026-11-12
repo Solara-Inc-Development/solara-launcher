@@ -1455,6 +1455,95 @@ html, body, #app {
   margin-top: 8px;
 }
 
+/* Direct Browser Flow Specifics (Option 2) */
+.direct-signin-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.direct-signin-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.browser-pulse-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(61, 214, 245, 0.08);
+  border: 1px solid rgba(61, 214, 245, 0.25);
+  box-shadow: 0 0 24px rgba(61, 214, 245, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.direct-signin-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.45;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.direct-signin-subtext {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 22px 0;
+  max-width: 420px;
+}
+
+.direct-signin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.btn-reopen-browser {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
+  border: none;
+  color: #000000;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(61, 214, 245, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-reopen-browser:hover {
+  background: linear-gradient(135deg, #5fe0fc 0%, #3dd6f5 100%);
+  transform: translateY(-1px);
+}
+
+.btn-reopen-browser:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-error-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
 /* ========================================================
    All Announcements Modal Specifics & Reader
    ======================================================== */

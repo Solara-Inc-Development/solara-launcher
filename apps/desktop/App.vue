@@ -75,7 +75,7 @@ const activeAccount = computed<MinecraftAccount | null>(() => {
 const signingIn = ref(false);
 const showLoginModal = ref(false);
 const showAccountModal = ref(false);
-const loginPrompt = ref<{ code: string; url: string; expiresIn: number } | null>(null);
+const loginPrompt = ref<{ code: string; url: string; expiresIn: number; direct?: boolean } | null>(null);
 const loginError = ref<string | null>(null);
 const codeCopied = ref(false);
 
@@ -315,9 +315,10 @@ async function startMinecraftSignIn() {
     } else {
       // Simulated preview mode
       loginPrompt.value = {
-        code: 'QA-CODE',
-        url: 'https://www.microsoft.com/link',
-        expiresIn: 900
+        code: '',
+        url: 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=6a9238bb-3803-46f4-bf38-2f45bdf8c2ea&response_type=code&redirect_uri=http://localhost:54321/callback&scope=XboxLive.signin%20offline_access&code_challenge=mock&code_challenge_method=S256&prompt=select_account',
+        expiresIn: 300,
+        direct: true
       };
     }
   } catch (err: any) {
@@ -417,8 +418,10 @@ async function copyLoginCode() {
 }
 
 function openMicrosoftLink() {
-  const url = loginPrompt.value?.url || 'https://www.microsoft.com/link';
-  void openExternal(url);
+  const url = loginPrompt.value?.url;
+  if (url) {
+    void openExternal(url);
+  }
 }
 
 function openDiscord() {
@@ -959,7 +962,7 @@ onUnmounted(() => {
       </main>
     </div>
 
-    <!-- Modal 1: Minecraft Sign-In Device Flow Modal -->
+    <!-- Modal 1: Minecraft Sign-In Direct Browser Flow Modal -->
     <div
       v-if="showLoginModal"
       class="modal-backdrop"
@@ -990,13 +993,18 @@ onUnmounted(() => {
           <div v-if="loginError" class="login-error-box">
             <span class="error-badge">Sign-In Notice</span>
             <p class="error-text">{{ loginError }}</p>
-            <button type="button" class="btn-retry" @click="startMinecraftSignIn">
-              Try Again
-            </button>
+            <div class="login-error-actions">
+              <button type="button" class="btn-retry" @click="startMinecraftSignIn">
+                Try Again
+              </button>
+              <button type="button" class="btn-cancel" @click="cancelMinecraftSignIn">
+                Cancel
+              </button>
+            </div>
           </div>
 
-          <!-- Prompt with Device Code -->
-          <div v-else-if="loginPrompt" class="device-prompt-box">
+          <!-- Fallback: Prompt with Device Code (when code is present) -->
+          <div v-else-if="loginPrompt && loginPrompt.code" class="device-prompt-box">
             <p class="prompt-instruction">
               To link your Minecraft Java Edition account, open the official Microsoft sign-in page and enter the code below:
             </p>
@@ -1047,15 +1055,51 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Connecting / Waiting State -->
-          <div v-else class="connecting-state">
-            <span class="spinner large"></span>
-            <p>Connecting to Microsoft authentication service…</p>
-            <small>Awaiting one-time device code</small>
+          <!-- Primary: Direct 1-Click Browser Flow (Option 2) -->
+          <div v-else class="direct-signin-box">
+            <div class="direct-signin-visual">
+              <div class="browser-pulse-ring">
+                <span class="spinner large"></span>
+              </div>
+            </div>
+
+            <h3 class="direct-signin-heading">
+              Opening Microsoft Login in your browser... Please sign in and approve Solara Launcher.
+            </h3>
+
+            <p class="direct-signin-subtext">
+              We opened the official Microsoft login page in your default browser. Complete sign-in with the Microsoft account that owns Minecraft Java Edition.
+            </p>
+
+            <div class="direct-signin-actions">
+              <button
+                type="button"
+                class="btn-reopen-browser"
+                :disabled="!loginPrompt?.url"
+                title="Re-open Microsoft sign-in page in your browser"
+                @click="openMicrosoftLink"
+              >
+                <span>Re-open browser</span>
+                <ExternalLink :size="16" />
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                title="Cancel sign-in"
+                @click="cancelMinecraftSignIn"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <div class="security-disclaimer">
+              <ShieldCheck :size="15" />
+              <span>Strictly Local & Private: You only enter credentials on Microsoft’s official website. Your game tokens remain stored exclusively in your local Windows vault and never touch Solara servers.</span>
+            </div>
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer" v-if="!loginError && loginPrompt && loginPrompt.code">
           <button
             type="button"
             class="btn-cancel"
