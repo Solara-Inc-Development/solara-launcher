@@ -1,5 +1,25 @@
 # Changelog
 
+## Testing Preview V-0.0.33 — 2026-11-12
+
+- **Home Page & Welcome Header**:
+  - Implemented top greeting displaying "Welcome user" when unsigned and "Welcome, <username>" with player avatar/head when signed in.
+  - Dedicated avatar render using official Minecraft player head texture with pixelated rendering.
+- **Minecraft Java Account Authentication**:
+  - Wired to native Rust Microsoft OAuth authentication bridge (`minecraft_sign_in`, `cancel_minecraft_sign_in`, `minecraft_sign_out`, `select_minecraft_account`).
+  - Entitlement verification checks for genuine Minecraft Java purchase.
+  - Strict Security & Privacy: Credentials and tokens remain stored exclusively on the user's local PC in the Windows vault, never sent to Solara servers.
+  - One-click device code modal with copy-to-clipboard button and direct link to official Microsoft login.
+- **Launcher Announcements Section**:
+  - Clean card section displaying the latest 3 announcements with date and category badges.
+  - "See all announcements" button opening a clean modal overlay displaying up to 50 announcements with category filters.
+  - Built-in reader displaying full announcement articles, author, date, and formatted content.
+- **Latest Update Info Section**:
+  - Positioned below announcements, displaying highlights and changes in the current launcher version.
+  - Integrated "Check for updates" button, auto-updater progress, and loading animation preview.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.32 — 2026-11-12
 
 - **Disabled Default Browser Context Menu**:
