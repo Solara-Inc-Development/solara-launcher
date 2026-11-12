@@ -1,5 +1,21 @@
 # Changelog
 
+## Testing Preview V-0.0.32 — 2026-11-12
+
+- **Disabled Default Browser Context Menu**:
+  - Eliminated the default Chromium/WebView2 browser context menu ("Back", "Forward", "Reload", "Save as", "Print") globally across the application.
+  - Intercepts and suppresses right-click context menu events application-wide in capture phase on both module and component roots.
+- **Wider Sidebar with Icon & Text Labels**:
+  - Expanded sidebar navigation to ~210px (in the 200px - 220px range) for comfortable navigation.
+  - Added dedicated Icon + Text labels for both "Home" and "Discord" items.
+  - Preserved canonical link to `https://discord.solara-inc.in/` using native `open_external` integration.
+- **Main Clean View ("HI ;)") & Modrinth Header**:
+  - Preserved minimal Modrinth-inspired titlebar with brand logo, typography, and frameless window controls.
+  - Preserved centered greeting `HI ;)`, update checks, and Minisign signature verification.
+  - Preserved pure oiled black (`#000000`) theme and canonical 5-10s startup sequence.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.31 — 2026-11-12
 
 - **Complete Bloat Removal & Clean Slate Experience**:

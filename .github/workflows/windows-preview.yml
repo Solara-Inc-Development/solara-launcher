@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 197 - Clean Minimal Modrinth Header & Horizon Icon Dock Shell (V-0.0.31 candidate build).
+# Owner-approved preview candidate: Milestone 198 - Disable Default Browser Context Menu & Wider Sidebar with Icon and Text Labels (V-0.0.32 candidate build).
 on:
   workflow_dispatch:
   push:
