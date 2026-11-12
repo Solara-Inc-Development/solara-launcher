@@ -1,5 +1,27 @@
 # Changelog
 
+## Testing Preview V-0.0.31 — 2026-11-12
+
+- **Complete Bloat Removal & Clean Slate Experience**:
+  - Removed all settings panels, modals, and settings views completely.
+  - Removed mods management, mock mods, and lists completely.
+  - Removed premade instances, instance cards/carousels, edition badges (no "rust edition", no "java edition"), and play bars completely.
+  - Removed the search bar, navigation history controls, breadcrumbs, and instance status pills from the header.
+- **Clean Minimal Modrinth-Inspired Top Bar**:
+  - Minimalistic frameless top bar featuring Solara brand logo and typography on the left.
+  - Smooth window drag regions (`data-tauri-drag-region`) across the titlebar with proper drag handling.
+  - Dedicated window controls (minimize, maximize/restore, close) with 300ms deduplication.
+- **Sleek Minimal Horizon-Inspired Icon Dock**:
+  - Compact vertical sidebar icon dock in pure solid oiled black (`#000000`) with subtle border.
+  - Active home indicator dock item and primary Discord button opening `https://discord.solara-inc.in/`.
+- **Main Clean View ("HI ;)") & Core Auto-Updater**:
+  - Centered clean greeting `HI ;)` and primary "Check for updates" button.
+  - Preserved auto-updater core with Minisign cryptographic verification.
+  - Preserved canonical startup loading screen (5 to 10 seconds random duration, glowing Solara logo, status stages, sleek progress bar, and numeric percentage).
+  - Maintained pure solid oiled black (`#000000`) theme and Discord window proportions (`1280x720`, `center: true`).
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.30 — 2026-11-12
 
 - **Modrinth-Inspired Top Bar / Header**:

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 196 - Modrinth Header, Horizon Sidebar, Oiled Black Theme (V-0.0.30 candidate build).
+# Owner-approved preview candidate: Milestone 197 - Clean Minimal Modrinth Header & Horizon Icon Dock Shell (V-0.0.31 candidate build).
 on:
   workflow_dispatch:
   push:
@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           try {
-            gh release delete solara-build-29 --yes --cleanup-tag 2>&1 | Out-Null
+            gh release delete solara-build-30 --yes --cleanup-tag 2>&1 | Out-Null
           } catch {}
           $global:LASTEXITCODE = 0
       - name: Reserve unique testing version
