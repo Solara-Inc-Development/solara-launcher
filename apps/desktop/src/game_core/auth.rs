@@ -444,4 +444,15 @@ mod tests {
         assert!(value.get("refresh_token").is_none());
         assert_eq!(value.get("owned").unwrap().as_bool(), Some(true));
     }
+
+    #[test]
+    fn client_id_is_valid_and_non_empty() {
+        let id = client_id().expect("client_id should succeed");
+        assert!(!id.is_empty());
+        assert!(id.len() <= 100);
+        assert!(id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-'));
+        if option_env!("SOLARA_MICROSOFT_CLIENT_ID").unwrap_or_default().is_empty() {
+            assert_eq!(id, "c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb");
+        }
+    }
 }

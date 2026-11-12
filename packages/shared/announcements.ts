@@ -11,6 +11,41 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-052',
+    title: 'Solara Launcher V-0.0.35: Zero-Setup Microsoft & Minecraft Sign-In',
+    date: '2026-11-12',
+    category: 'Release',
+    summary: 'Canonical public Minecraft OAuth device flow client ID fallback for seamless zero-setup Microsoft account login, eliminating tenant directory errors.',
+    content: `Solara Launcher V-0.0.35 is now officially published for Windows!
+
+Key highlights of this update:
+• Zero-Setup Microsoft Account Sign-In: Eliminated manual Azure Portal / Entra ID configuration prerequisites by incorporating the canonical public Minecraft OAuth client ID fallback. Resolves the "Selected user account does not exist in tenant 'Microsoft Services'" error for personal accounts.
+• Seamless 8-Character Device Flow: Simply click Login, copy your one-time code, open the official Microsoft verification link, and sign in on microsoft.com.
+• Local Security & Credential Vault: Access tokens and Minecraft session keys remain stored exclusively in your local Windows Credential Vault (DPAPI/Keyring). Solara servers never receive or store your credentials.
+• Above-the-Fold Layout Perfection: Strictly contained hero view ensuring optimal first impression without lower content bleeding above the 720px fold.
+• Modal Escape Key Dismissal: Instant keyboard dismissal of dialogs and modals using the Escape key.
+
+All updates download and verify cryptographically through our Minisign background service.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
+    id: 'ann-051',
+    title: 'Solara Launcher V-0.0.34: Dynamic Home Hero & Multi-Account Switcher',
+    date: '2026-11-12',
+    category: 'Feature',
+    summary: 'Brand-new "Welcome User TO Solara-Launcher" above-the-fold hero, active account card, and multi-account switcher modal.',
+    content: `Welcome to the new Solara Launcher home experience!
+
+What was introduced:
+• Impactful Welcome Hero: Bold, centered "Welcome User TO Solara-Launcher" heading designed for maximum visual appeal.
+• Active Account Card: Displays your Minecraft player head texture, genuine Java Edition ownership status, and local Windows vault privacy assurance.
+• Multi-Account Switcher Modal: Manage multiple Minecraft accounts with 1-click switching, new account addition, and clean logout controls.
+• Launcher Announcements Section: Quick access to the top 3 announcements and a full 50-article archive modal.
+• Disabled Browser Context Menu: Eliminated webview right-click popups across all pages.`,
+    author: 'Solara Core Team'
+  },
+  {
     id: 'ann-050',
     title: 'Solara Launcher V-0.0.32: Fast Boot & Wide Navigation Dock',
     date: '2026-11-12',
@@ -26,8 +61,7 @@ Highlights of this release:
 • Pure Oiled Black Theme: High-contrast oiled black (#000000) backdrop matching modern gaming desktops.
 
 All updates continue to be delivered automatically via our Minisign-verified auto-updater.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-049',

@@ -359,6 +359,8 @@ function checkServer(url) {
     // Verify top 3 announcement cards
     const announcementCards = page.locator('.announcements-grid .announcement-card');
     assert.equal(await announcementCards.count(), 3, 'Displays exactly 3 latest announcements on the home page');
+    const firstAnnTitle = await announcementCards.first().locator('.announcement-title').textContent();
+    assert.ok(firstAnnTitle.includes('Zero-Setup Microsoft & Minecraft Sign-In'), 'Top announcement is V-0.0.35 zero-setup auth');
 
     // Click first card to read announcement
     await announcementCards.first().click();
@@ -407,7 +409,10 @@ function checkServer(url) {
     assert.ok((await updateStatus.textContent()).includes('You are up to date.'), 'Update status displays confirmation after checking');
 
     // Verify update highlights list includes key features
+    const versionTag = await updateInfoSection.locator('.update-version-tag').textContent();
+    assert.ok(versionTag.includes('V-0.0.35'), 'Version tag displays current V-0.0.35 preview version');
     const highlightsText = await updateInfoSection.locator('.update-highlights-list').textContent();
+    assert.ok(highlightsText.includes('Zero-Setup Microsoft & Minecraft Sign-In'), 'Highlights include V-0.0.35 Zero-Setup Auth');
     assert.ok(highlightsText.includes('Minecraft Java Account Sign-In'), 'Highlights include Minecraft Auth');
     assert.ok(highlightsText.includes('Launcher Announcements Section'), 'Highlights include Announcements');
     assert.ok(highlightsText.includes('Disabled Default Browser Context Menu'), 'Highlights include Context Menu suppression');

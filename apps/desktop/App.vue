@@ -23,6 +23,7 @@ import {
   Plus
 } from '../../packages/ui/icons';
 import { native, isDesktop, openExternal } from '../../packages/shared/client';
+import buildInfo from '../../packages/shared/build.json';
 import {
   type LauncherAnnouncement,
   getLatestAnnouncements,
@@ -30,6 +31,7 @@ import {
 } from '../../packages/shared/announcements';
 
 // Auto-Updater States
+const currentVersion = computed(() => (buildInfo as any)?.publicVersion || 'V-0.0.35');
 const checking = ref(false);
 const hasChecked = ref(false);
 const updateMessage = ref('');
@@ -838,14 +840,14 @@ onUnmounted(() => {
               </div>
               <div class="update-version-tag">
                 <span class="version-dot"></span>
-                <span>Testing Preview V-0.0.34</span>
+                <span>Testing Preview {{ currentVersion }}</span>
               </div>
             </div>
 
             <div class="update-info-card">
               <div class="update-card-header">
                 <div>
-                  <h3 class="update-release-title">Solara Launcher V-0.0.34 Highlights</h3>
+                  <h3 class="update-release-title">Solara Launcher {{ currentVersion }} Highlights</h3>
                   <p class="update-release-date">Published November 12, 2026 · Windows x86_64</p>
                 </div>
                 <button
@@ -880,6 +882,13 @@ onUnmounted(() => {
 
               <!-- Highlights of what was added -->
               <ul class="update-highlights-list">
+                <li>
+                  <span class="check-icon"><Check :size="13" /></span>
+                  <div>
+                    <strong>Zero-Setup Microsoft & Minecraft Sign-In:</strong>
+                    <span>Canonical public Minecraft OAuth device flow client ID fallback eliminating Azure tenant directory errors ("Selected user account does not exist in tenant 'Microsoft Services'"). Personal accounts sign in seamlessly with zero developer setup.</span>
+                  </div>
+                </li>
                 <li>
                   <span class="check-icon"><Check :size="13" /></span>
                   <div>
