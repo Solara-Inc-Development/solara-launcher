@@ -209,6 +209,19 @@ function checkServer(url) {
     await loadingScreen.waitFor({ state: 'hidden', timeout: 15000 });
     assert.equal(await greeting.isVisible(), true, 'Loading screen completes and reveals main container');
 
+    // 7. Verify rapid replay does not cause premature sequence termination due to race conditions
+    await previewBtn.click();
+    await loadingScreen.waitFor({ state: 'visible' });
+    await page.waitForTimeout(200);
+    await page.evaluate(() => {
+      const el = document.querySelector('.preview-anim-btn');
+      if (el) el.click();
+    });
+    await page.waitForTimeout(1000);
+    assert.equal(await loadingScreen.isVisible(), true, 'Loading screen remains active across re-entrant calls');
+    await loadingScreen.waitFor({ state: 'hidden', timeout: 15000 });
+    assert.equal(await greeting.isVisible(), true, 'Greeting is visible after final sequence');
+
     console.log('PASS: Window controls dragging, responsiveness after drag, dedup, minimal launcher UI, clean status line, and minimalist loading screen verified successfully!');
   } finally {
     await browser.close();

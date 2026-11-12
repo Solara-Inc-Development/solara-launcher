@@ -27,6 +27,7 @@ let pollTimer: ReturnType<typeof setInterval> | null = null;
 let lastWindowActionTime = 0;
 let lastWindowActionType = '';
 let startupAbort = false;
+let currentSequenceId = 0;
 
 const progressPercent = computed(() => {
   if (appUpdate.value?.total && appUpdate.value.total > 0 && typeof appUpdate.value.downloaded === 'number') {
@@ -45,6 +46,7 @@ const updateProgressText = computed(() => {
 });
 
 async function runStartupSequence() {
+  const seqId = ++currentSequenceId;
   startupAbort = false;
   if (startupInterval) {
     clearInterval(startupInterval);
@@ -67,7 +69,7 @@ async function runStartupSequence() {
 
   await new Promise<void>((resolve) => {
     startupInterval = setInterval(() => {
-      if (startupAbort) {
+      if (startupAbort || seqId !== currentSequenceId) {
         if (startupInterval) clearInterval(startupInterval);
         resolve();
         return;
@@ -87,21 +89,23 @@ async function runStartupSequence() {
     }, 40);
   });
 
-  if (startupAbort) return;
+  if (startupAbort || seqId !== currentSequenceId) return;
 
   await initPromise;
+  if (seqId !== currentSequenceId) return;
+
   if (isDesktop) {
     void pollStatus().catch(() => {});
   }
 
   // Hold 100% briefly so user perceives completion
   await new Promise((r) => setTimeout(r, 300));
-  if (startupAbort) return;
+  if (startupAbort || seqId !== currentSequenceId) return;
 
   // Split curtain exit animation
   loadingLeaving.value = true;
   await new Promise((r) => setTimeout(r, 600));
-  if (!startupAbort) {
+  if (!startupAbort && seqId === currentSequenceId) {
     loading.value = false;
     loadingLeaving.value = false;
   }
@@ -228,6 +232,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   startupAbort = true;
+  currentSequenceId++;
   if (startupInterval) clearInterval(startupInterval);
   if (pollTimer) clearInterval(pollTimer);
 });
