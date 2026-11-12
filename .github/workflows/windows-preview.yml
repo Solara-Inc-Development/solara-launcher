@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 196 - Modrinth Header, Horizon Sidebar, Oiled Black Theme (V-0.0.30).
+# Owner-approved preview candidate: Milestone 196 - Modrinth Header, Horizon Sidebar, Oiled Black Theme (V-0.0.30 candidate build).
 on:
   workflow_dispatch:
   push:
