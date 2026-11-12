@@ -302,40 +302,1141 @@ html, body, #app {
 }
 
 /* ========================================================
-   Main Area: Minimal Clean View ("HI ;)")
+   Main Area: Sleek Home Page Layout in Pure Oiled Black
    ======================================================== */
 .launcher-main {
   flex: 1;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.clean-container {
+.home-viewport {
   flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #000000;
+  padding: 32px 48px 64px 48px;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+.home-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+
+.home-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.home-viewport::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+
+.home-viewport::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.home-container {
+  max-width: 960px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  gap: 36px;
+}
+
+/* ========================================================
+   1. Welcome Header & Minecraft Authentication Card
+   ======================================================== */
+.welcome-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-avatar-wrapper {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 14px;
+  background: #111318;
+  border: 2px solid rgba(61, 214, 245, 0.4);
+  box-shadow: 0 0 20px rgba(61, 214, 245, 0.2);
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
-  position: relative;
-  background: #000000;
-  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.player-head {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #000000;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.welcome-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.welcome-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(61, 214, 245, 0.1);
+  border: 1px solid rgba(61, 214, 245, 0.3);
+  color: #3dd6f5;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3dd6f5;
 }
 
 .greeting {
   font-family: 'Space Grotesk', 'DM Sans', sans-serif;
-  font-size: 5rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -2px;
-  margin: 0 0 32px 0;
+  letter-spacing: -1px;
+  margin: 0;
   color: #ffffff;
   background: linear-gradient(135deg, #ffffff 40%, #3dd6f5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   user-select: none;
-  filter: drop-shadow(0 0 30px rgba(61, 214, 245, 0.25));
+  line-height: 1.15;
+}
+
+.welcome-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Minecraft Account Authentication Card */
+.minecraft-auth-card {
+  width: 100%;
+}
+
+.account-card {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  transition: all 0.2s ease;
+}
+
+.account-card:hover {
+  border-color: rgba(61, 214, 245, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.account-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.account-lead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.account-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(61, 214, 245, 0.1);
+  border: 1px solid rgba(61, 214, 245, 0.25);
+  color: #3dd6f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.account-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
+}
+
+.account-card-desc {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.account-security-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.account-security-pill svg {
+  color: #3dd6f5;
+  flex-shrink: 0;
+}
+
+.account-card-right {
+  flex-shrink: 0;
+}
+
+.btn-minecraft-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 24px;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #000000;
+  background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
+  border: 1px solid rgba(61, 214, 245, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(61, 214, 245, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.btn-minecraft-login:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5fe0fc 0%, #3dd6f5 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 26px rgba(61, 214, 245, 0.4);
+}
+
+.btn-minecraft-login:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-minecraft-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Signed in Account Card Styling */
+.account-card.signed-in {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, rgba(9, 10, 15, 0.95) 100%);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.account-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-username {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+}
+
+.account-privacy-note {
+  font-size: 12px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.account-privacy-note svg {
+  color: #10b981;
+}
+
+.btn-account-signout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-account-signout:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ========================================================
+   2. Launcher Announcements Section
+   ======================================================== */
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.btn-see-all-announcements {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #3dd6f5;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-see-all-announcements:hover {
+  background: rgba(61, 214, 245, 0.1);
+  border-color: rgba(61, 214, 245, 0.35);
+  transform: translateX(2px);
+}
+
+.announcements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .announcements-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.announcement-card {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.announcement-card:hover {
+  background: #0d0f17;
+  border-color: rgba(61, 214, 245, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.announcement-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.announcement-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.announcement-badge[data-category="Release"] {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.announcement-badge[data-category="Update"] {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.announcement-badge[data-category="Feature"] {
+  background: rgba(61, 214, 245, 0.12);
+  color: #3dd6f5;
+  border: 1px solid rgba(61, 214, 245, 0.25);
+}
+
+.announcement-badge[data-category="Security"] {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.announcement-badge[data-category="Community"] {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.announcement-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.announcement-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.announcement-summary {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.announcement-footer {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.read-link {
+  font-size: 12px;
+  color: #3dd6f5;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.announcement-card:hover .read-link {
+  color: #5fe0fc;
+  text-decoration: underline;
+}
+
+/* ========================================================
+   3. Latest Update Info Section
+   ======================================================== */
+.update-version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(61, 214, 245, 0.08);
+  border: 1px solid rgba(61, 214, 245, 0.25);
+  font-size: 12px;
+  color: #3dd6f5;
+  font-weight: 600;
+}
+
+.version-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3dd6f5;
+  box-shadow: 0 0 8px #3dd6f5;
+}
+
+.update-info-card {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.update-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.update-release-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.update-release-date {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.update-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.update-highlights-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.check-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(61, 214, 245, 0.12);
+  color: #3dd6f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.update-highlights-list strong {
+  color: #ffffff;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.update-highlights-list span {
+  color: #a1a1aa;
+}
+
+.update-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 14px;
+}
+
+/* ========================================================
+   Common Modals & Overlays
+   ======================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header-title h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.modal-header-title svg {
+  color: #3dd6f5;
+}
+
+.header-count-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.modal-close-btn {
+  padding: 6px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.btn-cancel {
+  padding: 9px 18px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* ========================================================
+   Minecraft Device Flow Modal Specifics
+   ======================================================== */
+.signin-modal {
+  width: 520px;
+  max-width: 90vw;
+}
+
+.prompt-instruction {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.45;
+  margin: 0 0 16px 0;
+}
+
+.device-code-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000000;
+  border: 1px solid rgba(61, 214, 245, 0.35);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 20px rgba(61, 214, 245, 0.15);
+}
+
+.minecraft-device-code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #3dd6f5;
+  user-select: all;
+}
+
+.btn-copy-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(61, 214, 245, 0.12);
+  border: 1px solid rgba(61, 214, 245, 0.35);
+  color: #3dd6f5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-code:hover {
+  background: rgba(61, 214, 245, 0.22);
+}
+
+.prompt-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #d1d5db;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.prompt-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn-open-microsoft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
+  border: none;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(61, 214, 245, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-open-microsoft:hover {
+  background: linear-gradient(135deg, #5fe0fc 0%, #3dd6f5 100%);
+  transform: translateY(-1px);
+}
+
+.security-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.security-disclaimer svg {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.connecting-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+  text-align: center;
+  gap: 12px;
+}
+
+.spinner.large {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.connecting-state p {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.connecting-state small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.login-error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.error-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.error-text {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.btn-retry {
+  padding: 9px 20px;
+  border-radius: 8px;
+  background: #3dd6f5;
+  border: none;
+  color: #000000;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* ========================================================
+   All Announcements Modal Specifics & Reader
+   ======================================================== */
+.announcements-modal {
+  width: 820px;
+  max-width: 92vw;
+  max-height: 85vh;
+}
+
+.category-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.filter-pill.is-active {
+  background: rgba(61, 214, 245, 0.15);
+  border-color: rgba(61, 214, 245, 0.4);
+  color: #3dd6f5;
+  font-weight: 600;
+}
+
+.announcements-archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.announcements-archive-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.announcements-archive-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+
+.archive-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  gap: 16px;
+}
+
+.archive-item:hover {
+  background: rgba(61, 214, 245, 0.06);
+  border-color: rgba(61, 214, 245, 0.3);
+  transform: translateX(2px);
+}
+
+.archive-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.archive-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.archive-item-date {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.archive-tag {
+  font-size: 11px;
+  color: #3dd6f5;
+  background: rgba(61, 214, 245, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.archive-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.archive-item-summary {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.archive-item-arrow {
+  color: var(--muted);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.archive-item:hover .archive-item-arrow {
+  color: #3dd6f5;
+  transform: translateX(2px);
+}
+
+/* Announcement Detail Reader View */
+.announcement-reader {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+.btn-back-to-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #3dd6f5;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  width: fit-content;
+  transition: color 0.15s ease;
+}
+
+.btn-back-to-list:hover {
+  color: #5fe0fc;
+}
+
+.reader-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+}
+
+.reader-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reader-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.reader-author {
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+.reader-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.reader-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reader-para {
+  font-size: 14px;
+  color: #d1d5db;
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-line;
 }
 
 .update-btn {
@@ -343,28 +1444,28 @@ html, body, #app {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px 28px;
-  font-size: 15px;
+  padding: 11px 22px;
+  font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   color: #000000;
   background: linear-gradient(135deg, #3dd6f5 0%, #26c2e3 100%);
   border: 1px solid rgba(61, 214, 245, 0.4);
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(61, 214, 245, 0.25);
+  box-shadow: 0 4px 20px rgba(61, 214, 245, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .update-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #5fe0fc 0%, #3dd6f5 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(61, 214, 245, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 26px rgba(61, 214, 245, 0.4);
 }
 
 .update-btn:active:not(:disabled) {
-  transform: scale(0.97) translateY(0);
+  transform: scale(0.97);
 }
 
 .update-btn:disabled {
@@ -374,8 +1475,8 @@ html, body, #app {
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #ffffff;
   border-radius: 50%;
@@ -388,9 +1489,8 @@ html, body, #app {
 }
 
 .update-status {
-  margin-top: 24px;
-  padding: 10px 20px;
-  border-radius: 999px;
+  padding: 10px 18px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 13px;
@@ -398,6 +1498,7 @@ html, body, #app {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  width: fit-content;
   animation: fadeIn 0.25s ease;
 }
 
@@ -422,11 +1523,10 @@ html, body, #app {
 }
 
 .download-progress {
-  margin-top: 20px;
-  width: 280px;
+  width: 100%;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
 }
 
@@ -451,7 +1551,6 @@ html, body, #app {
 }
 
 .preview-anim-btn {
-  margin-top: 28px;
   display: inline-flex;
   align-items: center;
   gap: 6px;

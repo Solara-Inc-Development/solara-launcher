@@ -43,17 +43,39 @@ function checkServer(url) {
 
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   try {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 720 },
+      permissions: ['clipboard-read', 'clipboard-write']
+    });
     await context.addInitScript(() => {
       window.__ACTION_LOG__ = [];
+      const callbacks = new Map();
+      const events = new Map();
+      let callbackCounter = 1;
+      window.__MINECRAFT_ACCOUNTS__ = [];
+
       window.__TAURI_INTERNALS__ = {
-        transformCallback: () => 1,
-        unregisterCallback: () => {},
+        transformCallback: (cb) => {
+          const id = callbackCounter++;
+          callbacks.set(id, cb);
+          return id;
+        },
+        unregisterCallback: (id) => callbacks.delete(id),
         invoke: async (command, args = {}) => {
-          if (command === 'plugin:event|listen') return 1;
+          if (command === 'plugin:event|listen') {
+            events.set(args.event, args.handler);
+            return events.size;
+          }
           if (command === 'initialize_launcher') return null;
           if (command === 'launcher_settings') return { memory: 4096, javaPath: '', discord: true };
-          if (command === 'launcher_snapshot') return { instances: [], localServers: [], downloads: [], minecraftAccounts: [] };
+          if (command === 'launcher_snapshot') {
+            return {
+              instances: [],
+              localServers: [],
+              downloads: [],
+              minecraftAccounts: window.__MINECRAFT_ACCOUNTS__
+            };
+          }
           if (command === 'launcher_capabilities') return { loaders: ['vanilla', 'fabric', 'quilt'], contentInstall: true };
           if (command === 'check_update') {
             window.__ACTION_LOG__.push('check_update');
@@ -72,6 +94,43 @@ function checkServer(url) {
           }
           if (command === 'start_dragging') {
             window.__ACTION_LOG__.push('start_dragging');
+            return null;
+          }
+          if (command === 'minecraft_sign_in') {
+            window.__ACTION_LOG__.push('minecraft_sign_in');
+            const handlerId = events.get('minecraft-login-code');
+            if (handlerId && callbacks.has(handlerId)) {
+              setTimeout(() => {
+                const cb = callbacks.get(handlerId);
+                if (cb) {
+                  cb({
+                    event: 'minecraft-login-code',
+                    id: 1,
+                    payload: { code: 'QA-CODE', url: 'https://www.microsoft.com/link', expiresIn: 900 }
+                  });
+                }
+              }, 20);
+            }
+            return new Promise((resolve, reject) => {
+              window.__RESOLVE_LOGIN__ = () => {
+                window.__MINECRAFT_ACCOUNTS__ = [{ id: 'qa-user-1', name: 'SolaraHero', active: true, owned: true }];
+                resolve();
+              };
+              window.__REJECT_LOGIN__ = (msg) => {
+                reject(new Error(msg || 'Authentication cancelled'));
+              };
+            });
+          }
+          if (command === 'cancel_minecraft_sign_in') {
+            window.__ACTION_LOG__.push('cancel_minecraft_sign_in');
+            if (window.__REJECT_LOGIN__) {
+              window.__REJECT_LOGIN__('Sign-in cancelled by user');
+            }
+            return null;
+          }
+          if (command === 'minecraft_sign_out') {
+            window.__ACTION_LOG__.push(`minecraft_sign_out:${args.id}`);
+            window.__MINECRAFT_ACCOUNTS__ = [];
             return null;
           }
           return null;
@@ -138,10 +197,105 @@ function checkServer(url) {
     const newCloseCount = (await page.evaluate(() => window.__ACTION_LOG__)).filter(a => a === 'close').length;
     assert.equal(newCloseCount, initialCloseCount + 1, 'Dual pointerup + click within 300ms is deduplicated to exactly one action');
 
-    // 5. Test clean minimal launcher greeting and check-for-updates action
+    // 5. Test Main Home Page: Welcome greeting, Minecraft Authentication, Announcements & Latest Update Info
     const greeting = page.locator('.greeting');
     await greeting.waitFor({ state: 'visible' });
-    assert.equal(await greeting.textContent(), 'HI ;)', 'Greeting heading displays "HI ;)"');
+    assert.equal(await greeting.textContent(), 'Welcome user', 'Greeting heading displays "Welcome user" when unsigned');
+
+    // 5.1 Verify Minecraft Authentication Flow
+    const loginBtn = page.locator('.btn-minecraft-login');
+    await loginBtn.waitFor({ state: 'visible' });
+    assert.ok((await loginBtn.textContent()).includes('Login with your Minecraft account'), 'Login button is present with correct label');
+
+    // Verify privacy disclaimer note
+    const privacyPill = page.locator('.account-security-pill');
+    assert.ok((await privacyPill.textContent()).includes('Private & Local'), 'Strict local privacy disclaimer is visible');
+
+    // Click Login with your Minecraft account
+    await loginBtn.click();
+    await page.waitForFunction(() => window.__ACTION_LOG__.includes('minecraft_sign_in'), { timeout: 5000 });
+
+    // Verify device code prompt modal appears with QA-CODE
+    const deviceCodeEl = page.locator('.minecraft-device-code');
+    await deviceCodeEl.waitFor({ state: 'visible' });
+    assert.equal((await deviceCodeEl.textContent()).trim(), 'QA-CODE', 'Device code QA-CODE is displayed');
+
+    // Test Copy code button
+    const copyBtn = page.locator('.btn-copy-code');
+    await copyBtn.click();
+    assert.ok((await copyBtn.textContent()).includes('Copied'), 'Copy button reflects copied state');
+
+    // Test Cancel sign-in
+    const cancelBtn = page.locator('.btn-cancel');
+    await cancelBtn.click();
+    await deviceCodeEl.waitFor({ state: 'hidden' });
+    assert.ok((await page.evaluate(() => window.__ACTION_LOG__)).includes('cancel_minecraft_sign_in'), 'cancel_minecraft_sign_in was called');
+
+    // Now test successful Minecraft Sign-In and Entitled Account Display
+    await loginBtn.click();
+    await deviceCodeEl.waitFor({ state: 'visible' });
+    await page.evaluate(() => window.__RESOLVE_LOGIN__());
+    await deviceCodeEl.waitFor({ state: 'hidden' });
+
+    // Verify Welcome header updates with username
+    await page.waitForFunction(() => document.querySelector('.greeting')?.textContent?.includes('Welcome, SolaraHero'), { timeout: 5000 });
+    assert.equal(await greeting.textContent(), 'Welcome, SolaraHero', 'Greeting heading displays "Welcome, SolaraHero" after sign-in');
+
+    const playerHead = page.locator('.player-head');
+    await playerHead.waitFor({ state: 'visible' });
+    assert.equal(await playerHead.count(), 1, 'Player head avatar is rendered');
+
+    // Verify Sign Out button
+    const signOutBtn = page.locator('.btn-account-signout');
+    await signOutBtn.waitFor({ state: 'visible' });
+    assert.ok((await signOutBtn.textContent()).includes('Sign Out'), 'Sign Out button is present');
+
+    // Test Sign Out action
+    await signOutBtn.click();
+    await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('minecraft_sign_out:')), { timeout: 5000 });
+    await page.waitForFunction(() => document.querySelector('.greeting')?.textContent === 'Welcome user', { timeout: 5000 });
+    assert.equal(await greeting.textContent(), 'Welcome user', 'Greeting resets to "Welcome user" after sign-out');
+
+    // 5.2 Verify Launcher Announcements Section (Latest 3 Cards & 50-Item Archive)
+    const announcementsSection = page.locator('.announcements-section');
+    await announcementsSection.waitFor({ state: 'visible' });
+    assert.equal(await announcementsSection.locator('.section-title').textContent(), 'Launcher Announcements', 'Section title is "Launcher Announcements"');
+
+    // Verify top 3 announcement cards
+    const announcementCards = page.locator('.announcements-grid .announcement-card');
+    assert.equal(await announcementCards.count(), 3, 'Displays exactly 3 latest announcements on the home page');
+
+    // Click first card to read announcement
+    await announcementCards.first().click();
+    const readerModal = page.locator('.announcement-reader');
+    await readerModal.waitFor({ state: 'visible' });
+    const readerTitle = page.locator('.reader-title');
+    assert.ok((await readerTitle.textContent()).length > 0, 'Announcement title is rendered in reader');
+    assert.ok(await page.locator('.reader-para').count() > 0, 'Announcement content paragraphs are rendered');
+
+    // Click Back to announcements list
+    const backBtn = page.locator('.btn-back-to-list');
+    await backBtn.click();
+
+    // Verify 50 announcements archive view
+    const archiveItems = page.locator('.announcements-archive-list .archive-item');
+    await archiveItems.first().waitFor({ state: 'visible' });
+    assert.equal(await archiveItems.count(), 50, 'Archive displays up to 50 announcements');
+
+    // Test category filter pill
+    const releaseFilter = page.locator('.category-filters .filter-pill:has-text("Release")');
+    await releaseFilter.click();
+    assert.ok(await archiveItems.count() > 0 && await archiveItems.count() <= 50, 'Filtered announcements list is displayed');
+
+    // Close announcements modal
+    const closeAnnouncementsBtn = page.locator('.announcements-modal .modal-close-btn');
+    await closeAnnouncementsBtn.click();
+    await page.locator('.announcements-modal').waitFor({ state: 'hidden' });
+
+    // 5.3 Verify Latest Update Info Section & Check for Updates
+    const updateInfoSection = page.locator('.update-info-section');
+    await updateInfoSection.waitFor({ state: 'visible' });
+    assert.equal(await updateInfoSection.locator('.section-title').textContent(), 'Latest Update Info', 'Section title is "Latest Update Info"');
 
     const updateBtn = page.locator('.update-btn');
     await updateBtn.waitFor({ state: 'visible' });
@@ -156,6 +310,12 @@ function checkServer(url) {
     const updateStatus = page.locator('.update-status');
     await updateStatus.waitFor({ state: 'visible' });
     assert.ok((await updateStatus.textContent()).includes('You are up to date.'), 'Update status displays confirmation after checking');
+
+    // Verify update highlights list includes key features
+    const highlightsText = await updateInfoSection.locator('.update-highlights-list').textContent();
+    assert.ok(highlightsText.includes('Minecraft Java Account Sign-In'), 'Highlights include Minecraft Auth');
+    assert.ok(highlightsText.includes('Launcher Announcements Section'), 'Highlights include Announcements');
+    assert.ok(highlightsText.includes('Disabled Default Browser Context Menu'), 'Highlights include Context Menu suppression');
 
     // 6. Test minimalist loading screen overlay, logo, clean status line, progress bar, percentage, and natural transition
     const previewBtn = page.locator('.preview-anim-btn');
