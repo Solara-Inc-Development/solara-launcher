@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 200 - Centered Stylish Welcome Hero & Interactive Account Switcher (V-0.0.34 candidate build).
+# Owner-approved preview candidate: Milestone 201 - Zero-Setup Minecraft Device Sign-In & Hero Refinements (V-0.0.35 candidate build).
 on:
   workflow_dispatch:
   push:

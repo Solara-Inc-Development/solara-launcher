@@ -1,5 +1,20 @@
 # Changelog
 
+## Testing Preview V-0.0.35 — 2026-11-12
+
+- **Zero-Setup Microsoft & Minecraft Sign-In**:
+  - Replaced manual Azure Portal / Entra ID configuration with the canonical public Minecraft OAuth client ID fallback (`c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb`).
+  - Completely fixes the `"Selected user account does not exist in tenant 'Microsoft Services'"` error that occurred when personal Microsoft accounts attempted to sign in.
+  - Users can now click "Login with your Minecraft Account", visit `https://www.microsoft.com/link`, enter the 8-character device code, and instantly authenticate their genuine Java edition purchase without registering any Azure apps.
+  - Credentials and access tokens remain 100% private and encrypted inside the user's local Windows vault (DPAPI/Keyring).
+- **Refined First-Impression Layout & Account Switcher**:
+  - Strictly contained the "Welcome User TO Solara-Launcher" hero above the fold (`1280x720` viewport), eliminating lower-section bleed.
+  - Added global `Escape` key shortcut to dismiss the Account Switcher, Announcements Reader, and Device Login modals.
+  - Aligned account action button dimensions (`30px` matching height) and added fallback avatar icons when loading player textures.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.34 — 2026-11-12
 
 - **Centered Hero & Stylish Welcome ("Welcome User TO Solara-Launcher")**:
