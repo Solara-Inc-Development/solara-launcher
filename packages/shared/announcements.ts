@@ -11,6 +11,25 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-053',
+    title: 'Solara Launcher V-0.0.36: 1-Click Direct Browser Sign-In & Official Identity',
+    date: '2026-11-12',
+    category: 'Release',
+    summary: 'Official Solara Launcher Microsoft OAuth client registration and 1-click direct browser sign-in with RFC 7636 PKCE loopback, eliminating manual code entry.',
+    content: `Solara Launcher V-0.0.36 is now officially published for Windows!
+
+Key highlights of this update:
+• Official Solara Identity & Branding: Configured the official Solara Launcher Microsoft application registration (6a9238bb-3803-46f4-bf38-2f45bdf8c2ea). Microsoft sign-in prompts and consent screens now officially display "Solara Launcher".
+• 1-Click Direct Browser Sign-In: Eliminated manual 8-character device code typing and copying. Clicking login opens your default browser directly to the official Microsoft authentication prompt.
+• Cryptographic PKCE Security (RFC 7636 / RFC 8252): Full SHA-256 code challenge protection on an ephemeral dual-stack loopback listener.
+• Branded Browser Completion: Upon approval, the browser displays a sleek completion page and closes automatically, while the launcher instantly validates entitlements and loads your Minecraft avatar.
+• DPAPI Vault Encryption: Refresh tokens and credentials remain encrypted exclusively in your local Windows vault and never touch Solara servers.
+
+All updates download and verify cryptographically through our Minisign background service.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-052',
     title: 'Solara Launcher V-0.0.35: Zero-Setup Microsoft & Minecraft Sign-In',
     date: '2026-11-12',
@@ -26,8 +45,7 @@ Key highlights of this update:
 • Modal Escape Key Dismissal: Instant keyboard dismissal of dialogs and modals using the Escape key.
 
 All updates download and verify cryptographically through our Minisign background service.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-051',

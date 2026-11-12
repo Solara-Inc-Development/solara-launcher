@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 201 - Zero-Setup Minecraft Device Sign-In & Hero Refinements (V-0.0.35 candidate build).
+# Owner-approved preview candidate: Milestone 205 - Official Solara Microsoft Client ID & 1-Click Direct Browser Sign-In (V-0.0.36 candidate build).
 on:
   workflow_dispatch:
   push:

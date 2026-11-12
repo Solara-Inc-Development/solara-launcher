@@ -888,6 +888,13 @@ onUnmounted(() => {
                 <li>
                   <span class="check-icon"><Check :size="13" /></span>
                   <div>
+                    <strong>1-Click Direct Browser Sign-In & Official Identity:</strong>
+                    <span>Official Solara Microsoft Application registration (6a9238bb-3803-46f4-bf38-2f45bdf8c2ea) with 1-click browser login via RFC 7636 PKCE loopback, eliminating manual 8-character device codes.</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon"><Check :size="13" /></span>
+                  <div>
                     <strong>Zero-Setup Microsoft & Minecraft Sign-In:</strong>
                     <span>Canonical public Minecraft OAuth device flow client ID fallback eliminating Azure tenant directory errors ("Selected user account does not exist in tenant 'Microsoft Services'"). Personal accounts sign in seamlessly with zero developer setup.</span>
                   </div>

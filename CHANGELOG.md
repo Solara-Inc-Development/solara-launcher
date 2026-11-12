@@ -1,5 +1,20 @@
 # Changelog
 
+## Testing Preview V-0.0.36 — 2026-11-12
+
+- **Official Solara Microsoft Identity & Branding**:
+  - Replaced third-party client registration with official Solara Launcher Microsoft Client ID (`6a9238bb-3803-46f4-bf38-2f45bdf8c2ea`).
+  - Microsoft's authentication and consent screens now officially display "Solara Launcher", providing branded and transparent verification.
+- **1-Click Direct Browser Sign-In (RFC 7636 / RFC 8252 PKCE)**:
+  - Replaced manual 8-character device code copy-pasting with a seamless 1-click browser login flow.
+  - Opens the official Microsoft login prompt directly in the user's default browser while binding a secure local ephemeral loopback listener (`http://localhost:<port>/callback`).
+  - Full cryptographic PKCE protection (S256 code challenge and in-memory verifier) preventing code interception.
+  - Branded browser completion page automatically confirms successful authentication and closes the browser tab.
+  - Instant background Xbox Live / XSTS authentication, Mojang Java purchase entitlement verification, player profile loading, and DPAPI-encrypted token vaulting.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.35 — 2026-11-12
 
 - **Zero-Setup Microsoft & Minecraft Sign-In**:
