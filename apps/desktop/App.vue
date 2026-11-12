@@ -16,9 +16,11 @@ import {
   Copy,
   ExternalLink,
   ChevronRight,
+  ChevronDown,
   ArrowLeft,
   FileText,
-  Lock
+  Lock,
+  Plus
 } from '../../packages/ui/icons';
 import { native, isDesktop, openExternal } from '../../packages/shared/client';
 import {
@@ -70,6 +72,7 @@ const activeAccount = computed<MinecraftAccount | null>(() => {
 
 const signingIn = ref(false);
 const showLoginModal = ref(false);
+const showAccountModal = ref(false);
 const loginPrompt = ref<{ code: string; url: string; expiresIn: number } | null>(null);
 const loginError = ref<string | null>(null);
 const codeCopied = ref(false);
@@ -334,6 +337,36 @@ async function cancelMinecraftSignIn() {
   }
 }
 
+function openAccountModal() {
+  showAccountModal.value = true;
+}
+
+function closeAccountModal() {
+  showAccountModal.value = false;
+}
+
+function onAddAccountClicked() {
+  showAccountModal.value = false;
+  void startMinecraftSignIn();
+}
+
+async function switchAccount(id: string) {
+  if (!id) return;
+  try {
+    if (isDesktop) {
+      await native('select_minecraft_account', { id });
+      await refreshSnapshot();
+    } else {
+      minecraftAccounts.value = minecraftAccounts.value.map((a) => ({
+        ...a,
+        active: a.id === id
+      }));
+    }
+  } catch (err) {
+    console.error('Account switch failed:', err);
+  }
+}
+
 async function signOutMinecraftAccount(id: string) {
   if (!id) return;
   try {
@@ -341,10 +374,21 @@ async function signOutMinecraftAccount(id: string) {
       await native('minecraft_sign_out', { id });
       await refreshSnapshot();
     } else {
-      minecraftAccounts.value = minecraftAccounts.value.filter((a) => a.id !== id);
+      const remaining = minecraftAccounts.value.filter((a) => a.id !== id);
+      if (remaining.length > 0 && !remaining.some((a) => a.active)) {
+        remaining[0].active = true;
+      }
+      minecraftAccounts.value = remaining;
     }
   } catch (err) {
     console.error('Sign out failed:', err);
+  }
+}
+
+function scrollToAnnouncements() {
+  const el = document.querySelector('.announcements-section');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -614,98 +658,117 @@ onUnmounted(() => {
       <!-- Main Home Page View -->
       <main v-show="!loading || loadingLeaving" class="launcher-main home-viewport">
         <div class="home-container">
-          <!-- 1. Top Greeting & Welcome Section -->
-          <section class="welcome-section" aria-label="Welcome">
-            <!-- Signed In Greeting with Avatar -->
-            <div v-if="activeAccount" class="welcome-header has-avatar">
-              <div class="welcome-avatar-wrapper">
-                <img
-                  :src="`https://mc-heads.net/avatar/${encodeURIComponent(activeAccount.name)}/72`"
-                  :alt="activeAccount.name"
-                  class="player-head"
-                  @error="onAvatarError"
-                />
-                <span class="online-indicator" title="Minecraft account active"></span>
-              </div>
-              <div class="welcome-text">
-                <div class="welcome-pill">
-                  <span class="pill-dot"></span>
-                  <span>Java Edition Entitled</span>
-                </div>
-                <h1 class="greeting">Welcome, {{ activeAccount.name }}</h1>
-                <p class="welcome-sub">Your Minecraft account is connected locally and ready to play.</p>
-              </div>
+          <!-- 1. Above-the-Fold Hero (First Impression View) -->
+          <section class="hero-first-impression welcome-section" aria-label="Welcome Hero">
+            <div class="hero-badge">
+              <Sparkles :size="13" class="sparkle-icon" />
+              <span>Official Solara Launcher</span>
             </div>
 
-            <!-- Unsigned Greeting -->
-            <div v-else class="welcome-header">
-              <div class="welcome-text">
-                <h1 class="greeting">Welcome user</h1>
-                <p class="welcome-sub">Connect your Minecraft account below to launch official worlds and verify purchase.</p>
-              </div>
-            </div>
+            <!-- Centered Large Cool Stylish Heading -->
+            <h1 class="greeting hero-title">Welcome User TO Solara-Launcher</h1>
 
-            <!-- Minecraft Account Authentication Card -->
-            <div class="minecraft-auth-card">
-              <!-- When Signed In -->
-              <div v-if="activeAccount" class="account-card signed-in">
-                <div class="account-card-left">
-                  <div class="account-badge">
-                    <ShieldCheck :size="16" />
-                    <span>Verified Minecraft Account</span>
+            <p class="hero-subtitle">
+              Manage your Minecraft accounts, verify your genuine purchase locally, and launch official worlds seamlessly.
+            </p>
+
+            <!-- Directly Underneath: Active Account Card / Button -->
+            <div class="hero-account-area">
+              <!-- When Account is Connected -->
+              <div
+                v-if="activeAccount"
+                class="active-account-card signed-in"
+                role="button"
+                tabindex="0"
+                title="Click to switch, manage, or add Minecraft accounts"
+                aria-label="Click to switch, manage, or add Minecraft accounts"
+                @click="openAccountModal"
+                @keydown.enter="openAccountModal"
+              >
+                <div class="active-avatar-wrap">
+                  <img
+                    :src="`https://mc-heads.net/avatar/${encodeURIComponent(activeAccount.name)}/56`"
+                    :alt="activeAccount.name"
+                    class="player-head"
+                    @error="onAvatarError"
+                  />
+                  <span class="active-online-indicator" title="Minecraft account active"></span>
+                </div>
+
+                <div class="active-account-info">
+                  <div class="active-status-line">
+                    <span class="active-tag-dot"></span>
+                    <span class="active-status-label">Active Account</span>
+                    <span class="status-sep">·</span>
+                    <span class="entitlement-label">Java Edition Entitled</span>
                   </div>
-                  <div class="account-details">
-                    <span class="account-username">{{ activeAccount.name }}</span>
-                    <span class="account-privacy-note">
-                      <Lock :size="13" />
-                      <span>Stored exclusively in your local Windows vault · Never uploaded to Solara</span>
-                    </span>
+                  <span class="active-username">{{ activeAccount.name }}</span>
+                  <div class="active-sub-meta">
+                    <Lock :size="12" />
+                    <span>Stored locally in Windows vault · Click to switch / manage</span>
                   </div>
                 </div>
-                <div class="account-card-right">
+
+                <div class="active-action-col">
+                  <span class="btn-account-pill">
+                    <span>Manage</span>
+                    <ChevronDown :size="14" />
+                  </span>
+                </div>
+              </div>
+
+              <!-- When No Account is Connected -->
+              <div
+                v-else
+                class="active-account-card unsigned"
+                role="button"
+                tabindex="0"
+                title="Click to connect your Minecraft account"
+                aria-label="Click to connect your Minecraft account"
+                @click="openAccountModal"
+                @keydown.enter="openAccountModal"
+              >
+                <div class="active-avatar-wrap placeholder">
+                  <User :size="26" />
+                </div>
+
+                <div class="active-account-info">
+                  <div class="active-status-line">
+                    <span class="status-dot-dim"></span>
+                    <span class="unconnected-status-label">No Account Connected</span>
+                  </div>
+                  <span class="active-username unconnected">Login with your Minecraft account</span>
+                  <div class="active-sub-meta">
+                    <ShieldCheck :size="12" />
+                    <span>Strictly Local & Private · Microsoft OAuth Flow</span>
+                  </div>
+                </div>
+
+                <div class="active-action-col">
                   <button
                     type="button"
-                    class="btn-account-signout"
-                    title="Sign out of this Minecraft account"
-                    @click="signOutMinecraftAccount(activeAccount.id)"
-                  >
-                    <LogOut :size="15" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- When Unsigned -->
-              <div v-else class="account-card unsigned">
-                <div class="account-card-left">
-                  <div class="account-lead">
-                    <div class="account-icon-box">
-                      <User :size="24" />
-                    </div>
-                    <div>
-                      <h2 class="account-card-title">Login with your Minecraft account</h2>
-                      <p class="account-card-desc">
-                        Connect your official Microsoft account to verify genuine Minecraft Java Edition purchase.
-                      </p>
-                    </div>
-                  </div>
-                  <div class="account-security-pill">
-                    <ShieldCheck :size="14" />
-                    <span>Private & Local: Credentials and tokens remain stored exclusively on your PC, never sent to Solara servers.</span>
-                  </div>
-                </div>
-                <div class="account-card-right">
-                  <button
-                    type="button"
-                    class="btn-minecraft-login"
+                    class="btn-minecraft-login btn-hero-signin"
                     :disabled="signingIn"
-                    @click="startMinecraftSignIn"
+                    @click.stop="startMinecraftSignIn"
                   >
-                    <LogIn :size="17" />
-                    <span>Login with your Minecraft account</span>
+                    <LogIn :size="15" />
+                    <span>Login</span>
                   </button>
                 </div>
               </div>
+            </div>
+
+            <!-- Scroll Down Hint Indicator -->
+            <div
+              class="hero-scroll-indicator"
+              role="button"
+              tabindex="0"
+              title="Scroll down for announcements and update highlights"
+              @click="scrollToAnnouncements"
+              @keydown.enter="scrollToAnnouncements"
+            >
+              <span>Scroll down for announcements & updates</span>
+              <ChevronDown :size="16" class="scroll-arrow-bounce" />
             </div>
           </section>
 
@@ -760,14 +823,14 @@ onUnmounted(() => {
               </div>
               <div class="update-version-tag">
                 <span class="version-dot"></span>
-                <span>Testing Preview V-0.0.32</span>
+                <span>Testing Preview V-0.0.34</span>
               </div>
             </div>
 
             <div class="update-info-card">
               <div class="update-card-header">
                 <div>
-                  <h3 class="update-release-title">Solara Launcher V-0.0.32 Highlights</h3>
+                  <h3 class="update-release-title">Solara Launcher V-0.0.34 Highlights</h3>
                   <p class="update-release-date">Published November 12, 2026 · Windows x86_64</p>
                 </div>
                 <button
@@ -802,6 +865,20 @@ onUnmounted(() => {
 
               <!-- Highlights of what was added -->
               <ul class="update-highlights-list">
+                <li>
+                  <span class="check-icon"><Check :size="13" /></span>
+                  <div>
+                    <strong>Centered Hero & Stylish Welcome:</strong>
+                    <span>Prominent "Welcome User TO Solara-Launcher" above-the-fold layout for an impactful first impression.</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon"><Check :size="13" /></span>
+                  <div>
+                    <strong>Interactive Account Switcher:</strong>
+                    <span>Active Minecraft account card with 1-click account switching, logout, and multiple account management.</span>
+                  </div>
+                </li>
                 <li>
                   <span class="check-icon"><Check :size="13" /></span>
                   <div>
@@ -1081,6 +1158,141 @@ onUnmounted(() => {
             @click="closeAllAnnouncements"
           >
             Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Account Switcher & Multi-Account Management Modal -->
+    <div
+      v-if="showAccountModal"
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-accounts-title"
+      @click.self="closeAccountModal"
+    >
+      <div class="modal-card accounts-modal">
+        <div class="modal-header">
+          <div class="modal-header-title">
+            <User :size="18" />
+            <h2 id="modal-accounts-title">Minecraft Accounts</h2>
+            <span v-if="minecraftAccounts.length > 0" class="header-count-pill">
+              {{ minecraftAccounts.length }} {{ minecraftAccounts.length === 1 ? 'account' : 'accounts' }}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            title="Close accounts"
+            aria-label="Close accounts"
+            @click="closeAccountModal"
+          >
+            <X :size="18" />
+          </button>
+        </div>
+
+        <div class="modal-body accounts-modal-body">
+          <!-- Accounts Switcher List -->
+          <div v-if="minecraftAccounts.length > 0" class="accounts-switcher-list">
+            <div
+              v-for="acc in minecraftAccounts"
+              :key="acc.id"
+              class="account-row-item"
+              :class="{ 'is-active': acc.active }"
+            >
+              <div
+                class="account-row-identity"
+                role="button"
+                tabindex="0"
+                :title="acc.active ? 'Currently active account' : 'Click to switch to this account'"
+                @click="switchAccount(acc.id)"
+                @keydown.enter="switchAccount(acc.id)"
+              >
+                <div class="account-row-avatar-wrap">
+                  <img
+                    :src="`https://mc-heads.net/avatar/${encodeURIComponent(acc.name)}/40`"
+                    :alt="acc.name"
+                    class="player-head-sm"
+                    @error="onAvatarError"
+                  />
+                  <span v-if="acc.active" class="active-dot-indicator" title="Active"></span>
+                </div>
+
+                <div class="account-row-details">
+                  <div class="account-row-title-row">
+                    <span class="account-row-username">{{ acc.name }}</span>
+                    <span v-if="acc.active" class="account-active-badge">
+                      <Check :size="12" />
+                      <span>Active</span>
+                    </span>
+                  </div>
+                  <span class="account-row-subtitle">Minecraft Java Edition</span>
+                </div>
+              </div>
+
+              <div class="account-row-controls">
+                <button
+                  v-if="!acc.active"
+                  type="button"
+                  class="btn-account-switch"
+                  title="Switch to this account"
+                  @click="switchAccount(acc.id)"
+                >
+                  <span>Switch</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-account-signout"
+                  title="Sign out / remove this account"
+                  aria-label="Sign out / remove this account"
+                  @click="signOutMinecraftAccount(acc.id)"
+                >
+                  <LogOut :size="14" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State when no accounts are added -->
+          <div v-else class="accounts-empty-state">
+            <div class="empty-icon-wrap">
+              <User :size="32" />
+            </div>
+            <h3 class="empty-heading">No Accounts Connected</h3>
+            <p class="empty-desc">
+              Connect your official Microsoft account to verify genuine Minecraft Java Edition purchase.
+            </p>
+          </div>
+
+          <!-- Add Account Action Button -->
+          <div class="accounts-add-wrapper">
+            <button
+              type="button"
+              class="btn-add-minecraft-account"
+              :disabled="signingIn"
+              @click="onAddAccountClicked"
+            >
+              <Plus :size="16" />
+              <span>Add Minecraft Account</span>
+            </button>
+          </div>
+
+          <!-- Privacy / Local Vault Reassurance -->
+          <div class="accounts-privacy-footer">
+            <ShieldCheck :size="14" />
+            <span>Credentials and tokens remain stored exclusively on your local PC in the Windows vault. Never uploaded to Solara servers. Genuine purchase check enforced.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn-cancel"
+            @click="closeAccountModal"
+          >
+            Done
           </button>
         </div>
       </div>

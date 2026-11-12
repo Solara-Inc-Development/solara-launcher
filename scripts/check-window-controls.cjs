@@ -113,7 +113,14 @@ function checkServer(url) {
             }
             return new Promise((resolve, reject) => {
               window.__RESOLVE_LOGIN__ = () => {
-                window.__MINECRAFT_ACCOUNTS__ = [{ id: 'qa-user-1', name: 'SolaraHero', active: true, owned: true }];
+                if (!window.__MINECRAFT_ACCOUNTS__ || window.__MINECRAFT_ACCOUNTS__.length === 0) {
+                  window.__MINECRAFT_ACCOUNTS__ = [{ id: 'qa-user-1', name: 'SolaraHero', active: true, owned: true }];
+                } else {
+                  window.__MINECRAFT_ACCOUNTS__ = [
+                    { id: 'qa-user-1', name: 'SolaraHero', active: false, owned: true },
+                    { id: 'qa-user-2', name: 'SolaraSecond', active: true, owned: true }
+                  ];
+                }
                 resolve();
               };
               window.__REJECT_LOGIN__ = (msg) => {
@@ -130,7 +137,18 @@ function checkServer(url) {
           }
           if (command === 'minecraft_sign_out') {
             window.__ACTION_LOG__.push(`minecraft_sign_out:${args.id}`);
-            window.__MINECRAFT_ACCOUNTS__ = [];
+            window.__MINECRAFT_ACCOUNTS__ = window.__MINECRAFT_ACCOUNTS__.filter(a => a.id !== args.id);
+            if (window.__MINECRAFT_ACCOUNTS__.length > 0 && !window.__MINECRAFT_ACCOUNTS__.some(a => a.active)) {
+              window.__MINECRAFT_ACCOUNTS__[0].active = true;
+            }
+            return null;
+          }
+          if (command === 'select_minecraft_account') {
+            window.__ACTION_LOG__.push(`select_minecraft_account:${args.id}`);
+            window.__MINECRAFT_ACCOUNTS__ = window.__MINECRAFT_ACCOUNTS__.map(a => ({
+              ...a,
+              active: a.id === args.id
+            }));
             return null;
           }
           return null;
@@ -197,21 +215,33 @@ function checkServer(url) {
     const newCloseCount = (await page.evaluate(() => window.__ACTION_LOG__)).filter(a => a === 'close').length;
     assert.equal(newCloseCount, initialCloseCount + 1, 'Dual pointerup + click within 300ms is deduplicated to exactly one action');
 
-    // 5. Test Main Home Page: Welcome greeting, Minecraft Authentication, Announcements & Latest Update Info
+    // 5. Test Main Home Page: Centered Welcome Hero, Minecraft Authentication & Account Switcher
     const greeting = page.locator('.greeting');
     await greeting.waitFor({ state: 'visible' });
-    assert.equal(await greeting.textContent(), 'Welcome user', 'Greeting heading displays "Welcome user" when unsigned');
+    assert.equal((await greeting.textContent()).trim(), 'Welcome User TO Solara-Launcher', 'Greeting heading displays "Welcome User TO Solara-Launcher"');
 
-    // 5.1 Verify Minecraft Authentication Flow
+    // 5.1 Verify Unsigned Hero First Impression & Active Account Card
+    const heroCard = page.locator('.active-account-card');
+    await heroCard.waitFor({ state: 'visible' });
+    assert.ok((await heroCard.textContent()).includes('No Account Connected'), 'Hero displays "No Account Connected" when unsigned');
+    assert.ok((await heroCard.textContent()).includes('Login with your Minecraft account'), 'Hero displays login guidance text');
+
+    // Clicking the unsigned active account card opens Account Switcher Modal
+    await heroCard.click();
+    const accountsModal = page.locator('.accounts-modal');
+    await accountsModal.waitFor({ state: 'visible' });
+    assert.equal(await accountsModal.locator('#modal-accounts-title').textContent(), 'Minecraft Accounts', 'Modal title is "Minecraft Accounts"');
+    assert.ok((await accountsModal.textContent()).includes('No Accounts Connected'), 'Modal shows empty state when no accounts');
+    assert.ok((await accountsModal.textContent()).includes('Windows vault'), 'Modal displays Windows vault privacy reassurance');
+
+    // Close accounts modal
+    const closeAccountsBtn = accountsModal.locator('.modal-close-btn');
+    await closeAccountsBtn.click();
+    await accountsModal.waitFor({ state: 'hidden' });
+
+    // 5.2 Verify Minecraft Sign-In Device Flow via Login Button
     const loginBtn = page.locator('.btn-minecraft-login');
     await loginBtn.waitFor({ state: 'visible' });
-    assert.ok((await loginBtn.textContent()).includes('Login with your Minecraft account'), 'Login button is present with correct label');
-
-    // Verify privacy disclaimer note
-    const privacyPill = page.locator('.account-security-pill');
-    assert.ok((await privacyPill.textContent()).includes('Private & Local'), 'Strict local privacy disclaimer is visible');
-
-    // Click Login with your Minecraft account
     await loginBtn.click();
     await page.waitForFunction(() => window.__ACTION_LOG__.includes('minecraft_sign_in'), { timeout: 5000 });
 
@@ -231,30 +261,74 @@ function checkServer(url) {
     await deviceCodeEl.waitFor({ state: 'hidden' });
     assert.ok((await page.evaluate(() => window.__ACTION_LOG__)).includes('cancel_minecraft_sign_in'), 'cancel_minecraft_sign_in was called');
 
-    // Now test successful Minecraft Sign-In and Entitled Account Display
+    // Now test successful Minecraft Sign-In and Active Account Display
     await loginBtn.click();
     await deviceCodeEl.waitFor({ state: 'visible' });
     await page.evaluate(() => window.__RESOLVE_LOGIN__());
     await deviceCodeEl.waitFor({ state: 'hidden' });
 
-    // Verify Welcome header updates with username
-    await page.waitForFunction(() => document.querySelector('.greeting')?.textContent?.includes('Welcome, SolaraHero'), { timeout: 5000 });
-    assert.equal(await greeting.textContent(), 'Welcome, SolaraHero', 'Greeting heading displays "Welcome, SolaraHero" after sign-in');
+    // Verify hero active account card updates with username and avatar
+    await page.waitForFunction(() => document.querySelector('.active-account-card')?.textContent?.includes('SolaraHero'), { timeout: 5000 });
+    assert.ok((await heroCard.textContent()).includes('SolaraHero'), 'Active account card displays "SolaraHero" after sign-in');
+    assert.ok((await heroCard.textContent()).includes('Active Account'), 'Active account card indicates "Active Account" status');
+    assert.equal((await greeting.textContent()).trim(), 'Welcome User TO Solara-Launcher', 'Greeting heading remains "Welcome User TO Solara-Launcher"');
 
     const playerHead = page.locator('.player-head');
     await playerHead.waitFor({ state: 'visible' });
     assert.equal(await playerHead.count(), 1, 'Player head avatar is rendered');
 
-    // Verify Sign Out button
-    const signOutBtn = page.locator('.btn-account-signout');
-    await signOutBtn.waitFor({ state: 'visible' });
-    assert.ok((await signOutBtn.textContent()).includes('Sign Out'), 'Sign Out button is present');
+    // 5.3 Test Account Switcher Modal with 1-Click Switch and Logout
+    await heroCard.click();
+    await accountsModal.waitFor({ state: 'visible' });
+    assert.ok((await accountsModal.textContent()).includes('SolaraHero'), 'Account switcher lists connected user SolaraHero');
+    assert.ok((await accountsModal.locator('.account-active-badge').textContent()).includes('Active'), 'Active badge is displayed for SolaraHero');
 
-    // Test Sign Out action
+    // Test adding second account via "Add Minecraft Account" in modal
+    const addAccountBtn = accountsModal.locator('.btn-add-minecraft-account');
+    await addAccountBtn.click();
+    await accountsModal.waitFor({ state: 'hidden' });
+    await page.waitForFunction(() => window.__ACTION_LOG__.filter(a => a === 'minecraft_sign_in').length >= 2, { timeout: 5000 });
+    await deviceCodeEl.waitFor({ state: 'visible' });
+    await page.evaluate(() => window.__RESOLVE_LOGIN__());
+    await deviceCodeEl.waitFor({ state: 'hidden' });
+
+    // Active card now displays second account SolaraSecond
+    await page.waitForFunction(() => document.querySelector('.active-account-card')?.textContent?.includes('SolaraSecond'), { timeout: 5000 });
+    assert.ok((await heroCard.textContent()).includes('SolaraSecond'), 'Active account card displays second account SolaraSecond');
+
+    // Open switcher modal and test 1-click switch back to SolaraHero
+    await heroCard.click();
+    await accountsModal.waitFor({ state: 'visible' });
+    const switchBtn = accountsModal.locator('.btn-account-switch').first();
+    await switchBtn.waitFor({ state: 'visible' });
+    await switchBtn.click();
+    await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('select_minecraft_account:qa-user-1')), { timeout: 5000 });
+
+    // Verify SolaraHero is active again
+    await page.waitForFunction(() => document.querySelector('.active-account-card')?.textContent?.includes('SolaraHero'), { timeout: 5000 });
+    assert.ok((await heroCard.textContent()).includes('SolaraHero'), 'Hero active account switched back to SolaraHero');
+
+    // Test Sign Out action on remaining accounts
+    const signOutBtn = accountsModal.locator('.btn-account-signout').first();
+    await signOutBtn.waitFor({ state: 'visible' });
     await signOutBtn.click();
     await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('minecraft_sign_out:')), { timeout: 5000 });
-    await page.waitForFunction(() => document.querySelector('.greeting')?.textContent === 'Welcome user', { timeout: 5000 });
-    assert.equal(await greeting.textContent(), 'Welcome user', 'Greeting resets to "Welcome user" after sign-out');
+
+    // Sign out remaining account if any
+    await page.waitForTimeout(200);
+    const remainingSignOutBtn = accountsModal.locator('.btn-account-signout').first();
+    if (await remainingSignOutBtn.count() > 0) {
+      await remainingSignOutBtn.click();
+      await page.waitForTimeout(200);
+    }
+
+    // Close accounts modal
+    await accountsModal.locator('.modal-close-btn').click();
+    await accountsModal.waitFor({ state: 'hidden' });
+
+    // Hero resets to "No Account Connected"
+    await page.waitForFunction(() => document.querySelector('.active-account-card')?.textContent?.includes('No Account Connected'), { timeout: 5000 });
+    assert.ok((await heroCard.textContent()).includes('No Account Connected'), 'Hero resets to "No Account Connected" after signing out all accounts');
 
     // 5.2 Verify Launcher Announcements Section (Latest 3 Cards & 50-Item Archive)
     const announcementsSection = page.locator('.announcements-section');
