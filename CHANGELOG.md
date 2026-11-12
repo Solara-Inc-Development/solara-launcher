@@ -1,5 +1,26 @@
 # Changelog
 
+## Testing Preview V-0.0.34 — 2026-11-12
+
+- **Centered Hero & Stylish Welcome ("Welcome User TO Solara-Launcher")**:
+  - Implemented bold, centered above-the-fold hero layout with luminescent typography designed for maximum first impression impact.
+  - Centered heading displays "Welcome User TO Solara-Launcher" in large stylish font with cyan glow drop-shadow.
+- **Active Account Card & Multi-Account Switcher**:
+  - Centered active account card directly underneath the hero heading.
+  - When signed in, displays active player head avatar (`mc-heads.net`), username, and "Active Account · Java Edition Entitled" status.
+  - When unsigned, displays "No Account Connected" with login button and private Windows vault assurance.
+  - Interactive Account Switcher Modal:
+    - Lists all connected Minecraft accounts with 1-click account switching (`select_minecraft_account`).
+    - Dedicated "Add Minecraft Account" button initiating native Microsoft OAuth device flow (`minecraft_sign_in`).
+    - Dedicated "Sign Out / Logout" action for each account (`minecraft_sign_out`).
+    - Strictly local storage: credentials and tokens stay exclusively on user's PC in Windows vault (DPAPI/Keyring).
+- **Below-the-Fold Scrolling Experience**:
+  - Subtle scroll down indicator inviting users to scroll down smoothly to access announcements and update information.
+  - Launcher Announcements Section: Last 3 announcement cards + "See all announcements" button opening 50-announcement reader.
+  - Latest Update Info Section: Highlights, update checks, and loading animation preview.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
 ## Testing Preview V-0.0.33 — 2026-11-12
 
 - **Home Page & Welcome Header**:

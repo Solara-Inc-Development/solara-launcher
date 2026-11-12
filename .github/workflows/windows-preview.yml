@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 199 - Launcher Home Page with Minecraft Auth, Announcements Feed & Update Highlights (V-0.0.33 candidate build).
+# Owner-approved preview candidate: Milestone 200 - Centered Stylish Welcome Hero & Interactive Account Switcher (V-0.0.34 candidate build).
 on:
   workflow_dispatch:
   push:
