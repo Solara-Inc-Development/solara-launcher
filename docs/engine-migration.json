@@ -47,11 +47,11 @@
   "windowsInstallerBuild": {
     "run": 43158084060,
     "result": "passed",
-    "publicVersion": "V-0.0.31",
-    "sourceCommit": "1cb7361e2a5a27928945ff0098218a40ba1825af",
+    "publicVersion": "V-0.0.32",
+    "sourceCommit": "33d0a0458f23b24d1939d607bc3b821fa7407fca",
     "staticVerification": "Genuine CI-built NSIS installer and x64 PE headers, artifact SHA-256, source privacy/version/public-key checks and persistent Minisign updater signature verified. The original CI source ZIP is preserved unchanged.",
-    "installerSha256": "037397e26d3dfdf1285096ad017676e879a2b2d5fa2c4e18e528a6ae7532f793",
-    "sourceArchiveSha256": "60312e49e5032c97c03b48ef6708c28c53be4902e053afd965876ce7da920bb4",
+    "installerSha256": "d5d54bd000f4455f5ca126fbc1b8b24bf4f7670b16357c261b3769790e155317",
+    "sourceArchiveSha256": "13c754179945d14fe5dd9f54c95f20f7d06e4494dbedce07d67f49a840b777a6",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live"
