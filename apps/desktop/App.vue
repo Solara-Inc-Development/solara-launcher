@@ -462,8 +462,21 @@ function onContextMenu(e: MouseEvent) {
   e.preventDefault();
 }
 
+function onGlobalKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    if (showAccountModal.value) {
+      closeAccountModal();
+    } else if (showAllAnnouncementsModal.value) {
+      closeAllAnnouncements();
+    } else if (showLoginModal.value) {
+      void cancelMinecraftSignIn();
+    }
+  }
+}
+
 onMounted(async () => {
   window.addEventListener('contextmenu', onContextMenu, { capture: true });
+  window.addEventListener('keydown', onGlobalKeyDown);
 
   if (isDesktop) {
     try {
@@ -487,6 +500,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('contextmenu', onContextMenu, { capture: true });
+  window.removeEventListener('keydown', onGlobalKeyDown);
   if (unlistenLoginCode) {
     unlistenLoginCode();
     unlistenLoginCode = null;
@@ -686,6 +700,7 @@ onUnmounted(() => {
                 @keydown.enter="openAccountModal"
               >
                 <div class="active-avatar-wrap">
+                  <User :size="26" class="avatar-fallback-icon" />
                   <img
                     :src="`https://mc-heads.net/avatar/${encodeURIComponent(activeAccount.name)}/56`"
                     :alt="activeAccount.name"
@@ -1210,6 +1225,7 @@ onUnmounted(() => {
                 @keydown.enter="switchAccount(acc.id)"
               >
                 <div class="account-row-avatar-wrap">
+                  <User :size="20" class="avatar-fallback-icon-sm" />
                   <img
                     :src="`https://mc-heads.net/avatar/${encodeURIComponent(acc.name)}/40`"
                     :alt="acc.name"

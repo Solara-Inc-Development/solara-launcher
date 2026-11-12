@@ -352,13 +352,13 @@ html, body, #app {
    1. Above-the-Fold Hero (First Impression View)
    ======================================================== */
 .hero-first-impression {
-  min-height: calc(100vh - 120px);
+  min-height: max(520px, calc(100vh - 76px));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 48px 20px 24px 20px;
+  padding: 40px 20px 24px 20px;
   box-sizing: border-box;
   position: relative;
 }
@@ -385,7 +385,7 @@ html, body, #app {
 
 .hero-title.greeting {
   font-family: 'Space Grotesk', 'DM Sans', sans-serif;
-  font-size: 3rem;
+  font-size: 3.35rem;
   font-weight: 800;
   letter-spacing: -1.2px;
   margin: 0 0 14px 0;
@@ -393,7 +393,7 @@ html, body, #app {
   background: linear-gradient(135deg, #ffffff 40%, #3dd6f5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 24px rgba(61, 214, 245, 0.25));
+  filter: drop-shadow(0 0 28px rgba(61, 214, 245, 0.3));
   user-select: none;
   line-height: 1.15;
 }
@@ -465,7 +465,15 @@ html, body, #app {
   color: #94a3b8;
 }
 
+.avatar-fallback-icon {
+  position: absolute;
+  color: #64748b;
+  z-index: 1;
+}
+
 .player-head {
+  position: relative;
+  z-index: 2;
   width: 48px;
   height: 48px;
   border-radius: 8px;
@@ -1678,6 +1686,23 @@ html, body, #app {
   padding: 24px 28px;
 }
 
+.accounts-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.accounts-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.accounts-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+
+.accounts-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .accounts-switcher-list {
   display: flex;
   flex-direction: column;
@@ -1726,9 +1751,18 @@ html, body, #app {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-fallback-icon-sm {
+  position: absolute;
+  color: #64748b;
+  z-index: 1;
 }
 
 .player-head-sm {
+  position: relative;
+  z-index: 2;
   width: 36px;
   height: 36px;
   border-radius: 6px;
@@ -1794,6 +1828,10 @@ html, body, #app {
 }
 
 .btn-account-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
   padding: 6px 14px;
   border-radius: 7px;
   background: rgba(61, 214, 245, 0.1);
@@ -1804,11 +1842,39 @@ html, body, #app {
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .btn-account-switch:hover {
   background: rgba(61, 214, 245, 0.2);
   border-color: rgba(61, 214, 245, 0.5);
+}
+
+.account-row-controls .btn-account-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.account-row-controls .btn-account-signout:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
 }
 
 .accounts-empty-state {

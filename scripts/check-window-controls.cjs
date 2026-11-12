@@ -220,6 +220,13 @@ function checkServer(url) {
     await greeting.waitFor({ state: 'visible' });
     assert.equal((await greeting.textContent()).trim(), 'Welcome User TO Solara-Launcher', 'Greeting heading displays "Welcome User TO Solara-Launcher"');
 
+    // 5.05 Verify Above-The-Fold Requirement: Hero fills first view, Announcements strictly below 720px fold
+    const heroBox = await page.locator('.hero-first-impression').boundingBox();
+    assert.ok(heroBox, 'Hero section bounding box exists');
+    const initialAnnBox = await page.locator('.announcements-section').boundingBox();
+    assert.ok(initialAnnBox, 'Announcements bounding box exists');
+    assert.ok(initialAnnBox.y >= 720, `Announcements must be strictly below 720px fold on initial load (got y=${initialAnnBox.y})`);
+
     // 5.1 Verify Unsigned Hero First Impression & Active Account Card
     const heroCard = page.locator('.active-account-card');
     await heroCard.waitFor({ state: 'visible' });
@@ -234,7 +241,13 @@ function checkServer(url) {
     assert.ok((await accountsModal.textContent()).includes('No Accounts Connected'), 'Modal shows empty state when no accounts');
     assert.ok((await accountsModal.textContent()).includes('Windows vault'), 'Modal displays Windows vault privacy reassurance');
 
-    // Close accounts modal
+    // Test closing accounts modal via Escape key
+    await page.keyboard.press('Escape');
+    await accountsModal.waitFor({ state: 'hidden' });
+
+    // Reopen and test close button
+    await heroCard.click();
+    await accountsModal.waitFor({ state: 'visible' });
     const closeAccountsBtn = accountsModal.locator('.modal-close-btn');
     await closeAccountsBtn.click();
     await accountsModal.waitFor({ state: 'hidden' });
@@ -301,6 +314,14 @@ function checkServer(url) {
     await accountsModal.waitFor({ state: 'visible' });
     const switchBtn = accountsModal.locator('.btn-account-switch').first();
     await switchBtn.waitFor({ state: 'visible' });
+
+    // Verify switch and signout buttons have matching aligned heights
+    const switchBox = await switchBtn.boundingBox();
+    const signOutBtnBeforeSwitch = accountsModal.locator('.account-row-item:has(.btn-account-switch) .btn-account-signout').first();
+    const signoutBox = await signOutBtnBeforeSwitch.boundingBox();
+    assert.ok(switchBox && signoutBox, 'Buttons have bounding boxes');
+    assert.ok(Math.abs(switchBox.height - signoutBox.height) < 2, `Button heights must match (switch: ${switchBox.height}, signout: ${signoutBox.height})`);
+
     await switchBtn.click();
     await page.waitForFunction(() => window.__ACTION_LOG__.some(a => a.startsWith('select_minecraft_account:qa-user-1')), { timeout: 5000 });
 
