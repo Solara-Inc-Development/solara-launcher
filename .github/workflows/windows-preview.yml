@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.42 — Official Bordered Logo, Multi-Size Icons & Core Java/Crash Fixes.
+# Owner-approved preview candidate: V-0.0.43 — Pure Minecraft Launcher Clean Removals Part 1 (Remove SolaraHubView, identity, resource_policy, local-server).
 on:
   workflow_dispatch:
   push:
@@ -58,7 +58,7 @@ jobs:
           Run-Check -Command npm -Arguments @('run', 'check')
           Run-Check -Command npm -Arguments @('run', 'build')
           Run-Check -Command node -Arguments @('scripts/third-party.mjs')
-          Run-Check -Command cargo -Arguments @('test', '-p', 'solara-launcher', '-p', 'solara-local-server', '--lib', '--locked', '--no-default-features')
+          Run-Check -Command cargo -Arguments @('test', '-p', 'solara-launcher', '--lib', '--locked', '--no-default-features')
       - name: Clean up unreleased candidate reservation draft if rerunning
         env:
           GH_TOKEN: ${{ github.token }}

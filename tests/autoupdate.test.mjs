@@ -35,27 +35,23 @@ test('auto-update SemVer comparison correctly identifies available updates and u
 
 test('auto-update replacement policy defers installation while tasks or games are active', () => {
   function isBusy(snapshot) {
-    if (!snapshot || !Array.isArray(snapshot.instances) || !Array.isArray(snapshot.localServers) || !Array.isArray(snapshot.downloads)) {
+    if (!snapshot || !Array.isArray(snapshot.instances) || !Array.isArray(snapshot.downloads)) {
       return true;
     }
     const hasRunningInstance = snapshot.instances.some(i => i.running !== false);
-    const hasRunningServer = snapshot.localServers.some(s => !['stopped', 'setup incomplete'].includes(s.state));
     const hasActiveDownloads = snapshot.downloads.some(d => !['completed', 'succeeded', 'failed', 'cancelled', 'canceled', 'interrupted'].includes(d.status));
-    return hasRunningInstance || hasRunningServer || hasActiveDownloads;
+    return hasRunningInstance || hasActiveDownloads;
   }
 
   // Idle state
-  assert.equal(isBusy({instances: [{running: false}], localServers: [{state: 'stopped'}], downloads: [{status: 'completed'}]}), false);
+  assert.equal(isBusy({instances: [{running: false}], downloads: [{status: 'completed'}]}), false);
 
   // Active game running
-  assert.equal(isBusy({instances: [{running: true}], localServers: [{state: 'stopped'}], downloads: [{status: 'completed'}]}), true);
-
-  // Active server
-  assert.equal(isBusy({instances: [{running: false}], localServers: [{state: 'running'}], downloads: [{status: 'completed'}]}), true);
+  assert.equal(isBusy({instances: [{running: true}], downloads: [{status: 'completed'}]}), true);
 
   // Active download
-  assert.equal(isBusy({instances: [{running: false}], localServers: [{state: 'stopped'}], downloads: [{status: 'downloading'}]}), true);
-  assert.equal(isBusy({instances: [{running: false}], localServers: [{state: 'stopped'}], downloads: [{status: 'queued'}]}), true);
+  assert.equal(isBusy({instances: [{running: false}], downloads: [{status: 'downloading'}]}), true);
+  assert.equal(isBusy({instances: [{running: false}], downloads: [{status: 'queued'}]}), true);
 
   // Corrupted or missing snapshot
   assert.equal(isBusy({}), true);

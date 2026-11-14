@@ -67,9 +67,9 @@ jobs:
             Write-Output "::error title=Windows native compiler diagnostics::$tail"
             exit $checkExit
           }
-      - name: Run independent game-core, resource-policy and local-server tests
+      - name: Run independent game-core and updater tests
         run: |
-          cargo test -p solara-launcher -p solara-local-server --lib --locked
+          cargo test -p solara-launcher --lib --locked
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Record verification boundary
         if: always()

@@ -1,4 +1,4 @@
-use crate::{engine, identity};
+use crate::engine;
 use serde_json::Value;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -557,79 +557,6 @@ async fn open_data_folder(app: tauri::AppHandle) -> Result<(), String> {
         .open_path(dir.to_string_lossy().to_string(), None::<String>)
         .map_err(err)
 }
-#[tauri::command]
-async fn create_local_server(
-    name: String,
-    version: String,
-    java_path: String,
-    memory: u32,
-    port: u16,
-    eula: bool,
-) -> Result<String, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::create_local(name, version, java_path, memory, port, eula)
-        .await
-        .map_err(err)
-}
-#[tauri::command]
-async fn local_server_action(id: String, action: String) -> Result<(), String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::get()
-        .await
-        .map_err(err)?
-        .local
-        .action(&id, &action)
-        .await
-        .map_err(err)
-}
-#[tauri::command]
-async fn local_server_logs(id: String) -> Result<String, String> {
-    engine::get()
-        .await
-        .map_err(err)?
-        .local
-        .logs(&id)
-        .await
-        .map_err(err)
-}
-#[tauri::command]
-async fn local_server_command(id: String, command: String) -> Result<(), String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::get()
-        .await
-        .map_err(err)?
-        .local
-        .command(&id, &command)
-        .await
-        .map_err(err)
-}
-#[tauri::command]
-async fn solara_profile() -> Result<Option<Value>, String> {
-    identity::profile().await.map_err(err)
-}
-#[tauri::command]
-async fn solara_sign_in(app: tauri::AppHandle) -> Result<Value, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    identity::sign_in(|url| {
-        app.opener().open_url(url, None::<String>)?;
-        Ok(())
-    })
-    .await
-    .map_err(err)
-}
-#[tauri::command]
-async fn solara_sign_out() -> Result<(), String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    identity::sign_out().await.map_err(err)
-}
-#[tauri::command]
-async fn solara_request(
-    method: String,
-    path: String,
-    body: Option<Value>,
-) -> Result<Value, String> {
-    identity::request(&method, &path, body).await.map_err(err)
-}
 static MINECRAFT_LOGIN: tokio::sync::Mutex<Option<crate::game_core::download::Cancellation>> =
     tokio::sync::Mutex::const_new(None);
 #[tauri::command]
@@ -783,14 +710,6 @@ pub fn run() {
             set_minecraft_cape,
             export_diagnostics,
             open_data_folder,
-            create_local_server,
-            local_server_action,
-            local_server_logs,
-            local_server_command,
-            solara_profile,
-            solara_sign_in,
-            solara_sign_out,
-            solara_request,
             minecraft_sign_in,
             cancel_minecraft_sign_in,
             launcher_capabilities,
@@ -845,22 +764,9 @@ pub fn run() {
                 return;
             };
             let app = app.clone();
-            let closing = closing.clone();
             tauri::async_runtime::spawn(async move {
-                match engine::stop_all().await {
-                    Ok(()) => {
-                        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-                        app.exit(0);
-                    }
-                    Err(_) => {
-                        closing.store(false, Ordering::SeqCst);
-                        use tauri::Emitter;
-                        let _ = app.emit(
-                            "shutdown-error",
-                            "Local server is still saving. Check its console and stop it before closing Solara.",
-                        );
-                    }
-                }
+                tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+                app.exit(0);
             });
         }
         _ => {}

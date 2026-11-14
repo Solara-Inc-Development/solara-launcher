@@ -46,8 +46,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Test local server logic
-        run: cargo test -p solara-local-server --locked
+      - name: Test launcher core logic
+        run: cargo test -p solara-launcher --lib --locked --no-default-features
       - name: Reserve unique public version (draft release)
         run: node scripts/release.mjs reserve --github
       - name: Package signed updater artifacts

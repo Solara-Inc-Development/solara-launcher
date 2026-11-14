@@ -12,7 +12,6 @@ use crate::game_core::{
 };
 use anyhow::{bail, Context, Result};
 use serde_json::{json, Value};
-use solara_local_server::{LocalServers, ServerConfig};
 use std::{
     path::{Path, PathBuf},
     sync::atomic::{AtomicUsize, Ordering},
@@ -80,7 +79,6 @@ impl DownloadGate {
 
 static ENGINE: OnceCell<Engine> = OnceCell::const_new();
 pub struct Engine {
-    pub local: LocalServers,
     pub data: PathBuf,
     pub instances: Instances,
     pub accounts: Accounts,
@@ -141,7 +139,6 @@ pub async fn initialize() -> Result<()> {
             }
             let initial_prefs = read_preferences_from_dir(&data).await.unwrap_or_default();
             Ok::<_, anyhow::Error>(Engine {
-                local: LocalServers::new(data.join("local-servers")),
                 instances,
                 accounts: Accounts::new(data.join("custom-minecraft-accounts")),
                 games: Games::default(),
@@ -200,18 +197,10 @@ pub async fn snapshot() -> Result<Value> {
         }
         instances.push(value);
     }
-    let mut downloads = serde_json::to_value(engine.jobs.list()?)?
+    let downloads = serde_json::to_value(engine.jobs.list()?)?
         .as_array()
         .cloned()
         .unwrap_or_default();
-    downloads.extend(
-        engine
-            .local
-            .downloads()
-            .await
-            .into_iter()
-            .map(|j| serde_json::to_value(j).unwrap_or_default()),
-    );
     let minecraft_accounts: Vec<Value> = engine
         .accounts
         .list()
@@ -228,9 +217,11 @@ pub async fn snapshot() -> Result<Value> {
             })
         })
         .collect();
-    Ok(
-        json!({"instances":instances,"minecraftAccounts":minecraft_accounts,"localServers":engine.local.list().await?,"downloads":downloads}),
-    )
+    Ok(json!({
+        "instances": instances,
+        "minecraftAccounts": minecraft_accounts,
+        "downloads": downloads
+    }))
 }
 pub async fn versions() -> Result<Value> {
     Ok(serde_json::to_value(metadata::versions().await?)?)
@@ -1573,34 +1564,6 @@ fn diagnostic_storage(storage: &extras::StorageSummary) -> Value {
 
 pub async fn data_dir() -> Result<PathBuf> {
     Ok(get().await?.data.clone())
-}
-pub async fn create_local(
-    name: String,
-    version: String,
-    java_path: String,
-    memory: u32,
-    port: u16,
-    eula: bool,
-) -> Result<String> {
-    get()
-        .await?
-        .local
-        .create(ServerConfig {
-            id: String::new(),
-            name,
-            version,
-            java_path,
-            memory,
-            port,
-            eula,
-        })
-        .await
-}
-pub async fn stop_all() -> Result<()> {
-    if let Some(engine) = ENGINE.get() {
-        engine.local.stop_all().await?
-    };
-    Ok(())
 }
 
 pub const CLEAN_SLATE_V23_SENTINEL: &str = ".clean_slate_v23_reset";

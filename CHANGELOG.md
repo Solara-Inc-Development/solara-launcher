@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.43 — 2026-11-15
+
+- **Pure Minecraft Launcher Clean Removals (Part 1 — Backend, Local Server & Hub Module Removal)**:
+  - Removed `apps/desktop/src/identity.rs`, `apps/desktop/src/resource_policy.rs`, `packages/local-server/`, and `apps/desktop/ui/views/SolaraHubView.vue`.
+  - Removed `solara-local-server`, `create_local_server`, `local_server_*`, and `solara_{profile,sign_in,sign_out,request}` commands and workspace dependencies from `Cargo.toml`, `apps/desktop/Cargo.toml`, `lib.rs`, `engine.rs`, `shell.rs`, and `update_policy.rs`.
+  - Updated `.github/workflows/{windows-check.yml,windows-preview.yml,windows.yml}` and `tests/autoupdate.test.mjs` to reflect a pure on-device Minecraft launcher core without local server hosting or Solara Master Account hooks.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.42 — 2026-11-15
 
 - **Official Bordered Solara Logo & Multi-Size Desktop Icons**:

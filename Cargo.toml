@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["apps/desktop", "packages/local-server"]
+members = ["apps/desktop"]
 exclude = [".upstream/modrinth"]
 
 [profile.release]

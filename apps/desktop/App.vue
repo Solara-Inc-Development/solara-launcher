@@ -43,7 +43,6 @@ import LibraryView from './ui/views/LibraryView.vue';
 import DiscoverView from './ui/views/DiscoverView.vue';
 import SkinsView from './ui/views/SkinsView.vue';
 import ScreenshotsView from './ui/views/ScreenshotsView.vue';
-import SolaraHubView from './ui/views/SolaraHubView.vue';
 import TasksView from './ui/views/TasksView.vue';
 import InstanceDetailView from './ui/views/InstanceDetailView.vue';
 import AccountView from './ui/views/AccountView.vue';
@@ -116,8 +115,6 @@ const activeViewComponent = computed(() => {
       return SkinsView;
     case 'screenshots':
       return ScreenshotsView;
-    case 'solara':
-      return SolaraHubView;
     case 'tasks':
       return TasksView;
     case 'instance':
