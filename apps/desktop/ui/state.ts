@@ -58,8 +58,14 @@ export const BUILTIN_ICON_PRESETS = [
 export const store = reactive({
   initialized: false,
   splashDone: false,
-  initPhase: 'Starting Solara...',
+  initPhase: 'Starting Solara core...',
   initProgress: 12,
+  initStages: [
+    { id: 'core', label: 'Core', state: 'active' as 'pending' | 'active' | 'done' },
+    { id: 'prefs', label: 'Themes', state: 'pending' as 'pending' | 'active' | 'done' },
+    { id: 'instances', label: 'Library', state: 'pending' as 'pending' | 'active' | 'done' },
+    { id: 'updates', label: 'Updates', state: 'pending' as 'pending' | 'active' | 'done' },
+  ],
   initError: null as string | null,
   desktop: isDesktop,
   instances: [] as InstanceRecord[],
@@ -585,27 +591,50 @@ export function clearLaunchProgress(instanceId: string): void {
   delete store.launchStates[instanceId];
 }
 
+function setInitStage(
+  activeId: 'core' | 'prefs' | 'instances' | 'updates' | null,
+  phase: string,
+  progress: number,
+): void {
+  store.initPhase = phase;
+  store.initProgress = progress;
+  const order = ['core', 'prefs', 'instances', 'updates'];
+  const activeIdx = activeId ? order.indexOf(activeId) : order.length;
+  store.initStages = store.initStages.map((s) => {
+    const idx = order.indexOf(s.id);
+    return {
+      ...s,
+      state: idx < activeIdx ? 'done' : idx === activeIdx ? 'active' : 'pending',
+    };
+  });
+}
+
 export async function initializeEngine(): Promise<void> {
+  const startedAt = Date.now();
   store.desktop = isDesktop;
   store.initError = null;
-  store.initPhase = 'Starting Solara...';
-  store.initProgress = 18;
+  store.splashDone = false;
+  setInitStage('core', 'Starting Solara core...', 16);
   try {
     if (store.desktop) {
       await native('initialize_launcher');
-      store.initPhase = 'Loading your instances...';
-      store.initProgress = 48;
-      await Promise.all([refreshPreferences(), refreshSnapshot()]);
-      store.initPhase = 'Checking updates...';
-      store.initProgress = 78;
+      setInitStage('prefs', 'Loading themes & preferences...', 44);
+      await refreshPreferences();
+      setInitStage('instances', 'Syncing instances & accounts...', 72);
+      await refreshSnapshot();
+      setInitStage('updates', 'Checking for updates...', 90);
       await Promise.allSettled([refreshUpdateStatus()]);
     } else {
-      store.initPhase = 'Loading your instances...';
-      store.initProgress = 65;
+      setInitStage('instances', 'Loading preview workspace...', 68);
       applyAppearance(store.preferences);
     }
-    store.initPhase = 'Almost ready...';
-    store.initProgress = 100;
+    setInitStage(null, 'Ready to play', 100);
+    if (!store.preferences.reducedMotion) {
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < 420) {
+        await new Promise((r) => setTimeout(r, 420 - elapsed));
+      }
+    }
     store.initialized = true;
     store.splashDone = true;
     if (store.desktop && store.preferences.autoUpdateEnabled !== false) {

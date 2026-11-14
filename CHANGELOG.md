@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.45 — 2026-11-15
+
+- **Restored Animated OLED Startup Loading Screen (`SplashScreen.vue`)**:
+  - Restored a frosted-glass OLED `#000000` splash screen featuring the official bordered Solara logo (`88px`), pulsing Cobalt Blue aura ring, real percentage progress bar (`role="progressbar"`), and four live startup stage chips (`Core`, `Themes`, `Library`, `Updates`).
+  - Wired `initializeEngine()` (`apps/desktop/ui/state.ts`) to advance each startup stage sequentially through native engine initialization, preferences loading, instance/account sync, and update checks, with `reducedMotion` gating and error retry fallback.
+  - Added `tests/splash.test.mjs` unit contract tests and E2E splash assertions + screenshot capture (`e2e-splash.png`) in `scripts/verify-redesign-e2e.cjs`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.44 — 2026-11-15
 
 - **Pure Minecraft Launcher Clean Removals (Part 2 — Frontend, Home, Accounts, Settings & Website)**:

@@ -2920,17 +2920,49 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+  overflow: hidden;
 }
 
-.sol-splash-inner {
+.sol-splash-aura {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.06) 44%, transparent 72%);
+  filter: blur(28px);
+  pointer-events: none;
+  animation: sol-splash-breathe 3.4s ease-in-out infinite;
+}
+
+.sol-splash-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 14px;
-  max-width: 340px;
+  gap: 16px;
+  max-width: 390px;
   width: 100%;
-  animation: sol-splash-in 260ms ease-out;
+  padding: 34px 30px 28px;
+  border-radius: 24px;
+  background: rgba(12, 13, 18, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: sol-splash-in 320ms var(--ease-ui);
+}
+
+.sol-splash-logo-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 26px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.03));
+  border: 1px solid rgba(96, 165, 250, 0.28);
+  box-shadow: 0 0 36px rgba(59, 130, 246, 0.2);
 }
 
 .sol-splash-logo {
@@ -2942,40 +2974,121 @@
 .sol-splash-brand {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .sol-splash-title {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
   color: #f7f7f8;
 }
 
 .sol-splash-sub {
-  font-size: 12px;
-  color: #777781;
+  font-size: 12.5px;
+  color: #8f94a3;
+}
+
+.sol-splash-meter {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.sol-splash-meter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sol-splash-pct {
+  font-size: 11.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: #60a5fa;
 }
 
 .sol-splash-progress {
-  width: 190px;
-  height: 3px;
+  width: 100%;
+  height: 6px;
   border-radius: 999px;
-  background: #1a1a20;
+  background: rgba(255, 255, 255, 0.07);
   overflow: hidden;
-  margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sol-splash-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
-  transition: width 180ms ease;
+  background: linear-gradient(90deg, #2563eb, #3b82f6 50%, #60a5fa);
+  background-size: 200% 100%;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.6);
+  transition: width 240ms var(--ease-ui);
+  animation: sol-progress-shimmer 1.8s linear infinite;
 }
 
 .sol-splash-status {
-  font-size: 12px;
-  color: #a6a6b0;
+  font-size: 12.5px;
+  color: #cfd3de;
+  text-align: left;
+}
+
+.sol-splash-stages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.sol-splash-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 550;
+  color: #6e7382;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.sol-splash-stage.is-active {
+  color: #dbeafe;
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(96, 165, 250, 0.36);
+}
+
+.sol-splash-stage.is-done {
+  color: #6ee7b7;
+  background: rgba(35, 201, 135, 0.12);
+  border-color: rgba(35, 201, 135, 0.32);
+}
+
+.sol-splash-stage-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sol-splash-stage.is-active .sol-splash-stage-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.75);
+}
+
+.sol-splash-stage.is-done .sol-splash-stage-dot {
+  background: rgba(35, 201, 135, 0.25);
+  color: #23c987;
 }
 
 .sol-splash-error {
@@ -2984,25 +3097,51 @@
   align-items: center;
   gap: 8px;
   padding: 14px;
-  border-radius: 11px;
+  border-radius: 12px;
   border: 1px solid rgba(240, 100, 113, 0.4);
   background: rgba(240, 100, 113, 0.1);
   color: #f06471;
   font-size: 12px;
+  width: 100%;
 }
 
 .sol-splash-fade-leave-active {
-  transition: opacity 180ms ease;
+  transition: opacity 260ms var(--ease-ui), transform 260ms var(--ease-ui);
   pointer-events: none;
 }
 
 .sol-splash-fade-leave-to {
   opacity: 0;
+  transform: scale(1.015);
 }
 
 @keyframes sol-splash-in {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes sol-splash-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes sol-progress-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+:root[data-reduced-motion='true'] .sol-splash-aura,
+:root[data-reduced-motion='true'] .sol-splash-card,
+:root[data-reduced-motion='true'] .sol-splash-progress-fill {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sol-splash-aura,
+  .sol-splash-card,
+  .sol-splash-progress-fill {
+    animation: none !important;
+  }
 }
 
 /* Shared Layout Primitives */

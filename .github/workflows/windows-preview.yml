@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.44 — Pure Minecraft Launcher Clean Removals Part 2 (Purge hub/network/hosting/SSO/announcements across UI & website).
+# Owner-approved preview candidate: V-0.0.45 — Restored Animated OLED SplashScreen with Real Startup Stage Progress.
 on:
   workflow_dispatch:
   push:

@@ -701,9 +701,27 @@ async function run() {
 
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
 
-    // Verify splash screen appears first with #000000 OLED ground
-    const splashSeen = await page.locator('.sol-splash').isVisible().catch(() => false);
-    assert(splashSeen, 'Expected Startup SplashScreen on initial boot');
+    // Verify splash screen appears first with #000000 OLED ground, bordered logo, progress bar & stage chips
+    await page.locator('.sol-splash').waitFor({ state: 'visible', timeout: 3000 });
+    const splashCheck = await page.evaluate(() => {
+      const splash = document.querySelector('.sol-splash');
+      const card = document.querySelector('.sol-splash-card');
+      const img = document.querySelector('.sol-splash-logo img');
+      const bar = document.querySelector('.sol-splash [role="progressbar"]');
+      const stages = document.querySelectorAll('.sol-splash-stage').length;
+      return {
+        bg: splash ? getComputedStyle(splash).backgroundColor : '',
+        hasCard: Boolean(card),
+        logoSrc: img ? img.getAttribute('src') : '',
+        hasBar: Boolean(bar),
+        stages,
+      };
+    });
+    assert.strictEqual(splashCheck.bg, 'rgb(0, 0, 0)', 'Splash background must be true OLED #000000');
+    assert(splashCheck.hasCard && splashCheck.hasBar, 'SplashScreen must render frosted progress card and progressbar');
+    assert.strictEqual(splashCheck.logoSrc, '/logo.svg', 'SplashScreen must render official bordered /logo.svg');
+    assert.strictEqual(splashCheck.stages, 4, 'SplashScreen must render all 4 startup stages');
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-splash.png') });
 
     // Wait for Home Hero after initialization settles
     try {
