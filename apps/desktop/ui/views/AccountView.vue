@@ -2,21 +2,18 @@
 import { ref } from 'vue';
 import SolaraButton from '../components/SolaraButton.vue';
 import SolaraEmptyState from '../components/SolaraEmptyState.vue';
-import { Check, ExternalLink, Globe, LogIn, LogOut, Shield, Trash2, User } from '../icons';
+import { Check, LogIn, Shield, Trash2, User } from '../icons';
 import {
   native,
   navigate,
   notify,
-  openExternal,
   playerAvatarUrl,
   refreshSnapshot,
-  refreshSolaraProfile,
   store,
 } from '../state';
 
 const emit = defineEmits<{ (e: 'start-signin'): void }>();
 const busyId = ref<string | null>(null);
-const solaraBusy = ref(false);
 
 async function selectAccount(id: string): Promise<void> {
   busyId.value = id;
@@ -43,34 +40,6 @@ async function signOut(id: string, username: string): Promise<void> {
     busyId.value = null;
   }
 }
-
-async function signInSolara(): Promise<void> {
-  if (!store.desktop) return;
-  solaraBusy.value = true;
-  try {
-    await native('solara_sign_in');
-    await refreshSolaraProfile();
-    notify('success', 'Signed in to Solara Inc');
-  } catch (err) {
-    notify('error', 'Solara sign-in failed', String(err));
-  } finally {
-    solaraBusy.value = false;
-  }
-}
-
-async function signOutSolara(): Promise<void> {
-  if (!store.desktop) return;
-  solaraBusy.value = true;
-  try {
-    await native('solara_sign_out');
-    await refreshSolaraProfile();
-    notify('info', 'Signed out of Solara Inc');
-  } catch (err) {
-    notify('error', 'Solara sign-out failed', String(err));
-  } finally {
-    solaraBusy.value = false;
-  }
-}
 </script>
 
 <template>
@@ -92,7 +61,7 @@ async function signOutSolara(): Promise<void> {
       <div class="sol-banner-info">
         <Shield :size="15" />
         <span>
-          Minecraft access tokens never leave your computer and are stored separately from Solara Inc web identity.
+          Minecraft access tokens stay strictly on your device in your operating system's credential vault.
         </span>
       </div>
 
@@ -154,63 +123,6 @@ async function signOutSolara(): Promise<void> {
           </div>
         </div>
       </div>
-
-      <!-- Solara Inc Account Identity -->
-      <section class="sol-stack" style="margin-top: 20px">
-        <div class="sol-section-head">
-          <div>
-            <h2 class="sol-section-title">Solara Inc Identity (Optional)</h2>
-            <p class="sol-muted sol-text-xs">
-              Connect your Solara ID via auth.solara-inc.in to manage Solara Hub cloud hosting and network profile.
-            </p>
-          </div>
-          <SolaraButton variant="ghost" size="xs" @click="openExternal('https://app.solara-inc.in')">
-            <ExternalLink :size="12" /> app.solara-inc.in
-          </SolaraButton>
-        </div>
-
-        <div class="sol-row-item">
-          <div class="sol-row-gap">
-            <div class="sol-network-emblem sol-network-emblem--sm">
-              <Globe :size="16" />
-            </div>
-            <div>
-              <strong>
-                {{
-                  store.solaraProfile.signedIn
-                    ? store.solaraProfile.displayName || store.solaraProfile.email || 'Solara Member'
-                    : 'Not signed in to Solara Inc'
-                }}
-              </strong>
-              <div class="sol-muted sol-text-xs">
-                {{ store.solaraProfile.signedIn ? 'Connected via PKCE SSO' : 'Sign in for cloud nodes and Solara ecosystem tools.' }}
-              </div>
-            </div>
-          </div>
-
-          <div class="sol-row-gap">
-            <SolaraButton variant="secondary" size="xs" @click="navigate('solara')">Open Hub</SolaraButton>
-            <SolaraButton
-              v-if="store.solaraProfile.signedIn"
-              variant="ghost"
-              size="xs"
-              :loading="solaraBusy"
-              @click="signOutSolara"
-            >
-              <LogOut :size="12" /> Sign Out
-            </SolaraButton>
-            <SolaraButton
-              v-else
-              variant="primary"
-              size="xs"
-              :loading="solaraBusy"
-              @click="signInSolara"
-            >
-              <LogIn :size="12" /> Sign in with Solara ID
-            </SolaraButton>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </template>

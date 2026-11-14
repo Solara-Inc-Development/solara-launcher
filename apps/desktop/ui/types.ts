@@ -4,7 +4,6 @@ export type PageId =
   | 'discover'
   | 'skins'
   | 'screenshots'
-  | 'solara'
   | 'tasks'
   | 'settings'
   | 'instance'
@@ -84,8 +83,6 @@ export interface LauncherPreferences {
   fullscreen: boolean;
   jvmArgs: string;
   diagnosticsEnabled: boolean;
-  announcementsEnabled: boolean;
-  solaraHubEnabled: boolean;
   autoUpdateEnabled: boolean;
   onboardingCompleted: boolean;
   groups: string[];
@@ -257,63 +254,6 @@ export interface NavEntry {
   tab?: InstanceDetailTab;
 }
 
-export interface LocalServerRecord {
-  id: string;
-  name: string;
-  version: string;
-  port: number;
-  memory: number;
-  eulaAccepted: boolean;
-  javaPath?: string;
-  state: 'stopped' | 'starting' | 'running' | 'failed';
-  createdAt?: string;
-  dir?: string;
-}
-
-export interface SolaraProfile {
-  signedIn: boolean;
-  displayName?: string | null;
-  email?: string | null;
-  handle?: string | null;
-  avatarUrl?: string | null;
-  role?: string | null;
-  roles?: string[];
-  tier?: string | null;
-}
-
-export interface SolaraServiceItem {
-  id?: string;
-  name?: string;
-  title?: string;
-  description?: string;
-  summary?: string;
-  status?: string;
-  url?: string;
-  href?: string;
-  category?: string;
-  badge?: string;
-}
-
-export interface SolaraBootstrapData {
-  schemaVersion?: number;
-  generatedAt?: string;
-  events?: Array<Record<string, unknown>>;
-  projects?: Array<Record<string, unknown>>;
-  services?: SolaraServiceItem[];
-  releases?: Array<Record<string, unknown>>;
-  network?: {
-    ip?: string;
-    address?: string;
-    name?: string;
-    status?: string;
-    version?: string;
-    playersOnline?: number;
-    maxPlayers?: number;
-    [key: string]: unknown;
-  };
-  links?: Record<string, string>;
-}
-
 export interface LaunchProgressState {
   stage: 'checking' | 'java' | 'mods' | 'starting' | 'running' | 'error';
   detail: string;
@@ -323,7 +263,6 @@ export interface LaunchProgressState {
 
 export type SettingsCategoryId =
   | 'appearance'
-  | 'features'
   | 'behaviour'
   | 'accounts'
   | 'java'

@@ -1,6 +1,5 @@
 import { reactive, computed, ref } from 'vue';
 import { isDesktop, native, openExternal } from '../../../packages/shared/client';
-import { getLatestAnnouncements, type LauncherAnnouncement } from '../../../packages/shared/announcements';
 import type {
   DownloadJob,
   InstanceDetailTab,
@@ -8,13 +7,10 @@ import type {
   InstanceSettingsCategoryId,
   LauncherPreferences,
   LaunchProgressState,
-  LocalServerRecord,
   MinecraftAccount,
   NavEntry,
   PageId,
   SettingsCategoryId,
-  SolaraBootstrapData,
-  SolaraProfile,
   ToastNotice,
   UpdateStatus,
 } from './types';
@@ -37,8 +33,6 @@ export const DEFAULT_PREFERENCES: LauncherPreferences = {
   fullscreen: false,
   jvmArgs: '',
   diagnosticsEnabled: true,
-  announcementsEnabled: true,
-  solaraHubEnabled: true,
   autoUpdateEnabled: true,
   onboardingCompleted: false,
   groups: [],
@@ -70,7 +64,6 @@ export const store = reactive({
   desktop: isDesktop,
   instances: [] as InstanceRecord[],
   accounts: [] as MinecraftAccount[],
-  localServers: [] as LocalServerRecord[],
   downloads: [] as DownloadJob[],
   preferences: { ...DEFAULT_PREFERENCES } as LauncherPreferences,
   selectedInstanceId: null as string | null,
@@ -89,11 +82,6 @@ export const store = reactive({
   showUpdateModal: false,
   updatePromptDismissedForVersion: null as string | null,
   updateInstallPending: false,
-  announcements: [] as LauncherAnnouncement[],
-  announcementsSource: 'loading' as 'loading' | 'live' | 'unavailable',
-  solaraProfile: { signedIn: false } as SolaraProfile,
-  solaraBootstrap: null as SolaraBootstrapData | null,
-  solaraBootstrapError: null as string | null,
   activeAccountError: null as string | null,
   launchStates: {} as Record<string, LaunchProgressState>,
   toasts: [] as ToastNotice[],
@@ -108,8 +96,6 @@ export const store = reactive({
   createModalDefaults: { loader: 'vanilla' as const, group: '' },
   showGlobalSearch: false,
   showTasksPopover: false,
-  showAnnouncementsModal: false,
-  activeAnnouncement: null as LauncherAnnouncement | null,
   showSettingsModal: false,
   settingsModalCategory: 'appearance' as SettingsCategoryId,
   showInstanceSettingsModal: false,
@@ -361,12 +347,10 @@ async function readSnapshot(): Promise<void> {
     const snap = await native<{
       instances: InstanceRecord[];
       minecraftAccounts: Array<Partial<MinecraftAccount> & { name?: string; active?: boolean }>;
-      localServers?: LocalServerRecord[];
       downloads: Array<Partial<DownloadJob> & { instanceId?: string; detail?: string; downloaded?: number }>;
     } | null>('launcher_snapshot');
     if (!snap || typeof snap !== 'object') return;
     store.instances = reconcileRecords(store.instances, Array.isArray(snap.instances) ? snap.instances : []);
-    store.localServers = reconcileRecords(store.localServers, Array.isArray(snap.localServers) ? snap.localServers : []);
     store.accounts = reconcileRecords(store.accounts, Array.isArray(snap.minecraftAccounts)
       ? snap.minecraftAccounts
           .filter((a) => Boolean(a?.id))
@@ -457,26 +441,6 @@ export async function loadMinecraftVersions(force = false): Promise<McVersionSum
   store.mcVersions = Array.isArray(data?.versions) ? data.versions : [];
   store.mcVersionsLoaded = true;
   return store.mcVersions;
-}
-
-export async function loadAnnouncements(): Promise<void> {
-  store.announcementsSource = 'loading';
-  try {
-    const res = await fetch('https://api.solara-inc.in/announcements', { credentials: 'omit' });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data?.items) && data.items.length > 0) {
-        store.announcements = data.items;
-        store.announcementsSource = 'live';
-        return;
-      }
-    }
-    store.announcements = getLatestAnnouncements(4);
-    store.announcementsSource = 'unavailable';
-  } catch {
-    store.announcements = getLatestAnnouncements(4);
-    store.announcementsSource = 'unavailable';
-  }
 }
 
 export function formatPublicVersion(version: string | null | undefined): string {
@@ -621,33 +585,6 @@ export function clearLaunchProgress(instanceId: string): void {
   delete store.launchStates[instanceId];
 }
 
-export async function refreshSolaraProfile(): Promise<void> {
-  if (!store.desktop) {
-    store.solaraProfile = { signedIn: false };
-    return;
-  }
-  try {
-    const profile = await native<SolaraProfile>('solara_profile');
-    store.solaraProfile = profile ?? { signedIn: false };
-  } catch {
-    store.solaraProfile = { signedIn: false };
-  }
-}
-
-export async function refreshSolaraBootstrap(): Promise<void> {
-  store.solaraBootstrapError = null;
-  try {
-    const res = await fetch('https://api.solara-inc.in/v1/launcher/bootstrap', {
-      headers: { Accept: 'application/json' },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = (await res.json()) as SolaraBootstrapData;
-    store.solaraBootstrap = data;
-  } catch (err) {
-    store.solaraBootstrapError = err instanceof Error ? err.message : String(err);
-  }
-}
-
 export async function initializeEngine(): Promise<void> {
   store.desktop = isDesktop;
   store.initError = null;
@@ -659,9 +596,9 @@ export async function initializeEngine(): Promise<void> {
       store.initPhase = 'Loading your instances...';
       store.initProgress = 48;
       await Promise.all([refreshPreferences(), refreshSnapshot()]);
-      store.initPhase = 'Checking your account...';
+      store.initPhase = 'Checking updates...';
       store.initProgress = 78;
-      await Promise.allSettled([refreshSolaraProfile(), refreshUpdateStatus()]);
+      await Promise.allSettled([refreshUpdateStatus()]);
     } else {
       store.initPhase = 'Loading your instances...';
       store.initProgress = 65;
@@ -671,8 +608,6 @@ export async function initializeEngine(): Promise<void> {
     store.initProgress = 100;
     store.initialized = true;
     store.splashDone = true;
-    void loadAnnouncements();
-    void refreshSolaraBootstrap();
     if (store.desktop && store.preferences.autoUpdateEnabled !== false) {
       void checkForAppUpdate(true, true);
     }
@@ -841,8 +776,6 @@ export const currentPageTitle = computed(() => {
       return 'Skins & Capes';
     case 'screenshots':
       return 'Screenshots';
-    case 'solara':
-      return 'Solara Hub';
     case 'tasks':
       return 'Downloads & Tasks';
     case 'settings':

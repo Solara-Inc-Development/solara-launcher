@@ -7,7 +7,6 @@ import {
   Home,
   Library,
   Plus,
-  Server,
   Settings,
   Shirt,
   User,
@@ -146,22 +145,6 @@ function isPinnedActive(instId: string): boolean {
         @click="goPage('screenshots')"
       >
         <Camera :size="22" />
-      </button>
-
-      <button
-        v-if="store.preferences.solaraHubEnabled !== false"
-        type="button"
-        class="sol-rail-item"
-        :class="{ 'is-active': isActive('solara') }"
-        data-tooltip="Solara Hub &amp; Servers"
-        aria-label="Solara Hub &amp; Servers"
-        @mouseenter="showTip"
-        @mouseleave="hideTip"
-        @focusin="showTip"
-        @focusout="hideTip"
-        @click="goPage('solara')"
-      >
-        <Server :size="22" />
       </button>
 
       <button

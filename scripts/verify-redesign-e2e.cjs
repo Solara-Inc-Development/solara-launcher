@@ -72,8 +72,6 @@ function buildMockInitScript() {
         fullscreen: false,
         jvmArgs: '-XX:+UseG1GC',
         diagnosticsEnabled: false,
-        announcementsEnabled: true,
-        solaraHubEnabled: true,
         autoUpdateEnabled: true,
         onboardingCompleted: true,
         groups: ['Survival', 'Testing'],
@@ -141,18 +139,6 @@ function buildMockInitScript() {
             postExit: null,
             updateChannel: 'release',
             notes: 'Pure vanilla snapshot verifier.',
-          },
-        ],
-        localServers: [
-          {
-            id: 'srv-dawn-1',
-            name: 'Dawn SMP Local',
-            version: '1.21.4',
-            port: 25565,
-            memory: 4096,
-            eulaAccepted: true,
-            state: 'stopped',
-            createdAt: '2026-11-10T00:00:00Z',
           },
         ],
         downloads: [
@@ -269,14 +255,6 @@ function buildMockInitScript() {
           updatedAt: '2026-11-14T10:00:00Z',
         },
       ],
-      solaraProfile: {
-        signedIn: true,
-        displayName: 'Solara Dev',
-        handle: 'solaradev',
-        email: 'dev@solara-inc.in',
-        avatarUrl: null,
-        role: 'Creator',
-      },
       invoked: [],
       listeners: new Map(),
       fileEntries: [{ path: 'options.txt', name: 'options.txt', directory: false, size: 2140 }, { path: 'config', name: 'config', directory: true, size: 0 }],
@@ -361,38 +339,6 @@ function buildMockInitScript() {
               error: null,
             };
             return state.updateStatus;
-          case 'solara_profile':
-            return state.solaraProfile;
-          case 'solara_request':
-            if (String(args.path || '').includes('/launcher/bootstrap')) {
-              return {
-                schemaVersion: 1,
-                generatedAt: '2026-11-14T10:00:00Z',
-                network: {
-                  ip: 'play.solaranetwork.in',
-                  address: 'play.solaranetwork.in',
-                  name: 'Solara Network',
-                  status: 'online',
-                  version: '1.21.4',
-                  playersOnline: 48,
-                  maxPlayers: 200,
-                },
-                events: [
-                  {
-                    id: 'ann-1',
-                    title: 'Dawn Gold V3 Early Build',
-                    summary: 'Clean OLED obsidian workspace with per-world datapack support.',
-                    publishedAt: '2026-11-14',
-                    url: 'https://app.solara-inc.in',
-                  },
-                ],
-                services: [
-                  { id: 'sso', name: 'Solara Auth SSO', url: 'https://auth.solara-inc.in', status: 'operational' },
-                  { id: 'api', name: 'Solara Core API', url: 'https://api.solara-inc.in', status: 'operational' },
-                ],
-              };
-            }
-            return { ok: true };
           case 'detect_java_runtimes':
             return state.snapshot.javaRuntimes;
           case 'minecraft_versions':
@@ -581,22 +527,6 @@ function buildMockInitScript() {
           case 'clear_finished_downloads':
             state.snapshot.downloads = state.snapshot.downloads.filter((j) => ['queued', 'running'].includes(j.status));
             return null;
-          case 'create_local_server': {
-            const srv = {
-              id: 'srv-' + (state.snapshot.localServers.length + 1),
-              name: args.name || 'Local Server',
-              software: args.software || 'paper',
-              mcVersion: args.mcVersion || '1.21.4',
-              port: Number(args.port || 25566),
-              memoryMb: Number(args.memoryMb || 2048),
-              running: false,
-              eulaAccepted: Boolean(args.eula),
-            };
-            state.snapshot.localServers.push(srv);
-            return srv;
-          }
-          case 'local_server_logs':
-            return '[10:00:00] [Server thread/INFO]: Done (2.14s)! For help, type "help"\n';
           case 'window_action':
           case 'start_dragging':
           case 'open_instance_folder':
@@ -629,57 +559,19 @@ async function run() {
 
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 
-    // Offline-safe deterministic Solara API, avatar & Modrinth fixtures
+    // Offline-safe deterministic Solara public release feed (verify desktop never fetches legacy bootstrap/announcements)
+    const desktopLegacyFetches = [];
     await context.route('https://api.solara-inc.in/**', async (route) => {
       const url = route.request().url();
-      const headers = { 'access-control-allow-origin': '*' };
-      if (url.includes('/v1/launcher/bootstrap')) {
-        return route.fulfill({
-          status: 200,
-          headers,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            schemaVersion: 1,
-            generatedAt: '2026-11-14T10:00:00Z',
-            network: {
-              ip: 'play.solaranetwork.in',
-              address: 'play.solaranetwork.in',
-              name: 'Solara Network',
-              status: 'online',
-              version: '1.21.4',
-              playersOnline: 48,
-              maxPlayers: 200,
-            },
-            events: [
-              {
-                id: 'ann-1',
-                title: 'Dawn Gold V3 Early Build',
-                summary: 'Clean OLED obsidian workspace with per-world datapack support.',
-                publishedAt: '2026-11-14',
-                url: 'https://app.solara-inc.in',
-              },
-            ],
-            services: [
-              { id: 'sso', name: 'Solara Auth SSO', url: 'https://auth.solara-inc.in', status: 'operational' },
-              { id: 'api', name: 'Solara Core API', url: 'https://api.solara-inc.in', status: 'operational' },
-            ],
-          }),
-        });
+      const pageUrl = route.request().frame()?.url() || '';
+      if (pageUrl.includes('desktop.html') && (url.includes('/v1/launcher/bootstrap') || url.includes('/announcements'))) {
+        desktopLegacyFetches.push(url);
       }
       return route.fulfill({
         status: 200,
-        headers,
+        headers: { 'access-control-allow-origin': '*' },
         contentType: 'application/json',
-        body: JSON.stringify({
-          announcements: [
-            {
-              id: 'ann-1',
-              title: 'Dawn Gold V3 Ready',
-              body: 'All Solara Launcher services online.',
-              publishedAt: '2026-11-14',
-            },
-          ],
-        }),
+        body: JSON.stringify({ schemaVersion: 1, releases: [], events: [] }),
       });
     });
 
@@ -1082,10 +974,14 @@ async function run() {
     await page.waitForSelector('text=Unsaved pixels', { state: 'detached' });
 
 
-    // Solara Hub -> Network IP + Create Server
-    await page.click('button[data-tooltip="Solara Hub & Servers"]');
-    await page.waitForSelector('text=play.solaranetwork.in', { timeout: 5000 });
-    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-solara-hub.png') });
+    // Verify Pure Minecraft Launcher clean removals (no Solara Hub, server hosting, play.solaranetwork.in, or SSO promos)
+    assert.strictEqual(await page.locator('button[data-tooltip="Solara Hub & Servers"]').count(), 0, 'Solara Hub rail button must be removed');
+    assert.strictEqual(await page.locator('text=play.solaranetwork.in').count(), 0, 'play.solaranetwork.in must not appear');
+    assert.strictEqual(await page.locator('text=Solara Hub').count(), 0, 'Solara Hub promo must not appear');
+    await page.click('button[aria-label="Accounts"]');
+    await page.waitForSelector('text=Minecraft Accounts', { timeout: 5000 });
+    assert.strictEqual(await page.locator('text=Sign in with Solara ID').count(), 0, 'Solara ID promo must be removed from AccountView');
+    assert.strictEqual(await page.locator('text=auth.solara-inc.in').count(), 0, 'auth.solara-inc.in must not appear in AccountView');
 
     // Centered Global Settings Modal -> Check Behaviour & Privacy tabs & Save Bar
     await page.click('button[data-tooltip="Settings"]');
@@ -1272,6 +1168,7 @@ async function run() {
     assert(webTheme.scrollHeight > webTheme.innerHeight + 500, `Website must scroll vertically (got scrollHeight=${webTheme.scrollHeight})`);
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-website.png') });
 
+    assert.strictEqual(desktopLegacyFetches.length, 0, `Desktop must never fetch legacy bootstrap/announcements: ${desktopLegacyFetches.join(', ')}`);
     assert.strictEqual(errors.length, 0, `Runtime errors encountered:\n${errors.join('\n')}`);
     console.log('SOLARA V3 E2E VERIFICATION PASSED (all assertions + screenshots captured).');
   } finally {

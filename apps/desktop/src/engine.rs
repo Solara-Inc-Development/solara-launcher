@@ -1198,8 +1198,6 @@ pub struct Preferences {
     pub jvm_args: String,
     pub diagnostics_enabled: bool,
     pub onboarding_completed: bool,
-    pub announcements_enabled: bool,
-    pub solara_hub_enabled: bool,
     pub auto_update_enabled: bool,
     pub groups: Vec<String>,
 }
@@ -1222,8 +1220,6 @@ impl Default for Preferences {
             jvm_args: String::new(),
             diagnostics_enabled: true,
             onboarding_completed: false,
-            announcements_enabled: true,
-            solara_hub_enabled: true,
             auto_update_enabled: true,
             groups: Vec::new(),
         }

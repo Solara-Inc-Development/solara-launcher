@@ -44,4 +44,4 @@ export async function openExternal(url:string){
     window.open(u.href,'_blank','noopener,noreferrer');
   }
 }
-export const links={home:'https://www.solara-inc.in',docs:'https://auth.solara-inc.in/docs.php',support:'https://www.solara-inc.in/contact',github:import.meta.env.VITE_SOLARA_GITHUB_URL||'https://github.com/Solara-Inc-Development/solara-launcher'};
+export const links={home:'https://app.solara-inc.in',docs:'https://github.com/Solara-Inc-Development/solara-launcher#readme',support:'https://github.com/Solara-Inc-Development/solara-launcher/issues',github:import.meta.env.VITE_SOLARA_GITHUB_URL||'https://github.com/Solara-Inc-Development/solara-launcher'};

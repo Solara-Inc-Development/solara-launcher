@@ -315,24 +315,6 @@ function cancelPendingLaunch() {
       </div>
     </SolaraModal>
 
-    <!-- Announcement Reader Modal -->
-    <SolaraModal
-      :open="store.showAnnouncementsModal && Boolean(store.activeAnnouncement)"
-      :title="store.activeAnnouncement?.title"
-      :subtitle="store.activeAnnouncement?.category || 'Solara Announcement'"
-      width="md"
-      @close="store.showAnnouncementsModal = false"
-    >
-      <div v-if="store.activeAnnouncement" class="sol-stack selectable">
-        <p style="white-space: pre-wrap; margin: 0; line-height: 1.6">
-          {{ store.activeAnnouncement.content || store.activeAnnouncement.summary }}
-        </p>
-      </div>
-      <template #footer>
-        <SolaraButton variant="secondary" @click="store.showAnnouncementsModal = false">Close</SolaraButton>
-      </template>
-    </SolaraModal>
-
     <!-- Unsaved Settings Leave Protection Dialog -->
     <SolaraModal
       :open="store.showDirtyLeaveDialog"

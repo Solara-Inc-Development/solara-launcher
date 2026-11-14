@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.44 — 2026-11-15
+
+- **Pure Minecraft Launcher Clean Removals (Part 2 — Frontend, Home, Accounts, Settings & Website)**:
+  - Removed all Solara Hub, `play.solaranetwork.in`, Server Hosting, Solara ID SSO, `.sol-home-side`, and promotional news/bootstrap hooks across `HomeView.vue`, `AccountView.vue`, `SidebarRail.vue`, `GlobalSearchModal.vue`, `GlobalSettingsModal.vue`, `App.vue`, `launcher.css`, `state.ts`, `types.ts`, `engine.rs`, `apps/website/App.vue`, and `packages/shared/client.ts`.
+  - Replaced Home footer strip cards with direct Minecraft actions (Discover Modpacks & Mods + 3D Skins, Capes & Screenshots) and kept pure on-device Microsoft Minecraft accounts + GitHub Releases CDN auto-update intact.
+  - Added `tests/pure-launcher.test.mjs` contract tests and E2E negative assertions in `scripts/verify-redesign-e2e.cjs` preventing regression of removed promo/hub/server-hosting references.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.43 — 2026-11-15
 
 - **Pure Minecraft Launcher Clean Removals (Part 1 — Backend, Local Server & Hub Module Removal)**:

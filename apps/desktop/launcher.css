@@ -1691,18 +1691,6 @@
   border-top: 1px solid var(--border-subtle);
 }
 
-.sol-home-side {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.sol-side-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .sol-side-head {
   display: flex;
   align-items: center;
@@ -4091,66 +4079,6 @@
   border-radius: 12px;
   border: 1px solid rgba(240, 100, 113, 0.35);
   background: rgba(240, 100, 113, 0.08);
-}
-
-/* Solara Hub & Ecosystem */
-.sol-hub-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.sol-network-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 18px 20px;
-  border-radius: 15px;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  background: linear-gradient(95deg, rgba(59, 130, 246, 0.16), #0d0f16 68%);
-}
-
-.sol-network-emblem {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #0f2142;
-  color: #3b82f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sol-network-emblem--sm {
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-}
-
-.sol-hub-net-title {
-  font-size: 17px;
-  color: #f7f7f8;
-}
-
-.sol-services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 12px;
-}
-
-.sol-service-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #23232b;
-  background: #0d0d11;
 }
 
 /* Alerts & Banners */

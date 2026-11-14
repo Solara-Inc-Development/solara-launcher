@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.43 — Pure Minecraft Launcher Clean Removals Part 1 (Remove SolaraHubView, identity, resource_policy, local-server).
+# Owner-approved preview candidate: V-0.0.44 — Pure Minecraft Launcher Clean Removals Part 2 (Purge hub/network/hosting/SSO/announcements across UI & website).
 on:
   workflow_dispatch:
   push:

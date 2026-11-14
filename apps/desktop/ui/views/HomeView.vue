@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import InstanceIcon from '../components/InstanceIcon.vue';
 import SolaraButton from '../components/SolaraButton.vue';
 import {
-  Check,
+  Camera,
   Compass,
-  Copy,
   Download,
   FolderOpen,
-  Globe,
-  Newspaper,
   Play,
   Plus,
-  Server,
+  Shirt,
   Sliders,
   Square,
   User,
@@ -24,7 +21,6 @@ import {
   launchOrStopInstance,
   LOADER_LABEL,
   navigate,
-  notify,
   openCreateInstance,
   openInstanceSettings,
   playerAvatarUrl,
@@ -36,7 +32,6 @@ import {
 import type { InstanceRecord } from '../types';
 
 const emit = defineEmits<{ (e: 'start-signin'): void }>();
-const copiedIp = ref(false);
 
 const jumpBackIn = computed(() => {
   return [...store.instances]
@@ -63,11 +58,6 @@ const isHeroLaunching = computed(() => {
   return Boolean(st && st.stage !== 'running' && st.stage !== 'error');
 });
 
-const networkIp = computed(() => {
-  const net = store.solaraBootstrap?.network;
-  return String(net?.ip || net?.address || 'play.solaranetwork.in');
-});
-
 function openInstanceContent(inst: InstanceRecord): void {
   selectInstance(inst.id);
   navigate('instance', { instanceId: inst.id, tab: 'content' });
@@ -76,19 +66,6 @@ function openInstanceContent(inst: InstanceRecord): void {
 function openInstanceLogs(inst: InstanceRecord): void {
   selectInstance(inst.id);
   navigate('instance', { instanceId: inst.id, tab: 'logs' });
-}
-
-async function copyNetworkIp(): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(networkIp.value);
-    copiedIp.value = true;
-    notify('success', 'Server address copied', networkIp.value);
-    window.setTimeout(() => {
-      copiedIp.value = false;
-    }, 1800);
-  } catch {
-    notify('info', 'Solara Network', networkIp.value);
-  }
 }
 </script>
 
@@ -121,17 +98,6 @@ async function copyNetworkIp(): Promise<void> {
             />
             <User v-else :size="13" />
             <span>{{ selectedAccount ? selectedAccount.username : 'Sign in (Microsoft)' }}</span>
-          </button>
-
-          <button
-            v-if="store.preferences.solaraHubEnabled !== false"
-            type="button"
-            class="sol-acct-pill sol-acct-pill--solara"
-            title="Solara Inc Account & Hub"
-            @click="navigate('solara')"
-          >
-            <Globe :size="13" />
-            <span>{{ store.solaraProfile.signedIn ? (store.solaraProfile.displayName || 'Solara ID') : 'Solara Hub' }}</span>
           </button>
 
           <SolaraButton variant="primary" size="sm" @click="openCreateInstance()">
@@ -304,36 +270,29 @@ async function copyNetworkIp(): Promise<void> {
         </div>
       </section>
 
-      <!-- Compact Ecosystem Strip: Modpacks, Solara Network, Announcements, Active Tasks -->
+      <!-- Quick Tools Strip: Modpacks, Skins Studio, Screenshots & Tasks -->
       <section class="sol-home-footer-grid">
-        <!-- Quick Discover & Network -->
         <div class="sol-strip-box">
           <div class="sol-strip-head">
-            <span class="sol-strip-label"><Server :size="14" /> Solara Network &amp; Hub</span>
-            <button type="button" class="sol-link-btn" @click="navigate('solara')">Open Hub</button>
+            <span class="sol-strip-label"><Compass :size="14" /> Modpacks &amp; Content</span>
+            <button type="button" class="sol-link-btn" @click="navigate('discover')">Browse</button>
           </div>
           <div class="sol-strip-row">
             <div>
-              <div class="sol-strip-title">{{ networkIp }}</div>
-              <div class="sol-muted sol-text-xs">Official network realm &amp; local server hosting</div>
+              <div class="sol-strip-title">Discover Modpacks &amp; Mods</div>
+              <div class="sol-muted sol-text-xs">Verified Modrinth packs, Fabric, Forge, and NeoForge</div>
             </div>
             <div class="sol-row-gap">
-              <SolaraButton variant="secondary" size="xs" @click="copyNetworkIp">
-                <Check v-if="copiedIp" :size="12" />
-                <Copy v-else :size="12" />
-                {{ copiedIp ? 'Copied' : 'Copy IP' }}
-              </SolaraButton>
-              <SolaraButton variant="ghost" size="xs" @click="navigate('discover')">
-                <Compass :size="12" /> Modpacks
+              <SolaraButton variant="secondary" size="xs" @click="navigate('discover')">
+                <Compass :size="12" /> Explore
               </SolaraButton>
             </div>
           </div>
         </div>
 
-        <!-- Compact Announcements / Active Downloads -->
-        <div v-if="store.preferences.announcementsEnabled !== false" class="sol-strip-box">
+        <div class="sol-strip-box">
           <div class="sol-strip-head">
-            <span class="sol-strip-label"><Newspaper :size="14" /> Updates &amp; Tasks</span>
+            <span class="sol-strip-label"><Shirt :size="14" /> Studio &amp; Captures</span>
             <button
               v-if="activeJobs.length > 0"
               type="button"
@@ -343,24 +302,19 @@ async function copyNetworkIp(): Promise<void> {
               <Download :size="12" /> {{ activeJobs.length }} active
             </button>
           </div>
-
-          <div v-if="store.announcements.length > 0" class="sol-news-compact">
-            <button
-              v-for="item in store.announcements.slice(0, 2)"
-              :key="item.id"
-              type="button"
-              class="sol-news-pill"
-              @click="
-                store.activeAnnouncement = item;
-                store.showAnnouncementsModal = true;
-              "
-            >
-              <span class="sol-news-pill-title sol-truncate">{{ item.title }}</span>
-              <span class="sol-muted sol-text-xs">{{ item.date || 'Update' }}</span>
-            </button>
-          </div>
-          <div v-else class="sol-muted sol-text-xs">
-            {{ store.announcementsSource === 'loading' ? 'Checking updates from api.solara-inc.in...' : 'You are caught up on Solara updates.' }}
+          <div class="sol-strip-row">
+            <div>
+              <div class="sol-strip-title">3D Skins, Capes &amp; Screenshots</div>
+              <div class="sol-muted sol-text-xs">Edit skins pixel-by-pixel or browse captures</div>
+            </div>
+            <div class="sol-row-gap">
+              <SolaraButton variant="secondary" size="xs" @click="navigate('skins')">
+                <Shirt :size="12" /> Skins
+              </SolaraButton>
+              <SolaraButton variant="ghost" size="xs" @click="navigate('screenshots')">
+                <Camera :size="12" /> Shots
+              </SolaraButton>
+            </div>
           </div>
         </div>
       </section>

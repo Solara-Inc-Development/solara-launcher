@@ -113,7 +113,6 @@ async function main() {
           if (command === 'launcher_snapshot') {
             return {
               instances: [],
-              localServers: [],
               downloads: [],
               minecraftAccounts: window.__SOLARA_ACCOUNTS__,
             };

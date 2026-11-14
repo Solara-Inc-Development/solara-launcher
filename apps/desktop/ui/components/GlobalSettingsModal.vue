@@ -17,7 +17,6 @@ import {
   RefreshCw,
   Shield,
   Sliders,
-  Sparkles,
   Trash2,
   User,
 } from '../icons';
@@ -47,7 +46,6 @@ const emit = defineEmits<{ (e: 'start-signin'): void }>();
 
 const categories: Array<{ id: SettingsCategoryId; label: string; icon: unknown }> = [
   { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'features', label: 'Features', icon: Sparkles },
   { id: 'behaviour', label: 'Behaviour', icon: Sliders },
   { id: 'accounts', label: 'Accounts', icon: User },
   { id: 'java', label: 'Java & Memory', icon: Cpu },
@@ -279,33 +277,6 @@ watch(
           </div>
         </section>
 
-        <!-- Features -->
-        <section v-else-if="store.settingsModalCategory === 'features'" class="sol-stack">
-          <div class="sol-setting-row">
-            <div>
-              <div class="sol-setting-label">Solara Hub &amp; Local Server Tab</div>
-              <div class="sol-muted sol-text-xs">Show Solara Inc hosting tools, services, and local servers in the sidebar rail.</div>
-            </div>
-            <SolaraToggle v-model="draft.solaraHubEnabled" label="Enable Solara Hub" />
-          </div>
-
-          <div class="sol-setting-row">
-            <div>
-              <div class="sol-setting-label">Home News &amp; Announcements Strip</div>
-              <div class="sol-muted sol-text-xs">Show release notes and network news from api.solara-inc.in on Home.</div>
-            </div>
-            <SolaraToggle v-model="draft.announcementsEnabled" label="Enable announcements" />
-          </div>
-
-          <div class="sol-setting-row">
-            <div>
-              <div class="sol-setting-label">Startup &amp; Background Update Checks</div>
-              <div class="sol-muted sol-text-xs">Notify you when new Solara Launcher releases are available. Updates wait for you to click Update Now or Restart to Update.</div>
-            </div>
-            <SolaraToggle v-model="draft.autoUpdateEnabled" label="Update checks" />
-          </div>
-        </section>
-
         <!-- Behaviour -->
         <section v-else-if="store.settingsModalCategory === 'behaviour'" class="sol-stack">
           <div class="sol-field">
@@ -338,6 +309,14 @@ watch(
             </div>
             <SolaraToggle v-model="draft.confirmLaunch" label="Confirm launch" />
           </div>
+
+          <div class="sol-setting-row">
+            <div>
+              <div class="sol-setting-label">Startup &amp; Background Update Checks</div>
+              <div class="sol-muted sol-text-xs">Notify you when new Solara Launcher releases are available. Updates wait for you to click Update Now or Restart to Update.</div>
+            </div>
+            <SolaraToggle v-model="draft.autoUpdateEnabled" label="Update checks" />
+          </div>
         </section>
 
         <!-- Accounts -->
@@ -358,18 +337,6 @@ watch(
             </div>
             <SolaraButton variant="ghost" size="xs" @click="store.showSettingsModal = false; navigate('account')">
               Manage
-            </SolaraButton>
-          </div>
-
-          <div class="sol-mini-row">
-            <div>
-              <strong>Solara Inc Identity</strong>
-              <div class="sol-muted sol-text-xs">
-                {{ store.solaraProfile.signedIn ? `Signed in as ${store.solaraProfile.displayName || store.solaraProfile.email}` : 'Not connected (optional for Solara Hub services)' }}
-              </div>
-            </div>
-            <SolaraButton variant="secondary" size="xs" @click="store.showSettingsModal = false; navigate('solara')">
-              Open Solara Hub
             </SolaraButton>
           </div>
         </section>
@@ -523,8 +490,8 @@ watch(
           <div class="sol-kv-grid">
             <div class="sol-kv"><span class="sol-muted">Release Track</span><strong>{{ build.publicVersion }} ({{ build.internalVersion }})</strong></div>
             <div class="sol-kv"><span class="sol-muted">Update Status</span><strong>{{ store.updateStatus?.stage ?? 'idle' }}</strong></div>
-            <div class="sol-kv"><span class="sol-muted">API Origin</span><strong>api.solara-inc.in</strong></div>
-            <div class="sol-kv"><span class="sol-muted">Website</span><strong>app.solara-inc.in</strong></div>
+            <div class="sol-kv"><span class="sol-muted">Update CDN</span><strong>GitHub Releases</strong></div>
+            <div class="sol-kv"><span class="sol-muted">Storage</span><strong>On-Device Vault</strong></div>
           </div>
 
           <div class="sol-row-gap">
