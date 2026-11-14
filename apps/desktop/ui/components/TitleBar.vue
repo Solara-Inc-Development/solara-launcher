@@ -1,248 +1,259 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import SolaraLogo from './SolaraLogo.vue';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Search,
+  Activity,
+  ChevronLeft,
+  ChevronRight,
   Download,
-  RefreshCw,
   Minus,
+  Maximize2,
+  Play,
+  Search,
   Square,
   X,
-  Play,
 } from '../icons';
 import {
-  store,
-  currentRoute,
-  currentPageTitle,
+  activeJobs,
   canGoBack,
   canGoForward,
+  currentPageTitle,
+  currentRoute,
   goBack,
   goForward,
-  selectedInstance,
-  runningInstances,
-  activeJobs,
-  navigate,
   native,
+  navigate,
   notify,
-  refreshUpdateStatus,
+  openGlobalSettings,
+  runningInstances,
+  selectedInstance,
+  store,
 } from '../state';
-import TasksPopover from './TasksPopover.vue';
 
-const checkingUpdate = ref(false);
-let lastWinClickAt = 0;
-let lastWinAction: string | null = null;
+const isMaximized = ref(false);
+let winEventTimer: number | null = null;
+let lastWinActionAt = 0;
 
-const updateBadge = computed(() => {
-  const s = store.updateStatus.stage;
-  if (s === 'checking') return { label: 'Checking update...', tone: 'info' };
-  if (s === 'downloading') return { label: 'Downloading update', tone: 'gold' };
-  if (s === 'ready' || s === 'downloaded' || s === 'pending')
-    return { label: `Update ${store.updateStatus.version || ''} ready`, tone: 'success' };
-  if (s === 'available')
-    return { label: `Update ${store.updateStatus.version || ''}`, tone: 'gold' };
-  if (s === 'error') return { label: 'Update check failed', tone: 'warning' };
-  return null;
-});
-
-async function handleCheckUpdate() {
-  if (!store.desktop || checkingUpdate.value) return;
-  checkingUpdate.value = true;
+async function syncMaximizedState(): Promise<void> {
+  if (!store.desktop) return;
   try {
-    await native('check_update');
-    await refreshUpdateStatus();
-    if (store.updateStatus.stage === 'idle' || store.updateStatus.stage === 'current') {
-      notify('info', 'Solara is up to date', 'You are running the latest available version.');
-    }
-  } catch (err) {
-    notify('warning', 'Update check unavailable', String(err));
-  } finally {
-    checkingUpdate.value = false;
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    isMaximized.value = await getCurrentWindow().isMaximized();
+  } catch {
+    // ignore outside Tauri webview
   }
 }
 
-function onTitleMouseDown(e: MouseEvent) {
-  if (!store.desktop || e.button !== 0) return;
-  const target = e.target as HTMLElement | null;
-  if (target?.closest('button, input, a, .sol-no-drag')) return;
-  void native('start_dragging').catch(() => {});
-}
-
-function onTitleDblClick(e: MouseEvent) {
+async function winAction(action: 'minimize' | 'maximize' | 'close'): Promise<void> {
   if (!store.desktop) return;
-  const target = e.target as HTMLElement | null;
-  if (target?.closest('button, input, a, .sol-no-drag')) return;
-  void native('window_action', { action: 'maximize' }).catch(() => {});
-}
-
-function onWindowAction(action: 'minimize' | 'maximize' | 'close') {
   const now = Date.now();
-  if (lastWinAction === action && now - lastWinClickAt < 180) return;
-  lastWinClickAt = now;
-  lastWinAction = action;
-  if (!store.desktop) return;
-  void native('window_action', { action }).catch((err) => {
-    notify('error', "Couldn't update window", String(err));
-  });
+  if (now - lastWinActionAt < 180) return;
+  lastWinActionAt = now;
+  try {
+    await native('window_action', { action });
+    if (action === 'maximize') {
+      isMaximized.value = !isMaximized.value;
+    }
+  } catch (err) {
+    notify('error', 'Window action failed', String(err));
+  }
 }
+
+async function startDrag(e: MouseEvent): Promise<void> {
+  if (e.button !== 0 || !store.desktop) return;
+  const target = e.target as HTMLElement | null;
+  if (target?.closest('button, input, a, .sol-no-drag')) return;
+  try {
+    if (e.detail >= 2) {
+      await winAction('maximize');
+    } else {
+      await native('start_dragging');
+    }
+  } catch {
+    // ignore in browser preview
+  }
+}
+
+async function applyAppUpdate(): Promise<void> {
+  if (!store.desktop) return;
+  try {
+    notify('info', 'Checking for updates', 'Contacting Solara update service...');
+    await native('check_update');
+  } catch (err) {
+    notify('error', "Couldn't check update", String(err));
+  }
+}
+
+const activeLaunchEntry = computed(() => {
+  for (const [id, st] of Object.entries(store.launchStates)) {
+    if (st && st.stage !== 'running') {
+      const inst = store.instances.find((i) => i.id === id);
+      return { id, name: inst?.name ?? 'Minecraft', ...st };
+    }
+  }
+  return null;
+});
+
+const breadcrumbExtra = computed(() => {
+  const r = currentRoute.value;
+  if (r.page === 'instance' && selectedInstance.value) {
+    const inst = store.instances.find((i) => i.id === r.instanceId) ?? selectedInstance.value;
+    return `${inst.loader} ${inst.gameVersion}`;
+  }
+  return null;
+});
+
+const updateAvailable = computed(
+  () =>
+    store.updateStatus?.stage === 'ready' ||
+    store.updateStatus?.stage === 'available' ||
+    store.updateStatus?.stage === 'downloading',
+);
+
+onMounted(() => {
+  void syncMaximizedState();
+  winEventTimer = window.setInterval(() => {
+    if (!document.hidden) void syncMaximizedState();
+  }, 4000);
+});
+
+onBeforeUnmount(() => {
+  if (winEventTimer !== null) window.clearInterval(winEventTimer);
+});
 </script>
 
 <template>
-  <header
-    class="sol-titlebar"
-    data-tauri-drag-region
-    @mousedown="onTitleMouseDown"
-    @dblclick="onTitleDblClick"
-  >
-    <!-- Brand & Navigation -->
-    <div class="sol-titlebar-left">
+  <header class="sol-titlebar" data-tauri-drag-region @mousedown="startDrag">
+    <div class="sol-titlebar-left" data-tauri-drag-region>
       <button
         type="button"
         class="sol-brand-btn sol-no-drag"
         title="Go to Home"
         @click="navigate('home')"
       >
-        <span class="sol-brand-mark" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L20.5 7V17L12 22L3.5 17V7L12 2Z" stroke="#E9B86D" stroke-width="2" />
-            <circle cx="12" cy="12" r="3.2" fill="#E9B86D" />
-          </svg>
-        </span>
+        <SolaraLogo :size="18" />
         <span class="sol-brand-name">Solara</span>
       </button>
 
-      <div class="sol-nav-arrows sol-no-drag">
+      <div class="sol-nav-history sol-no-drag">
         <button
           type="button"
-          class="sol-icon-btn sol-icon-btn--sm"
+          class="sol-icon-btn"
           :disabled="!canGoBack"
           title="Back (Alt+Left)"
-          aria-label="Go back"
+          aria-label="Back"
           @click="goBack"
         >
-          <ArrowLeft :size="15" />
+          <ChevronLeft :size="16" />
         </button>
         <button
           type="button"
-          class="sol-icon-btn sol-icon-btn--sm"
+          class="sol-icon-btn"
           :disabled="!canGoForward"
           title="Forward (Alt+Right)"
-          aria-label="Go forward"
+          aria-label="Forward"
           @click="goForward"
         >
-          <ArrowRight :size="15" />
+          <ChevronRight :size="16" />
         </button>
       </div>
 
-      <div class="sol-breadcrumb">
-        <span class="sol-breadcrumb-page">{{ currentPageTitle }}</span>
-        <template v-if="currentRoute.page === 'instance' && selectedInstance">
-          <span class="sol-breadcrumb-sep">/</span>
-          <span class="sol-breadcrumb-sub">{{ selectedInstance.gameVersion }} {{ selectedInstance.loader }}</span>
-        </template>
-        <template v-else-if="selectedInstance && currentRoute.page !== 'settings' && currentRoute.page !== 'account'">
-          <button
-            type="button"
-            class="sol-active-inst-pill sol-no-drag"
-            title="Open selected instance"
-            @click="navigate('instance', { instanceId: selectedInstance.id })"
-          >
-            <span class="sol-pill-dot" :class="{ 'is-running': selectedInstance.running }" />
-            <span class="sol-pill-text">{{ selectedInstance.name }}</span>
-          </button>
-        </template>
+      <div class="sol-titlebar-crumb" data-tauri-drag-region>
+        <span class="sol-crumb-title">{{ currentPageTitle }}</span>
+        <span v-if="breadcrumbExtra" class="sol-crumb-sub">{{ breadcrumbExtra }}</span>
       </div>
     </div>
 
-    <!-- Center Quick Search -->
-    <div class="sol-titlebar-center">
+    <div class="sol-titlebar-center" data-tauri-drag-region>
       <button
         type="button"
-        class="sol-cmd-trigger sol-no-drag"
-        title="Quick Search (Ctrl+K)"
+        class="sol-search-trigger sol-no-drag"
+        title="Search instances &amp; modpacks (Ctrl+K)"
         @click="store.showGlobalSearch = true"
       >
         <Search :size="13" />
-        <span>Search instances & pages...</span>
-        <kbd class="sol-kbd">Ctrl+K</kbd>
+        <span>Search instances, modpacks, tools...</span>
+        <kbd>Ctrl K</kbd>
       </button>
     </div>
 
-    <!-- Right Indicators & Native Controls -->
-    <div class="sol-titlebar-right sol-no-drag">
+    <div class="sol-titlebar-right" data-tauri-drag-region>
+      <!-- Live launch / running status pill -->
       <button
-        v-if="runningInstances.length > 0"
+        v-if="activeLaunchEntry"
         type="button"
-        class="sol-status-pill sol-status-pill--running"
-        :title="`Minecraft running: ${runningInstances.map((i) => i.name).join(', ')}`"
+        class="sol-status-pill sol-no-drag"
+        :class="activeLaunchEntry.stage === 'error' ? 'sol-status-pill--error' : 'sol-status-pill--launching'"
+        :title="activeLaunchEntry.error || activeLaunchEntry.detail"
+        @click="navigate('instance', { instanceId: activeLaunchEntry.id, tab: 'logs' })"
+      >
+        <span class="sol-dot" />
+        <span class="sol-truncate">
+          {{ activeLaunchEntry.stage === 'error' ? `Launch Failed · View Logs` : `${activeLaunchEntry.name}: ${activeLaunchEntry.detail}` }}
+        </span>
+      </button>
+      <button
+        v-else-if="runningInstances.length > 0"
+        type="button"
+        class="sol-status-pill sol-status-pill--running sol-no-drag"
+        title="View running instance logs"
         @click="navigate('instance', { instanceId: runningInstances[0].id, tab: 'logs' })"
       >
         <Play :size="11" />
-        <span>{{ runningInstances.length === 1 ? 'Game Running' : `${runningInstances.length} Running` }}</span>
+        <span>Running: {{ runningInstances[0].name }}</span>
       </button>
 
+      <!-- Update Ready Indicator -->
       <button
-        v-if="updateBadge"
+        v-if="updateAvailable"
         type="button"
-        :class="['sol-status-pill', `sol-status-pill--${updateBadge.tone}`]"
-        :disabled="checkingUpdate"
-        title="Application update status"
-        @click="handleCheckUpdate"
+        class="sol-status-pill sol-status-pill--gold sol-no-drag"
+        :title="`Solara update ${store.updateStatus?.version ?? ''} ready`"
+        @click="store.updateStatus?.stage === 'ready' ? applyAppUpdate() : openGlobalSettings('about')"
       >
-        <RefreshCw :size="12" :class="{ 'is-spinning': checkingUpdate || store.updateStatus.stage === 'checking' }" />
-        <span>{{ updateBadge.label }}</span>
+        <Download :size="12" />
+        <span>{{ store.updateStatus?.stage === 'ready' ? 'Update Ready' : 'Updating...' }}</span>
       </button>
+
+      <!-- Tasks Popover Trigger -->
       <button
-        v-else-if="store.desktop"
         type="button"
-        class="sol-icon-btn sol-icon-btn--sm"
-        :disabled="checkingUpdate"
-        title="Check for launcher updates"
-        aria-label="Check for updates"
-        @click="handleCheckUpdate"
+        class="sol-icon-btn sol-tasks-btn sol-tasks-anchor sol-no-drag"
+        :class="{ 'is-active': store.showTasksPopover || activeJobs.length > 0 }"
+        title="Downloads &amp; Tasks (Ctrl+J)"
+        aria-label="Tasks"
+        @click="store.showTasksPopover = !store.showTasksPopover"
       >
-        <RefreshCw :size="14" :class="{ 'is-spinning': checkingUpdate }" />
+        <Activity :size="15" />
+        <span v-if="activeJobs.length > 0" class="sol-badge-count">{{ activeJobs.length }}</span>
       </button>
 
-      <div class="sol-tasks-anchor">
-        <button
-          type="button"
-          :class="['sol-icon-btn', 'sol-icon-btn--sm', { 'is-active': store.showTasksPopover || activeJobs.length > 0 }]"
-          title="Downloads & Tasks"
-          aria-label="Toggle tasks popover"
-          @click="store.showTasksPopover = !store.showTasksPopover"
-        >
-          <Download :size="15" />
-          <span v-if="activeJobs.length > 0" class="sol-count-dot">{{ activeJobs.length }}</span>
-        </button>
-        <TasksPopover v-if="store.showTasksPopover" @close="store.showTasksPopover = false" />
-      </div>
-
-      <div class="sol-win-controls">
+      <div class="sol-win-controls sol-no-drag">
         <button
           type="button"
           class="sol-win-btn"
           title="Minimize"
           aria-label="Minimize window"
-          @click="onWindowAction('minimize')"
+          @click="winAction('minimize')"
         >
           <Minus :size="14" />
         </button>
         <button
           type="button"
           class="sol-win-btn"
-          title="Maximize or Restore"
+          :title="isMaximized ? 'Restore' : 'Maximize'"
           aria-label="Maximize or restore window"
-          @click="onWindowAction('maximize')"
+          @click="winAction('maximize')"
         >
-          <Square :size="11" />
+          <Square v-if="isMaximized" :size="11" />
+          <Maximize2 v-else :size="12" />
         </button>
         <button
           type="button"
           class="sol-win-btn sol-win-btn--close"
           title="Close"
           aria-label="Close window"
-          @click="onWindowAction('close')"
+          @click="winAction('close')"
         >
           <X :size="14" />
         </button>

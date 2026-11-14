@@ -1,35 +1,46 @@
-/* Solara Dawn Gold — Obsidian Edition Design Tokens */
+/* Solara Dawn Gold — True OLED Black Design Tokens */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/dm-sans-latin.woff2') format('woff2');
+}
 
 :root {
   /* Brand Accent (Dawn Gold) */
   --accent: #E9B86D;
   --accent-hover: #F5CD91;
-  --accent-pressed: #D7A258;
-  --accent-fg: #17130E;
-  --accent-selected-bg: #362A1D;
+  --accent-pressed: #C89543;
+  --accent-deep: #C89543;
+  --accent-fg: #140F08;
+  --accent-selected-bg: #392B18;
   --accent-soft: rgba(233, 184, 109, 0.14);
-  --accent-border: rgba(233, 184, 109, 0.42);
-  --accent-focus: rgba(233, 184, 109, 0.35);
+  --accent-border: rgba(233, 184, 109, 0.48);
+  --accent-focus: rgba(233, 184, 109, 0.36);
 
-  /* Surfaces (Obsidian) */
-  --bg-main: #090B0F;
-  --bg-sidebar: #11141A;
-  --bg-modal: #11141A;
-  --bg-elevated: #171A20;
-  --bg-card: #1B1F27;
-  --bg-input: #1B1F27;
+  /* True OLED Black Surfaces */
+  --bg-main: #000000;
+  --bg-secondary: #0B0B0D;
+  --bg-sidebar: #0D0D10;
+  --bg-header: #0C0C0E;
+  --bg-modal: #101013;
+  --bg-elevated: #151518;
+  --bg-card: #101013;
+  --bg-surface: #0C0C0E;
+  --bg-input: #1C1C20;
   --bg-hover: rgba(255, 255, 255, 0.045);
   --bg-active: rgba(255, 255, 255, 0.08);
 
   /* Borders */
-  --border: #2A2E37;
-  --border-subtle: rgba(42, 46, 55, 0.72);
-  --border-strong: #3A3F4B;
+  --border: #28282D;
+  --border-subtle: rgba(40, 40, 45, 0.72);
+  --border-strong: #393942;
 
   /* Text */
-  --text-primary: #F5F4F1;
-  --text-secondary: #9BA3AF;
-  --text-muted: #737B89;
+  --text-primary: #F7F7F8;
+  --text-secondary: #A6A6B0;
+  --text-muted: #777781;
 
   /* Semantic */
   --success: #23C987;
@@ -49,17 +60,17 @@
   --radius-modal: 16px;
 
   /* Layout Dimensions */
-  --titlebar-height: 48px;
+  --titlebar-height: 44px;
   --rail-width: 68px;
 
   /* Typography */
-  --font-sans: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'DM Sans', 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Elevation & Motion */
-  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.72), 0 0 0 1px var(--border);
-  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
-  --shadow-toast: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 0 1px var(--border);
+  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--border);
+  --shadow-toast: 0 12px 32px rgba(0, 0, 0, 0.75);
   --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 120ms;
   --dur-normal: 180ms;
@@ -68,27 +79,30 @@
   --ui-scale: 1;
 }
 
-/* Optional Obsidian Slate variant */
+/* Optional Deep Obsidian Gold variant */
 :root[data-theme='slate'] {
-  --accent: #E9B86D;
-  --bg-main: #0D1016;
-  --bg-sidebar: #141820;
-  --bg-modal: #141820;
-  --bg-elevated: #1B202B;
-  --bg-card: #212734;
-  --bg-input: #212734;
-  --border: #303746;
+  --bg-main: #060608;
+  --bg-secondary: #0B0B0E;
+  --bg-sidebar: #101014;
+  --bg-header: #0E0E12;
+  --bg-modal: #141418;
+  --bg-elevated: #1A1A20;
+  --bg-card: #121216;
+  --bg-input: #1E1E25;
+  --border: #2C2C34;
 }
 
-/* Optional Midnight Gold (deeper contrast) */
+/* Optional Warm Dawn Bronze contrast */
 :root[data-theme='midnight'] {
-  --bg-main: #06070A;
-  --bg-sidebar: #0D1015;
-  --bg-modal: #0D1015;
-  --bg-elevated: #13171E;
-  --bg-card: #171C24;
-  --bg-input: #171C24;
-  --border: #252A34;
+  --bg-main: #000000;
+  --bg-secondary: #070605;
+  --bg-sidebar: #0D0C0A;
+  --bg-header: #0C0B09;
+  --bg-modal: #100F0D;
+  --bg-elevated: #171512;
+  --bg-card: #100F0D;
+  --bg-input: #1D1A15;
+  --border: #2B261E;
 }
 
 /* Density modes */
@@ -152,7 +166,7 @@ button,
 input,
 select,
 textarea {
-  font-family: inherit;
+  font: inherit;
   color: inherit;
 }
 

@@ -90,6 +90,31 @@ pub struct Engine {
     pub files: Files,
     cache: FileCache,
     slots: DownloadGate,
+    launching: std::sync::Mutex<std::collections::HashSet<String>>,
+}
+
+struct LaunchReservation<'a> {
+    engine: &'a Engine,
+    id: String,
+}
+impl Drop for LaunchReservation<'_> {
+    fn drop(&mut self) {
+        if let Ok(mut launching) = self.engine.launching.lock() {
+            launching.remove(&self.id);
+        }
+    }
+}
+impl Engine {
+    fn reserve_launch(&self, id: &str) -> Result<LaunchReservation<'_>> {
+        let mut launching = self.launching.lock().map_err(|_| anyhow::anyhow!("Launch state unavailable"))?;
+        if !launching.insert(id.to_string()) {
+            bail!("This instance is already starting");
+        }
+        Ok(LaunchReservation { engine: self, id: id.to_string() })
+    }
+    fn is_launching(&self, id: &str) -> bool {
+        self.launching.lock().map(|items| items.contains(id)).unwrap_or(true)
+    }
 }
 pub async fn get() -> Result<&'static Engine> {
     ENGINE.get().context("Launcher engine is not initialized")
@@ -102,7 +127,7 @@ pub async fn initialize() -> Result<()> {
                 .join("in.solara.launcher");
             tokio::fs::create_dir_all(&data).await?;
             if let Err(err) = migrate_clean_slate_v23(&data).await {
-                eprintln!("[migration] clean slate v23 reset warning: {err:#}");
+                eprintln!("[migration] could not retire the old V23 marker: {err:#}");
             }
             cleanup_stale_files(&data).await;
             let instances = Instances::new(data.join("custom-instances"));
@@ -125,6 +150,7 @@ pub async fn initialize() -> Result<()> {
                 files: Files::default(),
                 cache: FileCache::new(data.join("verified-game-files"))?,
                 slots: DownloadGate::new(initial_prefs.max_concurrent_downloads),
+                launching: Default::default(),
                 data,
             })
         })
@@ -497,15 +523,29 @@ async fn queue_java(id: String) -> Result<String> {
     Ok(key)
 }
 pub async fn launch(id: String) -> Result<Value> {
+    launch_with_events(id, |_, _| {}, |_| {}).await
+}
+
+pub async fn launch_with_events(
+    id: String,
+    on_stage: impl Fn(&str, &str) + Send + Sync,
+    on_exit: impl FnOnce(std::process::ExitStatus) + Send + 'static,
+) -> Result<Value> {
+    on_stage("checking", "Checking files...");
     if !cfg!(windows) {
         bail!("Minecraft play is available on Windows in this first preview")
     }
     let engine = get().await?;
+    // Reserve before Java/account/hook work so repeated Play requests cannot
+    // execute hooks twice or launch while another job changes game files.
+    assert_writable(&id).await?;
+    let _launch = engine.reserve_launch(&id)?;
     if engine.instances.get(&id).await?.state != "installed" {
         bail!("Finish installing this instance before playing")
     }
     let record = engine.instances.get(&id).await?;
     let prefs = preferences().await.unwrap_or_default();
+    on_stage("java", "Preparing Java...");
     let java_job = engine
         .jobs
         .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
@@ -519,6 +559,7 @@ pub async fn launch(id: String) -> Result<Value> {
         java_job.cancel.check().is_err(),
     );
     let java = result?;
+    on_stage("mods", "Loading mods...");
     let session = engine.accounts.session().await?;
     let version = windows_version().await?;
     let jvm_args = record
@@ -540,6 +581,7 @@ pub async fn launch(id: String) -> Result<Value> {
         crate::game_core::launch::run_hook(hook, &game_dir).await?;
     }
     process_finished_games(engine).await;
+    on_stage("starting", "Starting Minecraft...");
     let pid = engine
         .games
         .start(
@@ -554,6 +596,7 @@ pub async fn launch(id: String) -> Result<Value> {
             record.post_exit.clone(),
         )
         .await?;
+    on_stage("running", "Minecraft is running");
     let _ = engine
         .instances
         .change(&id, |i| {
@@ -563,8 +606,9 @@ pub async fn launch(id: String) -> Result<Value> {
     let watch_id = id.clone();
     tokio::spawn(async move {
         if let Ok(engine) = get().await {
-            if engine.games.poll_until_exited(&watch_id, pid).await {
+            if let Some(status) = engine.games.poll_until_exited(&watch_id, pid).await {
                 process_finished_games(engine).await;
+                on_exit(status);
             }
         }
     });
@@ -597,22 +641,37 @@ pub async fn edit(id: String, name: String, memory: u32, java_path: String) -> R
     Ok(())
 }
 
+// Missing fields mean "leave unchanged"; explicit null means "clear override".
+fn nullable_patch<'de, D, T>(deserializer: D) -> std::result::Result<Option<Option<T>>, D::Error>
+where D: serde::Deserializer<'de>, T: serde::Deserialize<'de> {
+    Ok(Some(<Option<T> as serde::Deserialize>::deserialize(deserializer)?))
+}
+
 #[derive(Clone, Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstanceMetaPatch {
     pub name: Option<String>,
     pub memory: Option<u32>,
     pub java_path: Option<String>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub icon: Option<Option<String>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub group: Option<Option<String>>,
     pub pinned: Option<bool>,
     pub favourite: Option<bool>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub jvm_args: Option<Option<String>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub resolution: Option<Option<[u32; 2]>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub fullscreen: Option<Option<bool>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub pre_launch: Option<Option<String>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub post_exit: Option<Option<String>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub update_channel: Option<Option<String>>,
+    #[serde(default, deserialize_with = "nullable_patch")]
     pub notes: Option<Option<String>>,
 }
 
@@ -626,7 +685,7 @@ pub async fn update_instance_meta(id: &str, patch: InstanceMetaPatch) -> Result<
         || patch.fullscreen.is_some()
         || patch.pre_launch.is_some()
         || patch.post_exit.is_some();
-    if needs_idle && engine.games.running().await?.iter().any(|k| k == id) {
+    if needs_idle && (engine.is_launching(id) || engine.games.running().await?.iter().any(|k| k == id)) {
         bail!("Close this game before changing launch or memory settings");
     }
     if let Some(Some(ref raw)) = patch.jvm_args {
@@ -740,7 +799,7 @@ pub async fn instance_folder(id: &str) -> Result<PathBuf> {
 pub async fn assert_writable(id: &str) -> Result<()> {
     let engine = get().await?;
     engine.instances.get(id).await?;
-    if engine.games.running().await?.iter().any(|key| key == id) {
+    if engine.is_launching(id) || engine.games.running().await?.iter().any(|key| key == id) {
         bail!("Close this game before changing its files")
     }
     if engine
@@ -935,7 +994,8 @@ pub async fn install_content(
     project_id: String,
     content_type: String,
     version_id: Option<String>,
-) -> Result<()> {
+    world: Option<String>,
+) -> Result<Value> {
     let engine = get().await?;
     if content_type == "modpack" {
         if instance_id.is_some() {
@@ -979,8 +1039,9 @@ pub async fn install_content(
             let _ = tokio::fs::remove_dir_all(&dir).await;
             return Err(e);
         }
-        queue_install(record.id, record.name).await?;
-        return Ok(());
+        let instance_id = record.id.clone();
+        let job_id = queue_install(record.id, record.name).await?;
+        return Ok(json!({"instanceId": instance_id, "jobId": job_id}));
     }
     let id = instance_id
         .filter(|s| !s.is_empty())
@@ -992,10 +1053,11 @@ pub async fn install_content(
         &project_id,
         &content_type,
         version_id.as_deref(),
+        world.as_deref(),
     )
     .await?;
-    queue_content_install(id, format!("{label} for {}", instance.name), planned).await?;
-    Ok(())
+    let job_id = queue_content_install(id.clone(), format!("{label} for {}", instance.name), planned).await?;
+    Ok(json!({"instanceId": id, "jobId": job_id}))
 }
 async fn queue_content_install(
     id: String,
@@ -1069,6 +1131,7 @@ pub async fn clear_finished_downloads() -> Result<()> {
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Preferences {
+    pub prefs_version: u32,
     pub memory: u32,
     pub java_path: String,
     pub theme: String,
@@ -1084,11 +1147,15 @@ pub struct Preferences {
     pub jvm_args: String,
     pub diagnostics_enabled: bool,
     pub onboarding_completed: bool,
+    pub announcements_enabled: bool,
+    pub solara_hub_enabled: bool,
+    pub auto_update_enabled: bool,
     pub groups: Vec<String>,
 }
 impl Default for Preferences {
     fn default() -> Self {
         Self {
+            prefs_version: 2,
             memory: 4096,
             java_path: "auto".into(),
             theme: "dawn-gold".into(),
@@ -1104,6 +1171,9 @@ impl Default for Preferences {
             jvm_args: String::new(),
             diagnostics_enabled: true,
             onboarding_completed: false,
+            announcements_enabled: true,
+            solara_hub_enabled: true,
+            auto_update_enabled: true,
             groups: Vec::new(),
         }
     }
@@ -1116,8 +1186,36 @@ async fn read_preferences_from_dir(data: &Path) -> Result<Preferences> {
             if !meta.is_file() || meta.len() > 65536 {
                 bail!("Invalid local settings")
             };
-            let value: Preferences = serde_json::from_slice(&tokio::fs::read(path).await?)?;
+            let mut raw_val: serde_json::Value =
+                serde_json::from_slice(&tokio::fs::read(&path).await?)?;
+            let had_version = raw_val
+                .get("prefsVersion")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let mut needs_persist = had_version < 2;
+            if let Some(obj) = raw_val.as_object_mut() {
+                if !matches!(
+                    obj.get("onLaunch").and_then(|v| v.as_str()),
+                    Some("keep" | "minimize")
+                ) {
+                    // Migrate any legacy/invalid/non-string onLaunch (such as "hide" or "close") to "keep" so Play never closes Solara unexpectedly.
+                    obj.insert("onLaunch".into(), serde_json::json!("keep"));
+                    needs_persist = true;
+                }
+                if had_version < 2 {
+                    obj.insert("prefsVersion".into(), serde_json::json!(2));
+                }
+            }
+            let mut value: Preferences = serde_json::from_value(raw_val)?;
+            if !matches!(value.on_launch.as_str(), "keep" | "minimize") {
+                value.on_launch = "keep".into();
+                needs_persist = true;
+            }
+            value.prefs_version = 2;
             validate_preferences(&value)?;
+            if needs_persist {
+                let _ = write_json(&path, &value).await;
+            }
             Ok(value)
         }
         Err(e) => Err(e.into()),
@@ -1134,6 +1232,7 @@ fn validate_preferences(value: &Preferences) -> Result<()> {
         || !(1..=8).contains(&value.max_concurrent_downloads)
         || !(320..=7680).contains(&value.default_width)
         || !(240..=4320).contains(&value.default_height)
+        || !matches!(value.on_launch.as_str(), "keep" | "minimize")
         || value.jvm_args.contains('\0')
         || value.jvm_args.len() > 2000
     {
@@ -1149,6 +1248,10 @@ pub async fn save_preferences(memory: u32, java_path: String) -> Result<()> {
     write_json(&get().await?.data.join("preferences.json"), &value).await
 }
 pub async fn save_preferences_full(mut value: Preferences) -> Result<Preferences> {
+    value.prefs_version = 2;
+    if !matches!(value.on_launch.as_str(), "keep" | "minimize") {
+        value.on_launch = "keep".into();
+    }
     value.java_path = value.java_path.trim().to_string();
     if value.java_path.is_empty() {
         value.java_path = "auto".into();
@@ -1361,6 +1464,9 @@ pub async fn export_diagnostics() -> Result<Value> {
     let engine = get().await?;
     let instances = engine.instances.list().await.unwrap_or_default();
     let prefs = preferences().await.unwrap_or_default();
+    if !prefs.diagnostics_enabled {
+        bail!("Enable local diagnostics in Settings before exporting a report");
+    }
     let storage = extras::storage_summary(&engine.data).await;
     let javas = extras::detect_java_runtimes(&engine.data.join("java-runtimes")).await;
     Ok(json!({
@@ -1376,7 +1482,7 @@ pub async fn export_diagnostics() -> Result<Value> {
             "memory": i.memory
         })).collect::<Vec<_>>(),
         "javaCount": javas.len(),
-        "storage": storage,
+        "storage": diagnostic_storage(&storage),
         "preferences": {
             "theme": prefs.theme,
             "memory": prefs.memory,
@@ -1384,6 +1490,15 @@ pub async fn export_diagnostics() -> Result<Value> {
             "reducedMotion": prefs.reduced_motion
         }
     }))
+}
+
+// Reports are shareable: keep counts/bytes and exclude local paths and names.
+fn diagnostic_storage(storage: &extras::StorageSummary) -> Value {
+    json!({
+        "totalBytes": storage.total_bytes, "cacheBytes": storage.cache_bytes,
+        "instancesBytes": storage.instances_bytes, "javaBytes": storage.java_bytes,
+        "skinsBytes": storage.skins_bytes, "backupsBytes": storage.backups_bytes,
+    })
 }
 
 pub async fn data_dir() -> Result<PathBuf> {
@@ -1458,65 +1573,35 @@ pub async fn robust_remove_dir_all(path: &std::path::Path) -> std::io::Result<()
     .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?
 }
 
-/// Idempotent one-time migration guard for clean-slate reset in V-0.0.23.
-///
-/// If `.clean_slate_v23_reset` does not exist in the launcher data directory:
-/// - Quarantines and removes `custom-instances` once if present.
-/// - Recreates an empty `custom-instances` directory.
-/// - Atomically writes the `.clean_slate_v23_reset` sentinel marker file.
-///
-/// If the marker already exists, this function returns `Ok(false)` immediately
-/// without touching `custom-instances`, guaranteeing that user instances are
-/// strictly preserved across all future runs, subsequent restarts, and future updates.
+/// Retire the V23 reset without touching any instance, world or account data.
+/// A missing marker on a later upgrade is not consent to repeat that old reset.
 pub async fn migrate_clean_slate_v23(data: &std::path::Path) -> Result<bool> {
     let sentinel = data.join(CLEAN_SLATE_V23_SENTINEL);
-    if sentinel.exists() {
+    if tokio::fs::try_exists(&sentinel).await? {
         return Ok(false);
     }
-
-    let instances_dir = data.join("custom-instances");
-    if instances_dir.exists() {
-        // Quarantine existing custom-instances to an isolated staging directory
-        // before deletion so fresh custom-instances is available immediately and
-        // subsequent operations cannot race.
-        let wipe_stage = data.join(format!(".wiping-instances-{}", uuid::Uuid::new_v4()));
-        if tokio::fs::rename(&instances_dir, &wipe_stage).await.is_ok() {
-            let _ = robust_remove_dir_all(&wipe_stage).await;
-        } else {
-            // If renaming the custom-instances directory itself failed (e.g. directory handle held
-            // by Explorer or another tool), quarantine or remove each child instance individually.
-            if let Ok(mut rd) = tokio::fs::read_dir(&instances_dir).await {
-                while let Ok(Some(entry)) = rd.next_entry().await {
-                    let child_path = entry.path();
-                    let child_stage = data.join(format!(".wiping-instances-{}", uuid::Uuid::new_v4()));
-                    if tokio::fs::rename(&child_path, &child_stage).await.is_ok() {
-                        let _ = robust_remove_dir_all(&child_stage).await;
-                    } else if let Err(e) = robust_remove_dir_all(&child_path).await {
-                        eprintln!("[migration] could not remove {}: {e:#}", child_path.display());
-                    }
-                }
-            }
-            let _ = robust_remove_dir_all(&instances_dir).await;
+    tokio::fs::create_dir_all(data.join("custom-instances")).await?;
+    use tokio::io::AsyncWriteExt;
+    // create_new makes this safe across concurrent first starts. Never replace a
+    // marker that an earlier version wrote, and never move/remove user folders.
+    match tokio::fs::OpenOptions::new().write(true).create_new(true).open(&sentinel).await {
+        Ok(mut file) => {
+            file.write_all(format!(
+                "migration=clean_slate_v23_reset\nstatus=retired_preserving_data\nrecorded_at={}\nversion={}\n",
+                chrono::Utc::now().to_rfc3339(), env!("CARGO_PKG_VERSION")
+            ).as_bytes()).await?;
+            Ok(true)
         }
+        Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
+        Err(err) => Err(err.into()),
     }
-    tokio::fs::create_dir_all(&instances_dir).await?;
-
-    let marker = format!(
-        "migration=clean_slate_v23_reset\napplied_at={}\nversion={}\n",
-        chrono::Utc::now().to_rfc3339(),
-        env!("CARGO_PKG_VERSION")
-    );
-    let tmp_sentinel = data.join(format!("{CLEAN_SLATE_V23_SENTINEL}.{}.tmp", uuid::Uuid::new_v4()));
-    tokio::fs::write(&tmp_sentinel, marker).await?;
-    tokio::fs::rename(&tmp_sentinel, &sentinel).await?;
-    Ok(true)
 }
 
 /// Clean up stale temporary files, download caches, and legacy remnants
 /// while strictly preserving user data (instances, saves, configs, mods, accounts, and servers).
 pub async fn cleanup_stale_files(data: &std::path::Path) {
     // 1. Stale temporary directories and legacy engine remnants in launcher root
-    for dir_name in &["app-update", "temp", "tmp", "theseus", "legacy"] {
+    for dir_name in &["app-update"] {
         let path = data.join(dir_name);
         if path.exists() {
             let _ = tokio::fs::remove_dir_all(&path).await;
@@ -1533,8 +1618,9 @@ pub async fn cleanup_stale_files(data: &std::path::Path) {
     if let Ok(mut rd) = tokio::fs::read_dir(data).await {
         while let Ok(Some(entry)) = rd.next_entry().await {
             let file_name = entry.file_name().to_string_lossy().to_string();
+            // Old reset staging folders can hold the only recoverable copy of
+            // a world. Preserve them for explicit user recovery/removal.
             if file_name.starts_with(".wiping-instances-") || file_name.starts_with(".stale-instances-") {
-                let _ = robust_remove_dir_all(&entry.path()).await;
                 continue;
             }
             let is_stale_temp = file_name.ends_with(".tmp")
@@ -1564,9 +1650,9 @@ pub async fn cleanup_stale_files(data: &std::path::Path) {
                     if let Ok(mut b_rd) = tokio::fs::read_dir(&backups_dir).await {
                         while let Ok(Some(b_entry)) = b_rd.next_entry().await {
                             let name = b_entry.file_name().to_string_lossy().to_string();
-                            if name.starts_with(".create-stage-")
-                                || name.starts_with(".restore-stage-")
-                            {
+                            // Restore staging may contain original worlds in
+                            // rollback-saves after an interruption. Keep it.
+                            if name.starts_with(".create-stage-") {
                                 let _ = tokio::fs::remove_dir_all(b_entry.path()).await;
                             } else if name.ends_with(".tmp") || name.starts_with(".solara-backup-")
                             {
@@ -1584,8 +1670,7 @@ pub async fn cleanup_stale_files(data: &std::path::Path) {
                         if let Ok(mut sub_rd) = tokio::fs::read_dir(&target_sub).await {
                             while let Ok(Some(f_entry)) = sub_rd.next_entry().await {
                                 let name = f_entry.file_name().to_string_lossy().to_string();
-                                if name.ends_with(".tmp")
-                                    || (name.starts_with(".solara-") && name.contains(".tmp"))
+                                if name.starts_with(".solara-") && name.ends_with(".tmp")
                                 {
                                     if let Ok(m) = f_entry.metadata().await {
                                         if m.is_file() {
@@ -1653,6 +1738,11 @@ mod tests {
         tokio::fs::create_dir_all(&stage_dir).await?;
         tokio::fs::write(stage_dir.join("partial.zip"), b"partial backup").await?;
 
+        let recovery_world = backups_dir.join(".restore-stage-999/rollback-saves/World1/level.dat");
+        tokio::fs::create_dir_all(recovery_world.parent().unwrap()).await?;
+        tokio::fs::write(&recovery_world, b"original world before interrupted restore").await?;
+        let user_tmp = mods_dir.join("user-settings.tmp");
+        tokio::fs::write(&user_tmp, b"user file, not a launcher staging file").await?;
         let valid_backup = backups_dir.join("backup-1.zip");
         tokio::fs::write(&valid_backup, b"completed backup").await?;
 
@@ -1675,7 +1765,7 @@ mod tests {
 
         // Verify unwanted/stale files were deleted
         assert!(!app_update.exists(), "app-update dir must be deleted");
-        assert!(!theseus.exists(), "theseus dir must be deleted");
+        assert!(theseus.exists(), "legacy engine data must be preserved for recovery");
         assert!(
             !verified_tmp.exists(),
             "verified-game-files/.tmp must be deleted"
@@ -1695,6 +1785,8 @@ mod tests {
         );
 
         // Verify all user data is strictly preserved
+        assert_eq!(tokio::fs::read(&recovery_world).await?, b"original world before interrupted restore");
+        assert!(user_tmp.exists(), "arbitrary user .tmp files must be preserved");
         assert!(level_dat.exists(), "saves/level.dat must be preserved");
         assert!(sodium_jar.exists(), "mods jar must be preserved");
         assert!(instance_json.exists(), "instance.json must be preserved");
@@ -1714,7 +1806,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn migrate_clean_slate_v23_removes_instances_once_and_writes_sentinel() -> Result<()> {
+    async fn retired_v23_migration_preserves_existing_data_without_marker() -> Result<()> {
         let dir =
             std::env::temp_dir().join(format!("solara-clean-slate-test-{}", uuid::Uuid::new_v4()));
         tokio::fs::create_dir_all(&dir).await?;
@@ -1754,11 +1846,9 @@ mod tests {
             "sentinel must contain clean_slate_v23_reset identifier"
         );
 
-        // Verify old instances folder was wiped and re-created empty
-        assert!(
-            !old_inst.exists(),
-            "old instance directory must be deleted during one-time reset"
-        );
+        // Skipping V23 or losing its marker must never delete existing worlds.
+        assert_eq!(tokio::fs::read(saves.join("level.dat")).await?, b"world data");
+        assert!(old_inst.join("instance.json").exists());
         assert!(
             data.join("custom-instances").exists(),
             "custom-instances must exist as clean empty directory"
@@ -1869,7 +1959,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn migrate_clean_slate_v23_handles_readonly_files_and_directories() -> Result<()> {
+    async fn retired_v23_migration_preserves_readonly_instance_files() -> Result<()> {
         let dir = std::env::temp_dir()
             .join(format!("solara-clean-slate-readonly-{}", uuid::Uuid::new_v4()));
         tokio::fs::create_dir_all(&dir).await?;
@@ -1891,8 +1981,13 @@ mod tests {
         let migrated = migrate_clean_slate_v23(data).await?;
         assert!(migrated, "migration should succeed even with read-only files");
         assert!(data.join(CLEAN_SLATE_V23_SENTINEL).exists(), "sentinel must be created");
-        assert!(!locked_file.exists(), "locked file must be removed");
-        assert!(!inst.exists(), "old instance must be removed");
+        assert_eq!(tokio::fs::read(&locked_file).await?, b"cannot touch this easily");
+        assert!(std::fs::metadata(&locked_file)?.permissions().readonly());
+        assert!(inst.exists(), "existing instance must be preserved");
+        let mut perms = std::fs::metadata(&locked_file)?.permissions();
+        #[allow(clippy::permissions_set_readonly_false)]
+        perms.set_readonly(false);
+        std::fs::set_permissions(&locked_file, perms)?;
         assert!(data.join("custom-instances").exists(), "fresh custom-instances must exist");
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
@@ -1900,7 +1995,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn cleanup_stale_files_removes_wiping_instances_directory() -> Result<()> {
+    async fn cleanup_stale_files_preserves_recoverable_reset_directories() -> Result<()> {
         let dir = std::env::temp_dir()
             .join(format!("solara-clean-slate-wiping-cleanup-{}", uuid::Uuid::new_v4()));
         tokio::fs::create_dir_all(&dir).await?;
@@ -1912,7 +2007,7 @@ mod tests {
 
         cleanup_stale_files(data).await;
 
-        assert!(!wiping_dir.exists(), "wiping staging directory must be cleaned up");
+        assert_eq!(tokio::fs::read(wiping_dir.join("remnant.bin")).await?, b"leftover data");
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())
@@ -1947,6 +2042,41 @@ mod tests {
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())
+    }
+
+    #[test]
+    fn diagnostic_storage_omits_private_paths_but_keeps_size_counts() {
+        let storage = extras::StorageSummary {
+            data_dir: "C:/Users/PRIVATE_FIXTURE/AppData/Local/Solara".into(),
+            instances_dir: "C:/Users/PRIVATE_FIXTURE/worlds".into(),
+            total_bytes: 21, cache_bytes: 1, instances_bytes: 2,
+            java_bytes: 3, skins_bytes: 4, backups_bytes: 11,
+        };
+        let redacted = diagnostic_storage(&storage);
+        assert_eq!(redacted["totalBytes"], 21);
+        assert_eq!(redacted["backupsBytes"], 11);
+        assert!(redacted.get("dataDir").is_none());
+        assert!(redacted.get("instancesDir").is_none());
+        assert!(!redacted.to_string().contains("PRIVATE_FIXTURE"));
+    }
+
+    #[test]
+    fn instance_patch_distinguishes_missing_clear_and_override() {
+        let missing: InstanceMetaPatch = serde_json::from_value(json!({})).unwrap();
+        assert!(missing.notes.is_none());
+        assert!(missing.fullscreen.is_none());
+        let clear: InstanceMetaPatch = serde_json::from_value(json!({
+            "notes":null,"group":null,"icon":null,"jvmArgs":null,"resolution":null,
+            "fullscreen":null,"preLaunch":null,"postExit":null,"updateChannel":null
+        })).unwrap();
+        assert_eq!(clear.notes, Some(None)); assert_eq!(clear.group, Some(None));
+        assert_eq!(clear.icon, Some(None)); assert_eq!(clear.jvm_args, Some(None));
+        assert_eq!(clear.resolution, Some(None)); assert_eq!(clear.fullscreen, Some(None));
+        assert_eq!(clear.pre_launch, Some(None)); assert_eq!(clear.post_exit, Some(None));
+        assert_eq!(clear.update_channel, Some(None));
+        let set: InstanceMetaPatch = serde_json::from_value(json!({"notes":"Keep this", "fullscreen":false})).unwrap();
+        assert_eq!(set.notes, Some(Some("Keep this".into())));
+        assert_eq!(set.fullscreen, Some(Some(false)));
     }
 
     #[tokio::test]
@@ -1997,14 +2127,62 @@ mod tests {
         write_json(&dir.join("preferences.json"), &custom).await?;
         assert_eq!(read_preferences_from_dir(&dir).await?.max_concurrent_downloads, 6);
 
-        // Legacy fields ("discord", "sidebarExpanded") from older preferences.json deserialize cleanly
+        // Legacy fields ("discord", "sidebarExpanded", "hide" onLaunch) from older preferences.json migrate cleanly
         tokio::fs::write(
             dir.join("preferences.json"),
-            r#"{"memory":4096,"javaPath":"auto","discord":true,"sidebarExpanded":true,"maxConcurrentDownloads":5}"#,
+            r#"{"memory":4096,"javaPath":"auto","onLaunch":"hide","discord":true,"sidebarExpanded":true,"maxConcurrentDownloads":5}"#,
         )
         .await?;
         let migrated = read_preferences_from_dir(&dir).await?;
         assert_eq!(migrated.max_concurrent_downloads, 5);
+        assert_eq!(migrated.on_launch, "keep");
+        assert_eq!(migrated.prefs_version, 2);
+
+        // Even v2 preferences with "close" must migrate to "keep" and persist so Play never closes the launcher
+        tokio::fs::write(
+            dir.join("preferences.json"),
+            r#"{"prefsVersion":2,"memory":4096,"javaPath":"auto","onLaunch":"close"}"#,
+        )
+        .await?;
+        let migrated_v2 = read_preferences_from_dir(&dir).await?;
+        assert_eq!(migrated_v2.on_launch, "keep");
+        assert_eq!(migrated_v2.prefs_version, 2);
+        let persisted_v2: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(dir.join("preferences.json")).await?)?;
+        assert_eq!(persisted_v2["onLaunch"], "keep");
+
+        // "minimize" remains valid across both v1->v2 migration and v2 preferences
+        tokio::fs::write(
+            dir.join("preferences.json"),
+            r#"{"memory":4096,"javaPath":"auto","onLaunch":"minimize"}"#,
+        )
+        .await?;
+        let migrated_minimize = read_preferences_from_dir(&dir).await?;
+        assert_eq!(migrated_minimize.on_launch, "minimize");
+        assert_eq!(migrated_minimize.prefs_version, 2);
+
+        tokio::fs::write(
+            dir.join("preferences.json"),
+            r#"{"prefsVersion":2,"memory":4096,"javaPath":"auto","onLaunch":"minimize"}"#,
+        )
+        .await?;
+        assert_eq!(read_preferences_from_dir(&dir).await?.on_launch, "minimize");
+
+        // Non-string onLaunch also migrates safely to "keep" without failing deserialization
+        tokio::fs::write(
+            dir.join("preferences.json"),
+            r#"{"prefsVersion":2,"memory":4096,"javaPath":"auto","onLaunch":123}"#,
+        )
+        .await?;
+        let migrated_invalid_type = read_preferences_from_dir(&dir).await?;
+        assert_eq!(migrated_invalid_type.on_launch, "keep");
+
+        // validate_preferences rejects "close" and "hide"
+        let mut invalid = Preferences::default();
+        invalid.on_launch = "close".into();
+        assert!(validate_preferences(&invalid).is_err());
+        invalid.on_launch = "hide".into();
+        assert!(validate_preferences(&invalid).is_err());
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())

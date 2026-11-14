@@ -1,5 +1,9 @@
+<script lang="ts">
+const openDialogs: symbol[] = [];
+let dialogOrder = 0;
+</script>
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { X } from '../icons';
 
 const props = withDefaults(
@@ -17,14 +21,50 @@ const props = withDefaults(
 
 const emit = defineEmits<{ (e: 'close'): void }>();
 
-function onKeydown(e: KeyboardEvent) {
-  if (props.open && e.key === 'Escape' && props.closable !== false) {
-    emit('close');
+const dialog = ref<HTMLElement | null>(null);
+const identity = Symbol('dialog');
+const zIndex = ref(60);
+let returnFocus: HTMLElement | null = null;
+function removeFromStack(): void {
+  const index = openDialogs.indexOf(identity);
+  if (index >= 0) openDialogs.splice(index, 1);
+}
+watch(() => props.open, async (open) => {
+  if (open) {
+    returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    removeFromStack();
+    openDialogs.push(identity);
+    zIndex.value = 60 + ++dialogOrder;
+    await nextTick();
+    if (props.open && openDialogs.at(-1) === identity) dialog.value?.focus();
+  } else {
+    removeFromStack();
+    if (returnFocus?.isConnected) returnFocus.focus();
+    returnFocus = null;
+  }
+}, { immediate: true, flush: 'sync' });
+function onKeydown(e: KeyboardEvent): void {
+  if (!props.open || openDialogs.at(-1) !== identity) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (props.closable !== false) emit('close');
+  } else if (e.key === 'Tab') {
+    const focusable = Array.from(dialog.value?.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]',
+    ) ?? []).filter((el) => el.getClientRects().length > 0);
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (!first) { e.preventDefault(); dialog.value?.focus(); }
+    else if (e.shiftKey && (document.activeElement === first || document.activeElement === dialog.value)) {
+      e.preventDefault(); last?.focus();
+    } else if (!e.shiftKey && (document.activeElement === last || document.activeElement === dialog.value)) {
+      e.preventDefault(); first.focus();
+    }
   }
 }
-
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onUnmounted(() => window.removeEventListener('keydown', onKeydown));
+onMounted(() => window.addEventListener('keydown', onKeydown, true));
+onUnmounted(() => { removeFromStack(); window.removeEventListener('keydown', onKeydown, true); });
 </script>
 
 <template>
@@ -32,12 +72,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
     <div
       v-if="open"
       class="sol-modal-backdrop"
+      :style="{ zIndex }"
       role="dialog"
       aria-modal="true"
       :aria-label="title"
       @mousedown.self="closable !== false && emit('close')"
     >
-      <div :class="['sol-modal', `sol-modal--${width ?? 'md'}`]">
+      <div ref="dialog" tabindex="-1" :class="['sol-modal', `sol-modal--${width ?? 'md'}`]">
         <header v-if="title || $slots.header" class="sol-modal-header">
           <slot name="header">
             <div class="sol-modal-title-wrap">

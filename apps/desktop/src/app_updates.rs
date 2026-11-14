@@ -13,6 +13,11 @@ pub static READY: AtomicBool = AtomicBool::new(false);
 // launch/setup cannot race the final idle check and installer hand-off.
 pub static OPERATIONS: RwLock<()> = RwLock::const_new(());
 static STATUS: Mutex<Option<Value>> = Mutex::new(None);
+static CYCLING: AtomicBool = AtomicBool::new(false);
+struct CycleGuard;
+impl Drop for CycleGuard {
+    fn drop(&mut self) { CYCLING.store(false, Ordering::SeqCst); }
+}
 
 fn status(state: &str, downloaded: u64, total: Option<u64>) {
     if let Ok(mut value) = STATUS.lock() {
@@ -34,7 +39,13 @@ async fn idle() -> bool {
             .unwrap_or(false)
 }
 
-async fn cycle(app: &tauri::AppHandle) -> anyhow::Result<()> {
+async fn cycle(app: &tauri::AppHandle, automatic: bool) -> anyhow::Result<()> {
+    if CYCLING.swap(true, Ordering::SeqCst) { return Ok(()); }
+    let _cycle = CycleGuard;
+    if automatic && !engine::preferences().await?.auto_update_enabled {
+        status("disabled", 0, None);
+        return Ok(());
+    }
     if !idle().await {
         status("waiting-for-idle", 0, None);
         return Ok(());
@@ -87,6 +98,10 @@ async fn cycle(app: &tauri::AppHandle) -> anyhow::Result<()> {
         bytes
     };
     let _exclusive = OPERATIONS.write().await;
+    if automatic && !engine::preferences().await?.auto_update_enabled {
+        status("disabled", 0, None);
+        return Ok(());
+    }
     if !idle().await {
         status(
             "waiting-for-idle",
@@ -128,7 +143,7 @@ pub async fn trigger(app: &tauri::AppHandle) -> anyhow::Result<Value> {
     let version = update.version.clone();
     let app_handle = app.clone();
     tauri::async_runtime::spawn(async move {
-        let _ = cycle(&app_handle).await;
+        let _ = cycle(&app_handle, false).await;
     });
     Ok(json!({"available": true, "version": version}))
 }
@@ -141,7 +156,7 @@ pub fn start(app: tauri::AppHandle) {
         }
         loop {
             if READY.load(Ordering::SeqCst) {
-                if cycle(&app).await.is_err() {
+                if cycle(&app, true).await.is_err() {
                     status("retry-later", 0, None)
                 }
                 let deferred = snapshot()["state"] == "waiting-for-idle";

@@ -194,9 +194,10 @@ async function main() {
       await route.fulfill({ status: 200, contentType: 'image/png', body: png1x1 });
     });
 
-    await page.goto(`${base}/desktop.html`, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.sol-titlebar', { timeout: 10000 });
-    await page.waitForSelector('.sol-rail', { timeout: 10000 });
+    await page.goto(`${base}/desktop.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForSelector('.sol-titlebar', { timeout: 25000 });
+    await page.waitForSelector('.sol-rail', { timeout: 25000 });
+    await page.waitForSelector('.sol-splash', { state: 'detached', timeout: 15000 });
 
     // 1. Verify titlebar drag region, no-drag buttons, and CSS app-region rules
     assert.equal(await page.locator('.sol-titlebar').getAttribute('data-tauri-drag-region'), '');

@@ -56,6 +56,9 @@ watch(
     if (!open) return;
     errorMsg.value = '';
     name.value = '';
+    gameVersion.value = '';
+    showAdvanced.value = false;
+    updateChannel.value = 'release';
     loader.value = store.createModalDefaults.loader || 'fabric';
     group.value = store.createModalDefaults.group || '';
     memory.value = store.preferences.memory || 4096;
@@ -101,7 +104,10 @@ const filteredVersions = computed(() => {
     .slice(0, 120);
 });
 
-watch([gameVersion, loader], async ([gv, ldr]) => {
+watch([gameVersion, loader], async ([gv, ldr], _prior, onCleanup) => {
+  let active = true;
+  onCleanup(() => { active = false; });
+  loadingLoaderVersions.value = false;
   loaderVersionError.value = '';
   loaderVersions.value = [];
   selectedLoaderVersion.value = '';
@@ -116,13 +122,15 @@ watch([gameVersion, loader], async ([gv, ldr]) => {
     const list: LoaderVersionItem[] = Array.isArray(raw)
       ? raw.map((item) => (typeof item === 'string' ? { version: item, stable: true } : item))
       : [];
+    if (!active) return;
     loaderVersions.value = list;
     const stable = list.find((x) => x.stable) ?? list[0];
     selectedLoaderVersion.value = stable?.version ?? '';
   } catch (err) {
+    if (!active) return;
     loaderVersionError.value = `No ${LOADER_LABEL[ldr]} build found for ${gv}: ${String(err)}`;
   } finally {
-    loadingLoaderVersions.value = false;
+    if (active) loadingLoaderVersions.value = false;
   }
 });
 
@@ -176,6 +184,7 @@ function onFilePicked(e: Event) {
 }
 
 async function handleCreate() {
+  if (creating.value || loadingLoaderVersions.value) return;
   errorMsg.value = '';
   const finalName = resolvedName.value;
   if (!finalName) {
@@ -206,7 +215,7 @@ async function handleCreate() {
     store.showCreateModal = false;
     await refreshSnapshot();
     selectInstance(res.instanceId);
-    navigate('instance', { instanceId: res.instanceId, tab: 'overview' });
+    navigate('instance', { instanceId: res.instanceId, tab: 'content' });
     notify('info', `Creating ${finalName}`, 'Installing Minecraft & loader files...');
   } catch (err) {
     errorMsg.value = String(err);
@@ -222,6 +231,7 @@ async function handleCreate() {
     title="Create Instance"
     subtitle="Configure an isolated Minecraft installation"
     width="lg"
+    :closable="!creating"
     @close="store.showCreateModal = false"
   >
     <div class="sol-create-layout">
@@ -454,7 +464,7 @@ async function handleCreate() {
       <SolaraButton
         variant="primary"
         :loading="creating"
-        :disabled="!gameVersion || (loader !== 'vanilla' && !effectiveLoaderVersion && loaderVersions.length === 0 && !loadingLoaderVersions)"
+        :disabled="!gameVersion || loadingLoaderVersions || (loader !== 'vanilla' && !effectiveLoaderVersion)"
         @click="handleCreate"
       >
         Create Instance

@@ -511,8 +511,10 @@ pub async fn restore(store: &Instances, id: &str, backup_id: &str) -> Result<Bac
     }
     .await;
 
+    // On failure keep recovery data, including any original world whose
+    // rollback rename failed. Startup cleanup must retain these folders too.
+    apply_result.with_context(|| format!("Restore did not finish. Recovery files were kept at {}", stage_dir.display()))?;
     let _ = tokio::fs::remove_dir_all(&stage_dir).await;
-    apply_result?;
     Ok(record)
 }
 

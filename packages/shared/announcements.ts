@@ -11,6 +11,23 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-055',
+    title: 'Solara Launcher V-0.0.38: Play Launch Stability Fix & V3 Obsidian Dawn Gold Polish',
+    date: '2026-11-14',
+    category: 'Update',
+    summary: 'Fixes the issue where clicking Play could close or hide the launcher instead of keeping it open, and polishes the V3 Obsidian Dawn Gold interface, splash screen, modals, and launch lifecycle.',
+    content: `Solara Launcher V-0.0.38 resolves a critical Play launch issue and refines the V3 Obsidian Dawn Gold desktop experience!
+
+Key highlights of this update:
+• Play Button Stability Fix: Removed the legacy "close" and windowless "hide" launcher-on-launch behaviors that exited or vanished the app when clicking Play. Any saved "close" or "hide" preference now safely migrates to "keep", and "minimize" only triggers once the Minecraft process is confirmed running.
+• V3 Obsidian Dawn Gold Interface: Deeper true-OLED black surfaces paired with original geometric Solara branding, smooth startup SplashScreen, offline bundled DM Sans typography, and refined modal dialogs.
+• Safer Launch & Data Engine: Real-time launch-progress/game-exited event wiring, RAII concurrent launch guard, non-destructive clean-slate data migration, and improved backup failure retention.
+
+Signed testing preview updates verify cryptographically and apply when idle.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-054',
     title: 'Solara Launcher V-0.0.37: Dawn Gold Redesign & Complete Instance Studio',
     date: '2026-11-14',
@@ -27,8 +44,7 @@ Key highlights of this update:
 • Global & Per-Instance Settings: Categorized settings with sticky Unsaved Changes bar, Java scanner, concurrent download limit, safe launch hooks, and preserved 1-click Microsoft PKCE sign-in.
 
 Signed testing preview updates verify cryptographically and apply when idle.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-053',

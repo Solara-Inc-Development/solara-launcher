@@ -102,15 +102,15 @@ async function clearFinished() {
 
             <div class="sol-row-gap">
               <SolaraButton
-                v-if="job.instance"
+                v-if="store.instances.some((i) => i.id === job.instance)"
                 variant="ghost"
                 size="xs"
-                @click="navigate('instance', { instanceId: job.instance, tab: 'overview' })"
+                @click="navigate('instance', { instanceId: job.instance, tab: 'content' })"
               >
                 Open Instance
               </SolaraButton>
               <SolaraButton
-                v-if="job.status === 'running' || job.status === 'queued'"
+                v-if="job.actions.includes('cancel')"
                 variant="danger"
                 size="xs"
                 @click="action(job.id, 'cancel')"
@@ -118,7 +118,7 @@ async function clearFinished() {
                 <X :size="12" /> Cancel
               </SolaraButton>
               <SolaraButton
-                v-else-if="job.status === 'failed' || job.status === 'cancelled'"
+                v-else-if="job.actions.includes('retry')"
                 variant="secondary"
                 size="xs"
                 @click="action(job.id, 'retry')"

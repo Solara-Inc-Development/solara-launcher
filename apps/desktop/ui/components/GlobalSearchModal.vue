@@ -20,14 +20,15 @@ watch(
 );
 
 const pageEntries = [
-  { id: 'home', label: 'Home Dashboard', hint: 'Launcher overview & active instance' },
+  { id: 'home', label: 'Home', hint: 'Launcher overview & quick launch' },
   { id: 'library', label: 'Library', hint: 'Manage all Minecraft instances & groups' },
-  { id: 'discover', label: 'Discover Content', hint: 'Browse mods, modpacks, shaders, resource packs' },
-  { id: 'skins', label: 'Skin & Capes', hint: '3D viewer, pixel skin editor, capes' },
+  { id: 'discover', label: 'Discover Modpacks', hint: 'Browse curated Modrinth modpacks' },
+  { id: 'solara', label: 'Solara Hub & Servers', hint: 'Solara Inc account, network, hosting & local servers' },
+  { id: 'skins', label: 'Skins & Capes', hint: '3D viewer, skin editor, owned capes' },
   { id: 'screenshots', label: 'Screenshots', hint: 'Browse captures across instances' },
   { id: 'tasks', label: 'Downloads & Tasks', hint: 'Installation and update queue' },
-  { id: 'settings', label: 'Global Settings', hint: 'Appearance, Java, memory, downloads, storage' },
-  { id: 'account', label: 'Microsoft Accounts', hint: 'Switch or sign in Minecraft Java accounts' },
+  { id: 'settings', label: 'Launcher Settings', hint: 'Appearance, Java, memory, downloads, storage' },
+  { id: 'account', label: 'Accounts', hint: 'Microsoft Java & Solara Inc accounts' },
 ] as const;
 
 const matchedInstances = computed(() => {
@@ -55,7 +56,7 @@ const matchedPages = computed(() => {
 
 function pickInstance(id: string) {
   store.showGlobalSearch = false;
-  navigate('instance', { instanceId: id, tab: 'overview' });
+  navigate('instance', { instanceId: id, tab: 'content' });
 }
 
 function pickPage(id: (typeof pageEntries)[number]['id']) {

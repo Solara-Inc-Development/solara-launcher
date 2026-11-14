@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { RotateCw } from '../icons';
+import { RotateCw, ZoomIn, ZoomOut } from '../icons';
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +24,34 @@ const zoom = ref(1.0);
 const rendererMode = ref<'webgl' | '2d'>('webgl');
 
 let rafId = 0;
+let renderCurrent: (() => void) | null = null;
+let needsRender = true;
+let lastRenderedAt = -Infinity;
+let releaseGpu: (() => void) | null = null;
+let resizeObserver: ResizeObserver | null = null;
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+const reducedMotion = ref(motionPreference.matches);
+function scheduleRender(): void {
+  needsRender = true;
+  if (renderCurrent && !rafId && !document.hidden) rafId = requestAnimationFrame(tick);
+}
+function tick(now: number): void {
+  rafId = 0;
+  if (!renderCurrent || document.hidden) return;
+  const animate = props.animate !== false && !reducedMotion.value;
+  if (needsRender || (animate && now - lastRenderedAt >= 1000 / 30)) {
+    renderCurrent();
+    needsRender = false;
+    lastRenderedAt = now;
+  }
+  if (animate) rafId = requestAnimationFrame(tick);
+}
+function onVisibilityChange(): void {
+  if (document.hidden) { cancelAnimationFrame(rafId); rafId = 0; }
+  else scheduleRender();
+}
+function onMotionChange(): void { reducedMotion.value = motionPreference.matches; scheduleRender(); }
+watch(() => [yaw.value, pitch.value, zoom.value, props.variant, props.showOuter, props.animate, props.height], scheduleRender);
 let dragging = false;
 let lastX = 0;
 let lastY = 0;
@@ -76,16 +104,23 @@ function buildDefaultSkinCanvas(): HTMLCanvasElement {
   return c;
 }
 
+let loadGeneration = 0;
 function loadImages() {
+  const imageGeneration = ++loadGeneration;
   skinReady = false;
   capeReady = false;
+  scheduleRender();
   if (props.skinDataUrl) {
     const img = new Image();
     img.onload = () => {
+      if (imageGeneration !== loadGeneration) return;
       skinImg = img;
       skinReady = true;
+      scheduleRender();
     };
     img.onerror = () => {
+      if (imageGeneration !== loadGeneration) return;
+      scheduleRender();
       skinImg = null;
       skinReady = false;
     };
@@ -97,10 +132,14 @@ function loadImages() {
   if (props.capeDataUrl) {
     const cimg = new Image();
     cimg.onload = () => {
+      if (imageGeneration !== loadGeneration) return;
       capeImg = cimg;
       capeReady = true;
+      scheduleRender();
     };
     cimg.onerror = () => {
+      if (imageGeneration !== loadGeneration) return;
+      scheduleRender();
       capeImg = null;
       capeReady = false;
     };
@@ -284,7 +323,7 @@ function draw2DFallback(canvas: HTMLCanvasElement, t: number) {
 
   const src: CanvasImageSource =
     skinReady && skinImg ? skinImg : (fallbackSkin ??= buildDefaultSkinCanvas());
-  const sway = props.animate !== false ? Math.sin(t * 2.2) * 3 : 0;
+  const sway = props.animate !== false && !reducedMotion.value ? Math.sin(t * 2.2) * 3 : 0;
   const cx = w / 2;
   const cy = h * 0.5;
   const s = Math.min(w, h) * 0.022 * zoom.value;
@@ -348,8 +387,10 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     return s;
   };
   const prog = ctx.createProgram()!;
-  ctx.attachShader(prog, compile(ctx.VERTEX_SHADER, vsSrc));
-  ctx.attachShader(prog, compile(ctx.FRAGMENT_SHADER, fsSrc));
+  const vertexShader = compile(ctx.VERTEX_SHADER, vsSrc);
+  const fragmentShader = compile(ctx.FRAGMENT_SHADER, fsSrc);
+  ctx.attachShader(prog, vertexShader);
+  ctx.attachShader(prog, fragmentShader);
   ctx.linkProgram(prog);
   ctx.useProgram(prog);
 
@@ -372,44 +413,37 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
   let uploadedSkin: unknown = null;
   let uploadedCape: unknown = null;
 
-  const drawBox = (
-    geom: ReturnType<typeof createBoxGeometry>,
-    mvp: Float32Array,
-    tex: WebGLTexture,
-  ) => {
-    const pBuf = ctx.createBuffer();
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, pBuf);
-    ctx.bufferData(ctx.ARRAY_BUFFER, geom.positions, ctx.STATIC_DRAW);
-    ctx.enableVertexAttribArray(aPos);
-    ctx.vertexAttribPointer(aPos, 3, ctx.FLOAT, false, 0, 0);
-
-    const uBuf = ctx.createBuffer();
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, uBuf);
-    ctx.bufferData(ctx.ARRAY_BUFFER, geom.uvs, ctx.STATIC_DRAW);
-    ctx.enableVertexAttribArray(aUv);
-    ctx.vertexAttribPointer(aUv, 2, ctx.FLOAT, false, 0, 0);
-
-    const iBuf = ctx.createBuffer();
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, iBuf);
-    ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, geom.indices, ctx.STATIC_DRAW);
-
-    ctx.activeTexture(ctx.TEXTURE0);
-    ctx.bindTexture(ctx.TEXTURE_2D, tex);
-    ctx.uniform1i(uTex, 0);
-    ctx.uniformMatrix4fv(uMvp, false, mvp);
-    ctx.drawElements(ctx.TRIANGLES, geom.indices.length, ctx.UNSIGNED_SHORT, 0);
-
-    ctx.deleteBuffer(pBuf);
-    ctx.deleteBuffer(uBuf);
-    ctx.deleteBuffer(iBuf);
+  const meshes = new Map<string, { p: WebGLBuffer | null; u: WebGLBuffer | null; i: WebGLBuffer | null; count: number }>();
+  const drawBox = (box: MeshBox, mvp: Float32Array, tex: WebGLTexture) => {
+    const key = JSON.stringify(box);
+    let mesh = meshes.get(key);
+    if (!mesh) {
+      const geom = createBoxGeometry(box);
+      const p = ctx.createBuffer(), u = ctx.createBuffer(), i = ctx.createBuffer();
+      ctx.bindBuffer(ctx.ARRAY_BUFFER, p); ctx.bufferData(ctx.ARRAY_BUFFER, geom.positions, ctx.STATIC_DRAW);
+      ctx.bindBuffer(ctx.ARRAY_BUFFER, u); ctx.bufferData(ctx.ARRAY_BUFFER, geom.uvs, ctx.STATIC_DRAW);
+      ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, i); ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, geom.indices, ctx.STATIC_DRAW);
+      mesh = { p, u, i, count: geom.indices.length };
+      meshes.set(key, mesh);
+    }
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, mesh.p);
+    ctx.enableVertexAttribArray(aPos); ctx.vertexAttribPointer(aPos, 3, ctx.FLOAT, false, 0, 0);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, mesh.u);
+    ctx.enableVertexAttribArray(aUv); ctx.vertexAttribPointer(aUv, 2, ctx.FLOAT, false, 0, 0);
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, mesh.i);
+    ctx.activeTexture(ctx.TEXTURE0); ctx.bindTexture(ctx.TEXTURE_2D, tex);
+    ctx.uniform1i(uTex, 0); ctx.uniformMatrix4fv(uMvp, false, mvp);
+    ctx.drawElements(ctx.TRIANGLES, mesh.count, ctx.UNSIGNED_SHORT, 0);
+  };
+  releaseGpu = () => {
+    for (const mesh of meshes.values()) { ctx.deleteBuffer(mesh.p); ctx.deleteBuffer(mesh.u); ctx.deleteBuffer(mesh.i); }
+    meshes.clear(); ctx.deleteTexture(skinTex); ctx.deleteTexture(capeTex);
+    ctx.deleteProgram(prog); ctx.deleteShader(vertexShader); ctx.deleteShader(fragmentShader);
   };
 
   const renderFrame = () => {
     if (!canvasRef.value) return;
-    if (document.hidden) {
-      rafId = requestAnimationFrame(renderFrame);
-      return;
-    }
+    if (document.hidden) return;
     const cw = canvas.clientWidth || 280;
     const ch = canvas.clientHeight || 340;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -438,11 +472,11 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
     const t = (performance.now() - startTime) / 1000;
-    const swing = props.animate !== false ? Math.sin(t * 2.4) * 0.35 : 0;
+    const swing = props.animate !== false && !reducedMotion.value ? Math.sin(t * 2.4) * 0.35 : 0;
 
     const proj = mat4Persp(0.6, canvas.width / Math.max(1, canvas.height), 0.1, 200);
     const cam = mat4Mul(
-      mat4Trans(0, -1, -48 / zoom.value),
+      mat4Trans(0, -1, -62 / zoom.value),
       mat4Mul(mat4RotX(pitch.value), mat4RotY(yaw.value)),
     );
     const vp = mat4Mul(proj, cam);
@@ -521,18 +555,22 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     }
 
     for (const p of parts) {
-      drawBox(createBoxGeometry(p.box), mat4Mul(vp, p.m), p.tex);
+      drawBox(p.box, mat4Mul(vp, p.m), p.tex);
     }
-    rafId = requestAnimationFrame(renderFrame);
   };
 
-  rafId = requestAnimationFrame(renderFrame);
+  renderCurrent = renderFrame;
+  scheduleRender();
   return true;
 }
 
 onMounted(() => {
   const canvas = canvasRef.value;
   if (!canvas) return;
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  motionPreference.addEventListener('change', onMotionChange);
+  resizeObserver = new ResizeObserver(scheduleRender);
+  resizeObserver.observe(canvas);
   if (!initWebGL(canvas)) {
     rendererMode.value = '2d';
     const loop2d = () => {
@@ -544,14 +582,20 @@ onMounted(() => {
         canvas.height = ch;
       }
       draw2DFallback(canvas, (performance.now() - startTime) / 1000);
-      rafId = requestAnimationFrame(loop2d);
     };
-    rafId = requestAnimationFrame(loop2d);
+    renderCurrent = loop2d;
+    scheduleRender();
   }
 });
 
 onUnmounted(() => {
   cancelAnimationFrame(rafId);
+  renderCurrent = null;
+  loadGeneration++;
+  resizeObserver?.disconnect();
+  document.removeEventListener('visibilitychange', onVisibilityChange);
+  motionPreference.removeEventListener('change', onMotionChange);
+  releaseGpu?.();
   gl = null;
 });
 
@@ -586,6 +630,10 @@ function resetCamera() {
   pitch.value = 0.18;
   zoom.value = 1.0;
 }
+
+function adjustZoom(delta: number) {
+  zoom.value = Math.max(0.6, Math.min(1.8, Number((zoom.value + delta).toFixed(2))));
+}
 </script>
 
 <template>
@@ -598,14 +646,35 @@ function resetCamera() {
       @pointerup="onPointerUp"
       @wheel="onWheel"
     />
-    <button
-      type="button"
-      class="sol-icon-btn sol-icon-btn--xs sol-viewer-reset"
-      title="Reset camera angle"
-      @click="resetCamera"
-    >
-      <RotateCw :size="12" />
-    </button>
-    <span class="sol-viewer-hint">Drag to rotate • Scroll to zoom</span>
+    <div class="sol-viewer-tools">
+      <button
+        type="button"
+        class="sol-icon-btn sol-icon-btn--xs"
+        title="Zoom in"
+        aria-label="Zoom in"
+        @click="adjustZoom(0.15)"
+      >
+        <ZoomIn :size="12" />
+      </button>
+      <button
+        type="button"
+        class="sol-icon-btn sol-icon-btn--xs"
+        title="Zoom out"
+        aria-label="Zoom out"
+        @click="adjustZoom(-0.15)"
+      >
+        <ZoomOut :size="12" />
+      </button>
+      <button
+        type="button"
+        class="sol-icon-btn sol-icon-btn--xs sol-viewer-reset"
+        title="Reset camera angle"
+        aria-label="Reset camera"
+        @click="resetCamera"
+      >
+        <RotateCw :size="12" />
+      </button>
+    </div>
+    <span class="sol-viewer-hint">Drag to rotate · Scroll or +/- to zoom</span>
   </div>
 </template>

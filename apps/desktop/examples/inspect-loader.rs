@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
             )
             .await?;
         let (mod_label, mod_files) =
-            content::plan_project_install(&inst, "modmenu", "mod", None).await?;
+            content::plan_project_install(&inst, "modmenu", "mod", None, None).await?;
         let root_mod = mod_files
             .last()
             .cloned()

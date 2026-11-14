@@ -20,21 +20,21 @@ const presetPalette = computed(() => {
   const key = props.icon || '';
   switch (key) {
     case 'preset:dawn-crest':
-      return { bg: '#2B2216', fg: '#E9B86D', shape: 'crest' };
+      return { bg: '#2B2012', fg: '#E9B86D', shape: 'crest' };
     case 'preset:obsidian-cube':
-      return { bg: '#1B1F27', fg: '#F5F4F1', shape: 'cube' };
+      return { bg: '#161619', fg: '#F7F7F8', shape: 'cube' };
     case 'preset:amber-emerald':
-      return { bg: '#152720', fg: '#23C987', shape: 'gem' };
+      return { bg: '#10241B', fg: '#23C987', shape: 'gem' };
     case 'preset:solar-compass':
-      return { bg: '#1B2332', fg: '#65A9F5', shape: 'compass' };
+      return { bg: '#121E2B', fg: '#65A9F5', shape: 'compass' };
     case 'preset:forge-anvil':
-      return { bg: '#281F19', fg: '#E8A64B', shape: 'anvil' };
+      return { bg: '#261C12', fg: '#E8A64B', shape: 'anvil' };
     case 'preset:nether-portal':
-      return { bg: '#261829', fg: '#C97BF5', shape: 'portal' };
+      return { bg: '#241814', fg: '#D7A258', shape: 'portal' };
     case 'preset:redstone-core':
-      return { bg: '#2B171B', fg: '#F06471', shape: 'core' };
+      return { bg: '#281418', fg: '#F06471', shape: 'core' };
     case 'preset:end-crystal':
-      return { bg: '#1E1A2C', fg: '#B998FF', shape: 'crystal' };
+      return { bg: '#1D1A14', fg: '#F5CD91', shape: 'crystal' };
     default:
       return null;
   }
@@ -43,15 +43,15 @@ const presetPalette = computed(() => {
 const loaderColor = computed(() => {
   switch (props.loader) {
     case 'fabric':
-      return { bg: '#26211A', fg: '#E9B86D' };
+      return { bg: '#241C11', fg: '#E9B86D' };
     case 'quilt':
-      return { bg: '#221B2B', fg: '#B998FF' };
+      return { bg: '#1F1B15', fg: '#F5CD91' };
     case 'forge':
-      return { bg: '#1A222D', fg: '#65A9F5' };
+      return { bg: '#141D26', fg: '#65A9F5' };
     case 'neoforge':
-      return { bg: '#2B1F18', fg: '#E8A64B' };
+      return { bg: '#261A12', fg: '#E8A64B' };
     default:
-      return { bg: '#17261E', fg: '#23C987' };
+      return { bg: '#122219', fg: '#23C987' };
   }
 });
 

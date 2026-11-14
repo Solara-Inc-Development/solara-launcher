@@ -1,351 +1,335 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import SolaraButton from '../components/SolaraButton.vue';
+import SolaraEmptyState from '../components/SolaraEmptyState.vue';
+import SolaraModal from '../components/SolaraModal.vue';
 import {
-  Search,
+  ArrowUpRight,
+  Compass,
   Download,
   RefreshCw,
-  ArrowUpRight,
-  AlertTriangle,
-  Compass,
+  Search,
+  X,
 } from '../icons';
 import {
-  searchUrl,
-  projectDetailUrl,
-  versionsUrl,
-  normalizeHits,
-  normalizeVersions,
-  normalizeProjectVersions,
-  providerJson,
-  projectUrl,
-} from '../../../../packages/shared/content.mjs';
-import {
-  store,
-  selectedInstance,
-  refreshSnapshot,
-  openCreateInstance,
-  openExternal,
-  LOADER_LABEL,
+  loadMinecraftVersions,
   native,
+  navigate,
   notify,
+  openExternal,
+  refreshSnapshot,
+  selectInstance,
+  store,
 } from '../state';
-import SolaraButton from '../components/SolaraButton.vue';
-import SolaraModal from '../components/SolaraModal.vue';
-import SolaraEmptyState from '../components/SolaraEmptyState.vue';
+import type { LoaderKind } from '../types';
 
-type ContentKind = 'mod' | 'modpack' | 'resourcepack' | 'shader' | 'datapack';
-
-interface HitItem {
+interface ModrinthHit {
   project_id: string;
-  project_type: ContentKind;
   slug: string;
   title: string;
   description: string;
   author: string;
-  icon_url: string | null;
-  downloads: number | null;
+  icon_url?: string | null;
   categories: string[];
   versions: string[];
+  downloads: number | null;
+  follows?: number | null;
+  project_type: string;
 }
 
-interface VersionOption {
+interface ModrinthVersion {
   id: string;
   name: string;
-  versionNumber?: string;
-  type: string;
-  gameVersions?: string[];
+  version_number?: string;
+  version_type?: string;
+  game_versions?: string[];
   loaders?: string[];
-  games?: string;
-  changelog?: string;
+  dependencies?: Array<{ project_id?: string; dependency_type?: string }>;
 }
 
-const kind = ref<ContentKind>('mod');
-const query = ref('');
-const sortBy = ref<'relevance' | 'downloads' | 'updated' | 'newest'>('downloads');
-const targetInstanceId = ref<string>(selectedInstance.value?.id ?? '');
-const filterByTarget = ref(true);
+const searchQuery = ref('');
+const quickTag = ref<'featured' | 'optimization' | 'adventure' | 'technology' | 'magic'>('featured');
+const loaderFilter = ref<'all' | Exclude<LoaderKind, 'vanilla'>>('all');
+const versionFilter = ref('');
+const sortIndex = ref<'relevance' | 'downloads' | 'updated' | 'newest'>('downloads');
 const pageOffset = ref(0);
-
-const hits = ref<HitItem[]>([]);
+const hits = ref<ModrinthHit[]>([]);
+const totalHits = ref(0);
 const loading = ref(false);
-const errorMsg = ref('');
+const errorMsg = ref<string | null>(null);
 
-// Detail / Version Modal
-const activeProject = ref<HitItem | null>(null);
-const projectBody = ref('');
-const versions = ref<VersionOption[]>([]);
-const selectedVersionId = ref('');
+// Modpack detail dialog state
+const activePack = ref<ModrinthHit | null>(null);
 const loadingDetail = ref(false);
-const installingId = ref('');
+const versions = ref<ModrinthVersion[]>([]);
+const selectedVersionId = ref('');
+const packBody = ref('');
+const packGallery = ref<Array<{ url: string; title?: string }>>([]);
+const customInstanceName = ref('');
+const installing = ref(false);
 
-let activeController: AbortController | null = null;
-
-const targetInstance = computed(
-  () => store.instances.find((i) => i.id === targetInstanceId.value) ?? null,
+const releaseVersions = computed(() =>
+  store.mcVersions.filter((v) => v.type === 'release').slice(0, 24),
 );
 
-const compatibilityWarning = computed(() => {
-  if (kind.value === 'modpack') return '';
-  if (!targetInstance.value) return 'Create an instance before installing content into a game folder.';
-  if (kind.value === 'mod' && targetInstance.value.loader === 'vanilla') {
-    return `${targetInstance.value.name} uses Vanilla, which cannot load mods. Select a Fabric, Quilt, Forge, or NeoForge instance.`;
-  }
-  return '';
-});
+const selectedVersionObj = computed(
+  () => versions.value.find((v) => v.id === selectedVersionId.value) ?? versions.value[0] ?? null,
+);
 
-async function runSearch(resetOffset = true) {
+function formatDownloads(n: number | null | undefined): string {
+  if (!n) return '0';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
+async function runSearch(resetOffset = true): Promise<void> {
   if (resetOffset) pageOffset.value = 0;
-  activeController?.abort();
-  activeController = new AbortController();
   loading.value = true;
-  errorMsg.value = '';
+  errorMsg.value = null;
   try {
-    const inst = filterByTarget.value && kind.value !== 'modpack' ? targetInstance.value : null;
-    const loaderArg =
-      inst && kind.value === 'mod' && inst.loader !== 'vanilla' ? inst.loader : 'all';
-    const verArg = inst ? inst.gameVersion : 'all';
-    const url = searchUrl(query.value, kind.value, {
-      loader: loaderArg,
-      gameVersion: verArg,
-      index: sortBy.value,
-      offset: pageOffset.value,
+    const facets: string[][] = [['project_type:modpack']];
+    if (loaderFilter.value !== 'all') {
+      facets.push([`categories:${loaderFilter.value}`]);
+    }
+    if (quickTag.value !== 'featured') {
+      facets.push([`categories:${quickTag.value}`]);
+    }
+    if (versionFilter.value) {
+      facets.push([`versions:${versionFilter.value}`]);
+    }
+
+    const params = new URLSearchParams({
+      query: searchQuery.value.trim(),
+      facets: JSON.stringify(facets),
+      index: sortIndex.value,
+      limit: '18',
+      offset: String(pageOffset.value),
     });
-    const data = await providerJson(url, activeController.signal);
-    hits.value = normalizeHits(data, kind.value) as HitItem[];
+    const res = await fetch(`https://api.modrinth.com/v2/search?${params.toString()}`, {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Modrinth returned HTTP ${res.status}`);
+    const data = (await res.json()) as { hits?: ModrinthHit[]; total_hits?: number };
+    hits.value = Array.isArray(data.hits) ? data.hits : [];
+    totalHits.value = data.total_hits ?? hits.value.length;
   } catch (err) {
-    if ((err as Error)?.name === 'AbortError') return;
     errorMsg.value = err instanceof Error ? err.message : String(err);
   } finally {
     loading.value = false;
   }
 }
 
-watch([kind, sortBy, filterByTarget, targetInstanceId], () => {
-  runSearch(true);
-});
-
-onMounted(() => {
-  if (!targetInstanceId.value && store.instances.length > 0) {
-    targetInstanceId.value = store.instances[0].id;
-  }
-  runSearch(true);
-});
-
-async function openProject(hit: HitItem) {
-  activeProject.value = hit;
-  projectBody.value = '';
+async function openModpack(hit: ModrinthHit): Promise<void> {
+  activePack.value = hit;
+  customInstanceName.value = hit.title;
   versions.value = [];
   selectedVersionId.value = '';
+  packBody.value = '';
+  packGallery.value = [];
   loadingDetail.value = true;
-  const ctrl = new AbortController();
   try {
-    const [detailData, versData] = await Promise.all([
-      providerJson(projectDetailUrl(hit.project_id), ctrl.signal).catch(() => null),
-      providerJson(versionsUrl(hit.project_id), ctrl.signal),
+    const [projRes, verRes] = await Promise.all([
+      fetch(`https://api.modrinth.com/v2/project/${encodeURIComponent(hit.project_id)}`),
+      fetch(`https://api.modrinth.com/v2/project/${encodeURIComponent(hit.project_id)}/version`),
     ]);
-    if (detailData && typeof detailData.body === 'string') {
-      projectBody.value = detailData.body.slice(0, 6000);
+    if (projRes.ok) {
+      const proj = (await projRes.json()) as {
+        body?: string;
+        gallery?: Array<{ url: string; title?: string }>;
+      };
+      packBody.value = (proj.body || hit.description || '').slice(0, 1600);
+      packGallery.value = Array.isArray(proj.gallery) ? proj.gallery.slice(0, 4) : [];
     }
-    if (hit.project_type === 'modpack') {
-      const normalized = normalizeVersions(versData, hit.project_id) as VersionOption[];
-      versions.value = normalized;
-      selectedVersionId.value = normalized[0]?.id ?? '';
-    } else {
-      let normalized = normalizeProjectVersions(versData, hit.project_id) as VersionOption[];
-      if (targetInstance.value) {
-        const gv = targetInstance.value.gameVersion;
-        const ldr = targetInstance.value.loader;
-        const matched = normalized.filter((v) => {
-          const okVer = !v.gameVersions?.length || v.gameVersions.includes(gv);
-          const okLdr =
-            hit.project_type !== 'mod' || !v.loaders?.length || v.loaders.includes(ldr);
-          return okVer && okLdr;
-        });
-        if (matched.length > 0) normalized = matched;
-      }
-      versions.value = normalized;
-      selectedVersionId.value = normalized[0]?.id ?? '';
+    if (verRes.ok) {
+      const list = (await verRes.json()) as ModrinthVersion[];
+      versions.value = list;
+      selectedVersionId.value = list[0]?.id ?? '';
     }
   } catch (err) {
-    notify('error', "Couldn't load project versions", String(err));
+    notify('warning', 'Could not load modpack details', String(err));
   } finally {
     loadingDetail.value = false;
   }
 }
 
-async function installProject(project: HitItem, versionId?: string) {
-  if (project.project_type !== 'modpack' && !targetInstance.value) {
-    notify('warning', 'No instance selected', 'Create or pick a target instance first.');
+async function installModpack(): Promise<void> {
+  if (!activePack.value) return;
+  const ver = selectedVersionObj.value;
+  if (!ver) {
+    notify('warning', 'Select a modpack version', 'Choose a release before installing.');
     return;
   }
-  installingId.value = project.project_id;
+  if (!store.desktop) {
+    notify('info', 'Desktop required', 'Modpack installation runs in the Solara desktop app.');
+    return;
+  }
+  installing.value = true;
   try {
-    await native('install_content', {
-      instanceId: project.project_type === 'modpack' ? null : targetInstance.value?.id,
-      projectId: project.project_id,
-      contentType: project.project_type,
-      versionId: versionId || null,
+    const receipt = await native<{ instanceId: string; jobId: string }>('install_content', {
+      instanceId: null,
+      projectId: activePack.value.project_id,
+      contentType: 'modpack',
+      versionId: ver.id,
+      world: null,
     });
+    const desiredName = customInstanceName.value.trim();
+    const packTitle = activePack.value.title;
+    activePack.value = null;
     await refreshSnapshot();
-    notify(
-      'success',
-      project.project_type === 'modpack' ? `Installing ${project.title}` : `Queued ${project.title}`,
-      project.project_type === 'modpack'
-        ? 'Creating new instance from modpack...'
-        : `Installing into ${targetInstance.value?.name}`,
-    );
-    activeProject.value = null;
+    const created = store.instances.find((i) => i.id === receipt.instanceId);
+    if (created) {
+      if (desiredName && desiredName !== created.name) {
+        await native('update_instance_meta', { id: created.id, patch: { name: desiredName } }).catch(() => {});
+        await refreshSnapshot();
+      }
+      selectInstance(created.id);
+      navigate('instance', { instanceId: created.id, tab: 'content' });
+    } else {
+      navigate('library');
+    }
+    notify('info', `Installing ${desiredName || packTitle}`, 'Creating a new instance from modpack...');
   } catch (err) {
-    notify('error', `Couldn't install ${project.title}`, String(err));
+    notify('error', 'Modpack install failed', String(err));
   } finally {
-    installingId.value = '';
+    installing.value = false;
   }
 }
 
-function formatDownloadsCount(n: number | null): string {
-  if (n === null) return '';
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
-}
+onMounted(() => {
+  void loadMinecraftVersions().catch(() => {});
+  void runSearch(true);
+});
 </script>
 
 <template>
   <div class="sol-page sol-scroll">
-    <div class="sol-page-inner">
-      <header class="sol-page-header">
+    <div class="sol-view-wrap">
+      <!-- Dedicated Modpacks-Only Discover Toolbar -->
+      <header class="sol-discover-head">
         <div>
-          <h1 class="sol-page-title">Discover Content</h1>
-          <p class="sol-page-sub">Search verified mods, modpacks, resource packs, shaders, and datapacks</p>
+          <h1 class="sol-page-title">Discover Modpacks</h1>
+          <p class="sol-muted sol-text-xs">
+            Install complete modpacks as standalone instances. To add mods, resource packs, shaders, or datapacks, open an instance's Content tab.
+          </p>
         </div>
 
-        <div class="sol-row-gap">
-          <div v-if="kind !== 'modpack'" class="sol-row-gap">
-            <span class="sol-muted sol-text-xs">Target:</span>
-            <select v-model="targetInstanceId" class="sol-select">
-              <option value="" disabled>Select instance...</option>
-              <option v-for="inst in store.instances" :key="inst.id" :value="inst.id">
-                {{ inst.name }} ({{ inst.gameVersion }} {{ LOADER_LABEL[inst.loader] }})
-              </option>
-            </select>
-            <label class="sol-checkbox-label">
-              <input v-model="filterByTarget" type="checkbox" />
-              <span>Compatible only</span>
-            </label>
+        <form class="sol-discover-search" @submit.prevent="runSearch(true)">
+          <div class="sol-search-box sol-search-box--grow">
+            <Search :size="14" class="sol-muted" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="sol-search-input"
+              placeholder="Search Modpacks (e.g. Fabulously Optimized, Better MC, Cobblemon)..."
+            />
+            <button
+              v-if="searchQuery"
+              type="button"
+              class="sol-icon-btn sol-icon-btn--xs"
+              @click="searchQuery = ''; runSearch(true)"
+            >
+              <X :size="12" />
+            </button>
           </div>
-          <SolaraButton v-if="store.instances.length === 0" variant="primary" size="sm" @click="openCreateInstance()">
-            Create Instance
+
+          <select v-model="versionFilter" class="sol-select" aria-label="Minecraft version" @change="runSearch(true)">
+            <option value="">All MC versions</option>
+            <option v-for="v in releaseVersions" :key="v.id" :value="v.id">{{ v.id }}</option>
+          </select>
+
+          <select v-model="loaderFilter" class="sol-select" aria-label="Mod loader" @change="runSearch(true)">
+            <option value="all">All Loaders</option>
+            <option value="fabric">Fabric</option>
+            <option value="neoforge">NeoForge</option>
+            <option value="forge">Forge</option>
+            <option value="quilt">Quilt</option>
+          </select>
+
+          <select v-model="sortIndex" class="sol-select" aria-label="Sort modpacks" @change="runSearch(true)">
+            <option value="downloads">Popular</option>
+            <option value="updated">Updated</option>
+            <option value="newest">Newest</option>
+            <option value="relevance">Relevance</option>
+          </select>
+
+          <SolaraButton variant="primary" size="sm" type="submit" :loading="loading">
+            Search
           </SolaraButton>
+        </form>
+
+        <div class="sol-chip-row">
+          <button
+            v-for="tag in [
+              { id: 'featured', label: 'Popular Packs' },
+              { id: 'optimization', label: 'Optimization' },
+              { id: 'adventure', label: 'Adventure' },
+              { id: 'technology', label: 'Technology' },
+              { id: 'magic', label: 'Magic' },
+            ] as const"
+            :key="tag.id"
+            type="button"
+            :class="['sol-chip', { 'is-active': quickTag === tag.id }]"
+            @click="quickTag = tag.id; runSearch(true)"
+          >
+            {{ tag.label }}
+          </button>
+          <span v-if="totalHits > 0" class="sol-muted sol-text-xs" style="margin-left: auto">
+            {{ totalHits.toLocaleString() }} modpacks
+          </span>
         </div>
       </header>
 
-      <!-- Kind & Search Toolbar -->
-      <div class="sol-toolbar">
-        <div class="sol-seg-group">
-          <button
-            v-for="tab in [
-              { id: 'mod', label: 'Mods' },
-              { id: 'modpack', label: 'Modpacks' },
-              { id: 'resourcepack', label: 'Resource Packs' },
-              { id: 'shader', label: 'Shaders' },
-              { id: 'datapack', label: 'Datapacks' },
-            ] as const"
-            :key="tab.id"
-            type="button"
-            :class="['sol-seg-btn', { 'is-active': kind === tab.id }]"
-            @click="kind = tab.id"
-          >
-            {{ tab.label }}
-          </button>
-        </div>
-
-        <form class="sol-search-box" style="flex: 1; min-width: 220px" @submit.prevent="runSearch(true)">
-          <Search :size="14" class="sol-muted" />
-          <input
-            v-model="query"
-            type="text"
-            class="sol-search-input"
-            :placeholder="`Search ${kind}s...`"
-          />
-          <SolaraButton type="submit" variant="primary" size="xs" :loading="loading">Search</SolaraButton>
-        </form>
-
-        <select v-model="sortBy" class="sol-select">
-          <option value="downloads">Sort: Downloads</option>
-          <option value="relevance">Sort: Relevance</option>
-          <option value="updated">Sort: Recently Updated</option>
-          <option value="newest">Sort: Newest</option>
-        </select>
-      </div>
-
-      <div v-if="compatibilityWarning" class="sol-banner sol-banner--warning" style="margin-bottom: 14px">
-        <AlertTriangle :size="15" />
-        <span>{{ compatibilityWarning }}</span>
-      </div>
-
-      <div v-if="errorMsg" class="sol-banner sol-banner--error" style="margin-bottom: 14px">
-        <AlertTriangle :size="15" />
-        <span>{{ errorMsg }}</span>
-      </div>
-
-      <div v-if="loading && hits.length === 0" class="sol-center-state">
-        <RefreshCw :size="20" class="is-spinning sol-accent" />
-        <span>Searching Modrinth catalog...</span>
+      <div v-if="errorMsg" class="sol-banner-warn">
+        <span>Couldn't load modpacks: {{ errorMsg }}</span>
+        <SolaraButton variant="secondary" size="xs" @click="runSearch(false)">
+          <RefreshCw :size="12" /> Retry
+        </SolaraButton>
       </div>
 
       <SolaraEmptyState
         v-else-if="!loading && hits.length === 0"
-        title="No results found"
-        description="Try broadening your search terms or toggling 'Compatible only'."
+        title="No modpacks matched"
+        description="Try clearing the version or category filter."
       >
-        <template #icon><Compass :size="26" /></template>
+        <template #icon><Compass :size="28" /></template>
       </SolaraEmptyState>
 
-      <!-- Results Grid -->
-      <div v-else class="sol-discover-grid">
+      <!-- Clean Compact Modpack List/Grid -->
+      <div v-else class="sol-pack-grid">
         <article
           v-for="hit in hits"
           :key="hit.project_id"
-          class="sol-card sol-discover-card"
-          @click="openProject(hit)"
+          class="sol-pack-row"
+          @click="openModpack(hit)"
         >
-          <div class="sol-discover-top">
-            <img
-              v-if="hit.icon_url"
-              :src="hit.icon_url"
-              :alt="hit.title"
-              class="sol-discover-icon"
-              loading="lazy"
-            />
-            <div v-else class="sol-discover-icon sol-discover-icon--empty">
-              {{ hit.title.slice(0, 2).toUpperCase() }}
+          <img
+            v-if="hit.icon_url"
+            :src="hit.icon_url"
+            :alt="hit.title"
+            class="sol-pack-icon"
+            loading="lazy"
+          />
+          <div v-else class="sol-pack-icon sol-pack-icon--empty">{{ hit.title.slice(0, 2).toUpperCase() }}</div>
+
+          <div class="sol-pack-body">
+            <div class="sol-pack-top">
+              <strong class="sol-pack-title sol-truncate">{{ hit.title }}</strong>
+              <span class="sol-muted sol-text-xs">by {{ hit.author || 'Unknown' }}</span>
             </div>
-            <div class="sol-discover-meta">
-              <h3 class="sol-discover-title sol-truncate">{{ hit.title }}</h3>
-              <div class="sol-muted sol-text-xs">
-                by {{ hit.author || 'Unknown' }}
-                <template v-if="hit.downloads !== null"> • {{ formatDownloadsCount(hit.downloads) }} downloads</template>
+            <p class="sol-pack-desc">{{ hit.description }}</p>
+            <div class="sol-pack-foot">
+              <div class="sol-tag-row">
+                <span class="sol-badge sol-badge--gold">Modpack</span>
+                <span v-for="c in hit.categories.slice(0, 2)" :key="c" class="sol-badge">{{ c }}</span>
               </div>
+              <span class="sol-muted sol-text-xs">{{ formatDownloads(hit.downloads) }} downloads</span>
             </div>
           </div>
 
-          <p class="sol-discover-desc">{{ hit.description }}</p>
-
-          <div class="sol-discover-foot">
-            <div class="sol-tag-row">
-              <span v-for="cat in hit.categories.slice(0, 3)" :key="cat" class="sol-badge">{{ cat }}</span>
-            </div>
-            <SolaraButton
-              v-if="hit.project_type !== 'modpack'"
-              variant="primary"
-              size="xs"
-              :loading="installingId === hit.project_id"
-              :disabled="Boolean(compatibilityWarning)"
-              @click.stop="installProject(hit)"
-            >
+          <div class="sol-pack-cta" @click.stop="openModpack(hit)">
+            <SolaraButton variant="primary" size="xs">
               <Download :size="12" /> Install
-            </SolaraButton>
-            <SolaraButton v-else variant="secondary" size="xs" @click.stop="openProject(hit)">
-              Select Version
             </SolaraButton>
           </div>
         </article>
@@ -355,85 +339,97 @@ function formatDownloadsCount(n: number | null): string {
       <div v-if="hits.length > 0" class="sol-pagination">
         <SolaraButton
           variant="secondary"
-          size="sm"
+          size="xs"
           :disabled="pageOffset === 0 || loading"
-          @click="
-            pageOffset = Math.max(0, pageOffset - 18);
-            runSearch(false);
-          "
+          @click="pageOffset = Math.max(0, pageOffset - 18); runSearch(false)"
         >
           Previous
         </SolaraButton>
         <span class="sol-muted sol-text-xs">Page {{ Math.floor(pageOffset / 18) + 1 }}</span>
         <SolaraButton
           variant="secondary"
-          size="sm"
+          size="xs"
           :disabled="hits.length < 18 || loading"
-          @click="
-            pageOffset += 18;
-            runSearch(false);
-          "
+          @click="pageOffset += 18; runSearch(false)"
         >
           Next
         </SolaraButton>
       </div>
     </div>
 
-    <!-- Project Detail & Version Picker Modal -->
+    <!-- Rich Modpack Detail & Create-Instance Modal -->
     <SolaraModal
-      :open="Boolean(activeProject)"
-      :title="activeProject?.title"
-      :subtitle="activeProject ? `by ${activeProject.author || 'Unknown'}` : ''"
+      :open="Boolean(activePack)"
+      :title="activePack?.title"
+      :subtitle="activePack ? `Modpack by ${activePack.author || 'Unknown'}` : ''"
       width="lg"
-      @close="activeProject = null"
+      @close="activePack = null"
     >
-      <template v-if="activeProject">
+      <template v-if="activePack">
         <div class="sol-stack">
-          <div class="sol-row-gap" style="justify-content: space-between">
+          <div class="sol-row-between">
             <div class="sol-tag-row">
-              <span class="sol-badge">{{ activeProject.project_type }}</span>
-              <span v-for="c in activeProject.categories.slice(0, 5)" :key="c" class="sol-badge">{{ c }}</span>
+              <span class="sol-badge sol-badge--gold">Modpack</span>
+              <span v-for="c in activePack.categories.slice(0, 5)" :key="c" class="sol-badge">{{ c }}</span>
             </div>
             <button
               type="button"
               class="sol-link-btn"
-              @click="openExternal(projectUrl(activeProject))"
+              @click="openExternal(`https://modrinth.com/modpack/${activePack.slug || activePack.project_id}`)"
             >
               View on Modrinth <ArrowUpRight :size="13" />
             </button>
           </div>
 
-          <p class="sol-muted">{{ activeProject.description }}</p>
-
-          <div class="sol-field">
-            <label class="sol-label">Choose Version</label>
-            <div v-if="loadingDetail" class="sol-muted sol-text-xs">Loading available releases...</div>
-            <select v-else v-model="selectedVersionId" class="sol-input">
-              <option v-if="versions.length === 0" value="">No compatible versions returned</option>
-              <option v-for="v in versions" :key="v.id" :value="v.id">
-                {{ v.name }} ({{ v.type }})
-                <template v-if="v.games"> — {{ v.games }}</template>
-              </option>
-            </select>
+          <div v-if="packGallery.length > 0" class="sol-gallery-strip">
+            <img
+              v-for="img in packGallery"
+              :key="img.url"
+              :src="img.url"
+              :alt="img.title || activePack.title"
+              class="sol-gallery-thumb"
+              loading="lazy"
+            />
           </div>
 
-          <div v-if="projectBody" class="sol-project-body sol-scroll selectable">
-            {{ projectBody }}
+          <div class="sol-split-2">
+            <div class="sol-field">
+              <label class="sol-label">New Instance Name</label>
+              <input v-model="customInstanceName" type="text" class="sol-input" maxlength="80" />
+            </div>
+
+            <div class="sol-field">
+              <label class="sol-label">Modpack Release Version</label>
+              <div v-if="loadingDetail" class="sol-muted sol-text-xs">Loading releases...</div>
+              <select v-else v-model="selectedVersionId" class="sol-input">
+                <option v-if="versions.length === 0" value="">No versions returned</option>
+                <option v-for="v in versions" :key="v.id" :value="v.id">
+                  {{ v.name }} ({{ (v.loaders || []).join(', ') || 'modpack' }} · {{ (v.game_versions || []).slice(0, 2).join(', ') }})
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="selectedVersionObj?.dependencies?.length" class="sol-muted sol-text-xs">
+            Bundled dependencies: {{ selectedVersionObj.dependencies.length }} referenced modules/packs.
+          </div>
+
+          <div v-if="packBody" class="sol-project-body sol-scroll selectable">
+            {{ packBody }}
           </div>
         </div>
       </template>
 
       <template #footer>
-        <SolaraButton variant="ghost" @click="activeProject = null">Close</SolaraButton>
+        <SolaraButton variant="ghost" @click="activePack = null">Cancel</SolaraButton>
         <SolaraButton
-          v-if="activeProject"
+          v-if="activePack"
           variant="primary"
-          :loading="installingId === activeProject.project_id"
-          :disabled="!selectedVersionId || Boolean(compatibilityWarning)"
-          @click="installProject(activeProject, selectedVersionId)"
+          :loading="installing"
+          :disabled="!selectedVersionObj"
+          @click="installModpack"
         >
-          <Download :size="14" />
-          {{ activeProject.project_type === 'modpack' ? 'Create Instance from Modpack' : 'Install Version' }}
+          <Download :size="14" /> Create Instance from Modpack
         </SolaraButton>
       </template>
     </SolaraModal>

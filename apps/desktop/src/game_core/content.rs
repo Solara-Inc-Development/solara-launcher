@@ -120,6 +120,19 @@ pub fn allowed_content_destination(path: &str) -> Result<()> {
     let Some((top, rest)) = path.split_once('/') else {
         bail!("Content file must be placed inside a supported instance folder")
     };
+    if top == "saves" {
+        let parts: Vec<&str> = rest.split('/').collect();
+        if parts.len() != 3
+            || parts[0].is_empty()
+            || parts[0] == "."
+            || parts[0] == ".."
+            || parts[1] != "datapacks"
+            || parts[2].is_empty()
+        {
+            bail!("World datapacks must be placed directly inside saves/<world>/datapacks/")
+        }
+        return Ok(());
+    }
     if rest.is_empty()
         || !matches!(
             top,
@@ -314,8 +327,10 @@ pub async fn plan_project_install(
     project_id: &str,
     content_type: &str,
     version_id: Option<&str>,
+    target_world: Option<&str>,
 ) -> Result<(String, Vec<VerifiedFile>)> {
     provider_id(project_id)?;
+    let datapack_folder;
     let folder = match content_type {
         "mod" => {
             if !matches!(
@@ -328,7 +343,18 @@ pub async fn plan_project_install(
         }
         "resourcepack" => "resourcepacks",
         "shader" => "shaderpacks",
-        "datapack" => "datapacks",
+        "datapack" => {
+            if let Some(w) = target_world.map(str::trim).filter(|s| !s.is_empty()) {
+                if w.contains('/') || w.contains('\\') || w == "." || w == ".." {
+                    bail!("Choose a valid world folder for this datapack")
+                }
+                metadata::relative_path(&format!("saves/{w}"))?;
+                datapack_folder = format!("saves/{w}/datapacks");
+                datapack_folder.as_str()
+            } else {
+                "datapacks"
+            }
+        }
         _ => bail!("Unsupported content type"),
     };
     let root = select_project_version(
@@ -1152,6 +1178,11 @@ mod tests {
                 .unwrap(),
             "enabled = true"
         );
+
+        assert!(allowed_content_destination("saves/MyWorld/datapacks/terralith.zip").is_ok());
+        assert!(allowed_content_destination("saves/MyWorld/datapacks/bad.exe").is_err());
+        assert!(allowed_content_destination("saves/../mods/x.zip").is_err());
+        assert!(allowed_content_destination("saves/MyWorld/region/r.0.0.mca").is_err());
 
         let _ = tokio::fs::remove_dir_all(&root).await;
     }

@@ -381,9 +381,11 @@ pub struct FinishedGame {
 
 struct Game {
     child: Child,
+    // Child::id() becomes None after try_wait reaps it. Keep identity stable.
+    pid: u32,
     log: Arc<Mutex<String>>,
     started_at: std::time::Instant,
-    playtime_recorded: bool,
+    exit_recorded: bool,
     game_dir: PathBuf,
     post_exit: Option<String>,
 }
@@ -412,37 +414,32 @@ impl Games {
         let mut items = self.items.lock().await;
         let mut finished = Vec::new();
         for (id, game) in items.iter_mut() {
-            if game.child.try_wait()?.is_some() {
-                let elapsed_seconds = if !game.playtime_recorded {
-                    game.playtime_recorded = true;
-                    game.started_at.elapsed().as_secs()
-                } else {
-                    0
-                };
-                let post_exit = game.post_exit.take();
-                if elapsed_seconds > 0 || post_exit.is_some() {
-                    finished.push(FinishedGame {
-                        instance_id: id.clone(),
-                        elapsed_seconds,
-                        game_dir: game.game_dir.clone(),
-                        post_exit,
-                    });
-                }
+            if game.child.try_wait()?.is_some() && !game.exit_recorded {
+                game.exit_recorded = true;
+                finished.push(FinishedGame {
+                    instance_id: id.clone(),
+                    elapsed_seconds: game.started_at.elapsed().as_secs(),
+                    game_dir: game.game_dir.clone(),
+                    post_exit: game.post_exit.take(),
+                });
             }
         }
         Ok(finished)
     }
-    pub async fn poll_until_exited(&self, id: &str, pid: u32) -> bool {
+    pub async fn poll_until_exited(&self, id: &str, pid: u32) -> Option<std::process::ExitStatus> {
         loop {
             {
                 let mut items = self.items.lock().await;
                 match items.get_mut(id) {
-                    Some(game) if game.child.id() == Some(pid) => {
-                        if !matches!(game.child.try_wait(), Ok(None)) {
-                            return true;
+                    Some(game) if game.pid == pid => {
+                        match game.child.try_wait() {
+                            Ok(Some(status)) => return Some(status),
+                            Ok(None) => {},
+                            // A transient inspection error is not evidence of exit.
+                            Err(_) => {},
                         }
                     }
-                    _ => return false,
+                    _ => return None,
                 }
             }
             tokio::time::sleep(std::time::Duration::from_millis(800)).await;
@@ -464,12 +461,6 @@ impl Games {
         let instance = store.get(id).await?;
         if instance.state != "installed" {
             bail!("Finish installing this instance before playing")
-        }
-        let mut items = self.items.lock().await;
-        if let Some(prior) = items.get_mut(id) {
-            if prior.child.try_wait()?.is_none() {
-                bail!("This Minecraft instance is already running")
-            }
         }
         let runtime = store.path(id)?.join("runtime");
         let game_dir = store.game_dir(id).await?;
@@ -499,6 +490,14 @@ impl Games {
             resolution,
             fullscreen,
         )?;
+        // Only spawning/registration needs the global process lock. File
+        // verification and Java checks must not freeze other games or polling.
+        let mut items = self.items.lock().await;
+        if let Some(prior) = items.get_mut(id) {
+            if prior.child.try_wait()?.is_none() {
+                bail!("This Minecraft instance is already running")
+            }
+        }
         let mut command = Command::new(java_path);
         command
             .args(args)
@@ -535,9 +534,10 @@ impl Games {
             id.into(),
             Game {
                 child,
+                pid,
                 log,
                 started_at: std::time::Instant::now(),
-                playtime_recorded: false,
+                exit_recorded: false,
                 game_dir,
                 post_exit: post_exit
                     .map(|s| s.trim().to_string())
@@ -555,48 +555,46 @@ impl Games {
         Ok(value)
     }
     pub async fn stop(&self, id: &str) -> Result<()> {
-        let mut items = self.items.lock().await;
-        let game = items.get_mut(id).context("This instance is not running")?;
-        if game.child.try_wait()?.is_some() {
-            return Ok(());
-        }
-        let pid = game.child.id().context("Game process unavailable")?;
-        #[cfg(windows)]
-        {
-            let _ = pid;
-            let posted = close_process_windows(pid);
-            if !posted {
-                if let Err(_) = game.child.start_kill() {
-                    bail!("Close the Minecraft window to save and stop your game");
-                }
+        let pid = {
+            let mut items = self.items.lock().await;
+            let game = items.get_mut(id).context("This instance is not running")?;
+            if game.child.try_wait()?.is_some() {
+                return Ok(());
             }
+            game.pid
+        };
+        #[cfg(windows)]
+        if !close_process_windows(pid) {
+            // Never silently hard-kill a game that may be writing a world.
+            bail!("Minecraft has no window to close yet. Wait for it to open, then stop it from the game window.");
         }
         #[cfg(not(windows))]
         {
-            let mut command = {
-                let mut c = Command::new("kill");
-                c.args(["-TERM", &pid.to_string()]);
-                c
-            };
             let result = tokio::time::timeout(
                 std::time::Duration::from_secs(10),
-                command
-                    .stdin(Stdio::null())
-                    .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .status(),
-            )
-            .await;
+                Command::new("kill").args(["-TERM", &pid.to_string()])
+                    .stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).status(),
+            ).await;
             if !matches!(result, Ok(Ok(status)) if status.success()) {
                 bail!("Close the Minecraft window to save and stop your game");
             }
         }
-        match tokio::time::timeout(std::time::Duration::from_secs(15), game.child.wait()).await {
-            Ok(Ok(_)) => {}
-            Ok(Err(_)) => bail!("Minecraft process state could not be checked"),
-            Err(_) => bail!("Minecraft is still closing. Save and close it from the game window."),
-        }
-        Ok(())
+        // Poll without keeping the global mutex across the shutdown wait. A
+        // replaced session is never stopped or mistaken for the previous one.
+        tokio::time::timeout(std::time::Duration::from_secs(15), async {
+            loop {
+                {
+                    let mut items = self.items.lock().await;
+                    match items.get_mut(id) {
+                        Some(game) if game.pid == pid => {
+                            if game.child.try_wait()?.is_some() { return Ok(()); }
+                        }
+                        _ => return Ok(()),
+                    }
+                }
+                tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+            }
+        }).await.context("Minecraft is still closing. Save and close it from the game window.")?
     }
 }
 
@@ -689,6 +687,60 @@ async fn append_log(log: &Mutex<String>, line: &[u8], secrets: &[String]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
+    async fn register_test_process(games: &Games, id: &str, script: &str) -> u32 {
+        let mut child = Command::new("sh").args(["-c", script])
+            .stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::null())
+            .kill_on_drop(true).spawn().unwrap();
+        let pid = child.id().unwrap();
+        // Wait until the process has installed its signal handlers.
+        use tokio::io::{AsyncBufReadExt, BufReader};
+        let mut ready = String::new();
+        BufReader::new(child.stdout.take().unwrap()).read_line(&mut ready).await.unwrap();
+        games.items.lock().await.insert(id.into(), Game {
+            child, pid, log: Arc::new(Mutex::new(String::new())),
+            started_at: std::time::Instant::now(), exit_recorded: false,
+            game_dir: std::env::temp_dir(), post_exit: Some("test-only-hook".into()),
+        });
+        pid
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn exit_is_detected_after_snapshot_reaps_child_and_collected_once() {
+        let games = Games::default();
+        let pid = register_test_process(&games, "fixture", "echo ready; exit 7").await;
+        tokio::time::timeout(std::time::Duration::from_secs(3), async {
+            while !games.running().await.unwrap().is_empty() { tokio::task::yield_now().await; }
+        }).await.unwrap();
+        let finished = games.collect_finished().await.unwrap();
+        assert_eq!(finished.len(), 1);
+        assert_eq!(finished[0].post_exit.as_deref(), Some("test-only-hook"));
+        assert!(games.collect_finished().await.unwrap().is_empty());
+        assert_eq!(games.items.lock().await["fixture"].child.id(), None);
+        let status = games.poll_until_exited("fixture", pid).await.unwrap();
+        assert_eq!(status.code(), Some(7));
+        assert!(!status.success());
+        assert!(games.poll_until_exited("fixture", pid.wrapping_add(1)).await.is_none());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn stopping_a_process_does_not_block_running_snapshot_or_logs() {
+        let games = Arc::new(Games::default());
+        register_test_process(&games, "fixture", "trap '' TERM; echo ready; sleep 1").await;
+        let stop_games = games.clone();
+        let stopping = tokio::spawn(async move { stop_games.stop("fixture").await });
+        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        assert!(!stopping.is_finished(), "fixture must still be shutting down");
+        tokio::time::timeout(std::time::Duration::from_millis(200), async {
+            assert_eq!(games.running().await.unwrap(), vec!["fixture"]);
+            assert_eq!(games.logs("fixture").await.unwrap(), "");
+        }).await.expect("Stop must release the global process lock while waiting");
+        stopping.await.unwrap().unwrap();
+        assert!(games.running().await.unwrap().is_empty());
+        assert_eq!(games.collect_finished().await.unwrap().len(), 1);
+    }
     #[test]
     fn placeholders_keep_paths_as_single_arguments_and_reject_unknowns() {
         let vars = BTreeMap::from([("game_directory", String::from("C:\\Users\\Test Name\\game"))]);

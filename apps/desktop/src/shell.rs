@@ -75,9 +75,50 @@ async fn delete_instance(id: String) -> Result<(), String> {
     engine::delete_instance(&id).await.map_err(err)
 }
 #[tauri::command]
-async fn launch_instance(id: String) -> Result<Value, String> {
+async fn launch_instance(app: tauri::AppHandle, id: String) -> Result<Value, String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::launch(id).await.map_err(err)
+    let emit_app = app.clone();
+    let emit_id = id.clone();
+    let exit_app = app.clone();
+    let exit_id = id.clone();
+    let error_id = id.clone();
+    let res = engine::launch_with_events(
+        id,
+        move |stage, detail| {
+            use tauri::Emitter;
+            let _ = emit_app.emit_to(
+                "main",
+                "launch-progress",
+                serde_json::json!({
+                    "instanceId": emit_id,
+                    "stage": stage,
+                    "detail": detail,
+                }),
+            );
+        },
+        move |status| {
+            use tauri::Emitter;
+            let _ = exit_app.emit_to("main", "game-exited", serde_json::json!({
+                "instanceId": exit_id,
+                "exitCode": status.code(),
+                "success": status.success(),
+            }));
+        },
+    )
+    .await;
+    if let Err(ref e) = res {
+        use tauri::Emitter;
+        let _ = app.emit_to(
+            "main",
+            "launch-progress",
+            serde_json::json!({
+                "instanceId": error_id,
+                "stage": "error",
+                "detail": err(anyhow::anyhow!("{e:#}")),
+            }),
+        );
+    }
+    res.map_err(err)
 }
 #[tauri::command]
 async fn stop_instance(id: String) -> Result<(), String> {
@@ -237,9 +278,10 @@ async fn install_content(
     project_id: String,
     content_type: String,
     version_id: Option<String>,
-) -> Result<(), String> {
+    world: Option<String>,
+) -> Result<Value, String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::install_content(instance_id, project_id, content_type, version_id)
+    engine::install_content(instance_id, project_id, content_type, version_id, world)
         .await
         .map_err(err)
 }
@@ -560,7 +602,6 @@ fn window_action(window: tauri::Window, action: String) -> Result<(), String> {
                 window.maximize().map_err(err)
             }
         }
-        "hide" => window.hide().map_err(err),
         "show" => window.show().map_err(err),
         "close" => window.close().map_err(err),
         _ => Err("Unsupported window action".into()),

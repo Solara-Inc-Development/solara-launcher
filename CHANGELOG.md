@@ -1,5 +1,19 @@
 # Changelog
 
+## Testing Preview V-0.0.38 — 2026-11-14
+
+- **Fixed Launcher Closing When Clicking Play**:
+  - Removed the `onLaunch` close and hide-without-tray actions that closed or hid the launcher window when starting an instance.
+  - Added an early-exit safety guard in `launchOrStopInstance` so the launcher only minimizes (`minimize`) after verifying the launched Minecraft process is actively running, and automatically normalizes legacy `"close"`/`"hide"` preferences to `"keep"`.
+- **Solara V3 Obsidian Dawn Gold Polish & Brand Identity**:
+  - Updated the surface palette toward true OLED black (`#000000` / `#0D0D10` / `#151518`) paired with warm Dawn Gold accents, original geometric `SolaraLogo`, and animated OLED startup `SplashScreen`.
+  - Refined modal workflows (`GlobalSettingsModal`, `InstanceSettingsModal`, `InstanceContentBrowserModal`), `SolaraHubView`, offline bundled `DM Sans` font assets, and keyboard focus styling.
+- **Engine Safety & Lifecycle Hardening**:
+  - Added RAII `LaunchReservation` tracking, real-time `launch-progress` and `game-exited` Tauri events, non-destructive `migrate_clean_slate_v23` user data preservation, `backups.rs` failure retention, and redacted `export_diagnostics`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.37 — 2026-11-14
 
 - **Solara Dawn Gold — Obsidian Edition Redesign**:

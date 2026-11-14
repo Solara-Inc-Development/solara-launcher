@@ -93,9 +93,9 @@ onUnmounted(() => window.removeEventListener('pointerdown', handleOutside));
           :indeterminate="job.total <= 0"
           compact
         />
-        <div v-if="job.status === 'running' || job.status === 'queued' || job.status === 'failed' || job.status === 'cancelled'" class="sol-task-mini-actions">
+        <div v-if="job.actions.length > 0" class="sol-task-mini-actions">
           <SolaraButton
-            v-if="job.status === 'running' || job.status === 'queued'"
+            v-if="job.actions.includes('cancel')"
             variant="ghost"
             size="xs"
             @click="cancelJob(job.id)"
@@ -103,7 +103,7 @@ onUnmounted(() => window.removeEventListener('pointerdown', handleOutside));
             <X :size="12" /> Cancel
           </SolaraButton>
           <SolaraButton
-            v-else
+            v-else-if="job.actions.includes('retry')"
             variant="ghost"
             size="xs"
             @click="retryJob(job.id)"

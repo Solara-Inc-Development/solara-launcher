@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { onBeforeUnmount, reactive } from 'vue';
 import { native, notify, store } from './state';
 import type { ScreenshotEntry } from './types';
 
@@ -166,4 +166,28 @@ export async function copyScreenshotPath(shot: ScreenshotEntry): Promise<void> {
   } catch (err) {
     notify('error', "Couldn't copy file path", String(err));
   }
+}
+
+// Shared viewport loading for both the global gallery and an instance gallery.
+export function useScreenshotObserver(): (shot: ScreenshotEntry, element: unknown) => void {
+  const entries = new WeakMap<Element, ScreenshotEntry>();
+  const observed = new WeakSet<Element>();
+  let observer: IntersectionObserver | null = null;
+  onBeforeUnmount(() => { observer?.disconnect(); observer = null; });
+  return (shot, element) => {
+    if (!(element instanceof Element)) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      if (!peekCachedPreview(shot)) void loadScreenshotPreview(shot);
+      return;
+    }
+    if (!observer) observer = new IntersectionObserver((changes) => {
+      for (const change of changes) {
+        if (!change.isIntersecting) continue;
+        const item = entries.get(change.target);
+        if (item && !peekCachedPreview(item)) void loadScreenshotPreview(item);
+      }
+    }, { rootMargin: '160px' });
+    entries.set(element, shot);
+    if (!observed.has(element)) { observed.add(element); observer.observe(element); }
+  };
 }

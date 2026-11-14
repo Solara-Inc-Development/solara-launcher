@@ -1,66 +1,66 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import InstanceContentBrowserModal, {
+  type BrowserContentTab,
+} from '../components/InstanceContentBrowserModal.vue';
+import InstanceIcon from '../components/InstanceIcon.vue';
+import { copyScreenshotPath, getCachedPreview, loadFullScreenshot, peekCachedPreview, screenshotKey, useScreenshotObserver } from '../screenshots';
+import ModUpdateModal from '../components/ModUpdateModal.vue';
+import SolaraButton from '../components/SolaraButton.vue';
+import SolaraEmptyState from '../components/SolaraEmptyState.vue';
+import SolaraToggle from '../components/SolaraToggle.vue';
+import SolaraModal from '../components/SolaraModal.vue';
 import {
-  Play,
-  Pause,
-  Square,
-  Settings,
-  MoreHorizontal,
-  FolderOpen,
-  Pin,
-  Star,
-  Plus,
-  Upload,
-  Search,
-  RefreshCw,
-  Trash2,
-  RotateCcw,
-  File,
-  Folder,
-  FileText,
-  Archive,
-  Wrench,
-  Clock,
-  Globe,
-  Camera,
-  Download,
   AlertTriangle,
-  Copy,
+  Camera,
   Check,
+  Compass,
+  Copy,
+  File,
   Edit3,
+  Plus,
+  Folder,
+  FolderOpen,
+  Globe,
+  Info,
+  MoreVertical,
   Package,
+  Pin,
+  Play,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  Sliders,
+  Square,
+  Terminal,
+  Trash2,
+  Upload,
+  X,
 } from '../icons';
 import {
-  store,
   currentRoute,
-  setInstanceTab,
-  navigate,
-  launchOrStopInstance,
-  patchInstanceMeta,
-  refreshSnapshot,
+  registerUnsavedChanges,
+  runWithDirtyGuard,
   formatBytes,
   formatDuration,
   formatRelativeTime,
+  launchOrStopInstance,
   LOADER_LABEL,
-  BUILTIN_ICON_PRESETS,
-  activeJobs,
   native,
+  navigate,
   notify,
+  openInstanceSettings,
+  patchInstanceMeta,
+  refreshSnapshot,
+  selectInstance,
+  setInstanceTab,
+  store,
 } from '../state';
-import {
-  copyScreenshotPath,
-  getCachedPreview,
-  invalidateScreenshotPreview,
-  loadFullScreenshot,
-  loadScreenshotPreview,
-  peekCachedPreview,
-  screenshotKey,
-} from '../screenshots';
 import type {
-  BackupEntry,
-  DetectedJava,
+  ContentUpdateItem,
   FileEntry,
   InstanceDetailTab,
+  InstanceRecord,
   LogFileEntry,
   ModEntry,
   PackEntry,
@@ -68,341 +68,501 @@ import type {
   TrashEntry,
   WorldEntry,
 } from '../types';
-import SolaraTabs from '../components/SolaraTabs.vue';
-import SolaraButton from '../components/SolaraButton.vue';
-import SolaraProgress from '../components/SolaraProgress.vue';
-import SolaraEmptyState from '../components/SolaraEmptyState.vue';
-import SolaraModal from '../components/SolaraModal.vue';
-import SolaraSaveBar from '../components/SolaraSaveBar.vue';
-import SolaraContextMenu, { type ContextMenuItem } from '../components/SolaraContextMenu.vue';
-import ConfirmDialog from '../components/ConfirmDialog.vue';
-import InstanceIcon from '../components/InstanceIcon.vue';
-import ModUpdateModal from '../components/ModUpdateModal.vue';
 
-const instance = computed(() =>
-  store.instances.find((i) => i.id === currentRoute.value.instanceId) ?? null,
-);
-const activeTab = computed<InstanceDetailTab>({
-  get: () => currentRoute.value.tab ?? 'overview',
-  set: (t) => setInstanceTab(t),
+interface UnifiedContentRow {
+  key: string;
+  kind: 'mod' | 'resourcepacks' | 'shaderpacks' | 'datapacks';
+  kindLabel: string;
+  name: string;
+  fileName: string;
+  path: string;
+  version: string | null;
+  enabled: boolean;
+  size: number;
+  iconDataUrl: string | null;
+  world: string | null;
+  rawMod?: ModEntry;
+  rawPack?: PackEntry;
+}
+
+const instance = computed<InstanceRecord | null>(() => {
+  const id = currentRoute.value.instanceId ?? store.selectedInstanceId;
+  return store.instances.find((i) => i.id === id) ?? null;
 });
 
-const tabs = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'content', label: 'Content' },
-  { id: 'files', label: 'Files' },
-  { id: 'worlds', label: 'Worlds' },
-  { id: 'logs', label: 'Logs' },
-  { id: 'screenshots', label: 'Screenshots' },
-  { id: 'settings', label: 'Settings' },
-];
-
-// Overflow menu & Delete
-const overflowMenu = ref({ open: false, x: 0, y: 0 });
-const showDeleteDialog = ref(false);
-const deleting = ref(false);
-const showUpdateModal = ref(false);
-
-const overflowItems = computed<ContextMenuItem[]>(() => {
-  const inst = instance.value;
-  if (!inst) return [];
-  return [
-    { id: 'pin', label: inst.pinned ? 'Unpin from Sidebar' : 'Pin to Sidebar' },
-    { id: 'fav', label: inst.favourite ? 'Remove Favourite' : 'Favourite' },
-    { id: 'folder', label: 'Open Instance Folder' },
-    { id: 'duplicate', label: 'Duplicate Instance' },
-    { id: 'repair', label: 'Repair Game Files', disabled: Boolean(inst.running) },
-    { id: 'sep', label: '', separator: true },
-    { id: 'delete', label: 'Delete Instance', danger: true, disabled: Boolean(inst.running) },
-  ];
+const activeTab = computed<InstanceDetailTab>(() => {
+  const t = currentRoute.value.tab;
+  if (!t || t === 'overview' || t === 'settings') return 'content';
+  return t;
 });
 
-function openOverflow(e: MouseEvent) {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-  overflowMenu.value = { open: true, x: rect.left, y: rect.bottom + 6 };
-}
+const launchState = computed(() => {
+  if (!instance.value) return null;
+  return store.launchStates[instance.value.id] ?? null;
+});
 
-async function handleOverflowAction(action: string) {
-  const inst = instance.value;
-  if (!inst) return;
-  if (action === 'pin') await patchInstanceMeta(inst.id, { pinned: !inst.pinned });
-  else if (action === 'fav') await patchInstanceMeta(inst.id, { favourite: !inst.favourite });
-  else if (action === 'folder') {
-    native('open_instance_folder', { id: inst.id }).catch((e) => notify('error', "Couldn't open folder", String(e)));
-  } else if (action === 'duplicate') {
-    try {
-      const copy = await native<{ id: string }>('duplicate_instance', { id: inst.id });
-      await refreshSnapshot();
-      notify('success', 'Instance duplicated');
-      navigate('instance', { instanceId: copy.id, tab: 'overview' });
-    } catch (e) {
-      notify('error', "Couldn't duplicate instance", String(e));
-    }
-  } else if (action === 'repair') {
-    try {
-      await native('repair_instance', { id: inst.id });
-      await refreshSnapshot();
-      notify('info', 'Repairing files', `Verifying runtime for ${inst.name}.`);
-    } catch (e) {
-      notify('error', "Couldn't repair files", String(e));
-    }
-  } else if (action === 'delete') {
-    showDeleteDialog.value = true;
-  }
-}
+const isLaunching = computed(() => {
+  const st = launchState.value;
+  return Boolean(st && st.stage !== 'running' && st.stage !== 'error');
+});
 
-async function confirmDelete() {
-  if (!instance.value) return;
-  deleting.value = true;
-  try {
-    await native('delete_instance', { id: instance.value.id });
-    showDeleteDialog.value = false;
-    await refreshSnapshot();
-    notify('success', 'Instance deleted');
-    navigate('library');
-  } catch (e) {
-    notify('error', "Couldn't delete instance", String(e));
-  } finally {
-    deleting.value = false;
-  }
-}
+const openHeaderMenu = ref(false);
+const showBrowserModal = ref(false);
+const browserInitialTab = ref<BrowserContentTab>('mod');
+const uploadInput = ref<HTMLInputElement | null>(null);
 
-// ---------------------------------------------------------------------------
-// Overview: Notes & Install Job
-// ---------------------------------------------------------------------------
-const notesText = ref('');
-const savingNotes = ref(false);
-const activeInstJob = computed(() =>
-  instance.value ? activeJobs.value.find((j) => j.instance === instance.value!.id) ?? null : null,
-);
-
-watch(
-  instance,
-  (inst) => {
-    notesText.value = inst?.notes ?? '';
-  },
-  { immediate: true },
-);
-
-async function saveNotes() {
-  if (!instance.value) return;
-  savingNotes.value = true;
-  try {
-    await patchInstanceMeta(instance.value.id, { notes: notesText.value });
-    notify('success', 'Notes saved');
-  } catch (e) {
-    notify('error', "Couldn't save notes", String(e));
-  } finally {
-    savingNotes.value = false;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Content Tab (Mods / ResourcePacks / Shaders / Datapacks)
-// ---------------------------------------------------------------------------
-const contentSubTab = ref<'mod' | 'resourcepack' | 'shader' | 'datapack'>('mod');
-const contentSearch = ref('');
-const contentStateFilter = ref<'all' | 'enabled' | 'disabled'>('all');
+// Content state
+const contentCategory = ref<'all' | 'mod' | 'resourcepacks' | 'shaderpacks' | 'datapacks'>('all');
+const contentSort = ref<'name' | 'enabled' | 'size' | 'kind'>('name');
+const contentQuery = ref('');
+const selectedContentKeys = ref<string[]>([]);
+const bulkUpdating = ref(false);
+const compatFindings = ref<string[] | null>(null);
 const mods = ref<ModEntry[]>([]);
-const packs = ref<PackEntry[]>([]);
-const datapackWorld = ref<string>('');
-const contentLoading = ref(false);
-const selectedContentPaths = ref<Set<string>>(new Set());
-const packFileInput = ref<HTMLInputElement | null>(null);
+const resourcePacks = ref<PackEntry[]>([]);
+const shaderPacks = ref<PackEntry[]>([]);
+const datapacks = ref<PackEntry[]>([]);
+const loadingContent = ref(false);
+const contentUpdates = ref<ContentUpdateItem[]>([]);
+const checkingUpdates = ref(false);
+const showUpdatesModal = ref(false);
 
-async function loadContentTab() {
-  const inst = instance.value;
-  if (!inst || !store.desktop) return;
-  contentLoading.value = true;
-  selectedContentPaths.value = new Set();
+// Files + Trash + Inline Editor
+const currentDir = ref('');
+const fileEntries = ref<FileEntry[]>([]);
+const trashEntries = ref<TrashEntry[]>([]);
+const showTrash = ref(false);
+const loadingFiles = ref(false);
+const editingFile = ref<FileEntry | null>(null);
+const editingContent = ref('');
+const originalContent = ref('');
+const editingSha256 = ref('');
+const previewImageUrl = ref<string | null>(null);
+const savingFile = ref(false);
+const fileDialog = ref<{ action: 'mkdir' | 'rename' | 'trash'; entry?: FileEntry; id: string; directory: string } | null>(null);
+const fileDialogName = ref('');
+const fileDialogError = ref('');
+const fileMutating = ref(false);
+function openFileAction(action: 'mkdir' | 'rename' | 'trash', entry?: FileEntry): void {
+  if (!instance.value) return;
+  fileDialogName.value = action === 'rename' ? entry?.name ?? '' : '';
+  fileDialogError.value = '';
+  fileDialog.value = { action, entry, id: instance.value.id, directory: currentDir.value };
+}
+async function submitFileAction(): Promise<void> {
+  const dialog = fileDialog.value;
+  if (!dialog || fileMutating.value) return;
+  const name = fileDialogName.value.trim();
+  if (dialog.action !== 'trash' && (!name || /[\\/:*?"<>|]/.test(name) || name === '.' || name === '..')) {
+    fileDialogError.value = 'Enter a name without slashes or special file characters.';
+    return;
+  }
+  fileMutating.value = true;
   try {
-    if (contentSubTab.value === 'mod') {
-      mods.value = await native<ModEntry[]>('instance_mods', { id: inst.id });
+    const parent = dialog.entry?.path.split('/').slice(0, -1).join('/') ?? dialog.directory;
+    const target = [parent, name].filter(Boolean).join('/');
+    await native('instance_file_action', {
+      id: dialog.id, action: dialog.action,
+      path: dialog.action === 'mkdir' ? target : dialog.entry?.path,
+      target: dialog.action === 'rename' ? target : null,
+    });
+    fileDialog.value = null;
+    if (instance.value?.id === dialog.id) await loadFiles();
+    notify('success', dialog.action === 'trash' ? 'Moved to instance trash' : dialog.action === 'mkdir' ? 'Folder created' : 'Name updated');
+  } catch (err) { fileDialogError.value = String(err); }
+  finally { fileMutating.value = false; }
+}
+
+// Worlds
+const worlds = ref<WorldEntry[]>([]);
+const loadingWorlds = ref(false);
+const editingWorld = ref<string | null>(null);
+const worldRenameInput = ref('');
+
+// Logs & Smart Crash Assistant
+const logText = ref('');
+const logSearch = ref('');
+const logLevel = ref<'ALL' | 'INFO' | 'WARN' | 'ERROR'>('ALL');
+const showTimestamps = ref(true);
+const logPaused = ref(false);
+const logWindowLimit = ref(300);
+const showCrashAssistant = ref(false);
+const diskLogs = ref<LogFileEntry[]>([]);
+const selectedLogFile = ref<string>('live');
+const loadingLogs = ref(false);
+const copiedLogs = ref(false);
+const logError = ref('');
+const logViewer = ref<HTMLElement | null>(null);
+let latestLogText = '';
+let clearedLogPrefix = '';
+let logPollTimer: ReturnType<typeof setInterval> | null = null;
+
+// Screenshots
+const screenshots = ref<ScreenshotEntry[]>([]);
+const bindScreenshotRef = useScreenshotObserver();
+const loadingShots = ref(false);
+const lightboxShot = ref<{ entry: ScreenshotEntry; src: string } | null>(null);
+
+const unifiedRows = computed<UnifiedContentRow[]>(() => {
+  const rows: UnifiedContentRow[] = [
+    ...mods.value.map((m) => ({
+      key: `mod:${m.path}`,
+      kind: 'mod' as const,
+      kindLabel: 'Mod',
+      name: m.name || m.fileName,
+      fileName: m.fileName,
+      path: m.path,
+      version: m.version,
+      enabled: m.enabled,
+      size: m.size,
+      iconDataUrl: null,
+      world: null,
+      rawMod: m,
+    })),
+    ...resourcePacks.value.map((p) => ({
+      key: `rp:${p.path}`,
+      kind: 'resourcepacks' as const,
+      kindLabel: 'Resource Pack',
+      name: p.name || p.fileName,
+      fileName: p.fileName,
+      path: p.path,
+      version: p.packFormat ? `Pack v${p.packFormat}` : null,
+      enabled: p.enabled,
+      size: p.size,
+      iconDataUrl: p.iconDataUrl,
+      world: null,
+      rawPack: p,
+    })),
+    ...shaderPacks.value.map((p) => ({
+      key: `sp:${p.path}`,
+      kind: 'shaderpacks' as const,
+      kindLabel: 'Shader',
+      name: p.name || p.fileName,
+      fileName: p.fileName,
+      path: p.path,
+      version: null,
+      enabled: p.enabled,
+      size: p.size,
+      iconDataUrl: p.iconDataUrl,
+      world: null,
+      rawPack: p,
+    })),
+    ...datapacks.value.map((p) => ({
+      key: `dp:${p.path}`,
+      kind: 'datapacks' as const,
+      kindLabel: 'Datapack',
+      name: p.name || p.fileName,
+      fileName: p.fileName,
+      path: p.path,
+      version: p.world ? `World: ${p.world}` : null,
+      enabled: p.enabled,
+      size: p.size,
+      iconDataUrl: p.iconDataUrl,
+      world: p.world,
+      rawPack: p,
+    })),
+  ];
+  const q = contentQuery.value.trim().toLowerCase();
+  return rows
+    .filter((row) => {
+      if (contentCategory.value !== 'all' && row.kind !== contentCategory.value) return false;
+      if (q) {
+        return `${row.name} ${row.fileName} ${row.world ?? ''}`.toLowerCase().includes(q);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (contentSort.value === 'enabled') return Number(b.enabled) - Number(a.enabled) || a.name.localeCompare(b.name);
+      if (contentSort.value === 'size') return b.size - a.size;
+      if (contentSort.value === 'kind') return a.kindLabel.localeCompare(b.kindLabel) || a.name.localeCompare(b.name);
+      return a.name.localeCompare(b.name);
+    });
+});
+
+const installedContentNames = computed(() => unifiedRows.value.map((r) => r.name));
+
+interface ParsedLogLine {
+  id: number;
+  ts: string;
+  level: 'INFO' | 'WARN' | 'ERROR' | 'OTHER';
+  body: string;
+}
+
+const parsedLogLines = computed<ParsedLogLine[]>(() => {
+  if (!logText.value.trim()) return [];
+  const raw = logText.value.split(/\r?\n/);
+  const q = logSearch.value.trim().toLowerCase();
+  const out: ParsedLogLine[] = [];
+  let idx = 0;
+  for (const line of raw) {
+    if (!line) continue;
+    const isErr = /\b(ERROR|FATAL|SEVERE|Exception|Error)\b/i.test(line);
+    const isWarn = !isErr && /\/WARN\]|\bWARN\b/i.test(line);
+    const isInfo = !isErr && !isWarn && /\/INFO\]|\bINFO\b/i.test(line);
+    const level: ParsedLogLine['level'] = isErr ? 'ERROR' : isWarn ? 'WARN' : isInfo ? 'INFO' : 'OTHER';
+    if (logLevel.value !== 'ALL' && level !== logLevel.value) continue;
+    if (q && !line.toLowerCase().includes(q)) continue;
+    const match = line.match(/^(\[[^\]]+\])\s*(.*)$/);
+    out.push({
+      id: idx++,
+      ts: match ? match[1] : '',
+      level,
+      body: match ? match[2] : line,
+    });
+  }
+  return out;
+});
+
+const windowedLogLines = computed(() =>
+  parsedLogLines.value.slice(-logWindowLimit.value),
+);
+
+const crashInsights = computed(() => {
+  const txt = logText.value;
+  if (!txt.trim()) return [];
+  const findings: Array<{ title: string; advice: string }> = [];
+  if (/UnsupportedClassVersionError|compiled by a more recent version of the Java Runtime/i.test(txt)) {
+    findings.push({
+      title: 'Java version mismatch detected',
+      advice: 'This Minecraft version or mod requires a newer Java runtime (e.g. Java 21 for MC 1.20.5+). Check Instance Settings -> Java & Memory.',
+    });
+  }
+  if (/OutOfMemoryError|Java heap space/i.test(txt)) {
+    findings.push({
+      title: 'Minecraft ran out of memory',
+      advice: 'Increase allocated RAM in Instance Settings -> Java & Memory (recommended 4096–6144 MB for modded instances).',
+    });
+  }
+  if (/Missing or unsupported mandatory dependencies|ModResolutionException|requires version|Cannot find mod/i.test(txt)) {
+    findings.push({
+      title: 'Missing or incompatible mod dependency',
+      advice: 'A mod requires a library mod or newer version (e.g. Fabric API, Cloth Config, Architectury). Install the required dependency without deleting existing mods.',
+    });
+  }
+  if (/MixinApplyError|MixinTransformerError/i.test(txt)) {
+    findings.push({
+      title: 'Mixin conflict between installed mods',
+      advice: 'Two mods modified the same Minecraft class. Check recent additions in the Content tab and toggle suspicious mods off to isolate.',
+    });
+  }
+  if (/Address already in use|BindException/i.test(txt)) {
+    findings.push({
+      title: 'Network port already in use',
+      advice: 'Another game or local server is using this port. Close the duplicate process or change the server port.',
+    });
+  }
+  return findings;
+});
+
+function toggleSelectContent(key: string, checked: boolean): void {
+  if (checked) {
+    if (!selectedContentKeys.value.includes(key)) {
+      selectedContentKeys.value = [...selectedContentKeys.value, key];
+    }
+  } else {
+    selectedContentKeys.value = selectedContentKeys.value.filter((k) => k !== key);
+  }
+}
+
+async function applyBulkToggle(targetEnabled: boolean): Promise<void> {
+  if (!instance.value || bulkUpdating.value) return;
+  const id = instance.value.id;
+  const targets = unifiedRows.value.filter((r) => selectedContentKeys.value.includes(r.key) && r.enabled !== targetEnabled);
+  const failed: string[] = [];
+  bulkUpdating.value = true;
+  try {
+    for (const row of targets) {
+      try {
+        if (row.kind === 'mod') await native('toggle_instance_mod', { id, path: row.path, enabled: targetEnabled });
+        else await native('toggle_instance_pack', { id, kind: row.kind, path: row.path, enabled: targetEnabled });
+      } catch (err) { failed.push(row.key); notify('error', `Couldn't change ${row.name}`, String(err)); }
+    }
+    if (instance.value?.id === id) {
+      selectedContentKeys.value = failed;
+      await loadAllContent();
+    }
+  } finally { bulkUpdating.value = false; }
+}
+
+function runCompatibilityCheck(): void {
+  if (!instance.value) return;
+  const issues: string[] = [];
+  const enabledMods = mods.value.filter((m) => m.enabled);
+  if (instance.value.loader === 'vanilla' && enabledMods.length > 0) {
+    issues.push(`Vanilla instances cannot load ${enabledMods.length} mod(s) in mods/. Switch to Fabric/NeoForge or disable mods.`);
+  }
+  const seenIds = new Map<string, string>();
+  for (const m of enabledMods) {
+    if (m.issue) issues.push(`${m.fileName}: ${m.issue}. Reinstall this file or inspect it before playing.`);
+    const loaders = m.loaders ?? [];
+    if (loaders.length > 0 && !loaders.includes(instance.value.loader) && !(instance.value.loader === 'quilt' && loaders.includes('fabric'))) {
+      issues.push(`${m.name} is marked for ${loaders.join(' / ')}, but this instance uses ${LOADER_LABEL[instance.value.loader]}. Install a matching release or disable this mod.`);
+    }
+    const id = m.modId?.toLowerCase();
+    if (id && seenIds.has(id)) {
+      issues.push(`Duplicate mod ID "${m.modId}" found in ${seenIds.get(id)} and ${m.fileName}.`);
+    } else if (id) {
+      seenIds.set(id, m.fileName);
+    }
+  }
+  const enabledShaders = shaderPacks.value.filter((s) => s.enabled);
+  const hasShaderMod = enabledMods.some((m) => /iris|oculus|optifine/i.test(`${m.name} ${m.modId ?? ''} ${m.fileName}`));
+  if (enabledShaders.length > 0 && !hasShaderMod) {
+    issues.push('Shader packs are enabled, but no Iris / Oculus shader mod was detected in mods/.');
+  }
+  compatFindings.value = issues;
+}
+
+async function loadAllContent(): Promise<void> {
+  if (!store.desktop || !instance.value) return;
+  loadingContent.value = true;
+  const id = instance.value.id;
+  try {
+    const [m, rp, sp, dp, w] = await Promise.all([
+      native<ModEntry[]>('instance_mods', { id }).catch(() => []),
+      native<PackEntry[]>('instance_packs', { id, kind: 'resourcepacks', world: null }).catch(() => []),
+      native<PackEntry[]>('instance_packs', { id, kind: 'shaderpacks', world: null }).catch(() => []),
+      native<PackEntry[]>('instance_packs', { id, kind: 'datapacks', world: null }).catch(() => []),
+      native<WorldEntry[]>('instance_worlds', { id }).catch(() => []),
+    ]);
+    if (instance.value?.id !== id) return;
+    mods.value = Array.isArray(m) ? m : [];
+    resourcePacks.value = Array.isArray(rp) ? rp : [];
+    shaderPacks.value = Array.isArray(sp) ? sp : [];
+    datapacks.value = Array.isArray(dp) ? dp : [];
+    worlds.value = Array.isArray(w) ? w : [];
+  } finally {
+    loadingContent.value = false;
+  }
+}
+
+async function toggleContentRow(row: UnifiedContentRow, enabled: boolean): Promise<void> {
+  if (!instance.value) return;
+  try {
+    if (row.kind === 'mod') {
+      await native('toggle_instance_mod', { id: instance.value.id, path: row.path, enabled });
     } else {
-      packs.value = await native<PackEntry[]>('instance_packs', {
-        id: inst.id,
-        kind: contentSubTab.value,
-        world: contentSubTab.value === 'datapack' && datapackWorld.value ? datapackWorld.value : null,
+      await native('toggle_instance_pack', {
+        id: instance.value.id,
+        kind: row.kind,
+        path: row.path,
+        enabled,
       });
     }
-  } catch (e) {
-    notify('error', "Couldn't load content", String(e));
-  } finally {
-    contentLoading.value = false;
+    await loadAllContent();
+  } catch (err) {
+    notify('error', "Couldn't toggle content", String(err));
   }
 }
 
-const filteredContentRows = computed(() => {
-  const q = contentSearch.value.trim().toLowerCase();
-  if (contentSubTab.value === 'mod') {
-    return mods.value.filter((m) => {
-      if (contentStateFilter.value === 'enabled' && !m.enabled) return false;
-      if (contentStateFilter.value === 'disabled' && m.enabled) return false;
-      if (q && !`${m.name} ${m.fileName} ${m.modId ?? ''}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }
-  return packs.value.filter((p) => {
-    if (contentStateFilter.value === 'enabled' && !p.enabled) return false;
-    if (contentStateFilter.value === 'disabled' && p.enabled) return false;
-    if (q && !`${p.name} ${p.fileName} ${p.description || ''}`.toLowerCase().includes(q)) return false;
-    return true;
-  });
-});
-
-async function setContentItemEnabled(path: string, enabled: boolean) {
+async function removeContentRow(row: UnifiedContentRow): Promise<void> {
   if (!instance.value) return;
-  if (contentSubTab.value === 'mod') {
-    await native('toggle_instance_mod', { id: instance.value.id, path, enabled });
-  } else {
-    await native('toggle_instance_pack', {
+  try {
+    await native('instance_file_action', {
       id: instance.value.id,
-      kind: contentSubTab.value,
-      path,
-      enabled,
+      action: 'trash',
+      path: row.path,
+      target: null,
+      content: null,
+      expectedSha256: null,
     });
+    notify('info', 'Moved to instance trash', row.fileName);
+    await loadAllContent();
+  } catch (err) {
+    notify('error', "Couldn't remove file", String(err));
   }
 }
 
-async function toggleContentItem(path: string, enabled: boolean) {
-  if (!instance.value) return;
-  try {
-    await setContentItemEnabled(path, enabled);
-    await loadContentTab();
-  } catch (e) {
-    notify('error', "Couldn't update item", String(e));
-  }
-}
-
-async function deleteContentItem(path: string) {
-  if (!instance.value) return;
-  try {
-    await native('instance_file_action', { id: instance.value.id, action: 'trash', path });
-    notify('info', 'Moved to instance trash');
-    await loadContentTab();
-  } catch (e) {
-    notify('error', "Couldn't move item to trash", String(e));
-  }
-}
-
-async function bulkToggle(enable: boolean) {
-  if (!instance.value) return;
-  const rows = contentSubTab.value === 'mod' ? mods.value : packs.value;
-  const targets = Array.from(selectedContentPaths.value).filter((p) => {
-    const row = rows.find((item) => item.path === p);
-    return !row || row.enabled !== enable;
-  });
-  let changed = 0;
-  let firstErr: unknown = null;
-  for (const p of targets) {
-    try {
-      await setContentItemEnabled(p, enable);
-      changed++;
-    } catch (e) {
-      if (!firstErr) firstErr = e;
-    }
-  }
-  selectedContentPaths.value = new Set();
-  await loadContentTab();
-  if (firstErr) {
-    notify('error', changed > 0 ? "Some items couldn't be updated" : "Couldn't update items", String(firstErr));
-  }
-}
-
-async function bulkDelete() {
-  if (!instance.value) return;
-  const targets = Array.from(selectedContentPaths.value);
-  let moved = 0;
-  let firstErr: unknown = null;
-  for (const p of targets) {
-    try {
-      await native('instance_file_action', { id: instance.value.id, action: 'trash', path: p });
-      moved++;
-    } catch (e) {
-      if (!firstErr) firstErr = e;
-    }
-  }
-  selectedContentPaths.value = new Set();
-  await loadContentTab();
-  if (firstErr) {
-    notify('error', moved > 0 ? `Moved ${moved} item(s); some couldn't be moved` : "Couldn't move items to trash", String(firstErr));
-  } else if (moved > 0) {
-    notify('info', 'Selected content moved to trash');
-  }
-}
-
-function triggerImportContent() {
-  packFileInput.value?.click();
-}
-
-async function onImportContentFile(e: Event) {
+async function onUploadFiles(e: Event): Promise<void> {
   const input = e.target as HTMLInputElement;
   const files = Array.from(input.files ?? []);
   input.value = '';
   if (!files.length || !instance.value) return;
+
   for (const file of files) {
-    const buf = await file.arrayBuffer();
-    const bytes = new Uint8Array(buf);
-    let bin = '';
-    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    const b64 = btoa(bin);
     try {
-      if (contentSubTab.value === 'mod') {
+      const buf = await file.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      const b64 = btoa(bin);
+      const lower = file.name.toLowerCase();
+      if (lower.endsWith('.jar')) {
         await native('import_instance_mod', {
           id: instance.value.id,
           fileName: file.name,
           bytesBase64: b64,
+          sourcePath: null,
         });
       } else {
+        const targetKind =
+          contentCategory.value === 'shaderpacks'
+            ? 'shaderpacks'
+            : contentCategory.value === 'datapacks'
+              ? 'datapacks'
+              : 'resourcepacks';
         await native('import_instance_pack', {
           id: instance.value.id,
-          kind: contentSubTab.value,
-          world: contentSubTab.value === 'datapack' && datapackWorld.value ? datapackWorld.value : null,
+          kind: targetKind,
+          world: targetKind === 'datapacks' ? (worlds.value[0]?.folder ?? null) : null,
           fileName: file.name,
           bytesBase64: b64,
+          sourcePath: null,
         });
       }
-      notify('success', `Imported ${file.name}`);
+      notify('success', 'Uploaded', file.name);
     } catch (err) {
-      notify('error', `Couldn't import ${file.name}`, String(err));
+      notify('error', `Failed to upload ${file.name}`, String(err));
     }
   }
-  await loadContentTab();
+  await loadAllContent();
 }
 
-// ---------------------------------------------------------------------------
-// Files Tab
-// ---------------------------------------------------------------------------
-const filesPath = ref('');
-const filesList = ref<FileEntry[]>([]);
-const trashList = ref<TrashEntry[]>([]);
-const showTrash = ref(false);
-const filesLoading = ref(false);
-const editingFile = ref<{ path: string; content: string; sha256: string; dirty: boolean } | null>(null);
-const previewImage = ref<{ path: string; dataUrl: string } | null>(null);
-const newFolderModal = ref(false);
-const newFolderName = ref('');
-
-async function loadFiles(path = filesPath.value) {
+async function checkUpdates(): Promise<void> {
   if (!instance.value || !store.desktop) return;
-  filesLoading.value = true;
-  filesPath.value = path;
+  showUpdatesModal.value = true;
+}
+
+function openBrowserForCurrentCategory(): void {
+  browserInitialTab.value =
+    contentCategory.value === 'resourcepacks'
+      ? 'resourcepack'
+      : contentCategory.value === 'shaderpacks'
+        ? 'shader'
+        : contentCategory.value === 'datapacks'
+          ? 'datapack'
+          : 'mod';
+  showBrowserModal.value = true;
+}
+
+// Files
+async function loadFiles(dir = currentDir.value): Promise<void> {
+  if (!store.desktop || !instance.value) return;
+  loadingFiles.value = true;
+  const id = instance.value.id;
+  currentDir.value = dir;
   try {
-    filesList.value = await native<FileEntry[]>('instance_files', {
-      id: instance.value.id,
-      path,
-    });
-    if (showTrash.value) {
-      trashList.value = await native<TrashEntry[]>('instance_trash', { id: instance.value.id });
-    }
-  } catch (e) {
-    notify('error', "Couldn't read folder", String(e));
+    const [list, trash] = await Promise.all([
+      native<FileEntry[]>('instance_files', { id: instance.value.id, path: dir }),
+      native<TrashEntry[]>('instance_trash', { id: instance.value.id }).catch(() => []),
+    ]);
+    if (instance.value?.id !== id) return;
+    fileEntries.value = Array.isArray(list) ? list.map((f) => ({
+      ...f,
+      editable: !f.directory && /\.(txt|json|toml|ya?ml|properties|log|cfg|ini|conf|md|csv|xml|mcmeta)$/i.test(f.name),
+      image: !f.directory && /\.(png|jpe?g|webp)$/i.test(f.name),
+    })) : [];
+    trashEntries.value = Array.isArray(trash) ? trash.map((t) => ({
+      ...t, name: t.originalPath.split('/').at(-1) || t.originalPath,
+    })) : [];
+  } catch (err) {
+    notify('error', 'Failed to list files', String(err));
   } finally {
-    filesLoading.value = false;
+    loadingFiles.value = false;
   }
 }
 
-async function openFileEntry(entry: FileEntry) {
+async function openFileEntry(entry: FileEntry): Promise<void> {
   if (!instance.value) return;
   if (entry.directory) {
     await loadFiles(entry.path);
@@ -410,1480 +570,791 @@ async function openFileEntry(entry: FileEntry) {
   }
   if (entry.editable) {
     try {
-      const res = await native<{ content: string; sha256: string }>('instance_text', {
-        id: instance.value.id,
-        path: entry.path,
-      });
-      editingFile.value = { path: entry.path, content: res.content, sha256: res.sha256, dirty: false };
-    } catch (e) {
-      notify('error', "Couldn't open text file", String(e));
+      const content = await native<{ content: string; sha256: string }>('instance_text', { id: instance.value.id, path: entry.path });
+      editingFile.value = entry;
+      editingContent.value = content.content;
+      originalContent.value = content.content;
+      editingSha256.value = content.sha256;
+      previewImageUrl.value = null;
+    } catch (err) {
+      notify('error', 'Could not open file', String(err));
     }
   } else if (entry.image) {
     try {
-      const dataUrl = await native<string>('instance_image', {
-        id: instance.value.id,
-        path: entry.path,
-      });
-      previewImage.value = { path: entry.path, dataUrl };
-    } catch (e) {
-      notify('error', "Couldn't preview image", String(e));
+      previewImageUrl.value = await native<string>('instance_image', { id: instance.value.id, path: entry.path });
+      editingFile.value = entry;
+    } catch (err) {
+      notify('error', 'Could not preview image', String(err));
     }
   } else {
-    native('open_instance_file', { id: instance.value.id, path: entry.path }).catch((e) =>
-      notify('error', "Couldn't open file", String(e)),
-    );
+    await native('open_instance_file', { id: instance.value.id, path: entry.path }).catch(() => {});
   }
 }
 
-async function saveEditedFile() {
+async function saveEditedFile(): Promise<void> {
   if (!instance.value || !editingFile.value) return;
+  savingFile.value = true;
   try {
-    const res = await native<{ sha256: string }>('instance_file_action', {
+    await native('instance_file_action', {
       id: instance.value.id,
       action: 'save',
       path: editingFile.value.path,
-      content: editingFile.value.content,
-      expectedSha256: editingFile.value.sha256,
+      target: null,
+      content: editingContent.value,
+      expectedSha256: editingSha256.value,
     });
-    editingFile.value.sha256 = res.sha256;
-    editingFile.value.dirty = false;
-    notify('success', 'File saved');
-  } catch (e) {
-    notify('error', "Couldn't save file", String(e));
+    notify('success', 'Saved', editingFile.value.name);
+    editingFile.value = null;
+  } catch (err) {
+    notify('error', 'Save failed', String(err));
+  } finally {
+    savingFile.value = false;
   }
 }
 
-async function trashFileEntry(entry: FileEntry) {
-  if (!instance.value) return;
-  try {
-    await native('instance_file_action', {
-      id: instance.value.id,
-      action: 'trash',
-      path: entry.path,
-    });
-    notify('info', `Moved ${entry.name} to trash`);
-    await loadFiles();
-  } catch (e) {
-    notify('error', "Couldn't move to trash", String(e));
-  }
-}
-
-async function restoreTrashItem(item: TrashEntry) {
+async function restoreTrashItem(t: TrashEntry): Promise<void> {
   if (!instance.value) return;
   try {
     await native('instance_file_action', {
       id: instance.value.id,
       action: 'restore',
-      path: item.id,
+      path: t.id,
+      target: null,
+      content: null,
+      expectedSha256: null,
     });
-    notify('success', `Restored ${item.name}`);
+    notify('success', 'Restored', t.name);
     await loadFiles();
-  } catch (e) {
-    notify('error', "Couldn't restore item", String(e));
+  } catch (err) {
+    notify('error', 'Restore failed', String(err));
   }
 }
 
-async function createFolder() {
-  if (!instance.value || !newFolderName.value.trim()) return;
-  const path = filesPath.value
-    ? `${filesPath.value}/${newFolderName.value.trim()}`
-    : newFolderName.value.trim();
+// Worlds
+async function loadWorlds(): Promise<void> {
+  if (!store.desktop || !instance.value) return;
+  loadingWorlds.value = true;
   try {
-    await native('instance_file_action', { id: instance.value.id, action: 'mkdir', path });
-    newFolderName.value = '';
-    newFolderModal.value = false;
-    await loadFiles();
-  } catch (e) {
-    notify('error', "Couldn't create folder", String(e));
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Worlds Tab
-// ---------------------------------------------------------------------------
-const worlds = ref<WorldEntry[]>([]);
-const worldsLoading = ref(false);
-const renameWorldTarget = ref<WorldEntry | null>(null);
-const renameWorldFolder = ref('');
-
-async function loadWorlds() {
-  if (!instance.value || !store.desktop) return;
-  worldsLoading.value = true;
-  try {
-    worlds.value = await native<WorldEntry[]>('instance_worlds', { id: instance.value.id });
-  } catch (e) {
-    notify('error', "Couldn't load worlds", String(e));
+    const list = await native<WorldEntry[]>('instance_worlds', { id: instance.value.id });
+    worlds.value = Array.isArray(list) ? list : [];
   } finally {
-    worldsLoading.value = false;
+    loadingWorlds.value = false;
   }
 }
 
-async function confirmRenameWorld() {
-  if (!instance.value || !renameWorldTarget.value || !renameWorldFolder.value.trim()) return;
+async function saveWorldRename(folder: string): Promise<void> {
+  if (!instance.value || !worldRenameInput.value.trim()) return;
   try {
     await native('rename_instance_world', {
       id: instance.value.id,
-      folder: renameWorldTarget.value.folder,
-      newName: renameWorldFolder.value.trim(),
+      folder,
+      newName: worldRenameInput.value.trim(),
     });
-    renameWorldTarget.value = null;
+    editingWorld.value = null;
     await loadWorlds();
-    notify('success', 'World folder renamed');
-  } catch (e) {
-    notify('error', "Couldn't rename world", String(e));
-  }
-}
-
-async function deleteWorld(w: WorldEntry) {
-  if (!instance.value) return;
-  try {
-    await native('instance_file_action', {
-      id: instance.value.id,
-      action: 'trash',
-      path: `saves/${w.folder}`,
-    });
-    notify('info', `World '${w.name}' moved to instance trash`);
-    await loadWorlds();
-  } catch (e) {
-    notify('error', "Couldn't delete world", String(e));
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Logs Tab
-// ---------------------------------------------------------------------------
-const LOG_WINDOW_STEP = 300;
-const MAX_LOG_LINE_CHARS = 2000;
-const diskLogs = ref<LogFileEntry[]>([]);
-const selectedLogSource = ref<'live' | string>('live');
-const rawLogText = ref('');
-const clearedLogPrefix = ref('');
-const logLevelFilter = ref<'ALL' | 'INFO' | 'WARN' | 'ERROR'>('ALL');
-const logSearch = ref('');
-const logAutoScroll = ref(true);
-const logPaused = ref(false);
-const logShowTimestamps = ref(true);
-const logWindowLimit = ref(LOG_WINDOW_STEP);
-const logBoxRef = ref<HTMLElement | null>(null);
-const copiedLog = ref(false);
-let logTimer: ReturnType<typeof setInterval> | null = null;
-
-async function loadLogsMeta() {
-  if (!instance.value || !store.desktop) return;
-  try {
-    diskLogs.value = await native<LogFileEntry[]>('instance_disk_logs', { id: instance.value.id });
-    if (!instance.value.running && selectedLogSource.value === 'live' && diskLogs.value.length > 0) {
-      selectedLogSource.value = diskLogs.value[0].name;
-    }
-    await fetchCurrentLog(true);
-  } catch {
-    // ignore missing logs
-  }
-}
-
-async function fetchCurrentLog(force = false) {
-  if (!instance.value || !store.desktop) return;
-  if (!force && logPaused.value) return;
-  try {
-    const nextText =
-      selectedLogSource.value === 'live'
-        ? await native<string>('instance_logs', { id: instance.value.id })
-        : await native<string>('instance_disk_log', {
-            id: instance.value.id,
-            name: selectedLogSource.value,
-          });
-    rawLogText.value = nextText;
-    if (clearedLogPrefix.value && !nextText.startsWith(clearedLogPrefix.value)) {
-      clearedLogPrefix.value = '';
-    }
-    if (logAutoScroll.value) {
-      await nextTick();
-      if (logBoxRef.value) {
-        logBoxRef.value.scrollTop = logBoxRef.value.scrollHeight;
-      }
-    }
-  } catch (e) {
-    if (selectedLogSource.value !== 'live') {
-      rawLogText.value = `Couldn't read log: ${String(e)}`;
-    } else {
-      rawLogText.value = 'No live game process log yet. Launch this instance or select latest.log.';
-    }
-    clearedLogPrefix.value = '';
-  }
-}
-
-function handleLogSourceChange() {
-  clearedLogPrefix.value = '';
-  logWindowLimit.value = LOG_WINDOW_STEP;
-  void fetchCurrentLog(true);
-}
-
-function clearLogView() {
-  clearedLogPrefix.value = rawLogText.value;
-  logWindowLimit.value = LOG_WINDOW_STEP;
-}
-
-function toggleLogPause() {
-  logPaused.value = !logPaused.value;
-  if (!logPaused.value) {
-    void fetchCurrentLog(true);
-  }
-}
-
-const activeRawLog = computed(() => {
-  if (clearedLogPrefix.value && rawLogText.value.startsWith(clearedLogPrefix.value)) {
-    return rawLogText.value.slice(clearedLogPrefix.value.length);
-  }
-  return rawLogText.value;
-});
-
-const matchedLogLines = computed(() => {
-  const source = activeRawLog.value;
-  if (!source) return [];
-  const lines = source.split('\n');
-  const q = logSearch.value.trim().toLowerCase();
-  const lvl = logLevelFilter.value;
-  return lines.filter((line) => {
-    if (lvl !== 'ALL') {
-      const upper = line.toUpperCase();
-      if (lvl === 'ERROR') {
-        if (!upper.includes('/ERROR') && !upper.includes('[ERROR') && !upper.includes('/FATAL') && !upper.includes('[FATAL')) {
-          return false;
-        }
-      } else if (!upper.includes(`/${lvl}`) && !upper.includes(`[${lvl}`)) {
-        return false;
-      }
-    }
-    if (q && !line.toLowerCase().includes(q)) return false;
-    return true;
-  });
-});
-
-watch([logLevelFilter, logSearch], () => {
-  logWindowLimit.value = LOG_WINDOW_STEP;
-});
-
-const hiddenLogCount = computed(() => Math.max(0, matchedLogLines.value.length - logWindowLimit.value));
-
-const visibleLogLines = computed(() => {
-  const sliceStart = Math.max(0, matchedLogLines.value.length - logWindowLimit.value);
-  return matchedLogLines.value.slice(sliceStart).map((rawLine, idx) => {
-    const safeLine =
-      rawLine.length > MAX_LOG_LINE_CHARS
-        ? `${rawLine.slice(0, MAX_LOG_LINE_CHARS)}… (${rawLine.length - MAX_LOG_LINE_CHARS} chars truncated)`
-        : rawLine;
-    const upper = safeLine.toUpperCase();
-    const level: 'error' | 'warn' | 'info' =
-      upper.includes('/ERROR') || upper.includes('[ERROR') || upper.includes('/FATAL') || upper.includes('[FATAL')
-        ? 'error'
-        : upper.includes('/WARN') || upper.includes('[WARN')
-          ? 'warn'
-          : 'info';
-    const tsMatch = /^(\[(?:\d{4}-\d{2}-\d{2}[ T]|\d{1,2}[A-Za-z]{3}\d{4}\s+)?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\])\s*(.*)$/.exec(safeLine);
-    return {
-      key: sliceStart + idx,
-      level,
-      ts: logShowTimestamps.value && tsMatch ? tsMatch[1] : '',
-      body: tsMatch ? tsMatch[2] : safeLine,
-    };
-  });
-});
-
-async function copyLogs() {
-  try {
-    await navigator.clipboard.writeText(matchedLogLines.value.join('\n'));
-    copiedLog.value = true;
-    setTimeout(() => (copiedLog.value = false), 1500);
+    notify('success', 'World renamed', worldRenameInput.value.trim());
   } catch (err) {
-    notify('error', "Couldn't copy logs", String(err));
+    notify('error', 'Rename failed', String(err));
   }
 }
 
-function downloadLogFile() {
-  const blob = new Blob([matchedLogLines.value.join('\n')], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${instance.value?.name || 'solara'}-${selectedLogSource.value}.log`;
-  a.click();
-  URL.revokeObjectURL(url);
+// Logs
+async function loadLogs(): Promise<void> {
+  if (!store.desktop || !instance.value || loadingLogs.value || logPaused.value) return;
+  const id = instance.value.id;
+  const source = selectedLogFile.value;
+  loadingLogs.value = true;
+  logError.value = '';
+  const followEnd = !logViewer.value || logViewer.value.scrollHeight - logViewer.value.scrollTop - logViewer.value.clientHeight < 48;
+  try {
+    if (diskLogs.value.length === 0) {
+      const files = await native<LogFileEntry[]>('instance_disk_logs', { id }).catch(() => []);
+      if (instance.value?.id !== id) return;
+      diskLogs.value = Array.isArray(files) ? files : [];
+    }
+    const text = source === 'live'
+      ? await native<string>('instance_logs', { id }).catch(() => '')
+      : await native<string>('instance_disk_log', { id, name: source });
+    if (instance.value?.id !== id || selectedLogFile.value !== source || logPaused.value) return;
+    latestLogText = text;
+    logText.value = clearedLogPrefix && text.startsWith(clearedLogPrefix) ? text.slice(clearedLogPrefix.length) : text;
+    if (followEnd) {
+      await nextTick();
+      if (logViewer.value) logViewer.value.scrollTop = logViewer.value.scrollHeight;
+    }
+  } catch (err) {
+    if (instance.value?.id === id) logError.value = String(err);
+  } finally { loadingLogs.value = false; }
 }
+function clearLogView(): void { clearedLogPrefix = latestLogText; logText.value = ''; }
+watch(selectedLogFile, () => { latestLogText = ''; clearedLogPrefix = ''; logText.value = ''; void loadLogs(); });
+watch(logPaused, (paused) => { if (!paused) void loadLogs(); });
 
-// ---------------------------------------------------------------------------
-// Screenshots Tab
-// ---------------------------------------------------------------------------
-const screenshots = ref<ScreenshotEntry[]>([]);
-const lightboxShot = ref<ScreenshotEntry | null>(null);
-const lightboxShotSrc = ref<string | null>(null);
-const lightboxLoading = ref(false);
-const lightboxError = ref<string | null>(null);
-
-const shotObservedMap = new WeakMap<Element, ScreenshotEntry>();
-const shotObservedElements = new WeakSet<Element>();
-let shotObserver: IntersectionObserver | null = null;
-
-function ensureShotObserver() {
-  if (shotObserver || typeof IntersectionObserver === 'undefined') return;
-  shotObserver = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const shot = shotObservedMap.get(entry.target);
-        if (shot && !peekCachedPreview(shot)) {
-          void loadScreenshotPreview(shot);
-        }
-      }
-    },
-    { rootMargin: '160px' },
-  );
-}
-
-function bindShotCardRef(shot: ScreenshotEntry, el: unknown) {
-  if (!(el instanceof Element)) return;
-  if (typeof IntersectionObserver === 'undefined') {
-    if (!peekCachedPreview(shot)) void loadScreenshotPreview(shot);
-    return;
-  }
-  ensureShotObserver();
-  shotObservedMap.set(el, shot);
-  if (!shotObservedElements.has(el)) {
-    shotObservedElements.add(el);
-    shotObserver?.observe(el);
+async function copyAllLogs(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(logText.value);
+    copiedLogs.value = true;
+    window.setTimeout(() => {
+      copiedLogs.value = false;
+    }, 1500);
+  } catch {
+    notify('info', 'Copy failed', 'Select text manually in the log console.');
   }
 }
 
-async function openShotLightbox(shot: ScreenshotEntry) {
-  previewImage.value = null;
-  lightboxShot.value = shot;
-  lightboxShotSrc.value = getCachedPreview(shot) ?? null;
-  lightboxError.value = null;
-  lightboxLoading.value = true;
+// Screenshots
+async function loadScreenshots(): Promise<void> {
+  if (!store.desktop || !instance.value) return;
+  const id = instance.value.id;
+  loadingShots.value = true;
+  try {
+    const list = await native<ScreenshotEntry[]>('launcher_screenshots', { instanceId: id });
+    if (instance.value?.id === id) screenshots.value = Array.isArray(list) ? list : [];
+  } finally { loadingShots.value = false; }
+}
+async function openScreenshot(shot: ScreenshotEntry): Promise<void> {
+  lightboxShot.value = { entry: shot, src: getCachedPreview(shot) ?? '' };
   try {
     const full = await loadFullScreenshot(shot);
-    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
-      lightboxShotSrc.value = full;
-    }
-  } catch (e) {
-    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
-      lightboxError.value = String(e);
-    }
-  } finally {
-    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
-      lightboxLoading.value = false;
-    }
-  }
+    if (lightboxShot.value && screenshotKey(lightboxShot.value.entry) === screenshotKey(shot)) lightboxShot.value.src = full;
+  } catch (err) { notify('error', "Couldn't load screenshot", String(err)); }
 }
 
-function closeMediaLightbox() {
-  previewImage.value = null;
-  lightboxShot.value = null;
-  lightboxShotSrc.value = null;
-  lightboxError.value = null;
-  lightboxLoading.value = false;
+async function loadTabData(): Promise<void> {
+  if (activeTab.value === 'content') await loadAllContent();
+  else if (activeTab.value === 'files') await loadFiles(currentDir.value);
+  else if (activeTab.value === 'worlds') await loadWorlds();
+  else if (activeTab.value === 'logs') await loadLogs();
+  else if (activeTab.value === 'screenshots') await loadScreenshots();
 }
 
-async function loadScreenshots() {
-  if (!instance.value || !store.desktop) return;
+async function duplicateCurrent(): Promise<void> {
+  if (!instance.value) return;
+  openHeaderMenu.value = false;
   try {
-    screenshots.value = await native<ScreenshotEntry[]>('launcher_screenshots', {
-      instanceId: instance.value.id,
-    });
-  } catch {
-    screenshots.value = [];
+    await native('duplicate_instance', { id: instance.value.id, name: `${instance.value.name} (Copy)` });
+    notify('success', 'Duplicated', `${instance.value.name} (Copy) added.`);
+    await refreshSnapshot();
+  } catch (err) {
+    notify('error', 'Duplicate failed', String(err));
   }
 }
 
-async function deleteScreenshot(shot: ScreenshotEntry) {
-  try {
-    await native('instance_file_action', {
-      id: shot.instanceId,
-      action: 'trash',
-      path: shot.path,
-    });
-    invalidateScreenshotPreview(shot);
-    closeMediaLightbox();
-    await loadScreenshots();
-    notify('info', 'Moved screenshot to trash');
-  } catch (e) {
-    notify('error', "Couldn't move screenshot to trash", String(e));
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Instance Settings + Backups Tab
-// ---------------------------------------------------------------------------
-const settingsSection = ref<'general' | 'install' | 'java' | 'window' | 'hooks' | 'backups' | 'danger'>('general');
-const draft = ref({
-  name: '',
-  icon: '' as string | null,
-  customIcon: null as string | null,
-  group: '',
-  updateChannel: 'release' as 'release' | 'beta' | 'alpha',
-  memory: 4096,
-  javaPath: 'auto',
-  jvmArgs: '',
-  width: 854,
-  height: 480,
-  fullscreen: false,
-  preLaunch: '',
-  postExit: '',
-});
-const baselineJson = ref('');
-const savingSettings = ref(false);
-const detectedJava = ref<DetectedJava[]>([]);
-const backups = ref<BackupEntry[]>([]);
-const newBackupName = ref('');
-const creatingBackup = ref(false);
-const iconUploadInput = ref<HTMLInputElement | null>(null);
-
-function syncDraftFromInstance() {
-  const inst = instance.value;
-  if (!inst) return;
-  draft.value = {
-    name: inst.name,
-    icon: inst.icon ?? null,
-    customIcon: inst.customIcon ?? null,
-    group: inst.group ?? '',
-    updateChannel: inst.updateChannel ?? 'release',
-    memory: inst.memory,
-    javaPath: inst.javaPath,
-    jvmArgs: inst.jvmArgs ?? '',
-    width: inst.resolution?.[0] ?? 854,
-    height: inst.resolution?.[1] ?? 480,
-    fullscreen: Boolean(inst.fullscreen),
-    preLaunch: inst.preLaunch ?? '',
-    postExit: inst.postExit ?? '',
-  };
-  baselineJson.value = JSON.stringify(draft.value);
-}
-
-const isSettingsDirty = computed(() => JSON.stringify(draft.value) !== baselineJson.value);
-
-watch(
-  () => [currentRoute.value.tab, currentRoute.value.instanceId],
-  async ([tab]) => {
-    store.dirtyChecker = tab === 'settings' ? () => isSettingsDirty.value : null;
-    if (logTimer) {
-      clearInterval(logTimer);
-      logTimer = null;
-    }
-    if (tab === 'content') {
-      await loadWorlds();
-      await loadContentTab();
-    } else if (tab === 'files') {
-      await loadFiles('');
-    } else if (tab === 'worlds') {
-      await loadWorlds();
-    } else if (tab === 'logs') {
-      await loadLogsMeta();
-      logTimer = setInterval(() => void fetchCurrentLog(false), 2500);
-    } else if (tab === 'screenshots') {
-      await loadScreenshots();
-    } else if (tab === 'settings') {
-      syncDraftFromInstance();
-      if (store.desktop) {
-        native<DetectedJava[]>('detect_java_runtimes').then((j) => (detectedJava.value = j)).catch(() => {});
-        loadBackups();
-      }
-    }
-  },
-  { immediate: true },
+const unregisterFileGuard = registerUnsavedChanges(
+  () => Boolean(editingFile.value && !previewImageUrl.value && editingContent.value !== originalContent.value),
+  () => { editingFile.value = null; },
 );
-
+watch(() => instance.value?.id, () => {
+  currentDir.value = '';
+  editingFile.value = null;
+  fileEntries.value = []; trashEntries.value = [];
+  selectedContentKeys.value = []; compatFindings.value = null;
+  mods.value = []; resourcePacks.value = []; shaderPacks.value = []; datapacks.value = [];
+  worlds.value = []; screenshots.value = [];
+  selectedLogFile.value = 'live'; logText.value = ''; diskLogs.value = [];
+  latestLogText = ''; clearedLogPrefix = ''; logWindowLimit.value = 300;
+});
+watch(() => [instance.value?.id, activeTab.value], () => { void loadTabData().catch((err) => notify('error', "Couldn't load this tab", String(err))); });
 onMounted(() => {
-  if (activeTab.value === 'settings') {
-    store.dirtyChecker = () => isSettingsDirty.value;
-  }
+  void loadTabData().catch((err) => notify('error', "Couldn't load this tab", String(err)));
+  logPollTimer = setInterval(() => {
+    if (activeTab.value === 'logs' && selectedLogFile.value === 'live' && !logPaused.value && !document.hidden) void loadLogs();
+  }, 1500);
 });
-
-onUnmounted(() => {
-  store.dirtyChecker = null;
-  if (logTimer) clearInterval(logTimer);
-  shotObserver?.disconnect();
-  shotObserver = null;
-});
-
-async function loadBackups() {
-  if (!instance.value || !store.desktop) return;
-  try {
-    backups.value = await native<BackupEntry[]>('instance_backups', { id: instance.value.id });
-  } catch {
-    backups.value = [];
-  }
-}
-
-async function createBackup() {
-  if (!instance.value) return;
-  creatingBackup.value = true;
-  try {
-    await native('instance_backup_action', {
-      id: instance.value.id,
-      action: 'create',
-      name: newBackupName.value.trim() || undefined,
-    });
-    newBackupName.value = '';
-    await loadBackups();
-    notify('success', 'Backup created');
-  } catch (e) {
-    notify('error', "Couldn't create backup", String(e));
-  } finally {
-    creatingBackup.value = false;
-  }
-}
-
-async function restoreBackup(b: BackupEntry) {
-  if (!instance.value) return;
-  try {
-    await native('instance_backup_action', {
-      id: instance.value.id,
-      action: 'restore',
-      backupId: b.id,
-    });
-    await refreshSnapshot();
-    notify('success', 'Backup restored', b.name);
-  } catch (e) {
-    notify('error', "Couldn't restore backup", String(e));
-  }
-}
-
-async function deleteBackup(b: BackupEntry) {
-  if (!instance.value) return;
-  try {
-    await native('instance_backup_action', {
-      id: instance.value.id,
-      action: 'delete',
-      backupId: b.id,
-    });
-    await loadBackups();
-    notify('info', 'Backup deleted');
-  } catch (e) {
-    notify('error', "Couldn't delete backup", String(e));
-  }
-}
-
-function onSettingsIconPicked(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  (e.target as HTMLInputElement).value = '';
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const res = typeof reader.result === 'string' ? reader.result : '';
-    if (res.startsWith('data:image/')) {
-      draft.value.customIcon = res;
-      draft.value.icon = res;
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveInstanceSettings() {
-  if (!instance.value) return;
-  savingSettings.value = true;
-  try {
-    const iconPatch =
-      draft.value.customIcon && draft.value.customIcon.startsWith('data:image/')
-        ? draft.value.customIcon
-        : draft.value.icon;
-    await patchInstanceMeta(instance.value.id, {
-      name: draft.value.name.trim(),
-      icon: iconPatch,
-      group: draft.value.group.trim() || null,
-      updateChannel: draft.value.updateChannel,
-      memory: draft.value.memory,
-      javaPath: draft.value.javaPath,
-      jvmArgs: draft.value.jvmArgs.trim() || null,
-      resolution: [draft.value.width, draft.value.height],
-      fullscreen: draft.value.fullscreen,
-      preLaunch: draft.value.preLaunch.trim() || null,
-      postExit: draft.value.postExit.trim() || null,
-    });
-    await refreshSnapshot();
-    syncDraftFromInstance();
-    notify('success', 'Instance settings saved');
-  } catch (e) {
-    notify('error', "Couldn't save settings", String(e));
-  } finally {
-    savingSettings.value = false;
-  }
-}
+onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPollTimer); });
 </script>
 
 <template>
-  <div v-if="instance" class="sol-page sol-page--column">
-    <!-- Instance Header -->
-    <header class="sol-inst-header">
-      <div class="sol-inst-header-left">
-        <InstanceIcon
-          :name="instance.name"
-          :loader="instance.loader"
-          :icon="instance.icon"
-          :custom-icon="instance.customIcon"
-          :size="48"
-          :rounded="12"
-        />
-        <div>
-          <div class="sol-row-gap">
-            <h1 class="sol-inst-title">{{ instance.name }}</h1>
-            <span v-if="instance.running" class="sol-badge sol-badge--success">Running</span>
-            <span v-else-if="instance.state !== 'installed'" :class="['sol-badge', `sol-badge--${instance.state}`]">
-              {{ instance.state }}
-            </span>
-            <span v-if="instance.group" class="sol-group-chip">{{ instance.group }}</span>
-          </div>
-          <div class="sol-inst-subtitle">
-            <span>Minecraft {{ instance.gameVersion }}</span>
-            <span>•</span>
-            <span>{{ LOADER_LABEL[instance.loader] }}<template v-if="instance.loaderVersion"> {{ instance.loaderVersion }}</template></span>
-            <span>•</span>
-            <span class="sol-inline-flex"><Clock :size="12" /> {{ formatDuration(instance.playtimeSeconds) }}</span>
-            <span>•</span>
-            <span>Last played {{ formatRelativeTime(instance.lastPlayed) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sol-row-gap">
-        <SolaraButton
-          v-if="instance.state === 'installed'"
-          :variant="instance.running ? 'danger' : 'primary'"
-          size="md"
-          @click="launchOrStopInstance(instance)"
-        >
-          <Square v-if="instance.running" :size="14" />
-          <Play v-else :size="14" />
-          {{ instance.running ? 'Stop Game' : 'Play' }}
-        </SolaraButton>
-        <SolaraButton
-          v-else-if="instance.state === 'failed' || instance.state === 'cancelled'"
-          variant="primary"
-          size="md"
-          @click="native('retry_instance', { id: instance.id }).then(() => refreshSnapshot()).catch((e) => notify('error', &quot;Couldn't retry install&quot;, String(e)))"
-        >
-          <RefreshCw :size="14" /> Retry Install
-        </SolaraButton>
-        <SolaraButton variant="secondary" size="md" @click="activeTab = 'settings'">
-          <Settings :size="14" /> Settings
-        </SolaraButton>
-        <button type="button" class="sol-icon-btn" title="More instance actions" @click="openOverflow">
-          <MoreHorizontal :size="16" />
-        </button>
-      </div>
-    </header>
-
-    <!-- Tabs -->
-    <div class="sol-inst-tabs-bar">
-      <SolaraTabs v-model="activeTab" :tabs="tabs" />
+  <div class="sol-page sol-scroll" @click="openHeaderMenu = false">
+    <div v-if="!instance" class="sol-view-wrap">
+      <SolaraEmptyState
+        title="No instance selected"
+        description="Choose a Minecraft instance from your Library or create a new one."
+      >
+        <template #icon><Package :size="28" /></template>
+        <template #actions>
+          <SolaraButton variant="primary" size="sm" @click="navigate('library')">Open Library</SolaraButton>
+        </template>
+      </SolaraEmptyState>
     </div>
 
-    <!-- Scrollable Tab Body -->
-    <div class="sol-inst-body sol-scroll">
-      <div class="sol-page-inner">
-        <!-- OVERVIEW TAB -->
-        <div v-if="activeTab === 'overview'" class="sol-overview-grid">
-          <div class="sol-card sol-overview-main">
-            <h2 class="sol-card-title">Instance Summary</h2>
-            <div v-if="activeInstJob" class="sol-launch-progress" style="margin-bottom: 14px">
-              <div class="sol-launch-progress-row">
-                <span>{{ activeInstJob.phase || 'Installing...' }}</span>
-                <span v-if="activeInstJob.total > 0">{{ formatBytes(activeInstJob.done) }} / {{ formatBytes(activeInstJob.total) }}</span>
-              </div>
-              <SolaraProgress :value="activeInstJob.done" :max="activeInstJob.total" :indeterminate="activeInstJob.total <= 0" />
-            </div>
-
-            <div class="sol-kv-grid">
-              <div class="sol-kv"><span class="sol-muted">Game Version</span><strong>{{ instance.gameVersion }}</strong></div>
-              <div class="sol-kv"><span class="sol-muted">Loader</span><strong>{{ LOADER_LABEL[instance.loader] }} {{ instance.loaderVersion || 'Native' }}</strong></div>
-              <div class="sol-kv"><span class="sol-muted">Allocated Memory</span><strong>{{ instance.memory }} MB</strong></div>
-              <div class="sol-kv"><span class="sol-muted">Java Runtime</span><strong class="sol-truncate">{{ instance.javaPath === 'auto' ? 'Managed Auto' : instance.javaPath }}</strong></div>
-              <div class="sol-kv"><span class="sol-muted">Created</span><strong>{{ formatRelativeTime(instance.createdAt) }}</strong></div>
-              <div class="sol-kv"><span class="sol-muted">Total Playtime</span><strong>{{ formatDuration(instance.playtimeSeconds) }}</strong></div>
-            </div>
-
-            <div class="sol-quick-actions-row">
-              <SolaraButton variant="secondary" size="sm" @click="navigate('discover')">
-                <Plus :size="14" /> Browse Modrinth Content
-              </SolaraButton>
-              <SolaraButton variant="secondary" size="sm" @click="native('open_instance_folder', { id: instance.id }).catch(() => {})">
-                <FolderOpen :size="14" /> Open Folder
-              </SolaraButton>
-              <SolaraButton variant="secondary" size="sm" @click="activeTab = 'settings'; settingsSection = 'backups'">
-                <Archive :size="14" /> Backups
-              </SolaraButton>
-              <SolaraButton variant="ghost" size="sm" :disabled="Boolean(instance.running)" @click="native('repair_instance', { id: instance.id }).then(() => notify('info', 'Repair queued')).catch((e) => notify('error', &quot;Couldn't repair files&quot;, String(e)))">
-                <Wrench :size="14" /> Repair Runtime
-              </SolaraButton>
-            </div>
-          </div>
-
-          <div class="sol-card">
-            <div class="sol-side-head">
-              <h2 class="sol-card-title">Instance Notes</h2>
-              <SolaraButton variant="secondary" size="xs" :loading="savingNotes" @click="saveNotes">Save Notes</SolaraButton>
-            </div>
-            <textarea
-              v-model="notesText"
-              class="sol-textarea"
-              rows="6"
-              placeholder="Write server IP, mod notes, shader settings, or seed notes for this instance..."
-              maxlength="4000"
-            />
-          </div>
-        </div>
-
-        <!-- CONTENT TAB -->
-        <div v-else-if="activeTab === 'content'" class="sol-stack">
-          <div class="sol-toolbar">
-            <div class="sol-seg-group">
-              <button
-                v-for="k in [
-                  { id: 'mod', label: 'Mods' },
-                  { id: 'resourcepack', label: 'Resource Packs' },
-                  { id: 'shader', label: 'Shaders' },
-                  { id: 'datapack', label: 'Datapacks' },
-                ] as const"
-                :key="k.id"
-                type="button"
-                :class="['sol-seg-btn', { 'is-active': contentSubTab === k.id }]"
-                @click="
-                  contentSubTab = k.id;
-                  loadContentTab();
-                "
-              >
-                {{ k.label }}
-              </button>
-            </div>
-
-            <div class="sol-search-box">
-              <Search :size="13" class="sol-muted" />
-              <input v-model="contentSearch" type="text" class="sol-search-input" placeholder="Search installed..." />
-            </div>
-
-            <select v-model="contentStateFilter" class="sol-select">
-              <option value="all">All Status</option>
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
-            </select>
-
-            <select
-              v-if="contentSubTab === 'datapack'"
-              v-model="datapackWorld"
-              class="sol-select"
-              @change="loadContentTab"
-            >
-              <option value="">Instance datapacks/</option>
-              <option v-for="w in worlds" :key="w.folder" :value="w.folder">World: {{ w.name }}</option>
-            </select>
-
+    <div v-else class="sol-view-wrap">
+      <!-- Compact Modrinth-style Instance Header -->
+      <header class="sol-inst-header">
+        <div class="sol-inst-header-left">
+          <InstanceIcon
+            :name="instance.name"
+            :loader="instance.loader"
+            :icon="instance.icon"
+            :custom-icon="instance.customIcon"
+            :size="54"
+            :rounded="12"
+          />
+          <div class="sol-inst-header-meta">
             <div class="sol-row-gap">
-              <input
-                ref="packFileInput"
-                type="file"
-                multiple
-                :accept="contentSubTab === 'mod' ? '.jar' : '.zip'"
-                hidden
-                @change="onImportContentFile"
-              />
-              <SolaraButton variant="secondary" size="sm" @click="triggerImportContent">
-                <Upload :size="13" /> Import {{ contentSubTab === 'mod' ? '.jar' : '.zip' }}
-              </SolaraButton>
-              <SolaraButton
-                v-if="contentSubTab === 'mod' && instance.loader !== 'vanilla'"
-                variant="secondary"
-                size="sm"
-                @click="showUpdateModal = true"
-              >
-                <RefreshCw :size="13" /> Check Updates
-              </SolaraButton>
-              <SolaraButton variant="primary" size="sm" @click="navigate('discover')">
-                <Plus :size="13" /> Add Content
-              </SolaraButton>
-            </div>
-          </div>
-
-          <!-- Honest Compatibility Notices -->
-          <div v-if="contentSubTab === 'mod' && instance.loader === 'vanilla'" class="sol-banner sol-banner--warning">
-            <AlertTriangle :size="15" />
-            <span>Vanilla instances do not load mods. Create or use a Fabric, Quilt, Forge, or NeoForge instance to run mods.</span>
-          </div>
-          <div v-else-if="contentSubTab === 'shader' && instance.loader === 'vanilla'" class="sol-banner sol-banner--info">
-            <AlertTriangle :size="15" />
-            <span>Shaders require a shader mod (such as Iris on Fabric/NeoForge or Oculus on Forge) to render in-game.</span>
-          </div>
-
-          <!-- Bulk Actions -->
-          <div v-if="selectedContentPaths.size > 0" class="sol-bulk-bar">
-            <span>{{ selectedContentPaths.size }} selected</span>
-            <div class="sol-row-gap">
-              <SolaraButton variant="secondary" size="xs" @click="bulkToggle(true)">Enable</SolaraButton>
-              <SolaraButton variant="secondary" size="xs" @click="bulkToggle(false)">Disable</SolaraButton>
-              <SolaraButton variant="danger" size="xs" @click="bulkDelete">Move to Trash</SolaraButton>
-            </div>
-          </div>
-
-          <div class="sol-card sol-list-table">
-            <div v-if="contentLoading" class="sol-center-state">Loading {{ contentSubTab }}s...</div>
-            <SolaraEmptyState
-              v-else-if="filteredContentRows.length === 0"
-              :title="`No ${contentSubTab}s installed`"
-              description="Import local files or browse verified content on Discover."
-            >
-              <template #icon><Package :size="24" /></template>
-              <template #actions>
-                <SolaraButton variant="primary" size="sm" @click="navigate('discover')">Browse Discover</SolaraButton>
-              </template>
-            </SolaraEmptyState>
-
-            <div v-for="item in filteredContentRows" :key="item.path" class="sol-content-row">
-              <input
-                type="checkbox"
-                :checked="selectedContentPaths.has(item.path)"
-                @change="
-                  ($event.target as HTMLInputElement).checked
-                    ? selectedContentPaths.add(item.path)
-                    : selectedContentPaths.delete(item.path)
-                "
-              />
-              <div class="sol-content-info">
-                <div class="sol-content-name">{{ item.name }}</div>
-                <div class="sol-muted sol-text-xs">
-                  {{ item.fileName }}
-                  <template v-if="'version' in item && item.version"> • v{{ item.version }}</template>
-                  <template v-if="item.size"> • {{ formatBytes(item.size) }}</template>
-                </div>
-              </div>
-              <div class="sol-row-gap">
-                <SolaraButton
-                  :variant="item.enabled ? 'secondary' : 'ghost'"
-                  size="xs"
-                  @click="toggleContentItem(item.path, !item.enabled)"
-                >
-                  {{ item.enabled ? 'Enabled' : 'Disabled' }}
-                </SolaraButton>
-                <button
-                  type="button"
-                  class="sol-icon-btn sol-icon-btn--xs"
-                  title="Move to trash"
-                  @click="deleteContentItem(item.path)"
-                >
-                  <Trash2 :size="13" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- FILES TAB -->
-        <div v-else-if="activeTab === 'files'" class="sol-stack">
-          <div class="sol-toolbar">
-            <div class="sol-row-gap">
-              <SolaraButton variant="ghost" size="xs" @click="loadFiles('')">game/</SolaraButton>
-              <template v-for="(seg, idx) in filesPath.split('/').filter(Boolean)" :key="idx">
-                <span class="sol-muted">/</span>
-                <SolaraButton
-                  variant="ghost"
-                  size="xs"
-                  @click="loadFiles(filesPath.split('/').filter(Boolean).slice(0, idx + 1).join('/'))"
-                >
-                  {{ seg }}
-                </SolaraButton>
-              </template>
-            </div>
-            <div class="sol-row-gap">
-              <SolaraButton variant="secondary" size="xs" @click="newFolderModal = true">New Folder</SolaraButton>
-              <SolaraButton
-                :variant="showTrash ? 'primary' : 'secondary'"
-                size="xs"
-                @click="
-                  showTrash = !showTrash;
-                  loadFiles();
-                "
-              >
-                <Trash2 :size="13" /> Trash ({{ trashList.length }})
-              </SolaraButton>
-              <SolaraButton variant="ghost" size="xs" @click="native('open_instance_folder', { id: instance.id, path: filesPath }).catch(() => {})">
-                <FolderOpen :size="13" /> Open in Explorer
-              </SolaraButton>
-            </div>
-          </div>
-
-          <!-- Trash View -->
-          <div v-if="showTrash" class="sol-card sol-list-table">
-            <div v-if="trashList.length === 0" class="sol-center-state">Instance trash is empty.</div>
-            <div v-for="t in trashList" :key="t.id" class="sol-content-row">
-              <div class="sol-content-info">
-                <div class="sol-content-name">{{ t.name }}</div>
-                <div class="sol-muted sol-text-xs">From {{ t.originalPath }} • {{ formatBytes(t.size) }}</div>
-              </div>
-              <SolaraButton variant="secondary" size="xs" @click="restoreTrashItem(t)">
-                <RotateCcw :size="12" /> Restore
-              </SolaraButton>
-            </div>
-          </div>
-
-          <!-- Files Table -->
-          <div v-else class="sol-card sol-list-table">
-            <div v-if="filesLoading" class="sol-center-state">Reading directory...</div>
-            <div v-else-if="filesList.length === 0" class="sol-center-state">This folder is empty.</div>
-            <div v-for="entry in filesList" :key="entry.path" class="sol-content-row">
-              <div class="sol-file-main" @click="openFileEntry(entry)">
-                <Folder v-if="entry.directory" :size="16" class="sol-accent" />
-                <FileText v-else-if="entry.editable" :size="16" class="sol-info" />
-                <File v-else :size="16" class="sol-muted" />
-                <span class="sol-content-name">{{ entry.name }}</span>
-              </div>
-              <div class="sol-row-gap">
-                <span v-if="!entry.directory" class="sol-muted sol-text-xs">{{ formatBytes(entry.size) }}</span>
-                <button
-                  type="button"
-                  class="sol-icon-btn sol-icon-btn--xs"
-                  title="Move to trash"
-                  @click="trashFileEntry(entry)"
-                >
-                  <Trash2 :size="13" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- WORLDS TAB -->
-        <div v-else-if="activeTab === 'worlds'" class="sol-stack">
-          <div class="sol-toolbar">
-            <h2 class="sol-card-title">Saved Worlds ({{ worlds.length }})</h2>
-            <SolaraButton variant="secondary" size="xs" @click="loadWorlds">
-              <RefreshCw :size="13" /> Refresh
-            </SolaraButton>
-          </div>
-          <div v-if="worldsLoading" class="sol-center-state">Reading level.dat world metadata...</div>
-          <SolaraEmptyState
-            v-else-if="worlds.length === 0"
-            title="No Minecraft worlds yet"
-            description="Singleplayer worlds created inside this instance will appear here with metadata and datapack controls."
-          >
-            <template #icon><Globe :size="24" /></template>
-          </SolaraEmptyState>
-          <div v-else class="sol-worlds-grid">
-            <article v-for="w in worlds" :key="w.folder" class="sol-card sol-world-card">
-              <div class="sol-world-top">
-                <img v-if="w.iconDataUrl" :src="w.iconDataUrl" :alt="w.name" class="sol-world-icon" />
-                <div v-else class="sol-world-icon sol-world-icon--empty"><Globe :size="20" /></div>
-                <div class="sol-world-info">
-                  <div class="sol-world-name">{{ w.name }}</div>
-                  <div class="sol-muted sol-text-xs">
-                    {{ w.gameMode }} • {{ w.difficulty }} • {{ w.versionName }}
-                  </div>
-                  <div class="sol-muted sol-text-xs">
-                    {{ formatBytes(w.size) }} • {{ w.datapackCount }} datapack(s)
-                    <span v-if="w.locked" class="sol-badge sol-badge--warning">Locked</span>
-                  </div>
-                </div>
-              </div>
-              <div class="sol-world-actions">
-                <SolaraButton
-                  variant="ghost"
-                  size="xs"
-                  @click="
-                    datapackWorld = w.folder;
-                    contentSubTab = 'datapack';
-                    activeTab = 'content';
-                  "
-                >
-                  Datapacks
-                </SolaraButton>
-                <SolaraButton
-                  variant="ghost"
-                  size="xs"
-                  :disabled="Boolean(instance.running) || w.locked"
-                  @click="
-                    renameWorldTarget = w;
-                    renameWorldFolder = w.folder;
-                  "
-                >
-                  <Edit3 :size="12" /> Rename
-                </SolaraButton>
-                <SolaraButton
-                  variant="danger"
-                  size="xs"
-                  :disabled="Boolean(instance.running) || w.locked"
-                  @click="deleteWorld(w)"
-                >
-                  <Trash2 :size="12" /> Delete
-                </SolaraButton>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <!-- LOGS TAB -->
-        <div v-else-if="activeTab === 'logs'" class="sol-stack">
-          <div class="sol-toolbar">
-            <select v-model="selectedLogSource" class="sol-select" @change="handleLogSourceChange">
-              <option value="live">Live Game Process Log</option>
-              <option v-for="lf in diskLogs" :key="lf.name" :value="lf.name">
-                {{ lf.name }} ({{ formatBytes(lf.size) }})
-              </option>
-            </select>
-
-            <div class="sol-seg-group">
-              <button
-                v-for="lvl in (['ALL', 'INFO', 'WARN', 'ERROR'] as const)"
-                :key="lvl"
-                type="button"
-                :class="['sol-seg-btn', { 'is-active': logLevelFilter === lvl }]"
-                @click="logLevelFilter = lvl"
-              >
-                {{ lvl }}
-              </button>
-            </div>
-
-            <div class="sol-search-box">
-              <Search :size="13" class="sol-muted" />
-              <input v-model="logSearch" type="text" class="sol-search-input" placeholder="Search log lines..." />
-            </div>
-
-            <div class="sol-row-gap">
-              <SolaraButton
-                :variant="logShowTimestamps ? 'secondary' : 'ghost'"
-                size="xs"
-                @click="logShowTimestamps = !logShowTimestamps"
-              >
-                <Clock :size="12" /> {{ logShowTimestamps ? 'Timestamps' : 'No timestamps' }}
-              </SolaraButton>
-              <SolaraButton
-                :variant="logPaused ? 'primary' : 'secondary'"
-                size="xs"
-                @click="toggleLogPause"
-              >
-                <Play v-if="logPaused" :size="12" />
-                <Pause v-else :size="12" />
-                {{ logPaused ? 'Resume' : 'Pause' }}
-              </SolaraButton>
-              <SolaraButton
-                :variant="logAutoScroll ? 'primary' : 'secondary'"
-                size="xs"
-                @click="logAutoScroll = !logAutoScroll"
-              >
-                {{ logAutoScroll ? 'Auto-scroll: On' : 'Auto-scroll: Off' }}
-              </SolaraButton>
-              <SolaraButton variant="secondary" size="xs" @click="copyLogs">
-                <Check v-if="copiedLog" :size="12" />
-                <Copy v-else :size="12" />
-                {{ copiedLog ? 'Copied' : 'Copy' }}
-              </SolaraButton>
-              <SolaraButton variant="secondary" size="xs" @click="downloadLogFile">
-                <Download :size="12" /> Export
-              </SolaraButton>
-              <SolaraButton variant="ghost" size="xs" @click="clearLogView">
-                <Trash2 :size="12" /> Clear
-              </SolaraButton>
-            </div>
-          </div>
-
-          <div ref="logBoxRef" class="sol-log-viewer sol-scroll selectable">
-            <div v-if="hiddenLogCount > 0" class="sol-log-window-bar">
-              <span class="sol-muted sol-text-xs">
-                Showing latest {{ visibleLogLines.length }} of {{ matchedLogLines.length }} matching lines ({{ hiddenLogCount }} older hidden).
+              <h1 class="sol-inst-title">{{ instance.name }}</h1>
+              <span class="sol-badge sol-badge--gold">
+                {{ LOADER_LABEL[instance.loader] ?? instance.loader }} {{ instance.gameVersion }}
               </span>
-              <div class="sol-row-gap">
-                <SolaraButton variant="secondary" size="xs" @click="logWindowLimit += LOG_WINDOW_STEP">
-                  Show {{ Math.min(LOG_WINDOW_STEP, hiddenLogCount) }} older
-                </SolaraButton>
-                <SolaraButton v-if="logWindowLimit > LOG_WINDOW_STEP" variant="ghost" size="xs" @click="logWindowLimit = LOG_WINDOW_STEP">
-                  Latest only
-                </SolaraButton>
-              </div>
+              <span v-if="instance.running" class="sol-badge sol-badge--success">Running</span>
             </div>
-            <template v-if="visibleLogLines.length > 0">
-              <div
-                v-for="entry in visibleLogLines"
-                :key="entry.key"
-                :class="['sol-log-line', { 'is-error': entry.level === 'error', 'is-warn': entry.level === 'warn' }]"
-              ><span v-if="entry.ts" class="sol-log-ts">{{ entry.ts }}</span>{{ entry.body }}</div>
-            </template>
-            <div v-else class="sol-muted">No matching log output.</div>
+            <div class="sol-muted sol-text-xs">
+              {{ formatDuration(instance.playtimeSeconds) }}
+              <template v-if="instance.lastPlayed"> · Last played {{ formatRelativeTime(instance.lastPlayed) }}</template>
+              <template v-if="instance.notes"> · {{ instance.notes }}</template>
+            </div>
+            <div
+              v-if="launchState && (isLaunching || launchState.stage === 'error')"
+              class="sol-launch-stage"
+            >
+              <span v-if="launchState.stage === 'error'" class="sol-launch-stage-err">
+                {{ launchState.error || launchState.detail }}
+                <button type="button" class="sol-link-btn" @click="setInstanceTab('logs')">View Logs</button>
+              </span>
+              <span v-else class="sol-row-gap">
+                <span class="sol-dot sol-dot--gold" />
+                <span>{{ launchState.detail }}</span>
+              </span>
+            </div>
           </div>
         </div>
 
-        <!-- SCREENSHOTS TAB -->
-        <div v-else-if="activeTab === 'screenshots'" class="sol-stack">
-          <div class="sol-toolbar">
-            <h2 class="sol-card-title">Instance Screenshots ({{ screenshots.length }})</h2>
-            <SolaraButton variant="secondary" size="xs" @click="native('open_instance_folder', { id: instance.id, path: 'screenshots' }).catch(() => {})">
-              <FolderOpen :size="13" /> Open Screenshots Folder
+        <div class="sol-inst-header-right" @click.stop>
+          <SolaraButton
+            :variant="instance.running ? 'danger' : 'primary'"
+            size="md"
+            :loading="isLaunching"
+            @click="launchOrStopInstance(instance)"
+          >
+            <Square v-if="instance.running" :size="14" />
+            <Play v-else :size="15" />
+            {{
+              instance.running
+                ? 'Stop'
+                : isLaunching
+                  ? launchState?.detail || 'Launching...'
+                  : 'Play'
+            }}
+          </SolaraButton>
+
+          <SolaraButton variant="secondary" size="md" @click="openInstanceSettings(instance.id)">
+            <Sliders :size="14" /> Settings
+          </SolaraButton>
+
+          <div class="sol-menu-wrap">
+            <button
+              type="button"
+              class="sol-icon-btn"
+              aria-label="More instance actions"
+              @click="openHeaderMenu = !openHeaderMenu"
+            >
+              <MoreVertical :size="16" />
+            </button>
+            <div v-if="openHeaderMenu" class="sol-menu-dropdown">
+              <button
+                type="button"
+                @click="openHeaderMenu = false; patchInstanceMeta(instance.id, { pinned: !instance.pinned })"
+              >
+                <Pin :size="13" /> {{ instance.pinned ? 'Unpin Sidebar' : 'Pin to Sidebar' }}
+              </button>
+              <button
+                type="button"
+                @click="openHeaderMenu = false; native('open_instance_folder', { id: instance.id }).catch(() => {})"
+              >
+                <FolderOpen :size="13" /> Open Instance Folder
+              </button>
+              <button type="button" @click="duplicateCurrent">
+                <Copy :size="13" /> Duplicate
+              </button>
+              <button
+                type="button"
+                class="is-danger"
+                @click="openHeaderMenu = false; openInstanceSettings(instance.id, 'advanced')"
+              >
+                <Trash2 :size="13" /> Delete...
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Rounded Navigation Tabs (Content Default, NO Overview card bloat) -->
+      <nav class="sol-inst-tabs" aria-label="Instance sections">
+        <button
+          v-for="tab in [
+            { id: 'content', label: 'Content', icon: Package },
+            { id: 'files', label: 'Files', icon: Folder },
+            { id: 'worlds', label: 'Worlds', icon: Globe },
+            { id: 'logs', label: 'Logs', icon: Terminal },
+            { id: 'screenshots', label: 'Screenshots', icon: Camera },
+          ] as const"
+          :key="tab.id"
+          type="button"
+          :class="['sol-inst-tab', { 'is-active': activeTab === tab.id }]"
+          @click="setInstanceTab(tab.id)"
+        >
+          <component :is="tab.icon" :size="14" />
+          <span>{{ tab.label }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="sol-inst-tab sol-inst-tab--settings"
+          @click="openInstanceSettings(instance.id)"
+        >
+          <Sliders :size="14" />
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <!-- CONTENT TAB -->
+      <section v-if="activeTab === 'content'" class="sol-inst-pane">
+        <div class="sol-toolbar-bar">
+          <div class="sol-search-box sol-search-box--grow">
+            <Search :size="14" class="sol-muted" />
+            <input
+              v-model="contentQuery"
+              type="text"
+              class="sol-search-input"
+              placeholder="Filter installed mods, resource packs, shaders, datapacks..."
+            />
+            <button v-if="contentQuery" type="button" class="sol-icon-btn sol-icon-btn--xs" @click="contentQuery = ''">
+              <X :size="12" />
+            </button>
+          </div>
+
+          <input
+            ref="uploadInput"
+            type="file"
+            accept=".jar,.zip"
+            multiple
+            hidden
+            @change="onUploadFiles"
+          />
+
+          <SolaraButton variant="secondary" size="sm" @click="uploadInput?.click()">
+            <Upload :size="13" /> Upload Files
+          </SolaraButton>
+
+          <SolaraButton variant="primary" size="sm" @click="openBrowserForCurrentCategory">
+            <Compass :size="13" /> Browse Content
+          </SolaraButton>
+
+          <SolaraButton variant="secondary" size="sm" :loading="checkingUpdates" @click="checkUpdates">
+            Update All
+          </SolaraButton>
+
+          <button type="button" class="sol-icon-btn" title="Refresh content" @click="loadAllContent">
+            <RefreshCw :size="14" />
+          </button>
+        </div>
+
+        <div class="sol-toolbar-bar">
+          <div class="sol-chip-row">
+            <button
+              v-for="cat in [
+                { id: 'all', label: `All (${mods.length + resourcePacks.length + shaderPacks.length + datapacks.length})` },
+                { id: 'mod', label: `Mods (${mods.length})` },
+                { id: 'resourcepacks', label: `Resource Packs (${resourcePacks.length})` },
+                { id: 'shaderpacks', label: `Shaders (${shaderPacks.length})` },
+                { id: 'datapacks', label: `Datapacks (${datapacks.length})` },
+              ] as const"
+              :key="cat.id"
+              type="button"
+              :class="['sol-chip', { 'is-active': contentCategory === cat.id }]"
+              @click="contentCategory = cat.id"
+            >
+              {{ cat.label }}
+            </button>
+          </div>
+
+          <div class="sol-row-gap" style="margin-left: auto">
+            <select v-model="contentSort" class="sol-select" aria-label="Sort content">
+              <option value="name">Sort: Name</option>
+              <option value="enabled">Sort: Enabled first</option>
+              <option value="size">Sort: Size</option>
+              <option value="kind">Sort: Type</option>
+            </select>
+            <SolaraButton variant="ghost" size="xs" @click="runCompatibilityCheck">
+              <ShieldCheck :size="13" /> Compatibility Check
             </SolaraButton>
           </div>
-          <SolaraEmptyState
-            v-if="screenshots.length === 0"
-            title="No screenshots captured yet"
-            description="Press F2 in Minecraft to capture screenshots. They will appear here automatically."
-          >
-            <template #icon><Camera :size="24" /></template>
-          </SolaraEmptyState>
-          <div v-else class="sol-shots-grid">
-            <div
-              v-for="shot in screenshots"
-              :key="screenshotKey(shot)"
-              :ref="(el) => bindShotCardRef(shot, el)"
-              class="sol-shot-card"
-              @click="openShotLightbox(shot)"
-            >
-              <img
-                v-if="peekCachedPreview(shot)"
-                :src="peekCachedPreview(shot)"
-                :alt="shot.fileName"
-                class="sol-shot-img"
+        </div>
+
+        <div v-if="compatFindings !== null" :class="compatFindings.length > 0 ? 'sol-banner-warn' : 'sol-banner-info'">
+          <div class="sol-stack" style="gap: 3px">
+            <strong v-if="compatFindings.length === 0">Basic checks passed. Dependencies and version ranges have not been verified.</strong>
+            <template v-else>
+              <strong>Compatibility Check ({{ compatFindings.length }} notice{{ compatFindings.length > 1 ? 's' : '' }})</strong>
+              <span v-for="msg in compatFindings" :key="msg" class="sol-text-xs">• {{ msg }}</span>
+            </template>
+          </div>
+          <button type="button" class="sol-icon-btn sol-icon-btn--xs" @click="compatFindings = null"><X :size="12" /></button>
+        </div>
+
+        <div v-if="selectedContentKeys.length > 0" class="sol-bulk-bar">
+          <span>{{ selectedContentKeys.length }} selected</span>
+          <div class="sol-row-gap">
+            <SolaraButton variant="secondary" size="xs" :disabled="bulkUpdating" @click="applyBulkToggle(true)">Enable</SolaraButton>
+            <SolaraButton variant="secondary" size="xs" :disabled="bulkUpdating" @click="applyBulkToggle(false)">Disable</SolaraButton>
+            <SolaraButton variant="ghost" size="xs" @click="selectedContentKeys = []">Clear</SolaraButton>
+          </div>
+        </div>
+
+        <SolaraEmptyState
+          v-if="!loadingContent && unifiedRows.length === 0"
+          title="No content installed yet"
+          description="Browse Modrinth content tailored to this Minecraft version & loader, or upload .jar / .zip files."
+        >
+          <template #icon><Package :size="26" /></template>
+          <template #actions>
+            <SolaraButton variant="primary" size="sm" @click="openBrowserForCurrentCategory">
+              <Compass :size="14" /> Browse Content
+            </SolaraButton>
+            <SolaraButton variant="secondary" size="sm" @click="uploadInput?.click()">
+              <Upload :size="14" /> Upload Files
+            </SolaraButton>
+          </template>
+        </SolaraEmptyState>
+
+        <div v-else class="sol-row-list">
+          <div v-for="row in unifiedRows" :key="row.key" :class="['sol-content-row', { 'is-disabled': !row.enabled }]">
+            <input
+              type="checkbox"
+              :checked="selectedContentKeys.includes(row.key)"
+              :aria-label="`Select ${row.name}`"
+              @change="toggleSelectContent(row.key, ($event.target as HTMLInputElement).checked)"
+            />
+            <img v-if="row.iconDataUrl" :src="row.iconDataUrl" :alt="row.name" class="sol-content-icon" />
+            <div v-else class="sol-content-icon sol-content-icon--empty">
+              {{ row.name.slice(0, 2).toUpperCase() }}
+            </div>
+
+            <div class="sol-content-meta">
+              <div class="sol-row-gap">
+                <strong class="sol-truncate">{{ row.name }}</strong>
+                <span class="sol-badge">{{ row.kindLabel }}</span>
+                <span v-if="row.version" class="sol-muted sol-text-xs">{{ row.version }}</span>
+              </div>
+              <div class="sol-muted sol-text-xs sol-truncate">
+                {{ row.fileName }} · {{ formatBytes(row.size) }}
+              </div>
+            </div>
+
+            <div class="sol-row-gap">
+              <SolaraToggle
+                :model-value="row.enabled"
+                :label="`Toggle ${row.name}`"
+                @update:model-value="toggleContentRow(row, $event)"
               />
-              <div v-else class="sol-shot-placeholder">
-                <Camera :size="20" />
-              </div>
-              <div class="sol-shot-meta">
-                <span class="sol-truncate">{{ shot.fileName }}</span>
-                <span class="sol-muted sol-text-xs">{{ formatBytes(shot.size) }}</span>
-              </div>
+              <button
+                type="button"
+                class="sol-icon-btn sol-icon-btn--xs"
+                title="Move to instance trash"
+                @click="removeContentRow(row)"
+              >
+                <Trash2 :size="13" />
+              </button>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- INSTANCE SETTINGS TAB -->
-        <div v-else-if="activeTab === 'settings'" class="sol-settings-split">
-          <nav class="sol-settings-nav">
-            <button
-              v-for="sec in [
-                { id: 'general', label: 'General' },
-                { id: 'install', label: 'Installation' },
-                { id: 'java', label: 'Java & Memory' },
-                { id: 'window', label: 'Window' },
-                { id: 'hooks', label: 'Launch Hooks' },
-                { id: 'backups', label: 'Backups' },
-                { id: 'danger', label: 'Danger Zone' },
-              ] as const"
-              :key="sec.id"
-              type="button"
-              :class="['sol-settings-nav-item', { 'is-active': settingsSection === sec.id }]"
-              @click="settingsSection = sec.id"
-            >
-              {{ sec.label }}
-            </button>
-          </nav>
-
-          <div class="sol-settings-pane">
-            <!-- General -->
-            <section v-if="settingsSection === 'general'" class="sol-card sol-stack">
-              <h2 class="sol-card-title">General</h2>
-              <div class="sol-row-gap">
-                <InstanceIcon
-                  :name="draft.name"
-                  :loader="instance.loader"
-                  :icon="draft.icon"
-                  :custom-icon="draft.customIcon"
-                  :size="56"
-                  :rounded="12"
-                />
-                <input ref="iconUploadInput" type="file" accept="image/png,image/jpeg,image/webp" hidden @change="onSettingsIconPicked" />
-                <SolaraButton variant="secondary" size="xs" @click="iconUploadInput?.click()">Upload Icon</SolaraButton>
-                <div class="sol-preset-strip">
-                  <button
-                    v-for="preset in BUILTIN_ICON_PRESETS"
-                    :key="preset"
-                    type="button"
-                    :class="['sol-preset-btn', { 'is-active': !draft.customIcon && draft.icon === preset }]"
-                    @click="
-                      draft.customIcon = null;
-                      draft.icon = preset;
-                    "
-                  >
-                    <InstanceIcon :icon="preset" :size="22" :rounded="5" />
-                  </button>
-                </div>
-              </div>
-
-              <div class="sol-split-2">
-                <div class="sol-field">
-                  <label class="sol-label">Instance Name</label>
-                  <input v-model="draft.name" type="text" class="sol-input" maxlength="80" />
-                </div>
-                <div class="sol-field">
-                  <label class="sol-label">Group</label>
-                  <input v-model="draft.group" type="text" class="sol-input" placeholder="None" maxlength="60" />
-                </div>
-              </div>
-
-              <div class="sol-field">
-                <label class="sol-label">Update Channel</label>
-                <select v-model="draft.updateChannel" class="sol-input">
-                  <option value="release">Release</option>
-                  <option value="beta">Beta</option>
-                  <option value="alpha">Alpha</option>
-                </select>
-              </div>
-            </section>
-
-            <!-- Installation -->
-            <section v-else-if="settingsSection === 'install'" class="sol-card sol-stack">
-              <h2 class="sol-card-title">Installation & Runtime Integrity</h2>
-              <div class="sol-kv-grid">
-                <div class="sol-kv"><span class="sol-muted">Minecraft Version</span><strong>{{ instance.gameVersion }}</strong></div>
-                <div class="sol-kv"><span class="sol-muted">Mod Loader</span><strong>{{ LOADER_LABEL[instance.loader] }} {{ instance.loaderVersion || '' }}</strong></div>
-                <div class="sol-kv"><span class="sol-muted">Install State</span><strong>{{ instance.state }}</strong></div>
-              </div>
-              <div>
-                <SolaraButton
-                  variant="secondary"
-                  size="sm"
-                  :disabled="Boolean(instance.running)"
-                  @click="native('repair_instance', { id: instance.id }).then(() => { refreshSnapshot(); notify('info', 'Repair queued'); }).catch((e) => notify('error', &quot;Couldn't repair files&quot;, String(e)))"
-                >
-                  <Wrench :size="14" /> Verify & Repair Game Files
-                </SolaraButton>
-              </div>
-            </section>
-
-            <!-- Java & Memory -->
-            <section v-else-if="settingsSection === 'java'" class="sol-card sol-stack">
-              <h2 class="sol-card-title">Java & Memory</h2>
-              <div class="sol-field">
-                <label class="sol-label">Memory Allocation ({{ draft.memory }} MB)</label>
-                <input v-model.number="draft.memory" type="range" min="512" max="16384" step="512" class="sol-range" />
-              </div>
-              <div class="sol-field">
-                <label class="sol-label">Java Runtime</label>
-                <select v-model="draft.javaPath" class="sol-input">
-                  <option value="auto">Automatic (Solara Managed)</option>
-                  <option v-for="j in detectedJava" :key="j.path" :value="j.path">
-                    Java {{ j.major ?? '?' }} ({{ j.vendor }}) — {{ j.path }}
-                  </option>
-                </select>
-              </div>
-              <div class="sol-field">
-                <label class="sol-label">Custom JVM Arguments</label>
-                <input
-                  v-model="draft.jvmArgs"
-                  type="text"
-                  class="sol-input"
-                  placeholder="e.g. -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions"
-                />
-              </div>
-            </section>
-
-            <!-- Window -->
-            <section v-else-if="settingsSection === 'window'" class="sol-card sol-stack">
-              <h2 class="sol-card-title">Game Window</h2>
-              <div class="sol-split-2">
-                <div class="sol-field">
-                  <label class="sol-label">Width (px)</label>
-                  <input v-model.number="draft.width" type="number" min="320" max="7680" class="sol-input" />
-                </div>
-                <div class="sol-field">
-                  <label class="sol-label">Height (px)</label>
-                  <input v-model.number="draft.height" type="number" min="240" max="4320" class="sol-input" />
-                </div>
-              </div>
-              <label class="sol-checkbox-label">
-                <input v-model="draft.fullscreen" type="checkbox" />
-                <span>Start Minecraft in Fullscreen</span>
-              </label>
-            </section>
-
-            <!-- Hooks -->
-            <section v-else-if="settingsSection === 'hooks'" class="sol-card sol-stack">
-              <h2 class="sol-card-title">Launch Hooks</h2>
-              <div class="sol-banner sol-banner--warning">
-                <AlertTriangle :size="15" />
-                <span>
-                  Hook commands run directly without a system shell, split by spaces and quotes, inside this instance's
-                  <code>game/</code> folder (60s limit). Only run trusted local commands—if the pre-launch command returns an error, Minecraft will not start.
-                </span>
-              </div>
-              <div class="sol-field">
-                <label class="sol-label">Pre-launch Command</label>
-                <input v-model="draft.preLaunch" type="text" class="sol-input" placeholder='e.g. "C:\Tools\sync.exe" --mode fast' />
-              </div>
-              <div class="sol-field">
-                <label class="sol-label">Post-exit Command</label>
-                <input v-model="draft.postExit" type="text" class="sol-input" placeholder='e.g. "C:\Tools\cleanup.exe"' />
-              </div>
-            </section>
-
-            <!-- Backups -->
-            <section v-else-if="settingsSection === 'backups'" class="sol-card sol-stack">
-              <div class="sol-side-head">
-                <h2 class="sol-card-title">Instance Backups ({{ backups.length }})</h2>
-                <div class="sol-row-gap">
-                  <input v-model="newBackupName" type="text" class="sol-input sol-input--sm" placeholder="Optional label" />
-                  <SolaraButton variant="primary" size="sm" :loading="creatingBackup" @click="createBackup">
-                    Create Backup
-                  </SolaraButton>
-                </div>
-              </div>
-              <div v-if="backups.length === 0" class="sol-muted sol-text-xs">
-                No backups created yet for this instance.
-              </div>
-              <div v-for="b in backups" :key="b.id" class="sol-content-row">
-                <div class="sol-content-info">
-                  <div class="sol-content-name">{{ b.name }}</div>
-                  <div class="sol-muted sol-text-xs">{{ formatRelativeTime(b.createdAt) }} • {{ formatBytes(b.size) }}</div>
-                </div>
-                <div class="sol-row-gap">
-                  <SolaraButton variant="secondary" size="xs" @click="restoreBackup(b)">Restore</SolaraButton>
-                  <SolaraButton variant="danger" size="xs" @click="deleteBackup(b)">Delete</SolaraButton>
-                </div>
-              </div>
-            </section>
-
-            <!-- Danger Zone -->
-            <section v-else-if="settingsSection === 'danger'" class="sol-card sol-stack sol-danger-card">
-              <h2 class="sol-card-title">Danger Zone</h2>
-              <p class="sol-muted sol-text-xs">
-                Deleting an instance removes its files, worlds, and mods permanently from disk.
-              </p>
-              <div class="sol-row-gap">
-                <SolaraButton variant="secondary" size="sm" @click="handleOverflowAction('duplicate')">
-                  Duplicate Instance
-                </SolaraButton>
-                <SolaraButton
-                  variant="danger"
-                  size="sm"
-                  :disabled="Boolean(instance.running)"
-                  @click="showDeleteDialog = true"
-                >
-                  Delete Instance
-                </SolaraButton>
-              </div>
-            </section>
+      <!-- FILES TAB -->
+      <section v-else-if="activeTab === 'files'" class="sol-inst-pane">
+        <div class="sol-toolbar-bar">
+          <div class="sol-row-gap">
+            <SolaraButton v-if="currentDir" variant="secondary" size="xs" @click="loadFiles(currentDir.split('/').slice(0, -1).join('/'))">
+              Up Level
+            </SolaraButton>
+            <span class="sol-mono sol-text-xs">/{{ currentDir }}</span>
+          </div>
+          <div class="sol-row-gap">
+            <SolaraButton variant="secondary" size="xs" @click="openFileAction('mkdir')">
+              <Plus :size="12" /> New Folder
+            </SolaraButton>
+            <SolaraButton variant="secondary" size="xs" @click="showTrash = !showTrash">
+              <Trash2 :size="12" /> {{ showTrash ? 'Hide Trash' : `Trash (${trashEntries.length})` }}
+            </SolaraButton>
+            <SolaraButton variant="secondary" size="xs" @click="native('open_instance_folder', { id: instance.id }).catch(() => {})">
+              <FolderOpen :size="12" /> Open Folder
+            </SolaraButton>
           </div>
         </div>
-      </div>
+
+        <div v-if="editingFile" class="sol-editor-pane">
+          <div class="sol-row-between">
+            <strong class="sol-mono sol-text-xs">{{ editingFile.path }}</strong>
+            <div class="sol-row-gap">
+              <SolaraButton variant="ghost" size="xs" @click="runWithDirtyGuard(() => { editingFile = null; })">Cancel</SolaraButton>
+              <SolaraButton v-if="!previewImageUrl" variant="primary" size="xs" :loading="savingFile" @click="saveEditedFile">
+                Save File
+              </SolaraButton>
+            </div>
+          </div>
+          <img v-if="previewImageUrl" :src="previewImageUrl" :alt="editingFile.name" class="sol-file-preview-img" />
+          <textarea v-else v-model="editingContent" rows="16" class="sol-code-textarea sol-scroll selectable" />
+        </div>
+
+        <div v-else-if="showTrash" class="sol-row-list">
+          <div v-if="trashEntries.length === 0" class="sol-muted sol-text-xs">Instance trash is empty.</div>
+          <div v-for="t in trashEntries" :key="t.id" class="sol-row-item">
+            <div>
+              <strong>{{ t.name }}</strong>
+              <div class="sol-muted sol-text-xs">{{ t.originalPath }}</div>
+            </div>
+            <SolaraButton variant="secondary" size="xs" @click="restoreTrashItem(t)">Restore</SolaraButton>
+          </div>
+        </div>
+
+        <div v-else class="sol-row-list">
+          <div
+            v-for="f in fileEntries"
+            :key="f.path"
+            class="sol-row-item"
+            role="button"
+            tabindex="0"
+            @keydown.enter.self="openFileEntry(f)"
+            @click="openFileEntry(f)"
+          >
+            <div class="sol-row-gap">
+              <Folder v-if="f.directory" :size="15" class="sol-gold" />
+              <File v-else :size="15" class="sol-muted" />
+              <span>{{ f.name }}</span>
+            </div>
+            <div class="sol-row-gap">
+              <span class="sol-muted sol-text-xs">{{ f.directory ? 'Folder' : formatBytes(f.size) }}</span>
+              <button type="button" class="sol-icon-btn sol-icon-btn--xs" :aria-label="`Rename ${f.name}`" title="Rename" @click.stop="openFileAction('rename', f)"><Edit3 :size="13" /></button>
+              <button type="button" class="sol-icon-btn sol-icon-btn--xs" :aria-label="`Move ${f.name} to trash`" title="Move to instance trash" @click.stop="openFileAction('trash', f)"><Trash2 :size="13" /></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORLDS TAB -->
+      <section v-else-if="activeTab === 'worlds'" class="sol-inst-pane">
+        <div class="sol-toolbar-bar">
+          <span class="sol-muted sol-text-xs">Saved worlds inside {{ instance.name }}/saves</span>
+          <div class="sol-row-gap">
+            <SolaraButton
+              variant="secondary"
+              size="xs"
+              @click="browserInitialTab = 'datapack'; showBrowserModal = true"
+            >
+              <Compass :size="12" /> Browse Datapacks
+            </SolaraButton>
+            <SolaraButton variant="ghost" size="xs" @click="loadWorlds">
+              <RefreshCw :size="12" /> Refresh
+            </SolaraButton>
+          </div>
+        </div>
+
+        <SolaraEmptyState
+          v-if="!loadingWorlds && worlds.length === 0"
+          title="No worlds saved yet"
+          description="Launch Minecraft and create a singleplayer world to manage it or install datapacks into it."
+        >
+          <template #icon><Globe :size="26" /></template>
+        </SolaraEmptyState>
+
+        <div v-else class="sol-row-list">
+          <div v-for="w in worlds" :key="w.folder" class="sol-row-item">
+            <div class="sol-row-gap">
+              <img v-if="w.iconDataUrl" :src="w.iconDataUrl" :alt="w.name" class="sol-content-icon" />
+              <div v-else class="sol-content-icon sol-content-icon--empty"><Globe :size="15" /></div>
+
+              <div>
+                <div v-if="editingWorld === w.folder" class="sol-row-gap">
+                  <input v-model="worldRenameInput" type="text" class="sol-input sol-input--sm" />
+                  <SolaraButton variant="primary" size="xs" @click="saveWorldRename(w.folder)">Save</SolaraButton>
+                  <SolaraButton variant="ghost" size="xs" @click="editingWorld = null">Cancel</SolaraButton>
+                </div>
+                <template v-else>
+                  <strong>{{ w.name }}</strong>
+                  <div class="sol-muted sol-text-xs">
+                    {{ w.gameMode }} · {{ w.versionName }} · {{ w.datapackCount }} datapacks · {{ formatBytes(w.size) }}
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="sol-row-gap">
+              <SolaraButton
+                variant="ghost"
+                size="xs"
+                @click="editingWorld = w.folder; worldRenameInput = w.name"
+              >
+                Rename
+              </SolaraButton>
+              <SolaraButton variant="primary" size="xs" @click="launchOrStopInstance(instance)">
+                <Play :size="12" /> Play
+              </SolaraButton>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOGS TAB -->
+      <section v-else-if="activeTab === 'logs'" class="sol-inst-pane">
+        <div class="sol-toolbar-bar">
+          <select v-model="selectedLogFile" class="sol-select" @change="loadLogs">
+            <option value="live">Live Session Output</option>
+            <option v-for="lf in diskLogs" :key="lf.name" :value="lf.name">
+              {{ lf.name }} ({{ formatBytes(lf.size) }})
+            </option>
+          </select>
+
+          <div class="sol-seg-group">
+            <button
+              v-for="lvl in (['ALL', 'INFO', 'WARN', 'ERROR'] as const)"
+              :key="lvl"
+              type="button"
+              :class="['sol-seg-btn', { 'is-active': logLevel === lvl }]"
+              @click="logLevel = lvl"
+            >
+              {{ lvl }}
+            </button>
+          </div>
+
+          <div class="sol-search-box sol-search-box--grow">
+            <Search :size="13" class="sol-muted" />
+            <input v-model="logSearch" type="text" class="sol-search-input" placeholder="Filter log lines..." />
+          </div>
+
+          <SolaraButton variant="ghost" size="xs" @click="showTimestamps = !showTimestamps">
+            {{ showTimestamps ? 'Timestamps: On' : 'Timestamps: Off' }}
+          </SolaraButton>
+          <SolaraButton variant="ghost" size="xs" @click="logPaused = !logPaused">
+            {{ logPaused ? 'Resume' : 'Pause' }}
+          </SolaraButton>
+          <SolaraButton variant="ghost" size="xs" @click="clearLogView">Clear</SolaraButton>
+          <SolaraButton variant="secondary" size="xs" @click="showCrashAssistant = !showCrashAssistant">
+            <Info :size="12" /> Diagnose Log
+          </SolaraButton>
+          <SolaraButton variant="secondary" size="xs" @click="copyAllLogs">
+            <Check v-if="copiedLogs" :size="12" />
+            <Copy v-else :size="12" />
+            {{ copiedLogs ? 'Copied' : 'Copy Log' }}
+          </SolaraButton>
+          <SolaraButton variant="ghost" size="xs" :loading="loadingLogs" @click="!logPaused && loadLogs()">
+            <RefreshCw :size="12" /> Refresh
+          </SolaraButton>
+        </div>
+
+        <!-- Smart Crash Assistant Panel -->
+        <div v-if="showCrashAssistant" :class="crashInsights.length > 0 ? 'sol-banner-warn' : 'sol-banner-info'">
+          <div class="sol-stack" style="gap: 4px">
+            <strong v-if="crashInsights.length === 0">Smart Crash Assistant: No known fatal crash patterns found in this log.</strong>
+            <template v-else>
+              <strong>Smart Crash Assistant ({{ crashInsights.length }} finding{{ crashInsights.length > 1 ? 's' : '' }})</strong>
+              <div v-for="ci in crashInsights" :key="ci.title" class="sol-text-xs">
+                <strong>{{ ci.title }}:</strong> {{ ci.advice }}
+              </div>
+            </template>
+          </div>
+          <button type="button" class="sol-icon-btn sol-icon-btn--xs" @click="showCrashAssistant = false"><X :size="12" /></button>
+        </div>
+
+        <div v-if="parsedLogLines.length > logWindowLimit" class="sol-log-window-bar">
+          <span class="sol-muted sol-text-xs">Showing latest {{ logWindowLimit }} of {{ parsedLogLines.length }} lines</span>
+          <SolaraButton variant="ghost" size="xs" @click="logWindowLimit += 300">Show earlier lines</SolaraButton>
+        </div>
+
+        <p v-if="logError" class="sol-inline-error">{{ logError }}</p>
+        <div ref="logViewer" class="sol-log-viewer sol-scroll selectable">
+          <div v-if="windowedLogLines.length === 0" class="sol-muted">No matching log output.</div>
+          <div
+            v-for="ln in windowedLogLines"
+            :key="ln.id"
+            :class="['sol-log-line', `sol-log-line--${ln.level.toLowerCase()}`]"
+          >
+            <span v-if="showTimestamps && ln.ts" class="sol-log-ts">{{ ln.ts }} </span>
+            <span>{{ ln.body }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREENSHOTS TAB -->
+      <section v-else-if="activeTab === 'screenshots'" class="sol-inst-pane">
+        <SolaraEmptyState
+          v-if="!loadingShots && screenshots.length === 0"
+          title="No screenshots captured yet"
+          description="Press F2 in Minecraft and your screenshots for this instance will appear here."
+        >
+          <template #icon><Camera :size="26" /></template>
+        </SolaraEmptyState>
+
+        <div v-else class="sol-shots-grid">
+          <article
+            v-for="s in screenshots"
+            :key="screenshotKey(s)"
+            :ref="(el) => bindScreenshotRef(s, el)"
+            class="sol-shot-card"
+            @click="openScreenshot(s)"
+          >
+            <img v-if="peekCachedPreview(s)" :src="peekCachedPreview(s)" :alt="s.fileName" class="sol-shot-img" />
+            <div v-else class="sol-shot-placeholder">Loading...</div>
+            <div class="sol-shot-foot">
+              <span class="sol-truncate sol-text-xs">{{ s.fileName }}</span>
+            </div>
+          </article>
+        </div>
+      </section>
     </div>
 
-    <!-- Sticky Save Bar inside Instance Settings -->
-    <SolaraSaveBar
-      v-if="activeTab === 'settings'"
-      :dirty="isSettingsDirty"
-      :saving="savingSettings"
-      @reset="syncDraftFromInstance"
-      @save="saveInstanceSettings"
+    <SolaraModal
+      :open="Boolean(fileDialog)"
+      :title="fileDialog?.action === 'mkdir' ? 'New Folder' : fileDialog?.action === 'rename' ? 'Rename' : 'Move to Instance Trash'"
+      width="sm"
+      :closable="!fileMutating"
+      @close="fileDialog = null"
+    >
+      <p v-if="fileDialog?.action === 'trash'" class="sol-muted">Move {{ fileDialog.entry?.name }} to the instance trash? You can restore it from the Files tab.</p>
+      <form v-else id="instance-file-action" class="sol-field" @submit.prevent="submitFileAction">
+        <label for="instance-file-name" class="sol-label">Name</label>
+        <input id="instance-file-name" v-model="fileDialogName" class="sol-input" maxlength="120" :disabled="fileMutating" />
+      </form>
+      <p v-if="fileDialogError" class="sol-inline-error">{{ fileDialogError }}</p>
+      <template #footer>
+        <SolaraButton variant="ghost" :disabled="fileMutating" @click="fileDialog = null">Cancel</SolaraButton>
+        <SolaraButton :variant="fileDialog?.action === 'trash' ? 'danger' : 'primary'" :loading="fileMutating" @click="submitFileAction">
+          {{ fileDialog?.action === 'trash' ? 'Move to Trash' : 'Save Name' }}
+        </SolaraButton>
+      </template>
+    </SolaraModal>
+
+    <!-- Built-in Instance Content Browser Modal -->
+    <InstanceContentBrowserModal
+      v-if="instance"
+      :open="showBrowserModal"
+      :instance="instance"
+      :initial-tab="browserInitialTab"
+      :worlds="worlds"
+      :installed-names="installedContentNames"
+      @close="showBrowserModal = false"
+      @installed="loadAllContent"
     />
 
-    <!-- Context / Overflow Menu & Modals -->
-    <SolaraContextMenu
-      :open="overflowMenu.open"
-      :x="overflowMenu.x"
-      :y="overflowMenu.y"
-      :items="overflowItems"
-      @close="overflowMenu.open = false"
-      @select="handleOverflowAction"
-    />
-
+    <!-- Content Update Modal -->
     <ModUpdateModal
-      :open="showUpdateModal"
+      v-if="instance"
+      :open="showUpdatesModal"
       :instance-id="instance.id"
       :instance-name="instance.name"
-      @close="showUpdateModal = false"
-      @updated="loadContentTab"
+      @close="showUpdatesModal = false"
+      @updated="loadAllContent"
     />
 
-    <ConfirmDialog
-      :open="showDeleteDialog"
-      title="Delete Instance"
-      :message="`Permanently delete '${instance.name}' and all its saves, mods, and configs?`"
-      confirm-label="Delete Instance"
-      :danger="true"
-      :require-text="instance.name"
-      :loading="deleting"
-      @cancel="showDeleteDialog = false"
-      @confirm="confirmDelete"
-    />
-
-    <!-- File Text Editor Modal -->
-    <SolaraModal
-      :open="Boolean(editingFile)"
-      :title="editingFile?.path || 'Edit File'"
-      width="lg"
-      @close="editingFile = null"
-    >
-      <textarea
-        v-if="editingFile"
-        v-model="editingFile.content"
-        class="sol-code-editor selectable"
-        rows="18"
-        @input="editingFile.dirty = true"
-      />
-      <template #footer>
-        <SolaraButton variant="ghost" @click="editingFile = null">Close</SolaraButton>
-        <SolaraButton variant="primary" :disabled="!editingFile?.dirty" @click="saveEditedFile">
-          Save File
-        </SolaraButton>
-      </template>
-    </SolaraModal>
-
-    <!-- Image / Screenshot Lightbox Modal -->
-    <SolaraModal
-      :open="Boolean(previewImage || lightboxShot)"
-      :title="previewImage?.path || lightboxShot?.fileName || 'Preview'"
-      width="lg"
-      @close="closeMediaLightbox"
-    >
-      <img
-        v-if="previewImage?.dataUrl || lightboxShotSrc"
-        :src="previewImage?.dataUrl || lightboxShotSrc || undefined"
-        alt="Screenshot preview"
-        class="sol-lightbox-img"
-      />
-      <div v-else-if="lightboxShot" class="sol-lightbox-placeholder">
-        <Camera :size="26" />
-        <span v-if="lightboxLoading">Loading full-resolution image...</span>
-        <span v-else-if="lightboxError" class="sol-muted sol-text-xs">{{ lightboxError }}</span>
+    <!-- Screenshot Lightbox -->
+    <div v-if="lightboxShot" class="sol-overlay" @click.self="lightboxShot = null">
+      <div class="sol-dialog-box" style="max-width: 900px">
+        <div class="sol-row-between" style="margin-bottom: 10px">
+          <strong>{{ lightboxShot.entry.fileName }}</strong>
+          <SolaraButton variant="secondary" size="xs" @click="copyScreenshotPath(lightboxShot.entry)">Copy file path</SolaraButton>
+          <SolaraButton variant="ghost" size="xs" @click="lightboxShot = null">Close</SolaraButton>
+        </div>
+        <img v-if="lightboxShot.src" :src="lightboxShot.src" :alt="lightboxShot.entry.fileName" class="sol-lightbox-img" />
       </div>
-      <template v-if="lightboxShot" #footer>
-        <SolaraButton variant="secondary" size="sm" @click="copyScreenshotPath(lightboxShot)">
-          <Copy :size="13" /> Copy file path
-        </SolaraButton>
-        <SolaraButton
-          variant="secondary"
-          size="sm"
-          @click="native('open_instance_folder', { id: lightboxShot.instanceId, path: 'screenshots' }).catch(() => {})"
-        >
-          <FolderOpen :size="13" /> Open Folder
-        </SolaraButton>
-        <SolaraButton variant="danger" size="sm" @click="deleteScreenshot(lightboxShot)">
-          <Trash2 :size="13" /> Move to Trash
-        </SolaraButton>
-        <SolaraButton variant="secondary" size="sm" @click="closeMediaLightbox">Close</SolaraButton>
-      </template>
-    </SolaraModal>
-
-    <!-- New Folder Modal -->
-    <SolaraModal :open="newFolderModal" title="Create Folder" width="sm" @close="newFolderModal = false">
-      <div class="sol-field">
-        <label class="sol-label">Folder Name</label>
-        <input v-model="newFolderName" type="text" class="sol-input" @keydown.enter="createFolder" />
-      </div>
-      <template #footer>
-        <SolaraButton variant="ghost" @click="newFolderModal = false">Cancel</SolaraButton>
-        <SolaraButton variant="primary" :disabled="!newFolderName.trim()" @click="createFolder">Create</SolaraButton>
-      </template>
-    </SolaraModal>
-
-    <!-- Rename World Modal -->
-    <SolaraModal :open="Boolean(renameWorldTarget)" title="Rename World Folder" width="sm" @close="renameWorldTarget = null">
-      <div class="sol-field">
-        <label class="sol-label">Folder Name</label>
-        <input v-model="renameWorldFolder" type="text" class="sol-input" @keydown.enter="confirmRenameWorld" />
-      </div>
-      <template #footer>
-        <SolaraButton variant="ghost" @click="renameWorldTarget = null">Cancel</SolaraButton>
-        <SolaraButton variant="primary" :disabled="!renameWorldFolder.trim()" @click="confirmRenameWorld">Rename</SolaraButton>
-      </template>
-    </SolaraModal>
+    </div>
   </div>
-
-  <SolaraEmptyState
-    v-else
-    title="Instance not found"
-    description="Select an instance from your Library or create a new one."
-  >
-    <template #actions>
-      <SolaraButton variant="primary" @click="navigate('library')">Open Library</SolaraButton>
-    </template>
-  </SolaraEmptyState>
 </template>

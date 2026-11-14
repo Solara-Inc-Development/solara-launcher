@@ -263,7 +263,6 @@ onUnmounted(() => {
               <select v-model="draft.onLaunch" class="sol-select">
                 <option value="keep">Keep window open</option>
                 <option value="minimize">Minimize to taskbar</option>
-                <option value="hide">Hide window</option>
               </select>
             </div>
 

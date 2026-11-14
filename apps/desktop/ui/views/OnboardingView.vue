@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SolaraLogo from '../components/SolaraLogo.vue';
 import { computed, onMounted, ref } from 'vue';
 import {
   CheckCircle2,
@@ -149,10 +150,7 @@ async function completeOnboarding(launchNow = false) {
       <!-- Step 1: Welcome -->
       <section v-if="step === 1" class="sol-onboarding-pane">
         <div class="sol-onboarding-brand">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2L20.5 7V17L12 22L3.5 17V7L12 2Z" stroke="#E9B86D" stroke-width="1.8" />
-            <circle cx="12" cy="12" r="3.5" fill="#E9B86D" />
-          </svg>
+          <SolaraLogo :size="42" />
           <div>
             <h1 class="sol-onboarding-title">Welcome to Solara Launcher</h1>
             <p class="sol-onboarding-sub">

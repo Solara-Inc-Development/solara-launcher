@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Camera, Search, FolderOpen, Trash2, RefreshCw, Copy } from '../icons';
 import { store, formatBytes, formatRelativeTime, native, notify } from '../state';
 import {
@@ -10,6 +10,7 @@ import {
   loadScreenshotPreview,
   peekCachedPreview,
   screenshotKey,
+  useScreenshotObserver,
 } from '../screenshots';
 import type { ScreenshotEntry } from '../types';
 import SolaraButton from '../components/SolaraButton.vue';
@@ -25,39 +26,7 @@ const lightboxSrc = ref<string | null>(null);
 const lightboxLoading = ref(false);
 const lightboxError = ref<string | null>(null);
 
-const observedMap = new WeakMap<Element, ScreenshotEntry>();
-const observedElements = new WeakSet<Element>();
-let observer: IntersectionObserver | null = null;
-
-function ensureObserver() {
-  if (observer || typeof IntersectionObserver === 'undefined') return;
-  observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const shot = observedMap.get(entry.target);
-        if (shot && !peekCachedPreview(shot)) {
-          void loadScreenshotPreview(shot);
-        }
-      }
-    },
-    { rootMargin: '160px' },
-  );
-}
-
-function bindCardRef(shot: ScreenshotEntry, el: unknown) {
-  if (!(el instanceof Element)) return;
-  if (typeof IntersectionObserver === 'undefined') {
-    if (!peekCachedPreview(shot)) void loadScreenshotPreview(shot);
-    return;
-  }
-  ensureObserver();
-  observedMap.set(el, shot);
-  if (!observedElements.has(el)) {
-    observedElements.add(el);
-    observer?.observe(el);
-  }
-}
+const bindCardRef = useScreenshotObserver();
 
 async function loadAll() {
   if (!store.desktop) return;
@@ -102,10 +71,7 @@ function closeLightbox() {
 }
 
 onMounted(loadAll);
-onBeforeUnmount(() => {
-  observer?.disconnect();
-  observer = null;
-});
+
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase();

@@ -1,422 +1,369 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import InstanceIcon from '../components/InstanceIcon.vue';
+import SolaraButton from '../components/SolaraButton.vue';
 import {
-  Play,
-  Square,
-  Plus,
-  Settings,
-  User,
-  Newspaper,
+  Check,
+  Compass,
+  Copy,
+  Download,
   FolderOpen,
-  ArrowUpRight,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  Info,
-  RefreshCw,
+  Globe,
+  Newspaper,
+  Play,
+  Plus,
+  Server,
+  Sliders,
+  Square,
+  User,
 } from '../icons';
 import {
-  store,
+  activeJobs,
+  formatDuration,
+  formatRelativeTime,
+  launchOrStopInstance,
+  LOADER_LABEL,
+  navigate,
+  notify,
+  openCreateInstance,
+  openInstanceSettings,
+  playerAvatarUrl,
   selectedAccount,
   selectedInstance,
-  activeJobs,
-  navigate,
   selectInstance,
-  openCreateInstance,
-  launchOrStopInstance,
-  loadAnnouncements,
-  playerAvatarUrl,
-  formatRelativeTime,
-  formatDuration,
-  formatBytes,
-  LOADER_LABEL,
-  native,
-  notify,
+  store,
 } from '../state';
-import SolaraButton from '../components/SolaraButton.vue';
-import SolaraProgress from '../components/SolaraProgress.vue';
-import SolaraEmptyState from '../components/SolaraEmptyState.vue';
-import InstanceIcon from '../components/InstanceIcon.vue';
+import type { InstanceRecord } from '../types';
 
 const emit = defineEmits<{ (e: 'start-signin'): void }>();
+const copiedIp = ref(false);
 
-const recentInstances = computed(() => {
+const jumpBackIn = computed(() => {
   return [...store.instances]
     .sort((a, b) => {
-      const ta = a.lastPlayed ? Date.parse(a.lastPlayed) : 0;
-      const tb = b.lastPlayed ? Date.parse(b.lastPlayed) : 0;
-      if (tb !== ta) return tb - ta;
-      const ca = a.createdAt ? Date.parse(a.createdAt) : 0;
-      const cb = b.createdAt ? Date.parse(b.createdAt) : 0;
-      return cb - ca;
+      const aTime = a.lastPlayed ? new Date(a.lastPlayed).getTime() : 0;
+      const bTime = b.lastPlayed ? new Date(b.lastPlayed).getTime() : 0;
+      if (bTime !== aTime) return bTime - aTime;
+      return (b.playtimeSeconds ?? 0) - (a.playtimeSeconds ?? 0);
     })
-    .slice(0, 6);
+    .slice(0, 8);
 });
 
-const selectedInstallJob = computed(() => {
-  const inst = selectedInstance.value;
-  if (!inst) return null;
-  return activeJobs.value.find((j) => j.instance === inst.id) ?? null;
+const heroInstance = computed<InstanceRecord | null>(() => {
+  return selectedInstance.value ?? jumpBackIn.value[0] ?? null;
 });
 
-const recentActivity = computed(() => {
-  const fromJobs = store.downloads.slice(-6).reverse().map((j) => ({
-    id: `job-${j.id}`,
-    title: j.name,
-    detail: j.phase || j.status,
-    tone:
-      j.status === 'completed'
-        ? ('success' as const)
-        : j.status === 'failed'
-          ? ('error' as const)
-          : j.status === 'cancelled'
-            ? ('warning' as const)
-            : ('info' as const),
-    time: j.createdAt || '',
-  }));
-  const combined = [
-    ...store.activityFeed.slice(0, 6).map((a) => ({
-      id: a.id,
-      title: a.title,
-      detail: formatRelativeTime(a.time),
-      tone: a.tone,
-      time: a.time,
-    })),
-    ...fromJobs,
-  ];
-  return combined.slice(0, 8);
+const heroLaunchState = computed(() => {
+  if (!heroInstance.value) return null;
+  return store.launchStates[heroInstance.value.id] ?? null;
 });
 
-async function retryInstall(id: string) {
-  try {
-    await native('retry_instance', { id });
-    notify('info', 'Retrying installation', 'Download queued.');
-  } catch (err) {
-    notify('error', "Couldn't retry install", String(err));
-  }
+const isHeroLaunching = computed(() => {
+  const st = heroLaunchState.value;
+  return Boolean(st && st.stage !== 'running' && st.stage !== 'error');
+});
+
+const networkIp = computed(() => {
+  const net = store.solaraBootstrap?.network;
+  return String(net?.ip || net?.address || 'play.solaranetwork.in');
+});
+
+function openInstanceContent(inst: InstanceRecord): void {
+  selectInstance(inst.id);
+  navigate('instance', { instanceId: inst.id, tab: 'content' });
 }
 
-function openAnnouncement(item: (typeof store.announcements)[number]) {
-  store.activeAnnouncement = item;
-  store.showAnnouncementsModal = true;
+function openInstanceLogs(inst: InstanceRecord): void {
+  selectInstance(inst.id);
+  navigate('instance', { instanceId: inst.id, tab: 'logs' });
+}
+
+async function copyNetworkIp(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(networkIp.value);
+    copiedIp.value = true;
+    notify('success', 'Server address copied', networkIp.value);
+    window.setTimeout(() => {
+      copiedIp.value = false;
+    }, 1800);
+  } catch {
+    notify('info', 'Solara Network', networkIp.value);
+  }
 }
 </script>
 
 <template>
   <div class="sol-page sol-scroll">
-    <div class="sol-page-inner sol-home-layout">
-      <!-- Left Main Column -->
-      <div class="sol-home-main">
-        <!-- Primary Launch Section -->
-        <section class="sol-card sol-launch-card">
-          <template v-if="selectedInstance">
-            <div class="sol-launch-top">
-              <div class="sol-launch-identity">
-                <InstanceIcon
-                  :name="selectedInstance.name"
-                  :loader="selectedInstance.loader"
-                  :icon="selectedInstance.icon"
-                  :custom-icon="selectedInstance.customIcon"
-                  :size="56"
-                  :rounded="14"
-                />
-                <div class="sol-launch-meta">
-                  <div class="sol-launch-title-row">
-                    <h1 class="sol-launch-title">{{ selectedInstance.name }}</h1>
-                    <span
-                      v-if="selectedInstance.running"
-                      class="sol-badge sol-badge--success"
-                    >Running</span>
-                    <span
-                      v-else-if="selectedInstance.state !== 'installed'"
-                      :class="['sol-badge', `sol-badge--${selectedInstance.state}`]"
-                    >{{ selectedInstance.state }}</span>
-                  </div>
-                  <div class="sol-launch-specs">
-                    <span>Minecraft {{ selectedInstance.gameVersion }}</span>
-                    <span>•</span>
-                    <span>{{ LOADER_LABEL[selectedInstance.loader] || selectedInstance.loader }}</span>
-                    <template v-if="selectedInstance.loaderVersion">
-                      <span>{{ selectedInstance.loaderVersion }}</span>
-                    </template>
-                    <span>•</span>
-                    <span>{{ selectedInstance.memory }} MB RAM</span>
-                    <template v-if="selectedInstance.playtimeSeconds">
-                      <span>•</span>
-                      <span class="sol-inline-flex"><Clock :size="12" /> {{ formatDuration(selectedInstance.playtimeSeconds) }}</span>
-                    </template>
-                  </div>
-                </div>
-              </div>
+    <div class="sol-home-wrap">
+      <!-- Compact Context Header -->
+      <header class="sol-home-topbar">
+        <div class="sol-row-gap">
+          <h1 class="sol-home-heading">
+            {{ selectedAccount ? `Welcome back, ${selectedAccount.username}` : 'Welcome to Solara' }}
+          </h1>
+          <span v-if="store.instances.length > 0" class="sol-badge">
+            {{ store.instances.length }} {{ store.instances.length === 1 ? 'instance' : 'instances' }}
+          </span>
+        </div>
 
-              <div class="sol-launch-cta">
-                <SolaraButton
-                  v-if="selectedInstance.state === 'installed'"
-                  :variant="selectedInstance.running ? 'danger' : 'primary'"
-                  size="lg"
-                  @click="launchOrStopInstance(selectedInstance)"
-                >
-                  <Square v-if="selectedInstance.running" :size="15" />
-                  <Play v-else :size="15" />
-                  <span>{{ selectedInstance.running ? 'Stop' : 'Play' }}</span>
-                </SolaraButton>
-                <SolaraButton
-                  v-else-if="selectedInstance.state === 'failed' || selectedInstance.state === 'cancelled'"
-                  variant="primary"
-                  size="lg"
-                  @click="retryInstall(selectedInstance.id)"
-                >
-                  <RefreshCw :size="15" />
-                  <span>Retry Install</span>
-                </SolaraButton>
-                <SolaraButton
-                  v-else
-                  variant="secondary"
-                  size="lg"
-                  disabled
-                >
-                  Installing...
-                </SolaraButton>
-
-                <button
-                  type="button"
-                  class="sol-icon-btn"
-                  title="Instance settings"
-                  aria-label="Open instance settings"
-                  @click="navigate('instance', { instanceId: selectedInstance.id, tab: 'settings' })"
-                >
-                  <Settings :size="16" />
-                </button>
-                <button
-                  type="button"
-                  class="sol-icon-btn"
-                  title="Open instance details"
-                  aria-label="Open instance details"
-                  @click="navigate('instance', { instanceId: selectedInstance.id, tab: 'overview' })"
-                >
-                  <ArrowUpRight :size="16" />
-                </button>
-              </div>
-            </div>
-
-            <div v-if="selectedInstallJob" class="sol-launch-progress">
-              <div class="sol-launch-progress-row">
-                <span>{{ selectedInstallJob.phase || 'Installing...' }}</span>
-                <span v-if="selectedInstallJob.total > 0">
-                  {{ formatBytes(selectedInstallJob.done) }} / {{ formatBytes(selectedInstallJob.total) }}
-                </span>
-              </div>
-              <SolaraProgress
-                :value="selectedInstallJob.done"
-                :max="selectedInstallJob.total"
-                :indeterminate="selectedInstallJob.total <= 0"
-              />
-            </div>
-
-            <div class="sol-launch-footer">
-              <div class="sol-launch-account-hint">
-                <template v-if="selectedAccount">
-                  <img
-                    :src="playerAvatarUrl(selectedAccount.username)"
-                    :alt="selectedAccount.username"
-                    class="sol-avatar-20"
-                  />
-                  <span>Playing as <strong>{{ selectedAccount.username }}</strong></span>
-                </template>
-                <template v-else>
-                  <User :size="14" class="sol-warning" />
-                  <span>No Microsoft account selected —</span>
-                  <button type="button" class="sol-link-btn" @click="emit('start-signin')">
-                    Sign in now
-                  </button>
-                </template>
-              </div>
-              <span class="sol-muted">
-                Last played: {{ formatRelativeTime(selectedInstance.lastPlayed) }}
-              </span>
-            </div>
-          </template>
-
-          <SolaraEmptyState
-            v-else
-            title="No Minecraft instances yet"
-            description="Create your first Vanilla, Fabric, Quilt, Forge, or NeoForge instance to start playing."
+        <div class="sol-row-gap">
+          <button
+            type="button"
+            class="sol-acct-pill"
+            :title="selectedAccount ? 'Manage Minecraft accounts' : 'Sign in with Microsoft'"
+            @click="selectedAccount ? navigate('account') : emit('start-signin')"
           >
-            <template #actions>
-              <SolaraButton variant="primary" @click="openCreateInstance()">
-                <Plus :size="15" /> Create Instance
-              </SolaraButton>
-              <SolaraButton variant="secondary" @click="navigate('discover')">
-                Browse Modpacks
-              </SolaraButton>
-            </template>
-          </SolaraEmptyState>
-        </section>
-
-        <!-- Recent Instances -->
-        <section class="sol-section">
-          <div class="sol-section-header">
-            <h2 class="sol-section-heading">Instances</h2>
-            <div class="sol-row-gap">
-              <SolaraButton variant="ghost" size="xs" @click="openCreateInstance()">
-                <Plus :size="13" /> New Instance
-              </SolaraButton>
-              <SolaraButton variant="ghost" size="xs" @click="navigate('library')">
-                Open Library
-              </SolaraButton>
-            </div>
-          </div>
-
-          <div v-if="recentInstances.length === 0" class="sol-card sol-muted-box">
-            Instances you create or import will appear here for quick access.
-          </div>
-
-          <div v-else class="sol-recent-grid">
-            <div
-              v-for="inst in recentInstances"
-              :key="inst.id"
-              :class="['sol-card', 'sol-recent-card', { 'is-selected': selectedInstance?.id === inst.id }]"
-              @click="selectInstance(inst.id)"
-              @dblclick="navigate('instance', { instanceId: inst.id, tab: 'overview' })"
-            >
-              <div class="sol-recent-top">
-                <InstanceIcon
-                  :name="inst.name"
-                  :loader="inst.loader"
-                  :icon="inst.icon"
-                  :custom-icon="inst.customIcon"
-                  :size="36"
-                  :rounded="9"
-                />
-                <div class="sol-recent-info">
-                  <div class="sol-recent-name sol-truncate">{{ inst.name }}</div>
-                  <div class="sol-recent-sub">
-                    {{ inst.gameVersion }} • {{ LOADER_LABEL[inst.loader] || inst.loader }}
-                  </div>
-                </div>
-              </div>
-              <div class="sol-recent-bottom">
-                <span class="sol-muted sol-text-xs">
-                  {{ inst.lastPlayed ? `Played ${formatRelativeTime(inst.lastPlayed)}` : 'Ready' }}
-                </span>
-                <div class="sol-row-gap">
-                  <button
-                    type="button"
-                    class="sol-icon-btn sol-icon-btn--xs"
-                    title="Open instance"
-                    @click.stop="navigate('instance', { instanceId: inst.id, tab: 'overview' })"
-                  >
-                    <FolderOpen :size="13" />
-                  </button>
-                  <button
-                    v-if="inst.state === 'installed'"
-                    type="button"
-                    class="sol-icon-btn sol-icon-btn--xs sol-icon-btn--gold"
-                    :title="inst.running ? 'Stop' : 'Play'"
-                    @click.stop="launchOrStopInstance(inst)"
-                  >
-                    <Square v-if="inst.running" :size="12" />
-                    <Play v-else :size="12" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Right Secondary Column -->
-      <aside class="sol-home-side">
-        <!-- Account Card -->
-        <section class="sol-card sol-side-card">
-          <div class="sol-side-head">
-            <h2 class="sol-side-title">Account</h2>
-            <button type="button" class="sol-link-btn" @click="navigate('account')">
-              Manage
-            </button>
-          </div>
-          <div v-if="selectedAccount" class="sol-home-account">
             <img
+              v-if="selectedAccount"
               :src="playerAvatarUrl(selectedAccount.username)"
               :alt="selectedAccount.username"
-              class="sol-avatar-40"
+              class="sol-avatar-18"
             />
-            <div class="sol-home-account-info">
-              <div class="sol-home-account-name">{{ selectedAccount.username }}</div>
-              <div class="sol-badge sol-badge--success">Java Ownership Verified</div>
+            <User v-else :size="13" />
+            <span>{{ selectedAccount ? selectedAccount.username : 'Sign in (Microsoft)' }}</span>
+          </button>
+
+          <button
+            v-if="store.preferences.solaraHubEnabled !== false"
+            type="button"
+            class="sol-acct-pill sol-acct-pill--solara"
+            title="Solara Inc Account & Hub"
+            @click="navigate('solara')"
+          >
+            <Globe :size="13" />
+            <span>{{ store.solaraProfile.signedIn ? (store.solaraProfile.displayName || 'Solara ID') : 'Solara Hub' }}</span>
+          </button>
+
+          <SolaraButton variant="primary" size="sm" @click="openCreateInstance()">
+            <Plus :size="14" /> New Instance
+          </SolaraButton>
+        </div>
+      </header>
+
+      <!-- Selected Instance Launch Hero -->
+      <section v-if="heroInstance" class="sol-launch-hero">
+        <div class="sol-launch-hero-main">
+          <InstanceIcon
+            :name="heroInstance.name"
+            :loader="heroInstance.loader"
+            :icon="heroInstance.icon"
+            :custom-icon="heroInstance.customIcon"
+            :size="56"
+            :rounded="12"
+            class="sol-clickable"
+            @click="openInstanceContent(heroInstance)"
+          />
+
+          <div class="sol-launch-hero-info">
+            <div class="sol-row-gap">
+              <button
+                type="button"
+                class="sol-hero-title-btn"
+                @click="openInstanceContent(heroInstance)"
+              >
+                {{ heroInstance.name }}
+              </button>
+              <span class="sol-badge sol-badge--gold">
+                {{ LOADER_LABEL[heroInstance.loader] ?? heroInstance.loader }} {{ heroInstance.gameVersion }}
+              </span>
+              <span v-if="heroInstance.running" class="sol-badge sol-badge--success">Running</span>
+            </div>
+
+            <div class="sol-launch-hero-meta">
+              <span>{{ formatDuration(heroInstance.playtimeSeconds) }}</span>
+              <span>·</span>
+              <span>{{ heroInstance.lastPlayed ? `Played ${formatRelativeTime(heroInstance.lastPlayed)}` : 'Ready to launch' }}</span>
+              <span>·</span>
+              <span>Account: {{ selectedAccount?.username ?? 'Not signed in' }}</span>
+            </div>
+
+            <!-- Real-time launch stage bar -->
+            <div v-if="heroLaunchState && (isHeroLaunching || heroLaunchState.stage === 'error')" class="sol-launch-stage">
+              <template v-if="heroLaunchState.stage === 'error'">
+                <span class="sol-launch-stage-err">{{ heroLaunchState.error || heroLaunchState.detail }}</span>
+                <button type="button" class="sol-link-btn" @click="openInstanceLogs(heroInstance)">
+                  View Logs
+                </button>
+              </template>
+              <template v-else>
+                <span class="sol-dot sol-dot--gold" />
+                <span>{{ heroLaunchState.detail }}</span>
+              </template>
             </div>
           </div>
-          <div v-else class="sol-home-account-empty">
-            <p class="sol-muted">Sign in with Microsoft to play Java Edition and customize skins or capes.</p>
-            <SolaraButton variant="primary" size="sm" block @click="emit('start-signin')">
-              Sign in with Microsoft
-            </SolaraButton>
-          </div>
-        </section>
+        </div>
 
-        <!-- Recent Activity -->
-        <section class="sol-card sol-side-card">
-          <div class="sol-side-head">
-            <h2 class="sol-side-title">Recent Activity</h2>
-            <button type="button" class="sol-link-btn" @click="navigate('tasks')">
-              Tasks
-            </button>
-          </div>
-          <div v-if="recentActivity.length === 0" class="sol-muted sol-text-xs">
-            No launcher activity recorded in this session yet.
-          </div>
-          <ul v-else class="sol-activity-list">
-            <li v-for="act in recentActivity" :key="act.id" class="sol-activity-item">
-              <CheckCircle2 v-if="act.tone === 'success'" :size="14" class="sol-success" />
-              <AlertTriangle v-else-if="act.tone === 'error' || act.tone === 'warning'" :size="14" class="sol-warning" />
-              <Info v-else :size="14" class="sol-info" />
-              <div class="sol-activity-copy">
-                <div class="sol-activity-title sol-truncate">{{ act.title }}</div>
-                <div class="sol-activity-sub">{{ act.detail }}</div>
+        <div class="sol-launch-hero-actions">
+          <SolaraButton
+            variant="secondary"
+            size="sm"
+            @click="openInstanceContent(heroInstance)"
+          >
+            <FolderOpen :size="14" /> Content
+          </SolaraButton>
+          <SolaraButton
+            variant="ghost"
+            size="sm"
+            title="Instance Settings"
+            @click="openInstanceSettings(heroInstance.id)"
+          >
+            <Sliders :size="14" />
+          </SolaraButton>
+          <SolaraButton
+            :variant="heroInstance.running ? 'danger' : 'primary'"
+            size="md"
+            :loading="isHeroLaunching"
+            @click="launchOrStopInstance(heroInstance)"
+          >
+            <Square v-if="heroInstance.running" :size="14" />
+            <Play v-else :size="15" />
+            {{
+              heroInstance.running
+                ? 'Stop'
+                : isHeroLaunching
+                  ? heroLaunchState?.detail || 'Launching...'
+                  : 'Play'
+            }}
+          </SolaraButton>
+        </div>
+      </section>
+
+      <!-- Empty Instance Onboarding CTA -->
+      <section v-else class="sol-home-empty">
+        <div class="sol-home-empty-text">
+          <h2>Create your first Minecraft profile</h2>
+          <p class="sol-muted">
+            Start a clean Vanilla or Fabric/NeoForge instance in seconds, or install a curated modpack.
+          </p>
+        </div>
+        <div class="sol-row-gap">
+          <SolaraButton variant="primary" size="md" @click="openCreateInstance()">
+            <Plus :size="15" /> Create Instance
+          </SolaraButton>
+          <SolaraButton variant="secondary" size="md" @click="navigate('discover')">
+            <Compass :size="15" /> Discover Modpacks
+          </SolaraButton>
+        </div>
+      </section>
+
+      <!-- Jump back in: Modrinth-style compact horizontal instance rows -->
+      <section v-if="jumpBackIn.length > 0" class="sol-home-section">
+        <div class="sol-section-head">
+          <h2 class="sol-section-title">Jump back in</h2>
+          <button
+            v-if="store.instances.length > 1"
+            type="button"
+            class="sol-link-btn"
+            @click="navigate('library')"
+          >
+            View all {{ store.instances.length }}
+          </button>
+        </div>
+
+        <div class="sol-jump-grid">
+          <div
+            v-for="inst in jumpBackIn"
+            :key="inst.id"
+            :class="[
+              'sol-jump-item',
+              { 'is-selected': heroInstance?.id === inst.id, 'is-running': inst.running },
+            ]"
+            role="button"
+            tabindex="0"
+            @click="openInstanceContent(inst)"
+            @keydown.enter="openInstanceContent(inst)"
+          >
+            <InstanceIcon
+              :name="inst.name"
+              :loader="inst.loader"
+              :icon="inst.icon"
+              :custom-icon="inst.customIcon"
+              :size="38"
+              :rounded="9"
+            />
+
+            <div class="sol-jump-info">
+              <div class="sol-jump-name sol-truncate">{{ inst.name }}</div>
+              <div class="sol-jump-sub sol-truncate">
+                {{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}
+                <template v-if="inst.lastPlayed"> · {{ formatRelativeTime(inst.lastPlayed) }}</template>
               </div>
-            </li>
-          </ul>
-        </section>
+            </div>
 
-        <!-- Compact Announcements -->
-        <section class="sol-card sol-side-card">
-          <div class="sol-side-head">
-            <h2 class="sol-side-title sol-inline-flex"><Newspaper :size="14" /> Announcements</h2>
             <button
               type="button"
-              class="sol-icon-btn sol-icon-btn--xs"
-              title="Refresh announcements"
-              @click="loadAnnouncements()"
+              :class="['sol-jump-play', { 'is-running': inst.running }]"
+              :title="inst.running ? 'Stop Minecraft' : `Play ${inst.name}`"
+              :aria-label="inst.running ? `Stop ${inst.name}` : `Play ${inst.name}`"
+              @click.stop="launchOrStopInstance(inst)"
             >
-              <RefreshCw :size="12" :class="{ 'is-spinning': store.announcementsSource === 'loading' }" />
+              <Square v-if="inst.running" :size="13" />
+              <Play v-else :size="14" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compact Ecosystem Strip: Modpacks, Solara Network, Announcements, Active Tasks -->
+      <section class="sol-home-footer-grid">
+        <!-- Quick Discover & Network -->
+        <div class="sol-strip-box">
+          <div class="sol-strip-head">
+            <span class="sol-strip-label"><Server :size="14" /> Solara Network &amp; Hub</span>
+            <button type="button" class="sol-link-btn" @click="navigate('solara')">Open Hub</button>
+          </div>
+          <div class="sol-strip-row">
+            <div>
+              <div class="sol-strip-title">{{ networkIp }}</div>
+              <div class="sol-muted sol-text-xs">Official network realm &amp; local server hosting</div>
+            </div>
+            <div class="sol-row-gap">
+              <SolaraButton variant="secondary" size="xs" @click="copyNetworkIp">
+                <Check v-if="copiedIp" :size="12" />
+                <Copy v-else :size="12" />
+                {{ copiedIp ? 'Copied' : 'Copy IP' }}
+              </SolaraButton>
+              <SolaraButton variant="ghost" size="xs" @click="navigate('discover')">
+                <Compass :size="12" /> Modpacks
+              </SolaraButton>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact Announcements / Active Downloads -->
+        <div v-if="store.preferences.announcementsEnabled !== false" class="sol-strip-box">
+          <div class="sol-strip-head">
+            <span class="sol-strip-label"><Newspaper :size="14" /> Updates &amp; Tasks</span>
+            <button
+              v-if="activeJobs.length > 0"
+              type="button"
+              class="sol-link-btn"
+              @click="store.showTasksPopover = true"
+            >
+              <Download :size="12" /> {{ activeJobs.length }} active
             </button>
           </div>
 
-          <div v-if="store.announcementsSource === 'loading'" class="sol-muted sol-text-xs">
-            Checking Solara release notices...
-          </div>
-          <div v-else-if="store.announcements.length === 0" class="sol-muted sol-text-xs">
-            <template v-if="store.announcementsSource === 'unavailable'">
-              Announcements feed offline right now. Your local launcher and instances work normally.
-            </template>
-            <template v-else>
-              No new announcements at the moment.
-            </template>
-          </div>
-          <div v-else class="sol-announce-list">
+          <div v-if="store.announcements.length > 0" class="sol-news-compact">
             <button
-              v-for="item in store.announcements.slice(0, 3)"
+              v-for="item in store.announcements.slice(0, 2)"
               :key="item.id"
               type="button"
-              class="sol-announce-item"
-              @click="openAnnouncement(item)"
+              class="sol-news-pill"
+              @click="
+                store.activeAnnouncement = item;
+                store.showAnnouncementsModal = true;
+              "
             >
-              <div class="sol-announce-title sol-truncate">{{ item.title }}</div>
-              <div class="sol-announce-meta">{{ item.category || 'Notice' }}</div>
+              <span class="sol-news-pill-title sol-truncate">{{ item.title }}</span>
+              <span class="sol-muted sol-text-xs">{{ item.date || 'Update' }}</span>
             </button>
           </div>
-        </section>
-      </aside>
+          <div v-else class="sol-muted sol-text-xs">
+            {{ store.announcementsSource === 'loading' ? 'Checking updates from api.solara-inc.in...' : 'You are caught up on Solara updates.' }}
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>

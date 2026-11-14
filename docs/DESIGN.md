@@ -1,3 +1,13 @@
+# Current desktop implementation
+
+The desktop uses the existing Vue components in `apps/desktop/ui/`, Tauri commands in `apps/desktop/src/shell.rs`, and the independent Rust core in `apps/desktop/src/game_core/`. Its active styles are `apps/desktop/tokens.css` and `apps/desktop/launcher.css`: OLED black, Dawn Gold `#E9B86D`, a permanent 68px icon rail, and a 44px header. Settings open in centered dialogs. Instance pages open on Content. Global Discover installs modpacks as new instances; the instance browser installs individual content, with datapacks scoped to a saved world.
+
+`node scripts/verify-redesign-e2e.cjs` checks the built frontend using explicitly mocked native/provider responses. It covers launch/window policy, crash states, content job completion/failure, bulk actions, settings, file-save conflicts, live logs, skin editing/rendering and lazy screenshots. These checks do not establish live Microsoft or Windows gameplay acceptance.
+
+For the real Linux shell, build with `npx tauri build --debug --no-bundle --config apps/desktop/tauri.conf.json`, then run `xvfb-run -a -s '-screen 0 1440x900x24' python3 scripts/check-native-smoke.py`. The smoke test uses temporary XDG directories and a labelled instance fixture. It verifies preserved world bytes, migration from the legacy Close default to Keep Open, and native Settings keyboard interaction. Local screenshots remain under ignored `checks/continuation/`. Physical Windows installation, Credential Manager, licensed gameplay and updater replacement still require Windows testing.
+
+The notes below describe earlier designs and their historical verification scripts; they do not override the current desktop layout or acceptance limits.
+
 # Solara visual design — current direction
 
 Latest owner direction, 2026-10-31: a bright, colourful desktop with large icons, readable controls and a substantial welcome screen. The owner explicitly rejected the previous dark-green design. The desktop now uses lilac paper (`#f6f3fc`), white panels and lavender, sky-blue, peach and pink sections. Violet (`#7650dc`) is the new-install accent; saved user choices are preserved, with contrast-aware button text. The existing compact launcher structure remains, enlarged to a labelled94px rail, ~44px action controls,14–16px body/control text and a310px dashboard welcome. Seasons remain deferred with `features.seasons=false`.

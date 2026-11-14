@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Palette,
   Eraser,
@@ -68,7 +68,10 @@ function getRegionBox(): { x: number; y: number; w: number; h: number } {
   }
 }
 
+let loadGeneration = 0;
+onUnmounted(() => { loadGeneration++; });
 function loadFromDataUrl(url: string) {
+  const generation = ++loadGeneration;
   if (!url) {
     pctx.clearRect(0, 0, 64, 64);
     renderView();
@@ -76,6 +79,7 @@ function loadFromDataUrl(url: string) {
   }
   const img = new Image();
   img.onload = () => {
+    if (generation !== loadGeneration) return;
     pctx.clearRect(0, 0, 64, 64);
     pctx.drawImage(img, 0, 0, 64, Math.min(64, img.height === 32 ? 32 : 64));
     undoStack.value = [];

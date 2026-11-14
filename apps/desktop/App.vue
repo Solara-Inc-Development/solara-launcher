@@ -16,13 +16,20 @@ import {
   confirmLeaveDiscard,
   cancelLeaveStay,
   launchOrStopInstance,
+  setLaunchProgress,
+  handleGameExit,
+  openGlobalSettings,
   native,
   notify,
 } from './ui/state';
 import TitleBar from './ui/components/TitleBar.vue';
 import SidebarRail from './ui/components/SidebarRail.vue';
+import SplashScreen from './ui/components/SplashScreen.vue';
 import CreateInstanceModal from './ui/components/CreateInstanceModal.vue';
 import GlobalSearchModal from './ui/components/GlobalSearchModal.vue';
+import GlobalSettingsModal from './ui/components/GlobalSettingsModal.vue';
+import InstanceSettingsModal from './ui/components/InstanceSettingsModal.vue';
+import TasksPopover from './ui/components/TasksPopover.vue';
 import ConfirmDialog from './ui/components/ConfirmDialog.vue';
 import SolaraModal from './ui/components/SolaraModal.vue';
 import SolaraButton from './ui/components/SolaraButton.vue';
@@ -34,8 +41,8 @@ import LibraryView from './ui/views/LibraryView.vue';
 import DiscoverView from './ui/views/DiscoverView.vue';
 import SkinsView from './ui/views/SkinsView.vue';
 import ScreenshotsView from './ui/views/ScreenshotsView.vue';
+import SolaraHubView from './ui/views/SolaraHubView.vue';
 import TasksView from './ui/views/TasksView.vue';
-import SettingsView from './ui/views/SettingsView.vue';
 import InstanceDetailView from './ui/views/InstanceDetailView.vue';
 import AccountView from './ui/views/AccountView.vue';
 
@@ -107,10 +114,10 @@ const activeViewComponent = computed(() => {
       return SkinsView;
     case 'screenshots':
       return ScreenshotsView;
+    case 'solara':
+      return SolaraHubView;
     case 'tasks':
       return TasksView;
-    case 'settings':
-      return SettingsView;
     case 'instance':
       return InstanceDetailView;
     case 'account':
@@ -127,9 +134,12 @@ function onGlobalKeydown(e: KeyboardEvent) {
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
     e.preventDefault();
     openCreateInstance();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
+    e.preventDefault();
+    store.showTasksPopover = !store.showTasksPopover;
   } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
     e.preventDefault();
-    navigate('settings');
+    openGlobalSettings('appearance');
   } else if (e.altKey && e.key === 'ArrowLeft') {
     e.preventDefault();
     goBack();
@@ -168,6 +178,31 @@ onMounted(async () => {
         notify('warning', 'Hold on', String(ev.payload || 'A background task is finishing.'));
       });
       unlistenFns.push(u2);
+    } catch {
+      // ignore
+    }
+    try {
+      const u3 = await listen<{ instanceId?: string; stage?: string; detail?: string }>(
+        'launch-progress',
+        (ev) => {
+          const p = ev.payload;
+          if (p?.instanceId) {
+            const st = (p.stage === 'failed' ? 'error' : p.stage || 'starting') as 'checking' | 'java' | 'mods' | 'starting' | 'running' | 'error';
+            setLaunchProgress(p.instanceId, st, p.detail || 'Starting Minecraft...', st === 'error' ? p.detail : undefined);
+            if (st === 'running') void refreshSnapshot();
+          }
+        },
+      );
+      unlistenFns.push(u3);
+    } catch {
+      // ignore
+    }
+    try {
+      const u4 = await listen<{ instanceId?: string; success?: boolean; exitCode?: number | null }>('game-exited', (ev) => {
+        handleGameExit(ev.payload || {});
+        void refreshSnapshot();
+      });
+      unlistenFns.push(u4);
     } catch {
       // ignore
     }
@@ -228,9 +263,15 @@ function cancelPendingLaunch() {
       </main>
     </div>
 
-    <!-- Global Modals -->
+    <!-- Global Modals & Splash -->
+    <SplashScreen />
     <CreateInstanceModal />
     <GlobalSearchModal />
+    <GlobalSettingsModal @start-signin="startMinecraftSignIn" />
+    <InstanceSettingsModal />
+    <div v-if="store.showTasksPopover" class="sol-tasks-anchor">
+      <TasksPopover @close="store.showTasksPopover = false" />
+    </div>
     <SolaraToasts />
 
     <!-- Direct Browser Microsoft PKCE Sign-In Modal -->

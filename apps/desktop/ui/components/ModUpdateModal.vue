@@ -23,16 +23,17 @@ const errorMsg = ref('');
 const updates = ref<ContentUpdateItem[]>([]);
 const selected = ref<Set<string>>(new Set());
 const activePreview = ref<ContentUpdateItem | null>(null);
+let checkSequence = 0;
 
 watch(
-  () => props.open,
-  async (open) => {
-    if (!open) return;
-    await runCheck();
-  },
+  () => [props.open, props.instanceId] as const,
+  ([open]) => { if (open) void runCheck(); else { checkSequence++; checking.value = false; } },
 );
 
 async function runCheck() {
+  if (applying.value) return;
+  const sequence = ++checkSequence;
+  const id = props.instanceId;
   checking.value = true;
   errorMsg.value = '';
   updates.value = [];
@@ -40,15 +41,16 @@ async function runCheck() {
   activePreview.value = null;
   try {
     const res = await native<ContentUpdateItem[]>('check_instance_content_updates', {
-      id: props.instanceId,
+      id,
     });
+    if (sequence !== checkSequence || props.instanceId !== id || !props.open) return;
     updates.value = Array.isArray(res) ? res : [];
     for (const item of updates.value) selected.value.add(item.currentPath);
     activePreview.value = updates.value[0] ?? null;
   } catch (err) {
-    errorMsg.value = String(err);
+    if (sequence === checkSequence) errorMsg.value = String(err);
   } finally {
-    checking.value = false;
+    if (sequence === checkSequence) checking.value = false;
   }
 }
 
@@ -68,18 +70,20 @@ function toggleOne(path: string) {
 }
 
 async function applySelected() {
-  if (selectedList.value.length === 0) return;
+  if (selectedList.value.length === 0 || applying.value || checking.value) return;
+  const items = [...selectedList.value];
+  const name = props.instanceName;
   applying.value = true;
   errorMsg.value = '';
   try {
     await native('apply_instance_content_updates', {
       id: props.instanceId,
-      items: selectedList.value,
+      items,
     });
     notify(
       'success',
       'Content updated',
-      `Updated ${selectedList.value.length} item(s) in ${props.instanceName}.`,
+      `Updated ${items.length} item(s) in ${name}.`,
     );
     emit('updated');
     emit('close');
@@ -97,16 +101,19 @@ async function applySelected() {
     title="Smart Content Updates"
     :subtitle="`Checking Modrinth hashes & compatible releases for ${instanceName}`"
     width="lg"
+    :closable="!applying"
     @close="!applying && emit('close')"
   >
+    <div v-if="errorMsg" class="sol-banner-warn">
+      <span>{{ errorMsg }} Re-check installed files before trying again.</span>
+      <SolaraButton variant="secondary" size="xs" :disabled="applying || checking" @click="runCheck">Check Again</SolaraButton>
+    </div>
     <div v-if="checking" class="sol-center-state">
       <RefreshCw :size="20" class="is-spinning sol-accent" />
       <span>Verifying installed mod hashes against Modrinth...</span>
     </div>
 
-    <div v-else-if="errorMsg" class="sol-inline-error">{{ errorMsg }}</div>
-
-    <div v-else-if="updates.length === 0" class="sol-center-state">
+    <div v-else-if="updates.length === 0 && !errorMsg" class="sol-center-state">
       <CheckCircle2 :size="24" class="sol-success" />
       <div class="sol-center-title">Everything checked is up to date</div>
       <div class="sol-muted sol-text-xs">
@@ -114,12 +121,13 @@ async function applySelected() {
       </div>
     </div>
 
-    <div v-else class="sol-updates-grid">
+    <div v-else-if="updates.length > 0" class="sol-updates-grid">
       <div class="sol-updates-list sol-scroll">
         <div class="sol-updates-bar">
           <label class="sol-checkbox-label">
             <input
               type="checkbox"
+              :disabled="applying"
               :checked="selectedList.length === updates.length"
               @change="toggleAll(($event.target as HTMLInputElement).checked)"
             />
@@ -136,6 +144,7 @@ async function applySelected() {
         >
           <input
             type="checkbox"
+            :disabled="applying"
             :checked="selected.has(item.currentPath)"
             @click.stop
             @change="toggleOne(item.currentPath)"

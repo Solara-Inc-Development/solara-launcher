@@ -5,10 +5,16 @@ import type {
   DownloadJob,
   InstanceDetailTab,
   InstanceRecord,
+  InstanceSettingsCategoryId,
   LauncherPreferences,
+  LaunchProgressState,
+  LocalServerRecord,
   MinecraftAccount,
   NavEntry,
   PageId,
+  SettingsCategoryId,
+  SolaraBootstrapData,
+  SolaraProfile,
   ToastNotice,
   UpdateStatus,
 } from './types';
@@ -16,6 +22,7 @@ import type {
 export { isDesktop, native, openExternal };
 
 export const DEFAULT_PREFERENCES: LauncherPreferences = {
+  prefsVersion: 2,
   memory: 4096,
   javaPath: 'auto',
   theme: 'dawn-gold',
@@ -30,6 +37,9 @@ export const DEFAULT_PREFERENCES: LauncherPreferences = {
   fullscreen: false,
   jvmArgs: '',
   diagnosticsEnabled: true,
+  announcementsEnabled: true,
+  solaraHubEnabled: true,
+  autoUpdateEnabled: true,
   onboardingCompleted: false,
   groups: [],
 };
@@ -53,10 +63,14 @@ export const BUILTIN_ICON_PRESETS = [
 
 export const store = reactive({
   initialized: false,
+  splashDone: false,
+  initPhase: 'Starting Solara...',
+  initProgress: 12,
   initError: null as string | null,
   desktop: isDesktop,
   instances: [] as InstanceRecord[],
   accounts: [] as MinecraftAccount[],
+  localServers: [] as LocalServerRecord[],
   downloads: [] as DownloadJob[],
   preferences: { ...DEFAULT_PREFERENCES } as LauncherPreferences,
   selectedInstanceId: null as string | null,
@@ -65,12 +79,16 @@ export const store = reactive({
   updateStatus: { stage: 'idle', version: null, error: null } as UpdateStatus,
   announcements: [] as LauncherAnnouncement[],
   announcementsSource: 'loading' as 'loading' | 'live' | 'unavailable',
+  solaraProfile: { signedIn: false } as SolaraProfile,
+  solaraBootstrap: null as SolaraBootstrapData | null,
+  solaraBootstrapError: null as string | null,
   activeAccountError: null as string | null,
+  launchStates: {} as Record<string, LaunchProgressState>,
   toasts: [] as ToastNotice[],
   activityFeed: [] as { id: string; time: string; title: string; tone: 'info' | 'success' | 'warning' | 'error' }[],
 
   // Navigation stack
-  history: [{ page: 'home', instanceId: null, tab: 'overview' }] as NavEntry[],
+  history: [{ page: 'home', instanceId: null, tab: 'content' }] as NavEntry[],
   historyIndex: 0,
 
   // Global overlays
@@ -80,6 +98,11 @@ export const store = reactive({
   showTasksPopover: false,
   showAnnouncementsModal: false,
   activeAnnouncement: null as LauncherAnnouncement | null,
+  showSettingsModal: false,
+  settingsModalCategory: 'appearance' as SettingsCategoryId,
+  showInstanceSettingsModal: false,
+  instanceSettingsId: null as string | null,
+  instanceSettingsCategory: 'general' as InstanceSettingsCategoryId,
 
   // Unsaved-settings navigation guard
   dirtyChecker: null as null | (() => boolean),
@@ -154,8 +177,14 @@ export function recordActivity(title: string, tone: 'info' | 'success' | 'warnin
   if (store.activityFeed.length > 30) store.activityFeed.length = 30;
 }
 
-function runWithDirtyGuard(action: () => void): void {
-  if (store.dirtyChecker && store.dirtyChecker()) {
+const unsavedGuards = new Set<{ check: () => boolean; discard: () => void }>();
+export function registerUnsavedChanges(check: () => boolean, discard: () => void): () => void {
+  const entry = { check, discard };
+  unsavedGuards.add(entry);
+  return () => { unsavedGuards.delete(entry); };
+}
+export function runWithDirtyGuard(action: () => void): void {
+  if ([...unsavedGuards].some((g) => g.check()) || (store.dirtyChecker && store.dirtyChecker())) {
     store.pendingNavAction = action;
     store.showDirtyLeaveDialog = true;
     return;
@@ -167,6 +196,7 @@ export function confirmLeaveDiscard(): void {
   store.showDirtyLeaveDialog = false;
   const action = store.pendingNavAction;
   store.pendingNavAction = null;
+  for (const guard of unsavedGuards) if (guard.check()) guard.discard();
   store.dirtyChecker = null;
   action?.();
 }
@@ -176,14 +206,60 @@ export function cancelLeaveStay(): void {
   store.pendingNavAction = null;
 }
 
+export function openGlobalSettings(category: SettingsCategoryId = 'appearance'): void {
+  const open = () => {
+    store.showInstanceSettingsModal = false;
+    store.settingsModalCategory = category;
+    store.showSettingsModal = true;
+  };
+  if (store.showSettingsModal) open(); else runWithDirtyGuard(open);
+}
+
+export function closeGlobalSettings(): void {
+  runWithDirtyGuard(() => {
+    store.showSettingsModal = false;
+  });
+}
+
+export function openInstanceSettings(
+  instanceId?: string | null,
+  category: InstanceSettingsCategoryId = 'general',
+): void {
+  const targetId = instanceId ?? selectedInstance.value?.id ?? null;
+  if (!targetId) return;
+  const open = () => {
+    store.showSettingsModal = false;
+    store.instanceSettingsId = targetId;
+    store.instanceSettingsCategory = category;
+    store.showInstanceSettingsModal = true;
+  };
+  if (store.showInstanceSettingsModal && store.instanceSettingsId === targetId) open();
+  else runWithDirtyGuard(open);
+}
+
+export function closeInstanceSettings(): void {
+  runWithDirtyGuard(() => {
+    store.showInstanceSettingsModal = false;
+  });
+}
+
 export function navigate(
   page: PageId,
   opts: { instanceId?: string | null; tab?: InstanceDetailTab } = {},
 ): void {
+  if (page === 'settings') {
+    openGlobalSettings();
+    return;
+  }
+  const targetInstanceId = opts.instanceId ?? (page === 'instance' ? selectedInstance.value?.id ?? null : null);
+  if (page === 'instance' && opts.tab === 'settings') {
+    openInstanceSettings(targetInstanceId);
+    return;
+  }
   const entry: NavEntry = {
     page,
-    instanceId: opts.instanceId ?? (page === 'instance' ? selectedInstance.value?.id ?? null : null),
-    tab: opts.tab ?? 'overview',
+    instanceId: targetInstanceId,
+    tab: opts.tab ?? 'content',
   };
   const cur = currentRoute.value;
   if (
@@ -206,6 +282,10 @@ export function navigate(
 export function setInstanceTab(tab: InstanceDetailTab): void {
   const cur = currentRoute.value;
   if (cur.page !== 'instance') return;
+  if (tab === 'settings') {
+    openInstanceSettings(cur.instanceId);
+    return;
+  }
   runWithDirtyGuard(() => {
     store.history = store.history.slice(0, store.historyIndex + 1);
     store.history.push({ page: 'instance', instanceId: cur.instanceId, tab });
@@ -245,16 +325,36 @@ export function openCreateInstance(defaults?: { loader?: 'vanilla'; group?: stri
   store.showCreateModal = true;
 }
 
+let snapshotRequest: Promise<void> | null = null;
 export async function refreshSnapshot(): Promise<void> {
+  if (!store.desktop) return;
+  if (!snapshotRequest) snapshotRequest = readSnapshot().finally(() => { snapshotRequest = null; });
+  await snapshotRequest;
+}
+
+// Retain unchanged objects so periodic polling does not redraw every page.
+function reconcileRecords<T extends { id: string }>(current: T[], incoming: T[]): T[] {
+  const prior = new Map(current.map((item) => [item.id, item]));
+  const next = incoming.map((item) => {
+    const old = prior.get(item.id);
+    return old && JSON.stringify(old) === JSON.stringify(item) ? old : item;
+  });
+  return next.length === current.length && next.every((item, index) => item === current[index]) ? current : next;
+}
+
+async function readSnapshot(): Promise<void> {
   if (!store.desktop) return;
   try {
     const snap = await native<{
       instances: InstanceRecord[];
       minecraftAccounts: Array<Partial<MinecraftAccount> & { name?: string; active?: boolean }>;
-      downloads: DownloadJob[];
-    }>('launcher_snapshot');
-    store.instances = Array.isArray(snap.instances) ? snap.instances : [];
-    store.accounts = Array.isArray(snap.minecraftAccounts)
+      localServers?: LocalServerRecord[];
+      downloads: Array<Partial<DownloadJob> & { instanceId?: string; detail?: string; downloaded?: number }>;
+    } | null>('launcher_snapshot');
+    if (!snap || typeof snap !== 'object') return;
+    store.instances = reconcileRecords(store.instances, Array.isArray(snap.instances) ? snap.instances : []);
+    store.localServers = reconcileRecords(store.localServers, Array.isArray(snap.localServers) ? snap.localServers : []);
+    store.accounts = reconcileRecords(store.accounts, Array.isArray(snap.minecraftAccounts)
       ? snap.minecraftAccounts
           .filter((a) => Boolean(a?.id))
           .map((a) => ({
@@ -262,8 +362,14 @@ export async function refreshSnapshot(): Promise<void> {
             username: String(a.username ?? a.name ?? ''),
             selected: Boolean(a.selected ?? a.active ?? false),
           }))
-      : [];
-    store.downloads = Array.isArray(snap.downloads) ? snap.downloads : [];
+      : []);
+    store.downloads = reconcileRecords(store.downloads, Array.isArray(snap.downloads)
+      ? snap.downloads.filter((j) => Boolean(j.id)).map((j) => ({
+          id: String(j.id), name: j.name ?? 'Download', kind: j.kind ?? 'server',
+          status: j.status ?? 'queued', instance: j.instanceId ?? j.instance ?? '',
+          phase: j.detail ?? j.phase ?? '', done: j.downloaded ?? j.done ?? 0,
+          total: j.total ?? 0, actions: j.actions ?? [],
+        })) : []);
     if (!store.selectedInstanceId || !store.instances.some((i) => i.id === store.selectedInstanceId)) {
       let saved: string | null = null;
       try {
@@ -286,7 +392,12 @@ export async function refreshPreferences(): Promise<void> {
   }
   try {
     const prefs = await native<LauncherPreferences>('launcher_settings');
-    store.preferences = { ...DEFAULT_PREFERENCES, ...prefs };
+    const normalized: LauncherPreferences = {
+      ...DEFAULT_PREFERENCES,
+      ...prefs,
+      onLaunch: prefs?.onLaunch === 'minimize' ? 'minimize' : 'keep',
+    };
+    store.preferences = normalized;
     applyAppearance(store.preferences);
   } catch (err) {
     console.warn('[preferences]', err);
@@ -294,15 +405,23 @@ export async function refreshPreferences(): Promise<void> {
 }
 
 export async function savePreferencesFull(next: LauncherPreferences): Promise<LauncherPreferences> {
-  applyAppearance(next);
+  const cleanNext: LauncherPreferences = {
+    ...next,
+    onLaunch: next.onLaunch === 'minimize' ? 'minimize' : 'keep',
+  };
+  applyAppearance(cleanNext);
   if (!store.desktop) {
-    store.preferences = { ...next };
+    store.preferences = { ...cleanNext };
     return store.preferences;
   }
   const saved = await native<LauncherPreferences>('save_launcher_settings_full', {
-    preferences: next,
+    preferences: cleanNext,
   });
-  store.preferences = { ...DEFAULT_PREFERENCES, ...saved };
+  store.preferences = {
+    ...DEFAULT_PREFERENCES,
+    ...saved,
+    onLaunch: saved?.onLaunch === 'minimize' ? 'minimize' : 'keep',
+  };
   applyAppearance(store.preferences);
   return store.preferences;
 }
@@ -347,63 +466,152 @@ export async function loadAnnouncements(): Promise<void> {
 export async function refreshUpdateStatus(): Promise<void> {
   if (!store.desktop) return;
   try {
-    store.updateStatus = await native<UpdateStatus>('app_update_status');
+    const next = await native<(Partial<UpdateStatus> & { state?: string }) | null>('app_update_status');
+    if (next && typeof next === 'object' && (next.stage || next.state)) {
+      store.updateStatus = { stage: next.stage || next.state || 'idle', version: next.version ?? null, error: next.error ?? null };
+    }
   } catch {
     // ignore update check status failure
   }
 }
 
-export async function initializeEngine(): Promise<void> {
-  store.desktop = isDesktop;
+export function setLaunchProgress(
+  instanceId: string,
+  stage: LaunchProgressState['stage'],
+  detail: string,
+  error?: string,
+): void {
+  store.launchStates[instanceId] = {
+    stage,
+    detail,
+    error,
+    updatedAt: Date.now(),
+  };
+}
+
+export function clearLaunchProgress(instanceId: string): void {
+  delete store.launchStates[instanceId];
+}
+
+export async function refreshSolaraProfile(): Promise<void> {
+  if (!store.desktop) {
+    store.solaraProfile = { signedIn: false };
+    return;
+  }
   try {
-    if (store.desktop) {
-      await native('initialize_launcher');
-      await Promise.all([refreshPreferences(), refreshSnapshot(), refreshUpdateStatus()]);
-    } else {
-      applyAppearance(store.preferences);
-    }
-    store.initialized = true;
-    store.initError = null;
-    void loadAnnouncements();
-  } catch (err) {
-    store.initError = err instanceof Error ? err.message : String(err);
-    store.initialized = true;
+    const profile = await native<SolaraProfile>('solara_profile');
+    store.solaraProfile = profile ?? { signedIn: false };
+  } catch {
+    store.solaraProfile = { signedIn: false };
   }
 }
 
-export async function launchOrStopInstance(inst: InstanceRecord, skipConfirm = false): Promise<void> {
-  if (inst.running) {
-    try {
-      await native('stop_instance', { id: inst.id });
-      notify('info', `Stopping ${inst.name}`, 'Saving world and closing Minecraft.');
-      await refreshSnapshot();
-    } catch (err) {
-      notify('error', "Couldn't stop Minecraft", String(err));
-    }
-    return;
+export async function refreshSolaraBootstrap(): Promise<void> {
+  store.solaraBootstrapError = null;
+  try {
+    const res = await fetch('https://api.solara-inc.in/v1/launcher/bootstrap', {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as SolaraBootstrapData;
+    store.solaraBootstrap = data;
+  } catch (err) {
+    store.solaraBootstrapError = err instanceof Error ? err.message : String(err);
   }
-  if (!selectedAccount.value) {
+}
+
+export async function initializeEngine(): Promise<void> {
+  store.desktop = isDesktop;
+  store.initError = null;
+  store.initPhase = 'Starting Solara...';
+  store.initProgress = 18;
+  try {
+    if (store.desktop) {
+      await native('initialize_launcher');
+      store.initPhase = 'Loading your instances...';
+      store.initProgress = 48;
+      await Promise.all([refreshPreferences(), refreshSnapshot()]);
+      store.initPhase = 'Checking your account...';
+      store.initProgress = 78;
+      await Promise.allSettled([refreshSolaraProfile(), refreshUpdateStatus()]);
+    } else {
+      store.initPhase = 'Loading your instances...';
+      store.initProgress = 65;
+      applyAppearance(store.preferences);
+    }
+    store.initPhase = 'Almost ready...';
+    store.initProgress = 100;
+    store.initialized = true;
+    store.splashDone = true;
+    void loadAnnouncements();
+    void refreshSolaraBootstrap();
+  } catch (err) {
+    store.initError = err instanceof Error ? err.message : String(err);
+    store.initPhase = 'Startup failed';
+    store.initialized = false;
+  }
+}
+
+const pendingGameActions = new Set<string>();
+export async function launchOrStopInstance(inst: InstanceRecord, skipConfirm = false): Promise<void> {
+  if (pendingGameActions.has(inst.id)) return;
+  inst = store.instances.find((item) => item.id === inst.id) ?? inst;
+  if (!inst.running && !selectedAccount.value) {
     notify('warning', 'Sign in required', 'Connect a Microsoft Minecraft account before playing.');
     navigate('account');
     return;
   }
-  if (store.preferences.confirmLaunch && !skipConfirm) {
+  if (!inst.running && store.preferences.confirmLaunch && !skipConfirm) {
     store.pendingLaunchConfirm = inst;
     return;
   }
+  pendingGameActions.add(inst.id);
   try {
+    if (inst.running) {
+      await native('stop_instance', { id: inst.id });
+      clearLaunchProgress(inst.id);
+      await refreshSnapshot();
+      notify('info', `${inst.name} stopped`, 'Minecraft has closed.');
+      return;
+    }
+    setLaunchProgress(inst.id, 'checking', 'Checking files...');
     notify('info', `Launching ${inst.name}`, `Preparing ${inst.loader} ${inst.gameVersion}...`);
     await native('launch_instance', { id: inst.id });
+    await refreshSnapshot();
+    // A quick crash/exit can arrive before the launch command returns. Never
+    // hide the launcher or overwrite that error with a stale running state.
+    if (!store.instances.find((item) => item.id === inst.id)?.running) {
+      if (store.launchStates[inst.id]?.stage !== 'error') clearLaunchProgress(inst.id);
+      return;
+    }
+    setLaunchProgress(inst.id, 'running', 'Minecraft is running');
     if (store.preferences.onLaunch === 'minimize') {
-      await native('window_action', { action: 'minimize' });
-    } else if (store.preferences.onLaunch === 'hide') {
-      await native('window_action', { action: 'hide' });
+      try { await native('window_action', { action: 'minimize' }); }
+      catch (err) { notify('warning', 'Minecraft is running', `Couldn't minimize the launcher: ${String(err)}`); }
     }
     notify('success', `${inst.name} is running`, 'Minecraft has started.');
-    await refreshSnapshot();
   } catch (err) {
-    notify('error', `Couldn't launch ${inst.name}`, String(err));
+    const msg = err instanceof Error ? err.message : String(err);
+    if (inst.running) notify('error', "Couldn't stop Minecraft", msg);
+    else {
+      setLaunchProgress(inst.id, 'error', 'Launch failed', msg);
+      notify('error', `Couldn't launch ${inst.name}`, msg);
+    }
+  } finally {
+    pendingGameActions.delete(inst.id);
   }
+}
+
+export function handleGameExit(payload: { instanceId?: string; success?: boolean; exitCode?: number | null }): void {
+  const id = payload.instanceId;
+  if (!id) return;
+  const inst = store.instances.find((item) => item.id === id);
+  if (inst) inst.running = false;
+  if (payload.success === false) {
+    const detail = payload.exitCode == null ? 'Minecraft stopped unexpectedly.' : `Minecraft exited with code ${payload.exitCode}.`;
+    setLaunchProgress(id, 'error', 'Minecraft closed unexpectedly', `${detail} Open Logs for details.`);
+    notify('error', `${inst?.name ?? 'Minecraft'} closed unexpectedly`, detail);
+  } else clearLaunchProgress(id);
 }
 
 export async function patchInstanceMeta(
@@ -412,6 +620,7 @@ export async function patchInstanceMeta(
 ): Promise<InstanceRecord | null> {
   if (!store.desktop) return null;
   const updated = await native<InstanceRecord>('update_instance_meta', { id, patch });
+  if (updated.icon !== 'custom') updated.customIcon = null;
   const idx = store.instances.findIndex((i) => i.id === id);
   if (idx !== -1) store.instances[idx] = { ...store.instances[idx], ...updated };
   return updated;
@@ -474,17 +683,19 @@ export const currentPageTitle = computed(() => {
     case 'library':
       return 'Library';
     case 'discover':
-      return 'Discover';
+      return 'Discover Modpacks';
     case 'skins':
-      return 'Skin & Capes';
+      return 'Skins & Capes';
     case 'screenshots':
       return 'Screenshots';
+    case 'solara':
+      return 'Solara Hub';
     case 'tasks':
       return 'Downloads & Tasks';
     case 'settings':
       return 'Settings';
     case 'account':
-      return 'Minecraft Accounts';
+      return 'Accounts';
     case 'instance': {
       const inst = store.instances.find((i) => i.id === r.instanceId);
       return inst?.name ?? 'Instance';

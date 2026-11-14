@@ -1,254 +1,189 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import InstanceIcon from './InstanceIcon.vue';
 import {
+  Camera,
+  Compass,
+  Download,
   Home,
   Library,
-  Compass,
-  Shirt,
-  Camera,
-  Download,
   Plus,
+  Server,
   Settings,
+  Shirt,
   User,
 } from '../icons';
 import {
-  store,
-  currentRoute,
-  pinnedInstances,
-  selectedAccount,
   activeJobs,
+  currentRoute,
   navigate,
   openCreateInstance,
-  launchOrStopInstance,
-  patchInstanceMeta,
+  openGlobalSettings,
+  pinnedInstances,
   playerAvatarUrl,
-  native,
-  notify,
+  selectedAccount,
+  store,
 } from '../state';
-import type { InstanceRecord, PageId } from '../types';
-import InstanceIcon from './InstanceIcon.vue';
-import SolaraContextMenu, { type ContextMenuItem } from './SolaraContextMenu.vue';
+import type { PageId } from '../types';
 
-const mainNav: { id: PageId; label: string; icon: unknown }[] = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'library', label: 'Library', icon: Library },
-  { id: 'discover', label: 'Discover', icon: Compass },
-  { id: 'skins', label: 'Skin & Capes', icon: Shirt },
-  { id: 'screenshots', label: 'Screenshots', icon: Camera },
-  { id: 'tasks', label: 'Downloads', icon: Download },
-];
-
-const sidebarInstances = computed(() => {
-  const pinned = pinnedInstances.value;
-  if (pinned.length > 0) return pinned;
-  return store.instances.slice(0, 6);
-});
-
-const tip = ref<{
-  visible: boolean;
-  label: string;
-  sub: string;
-  top: number;
-  left: number;
-}>({ visible: false, label: '', sub: '', top: 0, left: 0 });
-
-function showTip(e: MouseEvent | FocusEvent, label: string, sub = '') {
-  const target = e.currentTarget as HTMLElement | null;
-  if (!target) return;
-  const rect = target.getBoundingClientRect();
-  const rawTop = Math.round(rect.top + rect.height / 2);
-  const maxTop = typeof window !== 'undefined' ? Math.max(28, window.innerHeight - 36) : rawTop;
-  tip.value = {
-    visible: true,
-    label,
-    sub,
-    top: Math.max(28, Math.min(maxTop, rawTop)),
-    left: Math.round(rect.right + 10),
-  };
+function isActive(page: PageId): boolean {
+  if (store.showSettingsModal) return false;
+  return currentRoute.value.page === page;
 }
 
-function hideTip() {
-  if (tip.value.visible) tip.value.visible = false;
+function isPinnedActive(instId: string): boolean {
+  if (store.showSettingsModal) return false;
+  return currentRoute.value.page === 'instance' && currentRoute.value.instanceId === instId;
 }
-
-const ctxMenu = ref<{
-  open: boolean;
-  x: number;
-  y: number;
-  inst: InstanceRecord | null;
-}>({ open: false, x: 0, y: 0, inst: null });
-
-const ctxItems = computed<ContextMenuItem[]>(() => {
-  const inst = ctxMenu.value.inst;
-  if (!inst) return [];
-  return [
-    { id: 'play', label: inst.running ? 'Stop Instance' : 'Launch Instance', disabled: inst.state !== 'installed' },
-    { id: 'open', label: 'Open Instance' },
-    { id: 'settings', label: 'Instance Settings' },
-    { id: 'sep1', label: '', separator: true },
-    { id: 'pin', label: inst.pinned ? 'Unpin from Sidebar' : 'Pin to Sidebar' },
-    { id: 'folder', label: 'Open Folder' },
-  ];
-});
-
-function openInstCtx(e: MouseEvent, inst: InstanceRecord) {
-  e.preventDefault();
-  ctxMenu.value = { open: true, x: e.clientX, y: e.clientY, inst };
-}
-
-async function handleCtxSelect(action: string) {
-  const inst = ctxMenu.value.inst;
-  if (!inst) return;
-  if (action === 'play') await launchOrStopInstance(inst);
-  else if (action === 'open') navigate('instance', { instanceId: inst.id, tab: 'overview' });
-  else if (action === 'settings') navigate('instance', { instanceId: inst.id, tab: 'settings' });
-  else if (action === 'pin') {
-    await patchInstanceMeta(inst.id, { pinned: !inst.pinned });
-  } else if (action === 'folder' && store.desktop) {
-    native('open_instance_folder', { id: inst.id }).catch((err) =>
-      notify('error', "Couldn't open folder", String(err)),
-    );
-  }
-}
-
 </script>
 
 <template>
-  <aside class="sol-rail" aria-label="Primary navigation">
-    <!-- Main Navigation Group -->
-    <nav class="sol-rail-section">
+  <aside class="sol-rail" aria-label="Primary Navigation">
+    <nav class="sol-rail-top">
       <button
-        v-for="item in mainNav"
-        :key="item.id"
         type="button"
-        :aria-label="item.label"
-        :class="['sol-rail-item', { 'is-active': currentRoute.page === item.id }]"
-        @mouseenter="showTip($event, item.label)"
-        @mouseleave="hideTip"
-        @focus="showTip($event, item.label)"
-        @blur="hideTip"
-        @click="hideTip(); navigate(item.id)"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('home') }"
+        data-tooltip="Home"
+        aria-label="Home"
+        @click="navigate('home')"
       >
-        <span class="sol-rail-indicator" aria-hidden="true" />
-        <span class="sol-rail-icon">
-          <component :is="item.icon" :size="18" />
-          <span
-            v-if="item.id === 'tasks' && activeJobs.length > 0"
-            class="sol-rail-badge"
-          >{{ activeJobs.length }}</span>
-        </span>
+        <Home :size="19" />
+      </button>
+
+      <button
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('library') }"
+        data-tooltip="Library"
+        aria-label="Library"
+        @click="navigate('library')"
+      >
+        <Library :size="19" />
+      </button>
+
+      <button
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('discover') }"
+        data-tooltip="Discover Modpacks"
+        aria-label="Discover Modpacks"
+        @click="navigate('discover')"
+      >
+        <Compass :size="19" />
+      </button>
+
+      <button
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('skins') }"
+        data-tooltip="Skins &amp; Capes"
+        aria-label="Skins &amp; Capes"
+        @click="navigate('skins')"
+      >
+        <Shirt :size="19" />
+      </button>
+
+      <button
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('screenshots') }"
+        data-tooltip="Screenshots"
+        aria-label="Screenshots"
+        @click="navigate('screenshots')"
+      >
+        <Camera :size="19" />
+      </button>
+
+      <button
+        v-if="store.preferences.solaraHubEnabled !== false"
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('solara') }"
+        data-tooltip="Solara Hub &amp; Servers"
+        aria-label="Solara Hub &amp; Servers"
+        @click="navigate('solara')"
+      >
+        <Server :size="19" />
+      </button>
+
+      <button
+        type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': isActive('tasks') }"
+        data-tooltip="Downloads"
+        aria-label="Downloads"
+        @click="navigate('tasks')"
+      >
+        <Download :size="19" />
+        <span v-if="activeJobs.length > 0" class="sol-rail-dot" />
       </button>
     </nav>
 
-    <div class="sol-rail-divider" />
+    <div class="sol-rail-sep" />
 
-    <!-- Quick Instances & Create -->
-    <div class="sol-rail-instances sol-scroll" @scroll="hideTip">
+    <!-- Pinned instances + Create Instance (+) -->
+    <div class="sol-rail-pinned">
       <button
-        v-for="inst in sidebarInstances"
+        v-for="inst in pinnedInstances"
         :key="inst.id"
         type="button"
-        :aria-label="`${inst.name} (${inst.gameVersion} ${inst.loader})`"
-        :class="[
-          'sol-rail-inst',
-          {
-            'is-active': currentRoute.page === 'instance' && currentRoute.instanceId === inst.id,
-            'is-running': inst.running,
-          },
-        ]"
-        @mouseenter="showTip($event, inst.name, inst.running ? `${inst.gameVersion} · ${inst.loader} · Running` : `${inst.gameVersion} · ${inst.loader}`)"
-        @mouseleave="hideTip"
-        @focus="showTip($event, inst.name, inst.running ? `${inst.gameVersion} · ${inst.loader} · Running` : `${inst.gameVersion} · ${inst.loader}`)"
-        @blur="hideTip"
-        @click="hideTip(); navigate('instance', { instanceId: inst.id, tab: 'overview' })"
-        @contextmenu="hideTip(); openInstCtx($event, inst)"
+        class="sol-rail-inst"
+        :class="{ 'is-active': isPinnedActive(inst.id), 'is-running': inst.running }"
+        :data-tooltip="inst.name"
+        :aria-label="inst.name"
+        @click="navigate('instance', { instanceId: inst.id, tab: 'content' })"
       >
-        <span class="sol-rail-indicator" aria-hidden="true" />
-        <div class="sol-rail-inst-avatar">
-          <InstanceIcon
-            :name="inst.name"
-            :loader="inst.loader"
-            :icon="inst.icon"
-            :custom-icon="inst.customIcon"
-            :size="32"
-            :rounded="9"
-          />
-          <span v-if="inst.running" class="sol-running-dot" aria-hidden="true" />
-        </div>
+        <InstanceIcon
+          :name="inst.name"
+          :loader="inst.loader"
+          :icon="inst.icon"
+          :custom-icon="inst.customIcon"
+          :size="34"
+          :rounded="9"
+        />
+        <span v-if="inst.running" class="sol-rail-running-dot" />
       </button>
 
       <button
         type="button"
-        class="sol-rail-add"
-        aria-label="Create new instance"
-        @mouseenter="showTip($event, 'New Instance', 'Create a modpack or vanilla profile')"
-        @mouseleave="hideTip"
-        @focus="showTip($event, 'New Instance', 'Create a modpack or vanilla profile')"
-        @blur="hideTip"
-        @click="hideTip(); openCreateInstance()"
+        class="sol-rail-item sol-rail-item--add"
+        data-tooltip="Create Instance"
+        aria-label="Create Instance"
+        @click="openCreateInstance()"
       >
-        <Plus :size="17" />
+        <Plus :size="19" />
       </button>
     </div>
 
-    <div class="sol-rail-divider" />
-
-    <!-- Bottom Controls: Settings, Account -->
     <div class="sol-rail-bottom">
+      <div class="sol-rail-sep" />
       <button
         type="button"
+        class="sol-rail-item"
+        :class="{ 'is-active': store.showSettingsModal }"
+        data-tooltip="Settings"
         aria-label="Settings"
-        :class="['sol-rail-item', { 'is-active': currentRoute.page === 'settings' }]"
-        @mouseenter="showTip($event, 'Settings')"
-        @mouseleave="hideTip"
-        @focus="showTip($event, 'Settings')"
-        @blur="hideTip"
-        @click="hideTip(); navigate('settings')"
+        @click="openGlobalSettings('appearance')"
       >
-        <span class="sol-rail-indicator" aria-hidden="true" />
-        <span class="sol-rail-icon"><Settings :size="18" /></span>
+        <Settings :size="19" />
       </button>
 
       <button
         type="button"
-        :aria-label="selectedAccount ? `Account: ${selectedAccount.username}` : 'Sign in with Microsoft'"
-        :class="['sol-rail-item', 'sol-rail-account', { 'is-active': currentRoute.page === 'account' }]"
-        @mouseenter="showTip($event, selectedAccount ? selectedAccount.username : 'Microsoft Account', selectedAccount ? 'Active profile' : 'Sign in to play')"
-        @mouseleave="hideTip"
-        @focus="showTip($event, selectedAccount ? selectedAccount.username : 'Microsoft Account', selectedAccount ? 'Active profile' : 'Sign in to play')"
-        @blur="hideTip"
-        @click="hideTip(); navigate('account')"
+        class="sol-rail-item sol-rail-avatar sol-rail-account"
+        :class="{ 'is-active': isActive('account') }"
+        :data-tooltip="selectedAccount ? selectedAccount.username : 'Accounts'"
+        aria-label="Accounts"
+        @click="navigate('account')"
       >
-        <span class="sol-rail-indicator" aria-hidden="true" />
-        <span class="sol-rail-icon">
-          <img
-            v-if="selectedAccount"
-            :src="playerAvatarUrl(selectedAccount.username)"
-            :alt="selectedAccount.username"
-            class="sol-rail-avatar"
-          />
-          <User v-else :size="18" />
-        </span>
+        <img
+          v-if="selectedAccount"
+          :src="playerAvatarUrl(selectedAccount.username)"
+          :alt="selectedAccount.username"
+          class="sol-rail-avatar-img"
+        />
+        <User v-else :size="19" />
       </button>
     </div>
-
-    <div
-      v-if="tip.visible"
-      role="tooltip"
-      class="sol-rail-tooltip"
-      :style="{ top: `${tip.top}px`, left: `${tip.left}px` }"
-    >
-      <span class="sol-rail-tooltip-label">{{ tip.label }}</span>
-      <span v-if="tip.sub" class="sol-rail-tooltip-sub">{{ tip.sub }}</span>
-    </div>
-
-    <SolaraContextMenu
-      :open="ctxMenu.open"
-      :x="ctxMenu.x"
-      :y="ctxMenu.y"
-      :items="ctxItems"
-      @close="ctxMenu.open = false"
-      @select="handleCtxSelect"
-    />
   </aside>
 </template>
