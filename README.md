@@ -110,22 +110,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.41 available.** Automatically installs missing or incompatible Java runtimes on demand (Azul Zulu Windows x64 JRE with Adoptium Temurin fallback and live launch progress), fixes Windows Minecraft `26.3` launch hygiene (filtering non-x64 native classifier JARs such as `natives-windows-arm64` off the classpath, using `javaw.exe` without `CREATE_NO_WINDOW` suppression, stripping `_JAVA_OPTIONS`, ordering `arguments.jvm` before `-Xmx`, and creating `natives/` subdirectories), and inspects `hs_err_pid*.log` / `logs/latest.log` for AMD `atio6axx.dll`, NVIDIA `nvoglv64.dll`, Intel OpenGL, and Java crash recovery guidance.
+**Testing preview V-0.0.42 available.** Restores the official bordered Solara logo across the desktop app, regenerates multi-size desktop icons (16x16 to 256x256), and folds in Azul Zulu rounded metadata-size handling, improved crash diagnostics (logs/latest.log fallback + stale hs_err cutoff), and Netty aarch_64 native filtering.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check GitHub Releases CDN on startup and prompt before downloading/installing when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.41 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (7.0 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.41/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.41/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.41/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.41/source.zip)
-- **SHA-256**: `d24b895e536cc4a84a3d97273eb5f75c7055373dcd6829b35fde9b3369e21f72`
+- **GitHub Release**: [Solara Launcher V-0.0.42 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (7.0 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.42/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.42/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.42/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.42/source.zip)
+- **SHA-256**: `7579a3b139a41d75a6d244ecb79baa1f434c6b187e535112b935c616e249eb17`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.41 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.42 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | GitHub Releases CDN | Live via `latest.json` on GitHub Releases CDN (Minisign-verified) |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
