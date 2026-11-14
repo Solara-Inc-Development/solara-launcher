@@ -329,7 +329,8 @@ fn azul_zulu_origin_and_package_validation() {
     });
     let pkg = java::select_zulu_package(&detail, 25).expect("valid Zulu package parses");
     assert_eq!(pkg.version, "25.0.5");
-    assert_eq!(pkg.size, 58634400);
+    assert_eq!(pkg.approx_size, 58634400);
+    assert_eq!(pkg.exact_size, None);
     assert!(java::select_zulu_package(&detail, 21).is_err(), "rejects wrong major");
 
     let mut bad_hash = detail.clone();
@@ -425,4 +426,247 @@ async fn crash_diagnosis_parses_hs_err_atio6axx_nvoglv_and_clean_exit() {
     assert_eq!(jv.code, "java-mismatch");
 
     let _ = tokio::fs::remove_dir_all(&dir).await;
+}
+
+fn build_fixture_java_zip() -> Vec<u8> {
+    use std::io::Write;
+    let mut cursor = std::io::Cursor::new(Vec::new());
+    {
+        let mut zip = zip::ZipWriter::new(&mut cursor);
+        let opts = zip::write::SimpleFileOptions::default();
+        for (name, content) in [
+            ("zulu25-win_x64/bin/java.exe", b"MZ-java-exe".as_slice()),
+            ("zulu25-win_x64/bin/javaw.exe", b"MZ-javaw-exe".as_slice()),
+            ("zulu25-win_x64/bin/server/jvm.dll", b"MZ-jvm-dll".as_slice()),
+            (
+                "zulu25-win_x64/release",
+                b"IMPLEMENTOR=\"Azul Systems, Inc.\"\nJAVA_VERSION=\"25.0.5\"\n",
+            ),
+        ] {
+            zip.start_file(name, opts).unwrap();
+            zip.write_all(content).unwrap();
+        }
+        zip.finish().unwrap();
+    }
+    cursor.into_inner()
+}
+
+async fn spawn_fixture_http_server(
+    routes: Vec<(&'static str, Vec<u8>)>,
+) -> (reqwest::Url, tokio::task::JoinHandle<()>) {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    let routes = std::sync::Arc::new(routes);
+    let handle = tokio::spawn(async move {
+        while let Ok((mut stream, _)) = listener.accept().await {
+            let routes = routes.clone();
+            tokio::spawn(async move {
+                let mut buf = [0u8; 2048];
+                let n = stream.read(&mut buf).await.unwrap_or(0);
+                let req = String::from_utf8_lossy(&buf[..n]);
+                let path = req
+                    .lines()
+                    .next()
+                    .and_then(|line| line.split_whitespace().nth(1))
+                    .unwrap_or("/");
+                if let Some((_, body)) = routes.iter().find(|(p, _)| *p == path) {
+                    let header = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/zip\r\nConnection: close\r\n\r\n",
+                        body.len()
+                    );
+                    let _ = stream.write_all(header.as_bytes()).await;
+                    let _ = stream.write_all(body).await;
+                } else {
+                    let _ = stream
+                        .write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+                        .await;
+                }
+            });
+        }
+    });
+    let base = reqwest::Url::parse(&format!("http://{addr}")).unwrap();
+    (base, handle)
+}
+
+#[tokio::test]
+async fn zulu_rounded_metadata_size_downloads_and_extracts_verified_runtime() {
+    let dir = std::env::temp_dir().join(format!("solara-v41-zulu-dl-{}", uuid::Uuid::new_v4()));
+    let zip_bytes = build_fixture_java_zip();
+    let zip_sha = sha256_hex(&zip_bytes);
+    // Simulate Azul's 100-byte rounded metadata size (strictly different from zip_bytes.len()).
+    let rounded_size = ((zip_bytes.len() as u64 + 99) / 100) * 100 + 100;
+    assert_ne!(rounded_size, zip_bytes.len() as u64);
+
+    let (base, server) = spawn_fixture_http_server(vec![("/zulu25.zip", zip_bytes)]).await;
+    let candidate = java::Package {
+        version: "25.0.5".into(),
+        url: base.join("/zulu25.zip").unwrap(),
+        approx_size: rounded_size,
+        exact_size: None,
+        sha256: zip_sha,
+    };
+
+    let runtimes = java::Runtimes::new(dir.clone());
+    let cancel = crate::game_core::download::Cancellation::default();
+    let mut phases = Vec::new();
+    let installed = runtimes
+        .ensure_from_candidates_test(25, vec![candidate], &cancel, |phase, _, _| {
+            phases.push(phase.to_string());
+        })
+        .await
+        .expect("Zulu candidate with rounded approx_size must download and verify via SHA-256");
+
+    assert!(installed.ends_with("java-25/bin/javaw.exe") || installed.ends_with("java-25\\bin\\javaw.exe"));
+    assert_eq!(runtimes.cached(25).await.unwrap(), Some(installed.clone()));
+    assert!(phases.iter().any(|p| p == "Downloading Java"));
+    assert!(phases.iter().any(|p| p == "Java is ready"));
+
+    // Empty/corrupted javaw.exe must invalidate cached() even if java.exe and jvm.dll hashes match.
+    tokio::fs::write(&installed, b"").await.unwrap();
+    assert_eq!(runtimes.cached(25).await.unwrap(), None);
+
+    server.abort();
+    let _ = tokio::fs::remove_dir_all(&dir).await;
+}
+
+#[tokio::test]
+async fn corrupted_or_mismatched_exact_size_candidate_falls_back_cleanly() {
+    let dir = std::env::temp_dir().join(format!("solara-v41-java-fb-{}", uuid::Uuid::new_v4()));
+    let good_zip = build_fixture_java_zip();
+    let good_sha = sha256_hex(&good_zip);
+    let good_len = good_zip.len() as u64;
+
+    let (base, server) = spawn_fixture_http_server(vec![
+        ("/corrupt.zip", b"not-a-valid-zip-stream".to_vec()),
+        ("/good.zip", good_zip),
+    ])
+    .await;
+
+    let bad_first = java::Package {
+        version: "25.0.5".into(),
+        url: base.join("/corrupt.zip").unwrap(),
+        approx_size: 200,
+        exact_size: None,
+        sha256: "a".repeat(64),
+    };
+    let mismatched_exact = java::Package {
+        version: "25.0.5".into(),
+        url: base.join("/good.zip").unwrap(),
+        approx_size: good_len + 10,
+        exact_size: Some(good_len + 10),
+        sha256: good_sha.clone(),
+    };
+    let good_second = java::Package {
+        version: "25.0.5".into(),
+        url: base.join("/good.zip").unwrap(),
+        approx_size: good_len,
+        exact_size: Some(good_len),
+        sha256: good_sha,
+    };
+
+    let runtimes = java::Runtimes::new(dir.clone());
+    let cancel = crate::game_core::download::Cancellation::default();
+    let installed = runtimes
+        .ensure_from_candidates_test(
+            25,
+            vec![bad_first, mismatched_exact, good_second],
+            &cancel,
+            |_, _, _| {},
+        )
+        .await
+        .expect("falls back past bad checksum and wrong exact_size to verified candidate");
+    assert!(tokio::fs::try_exists(&installed).await.unwrap());
+
+    server.abort();
+    let _ = tokio::fs::remove_dir_all(&dir).await;
+}
+
+#[tokio::test]
+async fn crash_diagnosis_checks_latest_log_with_stdout_and_filters_stale_files() {
+    let dir = std::env::temp_dir().join(format!("solara-v41-stale-{}", uuid::Uuid::new_v4()));
+    tokio::fs::create_dir_all(dir.join("logs")).await.unwrap();
+
+    tokio::fs::write(
+        dir.join("logs/latest.log"),
+        "[Render thread/FATAL]: Exception in nvoglv64.dll during OpenGL init",
+    )
+    .await
+    .unwrap();
+
+    // Non-empty stdout without error lines must still consult logs/latest.log.
+    let diagnosed = launch::inspect_crash_diagnosis(
+        &dir,
+        Some(-1073741819),
+        "[main/INFO]: Setting user: Steve\n[main/INFO]: LWJGL Version: 3.4.3\n",
+    )
+    .expect("detects nvoglv64.dll from latest.log even when stdout is non-empty");
+    assert_eq!(diagnosed.code, "nvidia-opengl-driver");
+
+    // A launch cutoff strictly in the future ignores older hs_err/latest.log files.
+    tokio::fs::write(
+        dir.join("hs_err_pid1111.log"),
+        "# C  [atio6axx.dll+0x193ca0]\n",
+    )
+    .await
+    .unwrap();
+    let future_cutoff = std::time::SystemTime::now() + std::time::Duration::from_secs(60);
+    assert!(
+        launch::inspect_crash_diagnosis_since(&dir, Some(1), "[main/INFO]: exited cleanly?", Some(future_cutoff))
+            .is_none()
+    );
+
+    let _ = tokio::fs::remove_dir_all(&dir).await;
+}
+
+#[test]
+fn plan_windows_filters_aarch_64_netty_classifiers() {
+    let version = json!({
+        "id": "26.3",
+        "type": "release",
+        "mainClass": "net.minecraft.client.main.Main",
+        "javaVersion": { "majorVersion": 25 },
+        "downloads": {
+            "client": {
+                "url": "https://piston-data.mojang.com/v1/objects/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/client.jar",
+                "sha1": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "size": 100
+            }
+        },
+        "assetIndex": {
+            "id": "26",
+            "url": "https://piston-meta.mojang.com/v1/packages/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/26.json",
+            "sha1": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "size": 50
+        },
+        "libraries": [
+            {
+                "name": "io.netty:netty-transport-native-epoll:4.2.7.Final:linux-aarch_64",
+                "downloads": {
+                    "artifact": {
+                        "path": "io/netty/netty-transport-native-epoll/4.2.7.Final/netty-transport-native-epoll-4.2.7.Final-linux-aarch_64.jar",
+                        "url": "https://libraries.minecraft.net/io/netty/netty-transport-native-epoll/4.2.7.Final/netty-transport-native-epoll-4.2.7.Final-linux-aarch_64.jar",
+                        "sha1": "1111111111111111111111111111111111111111",
+                        "size": 10
+                    }
+                }
+            },
+            {
+                "name": "io.netty:netty-codec-http:4.2.7.Final",
+                "downloads": {
+                    "artifact": {
+                        "path": "io/netty/netty-codec-http/4.2.7.Final/netty-codec-http-4.2.7.Final.jar",
+                        "url": "https://libraries.minecraft.net/io/netty/netty-codec-http/4.2.7.Final/netty-codec-http-4.2.7.Final.jar",
+                        "sha1": "2222222222222222222222222222222222222222",
+                        "size": 10
+                    }
+                }
+            }
+        ]
+    });
+
+    let p = plan::windows(&version, None).unwrap();
+    let names: Vec<_> = p.files.iter().map(|l| l.destination.as_str()).collect();
+    assert!(!names.iter().any(|n| n.contains("aarch_64")));
+    assert!(names.iter().any(|n| n.contains("netty-codec-http")));
 }

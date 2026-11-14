@@ -398,6 +398,7 @@ struct Game {
     pid: u32,
     log: Arc<Mutex<String>>,
     started_at: std::time::Instant,
+    started_wall: std::time::SystemTime,
     exit_recorded: bool,
     game_dir: PathBuf,
     post_exit: Option<String>,
@@ -550,6 +551,7 @@ impl Games {
                 pid,
                 log,
                 started_at: std::time::Instant::now(),
+                started_wall: std::time::SystemTime::now(),
                 exit_recorded: false,
                 game_dir,
                 post_exit: post_exit
@@ -566,6 +568,10 @@ impl Games {
             .context("No game log is available for this instance")?;
         let value = game.log.lock().await.clone();
         Ok(value)
+    }
+    pub async fn started_wall(&self, id: &str) -> Option<std::time::SystemTime> {
+        let items = self.items.lock().await;
+        items.get(id).map(|g| g.started_wall)
     }
     pub async fn stop(&self, id: &str) -> Result<()> {
         let pid = {
@@ -617,6 +623,7 @@ pub(crate) fn is_non_x64_native_classpath_entry(destination: &str) -> bool {
     let stem = file.strip_suffix(".jar").unwrap_or(file);
     stem.contains("natives-windows-arm64")
         || stem.contains("natives-windows-aarch64")
+        || stem.contains("natives-windows-aarch_64")
         || stem.contains("natives-windows-x86-")
         || stem.ends_with("natives-windows-x86")
         || stem.contains("natives-linux")
@@ -685,7 +692,10 @@ pub struct CrashDiagnosis {
     pub hs_err_file: Option<String>,
 }
 
-fn read_latest_hs_err(game_dir: &Path) -> Option<(String, String)> {
+fn read_latest_hs_err_since(
+    game_dir: &Path,
+    min_mtime: Option<std::time::SystemTime>,
+) -> Option<(String, String)> {
     let entries = std::fs::read_dir(game_dir).ok()?;
     let mut best: Option<(std::time::SystemTime, String, PathBuf)> = None;
     for entry in entries.flatten() {
@@ -703,6 +713,9 @@ fn read_latest_hs_err(game_dir: &Path) -> Option<(String, String)> {
         let modified = meta
             .modified()
             .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+        if min_mtime.is_some_and(|cutoff| modified < cutoff) {
+            continue;
+        }
         if best
             .as_ref()
             .is_none_or(|(prev_t, _, _)| modified >= *prev_t)
@@ -735,13 +748,21 @@ fn extract_problematic_frame(hs_err: &str) -> Option<String> {
     None
 }
 
-fn read_latest_log_tail(game_dir: &Path) -> String {
+fn read_latest_log_tail_since(game_dir: &Path, min_mtime: Option<std::time::SystemTime>) -> String {
     let path = game_dir.join("logs").join("latest.log");
     let Ok(meta) = std::fs::symlink_metadata(&path) else {
         return String::new();
     };
     if !meta.is_file() || meta.file_type().is_symlink() {
         return String::new();
+    }
+    if let Some(cutoff) = min_mtime {
+        let modified = meta
+            .modified()
+            .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+        if modified < cutoff {
+            return String::new();
+        }
     }
     let Ok(bytes) = std::fs::read(&path) else {
         return String::new();
@@ -755,15 +776,14 @@ pub fn inspect_crash_diagnosis(
     exit_code: Option<i32>,
     log_text: &str,
 ) -> Option<CrashDiagnosis> {
-    let hs_err = read_latest_hs_err(game_dir);
-    let hs_err_file = hs_err.as_ref().map(|(name, _)| name.clone());
-    let hs_err_text = hs_err.as_ref().map(|(_, text)| text.as_str()).unwrap_or("");
-    let fallback_log = if log_text.trim().is_empty() {
-        read_latest_log_tail(game_dir)
-    } else {
-        String::new()
-    };
-    let combined = format!("{hs_err_text}\n{log_text}\n{fallback_log}");
+    inspect_crash_diagnosis_since(game_dir, exit_code, log_text, None)
+}
+
+fn diagnose_specific_from_text(
+    hs_err_text: &str,
+    combined: &str,
+    hs_err_file: Option<String>,
+) -> Option<CrashDiagnosis> {
     let lower = combined.to_ascii_lowercase();
 
     if lower.contains("atio6axx.dll") {
@@ -847,6 +867,33 @@ pub fn inspect_crash_diagnosis(
         });
     }
 
+    None
+}
+
+pub fn inspect_crash_diagnosis_since(
+    game_dir: &Path,
+    exit_code: Option<i32>,
+    log_text: &str,
+    min_mtime: Option<std::time::SystemTime>,
+) -> Option<CrashDiagnosis> {
+    if exit_code == Some(0) {
+        return None;
+    }
+    let hs_err = read_latest_hs_err_since(game_dir, min_mtime);
+    let hs_err_file = hs_err.as_ref().map(|(name, _)| name.clone());
+    let hs_err_text = hs_err.as_ref().map(|(_, text)| text.as_str()).unwrap_or("");
+    let primary = format!("{hs_err_text}\n{log_text}");
+    if let Some(diag) = diagnose_specific_from_text(hs_err_text, &primary, hs_err_file.clone()) {
+        return Some(diag);
+    }
+
+    let latest_log = read_latest_log_tail_since(game_dir, min_mtime);
+    let combined = format!("{primary}\n{latest_log}");
+    if let Some(diag) = diagnose_specific_from_text(hs_err_text, &combined, hs_err_file.clone()) {
+        return Some(diag);
+    }
+
+    let lower = combined.to_ascii_lowercase();
     if lower.contains("exception_access_violation")
         || lower.contains("0xc0000005")
         || exit_code == Some(-1073741819_i32)
@@ -973,7 +1020,9 @@ mod tests {
         BufReader::new(child.stdout.take().unwrap()).read_line(&mut ready).await.unwrap();
         games.items.lock().await.insert(id.into(), Game {
             child, pid, log: Arc::new(Mutex::new(String::new())),
-            started_at: std::time::Instant::now(), exit_recorded: false,
+            started_at: std::time::Instant::now(),
+            started_wall: std::time::SystemTime::now(),
+            exit_recorded: false,
             game_dir: std::env::temp_dir(), post_exit: Some("test-only-hook".into()),
         });
         pid

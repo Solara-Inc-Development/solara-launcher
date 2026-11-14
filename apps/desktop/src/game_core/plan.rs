@@ -91,6 +91,7 @@ pub fn windows(version: &Value, os_version: Option<&str>) -> Result<Plan> {
         let lower = classifier.to_ascii_lowercase();
         lower.contains("arm64")
             || lower.contains("aarch64")
+            || lower.contains("aarch_64")
             || lower.starts_with("natives-linux")
             || lower.starts_with("natives-macos")
             || lower.starts_with("natives-osx")

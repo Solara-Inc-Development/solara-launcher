@@ -72,7 +72,8 @@ pub(crate) fn redirect_url(url: &reqwest::Url, major: u32) -> bool {
 pub(crate) struct Package {
     pub(crate) version: String,
     pub(crate) url: reqwest::Url,
-    pub(crate) size: u64,
+    pub(crate) approx_size: u64,
+    pub(crate) exact_size: Option<u64>,
     pub(crate) sha256: String,
 }
 pub(crate) fn select_zulu_package(detail: &Value, major: u32) -> Result<Package> {
@@ -128,7 +129,9 @@ pub(crate) fn select_zulu_package(detail: &Value, major: u32) -> Result<Package>
     Ok(Package {
         version,
         url,
-        size,
+        // api.azul.com rounds `size` to the nearest 100 bytes; SHA-256 + max bound still enforce integrity.
+        approx_size: size,
+        exact_size: None,
         sha256,
     })
 }
@@ -166,7 +169,8 @@ fn select_package(raw: &Value, major: u32) -> Result<Package> {
     Ok(Package {
         version: version.into(),
         url,
-        size,
+        approx_size: size,
+        exact_size: Some(size),
         sha256: hash.to_ascii_lowercase(),
     })
 }
@@ -219,8 +223,11 @@ impl Runtimes {
         let java = dir.join("bin/java.exe");
         let javaw = dir.join("bin/javaw.exe");
         let jvm = dir.join("bin/server/jvm.dll");
+        let javaw_ok = tokio::fs::symlink_metadata(&javaw)
+            .await
+            .is_ok_and(|m| m.is_file() && !m.file_type().is_symlink() && m.len() > 0);
         if record.major != major
-            || !tokio::fs::try_exists(&javaw).await.unwrap_or(false)
+            || !javaw_ok
             || digest(&java).await.ok().as_deref() != Some(&record.java_sha256)
             || digest(&jvm).await.ok().as_deref() != Some(&record.jvm_sha256)
         {
@@ -337,10 +344,42 @@ impl Runtimes {
         if let Ok(Some(zulu)) = Self::fetch_zulu_package(&client, major, cancel).await {
             candidates.push(zulu);
         }
+        cancel.check()?;
         if let Ok(Some(adoptium)) = Self::fetch_adoptium_package(&client, major, cancel).await {
             candidates.push(adoptium);
         }
         cancel.check()?;
+        self.ensure_from_candidates_inner(major, candidates, cancel, &mut report, false)
+            .await
+    }
+
+    #[cfg(test)]
+    pub(crate) async fn ensure_from_candidates_test(
+        &self,
+        major: u32,
+        candidates: Vec<Package>,
+        cancel: &Cancellation,
+        mut report: impl FnMut(&str, u64, u64) + Send,
+    ) -> Result<PathBuf> {
+        supported(major)?;
+        cancel.check()?;
+        let _guard = tokio::select! {_ = cancel.cancelled()=>bail!("Java setup cancelled"),guard=self.install.lock()=>guard};
+        if let Some(path) = self.cached(major).await? {
+            report("Java is ready", 0, 0);
+            return Ok(path);
+        }
+        self.ensure_from_candidates_inner(major, candidates, cancel, &mut report, true)
+            .await
+    }
+
+    async fn ensure_from_candidates_inner(
+        &self,
+        major: u32,
+        candidates: Vec<Package>,
+        cancel: &Cancellation,
+        report: &mut (dyn FnMut(&str, u64, u64) + Send),
+        allow_local_test: bool,
+    ) -> Result<PathBuf> {
         if candidates.is_empty() {
             bail!(
                 "This Java runtime is unavailable. Choose an installed Java executable in Settings."
@@ -357,6 +396,11 @@ impl Runtimes {
         let mut package = None;
         let mut last_download_err = None;
         for candidate in candidates {
+            cancel.check()?;
+            if !allow_local_test && !package_url(&candidate.url, major) {
+                last_download_err = Some(anyhow::anyhow!("Untrusted Java download URL"));
+                continue;
+            }
             let archive = self.root.join(format!("{}.zip", candidate.sha256));
             if digest(&archive).await.ok().as_deref() == Some(&candidate.sha256) {
                 package = Some(candidate);
@@ -369,7 +413,11 @@ impl Runtimes {
                     .timeout(std::time::Duration::from_secs(900))
                     .connect_timeout(std::time::Duration::from_secs(15))
                     .redirect(reqwest::redirect::Policy::custom(move |attempt| {
-                        if attempt.previous().len() < 5 && redirect_url(attempt.url(), major) {
+                        if attempt.previous().len() < 5
+                            && (redirect_url(attempt.url(), major)
+                                || (allow_local_test
+                                    && attempt.url().host_str() == Some("127.0.0.1")))
+                        {
                             attempt.follow()
                         } else {
                             attempt.stop()
@@ -380,19 +428,28 @@ impl Runtimes {
                     _ = cancel.cancelled() => bail!("Java setup cancelled"),
                     r = dl_client.get(candidate.url.clone()).send() => r.map_err(|_| anyhow::anyhow!("Java download could not start"))?
                 };
-                if !response.status().is_success()
-                    || response
-                        .content_length()
-                        .is_some_and(|n| n != candidate.size)
-                {
+                let content_length = response.content_length();
+                if !response.status().is_success() {
                     bail!("Java download failed size or status checks")
                 }
+                if let Some(cl) = content_length {
+                    if cl == 0 || cl > 512 * 1024 * 1024 {
+                        bail!("Java download failed size or status checks")
+                    }
+                    if let Some(exact) = candidate.exact_size {
+                        if cl != exact {
+                            bail!("Java download failed size or status checks")
+                        }
+                    }
+                }
+                let progress_total = content_length.unwrap_or(candidate.approx_size);
+                let max_allowed = candidate.exact_size.unwrap_or(512 * 1024 * 1024);
                 let mut file = tokio::fs::OpenOptions::new()
                     .write(true)
                     .create_new(true)
                     .open(&partial)
                     .await?;
-                let mut size = 0;
+                let mut size = 0u64;
                 let mut hash = Sha256::new();
                 loop {
                     let chunk = tokio::select! {
@@ -401,14 +458,18 @@ impl Runtimes {
                     };
                     let Some(chunk) = chunk else { break };
                     size += chunk.len() as u64;
-                    if size > candidate.size {
+                    if size > max_allowed {
                         bail!("Java download exceeds expected size")
                     }
                     hash.update(&chunk);
                     file.write_all(&chunk).await?;
-                    report("Downloading Java", size, candidate.size);
+                    report("Downloading Java", size, progress_total);
                 }
-                if size != candidate.size || format!("{:x}", hash.finalize()) != candidate.sha256 {
+                if size == 0
+                    || candidate.exact_size.is_some_and(|exact| size != exact)
+                    || content_length.is_some_and(|cl| size != cl)
+                    || format!("{:x}", hash.finalize()) != candidate.sha256
+                {
                     bail!("Java download checksum did not match")
                 }
                 cancel.check()?;
@@ -440,6 +501,10 @@ impl Runtimes {
             }
         };
         let archive = self.root.join(format!("{}.zip", package.sha256));
+        let archive_size = tokio::fs::symlink_metadata(&archive)
+            .await
+            .map(|m| m.len())
+            .unwrap_or(package.approx_size);
         let stage = self
             .root
             .join(format!("java-{major}.install-{}", uuid::Uuid::new_v4()));
@@ -478,7 +543,7 @@ impl Runtimes {
                 .await?
             }
             tokio::fs::rename(&stage, &target).await?;
-            report("Java is ready", package.size, package.size);
+            report("Java is ready", archive_size, archive_size);
             Ok(target.join("bin/javaw.exe"))
         }
         .await;

@@ -661,7 +661,17 @@ pub async fn diagnose_instance_exit(
     let engine = get().await.ok()?;
     let game_dir = engine.instances.game_dir(id).await.ok()?;
     let log_text = engine.games.logs(id).await.unwrap_or_default();
-    crate::game_core::launch::inspect_crash_diagnosis(&game_dir, exit_code, &log_text)
+    let min_mtime = engine
+        .games
+        .started_wall(id)
+        .await
+        .and_then(|t| t.checked_sub(std::time::Duration::from_secs(2)));
+    crate::game_core::launch::inspect_crash_diagnosis_since(
+        &game_dir,
+        exit_code,
+        &log_text,
+        min_mtime,
+    )
 }
 
 pub async fn stop(id: String) -> Result<()> {
