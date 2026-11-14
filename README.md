@@ -110,22 +110,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.35 available.** Canonical public Minecraft OAuth device flow client ID fallback for zero-setup Microsoft account login (resolving tenant directory errors), strictly contained above-the-fold welcome hero ("Welcome User TO Solara-Launcher"), active account card with player avatar fallback, multi-account switcher modal with 1-click switching, 50-announcements reader, global Escape modal dismissal, global context menu suppression, and live auto-updater.
+**Testing preview V-0.0.36 available.** Official Solara Launcher Microsoft OAuth client registration and 1-click direct browser sign-in with RFC 7636 PKCE loopback (eliminating manual 8-character device codes), strictly contained above-the-fold welcome hero ("Welcome User TO Solara-Launcher"), active account card with player avatar fallback, multi-account switcher modal with 1-click switching, 50-announcements reader, global Escape modal dismissal, global context menu suppression, and live auto-updater.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.35 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.35/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.35/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.35/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.35/source.zip)
-- **SHA-256**: `57dd5ece452dc797a33827412ed825377222dde3a5f383166a97819f5c5eca42`
+- **GitHub Release**: [Solara Launcher V-0.0.36 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.36/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.36/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.36/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.36/source.zip)
+- **SHA-256**: `2735b0513a20e15f0ec3e66a0f079d2741e7480396a1a4bf3e1b0ecebb6b15f6`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.35 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.36 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
