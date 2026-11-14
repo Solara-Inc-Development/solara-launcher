@@ -4,7 +4,14 @@ import {readFile} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {verifyMinisign} from '../scripts/release-lib.mjs';
+import {
+  verifyMinisign,
+  isOfficialReleaseUrl,
+  fetchWithTrustedRedirects,
+  buildLatestManifest,
+  githubReleaseAssetUrl,
+  GITHUB_LATEST_MANIFEST_URL,
+} from '../scripts/release-lib.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -71,7 +78,10 @@ test('all published releases in builds/releases.json have valid signatures, file
     assert.equal(r.platform, 'windows', 'platform must be windows');
     assert.equal(r.arch, 'x86_64', 'arch must be x86_64');
     assert.ok(r.signature && r.signature.length > 50, 'signature must be present');
-    assert.ok(r.url.startsWith('https://app.solara-inc.in/builds/'), 'url must point to official app portal');
+    assert.ok(
+      isOfficialReleaseUrl(r.url),
+      `url must point to official app portal or GitHub Releases CDN (got ${r.url})`
+    );
 
     const artifactFile = path.join(root, 'builds', r.artifactPath);
     if (existsSync(artifactFile)) {
@@ -83,5 +93,127 @@ test('all published releases in builds/releases.json have valid signatures, file
       assert.equal(verified, true, `Minisign verification must pass for ${r.publicVersion}`);
     }
   }
+});
+
+test('GitHub CDN updater manifest builder validates schema and rejects untrusted URLs', () => {
+  assert.equal(
+    GITHUB_LATEST_MANIFEST_URL,
+    'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/latest.json'
+  );
+  const validRelease = {
+    publicVersion: 'V-0.0.40',
+    internalVersion: '0.0.40',
+    filename: 'solaralauncher.exe',
+    artifactPath: 'V-0.0.40/solaralauncher.exe',
+    publishedAt: '2026-11-15T00:00:00.000Z',
+    signature: 'dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkK',
+    notes: 'GitHub Releases CDN migration',
+    url: githubReleaseAssetUrl('V-0.0.40', 'solaralauncher.exe'),
+  };
+  const manifest = buildLatestManifest(validRelease);
+  assert.equal(manifest.version, '0.0.40');
+  assert.equal(manifest.pub_date, '2026-11-15T00:00:00.000Z');
+  assert.equal(
+    manifest.platforms['windows-x86_64'].url,
+    'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/solaralauncher.exe'
+  );
+  assert.equal(manifest.platforms['windows-x86_64'].signature, validRelease.signature);
+
+  assert.throws(
+    () => buildLatestManifest({...validRelease, internalVersion: 'V-0.0.40'}),
+    /SemVer/
+  );
+  assert.throws(
+    () => buildLatestManifest({...validRelease, url: 'https://evil.example.com/V-0.0.40/solaralauncher.exe'}),
+    /Untrusted release host/
+  );
+  assert.throws(
+    () => buildLatestManifest({...validRelease, url: 'http://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/solaralauncher.exe'}),
+    /Untrusted release protocol/
+  );
+  assert.throws(
+    () => buildLatestManifest({...validRelease, signature: 'short'}),
+    /signature/
+  );
+  assert.throws(
+    () => buildLatestManifest({...validRelease, publishedAt: 'not-a-date'}),
+    /publishedAt/
+  );
+});
+
+test('fetchWithTrustedRedirects follows GitHub CDN redirects and blocks untrusted hosts or downgrades', async () => {
+  const calls = [];
+  const res = await fetchWithTrustedRedirects(
+    'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/solaralauncher.exe',
+    {
+      fetcher: async (url, init) => {
+        calls.push({url, redirect: init.redirect});
+        if (url.startsWith('https://github.com/')) {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              location: 'https://release-assets.githubusercontent.com/asset/123',
+            },
+          });
+        }
+        return new Response('ok', {status: 200});
+      },
+    }
+  );
+  assert.equal(res.status, 200);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].redirect, 'manual');
+  assert.equal(calls[1].url, 'https://release-assets.githubusercontent.com/asset/123');
+
+  // Also allow objects.githubusercontent.com
+  const resObj = await fetchWithTrustedRedirects(
+    GITHUB_LATEST_MANIFEST_URL,
+    {
+      fetcher: async (url) => {
+        if (url === GITHUB_LATEST_MANIFEST_URL) {
+          return new Response(null, {
+            status: 302,
+            headers: {location: 'https://objects.githubusercontent.com/github-production-release-asset/latest.json'},
+          });
+        }
+        return new Response('{}', {status: 200});
+      },
+    }
+  );
+  assert.equal(resObj.status, 200);
+
+  // Reject untrusted redirect destination
+  await assert.rejects(
+    () => fetchWithTrustedRedirects(GITHUB_LATEST_MANIFEST_URL, {
+      fetcher: async () => new Response(null, {
+        status: 302,
+        headers: {location: 'https://evil.example.com/latest.json'},
+      }),
+    }),
+    /Untrusted release host/
+  );
+
+  // Reject HTTPS -> HTTP protocol downgrade redirect
+  await assert.rejects(
+    () => fetchWithTrustedRedirects(GITHUB_LATEST_MANIFEST_URL, {
+      fetcher: async () => new Response(null, {
+        status: 302,
+        headers: {location: 'http://objects.githubusercontent.com/latest.json'},
+      }),
+    }),
+    /Untrusted release protocol/
+  );
+
+  // Reject redirect loop
+  await assert.rejects(
+    () => fetchWithTrustedRedirects(GITHUB_LATEST_MANIFEST_URL, {
+      maxRedirects: 2,
+      fetcher: async () => new Response(null, {
+        status: 302,
+        headers: {location: 'https://objects.githubusercontent.com/loop'},
+      }),
+    }),
+    /maximum trusted redirects/
+  );
 });
 

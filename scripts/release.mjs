@@ -1,5 +1,5 @@
 import {releaseArtifactPath} from '../packages/shared/domain.mjs';
-import {readFile,writeFile,readdir,mkdir,rename} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import {createHash} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';import {reserveBuild,immutableCopy,verifyArtifact,verifyApplication} from './release-lib.mjs';
+import {readFile,writeFile,readdir,mkdir,rename} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import {createHash} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';import {reserveBuild,immutableCopy,verifyArtifact,verifyApplication,fetchWithTrustedRedirects,githubReleaseAssetUrl} from './release-lib.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),dir=path.join(root,'builds');
 const mode=process.argv[2];const run=(bin,args,opts={})=>execFileSync(bin,args,{cwd:root,stdio:'inherit',...opts});
 const readJson=async p=>JSON.parse(await readFile(p,'utf8'));const json=async(p,d)=>writeFile(p,JSON.stringify(d,null,2)+'\n');
@@ -28,7 +28,7 @@ if(mode==='reserve'){
  const notesPath=process.argv[4];if(!notesPath)throw Error('Pass a release notes file');const notes=await readFile(notesPath,'utf8');if(!notes.trim())throw Error('Release notes are required');
  await mkdir(path.dirname(path.join(dir,artifactPath)),{recursive:true});
  await immutableCopy(source,path.join(dir,artifactPath));await immutableCopy(source+'.sig',path.join(dir,artifactPath+'.sig'));
- const metadata={...r,...checked,...appChecked,artifactPath,platform:'windows',arch:'x86_64',publishedAt:null,verifiedAt:new Date().toISOString(),signature:sig,notes,url:`https://app.solara-inc.in/builds/${artifactPath}`,state:'staged'};await json(path.join(dir,r.publicVersion+'.json'),metadata);console.log(`${r.filename} staged, x64 application, checksum and updater signature verified.`);
+ const metadata={...r,...checked,...appChecked,artifactPath,platform:'windows',arch:'x86_64',publishedAt:null,verifiedAt:new Date().toISOString(),signature:sig,notes,url:githubReleaseAssetUrl(r.publicVersion,'solaralauncher.exe'),state:'staged'};await json(path.join(dir,r.publicVersion+'.json'),metadata);console.log(`${r.filename} staged, x64 application, checksum and updater signature verified.`);
 }else if(mode==='publish-preview-manifest'){
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='preview'||migration.inheritedEngineRemoved!==true)throw Error('Testing publication requires the independent preview core');
  const version=process.argv[3];if(!version)throw Error('Pass the staged testing version');
@@ -38,11 +38,17 @@ if(mode==='reserve'){
  const files={'solaralauncher.exe':{size:r.size,sha256:r.sha256},'source.zip':r.artifacts?.['source.zip']};
  for(const [name,expected] of Object.entries(files)){
   if(!expected?.sha256||!expected.size)throw Error('CI artifact size/hash is required');
-  const url=`https://app.solara-inc.in/builds/${version}/${name}`;
-  const response=await fetch(url,{signal:AbortSignal.timeout(60000),redirect:'error'});if(!response.ok)throw Error('Reviewed testing artifact is not publicly reachable');
+  const localPath=path.join(dir,version,name);
+  const localBytes=await readFile(localPath);
+  if(localBytes.length!==expected.size||createHash('sha256').update(localBytes).digest('hex')!==expected.sha256)throw Error(`Local staged ${name} differs from reviewed CI bytes`);
+  const portalUrl=`https://app.solara-inc.in/builds/${version}/${name}`;
+  const response=await fetchWithTrustedRedirects(portalUrl,{timeoutMs:60000});if(!response.ok)throw Error('Reviewed testing artifact is not publicly reachable');
   const bytes=Buffer.from(await response.arrayBuffer());if(bytes.length!==expected.size||createHash('sha256').update(bytes).digest('hex')!==expected.sha256)throw Error('Public testing artifact differs from reviewed CI bytes');
  }
- const sigResponse=await fetch(r.url+'.sig',{signal:AbortSignal.timeout(30000),redirect:'error'});if(!sigResponse.ok||(await sigResponse.text()).trim()!==r.signature.trim())throw Error('Public updater signature differs from staged signature');
+ const sigLocal=(await readFile(path.join(dir,releaseArtifactPath(r)+'.sig'),'utf8')).trim();
+ if(sigLocal!==r.signature.trim())throw Error('Local updater signature differs from staged signature');
+ const sigUrl=`https://app.solara-inc.in/builds/${version}/solaralauncher.exe.sig`;
+ const sigResponse=await fetchWithTrustedRedirects(sigUrl,{timeoutMs:30000});if(!sigResponse.ok||(await sigResponse.text()).trim()!==r.signature.trim())throw Error('Public updater signature differs from staged signature');
  const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===version))throw Error('This version is already recorded; immutable versions cannot be republished');
  r.state='published';r.channel='testing-preview';r.publishedAt=new Date().toISOString();archive.releases.push(r);
  const temp=path.join(dir,'.releases-'+r.buildId+'.tmp');await json(temp,archive);await rename(temp,path.join(dir,'releases.json'));
@@ -51,7 +57,7 @@ if(mode==='reserve'){
 }else if(mode==='publish-manifest'){
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='ready'||migration.windowsAcceptance!==true)throw Error('Stable publication requires recorded Windows acceptance');
  const version=process.argv[3];if(!version)throw Error('Pass the staged public version');const r=await readJson(path.join(dir,version+'.json'));await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,process.env.SOLARA_UPDATER_PUBLIC_KEY||'',r.internalVersion);
- const response=await fetch(r.url,{signal:AbortSignal.timeout(30000)});if(!response.ok)throw Error('Uploaded installer URL is not publicly reachable');const remote=Buffer.from(await response.arrayBuffer());const local=await readFile(path.join(dir,releaseArtifactPath(r)));if(!remote.equals(local))throw Error('Public artifact bytes do not match verified local artifact');
+ const response=await fetchWithTrustedRedirects(r.url,{timeoutMs:30000});if(!response.ok)throw Error('Uploaded installer URL is not publicly reachable');const remote=Buffer.from(await response.arrayBuffer());const local=await readFile(path.join(dir,releaseArtifactPath(r)));if(!remote.equals(local))throw Error('Public artifact bytes do not match verified local artifact');
  const archive=await readJson(path.join(dir,'releases.json'));if(archive.releases.some(x=>x.publicVersion===r.publicVersion))throw Error('Release already exists; use withdrawal for revoked versions');r.state='published';r.publishedAt=new Date().toISOString();archive.releases.push(r);await json(path.join(dir,'releases.json'),archive);console.log('Published metadata only after public artifact verification.');
  if(!process.argv.includes('--skip-github'))await publishGitHub(version);
 }else if(mode==='publish-github'){
@@ -100,10 +106,11 @@ export async function publishGitHub(version,opts={}){
    const exe=path.join(tempDir,'solaralauncher.exe');
    const sig=path.join(tempDir,'solaralauncher.exe.sig');
    const src=path.join(tempDir,'source.zip');
+   const latestJson=path.join(tempDir,'latest.json');
    const notes=path.join(tempDir,'release_notes.md');
    if(releaseExists){
     console.log(`Updating existing GitHub release ${version} as latest...`);
-    execFileSync('gh',['release','upload',version,exe,sig,src,'--clobber'],{cwd:root,stdio:'inherit'});
+    execFileSync('gh',['release','upload',version,exe,sig,src,latestJson,'--clobber'],{cwd:root,stdio:'inherit'});
     try{
      execFileSync('gh',['release','edit',version,'--title','Solara Launcher '+version,'--notes-file',notes,'--latest'],{cwd:root,stdio:'inherit'});
     }catch{
@@ -112,13 +119,13 @@ export async function publishGitHub(version,opts={}){
    }else{
     console.log(`Creating GitHub release ${version} as latest...`);
     try{
-     execFileSync('gh',['release','create',version,exe,sig,src,'--latest','--title','Solara Launcher '+version,'--notes-file',notes],{cwd:root,stdio:'inherit'});
+     execFileSync('gh',['release','create',version,exe,sig,src,latestJson,'--latest','--title','Solara Launcher '+version,'--notes-file',notes],{cwd:root,stdio:'inherit'});
     }catch{
-     execFileSync('gh',['release','create',version,exe,sig,src,'--title','Solara Launcher '+version,'--notes-file',notes],{cwd:root,stdio:'inherit'});
+     execFileSync('gh',['release','create',version,exe,sig,src,latestJson,'--title','Solara Launcher '+version,'--notes-file',notes],{cwd:root,stdio:'inherit'});
      try{execFileSync('gh',['api','-X','PATCH',`repos/{owner}/{repo}/releases/tags/${version}`,'-f','make_latest=true'],{cwd:root,stdio:'inherit'});}catch{}
     }
    }
-   console.log(`GitHub release ${version} published with installer, signature, and exact source archive.`);
+   console.log(`GitHub release ${version} published with installer, signature, latest.json, and exact source archive.`);
   }finally{
    const {rm}=await import('node:fs/promises');
    await rm(tempDir,{recursive:true,force:true}).catch(()=>{});

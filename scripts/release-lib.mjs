@@ -1,7 +1,85 @@
 import {createHash,createPublicKey,verify} from 'node:crypto';
 import {readFile,writeFile,mkdir,open,rename,unlink,readdir} from 'node:fs/promises';
 import path from 'node:path';
-import {publicVersion,buildNumber} from '../packages/shared/domain.mjs';
+import {publicVersion,buildNumber,releaseArtifactPath} from '../packages/shared/domain.mjs';
+
+export const GITHUB_REPO_SLUG='Solara-Inc-Development/solara-launcher';
+export const GITHUB_LATEST_MANIFEST_URL=`https://github.com/${GITHUB_REPO_SLUG}/releases/latest/download/latest.json`;
+export const TRUSTED_RELEASE_HOSTS=new Set([
+ 'github.com',
+ 'objects.githubusercontent.com',
+ 'release-assets.githubusercontent.com',
+ 'github-releases.githubusercontent.com',
+ 'codeload.github.com',
+ 'app.solara-inc.in',
+ 'api.solara-inc.in',
+]);
+
+export function githubReleaseAssetUrl(version,filename='solaralauncher.exe'){
+ return `https://github.com/${GITHUB_REPO_SLUG}/releases/download/${version}/${filename}`;
+}
+
+export function isTrustedReleaseHost(rawUrl,allowedHosts=TRUSTED_RELEASE_HOSTS){
+ let parsed;
+ try{parsed=new URL(rawUrl);}catch{throw Error('Invalid release URL');}
+ if(parsed.protocol!=='https:'||parsed.username||parsed.password){
+  throw Error(`Untrusted release protocol or credentials in URL: ${rawUrl}`);
+ }
+ if(!allowedHosts.has(parsed.hostname)){
+  throw Error(`Untrusted release host: ${parsed.hostname}`);
+ }
+ return parsed;
+}
+
+export function isOfficialReleaseUrl(rawUrl){
+ try{
+  const u=isTrustedReleaseHost(rawUrl);
+  if(u.hostname==='app.solara-inc.in')return u.pathname.startsWith('/builds/');
+  if(u.hostname==='github.com')return u.pathname.startsWith(`/${GITHUB_REPO_SLUG}/releases/download/`);
+  return false;
+ }catch{
+  return false;
+ }
+}
+
+export async function fetchWithTrustedRedirects(rawUrl,{method='GET',timeoutMs=60000,maxRedirects=5,allowedHosts=TRUSTED_RELEASE_HOSTS,fetcher=globalThis.fetch}={}){
+ let currentUrl=isTrustedReleaseHost(rawUrl,allowedHosts).href;
+ for(let hop=0;hop<=maxRedirects;hop++){
+  const response=await fetcher(currentUrl,{method,signal:AbortSignal.timeout(timeoutMs),redirect:'manual'});
+  if([301,302,303,307,308].includes(response.status)){
+   const location=response.headers.get('location');
+   await response.body?.cancel?.().catch(()=>{});
+   if(!location)throw Error(`Redirect response (${response.status}) missing location header`);
+   const nextUrl=new URL(location,currentUrl).href;
+   currentUrl=isTrustedReleaseHost(nextUrl,allowedHosts).href;
+   continue;
+  }
+  return response;
+ }
+ throw Error(`Exceeded maximum trusted redirects (${maxRedirects}) for ${rawUrl}`);
+}
+
+export function buildLatestManifest(release){
+ if(!release||typeof release!=='object')throw Error('Release metadata is required for latest.json');
+ if(!/^\d+\.\d+\.\d+$/.test(release.internalVersion||''))throw Error('Valid numeric SemVer internalVersion is required for latest.json');
+ if(!release.publishedAt||Number.isNaN(Date.parse(release.publishedAt)))throw Error('Valid RFC3339 publishedAt timestamp is required for latest.json');
+ const sig=(release.signature||'').trim();
+ if(sig.length<=50)throw Error('Valid Minisign signature is required for latest.json');
+ const parsed=isTrustedReleaseHost(release.url);
+ const expectedRel=releaseArtifactPath(release);
+ if(!parsed.pathname.endsWith('/'+expectedRel))throw Error('Release URL path does not match artifactPath');
+ return {
+  version:release.internalVersion,
+  notes:typeof release.notes==='string'?release.notes:'',
+  pub_date:release.publishedAt,
+  platforms:{
+   'windows-x86_64':{
+    signature:sig,
+    url:parsed.href,
+   },
+  },
+ };
+}
 export async function reserveBuild(dir,{commit='unknown',minimum=1}={}){
  await mkdir(dir,{recursive:true});const lock=path.join(dir,'.allocation.lock');const guard=await open(lock,'wx').catch(()=>{throw Error('Another build is allocating a version; retry after it completes')});
  try{let registry={schemaVersion:1,allocations:[]};try{registry=JSON.parse(await readFile(path.join(dir,'allocations.json'),'utf8'))}catch(e){if(e.code!=='ENOENT')throw e}

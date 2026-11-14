@@ -11,6 +11,23 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-057',
+    title: 'Solara Launcher V-0.0.40: GitHub Releases CDN Auto-Updater',
+    date: '2026-11-14',
+    category: 'Update',
+    summary: 'Moves launcher update checks and installer downloads to GitHub Releases CDN with signed latest.json manifests while keeping Minisign verification and the manual Update Now prompt.',
+    content: `Solara Launcher V-0.0.40 moves auto-update delivery to GitHub Releases CDN for faster, higher-capacity downloads without relying on VPS update bandwidth!
+
+Key highlights of this update:
+• GitHub Releases CDN Updater: Desktop update checks now fetch signed latest.json metadata and verified installer binaries directly from GitHub Releases CDN.
+• Cryptographic Verification Preserved: Every update continues to verify its Minisign signature against Solara's pinned public key before installation, while keeping the manual "New Version Available" prompt and topbar "Restart to Update" flow.
+• Smooth Transition from V-0.0.39: Existing V-0.0.39 installs automatically receive the V-0.0.40 GitHub Release URL and switch permanently to GitHub CDN for all future versions.
+
+Signed testing preview updates verify cryptographically and apply only when triggered.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-056',
     title: 'Solara Launcher V-0.0.39: Play Stack Fix, Obsidian Blue UI & Interactive Update Prompt',
     date: '2026-11-14',
@@ -24,8 +41,7 @@ Key highlights of this update:
 • Interactive Startup Update Prompt: Checks for updates on launch without silently auto-updating in the background. When a new release is found, a "New Version Available" modal opens with release notes and "Update Now" or "I'll do it later" choices, plus a persistent "Restart to Update" button in the title bar.
 
 Signed testing preview updates verify cryptographically and apply only when triggered.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-055',

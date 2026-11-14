@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.40 — 2026-11-14
+
+- **GitHub Releases CDN Auto-Updater Migration**:
+  - Migrated desktop auto-update checks and installer downloads off the Solara VPS (`api.solara-inc.in` / `app.solara-inc.in`) directly to GitHub Releases CDN (`https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/latest.json`).
+  - Added signed Tauri updater manifest (`latest.json`) generation and verification in `scripts/prepare-github-release.mjs`, `scripts/release.mjs`, and `.github/workflows/publish-release.yml`, uploading `latest.json` alongside `solaralauncher.exe`, `solaralauncher.exe.sig`, and `source.zip`.
+  - Preserved strict Minisign signature verification (`apps/desktop/updater.pub`), startup manual-consent `"New Version Available"` prompt (`Update Now` / `I'll do it later`), topbar `"Restart to Update"`, and immutable local `builds/V-0.0.40/` copies while keeping `api.solara-inc.in` bootstrap metadata pointing to the `V-0.0.40` GitHub Release URL so `V-0.0.39` installs transition cleanly onto GitHub CDN.
+  - Added trusted HTTPS redirect validation (`github.com` -> `objects.githubusercontent.com` / `release-assets.githubusercontent.com`) and blocked untrusted host or protocol downgrade redirects in release verification and live update checks.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.39 — 2026-11-14
 
 - **Fixed Windows Play-Closes-Launcher Stack Overflow (`STATUS_STACK_OVERFLOW`)**:

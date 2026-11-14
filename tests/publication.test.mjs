@@ -22,6 +22,8 @@ function fixture(){
 }
 test('release publication requires canonical version and exact-source metadata',()=>{
  const {release}=fixture();assert.match(validateRelease(release,'V-0.0.14'),/V-0.0.14/);
+ const ghRelease={...release,url:'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.14/solaralauncher.exe'};
+ assert.match(validateRelease(ghRelease,'V-0.0.14'),/github\.com\/Solara-Inc-Development\/solara-launcher\/releases\/download\/V-0\.0\.14\//);
  assert.throws(()=>validateRelease(release,'V-0.0.15'),/published/);
  assert.throws(()=>validateRelease({...release,state:'staged'},'V-0.0.14'),/published/);
  assert.throws(()=>validateRelease({...release,artifacts:{}},'V-0.0.14'),/source/);
@@ -43,6 +45,10 @@ test('prepare validates parameters and extracts verified release assets and note
   await prepare('V-0.0.21',tmp);
   const notes=await readFile(path.join(tmp,'release_notes.md'),'utf8');
   assert.match(notes,/# Solara Launcher V-0.0.21/);
+  const latestJson=JSON.parse(await readFile(path.join(tmp,'latest.json'),'utf8'));
+  assert.equal(latestJson.version,'0.0.21');
+  assert.ok(latestJson.platforms['windows-x86_64'].url.endsWith('/V-0.0.21/solaralauncher.exe'));
+  assert.ok(latestJson.platforms['windows-x86_64'].signature.length>50);
   // Verify idempotent overwrite succeeds without error
   await prepare('V-0.0.21',tmp);
  }finally{

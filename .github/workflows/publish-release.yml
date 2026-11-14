@@ -62,7 +62,7 @@ jobs:
           set -euo pipefail
           if gh release view "$VERSION" >/dev/null 2>&1; then
             mkdir -p existing-assets
-            for asset in solaralauncher.exe solaralauncher.exe.sig source.zip; do
+            for asset in solaralauncher.exe solaralauncher.exe.sig source.zip latest.json; do
               if gh release download "$VERSION" --pattern "$asset" --dir existing-assets 2>/dev/null; then
                 cmp "release-assets/$asset" "existing-assets/$asset"
               else
@@ -78,6 +78,7 @@ jobs:
               release-assets/solaralauncher.exe \
               release-assets/solaralauncher.exe.sig \
               release-assets/source.zip \
+              release-assets/latest.json \
               --target "${{ github.sha }}" \
               --latest \
               --title "Solara Launcher $VERSION" \

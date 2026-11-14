@@ -156,6 +156,10 @@ fn configured_pubkey() -> Option<&'static str> {
     }
 }
 
+fn configured_endpoints() -> anyhow::Result<Vec<reqwest::Url>> {
+    Ok(vec![update_policy::GITHUB_LATEST_MANIFEST_URL.parse()?])
+}
+
 fn build_updater(
     app: &tauri::AppHandle,
     key: &str,
@@ -165,9 +169,7 @@ fn build_updater(
         .updater_builder()
         .pubkey(key)
         .timeout(std::time::Duration::from_secs(timeout_secs))
-        .endpoints(vec![
-            "https://api.solara-inc.in/v1/launcher/update/windows/x86_64".parse()?,
-        ])?
+        .endpoints(configured_endpoints()?)?
         .build()?)
 }
 
@@ -465,5 +467,15 @@ mod tests {
         assert_eq!(next["stage"], "retry-later");
         assert!(next["version"].is_null());
         assert_eq!(next["error"], "network timeout");
+    }
+
+    #[test]
+    fn updater_endpoints_point_to_github_releases_cdn() {
+        let endpoints = configured_endpoints().expect("configured updater endpoints");
+        assert_eq!(endpoints.len(), 1);
+        assert_eq!(
+            endpoints[0].as_str(),
+            "https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/latest.json"
+        );
     }
 }

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 216 - Play Stack Fix, Bigger Obsidian Blue UI & Manual Update Prompt (V-0.0.39 candidate build).
+# Owner-approved preview candidate: Milestone 217 - GitHub Releases CDN Auto-Updater Migration (V-0.0.40 candidate build).
 on:
   workflow_dispatch:
   push:

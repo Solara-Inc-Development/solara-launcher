@@ -4,16 +4,17 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {isDownloadable,buildNumber,publicVersion} from '../packages/shared/domain.mjs';
-import {verifyPe,verifyMinisign} from './release-lib.mjs';
+import {verifyPe,verifyMinisign,fetchWithTrustedRedirects,buildLatestManifest,githubReleaseAssetUrl} from './release-lib.mjs';
 
 export function validateRelease(release,version){
   const number=buildNumber(version);
   if(version!==publicVersion(number)||release?.publicVersion!==version||!isDownloadable(release))throw Error('Expected a published, verified canonical release');
-  const prefix=`https://app.solara-inc.in/builds/${version}/`;
-  if(release.url!==prefix+'solaralauncher.exe')throw Error('Unexpected official installer URL');
+  const portalPrefix=`https://app.solara-inc.in/builds/${version}/`;
+  const githubPrefix=githubReleaseAssetUrl(version,'');
+  if(release.url!==portalPrefix+'solaralauncher.exe'&&release.url!==githubPrefix+'solaralauncher.exe')throw Error('Unexpected official installer URL');
   const source=release.artifacts?.['source.zip'];
   if(!source||!Number.isSafeInteger(source.size)||source.size<100||!/^[a-f0-9]{64}$/.test(source.sha256||''))throw Error('Exact corresponding source size/hash is required');
-  return prefix;
+  return release.url===githubPrefix+'solaralauncher.exe'?githubPrefix:portalPrefix;
 }
 
 export function verifyReleaseAssets(release,version,assets,key){
@@ -30,7 +31,7 @@ export function verifyReleaseAssets(release,version,assets,key){
 }
 
 async function fetchBytes(url,limit){
-  const response=await fetch(url,{signal:AbortSignal.timeout(60000),redirect:'error'});
+  const response=await fetchWithTrustedRedirects(url,{timeoutMs:60000});
   if(!response.ok)throw Error(`Official artifact returned HTTP ${response.status}`);
   if(Number(response.headers.get('content-length'))>limit)throw Error('Official artifact exceeds size limit');
   const chunks=[];let size=0;
@@ -56,20 +57,32 @@ export async function prepare(version,output){
     }catch{}
   }
   if(!release)throw Error(`Release ${version} not found in official catalog or builds/releases.json`);
+  const portalPrefix=`https://app.solara-inc.in/builds/${version}/`;
   const assets={};
   for(const name of ['solaralauncher.exe','solaralauncher.exe.sig','source.zip']){
     const localFile=path.join(root,'builds',version,name);
+    const limit=name.endsWith('.sig')?16384:256_000_000;
     try{
       assets[name]=await readFile(localFile);
     }catch{
-      assets[name]=await fetchBytes(prefix+name,name.endsWith('.sig')?16384:256_000_000);
+      try{
+        assets[name]=await fetchBytes(prefix+name,limit);
+      }catch(primaryErr){
+        if(prefix!==portalPrefix){
+          assets[name]=await fetchBytes(portalPrefix+name,limit);
+        }else{
+          throw primaryErr;
+        }
+      }
     }
   }
   verifyReleaseAssets(release,version,assets,(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim());
+  const latestManifest=buildLatestManifest(release);
   await mkdir(output,{recursive:true});
   for(const [name,bytes] of Object.entries(assets))await writeFile(path.join(output,name),bytes);
+  await writeFile(path.join(output,'latest.json'),JSON.stringify(latestManifest,null,2)+'\n');
   await writeFile(path.join(output,'release_notes.md'),`# Solara Launcher ${version}\n\n${release.notes}\n\nUpdater-signed Windows testing preview. Physical Windows install, game and update acceptance remain pending.\n`);
-  console.log(`Verified ${version}: installer signature/version, SHA-256 and exact CI source archive.`);
+  console.log(`Verified ${version}: installer signature/version, SHA-256, latest.json manifest and exact CI source archive.`);
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
