@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.48 — 2026-11-15
+
+- **Smooth Animation & Micro-Interaction System (`reducedMotion` Gated)**:
+  - Added `<Transition name="sol-view-rise" mode="out-in">` across workspace route views in `apps/desktop/App.vue` and `<Transition name="sol-modal-fade">` spring/opacity transitions in `SolaraModal.vue`.
+  - Added staggered entrance animations (`@keyframes sol-card-rise`) across jump-back-in, library, and discover card grids, tactile button lift/press springs, icon micro-interactions, smooth tab/pill transitions, and shimmering progress indicators in `apps/desktop/launcher.css`.
+  - Enforced strict `reducedMotion` gating across both `:root[data-reduced-motion='true']` and `@media (prefers-reduced-motion: reduce)` so all animations, transitions, and hover transforms disable cleanly when requested.
+  - Added `tests/animations.test.mjs` contract tests and live `reducedMotion` Chromium E2E assertions in `scripts/verify-redesign-e2e.cjs`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.47 — 2026-11-15
 
 - **True Oiled OLED `#000000` + Frosted Glass & Colorful Loader Accents**:

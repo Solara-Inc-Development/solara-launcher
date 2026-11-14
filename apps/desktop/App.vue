@@ -264,11 +264,13 @@ function cancelPendingLaunch() {
           </div>
         </div>
 
-        <component
-          :is="activeViewComponent"
-          v-else
-          @start-signin="startMinecraftSignIn"
-        />
+        <Transition v-else name="sol-view-rise" mode="out-in">
+          <component
+            :is="activeViewComponent"
+            :key="`${currentRoute.page}:${currentRoute.instanceId ?? ''}`"
+            @start-signin="startMinecraftSignIn"
+          />
+        </Transition>
       </main>
     </div>
 

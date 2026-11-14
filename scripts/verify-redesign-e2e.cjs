@@ -789,6 +789,23 @@ async function run() {
     assert(glassMetrics.btnBackdrop.includes('blur'), `Expected frosted blur on .sol-btn--secondary, got "${glassMetrics.btnBackdrop}"`);
     assert(glassMetrics.hasLoaderBadge, 'Hero instance must display colorful per-loader badge');
 
+    // Verify smooth animations when reducedMotion is false and clean 0ms disabling when data-reduced-motion="true"
+    const motionCheck = await page.evaluate(() => {
+      const btn = document.querySelector('.sol-launch-hero .sol-btn--primary');
+      const card = document.querySelector('.sol-jump-item');
+      const normalDur = btn ? getComputedStyle(btn).transitionDuration : '0s';
+      const normalAnim = card ? getComputedStyle(card).animationName : 'none';
+      document.documentElement.dataset.reducedMotion = 'true';
+      const reducedDur = btn ? getComputedStyle(btn).transitionDuration : '0s';
+      const reducedAnim = card ? getComputedStyle(card).animationName : 'none';
+      delete document.documentElement.dataset.reducedMotion;
+      return { normalDur, normalAnim, reducedDur, reducedAnim };
+    });
+    assert(motionCheck.normalDur !== '0s', `Expected active transition duration on primary button, got ${motionCheck.normalDur}`);
+    assert(motionCheck.normalAnim === 'sol-card-rise', `Expected sol-card-rise animation on jump card, got ${motionCheck.normalAnim}`);
+    assert(motionCheck.reducedDur === '0s', `Expected 0s transition when data-reduced-motion=true, got ${motionCheck.reducedDur}`);
+    assert(motionCheck.reducedAnim === 'none', `Expected animation=none when data-reduced-motion=true, got ${motionCheck.reducedAnim}`);
+
     // Home Screenshot (1440x900)
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-home.png') });
     await page.screenshot({ path: DASHBOARD_SHOT });

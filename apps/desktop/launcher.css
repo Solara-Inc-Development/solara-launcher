@@ -4674,3 +4674,177 @@
   line-height: 1.55;
   white-space: pre-wrap;
 }
+
+/* --------------------------------------------------------------------------
+   Smooth Motion & Micro-Interaction System (Gated by reducedMotion)
+   -------------------------------------------------------------------------- */
+@keyframes sol-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sol-view-rise-enter-active {
+  transition: opacity 160ms var(--ease-ui), transform 180ms var(--ease-ui);
+}
+
+.sol-view-rise-leave-active {
+  transition: opacity 90ms ease, transform 90ms ease;
+}
+
+.sol-view-rise-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.sol-view-rise-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.sol-modal-fade-enter-active,
+.sol-modal-fade-leave-active {
+  transition: opacity 160ms var(--ease-ui);
+}
+
+.sol-modal-fade-enter-active .sol-modal,
+.sol-modal-fade-leave-active .sol-modal {
+  transition: opacity 160ms var(--ease-ui), transform 200ms var(--ease-ui);
+}
+
+.sol-modal-fade-enter-from,
+.sol-modal-fade-leave-to {
+  opacity: 0;
+}
+
+.sol-modal-fade-enter-from .sol-modal {
+  opacity: 0;
+  transform: translateY(12px) scale(0.975);
+}
+
+.sol-modal-fade-leave-to .sol-modal {
+  opacity: 0;
+  transform: translateY(6px) scale(0.985);
+}
+
+.sol-toast-enter-active,
+.sol-toast-leave-active,
+.sol-toast-move {
+  transition: opacity 180ms var(--ease-ui), transform 200ms var(--ease-ui);
+}
+
+.sol-toast-enter-from,
+.sol-toast-leave-to {
+  opacity: 0;
+  transform: translateX(16px) scale(0.97);
+}
+
+.sol-jump-grid > .sol-jump-item,
+.sol-inst-grid > .sol-inst-card,
+.sol-pack-grid > * {
+  animation: sol-card-rise 220ms var(--ease-ui) both;
+}
+
+.sol-jump-grid > .sol-jump-item:nth-child(2),
+.sol-inst-grid > .sol-inst-card:nth-child(2),
+.sol-pack-grid > *:nth-child(2) { animation-delay: 30ms; }
+.sol-jump-grid > .sol-jump-item:nth-child(3),
+.sol-inst-grid > .sol-inst-card:nth-child(3),
+.sol-pack-grid > *:nth-child(3) { animation-delay: 60ms; }
+.sol-jump-grid > .sol-jump-item:nth-child(4),
+.sol-inst-grid > .sol-inst-card:nth-child(4),
+.sol-pack-grid > *:nth-child(4) { animation-delay: 90ms; }
+.sol-jump-grid > .sol-jump-item:nth-child(5),
+.sol-inst-grid > .sol-inst-card:nth-child(5),
+.sol-pack-grid > *:nth-child(5) { animation-delay: 120ms; }
+.sol-jump-grid > .sol-jump-item:nth-child(6),
+.sol-inst-grid > .sol-inst-card:nth-child(6),
+.sol-pack-grid > *:nth-child(6) { animation-delay: 150ms; }
+
+.sol-btn {
+  transition: background var(--dur-fast) var(--ease-ui), border-color var(--dur-fast) var(--ease-ui), transform 140ms var(--ease-ui), color var(--dur-fast), box-shadow 180ms var(--ease-ui);
+}
+
+.sol-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.sol-btn:active:not(:disabled) {
+  transform: scale(0.975);
+}
+
+.sol-rail-item svg,
+.sol-inst-card .sol-inst-icon,
+.sol-jump-item .sol-inst-icon {
+  transition: transform 180ms var(--ease-ui);
+}
+
+.sol-rail-item:hover svg {
+  transform: scale(1.08);
+}
+
+.sol-rail-item--add:hover svg {
+  transform: rotate(90deg) scale(1.06);
+}
+
+.sol-inst-card:hover .sol-inst-icon,
+.sol-jump-item:hover .sol-inst-icon {
+  transform: scale(1.05);
+}
+
+.sol-progress-bar,
+.sol-update-progress-fill {
+  background-size: 200% 100%;
+  animation: sol-progress-shimmer 2.1s linear infinite;
+}
+
+.sol-tab,
+.sol-seg-btn,
+.sol-inst-tab {
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 120ms var(--ease-ui);
+}
+
+:root[data-reduced-motion='true'] *,
+:root[data-reduced-motion='true'] *::before,
+:root[data-reduced-motion='true'] *::after {
+  animation: none !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+:root[data-reduced-motion='true'] .sol-btn:hover:not(:disabled),
+:root[data-reduced-motion='true'] .sol-rail-item:hover,
+:root[data-reduced-motion='true'] .sol-rail-inst:hover,
+:root[data-reduced-motion='true'] .sol-rail-item:hover svg,
+:root[data-reduced-motion='true'] .sol-inst-card:hover,
+:root[data-reduced-motion='true'] .sol-inst-card:hover .sol-inst-icon,
+:root[data-reduced-motion='true'] .sol-jump-item:hover,
+:root[data-reduced-motion='true'] .sol-jump-item:hover .sol-inst-icon {
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .sol-btn:hover:not(:disabled),
+  .sol-rail-item:hover,
+  .sol-rail-inst:hover,
+  .sol-rail-item:hover svg,
+  .sol-inst-card:hover,
+  .sol-inst-card:hover .sol-inst-icon,
+  .sol-jump-item:hover,
+  .sol-jump-item:hover .sol-inst-icon {
+    transform: none !important;
+  }
+}
