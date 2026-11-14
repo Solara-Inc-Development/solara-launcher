@@ -110,24 +110,24 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.39 available.** Fixes the silent Windows `STATUS_STACK_OVERFLOW` (`0xC00000FD`) crash when clicking Play by boxing heavy async Tauri IPC futures (`launch_instance`, `apply_instance_content_updates`, `install_content`, `create_instance`, `repair_instance`, `check_update`, `install_update`) onto the heap, moving 64 KB async file buffers off the UI thread stack, setting Windows MSVC `/STACK:8388608`, and logging redacted panic breadcrumbs to `crash.log`. Also brings the Cobalt Blue (`#3B82F6`) on True OLED Black (`#000000`) theme across desktop & website, spacious Modrinth-scaled TitleBar (`56px`), SidebarRail (`84px`), and controls, plus a manual-consent **"New Version Available"** prompt with titlebar **"Restart to Update"**.
+**Testing preview V-0.0.40 available.** Migrates desktop auto-update checks and installer downloads off the VPS directly to GitHub Releases CDN (`https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/latest.json`) with signed Tauri `latest.json` generation, trusted HTTPS redirect validation (`github.com` → `objects.githubusercontent.com` / `release-assets.githubusercontent.com`), preserved Minisign cryptographic verification, manual-consent **"New Version Available"** modal, and titlebar **"Restart to Update"**.
 
-The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check on startup and prompt before downloading/installing when games, local servers and downloads are idle.
+The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check GitHub Releases CDN on startup and prompt before downloading/installing when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.39 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (7.0 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.39/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.39/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.39/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.39/source.zip)
-- **SHA-256**: `a8cd8bc7695ae17c82e99456e0ec15e53ec359e3795223d86e4edd3c44782cb1`
+- **GitHub Release**: [Solara Launcher V-0.0.40 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (7.0 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.40/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.40/source.zip)
+- **SHA-256**: `fab7be7e8671a0f13749bb0d332552b19af147d76250eb3904992b72d98a1afa`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.39 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.40 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
-| **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
+| **App updates** | GitHub Releases CDN | Live via `latest.json` on GitHub Releases CDN (Minisign-verified) |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
 
 There's still a few things to test before we call this a stable release. The Windows build and installer files passed our checks; real installation, Microsoft login, game play and automatic upgrades still need testing. Sign-in needs an approved Solara Microsoft app ID and hosted services need their separate setup. You need a valid Minecraft Java licence to play.
