@@ -1,5 +1,5 @@
 /** Public Modrinth metadata only. Never attach Solara or Minecraft credentials. */
-export const contentKinds = ['mod', 'modpack', 'resourcepack', 'shader'];
+export const contentKinds = ['mod', 'modpack', 'resourcepack', 'shader', 'datapack'];
 const identifier = /^[A-Za-z0-9_-]{1,100}$/;
 /** @param {unknown} value */
 export function providerId(value) {
@@ -19,7 +19,7 @@ export function providerIcon(value) {
     return url.protocol === 'https:' && url.hostname === 'cdn.modrinth.com' && !url.username && !url.password && !url.port ? url.href : null;
   } catch { return null; }
 }
-/** @param {string} query @param {string} kind @param {{loader?: string, gameVersion?: string, index?: string}} [options] */
+/** @param {string} query @param {string} kind @param {{loader?: string, gameVersion?: string, index?: string, offset?: number}} [options] */
 export function searchUrl(query, kind, options = {}) {
   const url = new URL('https://api.modrinth.com/v2/search');
   const facetList = [[`project_type:${contentKind(kind)}`]];
@@ -40,9 +40,14 @@ export function searchUrl(query, kind, options = {}) {
   if (options.index && ['downloads', 'follows', 'newest', 'updated'].includes(options.index)) {
     params.index = options.index;
   }
+  if (Number.isInteger(options.offset) && options.offset > 0) {
+    params.offset = String(Math.min(options.offset, 500));
+  }
   url.search = new URLSearchParams(params).toString();
   return url.href;
 }
+/** @param {string} project */
+export function projectDetailUrl(project) { return `https://api.modrinth.com/v2/project/${providerId(project)}`; }
 /** @param {string} project */
 export function versionsUrl(project) { return `https://api.modrinth.com/v2/project/${providerId(project)}/version`; }
 /** @param {any} hit */
@@ -69,6 +74,22 @@ export function normalizeVersions(data, project) {
     games: Array.isArray(v.game_versions) ? v.game_versions.filter((/** @type {any} */ x) => typeof x === 'string').slice(0, 10).join(', ') : '',
     loaders: Array.isArray(v.loaders) ? v.loaders.filter((/** @type {any} */ x) => typeof x === 'string').slice(0, 5).join(', ') : '',
     published: Number.isFinite(Date.parse(v.date_published)) ? Date.parse(v.date_published) : 0,
+  })).sort((a, b) => b.published - a.published);
+}
+/** @param {any} data @param {string} project */
+export function normalizeProjectVersions(data, project) {
+  providerId(project);
+  if (!Array.isArray(data)) throw new Error('Content provider returned invalid version data');
+  return data.filter(v => v && v.project_id === project && typeof v.id === 'string' && identifier.test(v.id) && typeof v.name === 'string' && ['release', 'beta', 'alpha'].includes(v.version_type) && Array.isArray(v.files) && v.files.length > 0).slice(0, 200).map(v => ({
+    id: v.id,
+    name: v.name.slice(0, 160),
+    versionNumber: typeof v.version_number === 'string' ? v.version_number.slice(0, 64) : '',
+    type: v.version_type,
+    gameVersions: Array.isArray(v.game_versions) ? v.game_versions.filter((/** @type {any} */ x) => typeof x === 'string').slice(0, 12) : [],
+    loaders: Array.isArray(v.loaders) ? v.loaders.filter((/** @type {any} */ x) => typeof x === 'string').slice(0, 8) : [],
+    changelog: typeof v.changelog === 'string' ? v.changelog.slice(0, 4000) : '',
+    published: Number.isFinite(Date.parse(v.date_published)) ? Date.parse(v.date_published) : 0,
+    dependencies: Array.isArray(v.dependencies) ? v.dependencies.slice(0, 16).map((/** @type {any} */ d) => ({ project_id: d?.project_id || null, dependency_type: d?.dependency_type || 'optional' })) : [],
   })).sort((a, b) => b.published - a.published);
 }
 /** @param {string} url @param {AbortSignal} signal */

@@ -2,6 +2,7 @@
 use crate::game_core::{
     auth::Accounts,
     download::{Cancellation, FileCache},
+    extras,
     files::Files,
     instances::{write_json, Instances},
     java::Runtimes,
@@ -69,18 +70,29 @@ pub async fn initialize() -> Result<()> {
 }
 pub async fn snapshot() -> Result<Value> {
     let engine = get().await?;
+    if let Ok(finished) = engine.games.collect_finished_playtime().await {
+        for (inst_id, elapsed) in finished {
+            let _ = engine
+                .instances
+                .change(&inst_id, |i| {
+                    i.playtime_seconds = i.playtime_seconds.saturating_add(elapsed);
+                })
+                .await;
+        }
+    }
     let running = engine.games.running().await?;
-    let instances = engine
-        .instances
-        .list()
-        .await?
-        .into_iter()
-        .map(|i| {
-            let mut value = serde_json::to_value(&i).unwrap_or_default();
-            value["running"] = json!(running.contains(&i.id));
-            value
-        })
-        .collect::<Vec<_>>();
+    let raw_instances = engine.instances.list().await?;
+    let mut instances = Vec::with_capacity(raw_instances.len());
+    for i in raw_instances {
+        let mut value = serde_json::to_value(&i).unwrap_or_default();
+        value["running"] = json!(running.contains(&i.id));
+        if i.icon.as_deref() == Some("custom") {
+            if let Ok(Some(data_url)) = engine.instances.read_icon(&i.id).await {
+                value["customIcon"] = json!(data_url);
+            }
+        }
+        instances.push(value);
+    }
     let mut downloads = serde_json::to_value(engine.jobs.list()?)?
         .as_array()
         .cloned()
@@ -168,11 +180,41 @@ async fn queue_install(id: String, name: String) -> Result<String> {
     });
     Ok(job_id)
 }
+#[derive(Clone, Default, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateInstanceOptions {
+    pub icon: Option<String>,
+    pub group: Option<String>,
+    pub memory: Option<u32>,
+    pub java_path: Option<String>,
+    pub jvm_args: Option<String>,
+    pub resolution: Option<[u32; 2]>,
+    pub fullscreen: Option<bool>,
+    pub update_channel: Option<String>,
+}
+
 pub async fn create_instance(
     name: String,
     game_version: String,
     loader: String,
     loader_version: String,
+) -> Result<Value> {
+    create_instance_with_options(
+        name,
+        game_version,
+        loader,
+        loader_version,
+        CreateInstanceOptions::default(),
+    )
+    .await
+}
+
+pub async fn create_instance_with_options(
+    name: String,
+    game_version: String,
+    loader: String,
+    loader_version: String,
+    options: CreateInstanceOptions,
 ) -> Result<Value> {
     if !matches!(
         loader.as_str(),
@@ -199,17 +241,63 @@ pub async fn create_instance(
         None
     };
     let prefs = preferences().await?;
+    let mem = options.memory.unwrap_or(prefs.memory);
+    let java = options
+        .java_path
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or(prefs.java_path);
     let record = engine
         .instances
-        .create(
-            name,
-            game_version,
-            loader,
-            resolved,
-            prefs.memory,
-            prefs.java_path,
-        )
+        .create(name, game_version, loader, resolved, mem, java)
         .await?;
+    let icon_val = match options.icon {
+        Some(raw) => engine.instances.save_icon(&record.id, Some(&raw)).await?,
+        None => None,
+    };
+    let clean_group = options
+        .group
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+    let clean_jvm = options
+        .jvm_args
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+    let clean_chan = options
+        .update_channel
+        .map(|s| s.trim().to_string())
+        .filter(|s| matches!(s.as_str(), "release" | "beta" | "alpha"));
+    if icon_val.is_some()
+        || clean_group.is_some()
+        || clean_jvm.is_some()
+        || options.resolution.is_some()
+        || options.fullscreen.is_some()
+        || clean_chan.is_some()
+    {
+        engine
+            .instances
+            .change(&record.id, |i| {
+                if let Some(iv) = icon_val {
+                    i.icon = Some(iv);
+                }
+                if clean_group.is_some() {
+                    i.group = clean_group;
+                }
+                if clean_jvm.is_some() {
+                    i.jvm_args = clean_jvm;
+                }
+                if options.resolution.is_some() {
+                    i.resolution = options.resolution;
+                }
+                if options.fullscreen.is_some() {
+                    i.fullscreen = options.fullscreen;
+                }
+                if clean_chan.is_some() {
+                    i.update_channel = clean_chan;
+                }
+            })
+            .await?;
+    }
     let job = queue_install(record.id.clone(), record.name).await?;
     Ok(json!({"jobId":job,"instanceId":record.id}))
 }
@@ -320,6 +408,7 @@ pub async fn launch(id: String) -> Result<Value> {
         bail!("Finish installing this instance before playing")
     }
     let record = engine.instances.get(&id).await?;
+    let prefs = preferences().await.unwrap_or_default();
     let java_job = engine
         .jobs
         .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
@@ -335,14 +424,50 @@ pub async fn launch(id: String) -> Result<Value> {
     let java = result?;
     let session = engine.accounts.session().await?;
     let version = windows_version().await?;
+    let jvm_args = record
+        .jvm_args
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| (!prefs.jvm_args.trim().is_empty()).then_some(prefs.jvm_args.as_str()));
+    let resolution = record
+        .resolution
+        .or(Some([prefs.default_width, prefs.default_height]));
+    let fullscreen = record.fullscreen.unwrap_or(prefs.fullscreen);
     let pid = engine
         .games
-        .start(&engine.instances, &id, session, version.as_deref(), &java)
+        .start(
+            &engine.instances,
+            &id,
+            session,
+            version.as_deref(),
+            &java,
+            jvm_args,
+            resolution,
+            fullscreen,
+        )
         .await?;
+    let _ = engine
+        .instances
+        .change(&id, |i| {
+            i.last_played = Some(chrono::Utc::now().to_rfc3339());
+        })
+        .await;
     Ok(json!({"processId":pid}))
 }
 pub async fn stop(id: String) -> Result<()> {
-    get().await?.games.stop(&id).await
+    let engine = get().await?;
+    engine.games.stop(&id).await?;
+    if let Ok(finished) = engine.games.collect_finished_playtime().await {
+        for (inst_id, elapsed) in finished {
+            let _ = engine
+                .instances
+                .change(&inst_id, |i| {
+                    i.playtime_seconds = i.playtime_seconds.saturating_add(elapsed);
+                })
+                .await;
+        }
+    }
+    Ok(())
 }
 pub async fn edit(id: String, name: String, memory: u32, java_path: String) -> Result<()> {
     let engine = get().await?;
@@ -363,6 +488,117 @@ pub async fn edit(id: String, name: String, memory: u32, java_path: String) -> R
         })
         .await?;
     Ok(())
+}
+
+#[derive(Clone, Default, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstanceMetaPatch {
+    pub name: Option<String>,
+    pub memory: Option<u32>,
+    pub java_path: Option<String>,
+    pub icon: Option<Option<String>>,
+    pub group: Option<Option<String>>,
+    pub pinned: Option<bool>,
+    pub favourite: Option<bool>,
+    pub jvm_args: Option<Option<String>>,
+    pub resolution: Option<Option<[u32; 2]>>,
+    pub fullscreen: Option<Option<bool>>,
+    pub pre_launch: Option<Option<String>>,
+    pub post_exit: Option<Option<String>>,
+    pub update_channel: Option<Option<String>>,
+    pub notes: Option<Option<String>>,
+}
+
+pub async fn update_instance_meta(id: &str, patch: InstanceMetaPatch) -> Result<Value> {
+    let engine = get().await?;
+    let needs_idle = patch.name.is_some()
+        || patch.memory.is_some()
+        || patch.java_path.is_some()
+        || patch.jvm_args.is_some()
+        || patch.resolution.is_some()
+        || patch.fullscreen.is_some()
+        || patch.pre_launch.is_some()
+        || patch.post_exit.is_some();
+    if needs_idle && engine.games.running().await?.iter().any(|k| k == id) {
+        bail!("Close this game before changing launch or memory settings");
+    }
+    let defaults = preferences().await?;
+    let icon_override = match &patch.icon {
+        Some(Some(raw)) => Some(engine.instances.save_icon(id, Some(raw)).await?),
+        Some(None) => Some(engine.instances.save_icon(id, None).await?),
+        None => None,
+    };
+    let updated = engine
+        .instances
+        .change(id, |i| {
+            if let Some(ref name) = patch.name {
+                i.name = name.trim().into();
+            }
+            if let Some(mem) = patch.memory {
+                i.memory = mem;
+            }
+            if let Some(ref jp) = patch.java_path {
+                i.java_path = if jp.trim().is_empty() {
+                    defaults.java_path.clone()
+                } else {
+                    jp.trim().into()
+                };
+            }
+            if let Some(iv) = icon_override {
+                i.icon = iv;
+            }
+            if let Some(g) = patch.group {
+                i.group = g.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+            }
+            if let Some(p) = patch.pinned {
+                i.pinned = p;
+            }
+            if let Some(f) = patch.favourite {
+                i.favourite = f;
+            }
+            if let Some(ja) = patch.jvm_args {
+                i.jvm_args = ja.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+            }
+            if let Some(res) = patch.resolution {
+                i.resolution = res;
+            }
+            if let Some(fs) = patch.fullscreen {
+                i.fullscreen = fs;
+            }
+            if let Some(pre) = patch.pre_launch {
+                i.pre_launch = pre.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+            }
+            if let Some(post) = patch.post_exit {
+                i.post_exit = post.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+            }
+            if let Some(ch) = patch.update_channel {
+                i.update_channel = ch.map(|s| s.trim().to_string()).filter(|s| matches!(s.as_str(), "release" | "beta" | "alpha"));
+            }
+            if let Some(notes) = patch.notes {
+                i.notes = notes.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
+            }
+        })
+        .await?;
+    let mut val = serde_json::to_value(&updated)?;
+    if updated.icon.as_deref() == Some("custom") {
+        if let Ok(Some(data_url)) = engine.instances.read_icon(id).await {
+            val["customIcon"] = json!(data_url);
+        }
+    }
+    Ok(val)
+}
+
+pub async fn repair_instance(id: String) -> Result<String> {
+    assert_writable(&id).await?;
+    let engine = get().await?;
+    let record = engine.instances.get(&id).await?;
+    if record.state == "installed" {
+        engine
+            .instances
+            .transition(&id, &["installed"], "created")
+            .await?;
+    }
+    queue_install(record.id, record.name).await
 }
 pub async fn instance_folder(id: &str) -> Result<PathBuf> {
     get().await?.instances.game_dir(id).await
@@ -697,12 +933,26 @@ pub async fn clear_finished_downloads() -> Result<()> {
     Ok(())
 }
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", default)]
 pub struct Preferences {
     pub memory: u32,
     pub java_path: String,
-    #[serde(default)]
     pub discord: bool,
+    pub theme: String,
+    pub ui_scale: u32,
+    pub reduced_motion: bool,
+    pub sidebar_expanded: bool,
+    pub density: String,
+    pub on_launch: String,
+    pub confirm_launch: bool,
+    pub max_concurrent_downloads: u32,
+    pub default_width: u32,
+    pub default_height: u32,
+    pub fullscreen: bool,
+    pub jvm_args: String,
+    pub diagnostics_enabled: bool,
+    pub onboarding_completed: bool,
+    pub groups: Vec<String>,
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -710,6 +960,21 @@ impl Default for Preferences {
             memory: 4096,
             java_path: "auto".into(),
             discord: false,
+            theme: "dawn-gold".into(),
+            ui_scale: 100,
+            reduced_motion: false,
+            sidebar_expanded: false,
+            density: "comfortable".into(),
+            on_launch: "keep".into(),
+            confirm_launch: false,
+            max_concurrent_downloads: 4,
+            default_width: 854,
+            default_height: 480,
+            fullscreen: false,
+            jvm_args: String::new(),
+            diagnostics_enabled: true,
+            onboarding_completed: false,
+            groups: Vec::new(),
         }
     }
 }
@@ -732,8 +997,14 @@ fn validate_preferences(value: &Preferences) -> Result<()> {
     if !(512..=65536).contains(&value.memory)
         || value.java_path.trim().is_empty()
         || value.java_path.contains('\0')
+        || !(80..=125).contains(&value.ui_scale)
+        || !(1..=8).contains(&value.max_concurrent_downloads)
+        || !(320..=7680).contains(&value.default_width)
+        || !(240..=4320).contains(&value.default_height)
+        || value.jvm_args.contains('\0')
+        || value.jvm_args.len() > 2000
     {
-        bail!("Choose valid memory and Java settings")
+        bail!("Choose valid launcher settings")
     };
     Ok(())
 }
@@ -742,13 +1013,248 @@ pub async fn save_preferences(
     java_path: String,
     discord: Option<bool>,
 ) -> Result<()> {
-    let value = Preferences {
-        memory,
-        java_path,
-        discord: discord.unwrap_or(false),
-    };
+    let mut value = preferences().await.unwrap_or_default();
+    value.memory = memory;
+    value.java_path = java_path;
+    if let Some(d) = discord {
+        value.discord = d;
+    }
     validate_preferences(&value)?;
     write_json(&get().await?.data.join("preferences.json"), &value).await
+}
+pub async fn save_preferences_full(mut value: Preferences) -> Result<Preferences> {
+    value.java_path = value.java_path.trim().to_string();
+    if value.java_path.is_empty() {
+        value.java_path = "auto".into();
+    }
+    value.jvm_args = value.jvm_args.trim().to_string();
+    value.groups = value
+        .groups
+        .into_iter()
+        .map(|g| g.trim().to_string())
+        .filter(|g| !g.is_empty() && g.chars().count() <= 60 && !g.chars().any(char::is_control))
+        .take(50)
+        .collect();
+    validate_preferences(&value)?;
+    write_json(&get().await?.data.join("preferences.json"), &value).await?;
+    Ok(value)
+}
+
+// ---------------------------------------------------------------------------
+// Extended Engine Commands (packs, worlds, screenshots, logs, updates, skins)
+// ---------------------------------------------------------------------------
+
+pub async fn list_packs(id: &str, kind: &str, world: Option<&str>) -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::list_packs(&engine.instances, &engine.files, id, kind, world).await?,
+    )?)
+}
+
+pub async fn toggle_pack(id: &str, _kind: &str, path: &str, enabled: bool) -> Result<()> {
+    assert_writable(id).await?;
+    let engine = get().await?;
+    extras::toggle_pack(&engine.instances, &engine.files, id, path, enabled).await
+}
+
+pub async fn import_pack(
+    id: &str,
+    kind: &str,
+    world: Option<&str>,
+    file_name: Option<&str>,
+    bytes_base64: Option<&str>,
+    source_path: Option<&str>,
+) -> Result<Value> {
+    assert_writable(id).await?;
+    let engine = get().await?;
+    let (resolved_name, raw_bytes) = if let Some(b64) = bytes_base64 {
+        let name = file_name.context("Choose a file name")?.to_string();
+        use base64::Engine as _;
+        let decoded = base64::engine::general_purpose::STANDARD
+            .decode(b64)
+            .context("Could not decode pack archive")?;
+        (name, decoded)
+    } else if let Some(src) = source_path {
+        let p = PathBuf::from(src);
+        let meta = tokio::fs::symlink_metadata(&p).await?;
+        if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > 256 * 1024 * 1024 {
+            bail!("Selected file is missing or larger than 256 MiB");
+        }
+        let name = file_name
+            .map(String::from)
+            .or_else(|| p.file_name().map(|s| s.to_string_lossy().to_string()))
+            .context("Choose a valid file")?;
+        let data = tokio::fs::read(&p).await?;
+        (name, data)
+    } else {
+        bail!("No pack file supplied");
+    };
+    let entry = extras::import_pack(
+        &engine.instances,
+        id,
+        kind,
+        world,
+        &resolved_name,
+        &raw_bytes,
+    )
+    .await?;
+    Ok(serde_json::to_value(entry)?)
+}
+
+pub async fn check_content_updates(id: &str) -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::check_content_updates(&engine.instances, id).await?,
+    )?)
+}
+
+pub async fn apply_content_updates(id: &str, items: Vec<Value>) -> Result<Value> {
+    assert_writable(id).await?;
+    let engine = get().await?;
+    let parsed: Vec<extras::ContentUpdateItem> = items
+        .into_iter()
+        .map(serde_json::from_value)
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let cancel = Cancellation::default();
+    let count = parsed.len();
+    extras::apply_content_updates(&engine.instances, &engine.cache, id, &parsed, &cancel, |_, _, _| {})
+        .await?;
+    Ok(json!({ "updated": count }))
+}
+
+pub async fn list_worlds(id: &str) -> Result<Value> {
+    let engine = get().await?;
+    let running = engine.games.running().await?.iter().any(|k| k == id);
+    Ok(serde_json::to_value(
+        extras::list_worlds(&engine.instances, id, running).await?,
+    )?)
+}
+
+pub async fn rename_world(id: &str, folder: &str, new_name: &str) -> Result<()> {
+    assert_writable(id).await?;
+    let engine = get().await?;
+    extras::rename_world(&engine.instances, &engine.files, id, folder, new_name).await
+}
+
+pub async fn list_screenshots(instance_id: Option<&str>) -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::list_screenshots(&engine.instances, instance_id).await?,
+    )?)
+}
+
+pub async fn list_disk_logs(id: &str) -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::list_disk_logs(&engine.instances, id).await?,
+    )?)
+}
+
+pub async fn read_disk_log(id: &str, name: &str) -> Result<String> {
+    let engine = get().await?;
+    extras::read_disk_log(&engine.instances, id, name).await
+}
+
+pub async fn detect_java_runtimes() -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::detect_java_runtimes(&engine.data.join("java-runtimes")).await,
+    )?)
+}
+
+pub async fn storage_summary() -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::storage_summary(&engine.data).await,
+    )?)
+}
+
+pub async fn clear_unused_cache() -> Result<Value> {
+    let engine = get().await?;
+    let freed = extras::clear_unused_cache(&engine.data).await?;
+    Ok(json!({ "freedBytes": freed }))
+}
+
+pub async fn saved_skins_list() -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::saved_skins_list(&engine.data.join("skins")).await?,
+    )?)
+}
+
+pub async fn saved_skins_save(
+    id: Option<String>,
+    name: String,
+    variant: String,
+    png_data_url: String,
+) -> Result<Value> {
+    let engine = get().await?;
+    Ok(serde_json::to_value(
+        extras::saved_skins_save(
+            &engine.data.join("skins"),
+            id.as_deref(),
+            &name,
+            &variant,
+            &png_data_url,
+        )
+        .await?,
+    )?)
+}
+
+pub async fn saved_skins_delete(id: &str) -> Result<()> {
+    let engine = get().await?;
+    extras::saved_skins_delete(&engine.data.join("skins"), id).await
+}
+
+pub async fn fetch_profile_skins_and_capes() -> Result<Value> {
+    let engine = get().await?;
+    let session = engine.accounts.session().await?;
+    extras::fetch_profile_skins_and_capes(&session).await
+}
+
+pub async fn upload_minecraft_skin(variant: &str, png_data_url: &str) -> Result<Value> {
+    let engine = get().await?;
+    let session = engine.accounts.session().await?;
+    extras::upload_minecraft_skin(&session, variant, png_data_url).await
+}
+
+pub async fn set_minecraft_cape(cape_id: Option<&str>) -> Result<()> {
+    let engine = get().await?;
+    let session = engine.accounts.session().await?;
+    extras::set_minecraft_cape(&session, cape_id).await
+}
+
+pub async fn export_diagnostics() -> Result<Value> {
+    let engine = get().await?;
+    let instances = engine.instances.list().await.unwrap_or_default();
+    let prefs = preferences().await.unwrap_or_default();
+    let storage = extras::storage_summary(&engine.data).await;
+    let javas = extras::detect_java_runtimes(&engine.data.join("java-runtimes")).await;
+    Ok(json!({
+        "generatedAt": chrono::Utc::now().to_rfc3339(),
+        "launcherVersion": env!("CARGO_PKG_VERSION"),
+        "os": std::env::consts::OS,
+        "arch": std::env::consts::ARCH,
+        "instanceCount": instances.len(),
+        "instancesSummary": instances.iter().map(|i| json!({
+            "loader": i.loader,
+            "gameVersion": i.game_version,
+            "state": i.state,
+            "memory": i.memory
+        })).collect::<Vec<_>>(),
+        "javaCount": javas.len(),
+        "storage": storage,
+        "preferences": {
+            "theme": prefs.theme,
+            "memory": prefs.memory,
+            "maxConcurrentDownloads": prefs.max_concurrent_downloads,
+            "reducedMotion": prefs.reduced_motion
+        }
+    }))
+}
+
+pub async fn data_dir() -> Result<PathBuf> {
+    Ok(get().await?.data.clone())
 }
 pub async fn create_local(
     name: String,

@@ -16,6 +16,7 @@ pub mod launch;
 
 pub mod backups;
 pub mod content;
+pub mod extras;
 pub mod files;
 pub mod java;
 pub mod jobs;

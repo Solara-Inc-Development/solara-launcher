@@ -1,0 +1,214 @@
+/* Solara Dawn Gold — Obsidian Edition Design Tokens */
+
+:root {
+  /* Brand Accent (Dawn Gold) */
+  --accent: #E9B86D;
+  --accent-hover: #F5CD91;
+  --accent-pressed: #D7A258;
+  --accent-fg: #17130E;
+  --accent-selected-bg: #362A1D;
+  --accent-soft: rgba(233, 184, 109, 0.14);
+  --accent-border: rgba(233, 184, 109, 0.42);
+  --accent-focus: rgba(233, 184, 109, 0.35);
+
+  /* Surfaces (Obsidian) */
+  --bg-main: #090B0F;
+  --bg-sidebar: #11141A;
+  --bg-modal: #11141A;
+  --bg-elevated: #171A20;
+  --bg-card: #1B1F27;
+  --bg-input: #1B1F27;
+  --bg-hover: rgba(255, 255, 255, 0.045);
+  --bg-active: rgba(255, 255, 255, 0.08);
+
+  /* Borders */
+  --border: #2A2E37;
+  --border-subtle: rgba(42, 46, 55, 0.72);
+  --border-strong: #3A3F4B;
+
+  /* Text */
+  --text-primary: #F5F4F1;
+  --text-secondary: #9BA3AF;
+  --text-muted: #737B89;
+
+  /* Semantic */
+  --success: #23C987;
+  --success-soft: rgba(35, 201, 135, 0.14);
+  --error: #F06471;
+  --error-soft: rgba(240, 100, 113, 0.14);
+  --warning: #E8A64B;
+  --warning-soft: rgba(232, 166, 75, 0.15);
+  --info: #65A9F5;
+  --info-soft: rgba(101, 169, 245, 0.14);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+
+  /* Layout Dimensions */
+  --titlebar-height: 48px;
+  --rail-width: 66px;
+  --rail-expanded-width: 216px;
+
+  /* Typography */
+  --font-sans: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Elevation & Motion */
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.72), 0 0 0 1px var(--border);
+  --shadow-popover: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+  --shadow-toast: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-normal: 180ms;
+
+  /* Scale */
+  --ui-scale: 1;
+}
+
+/* Optional Obsidian Slate variant */
+:root[data-theme='slate'] {
+  --accent: #E9B86D;
+  --bg-main: #0D1016;
+  --bg-sidebar: #141820;
+  --bg-modal: #141820;
+  --bg-elevated: #1B202B;
+  --bg-card: #212734;
+  --bg-input: #212734;
+  --border: #303746;
+}
+
+/* Optional Midnight Gold (deeper contrast) */
+:root[data-theme='midnight'] {
+  --bg-main: #06070A;
+  --bg-sidebar: #0D1015;
+  --bg-modal: #0D1015;
+  --bg-elevated: #13171E;
+  --bg-card: #171C24;
+  --bg-input: #171C24;
+  --border: #252A34;
+}
+
+/* Density modes */
+:root[data-density='compact'] {
+  --row-pad-y: 7px;
+  --card-pad: 12px;
+  --grid-gap: 12px;
+}
+
+:root:not([data-density='compact']) {
+  --row-pad-y: 10px;
+  --card-pad: 16px;
+  --grid-gap: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-normal: 0ms;
+  }
+}
+
+:root[data-reduced-motion='true'] {
+  --dur-fast: 0ms;
+  --dur-normal: 0ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+input,
+textarea,
+select,
+pre,
+code,
+.selectable {
+  user-select: text;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* Subtle overlay scrollbars inside internal scroll panels ONLY */
+.sol-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.sol-scroll:hover,
+.sol-scroll:focus-within {
+  scrollbar-color: rgba(155, 163, 175, 0.24) transparent;
+}
+
+.sol-scroll::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.sol-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sol-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.sol-scroll:hover::-webkit-scrollbar-thumb,
+.sol-scroll:focus-within::-webkit-scrollbar-thumb {
+  background: rgba(155, 163, 175, 0.26);
+}
+
+.sol-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 184, 109, 0.42);
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none;
+}

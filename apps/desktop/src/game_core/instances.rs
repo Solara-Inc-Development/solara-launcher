@@ -16,6 +16,34 @@ pub struct Instance {
     pub memory: u32,
     pub java_path: String,
     pub state: String,
+    #[serde(default)]
+    pub icon: Option<String>,
+    #[serde(default)]
+    pub group: Option<String>,
+    #[serde(default)]
+    pub pinned: bool,
+    #[serde(default)]
+    pub favourite: bool,
+    #[serde(default)]
+    pub created_at: Option<String>,
+    #[serde(default)]
+    pub last_played: Option<String>,
+    #[serde(default)]
+    pub playtime_seconds: u64,
+    #[serde(default)]
+    pub jvm_args: Option<String>,
+    #[serde(default)]
+    pub resolution: Option<[u32; 2]>,
+    #[serde(default)]
+    pub fullscreen: Option<bool>,
+    #[serde(default)]
+    pub pre_launch: Option<String>,
+    #[serde(default)]
+    pub post_exit: Option<String>,
+    #[serde(default)]
+    pub update_channel: Option<String>,
+    #[serde(default)]
+    pub notes: Option<String>,
 }
 impl Instance {
     pub fn validate(&self) -> Result<()> {
@@ -41,6 +69,46 @@ impl Instance {
         }
         if let Some(version) = &self.loader_version {
             super::loaders::loader_id(version)?;
+        }
+        if let Some(icon) = &self.icon {
+            if icon.len() > 128 || icon.chars().any(char::is_control) {
+                bail!("Invalid instance icon identifier");
+            }
+        }
+        if let Some(group) = &self.group {
+            if group.chars().count() > 60 || group.chars().any(char::is_control) {
+                bail!("Invalid instance group name");
+            }
+        }
+        if let Some(jvm) = &self.jvm_args {
+            if jvm.chars().count() > 2000 || jvm.contains('\0') || jvm.chars().any(|c| c.is_control() && c != ' ' && c != '\t') {
+                bail!("Invalid JVM arguments");
+            }
+        }
+        if let Some([w, h]) = self.resolution {
+            if !(320..=7680).contains(&w) || !(240..=4320).contains(&h) {
+                bail!("Invalid game window resolution");
+            }
+        }
+        if let Some(hook) = &self.pre_launch {
+            if hook.chars().count() > 500 || hook.contains('\0') || hook.chars().any(char::is_control) {
+                bail!("Invalid pre-launch hook");
+            }
+        }
+        if let Some(hook) = &self.post_exit {
+            if hook.chars().count() > 500 || hook.contains('\0') || hook.chars().any(char::is_control) {
+                bail!("Invalid post-exit hook");
+            }
+        }
+        if let Some(ch) = &self.update_channel {
+            if !matches!(ch.as_str(), "release" | "beta" | "alpha") {
+                bail!("Invalid update channel");
+            }
+        }
+        if let Some(notes) = &self.notes {
+            if notes.chars().count() > 2000 || notes.contains('\0') {
+                bail!("Instance notes exceed length limit");
+            }
         }
         Ok(())
     }
@@ -127,6 +195,20 @@ impl Instances {
             memory,
             java_path,
             state: "created".into(),
+            icon: None,
+            group: None,
+            pinned: false,
+            favourite: false,
+            created_at: Some(chrono::Utc::now().to_rfc3339()),
+            last_played: None,
+            playtime_seconds: 0,
+            jvm_args: None,
+            resolution: None,
+            fullscreen: None,
+            pre_launch: None,
+            post_exit: None,
+            update_channel: Some("release".into()),
+            notes: None,
         };
         record.validate()?;
         tokio::fs::create_dir_all(&self.root).await?;
@@ -144,6 +226,63 @@ impl Instances {
             return Err(error);
         }
         Ok(record)
+    }
+    pub async fn save_icon(&self, id: &str, data_url_or_base64: Option<&str>) -> Result<Option<String>> {
+        let _guard = self.writes.lock().await;
+        let dir = self.safe_dir(id).await?;
+        let icon_path = dir.join("icon.png");
+        let Some(raw_input) = data_url_or_base64.map(str::trim).filter(|s| !s.is_empty()) else {
+            let _ = tokio::fs::remove_file(&icon_path).await;
+            return Ok(None);
+        };
+        if raw_input.starts_with("preset:") || raw_input.starts_with("builtin:") {
+            let _ = tokio::fs::remove_file(&icon_path).await;
+            return Ok(Some(raw_input.chars().take(120).collect()));
+        }
+        let b64 = raw_input
+            .strip_prefix("data:image/png;base64,")
+            .or_else(|| raw_input.strip_prefix("data:image/jpeg;base64,"))
+            .or_else(|| raw_input.strip_prefix("data:image/webp;base64,"))
+            .unwrap_or(raw_input);
+        use base64::Engine as _;
+        let bytes = base64::engine::general_purpose::STANDARD
+            .decode(b64)
+            .context("Could not decode custom instance icon")?;
+        if bytes.is_empty() || bytes.len() > 2 * 1024 * 1024 {
+            bail!("Custom instance icon must be smaller than 2 MiB");
+        }
+        let temp = dir.join(format!(".icon-{}.tmp", uuid::Uuid::new_v4()));
+        tokio::fs::write(&temp, &bytes).await?;
+        if let Err(e) = tokio::fs::rename(&temp, &icon_path).await {
+            let _ = tokio::fs::remove_file(&temp).await;
+            return Err(e.into());
+        }
+        Ok(Some("custom".into()))
+    }
+    pub async fn read_icon(&self, id: &str) -> Result<Option<String>> {
+        let dir = self.safe_dir(id).await?;
+        let icon_path = dir.join("icon.png");
+        let meta = match tokio::fs::symlink_metadata(&icon_path).await {
+            Ok(m) => m,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(e) => return Err(e.into()),
+        };
+        if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > 2 * 1024 * 1024 {
+            return Ok(None);
+        }
+        let bytes = tokio::fs::read(&icon_path).await?;
+        let mime = if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
+            "image/png"
+        } else if bytes.starts_with(b"\xff\xd8\xff") {
+            "image/jpeg"
+        } else if bytes.starts_with(b"RIFF") && bytes.get(8..12) == Some(b"WEBP") {
+            "image/webp"
+        } else {
+            return Ok(None);
+        };
+        use base64::Engine as _;
+        let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+        Ok(Some(format!("data:{mime};base64,{b64}")))
     }
     pub async fn change(&self, id: &str, edit: impl FnOnce(&mut Instance)) -> Result<Instance> {
         let _guard = self.writes.lock().await;
@@ -197,6 +336,20 @@ impl Instances {
             memory: source.memory,
             java_path: source.java_path.clone(),
             state: if source.state == "installed" { "installed".into() } else { "created".into() },
+            icon: source.icon.clone(),
+            group: source.group.clone(),
+            pinned: false,
+            favourite: false,
+            created_at: Some(chrono::Utc::now().to_rfc3339()),
+            last_played: None,
+            playtime_seconds: 0,
+            jvm_args: source.jvm_args.clone(),
+            resolution: source.resolution,
+            fullscreen: source.fullscreen,
+            pre_launch: source.pre_launch.clone(),
+            post_exit: source.post_exit.clone(),
+            update_channel: source.update_channel.clone(),
+            notes: source.notes.clone(),
         };
         record.validate()?;
         tokio::fs::create_dir_all(&self.root).await?;
@@ -211,11 +364,21 @@ impl Instances {
 
             let src_game = src_dir.join("game");
             let dest_game = dest_dir.join("game");
+            let src_runtime = src_dir.join("runtime");
+            let dest_runtime = dest_dir.join("runtime");
+            let src_icon = src_dir.join("icon.png");
+            let dest_icon = dest_dir.join("icon.png");
 
             // Copy files in blocking pool so heavy I/O remains fully responsive and does not stall async runtime
             tokio::task::spawn_blocking(move || -> Result<()> {
                 if src_game.is_dir() {
                     copy_dir_recursive(&src_game, &dest_game)?;
+                }
+                if src_runtime.is_dir() {
+                    copy_dir_recursive(&src_runtime, &dest_runtime)?;
+                }
+                if src_icon.is_file() {
+                    let _ = std::fs::copy(&src_icon, &dest_icon);
                 }
                 Ok(())
             })

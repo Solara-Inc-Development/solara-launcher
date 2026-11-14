@@ -88,6 +88,49 @@ pub fn build_args(
     memory: u32,
     os_version: Option<&str>,
 ) -> Result<Vec<OsString>> {
+    build_args_with_options(plan, runtime, game, session, memory, os_version, None, None, false)
+}
+
+fn split_jvm_args(raw: &str) -> Result<Vec<OsString>> {
+    if raw.contains('\0') {
+        bail!("JVM arguments cannot contain null bytes");
+    }
+    let mut out = Vec::new();
+    let mut current = String::new();
+    let mut quote: Option<char> = None;
+    for ch in raw.chars() {
+        match quote {
+            Some(q) if ch == q => quote = None,
+            Some(_) => current.push(ch),
+            None if ch == '"' || ch == '\'' => quote = Some(ch),
+            None if ch.is_whitespace() => {
+                if !current.is_empty() {
+                    out.push(OsString::from(std::mem::take(&mut current)));
+                }
+            }
+            None => current.push(ch),
+        }
+    }
+    if quote.is_some() {
+        bail!("Unclosed quote in custom JVM arguments");
+    }
+    if !current.is_empty() {
+        out.push(OsString::from(current));
+    }
+    Ok(out)
+}
+
+pub fn build_args_with_options(
+    plan: &Plan,
+    runtime: &Path,
+    game: &Path,
+    session: &Session,
+    memory: u32,
+    os_version: Option<&str>,
+    extra_jvm_args: Option<&str>,
+    resolution: Option<[u32; 2]>,
+    fullscreen: bool,
+) -> Result<Vec<OsString>> {
     if !(512..=65536).contains(&memory) {
         bail!("Invalid Minecraft memory setting")
     }
@@ -147,6 +190,9 @@ pub fn build_args(
             .into(),
     );
     let mut out = vec![OsString::from(format!("-Xmx{memory}M"))];
+    if let Some(extra) = extra_jvm_args.map(str::trim).filter(|s| !s.is_empty()) {
+        out.extend(split_jvm_args(extra)?);
+    }
     if !plan.arguments.is_null() {
         out.extend(arguments(&plan.arguments["jvm"], &vars, os_version)?);
     } else {
@@ -171,6 +217,15 @@ pub fn build_args(
         {
             out.push(expand(value, &vars)?.into());
         }
+    }
+    if let Some([w, h]) = resolution {
+        out.push("--width".into());
+        out.push(w.to_string().into());
+        out.push("--height".into());
+        out.push(h.to_string().into());
+    }
+    if fullscreen {
+        out.push("--fullscreen".into());
     }
     Ok(out)
 }
@@ -243,6 +298,8 @@ pub async fn java_check(path: &str, required: u32) -> Result<()> {
 struct Game {
     child: Child,
     log: Arc<Mutex<String>>,
+    started_at: std::time::Instant,
+    playtime_recorded: bool,
 }
 pub struct Games {
     items: Mutex<HashMap<String, Game>>,
@@ -265,6 +322,20 @@ impl Games {
         }
         Ok(running)
     }
+    pub async fn collect_finished_playtime(&self) -> Result<Vec<(String, u64)>> {
+        let mut items = self.items.lock().await;
+        let mut finished = Vec::new();
+        for (id, game) in items.iter_mut() {
+            if !game.playtime_recorded && game.child.try_wait()?.is_some() {
+                game.playtime_recorded = true;
+                let elapsed = game.started_at.elapsed().as_secs();
+                if elapsed > 0 {
+                    finished.push((id.clone(), elapsed));
+                }
+            }
+        }
+        Ok(finished)
+    }
     pub async fn start(
         &self,
         store: &Instances,
@@ -272,6 +343,9 @@ impl Games {
         session: Session,
         os_version: Option<&str>,
         java_path: &str,
+        extra_jvm_args: Option<&str>,
+        resolution: Option<[u32; 2]>,
+        fullscreen: bool,
     ) -> Result<u32> {
         let instance = store.get(id).await?;
         if instance.state != "installed" {
@@ -300,13 +374,16 @@ impl Games {
                 bail!("A Minecraft file is missing or changed. Reinstall this instance before playing.")
             }
         }
-        let args = build_args(
+        let args = build_args_with_options(
             &plan,
             &runtime,
             &game_dir,
             &session,
             instance.memory,
             os_version,
+            extra_jvm_args,
+            resolution,
+            fullscreen,
         )?;
         let mut command = Command::new(java_path);
         command
@@ -340,7 +417,15 @@ impl Games {
             let secrets = vec![session.access_token.clone()];
             tokio::spawn(capture_log(stream, log, secrets));
         }
-        items.insert(id.into(), Game { child, log });
+        items.insert(
+            id.into(),
+            Game {
+                child,
+                log,
+                started_at: std::time::Instant::now(),
+                playtime_recorded: false,
+            },
+        );
         Ok(pid)
     }
     pub async fn logs(&self, id: &str) -> Result<String> {

@@ -328,6 +328,7 @@ pub async fn plan_project_install(
         }
         "resourcepack" => "resourcepacks",
         "shader" => "shaderpacks",
+        "datapack" => "datapacks",
         _ => bail!("Unsupported content type"),
     };
     let root = select_project_version(

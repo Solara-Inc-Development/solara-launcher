@@ -36,11 +36,28 @@ async fn create_instance(
     game_version: String,
     loader: String,
     loader_version: String,
+    options: Option<engine::CreateInstanceOptions>,
 ) -> Result<Value, String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::create_instance(name, game_version, loader, loader_version)
-        .await
-        .map_err(err)
+    engine::create_instance_with_options(
+        name,
+        game_version,
+        loader,
+        loader_version,
+        options.unwrap_or_default(),
+    )
+    .await
+    .map_err(err)
+}
+#[tauri::command]
+async fn update_instance_meta(id: String, patch: engine::InstanceMetaPatch) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::update_instance_meta(&id, patch).await.map_err(err)
+}
+#[tauri::command]
+async fn repair_instance(id: String) -> Result<String, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::repair_instance(id).await.map_err(err)
 }
 #[tauri::command]
 async fn duplicate_instance(id: String, name: Option<String>) -> Result<Value, String> {
@@ -254,6 +271,143 @@ async fn save_launcher_settings(
         .map_err(err)
 }
 #[tauri::command]
+async fn save_launcher_settings_full(preferences: engine::Preferences) -> Result<engine::Preferences, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::save_preferences_full(preferences).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_packs(id: String, kind: String, world: Option<String>) -> Result<Value, String> {
+    engine::list_packs(&id, &kind, world.as_deref())
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn toggle_instance_pack(
+    id: String,
+    kind: String,
+    path: String,
+    enabled: bool,
+) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::toggle_pack(&id, &kind, &path, enabled)
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn import_instance_pack(
+    id: String,
+    kind: String,
+    world: Option<String>,
+    file_name: Option<String>,
+    bytes_base64: Option<String>,
+    source_path: Option<String>,
+) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::import_pack(
+        &id,
+        &kind,
+        world.as_deref(),
+        file_name.as_deref(),
+        bytes_base64.as_deref(),
+        source_path.as_deref(),
+    )
+    .await
+    .map_err(err)
+}
+#[tauri::command]
+async fn check_instance_content_updates(id: String) -> Result<Value, String> {
+    engine::check_content_updates(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn apply_instance_content_updates(id: String, items: Vec<Value>) -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::apply_content_updates(&id, items).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_worlds(id: String) -> Result<Value, String> {
+    engine::list_worlds(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn rename_instance_world(id: String, folder: String, new_name: String) -> Result<(), String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::rename_world(&id, &folder, &new_name)
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn launcher_screenshots(instance_id: Option<String>) -> Result<Value, String> {
+    engine::list_screenshots(instance_id.as_deref())
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn instance_disk_logs(id: String) -> Result<Value, String> {
+    engine::list_disk_logs(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn instance_disk_log(id: String, name: String) -> Result<String, String> {
+    engine::read_disk_log(&id, &name).await.map_err(err)
+}
+#[tauri::command]
+async fn detect_java_runtimes() -> Result<Value, String> {
+    engine::detect_java_runtimes().await.map_err(err)
+}
+#[tauri::command]
+async fn launcher_storage_summary() -> Result<Value, String> {
+    engine::storage_summary().await.map_err(err)
+}
+#[tauri::command]
+async fn clear_launcher_cache() -> Result<Value, String> {
+    let _operation = crate::app_updates::OPERATIONS.read().await;
+    engine::clear_unused_cache().await.map_err(err)
+}
+#[tauri::command]
+async fn saved_skins_list() -> Result<Value, String> {
+    engine::saved_skins_list().await.map_err(err)
+}
+#[tauri::command]
+async fn saved_skins_save(
+    id: Option<String>,
+    name: String,
+    variant: String,
+    png_data_url: String,
+) -> Result<Value, String> {
+    engine::saved_skins_save(id, name, variant, png_data_url)
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn saved_skins_delete(id: String) -> Result<(), String> {
+    engine::saved_skins_delete(&id).await.map_err(err)
+}
+#[tauri::command]
+async fn profile_skins_and_capes() -> Result<Value, String> {
+    engine::fetch_profile_skins_and_capes().await.map_err(err)
+}
+#[tauri::command]
+async fn upload_minecraft_skin(variant: String, png_data_url: String) -> Result<Value, String> {
+    engine::upload_minecraft_skin(&variant, &png_data_url)
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn set_minecraft_cape(cape_id: Option<String>) -> Result<(), String> {
+    engine::set_minecraft_cape(cape_id.as_deref())
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn export_diagnostics() -> Result<Value, String> {
+    engine::export_diagnostics().await.map_err(err)
+}
+#[tauri::command]
+async fn open_data_folder(app: tauri::AppHandle) -> Result<(), String> {
+    let dir = engine::data_dir().await.map_err(err)?;
+    app.opener()
+        .open_path(dir.to_string_lossy().to_string(), None::<String>)
+        .map_err(err)
+}
+#[tauri::command]
 async fn create_local_server(
     name: String,
     version: String,
@@ -399,6 +553,8 @@ fn window_action(window: tauri::Window, action: String) -> Result<(), String> {
                 window.maximize().map_err(err)
             }
         }
+        "hide" => window.hide().map_err(err),
+        "show" => window.show().map_err(err),
         "close" => window.close().map_err(err),
         _ => Err("Unsupported window action".into()),
     }
@@ -424,6 +580,8 @@ pub fn run() {
             minecraft_versions,
             loader_versions,
             create_instance,
+            update_instance_meta,
+            repair_instance,
             duplicate_instance,
             delete_instance,
             launch_instance,
@@ -439,6 +597,16 @@ pub fn run() {
             instance_file_action,
             toggle_instance_mod,
             import_instance_mod,
+            instance_packs,
+            toggle_instance_pack,
+            import_instance_pack,
+            check_instance_content_updates,
+            apply_instance_content_updates,
+            instance_worlds,
+            rename_instance_world,
+            launcher_screenshots,
+            instance_disk_logs,
+            instance_disk_log,
             instance_backups,
             instance_backup_action,
             open_instance_folder,
@@ -448,6 +616,18 @@ pub fn run() {
             clear_finished_downloads,
             launcher_settings,
             save_launcher_settings,
+            save_launcher_settings_full,
+            detect_java_runtimes,
+            launcher_storage_summary,
+            clear_launcher_cache,
+            saved_skins_list,
+            saved_skins_save,
+            saved_skins_delete,
+            profile_skins_and_capes,
+            upload_minecraft_skin,
+            set_minecraft_cape,
+            export_diagnostics,
+            open_data_folder,
             create_local_server,
             local_server_action,
             local_server_logs,

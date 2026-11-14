@@ -43,6 +43,7 @@ tauri-plugin-process = { version = "=2.4.0", optional = true }
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 zip = { version = "6", default-features = false, features = ["deflate"] }
+flate2 = "1"
 toml = "1"
 
 [target.'cfg(windows)'.dependencies]
