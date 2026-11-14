@@ -471,6 +471,31 @@ pub async fn delete_instance(id: &str) -> Result<()> {
     engine.instances.delete(id).await?;
     Ok(())
 }
+pub(crate) async fn resolve_java_path_with<C, CFut, EFut>(
+    configured: &str,
+    required_major: u32,
+    mut check: C,
+    ensure: EFut,
+) -> Result<String>
+where
+    C: FnMut(String, u32) -> CFut,
+    CFut: std::future::Future<Output = Result<()>>,
+    EFut: std::future::Future<Output = Result<std::path::PathBuf>>,
+{
+    let trimmed = configured.trim();
+    if !trimmed.is_empty() && !matches!(trimmed, "auto" | "java") {
+        if check(trimmed.to_string(), required_major).await.is_ok() {
+            return Ok(trimmed.to_string());
+        }
+    } else if trimmed == "java" && check("java".to_string(), required_major).await.is_ok() {
+        return Ok("java".into());
+    }
+    let java = ensure.await?;
+    java.to_str()
+        .map(String::from)
+        .context("Java path is not valid Unicode")
+}
+
 async fn resolve_java(
     id: &str,
     cancel: &Cancellation,
@@ -478,9 +503,6 @@ async fn resolve_java(
 ) -> Result<String> {
     let engine = get().await?;
     let record = engine.instances.get(id).await?;
-    if !matches!(record.java_path.as_str(), "auto" | "java") {
-        return Ok(record.java_path);
-    }
     let path = engine.instances.path(id)?.join("runtime/plan.json");
     let meta = tokio::fs::symlink_metadata(&path).await?;
     if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > 4 * 1024 * 1024 {
@@ -490,19 +512,17 @@ async fn resolve_java(
     if plan.version != record.game_version {
         bail!("Installed files do not match this instance")
     }
-    // A compatible explicitly selected PATH Java can be kept. Automatic mode
-    // installs the metadata-required major in the launcher's own local directory.
-    if record.java_path == "java"
-        && crate::game_core::launch::java_check("java", plan.java_major)
-            .await
-            .is_ok()
-    {
-        return Ok("java".into());
-    }
-    let java = engine.java.ensure(plan.java_major, cancel, report).await?;
-    java.to_str()
-        .map(String::from)
-        .context("Java path is not valid Unicode")
+    // Validate custom or PATH Java against the required major version; if it is
+    // missing or incompatible, automatically download/install managed Java.
+    resolve_java_path_with(
+        &record.java_path,
+        plan.java_major,
+        |candidate, major| async move {
+            crate::game_core::launch::java_check(&candidate, major).await
+        },
+        engine.java.ensure(plan.java_major, cancel, report),
+    )
+    .await
 }
 async fn queue_java(id: String) -> Result<String> {
     let engine = get().await?;
@@ -550,7 +570,24 @@ pub async fn launch_with_events(
         let java_job = engine
             .jobs
             .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
+        let mut last_phase = String::new();
+        let mut last_pct: u64 = u64::MAX;
         let result = resolve_java(&id, &java_job.cancel, |phase, done, total| {
+            let pct = if total > 0 {
+                (done.min(total) * 100) / total
+            } else {
+                0
+            };
+            if phase != last_phase || (total > 0 && (pct == 100 || pct >= last_pct.saturating_add(2) || last_pct == u64::MAX)) {
+                last_phase = phase.to_string();
+                last_pct = pct;
+                let msg = if total > 0 && phase != "Java is ready" {
+                    format!("{phase} ({pct}%)...")
+                } else {
+                    phase.to_string()
+                };
+                on_stage("java", &msg);
+            }
             engine.jobs.report(&java_job.id, phase.into(), done, total)
         })
         .await;
@@ -617,6 +654,16 @@ pub async fn launch_with_events(
     })
     .await
 }
+pub async fn diagnose_instance_exit(
+    id: &str,
+    exit_code: Option<i32>,
+) -> Option<crate::game_core::launch::CrashDiagnosis> {
+    let engine = get().await.ok()?;
+    let game_dir = engine.instances.game_dir(id).await.ok()?;
+    let log_text = engine.games.logs(id).await.unwrap_or_default();
+    crate::game_core::launch::inspect_crash_diagnosis(&game_dir, exit_code, &log_text)
+}
+
 pub async fn stop(id: String) -> Result<()> {
     let engine = get().await?;
     engine.games.stop(&id).await?;

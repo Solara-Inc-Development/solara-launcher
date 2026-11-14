@@ -174,12 +174,28 @@ async fn launch_instance(app: tauri::AppHandle, id: String) -> Result<Value, Str
                 );
             },
             move |status| {
-                use tauri::Emitter;
-                let _ = exit_app.emit_to("main", "game-exited", serde_json::json!({
-                    "instanceId": exit_id,
-                    "exitCode": status.code(),
-                    "success": status.success(),
-                }));
+                let exit_app = exit_app.clone();
+                let exit_id = exit_id.clone();
+                let code = status.code();
+                let success = status.success();
+                tauri::async_runtime::spawn(async move {
+                    use tauri::Emitter;
+                    let diagnosis = if success {
+                        None
+                    } else {
+                        crate::engine::diagnose_instance_exit(&exit_id, code).await
+                    };
+                    let _ = exit_app.emit_to(
+                        "main",
+                        "game-exited",
+                        serde_json::json!({
+                            "instanceId": exit_id,
+                            "exitCode": code,
+                            "success": success,
+                            "diagnosis": diagnosis,
+                        }),
+                    );
+                });
             },
         )
         .await;

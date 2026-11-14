@@ -218,7 +218,10 @@ pub fn build_args_with_options(
     };
     let mut classpath = Vec::new();
     for file in &plan.files {
-        if file.destination.starts_with("libraries/") && file.destination.ends_with(".jar") {
+        if file.destination.starts_with("libraries/")
+            && file.destination.ends_with(".jar")
+            && !is_non_x64_native_classpath_entry(&file.destination)
+        {
             classpath.push(runtime.join(&file.destination));
         }
     }
@@ -266,16 +269,17 @@ pub fn build_args_with_options(
             .unwrap_or_default()
             .into(),
     );
-    let mut out = vec![OsString::from(format!("-Xmx{memory}M"))];
-    if let Some(extra) = extra_jvm_args.map(str::trim).filter(|s| !s.is_empty()) {
-        out.extend(split_jvm_args(extra)?);
-    }
+    let mut out = Vec::new();
     if !plan.arguments.is_null() {
         out.extend(arguments(&plan.arguments["jvm"], &vars, os_version)?);
     } else {
         out.push(format!("-Djava.library.path={}", text(&runtime.join("natives"))?).into());
         out.push("-cp".into());
         out.push(classpath);
+    }
+    out.push(OsString::from(format!("-Xmx{memory}M")));
+    if let Some(extra) = extra_jvm_args.map(str::trim).filter(|s| !s.is_empty()) {
+        out.extend(split_jvm_args(extra)?);
     }
     if let Some(logging) = &plan.logging_argument {
         let mut logging_vars = vars.clone();
@@ -328,7 +332,16 @@ pub async fn java_check(path: &str, required: u32) -> Result<()> {
     if path.trim().is_empty() || path.contains('\0') {
         bail!("Choose a Java path in Settings")
     }
-    let mut command = Command::new(path);
+    let path_ref = Path::new(path);
+    let probe_path = if path_ref.components().count() > 1 {
+        if !tokio::fs::try_exists(path_ref).await.unwrap_or(false) {
+            bail!("Java runtime binary is missing: {path}");
+        }
+        console_java_probe_path(path_ref)
+    } else {
+        PathBuf::from(path)
+    };
+    let mut command = Command::new(&probe_path);
     command
         .arg("-version")
         .stdin(Stdio::null())
@@ -470,6 +483,15 @@ impl Games {
             bail!("Installed files do not match this instance")
         }
         java_check(java_path, plan.java_major).await?;
+        for dir in [
+            "natives",
+            "natives/java",
+            "natives/jna",
+            "natives/lwjgl",
+            "natives/netty",
+        ] {
+            tokio::fs::create_dir_all(runtime.join(dir)).await?;
+        }
         // Check immutable launch files before passing a verified session to Java.
         for file in &plan.files {
             super::metadata::relative_path(&file.destination)?;
@@ -498,16 +520,7 @@ impl Games {
                 bail!("This Minecraft instance is already running")
             }
         }
-        let mut command = Command::new(java_path);
-        command
-            .args(args)
-            .current_dir(&game_dir)
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .kill_on_drop(false);
-        #[cfg(windows)]
-        command.creation_flags(0x08000000);
+        let mut command = build_game_command(java_path, &args, &game_dir);
         let mut child = command.spawn().map_err(|_| {
             anyhow::anyhow!("Minecraft could not start with the selected Java executable")
         })?;
@@ -596,6 +609,267 @@ impl Games {
             }
         }).await.context("Minecraft is still closing. Save and close it from the game window.")?
     }
+}
+
+pub(crate) fn is_non_x64_native_classpath_entry(destination: &str) -> bool {
+    let lower = destination.to_ascii_lowercase();
+    let file = lower.rsplit('/').next().unwrap_or(&lower);
+    let stem = file.strip_suffix(".jar").unwrap_or(file);
+    stem.contains("natives-windows-arm64")
+        || stem.contains("natives-windows-aarch64")
+        || stem.contains("natives-windows-x86-")
+        || stem.ends_with("natives-windows-x86")
+        || stem.contains("natives-linux")
+        || stem.contains("natives-macos")
+        || stem.contains("natives-osx")
+        || stem.contains("natives-freebsd")
+}
+
+pub(crate) fn console_java_probe_path(path: &Path) -> PathBuf {
+    let is_javaw = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .is_some_and(|n| n.eq_ignore_ascii_case("javaw.exe") || n.eq_ignore_ascii_case("javaw"));
+    if is_javaw {
+        let sibling_name = if path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .is_some_and(|n| n.to_ascii_lowercase().ends_with(".exe"))
+        {
+            "java.exe"
+        } else {
+            "java"
+        };
+        let sibling = path.with_file_name(sibling_name);
+        if sibling.is_file() {
+            return sibling;
+        }
+    }
+    path.to_path_buf()
+}
+
+#[cfg_attr(not(windows), allow(dead_code))]
+pub(crate) fn should_apply_create_no_window(java_path: &str) -> bool {
+    let file = java_path.rsplit(['/', '\\']).next().unwrap_or(java_path);
+    !file.eq_ignore_ascii_case("javaw.exe") && !file.eq_ignore_ascii_case("javaw")
+}
+
+pub(crate) fn build_game_command(
+    java_path: &str,
+    args: &[std::ffi::OsString],
+    game_dir: &Path,
+) -> Command {
+    let mut command = Command::new(java_path);
+    command
+        .args(args)
+        .current_dir(game_dir)
+        .env_remove("_JAVA_OPTIONS")
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .kill_on_drop(false);
+    #[cfg(windows)]
+    if should_apply_create_no_window(java_path) {
+        command.creation_flags(0x08000000);
+    }
+    command
+}
+
+#[derive(Debug, Clone, serde::Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct CrashDiagnosis {
+    pub code: String,
+    pub title: String,
+    pub summary: String,
+    pub advice: Vec<String>,
+    pub hs_err_file: Option<String>,
+}
+
+fn read_latest_hs_err(game_dir: &Path) -> Option<(String, String)> {
+    let entries = std::fs::read_dir(game_dir).ok()?;
+    let mut best: Option<(std::time::SystemTime, String, PathBuf)> = None;
+    for entry in entries.flatten() {
+        let name = entry.file_name().to_string_lossy().to_string();
+        if !name.starts_with("hs_err_pid") || !name.ends_with(".log") {
+            continue;
+        }
+        let path = entry.path();
+        let Ok(meta) = std::fs::symlink_metadata(&path) else {
+            continue;
+        };
+        if !meta.is_file() || meta.file_type().is_symlink() {
+            continue;
+        }
+        let modified = meta
+            .modified()
+            .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+        if best
+            .as_ref()
+            .is_none_or(|(prev_t, _, _)| modified >= *prev_t)
+        {
+            best = Some((modified, name, path));
+        }
+    }
+    let (_, name, path) = best?;
+    let bytes = std::fs::read(&path).ok()?;
+    let slice = if bytes.len() > 131_072 {
+        &bytes[..131_072]
+    } else {
+        &bytes
+    };
+    Some((name, String::from_utf8_lossy(slice).into_owned()))
+}
+
+fn extract_problematic_frame(hs_err: &str) -> Option<String> {
+    let mut lines = hs_err.lines();
+    while let Some(line) = lines.next() {
+        if line.trim_start().starts_with("# Problematic frame:") {
+            if let Some(next) = lines.next() {
+                let cleaned = next.trim_start_matches('#').trim();
+                if !cleaned.is_empty() {
+                    return Some(cleaned.chars().take(160).collect());
+                }
+            }
+        }
+    }
+    None
+}
+
+fn read_latest_log_tail(game_dir: &Path) -> String {
+    let path = game_dir.join("logs").join("latest.log");
+    let Ok(meta) = std::fs::symlink_metadata(&path) else {
+        return String::new();
+    };
+    if !meta.is_file() || meta.file_type().is_symlink() {
+        return String::new();
+    }
+    let Ok(bytes) = std::fs::read(&path) else {
+        return String::new();
+    };
+    let start = bytes.len().saturating_sub(65_536);
+    String::from_utf8_lossy(&bytes[start..]).into_owned()
+}
+
+pub fn inspect_crash_diagnosis(
+    game_dir: &Path,
+    exit_code: Option<i32>,
+    log_text: &str,
+) -> Option<CrashDiagnosis> {
+    let hs_err = read_latest_hs_err(game_dir);
+    let hs_err_file = hs_err.as_ref().map(|(name, _)| name.clone());
+    let hs_err_text = hs_err.as_ref().map(|(_, text)| text.as_str()).unwrap_or("");
+    let fallback_log = if log_text.trim().is_empty() {
+        read_latest_log_tail(game_dir)
+    } else {
+        String::new()
+    };
+    let combined = format!("{hs_err_text}\n{log_text}\n{fallback_log}");
+    let lower = combined.to_ascii_lowercase();
+
+    if lower.contains("atio6axx.dll") {
+        let frame = extract_problematic_frame(hs_err_text);
+        let summary = match frame {
+            Some(ref f) => format!(
+                "AMD OpenGL graphics driver crashed inside atio6axx.dll ({f})."
+            ),
+            None => "AMD OpenGL graphics driver crashed inside atio6axx.dll.".to_string(),
+        };
+        return Some(CrashDiagnosis {
+            code: "amd-opengl-driver".into(),
+            title: "AMD Graphics Driver Crash (atio6axx.dll)".into(),
+            summary,
+            advice: vec![
+                "Open Windows Settings -> System -> Display -> Graphics and set javaw.exe to High Performance GPU.".into(),
+                "Perform a clean AMD Adrenalin WHQL driver install (or roll back from an unstable preview driver) using AMD Cleanup Utility.".into(),
+                "Disable AMD Radeon Anti-Lag, Enhanced Sync, and Radeon Overlay for Java / Minecraft.".into(),
+                "If using shaders or Sodium/Iris, test launching without shaders first.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    if lower.contains("nvoglv64.dll") || lower.contains("nvoglv32.dll") {
+        return Some(CrashDiagnosis {
+            code: "nvidia-opengl-driver".into(),
+            title: "NVIDIA Graphics Driver Crash (nvoglv64.dll)".into(),
+            summary: "NVIDIA OpenGL driver crashed during Minecraft initialization or rendering."
+                .into(),
+            advice: vec![
+                "Update or clean-install NVIDIA Game Ready / Studio drivers.".into(),
+                "Set javaw.exe to High Performance NVIDIA processor in Windows Graphics Settings.".into(),
+                "Reset Threaded Optimization and custom OpenGL overrides in NVIDIA Control Panel.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    if lower.contains("ig7icd64.dll")
+        || lower.contains("ig9icd64.dll")
+        || lower.contains("igxelpicd64.dll")
+        || lower.contains("igxe2icd64.dll")
+    {
+        return Some(CrashDiagnosis {
+            code: "intel-opengl-driver".into(),
+            title: "Intel Graphics Driver Crash".into(),
+            summary: "Intel OpenGL graphics driver crashed during Minecraft startup.".into(),
+            advice: vec![
+                "Update your Intel Graphics driver from Intel Driver & Support Assistant.".into(),
+                "If your PC has a dedicated AMD or NVIDIA GPU, assign javaw.exe to High Performance GPU in Windows Graphics Settings.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    if lower.contains("unsupportedclassversionerror")
+        || lower.contains("compiled by a more recent version of the java runtime")
+        || lower.contains("could not create the java virtual machine")
+    {
+        return Some(CrashDiagnosis {
+            code: "java-mismatch".into(),
+            title: "Java Runtime Mismatch".into(),
+            summary: "The selected Java runtime does not match this Minecraft version.".into(),
+            advice: vec![
+                "Set Java Runtime to Automatic (auto) in Instance Settings so Solara installs and uses the required Java version.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    if lower.contains("outofmemoryerror") || lower.contains("java heap space") {
+        return Some(CrashDiagnosis {
+            code: "out-of-memory".into(),
+            title: "Out of Memory".into(),
+            summary: "Minecraft ran out of allocated heap memory.".into(),
+            advice: vec![
+                "Increase allocated RAM in Instance Settings -> Java & Memory.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    if lower.contains("exception_access_violation")
+        || lower.contains("0xc0000005")
+        || exit_code == Some(-1073741819_i32)
+    {
+        let frame = extract_problematic_frame(hs_err_text);
+        let summary = match frame {
+            Some(ref f) => format!("Native JVM access violation (0xc0000005) at {f}."),
+            None => "Minecraft terminated with a native Windows access violation (0xc0000005)."
+                .into(),
+        };
+        return Some(CrashDiagnosis {
+            code: "access-violation".into(),
+            title: "Native Memory Access Violation (0xc0000005)".into(),
+            summary,
+            advice: vec![
+                "Update graphics drivers and ensure javaw.exe is assigned to your primary GPU in Windows Graphics Settings.".into(),
+                "Repair or reinstall the instance to ensure clean x64 native libraries, and keep Java set to Automatic.".into(),
+            ],
+            hs_err_file,
+        });
+    }
+
+    None
 }
 
 #[cfg(windows)]

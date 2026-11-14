@@ -29,7 +29,7 @@ fn supported(major: u32) -> Result<()> {
     }
     Ok(())
 }
-fn package_url(url: &reqwest::Url, major: u32) -> bool {
+fn adoptium_package_url(url: &reqwest::Url, major: u32) -> bool {
     url.scheme() == "https"
         && url.username().is_empty()
         && url.password().is_none()
@@ -41,7 +41,21 @@ fn package_url(url: &reqwest::Url, major: u32) -> bool {
         ))
         && url.path().ends_with(".zip")
 }
-fn redirect_url(url: &reqwest::Url, major: u32) -> bool {
+pub(crate) fn zulu_package_url(url: &reqwest::Url) -> bool {
+    url.scheme() == "https"
+        && url.username().is_empty()
+        && url.password().is_none()
+        && url.port().is_none()
+        && url.fragment().is_none()
+        && url.host_str() == Some("cdn.azul.com")
+        && url.path().starts_with("/zulu/bin/")
+        && url.path().ends_with("-win_x64.zip")
+        && !url.path().contains("..")
+}
+pub(crate) fn package_url(url: &reqwest::Url, major: u32) -> bool {
+    adoptium_package_url(url, major) || zulu_package_url(url)
+}
+pub(crate) fn redirect_url(url: &reqwest::Url, major: u32) -> bool {
     package_url(url, major)
         || (url.scheme() == "https"
             && url.username().is_empty()
@@ -55,11 +69,68 @@ fn redirect_url(url: &reqwest::Url, major: u32) -> bool {
             && url.path().starts_with("/github-production-release-asset/"))
 }
 #[derive(Clone)]
-struct Package {
-    version: String,
-    url: reqwest::Url,
-    size: u64,
-    sha256: String,
+pub(crate) struct Package {
+    pub(crate) version: String,
+    pub(crate) url: reqwest::Url,
+    pub(crate) size: u64,
+    pub(crate) sha256: String,
+}
+pub(crate) fn select_zulu_package(detail: &Value, major: u32) -> Result<Package> {
+    supported(major)?;
+    let name = detail["name"].as_str().unwrap_or("");
+    let version_matches_major = detail["java_version"]
+        .as_array()
+        .and_then(|arr| arr.first())
+        .and_then(Value::as_u64)
+        == Some(major as u64)
+        || name.starts_with(&format!("zulu{major}."));
+    if !version_matches_major {
+        bail!("Azul Zulu package does not match Java {major}");
+    }
+    let raw_url = detail["download_url"]
+        .as_str()
+        .context("Missing Azul Zulu download URL")?;
+    let url = reqwest::Url::parse(raw_url)?;
+    if !zulu_package_url(&url) {
+        bail!("Untrusted Azul Zulu archive origin");
+    }
+    let size = detail["size"]
+        .as_u64()
+        .context("Missing Azul Zulu archive size")?;
+    if size == 0 || size > 512 * 1024 * 1024 {
+        bail!("Java archive size is outside bounds");
+    }
+    let sha256 = detail["sha256_hash"]
+        .as_str()
+        .context("Missing Azul Zulu SHA-256")?
+        .to_ascii_lowercase();
+    if sha256.len() != 64 || !sha256.chars().all(|c| c.is_ascii_hexdigit()) {
+        bail!("Invalid Azul Zulu SHA-256 checksum");
+    }
+    let version = detail["java_version"]
+        .as_array()
+        .map(|parts| {
+            parts
+                .iter()
+                .filter_map(Value::as_u64)
+                .map(|n| n.to_string())
+                .collect::<Vec<_>>()
+                .join(".")
+        })
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| {
+            if name.is_empty() {
+                format!("{major}")
+            } else {
+                name.to_string()
+            }
+        });
+    Ok(Package {
+        version,
+        url,
+        size,
+        sha256,
+    })
 }
 fn select_package(raw: &Value, major: u32) -> Result<Package> {
     supported(major)?;
@@ -123,7 +194,7 @@ impl Runtimes {
             install: Mutex::new(()),
         }
     }
-    async fn cached(&self, major: u32) -> Result<Option<PathBuf>> {
+    pub(crate) async fn cached(&self, major: u32) -> Result<Option<PathBuf>> {
         let dir = self.root.join(format!("java-{major}"));
         let meta = match tokio::fs::symlink_metadata(&dir).await {
             Ok(m) => m,
@@ -146,14 +217,102 @@ impl Runtimes {
             Err(_) => return Ok(None),
         };
         let java = dir.join("bin/java.exe");
+        let javaw = dir.join("bin/javaw.exe");
         let jvm = dir.join("bin/server/jvm.dll");
         if record.major != major
+            || !tokio::fs::try_exists(&javaw).await.unwrap_or(false)
             || digest(&java).await.ok().as_deref() != Some(&record.java_sha256)
             || digest(&jvm).await.ok().as_deref() != Some(&record.jvm_sha256)
         {
             return Ok(None);
         }
-        Ok(Some(java))
+        Ok(Some(javaw))
+    }
+    async fn read_json_bounded(
+        response: reqwest::Response,
+        cancel: &Cancellation,
+    ) -> Result<Value> {
+        let mut response = response;
+        let mut bytes = Vec::new();
+        while let Some(chunk) = response
+            .chunk()
+            .await
+            .map_err(|_| anyhow::anyhow!("Java release metadata could not be read"))?
+        {
+            cancel.check()?;
+            if bytes.len() + chunk.len() > 2 * 1024 * 1024 {
+                bail!("Java metadata exceeds limit")
+            }
+            bytes.extend_from_slice(&chunk);
+        }
+        Ok(serde_json::from_slice(&bytes)?)
+    }
+    async fn fetch_zulu_package(
+        client: &reqwest::Client,
+        major: u32,
+        cancel: &Cancellation,
+    ) -> Result<Option<Package>> {
+        let list_url = format!(
+            "https://api.azul.com/metadata/v1/zulu/packages/?java_version={major}&os=windows&arch=x64&ext=zip&archive_type=zip&java_package_type=jre&javafx_bundled=false&release_status=ga&availability_types=CA&latest=true"
+        );
+        let response = tokio::select! {
+            _ = cancel.cancelled() => bail!("Java setup cancelled"),
+            r = client.get(list_url).send() => r.map_err(|_| anyhow::anyhow!("Java release service is unavailable"))?
+        };
+        if !response.status().is_success() {
+            return Ok(None);
+        }
+        let rows_val = Self::read_json_bounded(response, cancel).await?;
+        let Some(rows) = rows_val.as_array() else {
+            return Ok(None);
+        };
+        let Some(entry) = rows.iter().find(|r| {
+            r["name"]
+                .as_str()
+                .is_some_and(|n| n.ends_with("-win_x64.zip"))
+                && r["package_uuid"].as_str().is_some_and(|id| {
+                    !id.is_empty()
+                        && id.len() <= 64
+                        && id.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
+                })
+        }) else {
+            return Ok(None);
+        };
+        let uuid = entry["package_uuid"]
+            .as_str()
+            .context("Missing Azul package UUID")?;
+        let detail_url = format!("https://api.azul.com/metadata/v1/zulu/packages/{uuid}");
+        let detail_resp = tokio::select! {
+            _ = cancel.cancelled() => bail!("Java setup cancelled"),
+            r = client.get(detail_url).send() => r.map_err(|_| anyhow::anyhow!("Java release service is unavailable"))?
+        };
+        if !detail_resp.status().is_success() {
+            return Ok(None);
+        }
+        let detail = Self::read_json_bounded(detail_resp, cancel).await?;
+        Ok(Some(select_zulu_package(&detail, major)?))
+    }
+    async fn fetch_adoptium_package(
+        client: &reqwest::Client,
+        major: u32,
+        cancel: &Cancellation,
+    ) -> Result<Option<Package>> {
+        for image in ["jre", "jdk"] {
+            let url = format!("https://api.adoptium.net/v3/assets/latest/{major}/hotspot?architecture=x64&image_type={image}&os=windows");
+            let response = tokio::select! {
+                _ = cancel.cancelled() => bail!("Java setup cancelled"),
+                r = client.get(url).send() => r.map_err(|_| anyhow::anyhow!("Java release service is unavailable"))?
+            };
+            if response.status() == reqwest::StatusCode::NOT_FOUND {
+                continue;
+            }
+            if !response.status().is_success() {
+                bail!("Java release service is unavailable")
+            }
+            let raw = Self::read_json_bounded(response, cancel).await?;
+            return Ok(Some(select_package(&raw, major)?));
+        }
+        Ok(None)
     }
     pub async fn ensure(
         &self,
@@ -174,35 +333,19 @@ impl Runtimes {
             .timeout(std::time::Duration::from_secs(30))
             .user_agent("SolaraLauncher/independent-core")
             .build()?;
-        let mut package = None;
-        for image in ["jre", "jdk"] {
-            let url=format!("https://api.adoptium.net/v3/assets/latest/{major}/hotspot?architecture=x64&image_type={image}&os=windows");
-            let response = tokio::select! {_ = cancel.cancelled()=>bail!("Java setup cancelled"),r=client.get(url).send()=>r.map_err(|_|anyhow::anyhow!("Java release service is unavailable"))?};
-            if response.status() == reqwest::StatusCode::NOT_FOUND {
-                continue;
-            }
-            if !response.status().is_success() {
-                bail!("Java release service is unavailable")
-            }
-            let mut response = response;
-            let mut bytes = Vec::new();
-            while let Some(chunk) = response
-                .chunk()
-                .await
-                .map_err(|_| anyhow::anyhow!("Java release metadata could not be read"))?
-            {
-                cancel.check()?;
-                if bytes.len() + chunk.len() > 2 * 1024 * 1024 {
-                    bail!("Java metadata exceeds limit")
-                }
-                bytes.extend_from_slice(&chunk);
-            }
-            package = Some(select_package(&serde_json::from_slice(&bytes)?, major)?);
-            break;
+        let mut candidates = Vec::new();
+        if let Ok(Some(zulu)) = Self::fetch_zulu_package(&client, major, cancel).await {
+            candidates.push(zulu);
         }
-        let package = package.context(
-            "This Java runtime is unavailable. Choose an installed Java executable in Settings.",
-        )?;
+        if let Ok(Some(adoptium)) = Self::fetch_adoptium_package(&client, major, cancel).await {
+            candidates.push(adoptium);
+        }
+        cancel.check()?;
+        if candidates.is_empty() {
+            bail!(
+                "This Java runtime is unavailable. Choose an installed Java executable in Settings."
+            );
+        }
         tokio::fs::create_dir_all(&self.root).await?;
         if tokio::fs::symlink_metadata(&self.root)
             .await?
@@ -211,32 +354,92 @@ impl Runtimes {
         {
             bail!("Unsafe Java runtime root")
         }
-        let archive = self.root.join(format!("{}.zip", package.sha256));
-        if digest(&archive).await.ok().as_deref() != Some(&package.sha256) {
-            let partial = self.root.join(format!("{}.part", uuid::Uuid::new_v4()));
-            let download=async {
-                let client=reqwest::Client::builder().user_agent("SolaraLauncher/independent-core")
-                    .timeout(std::time::Duration::from_secs(900)).connect_timeout(std::time::Duration::from_secs(15))
-                    .redirect(reqwest::redirect::Policy::custom(move|attempt|{
-                        if attempt.previous().len()<5 && redirect_url(attempt.url(),major){attempt.follow()}else{attempt.stop()}
-                    })).build()?;
-                let mut response=tokio::select!{_ = cancel.cancelled()=>bail!("Java setup cancelled"),r=client.get(package.url.clone()).send()=>r.map_err(|_|anyhow::anyhow!("Java download could not start"))?};
-                if !response.status().is_success()||response.content_length().is_some_and(|n|n!=package.size){bail!("Java download failed size or status checks")}
-                let mut file=tokio::fs::OpenOptions::new().write(true).create_new(true).open(&partial).await?;
-                let mut size=0;let mut hash=Sha256::new();
-                loop {
-                    let chunk=tokio::select!{_ = cancel.cancelled()=>bail!("Java setup cancelled"),r=response.chunk()=>r.map_err(|_|anyhow::anyhow!("Java download was interrupted"))?};
-                    let Some(chunk)=chunk else{break};size+=chunk.len()as u64;if size>package.size{bail!("Java download exceeds expected size")}
-                    hash.update(&chunk);file.write_all(&chunk).await?;report("Downloading Java",size,package.size);
-                }
-                if size!=package.size||format!("{:x}",hash.finalize())!=package.sha256{bail!("Java download checksum did not match")}
-                cancel.check()?;file.sync_all().await?;drop(file);tokio::fs::rename(&partial,&archive).await?;Ok::<_,anyhow::Error>(())
-            }.await;
-            if download.is_err() {
-                let _ = tokio::fs::remove_file(&partial).await;
+        let mut package = None;
+        let mut last_download_err = None;
+        for candidate in candidates {
+            let archive = self.root.join(format!("{}.zip", candidate.sha256));
+            if digest(&archive).await.ok().as_deref() == Some(&candidate.sha256) {
+                package = Some(candidate);
+                break;
             }
-            download?;
+            let partial = self.root.join(format!("{}.part", uuid::Uuid::new_v4()));
+            let download = async {
+                let dl_client = reqwest::Client::builder()
+                    .user_agent("SolaraLauncher/independent-core")
+                    .timeout(std::time::Duration::from_secs(900))
+                    .connect_timeout(std::time::Duration::from_secs(15))
+                    .redirect(reqwest::redirect::Policy::custom(move |attempt| {
+                        if attempt.previous().len() < 5 && redirect_url(attempt.url(), major) {
+                            attempt.follow()
+                        } else {
+                            attempt.stop()
+                        }
+                    }))
+                    .build()?;
+                let mut response = tokio::select! {
+                    _ = cancel.cancelled() => bail!("Java setup cancelled"),
+                    r = dl_client.get(candidate.url.clone()).send() => r.map_err(|_| anyhow::anyhow!("Java download could not start"))?
+                };
+                if !response.status().is_success()
+                    || response
+                        .content_length()
+                        .is_some_and(|n| n != candidate.size)
+                {
+                    bail!("Java download failed size or status checks")
+                }
+                let mut file = tokio::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&partial)
+                    .await?;
+                let mut size = 0;
+                let mut hash = Sha256::new();
+                loop {
+                    let chunk = tokio::select! {
+                        _ = cancel.cancelled() => bail!("Java setup cancelled"),
+                        r = response.chunk() => r.map_err(|_| anyhow::anyhow!("Java download was interrupted"))?
+                    };
+                    let Some(chunk) = chunk else { break };
+                    size += chunk.len() as u64;
+                    if size > candidate.size {
+                        bail!("Java download exceeds expected size")
+                    }
+                    hash.update(&chunk);
+                    file.write_all(&chunk).await?;
+                    report("Downloading Java", size, candidate.size);
+                }
+                if size != candidate.size || format!("{:x}", hash.finalize()) != candidate.sha256 {
+                    bail!("Java download checksum did not match")
+                }
+                cancel.check()?;
+                file.sync_all().await?;
+                drop(file);
+                tokio::fs::rename(&partial, &archive).await?;
+                Ok::<_, anyhow::Error>(())
+            }
+            .await;
+            if let Err(err) = download {
+                let _ = tokio::fs::remove_file(&partial).await;
+                if cancel.check().is_err() {
+                    return Err(err);
+                }
+                last_download_err = Some(err);
+                continue;
+            }
+            package = Some(candidate);
+            break;
         }
+        let package = match package {
+            Some(pkg) => pkg,
+            None => {
+                return Err(last_download_err.unwrap_or_else(|| {
+                    anyhow::anyhow!(
+                        "This Java runtime is unavailable. Choose an installed Java executable in Settings."
+                    )
+                }));
+            }
+        };
+        let archive = self.root.join(format!("{}.zip", package.sha256));
         let stage = self
             .root
             .join(format!("java-{major}.install-{}", uuid::Uuid::new_v4()));
@@ -248,7 +451,11 @@ impl Runtimes {
             let flag = cancel.clone();
             tokio::task::spawn_blocking(move || extract(&zip, &dest, &flag)).await??;
             let java = stage.join("bin/java.exe");
+            let javaw = stage.join("bin/javaw.exe");
             let jvm = stage.join("bin/server/jvm.dll");
+            if !tokio::fs::try_exists(&javaw).await? {
+                bail!("Java GUI executable is missing from archive")
+            }
             let record = Runtime {
                 major,
                 version: package.version,
@@ -272,7 +479,7 @@ impl Runtimes {
             }
             tokio::fs::rename(&stage, &target).await?;
             report("Java is ready", package.size, package.size);
-            Ok(target.join("bin/java.exe"))
+            Ok(target.join("bin/javaw.exe"))
         }
         .await;
         if result.is_err() {

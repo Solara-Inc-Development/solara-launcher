@@ -87,10 +87,82 @@ pub fn windows(version: &Value, os_version: Option<&str>) -> Result<Plan> {
     if libraries.len() > 2000 {
         bail!("Minecraft library limit exceeded")
     }
+    fn is_non_x64_native_classifier(classifier: &str) -> bool {
+        let lower = classifier.to_ascii_lowercase();
+        lower.contains("arm64")
+            || lower.contains("aarch64")
+            || lower.starts_with("natives-linux")
+            || lower.starts_with("natives-macos")
+            || lower.starts_with("natives-osx")
+            || lower.starts_with("natives-freebsd")
+            || lower.starts_with("natives-solaris")
+            || lower == "natives-windows-x86"
+            || lower == "natives-windows-32"
+    }
+
+    fn is_non_x64_native_artifact(name: Option<&str>, path: &str) -> bool {
+        if let Some(coords) = name {
+            if let Some(classifier) = coords.split(':').nth(3) {
+                let classifier = classifier.split('@').next().unwrap_or(classifier);
+                if is_non_x64_native_classifier(classifier) {
+                    return true;
+                }
+            }
+        }
+        let file = path.rsplit('/').next().unwrap_or(path);
+        let stem = file.strip_suffix(".jar").unwrap_or(file).to_ascii_lowercase();
+        if let Some(idx) = stem.find("natives-") {
+            let suffix = &stem[idx..];
+            if is_non_x64_native_classifier(suffix) {
+                return true;
+            }
+        }
+        stem.contains("natives-windows-arm64")
+            || stem.contains("natives-windows-aarch64")
+            || stem.contains("natives-windows-x86-")
+            || stem.ends_with("natives-windows-x86")
+            || stem.contains("natives-linux")
+            || stem.contains("natives-macos")
+            || stem.contains("natives-osx")
+    }
+
+    fn rules_exclude_x86_64(rules: Option<&Value>) -> bool {
+        let Some(rules) = rules.and_then(Value::as_array) else {
+            return false;
+        };
+        if !rules
+            .iter()
+            .any(|rule| rule.get("os").and_then(|os| os.get("arch")).is_some())
+        {
+            return false;
+        }
+        let mut decision = false;
+        for rule in rules {
+            if let Some(os) = rule.get("os") {
+                if let Some(name) = os.get("name").and_then(Value::as_str) {
+                    if name != "windows" {
+                        continue;
+                    }
+                }
+                if let Some(arch) = os.get("arch").and_then(Value::as_str) {
+                    let lower = arch.to_ascii_lowercase();
+                    if lower != "x86_64" && lower != "amd64" && lower != "x64" {
+                        continue;
+                    }
+                }
+            }
+            decision = rule.get("action").and_then(Value::as_str) == Some("allow");
+        }
+        !decision
+    }
+
     for library in libraries {
-        if !allowed(library.get("rules"), os_version)? {
+        if !allowed(library.get("rules"), os_version)?
+            || rules_exclude_x86_64(library.get("rules"))
+        {
             continue;
         }
+        let lib_name = library.get("name").and_then(Value::as_str);
         if let Some(raw) = library["downloads"].get("artifact") {
             let artifact: Artifact = serde_json::from_value(raw.clone())?;
             artifact.validate()?;
@@ -98,6 +170,9 @@ pub fn windows(version: &Value, os_version: Option<&str>) -> Result<Plan> {
                 .path
                 .as_deref()
                 .context("Minecraft library path missing")?;
+            if is_non_x64_native_artifact(lib_name, path) {
+                continue;
+            }
             let target = format!("libraries/{path}");
             relative_path(&target)?;
             if let Some(prior) = files.insert(target, artifact.clone()) {
@@ -108,6 +183,9 @@ pub fn windows(version: &Value, os_version: Option<&str>) -> Result<Plan> {
         }
         if let Some(classifier) = library["natives"]["windows"].as_str() {
             let classifier = classifier.replace("${arch}", "64");
+            if is_non_x64_native_classifier(&classifier) {
+                continue;
+            }
             let native: Artifact =
                 serde_json::from_value(library["downloads"]["classifiers"][&classifier].clone())?;
             native.validate()?;

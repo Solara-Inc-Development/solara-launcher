@@ -1,5 +1,19 @@
 # Changelog
 
+## Testing Preview V-0.0.41 — 2026-11-15
+
+- **Automatic Missing/Incompatible Java Installation & Azul Zulu + Adoptium Support**:
+  - Updated `resolve_java` (`apps/desktop/src/engine.rs`) to validate configured custom and PATH Java runtimes against the Minecraft version's required major version (`java_check`) and automatically download/install managed Java whenever missing, corrupted, or incompatible, while streaming phase and percentage progress into `launch-progress`.
+  - Added verified Azul Zulu Windows x64 JRE (`api.azul.com` / `cdn.azul.com`) support with SHA-256 verification and automatic Eclipse Adoptium Temurin fallback inside `apps/desktop/src/game_core/java.rs`.
+  - Updated managed runtime caching and Windows runtime detection (`java.rs`, `extras.rs`) to use `bin/javaw.exe` (verifying `java_sha256` on `bin/java.exe` for backward compatibility) and resolve sibling `bin/java.exe` during `-version` probing (`launch.rs`, `extras.rs`).
+- **Windows Minecraft `26.3` Launch Hygiene & GPU Crash Diagnostics (`atio6axx.dll`)**:
+  - Filtered non-x86_64 native classifier artifacts (`:natives-windows-arm64`, `:natives-windows-x86`, `:natives-linux-*`, `:natives-macos*`) even when `os.arch` is omitted in Mojang metadata (`plan.rs` + `-cp` guard in `launch.rs`).
+  - Fixed Windows launch behavior in `launch.rs`: omit `CREATE_NO_WINDOW` when spawning GUI `javaw.exe`, strip `_JAVA_OPTIONS` from child environments, emit `arguments.jvm` before `-Xmx` and extra JVM arguments, and ensure `natives/{java,jna,lwjgl,netty}` directories exist on both install and launch.
+  - Added automatic `hs_err_pid*.log` and `logs/latest.log` crash diagnosis (`inspect_crash_diagnosis` in `launch.rs`, wired into `game-exited` and `InstanceDetailView.vue`) to surface AMD (`atio6axx.dll`), NVIDIA (`nvoglv64.dll`), Intel OpenGL, Java mismatch, OOM, and `0xc0000005` recovery steps.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.40 — 2026-11-14
 
 - **GitHub Releases CDN Auto-Updater Migration**:

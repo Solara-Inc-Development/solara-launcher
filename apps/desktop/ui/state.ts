@@ -733,12 +733,34 @@ export async function launchOrStopInstance(inst: InstanceRecord, skipConfirm = f
   }
 }
 
-export function handleGameExit(payload: { instanceId?: string; success?: boolean; exitCode?: number | null }): void {
+export interface CrashDiagnosisPayload {
+  code: string;
+  title: string;
+  summary: string;
+  advice?: string[];
+  hsErrFile?: string | null;
+}
+
+export function handleGameExit(payload: {
+  instanceId?: string;
+  success?: boolean;
+  exitCode?: number | null;
+  diagnosis?: CrashDiagnosisPayload | null;
+}): void {
   const id = payload.instanceId;
   if (!id) return;
   const inst = store.instances.find((item) => item.id === id);
   if (inst) inst.running = false;
   if (payload.success === false) {
+    const diagnosis = payload.diagnosis;
+    if (diagnosis?.title) {
+      const tip = diagnosis.advice?.[0] ? ` ${diagnosis.advice[0]}` : '';
+      const hsHint = diagnosis.hsErrFile ? ` (${diagnosis.hsErrFile})` : '';
+      const fullDetail = `${diagnosis.summary}${hsHint}${tip}`;
+      setLaunchProgress(id, 'error', diagnosis.title, fullDetail);
+      notify('error', `${inst?.name ?? 'Minecraft'}: ${diagnosis.title}`, fullDetail);
+      return;
+    }
     const detail = payload.exitCode == null ? 'Minecraft stopped unexpectedly.' : `Minecraft exited with code ${payload.exitCode}.`;
     setLaunchProgress(id, 'error', 'Minecraft closed unexpectedly', `${detail} Open Logs for details.`);
     notify('error', `${inst?.name ?? 'Minecraft'} closed unexpectedly`, detail);

@@ -321,6 +321,30 @@ const crashInsights = computed(() => {
   const txt = logText.value;
   if (!txt.trim()) return [];
   const findings: Array<{ title: string; advice: string }> = [];
+  if (/atio6axx\.dll/i.test(txt)) {
+    findings.push({
+      title: 'AMD OpenGL graphics driver crash (atio6axx.dll)',
+      advice: 'Assign javaw.exe to High Performance GPU in Windows Settings -> Display -> Graphics, clean-install AMD Adrenalin WHQL drivers, and disable Radeon Anti-Lag / Enhanced Sync / overlay for Java.',
+    });
+  }
+  if (/nvoglv(?:64|32)\.dll/i.test(txt)) {
+    findings.push({
+      title: 'NVIDIA OpenGL graphics driver crash (nvoglv64.dll)',
+      advice: 'Update or clean-install NVIDIA Game Ready / Studio drivers, set javaw.exe to High Performance NVIDIA GPU in Windows Graphics Settings, and reset OpenGL overrides.',
+    });
+  }
+  if (/ig(?:7|9|xel|xe2)picd64\.dll|ig[79]icd64\.dll/i.test(txt)) {
+    findings.push({
+      title: 'Intel OpenGL graphics driver crash',
+      advice: 'Update Intel Graphics drivers or assign javaw.exe to your dedicated GPU in Windows Graphics Settings.',
+    });
+  }
+  if (/EXCEPTION_ACCESS_VIOLATION|0xc0000005/i.test(txt) && !/atio6axx\.dll|nvoglv(?:64|32)\.dll/i.test(txt)) {
+    findings.push({
+      title: 'Native graphics or JVM access violation (0xc0000005)',
+      advice: 'Ensure graphics drivers are clean-installed, keep Java set to Automatic in Instance Settings, and repair the instance if native libraries were corrupted.',
+    });
+  }
   if (/UnsupportedClassVersionError|compiled by a more recent version of the Java Runtime/i.test(txt)) {
     findings.push({
       title: 'Java version mismatch detected',

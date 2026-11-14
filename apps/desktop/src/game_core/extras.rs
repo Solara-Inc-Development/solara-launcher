@@ -1158,7 +1158,8 @@ pub struct DetectedJava {
 }
 
 async fn probe_java(path: &Path, managed: bool) -> Option<DetectedJava> {
-    let mut cmd = Command::new(path);
+    let probe_path = crate::game_core::launch::console_java_probe_path(path);
+    let mut cmd = Command::new(&probe_path);
     cmd.arg("-version")
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
@@ -1212,7 +1213,7 @@ async fn probe_java(path: &Path, managed: bool) -> Option<DetectedJava> {
 
 pub async fn detect_java_runtimes(managed_root: &Path) -> Vec<DetectedJava> {
     let mut candidates: Vec<(PathBuf, bool)> = Vec::new();
-    let exe_name = if cfg!(windows) { "java.exe" } else { "java" };
+    let exe_name = if cfg!(windows) { "javaw.exe" } else { "java" };
 
     if let Ok(mut rd) = tokio::fs::read_dir(managed_root).await {
         while let Ok(Some(e)) = rd.next_entry().await {

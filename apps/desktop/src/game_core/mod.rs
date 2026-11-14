@@ -22,3 +22,6 @@ pub mod java;
 pub mod jobs;
 pub mod loaders;
 pub mod mods;
+
+#[cfg(test)]
+mod v41_tests;

@@ -11,6 +11,23 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-058',
+    title: 'Solara Launcher V-0.0.41: Auto-Java Install & Windows 26.3 Launch Fix',
+    date: '2026-11-15',
+    category: 'Update',
+    summary: 'Automatically installs missing or incompatible Java runtimes with live progress, fixes Windows Minecraft 26.3 launch hygiene, and adds GPU crash diagnostics for hs_err logs.',
+    content: `Solara Launcher V-0.0.41 resolves missing-Java launch blockers and Windows Minecraft 26.3 native/GPU startup failures!
+
+Key highlights of this update:
+• Automatic Java Installation & Verification: Missing, corrupted, or mismatched custom/PATH Java runtimes now automatically fall back to a verified managed Windows x64 runtime (Azul Zulu with Adoptium Temurin fallback) while showing live download percentage during launch.
+• Windows Launch & Native Library Hygiene: Filters non-x64 native classifier JARs (such as ARM64/x86/Linux/macOS classifiers) off the classpath, launches javaw.exe cleanly without CREATE_NO_WINDOW suppression, removes conflicting _JAVA_OPTIONS, orders JVM arguments cleanly, and ensures natives subdirectories exist.
+• GPU Driver & Crash Diagnostics: Automatically inspects hs_err_pid*.log and game logs on unexpected exit to identify AMD (atio6axx.dll), NVIDIA (nvoglv64.dll), Intel OpenGL, Java mismatch, and memory crashes with actionable recovery guidance.
+
+Signed testing preview updates verify cryptographically and apply only when triggered.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-057',
     title: 'Solara Launcher V-0.0.40: GitHub Releases CDN Auto-Updater',
     date: '2026-11-14',
@@ -24,8 +41,7 @@ Key highlights of this update:
 • Smooth Transition from V-0.0.39: Existing V-0.0.39 installs automatically receive the V-0.0.40 GitHub Release URL and switch permanently to GitHub CDN for all future versions.
 
 Signed testing preview updates verify cryptographically and apply only when triggered.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-056',

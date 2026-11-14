@@ -132,7 +132,9 @@ pub async fn instance(
         }
         tokio::fs::create_dir(&stage).await?;
         tokio::fs::create_dir_all(stage.join("assets/indexes")).await?;
-        tokio::fs::create_dir(stage.join("natives")).await?;
+        for dir in ["natives", "natives/java", "natives/jna", "natives/lwjgl", "natives/netty"] {
+        tokio::fs::create_dir_all(stage.join(dir)).await?;
+    }
         metadata::relative_path(&format!("{}.json", plan.asset_index_id))?;
         write_json(
             &stage
