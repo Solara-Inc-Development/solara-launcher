@@ -10,7 +10,6 @@ import {
   Plus,
   Settings,
   User,
-  PanelLeft,
 } from '../icons';
 import {
   store,
@@ -22,7 +21,6 @@ import {
   openCreateInstance,
   launchOrStopInstance,
   patchInstanceMeta,
-  savePreferencesFull,
   playerAvatarUrl,
   native,
   notify,
@@ -40,13 +38,38 @@ const mainNav: { id: PageId; label: string; icon: unknown }[] = [
   { id: 'tasks', label: 'Downloads', icon: Download },
 ];
 
-const expanded = computed(() => store.preferences.sidebarExpanded);
-
 const sidebarInstances = computed(() => {
   const pinned = pinnedInstances.value;
   if (pinned.length > 0) return pinned;
   return store.instances.slice(0, 6);
 });
+
+const tip = ref<{
+  visible: boolean;
+  label: string;
+  sub: string;
+  top: number;
+  left: number;
+}>({ visible: false, label: '', sub: '', top: 0, left: 0 });
+
+function showTip(e: MouseEvent | FocusEvent, label: string, sub = '') {
+  const target = e.currentTarget as HTMLElement | null;
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  const rawTop = Math.round(rect.top + rect.height / 2);
+  const maxTop = typeof window !== 'undefined' ? Math.max(28, window.innerHeight - 36) : rawTop;
+  tip.value = {
+    visible: true,
+    label,
+    sub,
+    top: Math.max(28, Math.min(maxTop, rawTop)),
+    left: Math.round(rect.right + 10),
+  };
+}
+
+function hideTip() {
+  if (tip.value.visible) tip.value.visible = false;
+}
 
 const ctxMenu = ref<{
   open: boolean;
@@ -83,32 +106,28 @@ async function handleCtxSelect(action: string) {
     await patchInstanceMeta(inst.id, { pinned: !inst.pinned });
   } else if (action === 'folder' && store.desktop) {
     native('open_instance_folder', { id: inst.id }).catch((err) =>
-      notify('error', 'Could not open folder', String(err)),
+      notify('error', "Couldn't open folder", String(err)),
     );
   }
 }
 
-async function toggleExpand() {
-  const next = { ...store.preferences, sidebarExpanded: !store.preferences.sidebarExpanded };
-  try {
-    await savePreferencesFull(next);
-  } catch {
-    store.preferences.sidebarExpanded = next.sidebarExpanded;
-  }
-}
 </script>
 
 <template>
-  <aside :class="['sol-rail', { 'is-expanded': expanded }]" aria-label="Primary navigation">
+  <aside class="sol-rail" aria-label="Primary navigation">
     <!-- Main Navigation Group -->
     <nav class="sol-rail-section">
       <button
         v-for="item in mainNav"
         :key="item.id"
         type="button"
-        :title="item.label"
+        :aria-label="item.label"
         :class="['sol-rail-item', { 'is-active': currentRoute.page === item.id }]"
-        @click="navigate(item.id)"
+        @mouseenter="showTip($event, item.label)"
+        @mouseleave="hideTip"
+        @focus="showTip($event, item.label)"
+        @blur="hideTip"
+        @click="hideTip(); navigate(item.id)"
       >
         <span class="sol-rail-indicator" aria-hidden="true" />
         <span class="sol-rail-icon">
@@ -118,19 +137,18 @@ async function toggleExpand() {
             class="sol-rail-badge"
           >{{ activeJobs.length }}</span>
         </span>
-        <span v-if="expanded" class="sol-rail-label">{{ item.label }}</span>
       </button>
     </nav>
 
     <div class="sol-rail-divider" />
 
     <!-- Quick Instances & Create -->
-    <div class="sol-rail-instances sol-scroll">
+    <div class="sol-rail-instances sol-scroll" @scroll="hideTip">
       <button
         v-for="inst in sidebarInstances"
         :key="inst.id"
         type="button"
-        :title="`${inst.name} (${inst.gameVersion} ${inst.loader})`"
+        :aria-label="`${inst.name} (${inst.gameVersion} ${inst.loader})`"
         :class="[
           'sol-rail-inst',
           {
@@ -138,8 +156,12 @@ async function toggleExpand() {
             'is-running': inst.running,
           },
         ]"
-        @click="navigate('instance', { instanceId: inst.id, tab: 'overview' })"
-        @contextmenu="openInstCtx($event, inst)"
+        @mouseenter="showTip($event, inst.name, inst.running ? `${inst.gameVersion} · ${inst.loader} · Running` : `${inst.gameVersion} · ${inst.loader}`)"
+        @mouseleave="hideTip"
+        @focus="showTip($event, inst.name, inst.running ? `${inst.gameVersion} · ${inst.loader} · Running` : `${inst.gameVersion} · ${inst.loader}`)"
+        @blur="hideTip"
+        @click="hideTip(); navigate('instance', { instanceId: inst.id, tab: 'overview' })"
+        @contextmenu="hideTip(); openInstCtx($event, inst)"
       >
         <span class="sol-rail-indicator" aria-hidden="true" />
         <div class="sol-rail-inst-avatar">
@@ -151,54 +173,51 @@ async function toggleExpand() {
             :size="32"
             :rounded="9"
           />
-          <span v-if="inst.running" class="sol-running-dot" title="Running" />
+          <span v-if="inst.running" class="sol-running-dot" aria-hidden="true" />
         </div>
-        <span v-if="expanded" class="sol-rail-label sol-truncate">{{ inst.name }}</span>
       </button>
 
       <button
         type="button"
         class="sol-rail-add"
-        title="Create New Instance"
         aria-label="Create new instance"
-        @click="openCreateInstance()"
+        @mouseenter="showTip($event, 'New Instance', 'Create a modpack or vanilla profile')"
+        @mouseleave="hideTip"
+        @focus="showTip($event, 'New Instance', 'Create a modpack or vanilla profile')"
+        @blur="hideTip"
+        @click="hideTip(); openCreateInstance()"
       >
         <Plus :size="17" />
-        <span v-if="expanded" class="sol-rail-label">New Instance</span>
       </button>
     </div>
 
     <div class="sol-rail-divider" />
 
-    <!-- Bottom Controls: Expand Toggle, Settings, Account -->
+    <!-- Bottom Controls: Settings, Account -->
     <div class="sol-rail-bottom">
       <button
         type="button"
-        class="sol-rail-item"
-        :title="expanded ? 'Collapse sidebar' : 'Expand sidebar'"
-        :aria-label="expanded ? 'Collapse sidebar' : 'Expand sidebar'"
-        @click="toggleExpand"
-      >
-        <span class="sol-rail-icon"><PanelLeft :size="18" /></span>
-        <span v-if="expanded" class="sol-rail-label">Collapse</span>
-      </button>
-
-      <button
-        type="button"
-        title="Settings"
+        aria-label="Settings"
         :class="['sol-rail-item', { 'is-active': currentRoute.page === 'settings' }]"
-        @click="navigate('settings')"
+        @mouseenter="showTip($event, 'Settings')"
+        @mouseleave="hideTip"
+        @focus="showTip($event, 'Settings')"
+        @blur="hideTip"
+        @click="hideTip(); navigate('settings')"
       >
         <span class="sol-rail-indicator" aria-hidden="true" />
         <span class="sol-rail-icon"><Settings :size="18" /></span>
-        <span v-if="expanded" class="sol-rail-label">Settings</span>
       </button>
 
       <button
         type="button"
-        :title="selectedAccount ? `Account: ${selectedAccount.username}` : 'Sign in with Microsoft'"
+        :aria-label="selectedAccount ? `Account: ${selectedAccount.username}` : 'Sign in with Microsoft'"
         :class="['sol-rail-item', 'sol-rail-account', { 'is-active': currentRoute.page === 'account' }]"
-        @click="navigate('account')"
+        @mouseenter="showTip($event, selectedAccount ? selectedAccount.username : 'Microsoft Account', selectedAccount ? 'Active profile' : 'Sign in to play')"
+        @mouseleave="hideTip"
+        @focus="showTip($event, selectedAccount ? selectedAccount.username : 'Microsoft Account', selectedAccount ? 'Active profile' : 'Sign in to play')"
+        @blur="hideTip"
+        @click="hideTip(); navigate('account')"
       >
         <span class="sol-rail-indicator" aria-hidden="true" />
         <span class="sol-rail-icon">
@@ -210,10 +229,17 @@ async function toggleExpand() {
           />
           <User v-else :size="18" />
         </span>
-        <span v-if="expanded" class="sol-rail-label sol-truncate">
-          {{ selectedAccount ? selectedAccount.username : 'Sign In' }}
-        </span>
       </button>
+    </div>
+
+    <div
+      v-if="tip.visible"
+      role="tooltip"
+      class="sol-rail-tooltip"
+      :style="{ top: `${tip.top}px`, left: `${tip.left}px` }"
+    >
+      <span class="sol-rail-tooltip-label">{{ tip.label }}</span>
+      <span v-if="tip.sub" class="sol-rail-tooltip-sub">{{ tip.sub }}</span>
     </div>
 
     <SolaraContextMenu

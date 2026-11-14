@@ -650,15 +650,17 @@ pub async fn apply_content_updates(
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorldEntry {
-    pub folder_name: String,
+    pub folder: String,
     pub name: String,
-    pub game_mode: Option<String>,
-    pub version: Option<String>,
+    pub game_mode: String,
+    pub difficulty: String,
+    pub version_name: String,
     pub hardcore: bool,
-    pub last_played: Option<u64>,
+    pub last_played_ms: u64,
     pub size: u64,
     pub icon_data_url: Option<String>,
     pub locked: bool,
+    pub datapack_count: usize,
 }
 
 fn dir_size_bounded(dir: &Path, depth: u8) -> u64 {
@@ -689,6 +691,7 @@ fn dir_size_bounded(dir: &Path, depth: u8) -> u64 {
 pub struct NbtLevelSummary {
     level_name: Option<String>,
     game_type: Option<i32>,
+    difficulty: Option<u8>,
     hardcore: bool,
     version_name: Option<String>,
     last_played_ms: Option<i64>,
@@ -806,6 +809,7 @@ pub fn parse_level_dat_bytes(compressed: &[u8]) -> Option<NbtLevelSummary> {
                 match (sub_tag, sub_name.as_str()) {
                     (8, "LevelName") => summary.level_name = r.read_str(),
                     (3, "GameType") => summary.game_type = r.read_i32(),
+                    (1, "Difficulty") => summary.difficulty = r.read_u8(),
                     (1, "hardcore") => summary.hardcore = r.read_u8()? != 0,
                     (4, "LastPlayed") => summary.last_played_ms = r.read_i64(),
                     (10, "Version") => {
@@ -865,42 +869,71 @@ pub async fn list_worlds(store: &Instances, id: &str, running: bool) -> Result<V
                 .and_then(|_| std::fs::read(&icon_path).ok())
                 .filter(|b| b.starts_with(b"\x89PNG\r\n\x1a\n"))
                 .map(|b| format!("data:image/png;base64,{}", base64::engine::general_purpose::STANDARD.encode(&b)));
-            let game_mode = summary.game_type.map(|gt| match gt {
-                0 => "Survival",
-                1 => "Creative",
-                2 => "Adventure",
-                3 => "Spectator",
+            let game_mode = match (summary.hardcore, summary.game_type) {
+                (true, Some(0)) => "Hardcore",
+                (_, Some(0)) => "Survival",
+                (_, Some(1)) => "Creative",
+                (_, Some(2)) => "Adventure",
+                (_, Some(3)) => "Spectator",
                 _ => "Unknown",
-            }.to_string());
-            let fallback_modified = meta
+            }
+            .to_string();
+            let difficulty = match summary.difficulty {
+                Some(0) => "Peaceful",
+                Some(1) => "Easy",
+                Some(2) => "Normal",
+                Some(3) => "Hard",
+                _ => "Unknown",
+            }
+            .to_string();
+            let fallback_modified_ms = meta
                 .modified()
                 .ok()
                 .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-                .map(|d| d.as_secs());
-            let last_played = summary
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            let last_played_ms = summary
                 .last_played_ms
                 .filter(|ms| *ms > 0)
-                .map(|ms| (ms / 1000) as u64)
-                .or(fallback_modified);
+                .map(|ms| ms as u64)
+                .unwrap_or(fallback_modified_ms);
+            let datapack_count = std::fs::read_dir(world_dir.join("datapacks"))
+                .map(|rd| {
+                    rd.flatten()
+                        .filter(|e| {
+                            let name = e.file_name().to_string_lossy().to_string();
+                            if name.starts_with('.') {
+                                return false;
+                            }
+                            std::fs::symlink_metadata(e.path())
+                                .ok()
+                                .filter(|m| !is_link(m))
+                                .is_some_and(|m| m.is_dir() || name.to_ascii_lowercase().ends_with(".zip"))
+                        })
+                        .count()
+                })
+                .unwrap_or(0);
             WorldEntry {
                 name: summary
                     .level_name
                     .filter(|s| !s.trim().is_empty())
                     .unwrap_or_else(|| folder_name.clone()),
-                folder_name,
+                folder: folder_name,
                 game_mode,
-                version: summary.version_name,
+                difficulty,
+                version_name: summary.version_name.unwrap_or_default(),
                 hardcore: summary.hardcore,
-                last_played,
+                last_played_ms,
                 size: dir_size_bounded(&world_dir, 0),
                 icon_data_url,
                 locked: running,
+                datapack_count,
             }
         })
         .await?;
         out.push(item);
     }
-    out.sort_by(|a, b| b.last_played.cmp(&a.last_played).then(a.name.cmp(&b.name)));
+    out.sort_by(|a, b| b.last_played_ms.cmp(&a.last_played_ms).then(a.name.cmp(&b.name)));
     Ok(out)
 }
 
@@ -933,8 +966,22 @@ pub struct ScreenshotEntry {
     pub instance_name: String,
     pub file_name: String,
     pub path: String,
+    pub full_path: String,
     pub size: u64,
-    pub modified_at: Option<u64>,
+    pub modified_ms: u64,
+}
+
+fn screenshot_mime(name: &str) -> Option<&'static str> {
+    let lower = name.to_ascii_lowercase();
+    if lower.ends_with(".png") {
+        Some("image/png")
+    } else if lower.ends_with(".jpg") || lower.ends_with(".jpeg") {
+        Some("image/jpeg")
+    } else if lower.ends_with(".webp") {
+        Some("image/webp")
+    } else {
+        None
+    }
 }
 
 pub async fn list_screenshots(store: &Instances, instance_id: Option<&str>) -> Result<Vec<ScreenshotEntry>> {
@@ -946,7 +993,10 @@ pub async fn list_screenshots(store: &Instances, instance_id: Option<&str>) -> R
     let mut out = Vec::new();
     for inst in instances {
         let dir = store.game_dir(&inst.id).await?.join("screenshots");
-        if !tokio::fs::try_exists(&dir).await? {
+        let Ok(dir_meta) = tokio::fs::symlink_metadata(&dir).await else {
+            continue;
+        };
+        if is_link(&dir_meta) || !dir_meta.is_dir() {
             continue;
         }
         let mut rd = tokio::fs::read_dir(&dir).await?;
@@ -954,31 +1004,61 @@ pub async fn list_screenshots(store: &Instances, instance_id: Option<&str>) -> R
             if out.len() >= 1000 {
                 break;
             }
-            let meta = tokio::fs::symlink_metadata(entry.path()).await?;
+            let entry_path = entry.path();
+            let meta = tokio::fs::symlink_metadata(&entry_path).await?;
             if is_link(&meta) || !meta.is_file() {
                 continue;
             }
             let name = entry.file_name().to_string_lossy().to_string();
-            let lower = name.to_ascii_lowercase();
-            if !(lower.ends_with(".png") || lower.ends_with(".jpg") || lower.ends_with(".jpeg") || lower.ends_with(".webp")) {
+            if screenshot_mime(&name).is_none() {
                 continue;
             }
+            let modified_ms = meta
+                .modified()
+                .ok()
+                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
             out.push(ScreenshotEntry {
                 instance_id: inst.id.clone(),
                 instance_name: inst.name.clone(),
                 path: format!("screenshots/{name}"),
+                full_path: entry_path.to_string_lossy().to_string(),
                 file_name: name,
                 size: meta.len(),
-                modified_at: meta
-                    .modified()
-                    .ok()
-                    .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-                    .map(|d| d.as_secs()),
+                modified_ms,
             });
         }
     }
-    out.sort_by(|a, b| b.modified_at.cmp(&a.modified_at));
+    out.sort_by(|a, b| b.modified_ms.cmp(&a.modified_ms));
     Ok(out)
+}
+
+pub async fn read_screenshot_image(
+    store: &Instances,
+    instance_id: &str,
+    rel_path: &str,
+) -> Result<String> {
+    let normalized = rel_path.trim().replace('\\', "/");
+    if !normalized.starts_with("screenshots/") {
+        bail!("Screenshot path must stay inside the screenshots folder");
+    }
+    let mime = screenshot_mime(&normalized).context("Unsupported screenshot image format")?;
+    let target = files::resolve(store, instance_id, &normalized, false).await?;
+    let meta = tokio::fs::symlink_metadata(&target)
+        .await
+        .context("Screenshot file not found")?;
+    if is_link(&meta) || !meta.is_file() {
+        bail!("Invalid screenshot file");
+    }
+    if meta.len() > 24 * 1024 * 1024 {
+        bail!("Screenshot exceeds the 24 MB preview limit");
+    }
+    let bytes = tokio::fs::read(&target).await?;
+    Ok(format!(
+        "data:{mime};base64,{}",
+        base64::engine::general_purpose::STANDARD.encode(&bytes)
+    ))
 }
 
 #[derive(Serialize)]
@@ -987,7 +1067,8 @@ pub struct LogFileEntry {
     pub name: String,
     pub path: String,
     pub size: u64,
-    pub modified_at: Option<u64>,
+    pub modified_ms: u64,
+    pub gzipped: bool,
 }
 
 pub async fn list_disk_logs(store: &Instances, id: &str) -> Result<Vec<LogFileEntry>> {
@@ -1006,21 +1087,25 @@ pub async fn list_disk_logs(store: &Instances, id: &str) -> Result<Vec<LogFileEn
         if !(name.ends_with(".log") || name.ends_with(".log.gz") || name.ends_with(".txt")) {
             continue;
         }
+        let modified_ms = meta
+            .modified()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_millis() as u64)
+            .unwrap_or(0);
+        let gzipped = name.ends_with(".gz");
         out.push(LogFileEntry {
             path: format!("logs/{name}"),
             name,
             size: meta.len(),
-            modified_at: meta
-                .modified()
-                .ok()
-                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-                .map(|d| d.as_secs()),
+            modified_ms,
+            gzipped,
         });
     }
     out.sort_by(|a, b| {
         (b.name == "latest.log")
             .cmp(&(a.name == "latest.log"))
-            .then(b.modified_at.cmp(&a.modified_at))
+            .then(b.modified_ms.cmp(&a.modified_ms))
     });
     Ok(out)
 }
@@ -1186,9 +1271,11 @@ pub async fn detect_java_runtimes(managed_root: &Path) -> Vec<DetectedJava> {
 pub struct StorageSummary {
     pub data_dir: String,
     pub instances_dir: String,
+    pub total_bytes: u64,
     pub cache_bytes: u64,
     pub instances_bytes: u64,
     pub java_bytes: u64,
+    pub skins_bytes: u64,
     pub backups_bytes: u64,
 }
 
@@ -1198,6 +1285,7 @@ pub async fn storage_summary(data_dir: &Path) -> StorageSummary {
         let instances_dir = data.join("custom-instances");
         let cache_dir = data.join("verified-game-files");
         let java_dir = data.join("java-runtimes");
+        let skins_dir = data.join("skins");
         let mut backups_bytes = 0u64;
         if let Ok(rd) = std::fs::read_dir(&instances_dir) {
             for e in rd.flatten() {
@@ -1207,12 +1295,22 @@ pub async fn storage_summary(data_dir: &Path) -> StorageSummary {
                 }
             }
         }
+        let cache_bytes = dir_size_bounded(&cache_dir, 0);
+        let instances_bytes = dir_size_bounded(&instances_dir, 0);
+        let java_bytes = dir_size_bounded(&java_dir, 0);
+        let skins_bytes = dir_size_bounded(&skins_dir, 0);
+        let total_bytes = instances_bytes
+            .saturating_add(cache_bytes)
+            .saturating_add(java_bytes)
+            .saturating_add(skins_bytes);
         StorageSummary {
             data_dir: data.to_string_lossy().to_string(),
             instances_dir: instances_dir.to_string_lossy().to_string(),
-            cache_bytes: dir_size_bounded(&cache_dir, 0),
-            instances_bytes: dir_size_bounded(&instances_dir, 0),
-            java_bytes: dir_size_bounded(&java_dir, 0),
+            total_bytes,
+            cache_bytes,
+            instances_bytes,
+            java_bytes,
+            skins_bytes,
             backups_bytes,
         }
     })
@@ -1220,9 +1318,11 @@ pub async fn storage_summary(data_dir: &Path) -> StorageSummary {
     .unwrap_or_else(|_| StorageSummary {
         data_dir: data_dir.to_string_lossy().to_string(),
         instances_dir: data_dir.join("custom-instances").to_string_lossy().to_string(),
+        total_bytes: 0,
         cache_bytes: 0,
         instances_bytes: 0,
         java_bytes: 0,
+        skins_bytes: 0,
         backups_bytes: 0,
     })
 }
@@ -1252,8 +1352,10 @@ pub struct SavedSkin {
     pub id: String,
     pub name: String,
     pub variant: String,
-    pub data_url: String,
-    pub created_at: String,
+    #[serde(alias = "dataUrl")]
+    pub png_data_url: String,
+    #[serde(alias = "createdAt")]
+    pub updated_at: String,
 }
 
 pub fn validate_minecraft_skin_png(bytes: &[u8]) -> Result<(u32, u32)> {
@@ -1316,15 +1418,16 @@ pub async fn saved_skins_save(
         if let Some(found) = list.iter_mut().find(|s| s.id == existing_id) {
             found.name = clean_name.to_string();
             found.variant = variant.to_string();
-            found.data_url = normalized;
+            found.png_data_url = normalized;
+            found.updated_at = chrono::Utc::now().to_rfc3339();
             found.clone()
         } else {
             let item = SavedSkin {
                 id: uuid::Uuid::new_v4().to_string(),
                 name: clean_name.to_string(),
                 variant: variant.to_string(),
-                data_url: normalized,
-                created_at: chrono::Utc::now().to_rfc3339(),
+                png_data_url: normalized,
+                updated_at: chrono::Utc::now().to_rfc3339(),
             };
             list.insert(0, item.clone());
             item
@@ -1334,8 +1437,8 @@ pub async fn saved_skins_save(
             id: uuid::Uuid::new_v4().to_string(),
             name: clean_name.to_string(),
             variant: variant.to_string(),
-            data_url: normalized,
-            created_at: chrono::Utc::now().to_rfc3339(),
+            png_data_url: normalized,
+            updated_at: chrono::Utc::now().to_rfc3339(),
         };
         list.insert(0, item.clone());
         item
@@ -1518,6 +1621,10 @@ mod tests {
         nbt.extend_from_slice(&8u16.to_be_bytes());
         nbt.extend_from_slice(b"GameType");
         nbt.extend_from_slice(&1i32.to_be_bytes());
+        nbt.push(1); // TAG_Byte
+        nbt.extend_from_slice(&10u16.to_be_bytes());
+        nbt.extend_from_slice(b"Difficulty");
+        nbt.push(3); // Hard
         nbt.push(0); // End Data
         nbt.push(0); // End Root
 
@@ -1528,6 +1635,7 @@ mod tests {
         let parsed = parse_level_dat_bytes(&gz).unwrap();
         assert_eq!(parsed.level_name.as_deref(), Some("Solara"));
         assert_eq!(parsed.game_type, Some(1));
+        assert_eq!(parsed.difficulty, Some(3));
         assert!(!parsed.hardcore);
     }
 
@@ -1548,10 +1656,98 @@ mod tests {
             .unwrap();
         assert_eq!(saved.name, "Dawn Explorer");
         assert_eq!(saved.variant, "slim");
-        let list = saved_skins_list(&root).await.unwrap();
-        assert_eq!(list.len(), 1);
-        saved_skins_delete(&root, &saved.id).await.unwrap();
+        let serialized = serde_json::to_value(&saved).unwrap();
+        assert!(serialized.get("pngDataUrl").is_some());
+        assert!(serialized.get("updatedAt").is_some());
+
+        let legacy_json = serde_json::json!([{
+            "id": "legacy-1",
+            "name": "Legacy",
+            "variant": "classic",
+            "dataUrl": data_url,
+            "createdAt": "2026-01-01T00:00:00Z"
+        }]);
+        tokio::fs::write(root.join("index.json"), serde_json::to_vec(&legacy_json).unwrap())
+            .await
+            .unwrap();
+        let legacy_list = saved_skins_list(&root).await.unwrap();
+        assert_eq!(legacy_list.len(), 1);
+        assert_eq!(legacy_list[0].name, "Legacy");
+        assert!(legacy_list[0].png_data_url.starts_with("data:image/png;base64,"));
+
+        let saved2 = saved_skins_save(&root, None, "Dawn Two", "classic", &data_url)
+            .await
+            .unwrap();
+        saved_skins_delete(&root, &saved2.id).await.unwrap();
+        saved_skins_delete(&root, "legacy-1").await.unwrap();
         assert!(saved_skins_list(&root).await.unwrap().is_empty());
         let _ = tokio::fs::remove_dir_all(root).await;
+    }
+
+    #[tokio::test]
+    async fn storage_summary_reports_total_and_skins_bytes() {
+        let root = std::env::temp_dir().join(format!("solara-storage-test-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(root.join("skins")).await.unwrap();
+        tokio::fs::write(root.join("skins").join("index.json"), vec![0u8; 128])
+            .await
+            .unwrap();
+        let summary = storage_summary(&root).await;
+        assert_eq!(summary.skins_bytes, 128);
+        assert_eq!(summary.total_bytes, 128);
+        let _ = tokio::fs::remove_dir_all(root).await;
+    }
+
+    #[tokio::test]
+    async fn list_screenshots_returns_metadata_only_and_reads_on_demand() {
+        let root = std::env::temp_dir().join(format!("solara-shots-test-{}", uuid::Uuid::new_v4()));
+        let store = Instances::new(root.clone());
+        let inst = store
+            .create(
+                "Shot Test".into(),
+                "1.21.1".into(),
+                "vanilla".into(),
+                None,
+                4096,
+                "auto".into(),
+            )
+            .await
+            .unwrap();
+        let shots_dir = store.game_dir(&inst.id).await.unwrap().join("screenshots");
+        tokio::fs::create_dir_all(&shots_dir).await.unwrap();
+        tokio::fs::write(shots_dir.join("2026-01-01.png"), b"\x89PNG\r\n\x1a\ntest")
+            .await
+            .unwrap();
+
+        let entries = list_screenshots(&store, Some(&inst.id)).await.unwrap();
+        assert_eq!(entries.len(), 1);
+        let serialized = serde_json::to_value(&entries[0]).unwrap();
+        assert!(serialized.get("dataUrl").is_none());
+        assert!(serialized
+            .get("fullPath")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .ends_with("2026-01-01.png"));
+
+        let data_url = read_screenshot_image(&store, &inst.id, "screenshots/2026-01-01.png")
+            .await
+            .unwrap();
+        assert!(data_url.starts_with("data:image/png;base64,"));
+        assert!(read_screenshot_image(&store, &inst.id, "../instance.json")
+            .await
+            .is_err());
+
+        #[cfg(unix)]
+        {
+            let outside = root.join("outside.png");
+            tokio::fs::write(&outside, b"\x89PNG\r\n\x1a\nsecret").await.unwrap();
+            std::os::unix::fs::symlink(&outside, shots_dir.join("linked.png")).unwrap();
+            let after_link = list_screenshots(&store, Some(&inst.id)).await.unwrap();
+            assert_eq!(after_link.len(), 1);
+            assert!(read_screenshot_image(&store, &inst.id, "screenshots/linked.png")
+                .await
+                .is_err());
+        }
+
+        let _ = tokio::fs::remove_dir_all(&root).await;
     }
 }

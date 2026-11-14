@@ -9,7 +9,7 @@ use serde_json::Value;
 use std::{
     collections::{BTreeMap, HashMap},
     ffi::OsString,
-    path::Path,
+    path::{Path, PathBuf},
     process::Stdio,
     sync::Arc,
 };
@@ -91,33 +91,110 @@ pub fn build_args(
     build_args_with_options(plan, runtime, game, session, memory, os_version, None, None, false)
 }
 
-fn split_jvm_args(raw: &str) -> Result<Vec<OsString>> {
+pub fn split_command_args(raw: &str) -> Result<Vec<String>> {
     if raw.contains('\0') {
-        bail!("JVM arguments cannot contain null bytes");
+        bail!("Command arguments cannot contain null bytes");
+    }
+    if raw
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
+    {
+        bail!("Command arguments contain unsupported control characters");
     }
     let mut out = Vec::new();
     let mut current = String::new();
+    let mut in_token = false;
     let mut quote: Option<char> = None;
     for ch in raw.chars() {
         match quote {
-            Some(q) if ch == q => quote = None,
-            Some(_) => current.push(ch),
-            None if ch == '"' || ch == '\'' => quote = Some(ch),
+            Some(q) if ch == q => {
+                quote = None;
+                in_token = true;
+            }
+            Some(_) => {
+                current.push(ch);
+                in_token = true;
+            }
+            None if ch == '"' || ch == '\'' => {
+                quote = Some(ch);
+                in_token = true;
+            }
             None if ch.is_whitespace() => {
-                if !current.is_empty() {
-                    out.push(OsString::from(std::mem::take(&mut current)));
+                if in_token {
+                    out.push(std::mem::take(&mut current));
+                    in_token = false;
                 }
             }
-            None => current.push(ch),
+            None => {
+                current.push(ch);
+                in_token = true;
+            }
         }
     }
     if quote.is_some() {
-        bail!("Unclosed quote in custom JVM arguments");
+        bail!("Unclosed quote in command arguments");
     }
-    if !current.is_empty() {
-        out.push(OsString::from(current));
+    if in_token {
+        out.push(current);
     }
     Ok(out)
+}
+
+fn split_jvm_args(raw: &str) -> Result<Vec<OsString>> {
+    Ok(split_command_args(raw)?
+        .into_iter()
+        .map(OsString::from)
+        .collect())
+}
+
+pub async fn run_hook(command_line: &str, working_dir: &Path) -> Result<()> {
+    let trimmed = command_line.trim();
+    if trimmed.is_empty() {
+        return Ok(());
+    }
+    let parts = split_command_args(trimmed)?;
+    let Some(program) = parts.first() else {
+        return Ok(());
+    };
+    if program.is_empty() {
+        bail!("Hook command cannot start with an empty executable name");
+    }
+    let mut command = Command::new(program);
+    command
+        .args(&parts[1..])
+        .current_dir(working_dir)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .kill_on_drop(true);
+    #[cfg(windows)]
+    command.creation_flags(0x08000000);
+    let child = command
+        .spawn()
+        .with_context(|| format!("Hook command \"{program}\" could not start"))?;
+    let output = tokio::time::timeout(
+        std::time::Duration::from_secs(60),
+        child.wait_with_output(),
+    )
+    .await
+    .map_err(|_| anyhow::anyhow!("Hook command \"{program}\" timed out after 60 seconds"))?
+    .with_context(|| format!("Hook command \"{program}\" failed to run"))?;
+    if !output.status.success() {
+        let stderr_text = String::from_utf8_lossy(&output.stderr);
+        let detail = stderr_text.trim();
+        let code = output
+            .status
+            .code()
+            .map(|c| format!("exit code {c}"))
+            .unwrap_or_else(|| "terminated by signal".to_string());
+        if detail.is_empty() {
+            bail!("Hook command \"{program}\" exited with {code}");
+        } else {
+            let truncated: String = detail.chars().take(240).collect();
+            bail!("Hook command \"{program}\" exited with {code}: {truncated}");
+        }
+    }
+    Ok(())
 }
 
 pub fn build_args_with_options(
@@ -295,11 +372,20 @@ pub async fn java_check(path: &str, required: u32) -> Result<()> {
         .context("Java version check timed out")?
 }
 
+pub struct FinishedGame {
+    pub instance_id: String,
+    pub elapsed_seconds: u64,
+    pub game_dir: PathBuf,
+    pub post_exit: Option<String>,
+}
+
 struct Game {
     child: Child,
     log: Arc<Mutex<String>>,
     started_at: std::time::Instant,
     playtime_recorded: bool,
+    game_dir: PathBuf,
+    post_exit: Option<String>,
 }
 pub struct Games {
     items: Mutex<HashMap<String, Game>>,
@@ -322,20 +408,47 @@ impl Games {
         }
         Ok(running)
     }
-    pub async fn collect_finished_playtime(&self) -> Result<Vec<(String, u64)>> {
+    pub async fn collect_finished(&self) -> Result<Vec<FinishedGame>> {
         let mut items = self.items.lock().await;
         let mut finished = Vec::new();
         for (id, game) in items.iter_mut() {
-            if !game.playtime_recorded && game.child.try_wait()?.is_some() {
-                game.playtime_recorded = true;
-                let elapsed = game.started_at.elapsed().as_secs();
-                if elapsed > 0 {
-                    finished.push((id.clone(), elapsed));
+            if game.child.try_wait()?.is_some() {
+                let elapsed_seconds = if !game.playtime_recorded {
+                    game.playtime_recorded = true;
+                    game.started_at.elapsed().as_secs()
+                } else {
+                    0
+                };
+                let post_exit = game.post_exit.take();
+                if elapsed_seconds > 0 || post_exit.is_some() {
+                    finished.push(FinishedGame {
+                        instance_id: id.clone(),
+                        elapsed_seconds,
+                        game_dir: game.game_dir.clone(),
+                        post_exit,
+                    });
                 }
             }
         }
         Ok(finished)
     }
+    pub async fn poll_until_exited(&self, id: &str, pid: u32) -> bool {
+        loop {
+            {
+                let mut items = self.items.lock().await;
+                match items.get_mut(id) {
+                    Some(game) if game.child.id() == Some(pid) => {
+                        if !matches!(game.child.try_wait(), Ok(None)) {
+                            return true;
+                        }
+                    }
+                    _ => return false,
+                }
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(800)).await;
+        }
+    }
+    #[allow(clippy::too_many_arguments)]
     pub async fn start(
         &self,
         store: &Instances,
@@ -346,6 +459,7 @@ impl Games {
         extra_jvm_args: Option<&str>,
         resolution: Option<[u32; 2]>,
         fullscreen: bool,
+        post_exit: Option<String>,
     ) -> Result<u32> {
         let instance = store.get(id).await?;
         if instance.state != "installed" {
@@ -388,7 +502,7 @@ impl Games {
         let mut command = Command::new(java_path);
         command
             .args(args)
-            .current_dir(game_dir)
+            .current_dir(&game_dir)
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -424,6 +538,10 @@ impl Games {
                 log,
                 started_at: std::time::Instant::now(),
                 playtime_recorded: false,
+                game_dir,
+                post_exit: post_exit
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty()),
             },
         );
         Ok(pid)
@@ -610,5 +728,55 @@ mod tests {
         let text = log.lock().await;
         assert!(!text.contains("SECRET_FIXTURE_TOKEN"));
         assert!(text.contains("[redacted]"));
+    }
+
+    #[test]
+    fn split_command_args_handles_quotes_and_rejects_unclosed() {
+        let parsed =
+            split_command_args(r#"python3 "/tmp/my script.py" --flag='a b' "" plain"#).unwrap();
+        assert_eq!(
+            parsed,
+            vec!["python3", "/tmp/my script.py", "--flag=a b", "", "plain"]
+        );
+        let win_parsed =
+            split_command_args(r#""C:\Program Files\My Tool\run.exe" --arg "hello world""#).unwrap();
+        assert_eq!(
+            win_parsed,
+            vec![r"C:\Program Files\My Tool\run.exe", "--arg", "hello world"]
+        );
+        assert!(split_command_args("echo \"unclosed").is_err());
+        assert!(split_command_args("echo\0bad").is_err());
+    }
+
+    #[tokio::test]
+    async fn run_hook_executes_without_shell_and_reports_failures() {
+        let dir = std::env::temp_dir().join(format!("solara-hook-test-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await.unwrap();
+
+        #[cfg(not(windows))]
+        {
+            // Confirm literal argument delivery (no shell expansion of `&&` or `$()`)
+            let marker = dir.join("should-not-exist");
+            let cmd = format!("true && touch {}", marker.display());
+            run_hook(&cmd, &dir).await.unwrap();
+            assert!(!marker.exists(), "hook must not pass through a shell");
+
+            // Non-zero exit fails clearly
+            let err = run_hook("false", &dir).await.unwrap_err().to_string();
+            assert!(err.contains("exited with"));
+        }
+
+        // Empty hook is a no-op; empty quoted program fails clearly
+        run_hook("   ", &dir).await.unwrap();
+        assert!(run_hook(r#""""#, &dir).await.is_err());
+
+        // Missing binary fails with clear context
+        let missing = run_hook("definitely-missing-solara-hook-binary-xyz", &dir)
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(missing.contains("could not start"));
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
     }
 }

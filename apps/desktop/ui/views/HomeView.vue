@@ -92,7 +92,7 @@ async function retryInstall(id: string) {
     await native('retry_instance', { id });
     notify('info', 'Retrying installation', 'Download queued.');
   } catch (err) {
-    notify('error', 'Retry failed', String(err));
+    notify('error', "Couldn't retry install", String(err));
   }
 }
 

@@ -69,11 +69,9 @@ export interface DownloadJob {
 export interface LauncherPreferences {
   memory: number;
   javaPath: string;
-  discord: boolean;
   theme: 'dawn-gold' | 'slate' | 'midnight';
   uiScale: number;
   reducedMotion: boolean;
-  sidebarExpanded: boolean;
   density: 'comfortable' | 'compact';
   onLaunch: 'keep' | 'minimize' | 'hide';
   confirmLaunch: boolean;
@@ -91,8 +89,8 @@ export interface ModEntry {
   path: string;
   fileName: string;
   name: string;
-  version: string;
-  modId: string;
+  version: string | null;
+  modId: string | null;
   enabled: boolean;
   size: number;
 }
@@ -166,9 +164,9 @@ export interface ScreenshotEntry {
   instanceName: string;
   fileName: string;
   path: string;
+  fullPath: string;
   size: number;
   modifiedMs: number;
-  dataUrl: string;
 }
 
 export interface LogFileEntry {

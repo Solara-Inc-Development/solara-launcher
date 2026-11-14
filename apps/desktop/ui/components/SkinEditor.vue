@@ -105,6 +105,7 @@ onMounted(() => {
     pctx.fillStyle = '#252b36';
     pctx.fillRect(20, 20, 8, 12);
     renderView();
+    emit('update:modelValue', pixelCanvas.toDataURL('image/png'));
   }
 });
 

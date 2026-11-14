@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Play,
+  Pause,
   Square,
   Settings,
   MoreHorizontal,
@@ -46,6 +47,15 @@ import {
   native,
   notify,
 } from '../state';
+import {
+  copyScreenshotPath,
+  getCachedPreview,
+  invalidateScreenshotPreview,
+  loadFullScreenshot,
+  loadScreenshotPreview,
+  peekCachedPreview,
+  screenshotKey,
+} from '../screenshots';
 import type {
   BackupEntry,
   DetectedJava,
@@ -118,7 +128,7 @@ async function handleOverflowAction(action: string) {
   if (action === 'pin') await patchInstanceMeta(inst.id, { pinned: !inst.pinned });
   else if (action === 'fav') await patchInstanceMeta(inst.id, { favourite: !inst.favourite });
   else if (action === 'folder') {
-    native('open_instance_folder', { id: inst.id }).catch((e) => notify('error', 'Failed', String(e)));
+    native('open_instance_folder', { id: inst.id }).catch((e) => notify('error', "Couldn't open folder", String(e)));
   } else if (action === 'duplicate') {
     try {
       const copy = await native<{ id: string }>('duplicate_instance', { id: inst.id });
@@ -126,7 +136,7 @@ async function handleOverflowAction(action: string) {
       notify('success', 'Instance duplicated');
       navigate('instance', { instanceId: copy.id, tab: 'overview' });
     } catch (e) {
-      notify('error', 'Duplicate failed', String(e));
+      notify('error', "Couldn't duplicate instance", String(e));
     }
   } else if (action === 'repair') {
     try {
@@ -134,7 +144,7 @@ async function handleOverflowAction(action: string) {
       await refreshSnapshot();
       notify('info', 'Repairing files', `Verifying runtime for ${inst.name}.`);
     } catch (e) {
-      notify('error', 'Repair failed', String(e));
+      notify('error', "Couldn't repair files", String(e));
     }
   } else if (action === 'delete') {
     showDeleteDialog.value = true;
@@ -151,7 +161,7 @@ async function confirmDelete() {
     notify('success', 'Instance deleted');
     navigate('library');
   } catch (e) {
-    notify('error', 'Delete failed', String(e));
+    notify('error', "Couldn't delete instance", String(e));
   } finally {
     deleting.value = false;
   }
@@ -181,7 +191,7 @@ async function saveNotes() {
     await patchInstanceMeta(instance.value.id, { notes: notesText.value });
     notify('success', 'Notes saved');
   } catch (e) {
-    notify('error', 'Could not save notes', String(e));
+    notify('error', "Couldn't save notes", String(e));
   } finally {
     savingNotes.value = false;
   }
@@ -216,7 +226,7 @@ async function loadContentTab() {
       });
     }
   } catch (e) {
-    notify('error', 'Failed loading content', String(e));
+    notify('error', "Couldn't load content", String(e));
   } finally {
     contentLoading.value = false;
   }
@@ -228,7 +238,7 @@ const filteredContentRows = computed(() => {
     return mods.value.filter((m) => {
       if (contentStateFilter.value === 'enabled' && !m.enabled) return false;
       if (contentStateFilter.value === 'disabled' && m.enabled) return false;
-      if (q && !`${m.name} ${m.fileName} ${m.modId}`.toLowerCase().includes(q)) return false;
+      if (q && !`${m.name} ${m.fileName} ${m.modId ?? ''}`.toLowerCase().includes(q)) return false;
       return true;
     });
   }
@@ -240,22 +250,27 @@ const filteredContentRows = computed(() => {
   });
 });
 
+async function setContentItemEnabled(path: string, enabled: boolean) {
+  if (!instance.value) return;
+  if (contentSubTab.value === 'mod') {
+    await native('toggle_instance_mod', { id: instance.value.id, path, enabled });
+  } else {
+    await native('toggle_instance_pack', {
+      id: instance.value.id,
+      kind: contentSubTab.value,
+      path,
+      enabled,
+    });
+  }
+}
+
 async function toggleContentItem(path: string, enabled: boolean) {
   if (!instance.value) return;
   try {
-    if (contentSubTab.value === 'mod') {
-      await native('toggle_instance_mod', { id: instance.value.id, path, enabled });
-    } else {
-      await native('toggle_instance_pack', {
-        id: instance.value.id,
-        kind: contentSubTab.value,
-        path,
-        enabled,
-      });
-    }
+    await setContentItemEnabled(path, enabled);
     await loadContentTab();
   } catch (e) {
-    notify('error', 'Toggle failed', String(e));
+    notify('error', "Couldn't update item", String(e));
   }
 }
 
@@ -266,26 +281,54 @@ async function deleteContentItem(path: string) {
     notify('info', 'Moved to instance trash');
     await loadContentTab();
   } catch (e) {
-    notify('error', 'Remove failed', String(e));
+    notify('error', "Couldn't move item to trash", String(e));
   }
 }
 
 async function bulkToggle(enable: boolean) {
   if (!instance.value) return;
-  for (const p of selectedContentPaths.value) {
-    await toggleContentItem(p, enable);
+  const rows = contentSubTab.value === 'mod' ? mods.value : packs.value;
+  const targets = Array.from(selectedContentPaths.value).filter((p) => {
+    const row = rows.find((item) => item.path === p);
+    return !row || row.enabled !== enable;
+  });
+  let changed = 0;
+  let firstErr: unknown = null;
+  for (const p of targets) {
+    try {
+      await setContentItemEnabled(p, enable);
+      changed++;
+    } catch (e) {
+      if (!firstErr) firstErr = e;
+    }
   }
   selectedContentPaths.value = new Set();
+  await loadContentTab();
+  if (firstErr) {
+    notify('error', changed > 0 ? "Some items couldn't be updated" : "Couldn't update items", String(firstErr));
+  }
 }
 
 async function bulkDelete() {
   if (!instance.value) return;
-  for (const p of selectedContentPaths.value) {
-    await native('instance_file_action', { id: instance.value.id, action: 'trash', path: p }).catch(() => {});
+  const targets = Array.from(selectedContentPaths.value);
+  let moved = 0;
+  let firstErr: unknown = null;
+  for (const p of targets) {
+    try {
+      await native('instance_file_action', { id: instance.value.id, action: 'trash', path: p });
+      moved++;
+    } catch (e) {
+      if (!firstErr) firstErr = e;
+    }
   }
   selectedContentPaths.value = new Set();
   await loadContentTab();
-  notify('info', 'Selected content moved to trash');
+  if (firstErr) {
+    notify('error', moved > 0 ? `Moved ${moved} item(s); some couldn't be moved` : "Couldn't move items to trash", String(firstErr));
+  } else if (moved > 0) {
+    notify('info', 'Selected content moved to trash');
+  }
 }
 
 function triggerImportContent() {
@@ -321,7 +364,7 @@ async function onImportContentFile(e: Event) {
       }
       notify('success', `Imported ${file.name}`);
     } catch (err) {
-      notify('error', `Import failed: ${file.name}`, String(err));
+      notify('error', `Couldn't import ${file.name}`, String(err));
     }
   }
   await loadContentTab();
@@ -353,7 +396,7 @@ async function loadFiles(path = filesPath.value) {
       trashList.value = await native<TrashEntry[]>('instance_trash', { id: instance.value.id });
     }
   } catch (e) {
-    notify('error', 'Could not read folder', String(e));
+    notify('error', "Couldn't read folder", String(e));
   } finally {
     filesLoading.value = false;
   }
@@ -373,7 +416,7 @@ async function openFileEntry(entry: FileEntry) {
       });
       editingFile.value = { path: entry.path, content: res.content, sha256: res.sha256, dirty: false };
     } catch (e) {
-      notify('error', 'Cannot open text file', String(e));
+      notify('error', "Couldn't open text file", String(e));
     }
   } else if (entry.image) {
     try {
@@ -383,11 +426,11 @@ async function openFileEntry(entry: FileEntry) {
       });
       previewImage.value = { path: entry.path, dataUrl };
     } catch (e) {
-      notify('error', 'Cannot preview image', String(e));
+      notify('error', "Couldn't preview image", String(e));
     }
   } else {
     native('open_instance_file', { id: instance.value.id, path: entry.path }).catch((e) =>
-      notify('error', 'Cannot open file', String(e)),
+      notify('error', "Couldn't open file", String(e)),
     );
   }
 }
@@ -406,7 +449,7 @@ async function saveEditedFile() {
     editingFile.value.dirty = false;
     notify('success', 'File saved');
   } catch (e) {
-    notify('error', 'Save failed', String(e));
+    notify('error', "Couldn't save file", String(e));
   }
 }
 
@@ -421,7 +464,7 @@ async function trashFileEntry(entry: FileEntry) {
     notify('info', `Moved ${entry.name} to trash`);
     await loadFiles();
   } catch (e) {
-    notify('error', 'Trash failed', String(e));
+    notify('error', "Couldn't move to trash", String(e));
   }
 }
 
@@ -436,7 +479,7 @@ async function restoreTrashItem(item: TrashEntry) {
     notify('success', `Restored ${item.name}`);
     await loadFiles();
   } catch (e) {
-    notify('error', 'Restore failed', String(e));
+    notify('error', "Couldn't restore item", String(e));
   }
 }
 
@@ -451,7 +494,7 @@ async function createFolder() {
     newFolderModal.value = false;
     await loadFiles();
   } catch (e) {
-    notify('error', 'Create folder failed', String(e));
+    notify('error', "Couldn't create folder", String(e));
   }
 }
 
@@ -469,7 +512,7 @@ async function loadWorlds() {
   try {
     worlds.value = await native<WorldEntry[]>('instance_worlds', { id: instance.value.id });
   } catch (e) {
-    notify('error', 'Failed loading worlds', String(e));
+    notify('error', "Couldn't load worlds", String(e));
   } finally {
     worldsLoading.value = false;
   }
@@ -487,7 +530,7 @@ async function confirmRenameWorld() {
     await loadWorlds();
     notify('success', 'World folder renamed');
   } catch (e) {
-    notify('error', 'Rename world failed', String(e));
+    notify('error', "Couldn't rename world", String(e));
   }
 }
 
@@ -502,19 +545,25 @@ async function deleteWorld(w: WorldEntry) {
     notify('info', `World '${w.name}' moved to instance trash`);
     await loadWorlds();
   } catch (e) {
-    notify('error', 'Could not delete world', String(e));
+    notify('error', "Couldn't delete world", String(e));
   }
 }
 
 // ---------------------------------------------------------------------------
 // Logs Tab
 // ---------------------------------------------------------------------------
+const LOG_WINDOW_STEP = 300;
+const MAX_LOG_LINE_CHARS = 2000;
 const diskLogs = ref<LogFileEntry[]>([]);
 const selectedLogSource = ref<'live' | string>('live');
 const rawLogText = ref('');
+const clearedLogPrefix = ref('');
 const logLevelFilter = ref<'ALL' | 'INFO' | 'WARN' | 'ERROR'>('ALL');
 const logSearch = ref('');
 const logAutoScroll = ref(true);
+const logPaused = ref(false);
+const logShowTimestamps = ref(true);
+const logWindowLimit = ref(LOG_WINDOW_STEP);
 const logBoxRef = ref<HTMLElement | null>(null);
 const copiedLog = ref(false);
 let logTimer: ReturnType<typeof setInterval> | null = null;
@@ -526,57 +575,132 @@ async function loadLogsMeta() {
     if (!instance.value.running && selectedLogSource.value === 'live' && diskLogs.value.length > 0) {
       selectedLogSource.value = diskLogs.value[0].name;
     }
-    await fetchCurrentLog();
+    await fetchCurrentLog(true);
   } catch {
     // ignore missing logs
   }
 }
 
-async function fetchCurrentLog() {
+async function fetchCurrentLog(force = false) {
   if (!instance.value || !store.desktop) return;
+  if (!force && logPaused.value) return;
   try {
-    if (selectedLogSource.value === 'live') {
-      rawLogText.value = await native<string>('instance_logs', { id: instance.value.id });
-    } else {
-      rawLogText.value = await native<string>('instance_disk_log', {
-        id: instance.value.id,
-        name: selectedLogSource.value,
-      });
+    const nextText =
+      selectedLogSource.value === 'live'
+        ? await native<string>('instance_logs', { id: instance.value.id })
+        : await native<string>('instance_disk_log', {
+            id: instance.value.id,
+            name: selectedLogSource.value,
+          });
+    rawLogText.value = nextText;
+    if (clearedLogPrefix.value && !nextText.startsWith(clearedLogPrefix.value)) {
+      clearedLogPrefix.value = '';
     }
-    if (logAutoScroll.value && logBoxRef.value) {
-      logBoxRef.value.scrollTop = logBoxRef.value.scrollHeight;
+    if (logAutoScroll.value) {
+      await nextTick();
+      if (logBoxRef.value) {
+        logBoxRef.value.scrollTop = logBoxRef.value.scrollHeight;
+      }
     }
   } catch (e) {
     if (selectedLogSource.value !== 'live') {
-      rawLogText.value = `Could not read log: ${String(e)}`;
+      rawLogText.value = `Couldn't read log: ${String(e)}`;
     } else {
       rawLogText.value = 'No live game process log yet. Launch this instance or select latest.log.';
     }
+    clearedLogPrefix.value = '';
   }
 }
 
-const filteredLogLines = computed(() => {
-  const lines = rawLogText.value.split('\n');
+function handleLogSourceChange() {
+  clearedLogPrefix.value = '';
+  logWindowLimit.value = LOG_WINDOW_STEP;
+  void fetchCurrentLog(true);
+}
+
+function clearLogView() {
+  clearedLogPrefix.value = rawLogText.value;
+  logWindowLimit.value = LOG_WINDOW_STEP;
+}
+
+function toggleLogPause() {
+  logPaused.value = !logPaused.value;
+  if (!logPaused.value) {
+    void fetchCurrentLog(true);
+  }
+}
+
+const activeRawLog = computed(() => {
+  if (clearedLogPrefix.value && rawLogText.value.startsWith(clearedLogPrefix.value)) {
+    return rawLogText.value.slice(clearedLogPrefix.value.length);
+  }
+  return rawLogText.value;
+});
+
+const matchedLogLines = computed(() => {
+  const source = activeRawLog.value;
+  if (!source) return [];
+  const lines = source.split('\n');
   const q = logSearch.value.trim().toLowerCase();
   const lvl = logLevelFilter.value;
-  const matched = lines.filter((line) => {
-    if (lvl !== 'ALL' && !line.toUpperCase().includes(`/${lvl}`) && !line.toUpperCase().includes(`[${lvl}`)) {
-      return false;
+  return lines.filter((line) => {
+    if (lvl !== 'ALL') {
+      const upper = line.toUpperCase();
+      if (lvl === 'ERROR') {
+        if (!upper.includes('/ERROR') && !upper.includes('[ERROR') && !upper.includes('/FATAL') && !upper.includes('[FATAL')) {
+          return false;
+        }
+      } else if (!upper.includes(`/${lvl}`) && !upper.includes(`[${lvl}`)) {
+        return false;
+      }
     }
     if (q && !line.toLowerCase().includes(q)) return false;
     return true;
   });
-  return matched.slice(-1200);
+});
+
+watch([logLevelFilter, logSearch], () => {
+  logWindowLimit.value = LOG_WINDOW_STEP;
+});
+
+const hiddenLogCount = computed(() => Math.max(0, matchedLogLines.value.length - logWindowLimit.value));
+
+const visibleLogLines = computed(() => {
+  const sliceStart = Math.max(0, matchedLogLines.value.length - logWindowLimit.value);
+  return matchedLogLines.value.slice(sliceStart).map((rawLine, idx) => {
+    const safeLine =
+      rawLine.length > MAX_LOG_LINE_CHARS
+        ? `${rawLine.slice(0, MAX_LOG_LINE_CHARS)}… (${rawLine.length - MAX_LOG_LINE_CHARS} chars truncated)`
+        : rawLine;
+    const upper = safeLine.toUpperCase();
+    const level: 'error' | 'warn' | 'info' =
+      upper.includes('/ERROR') || upper.includes('[ERROR') || upper.includes('/FATAL') || upper.includes('[FATAL')
+        ? 'error'
+        : upper.includes('/WARN') || upper.includes('[WARN')
+          ? 'warn'
+          : 'info';
+    const tsMatch = /^(\[(?:\d{4}-\d{2}-\d{2}[ T]|\d{1,2}[A-Za-z]{3}\d{4}\s+)?\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\])\s*(.*)$/.exec(safeLine);
+    return {
+      key: sliceStart + idx,
+      level,
+      ts: logShowTimestamps.value && tsMatch ? tsMatch[1] : '',
+      body: tsMatch ? tsMatch[2] : safeLine,
+    };
+  });
 });
 
 async function copyLogs() {
-  await navigator.clipboard.writeText(filteredLogLines.value.join('\n'));
-  copiedLog.value = true;
-  setTimeout(() => (copiedLog.value = false), 1500);
+  try {
+    await navigator.clipboard.writeText(matchedLogLines.value.join('\n'));
+    copiedLog.value = true;
+    setTimeout(() => (copiedLog.value = false), 1500);
+  } catch (err) {
+    notify('error', "Couldn't copy logs", String(err));
+  }
 }
 
 function downloadLogFile() {
-  const blob = new Blob([filteredLogLines.value.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const blob = new Blob([matchedLogLines.value.join('\n')], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -590,6 +714,73 @@ function downloadLogFile() {
 // ---------------------------------------------------------------------------
 const screenshots = ref<ScreenshotEntry[]>([]);
 const lightboxShot = ref<ScreenshotEntry | null>(null);
+const lightboxShotSrc = ref<string | null>(null);
+const lightboxLoading = ref(false);
+const lightboxError = ref<string | null>(null);
+
+const shotObservedMap = new WeakMap<Element, ScreenshotEntry>();
+const shotObservedElements = new WeakSet<Element>();
+let shotObserver: IntersectionObserver | null = null;
+
+function ensureShotObserver() {
+  if (shotObserver || typeof IntersectionObserver === 'undefined') return;
+  shotObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const shot = shotObservedMap.get(entry.target);
+        if (shot && !peekCachedPreview(shot)) {
+          void loadScreenshotPreview(shot);
+        }
+      }
+    },
+    { rootMargin: '160px' },
+  );
+}
+
+function bindShotCardRef(shot: ScreenshotEntry, el: unknown) {
+  if (!(el instanceof Element)) return;
+  if (typeof IntersectionObserver === 'undefined') {
+    if (!peekCachedPreview(shot)) void loadScreenshotPreview(shot);
+    return;
+  }
+  ensureShotObserver();
+  shotObservedMap.set(el, shot);
+  if (!shotObservedElements.has(el)) {
+    shotObservedElements.add(el);
+    shotObserver?.observe(el);
+  }
+}
+
+async function openShotLightbox(shot: ScreenshotEntry) {
+  previewImage.value = null;
+  lightboxShot.value = shot;
+  lightboxShotSrc.value = getCachedPreview(shot) ?? null;
+  lightboxError.value = null;
+  lightboxLoading.value = true;
+  try {
+    const full = await loadFullScreenshot(shot);
+    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
+      lightboxShotSrc.value = full;
+    }
+  } catch (e) {
+    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
+      lightboxError.value = String(e);
+    }
+  } finally {
+    if (lightboxShot.value && screenshotKey(lightboxShot.value) === screenshotKey(shot)) {
+      lightboxLoading.value = false;
+    }
+  }
+}
+
+function closeMediaLightbox() {
+  previewImage.value = null;
+  lightboxShot.value = null;
+  lightboxShotSrc.value = null;
+  lightboxError.value = null;
+  lightboxLoading.value = false;
+}
 
 async function loadScreenshots() {
   if (!instance.value || !store.desktop) return;
@@ -609,11 +800,12 @@ async function deleteScreenshot(shot: ScreenshotEntry) {
       action: 'trash',
       path: shot.path,
     });
-    lightboxShot.value = null;
+    invalidateScreenshotPreview(shot);
+    closeMediaLightbox();
     await loadScreenshots();
-    notify('info', 'Screenshot moved to trash');
+    notify('info', 'Moved screenshot to trash');
   } catch (e) {
-    notify('error', 'Failed', String(e));
+    notify('error', "Couldn't move screenshot to trash", String(e));
   }
 }
 
@@ -684,7 +876,7 @@ watch(
       await loadWorlds();
     } else if (tab === 'logs') {
       await loadLogsMeta();
-      logTimer = setInterval(fetchCurrentLog, 2500);
+      logTimer = setInterval(() => void fetchCurrentLog(false), 2500);
     } else if (tab === 'screenshots') {
       await loadScreenshots();
     } else if (tab === 'settings') {
@@ -707,6 +899,8 @@ onMounted(() => {
 onUnmounted(() => {
   store.dirtyChecker = null;
   if (logTimer) clearInterval(logTimer);
+  shotObserver?.disconnect();
+  shotObserver = null;
 });
 
 async function loadBackups() {
@@ -731,7 +925,7 @@ async function createBackup() {
     await loadBackups();
     notify('success', 'Backup created');
   } catch (e) {
-    notify('error', 'Backup failed', String(e));
+    notify('error', "Couldn't create backup", String(e));
   } finally {
     creatingBackup.value = false;
   }
@@ -748,7 +942,7 @@ async function restoreBackup(b: BackupEntry) {
     await refreshSnapshot();
     notify('success', 'Backup restored', b.name);
   } catch (e) {
-    notify('error', 'Restore failed', String(e));
+    notify('error', "Couldn't restore backup", String(e));
   }
 }
 
@@ -763,7 +957,7 @@ async function deleteBackup(b: BackupEntry) {
     await loadBackups();
     notify('info', 'Backup deleted');
   } catch (e) {
-    notify('error', 'Delete failed', String(e));
+    notify('error', "Couldn't delete backup", String(e));
   }
 }
 
@@ -807,7 +1001,7 @@ async function saveInstanceSettings() {
     syncDraftFromInstance();
     notify('success', 'Instance settings saved');
   } catch (e) {
-    notify('error', 'Could not save settings', String(e));
+    notify('error', "Couldn't save settings", String(e));
   } finally {
     savingSettings.value = false;
   }
@@ -863,7 +1057,7 @@ async function saveInstanceSettings() {
           v-else-if="instance.state === 'failed' || instance.state === 'cancelled'"
           variant="primary"
           size="md"
-          @click="native('retry_instance', { id: instance.id }).then(() => refreshSnapshot())"
+          @click="native('retry_instance', { id: instance.id }).then(() => refreshSnapshot()).catch((e) => notify('error', &quot;Couldn't retry install&quot;, String(e)))"
         >
           <RefreshCw :size="14" /> Retry Install
         </SolaraButton>
@@ -915,7 +1109,7 @@ async function saveInstanceSettings() {
               <SolaraButton variant="secondary" size="sm" @click="activeTab = 'settings'; settingsSection = 'backups'">
                 <Archive :size="14" /> Backups
               </SolaraButton>
-              <SolaraButton variant="ghost" size="sm" :disabled="Boolean(instance.running)" @click="native('repair_instance', { id: instance.id }).then(() => notify('info', 'Repair queued'))">
+              <SolaraButton variant="ghost" size="sm" :disabled="Boolean(instance.running)" @click="native('repair_instance', { id: instance.id }).then(() => notify('info', 'Repair queued')).catch((e) => notify('error', &quot;Couldn't repair files&quot;, String(e)))">
                 <Wrench :size="14" /> Repair Runtime
               </SolaraButton>
             </div>
@@ -1223,7 +1417,7 @@ async function saveInstanceSettings() {
         <!-- LOGS TAB -->
         <div v-else-if="activeTab === 'logs'" class="sol-stack">
           <div class="sol-toolbar">
-            <select v-model="selectedLogSource" class="sol-select" @change="fetchCurrentLog">
+            <select v-model="selectedLogSource" class="sol-select" @change="handleLogSourceChange">
               <option value="live">Live Game Process Log</option>
               <option v-for="lf in diskLogs" :key="lf.name" :value="lf.name">
                 {{ lf.name }} ({{ formatBytes(lf.size) }})
@@ -1249,6 +1443,22 @@ async function saveInstanceSettings() {
 
             <div class="sol-row-gap">
               <SolaraButton
+                :variant="logShowTimestamps ? 'secondary' : 'ghost'"
+                size="xs"
+                @click="logShowTimestamps = !logShowTimestamps"
+              >
+                <Clock :size="12" /> {{ logShowTimestamps ? 'Timestamps' : 'No timestamps' }}
+              </SolaraButton>
+              <SolaraButton
+                :variant="logPaused ? 'primary' : 'secondary'"
+                size="xs"
+                @click="toggleLogPause"
+              >
+                <Play v-if="logPaused" :size="12" />
+                <Pause v-else :size="12" />
+                {{ logPaused ? 'Resume' : 'Pause' }}
+              </SolaraButton>
+              <SolaraButton
                 :variant="logAutoScroll ? 'primary' : 'secondary'"
                 size="xs"
                 @click="logAutoScroll = !logAutoScroll"
@@ -1263,10 +1473,35 @@ async function saveInstanceSettings() {
               <SolaraButton variant="secondary" size="xs" @click="downloadLogFile">
                 <Download :size="12" /> Export
               </SolaraButton>
+              <SolaraButton variant="ghost" size="xs" @click="clearLogView">
+                <Trash2 :size="12" /> Clear
+              </SolaraButton>
             </div>
           </div>
 
-          <pre ref="logBoxRef" class="sol-log-viewer sol-scroll selectable">{{ filteredLogLines.join('\n') || 'No matching log output.' }}</pre>
+          <div ref="logBoxRef" class="sol-log-viewer sol-scroll selectable">
+            <div v-if="hiddenLogCount > 0" class="sol-log-window-bar">
+              <span class="sol-muted sol-text-xs">
+                Showing latest {{ visibleLogLines.length }} of {{ matchedLogLines.length }} matching lines ({{ hiddenLogCount }} older hidden).
+              </span>
+              <div class="sol-row-gap">
+                <SolaraButton variant="secondary" size="xs" @click="logWindowLimit += LOG_WINDOW_STEP">
+                  Show {{ Math.min(LOG_WINDOW_STEP, hiddenLogCount) }} older
+                </SolaraButton>
+                <SolaraButton v-if="logWindowLimit > LOG_WINDOW_STEP" variant="ghost" size="xs" @click="logWindowLimit = LOG_WINDOW_STEP">
+                  Latest only
+                </SolaraButton>
+              </div>
+            </div>
+            <template v-if="visibleLogLines.length > 0">
+              <div
+                v-for="entry in visibleLogLines"
+                :key="entry.key"
+                :class="['sol-log-line', { 'is-error': entry.level === 'error', 'is-warn': entry.level === 'warn' }]"
+              ><span v-if="entry.ts" class="sol-log-ts">{{ entry.ts }}</span>{{ entry.body }}</div>
+            </template>
+            <div v-else class="sol-muted">No matching log output.</div>
+          </div>
         </div>
 
         <!-- SCREENSHOTS TAB -->
@@ -1285,8 +1520,22 @@ async function saveInstanceSettings() {
             <template #icon><Camera :size="24" /></template>
           </SolaraEmptyState>
           <div v-else class="sol-shots-grid">
-            <div v-for="shot in screenshots" :key="shot.path" class="sol-shot-card" @click="lightboxShot = shot">
-              <img :src="shot.dataUrl" :alt="shot.fileName" class="sol-shot-img" loading="lazy" />
+            <div
+              v-for="shot in screenshots"
+              :key="screenshotKey(shot)"
+              :ref="(el) => bindShotCardRef(shot, el)"
+              class="sol-shot-card"
+              @click="openShotLightbox(shot)"
+            >
+              <img
+                v-if="peekCachedPreview(shot)"
+                :src="peekCachedPreview(shot)"
+                :alt="shot.fileName"
+                class="sol-shot-img"
+              />
+              <div v-else class="sol-shot-placeholder">
+                <Camera :size="20" />
+              </div>
               <div class="sol-shot-meta">
                 <span class="sol-truncate">{{ shot.fileName }}</span>
                 <span class="sol-muted sol-text-xs">{{ formatBytes(shot.size) }}</span>
@@ -1382,7 +1631,7 @@ async function saveInstanceSettings() {
                   variant="secondary"
                   size="sm"
                   :disabled="Boolean(instance.running)"
-                  @click="native('repair_instance', { id: instance.id }).then(() => { refreshSnapshot(); notify('info', 'Repair queued'); })"
+                  @click="native('repair_instance', { id: instance.id }).then(() => { refreshSnapshot(); notify('info', 'Repair queued'); }).catch((e) => notify('error', &quot;Couldn't repair files&quot;, String(e)))"
                 >
                   <Wrench :size="14" /> Verify & Repair Game Files
                 </SolaraButton>
@@ -1438,14 +1687,20 @@ async function saveInstanceSettings() {
             <!-- Hooks -->
             <section v-else-if="settingsSection === 'hooks'" class="sol-card sol-stack">
               <h2 class="sol-card-title">Launch Hooks</h2>
-              <p class="sol-muted sol-text-xs">Optional per-instance pre-launch or post-exit commands stored with this profile.</p>
+              <div class="sol-banner sol-banner--warning">
+                <AlertTriangle :size="15" />
+                <span>
+                  Hook commands run directly without a system shell, split by spaces and quotes, inside this instance's
+                  <code>game/</code> folder (60s limit). Only run trusted local commands—if the pre-launch command returns an error, Minecraft will not start.
+                </span>
+              </div>
               <div class="sol-field">
                 <label class="sol-label">Pre-launch Command</label>
-                <input v-model="draft.preLaunch" type="text" class="sol-input" placeholder="Optional command" />
+                <input v-model="draft.preLaunch" type="text" class="sol-input" placeholder='e.g. "C:\Tools\sync.exe" --mode fast' />
               </div>
               <div class="sol-field">
                 <label class="sol-label">Post-exit Command</label>
-                <input v-model="draft.postExit" type="text" class="sol-input" placeholder="Optional command" />
+                <input v-model="draft.postExit" type="text" class="sol-input" placeholder='e.g. "C:\Tools\cleanup.exe"' />
               </div>
             </section>
 
@@ -1566,21 +1821,34 @@ async function saveInstanceSettings() {
       :open="Boolean(previewImage || lightboxShot)"
       :title="previewImage?.path || lightboxShot?.fileName || 'Preview'"
       width="lg"
-      @close="
-        previewImage = null;
-        lightboxShot = null;
-      "
+      @close="closeMediaLightbox"
     >
       <img
-        :src="previewImage?.dataUrl || lightboxShot?.dataUrl"
+        v-if="previewImage?.dataUrl || lightboxShotSrc"
+        :src="previewImage?.dataUrl || lightboxShotSrc || undefined"
         alt="Screenshot preview"
         class="sol-lightbox-img"
       />
+      <div v-else-if="lightboxShot" class="sol-lightbox-placeholder">
+        <Camera :size="26" />
+        <span v-if="lightboxLoading">Loading full-resolution image...</span>
+        <span v-else-if="lightboxError" class="sol-muted sol-text-xs">{{ lightboxError }}</span>
+      </div>
       <template v-if="lightboxShot" #footer>
+        <SolaraButton variant="secondary" size="sm" @click="copyScreenshotPath(lightboxShot)">
+          <Copy :size="13" /> Copy file path
+        </SolaraButton>
+        <SolaraButton
+          variant="secondary"
+          size="sm"
+          @click="native('open_instance_folder', { id: lightboxShot.instanceId, path: 'screenshots' }).catch(() => {})"
+        >
+          <FolderOpen :size="13" /> Open Folder
+        </SolaraButton>
         <SolaraButton variant="danger" size="sm" @click="deleteScreenshot(lightboxShot)">
           <Trash2 :size="13" /> Move to Trash
         </SolaraButton>
-        <SolaraButton variant="secondary" size="sm" @click="lightboxShot = null">Close</SolaraButton>
+        <SolaraButton variant="secondary" size="sm" @click="closeMediaLightbox">Close</SolaraButton>
       </template>
     </SolaraModal>
 

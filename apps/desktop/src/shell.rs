@@ -266,7 +266,8 @@ async fn save_launcher_settings(
     discord: Option<bool>,
 ) -> Result<(), String> {
     let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::save_preferences(memory, java_path, discord)
+    let _ = discord;
+    engine::save_preferences(memory, java_path)
         .await
         .map_err(err)
 }
@@ -337,6 +338,12 @@ async fn rename_instance_world(id: String, folder: String, new_name: String) -> 
 #[tauri::command]
 async fn launcher_screenshots(instance_id: Option<String>) -> Result<Value, String> {
     engine::list_screenshots(instance_id.as_deref())
+        .await
+        .map_err(err)
+}
+#[tauri::command]
+async fn launcher_screenshot_image(instance_id: String, path: String) -> Result<String, String> {
+    engine::read_screenshot_image(&instance_id, &path)
         .await
         .map_err(err)
 }
@@ -605,6 +612,7 @@ pub fn run() {
             instance_worlds,
             rename_instance_world,
             launcher_screenshots,
+            launcher_screenshot_image,
             instance_disk_logs,
             instance_disk_log,
             instance_backups,

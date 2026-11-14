@@ -82,7 +82,7 @@ function onWindowAction(action: 'minimize' | 'maximize' | 'close') {
   lastWinAction = action;
   if (!store.desktop) return;
   void native('window_action', { action }).catch((err) => {
-    notify('error', 'Window action failed', String(err));
+    notify('error', "Couldn't update window", String(err));
   });
 }
 </script>

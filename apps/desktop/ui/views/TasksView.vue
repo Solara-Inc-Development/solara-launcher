@@ -23,7 +23,7 @@ async function action(id: string, kind: 'cancel' | 'retry') {
     await native('download_action', { id, action: kind });
     await refreshSnapshot();
   } catch (e) {
-    notify('error', `Could not ${kind} task`, String(e));
+    notify('error', `Couldn't ${kind} task`, String(e));
   }
 }
 
@@ -33,7 +33,7 @@ async function clearFinished() {
     await refreshSnapshot();
     notify('info', 'Cleared finished tasks');
   } catch (e) {
-    notify('error', 'Failed clearing tasks', String(e));
+    notify('error', "Couldn't clear finished tasks", String(e));
   }
 }
 </script>

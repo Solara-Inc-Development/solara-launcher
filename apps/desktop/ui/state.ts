@@ -18,11 +18,9 @@ export { isDesktop, native, openExternal };
 export const DEFAULT_PREFERENCES: LauncherPreferences = {
   memory: 4096,
   javaPath: 'auto',
-  discord: false,
   theme: 'dawn-gold',
   uiScale: 100,
   reducedMotion: false,
-  sidebarExpanded: false,
   density: 'comfortable',
   onLaunch: 'keep',
   confirmLaunch: false,
@@ -87,6 +85,7 @@ export const store = reactive({
   dirtyChecker: null as null | (() => boolean),
   pendingNavAction: null as null | (() => void),
   showDirtyLeaveDialog: false,
+  pendingLaunchConfirm: null as InstanceRecord | null,
 });
 
 export const currentRoute = computed<NavEntry>(() => store.history[store.historyIndex] ?? { page: 'home' });
@@ -251,11 +250,19 @@ export async function refreshSnapshot(): Promise<void> {
   try {
     const snap = await native<{
       instances: InstanceRecord[];
-      minecraftAccounts: MinecraftAccount[];
+      minecraftAccounts: Array<Partial<MinecraftAccount> & { name?: string; active?: boolean }>;
       downloads: DownloadJob[];
     }>('launcher_snapshot');
     store.instances = Array.isArray(snap.instances) ? snap.instances : [];
-    store.accounts = Array.isArray(snap.minecraftAccounts) ? snap.minecraftAccounts : [];
+    store.accounts = Array.isArray(snap.minecraftAccounts)
+      ? snap.minecraftAccounts
+          .filter((a) => Boolean(a?.id))
+          .map((a) => ({
+            id: String(a.id),
+            username: String(a.username ?? a.name ?? ''),
+            selected: Boolean(a.selected ?? a.active ?? false),
+          }))
+      : [];
     store.downloads = Array.isArray(snap.downloads) ? snap.downloads : [];
     if (!store.selectedInstanceId || !store.instances.some((i) => i.id === store.selectedInstanceId)) {
       let saved: string | null = null;
@@ -364,23 +371,24 @@ export async function initializeEngine(): Promise<void> {
   }
 }
 
-export async function launchOrStopInstance(inst: InstanceRecord): Promise<void> {
+export async function launchOrStopInstance(inst: InstanceRecord, skipConfirm = false): Promise<void> {
   if (inst.running) {
     try {
       await native('stop_instance', { id: inst.id });
       notify('info', `Stopping ${inst.name}`, 'Saving world and closing Minecraft.');
       await refreshSnapshot();
     } catch (err) {
-      notify('error', 'Could not stop Minecraft', String(err));
+      notify('error', "Couldn't stop Minecraft", String(err));
     }
     return;
-  }
-  if (store.preferences.confirmLaunch) {
-    // caller can invoke confirm; direct launch handles standard play flow
   }
   if (!selectedAccount.value) {
     notify('warning', 'Sign in required', 'Connect a Microsoft Minecraft account before playing.');
     navigate('account');
+    return;
+  }
+  if (store.preferences.confirmLaunch && !skipConfirm) {
+    store.pendingLaunchConfirm = inst;
     return;
   }
   try {
@@ -391,10 +399,10 @@ export async function launchOrStopInstance(inst: InstanceRecord): Promise<void> 
     } else if (store.preferences.onLaunch === 'hide') {
       await native('window_action', { action: 'hide' });
     }
-    notify('success', `${inst.name} launched`, 'Minecraft is now running.');
+    notify('success', `${inst.name} is running`, 'Minecraft has started.');
     await refreshSnapshot();
   } catch (err) {
-    notify('error', `Failed to launch ${inst.name}`, String(err));
+    notify('error', `Couldn't launch ${inst.name}`, String(err));
   }
 }
 

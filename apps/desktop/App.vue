@@ -15,6 +15,7 @@ import {
   openExternal,
   confirmLeaveDiscard,
   cancelLeaveStay,
+  launchOrStopInstance,
   native,
   notify,
 } from './ui/state';
@@ -22,6 +23,7 @@ import TitleBar from './ui/components/TitleBar.vue';
 import SidebarRail from './ui/components/SidebarRail.vue';
 import CreateInstanceModal from './ui/components/CreateInstanceModal.vue';
 import GlobalSearchModal from './ui/components/GlobalSearchModal.vue';
+import ConfirmDialog from './ui/components/ConfirmDialog.vue';
 import SolaraModal from './ui/components/SolaraModal.vue';
 import SolaraButton from './ui/components/SolaraButton.vue';
 import SolaraToasts from './ui/components/SolaraToasts.vue';
@@ -185,6 +187,16 @@ onUnmounted(() => {
   if (pollTimer) clearInterval(pollTimer);
   for (const fn of unlistenFns) fn();
 });
+
+async function confirmPendingLaunch() {
+  const inst = store.pendingLaunchConfirm;
+  store.pendingLaunchConfirm = null;
+  if (inst) await launchOrStopInstance(inst, true);
+}
+
+function cancelPendingLaunch() {
+  store.pendingLaunchConfirm = null;
+}
 </script>
 
 <template>
@@ -285,5 +297,18 @@ onUnmounted(() => {
         <SolaraButton variant="danger" @click="confirmLeaveDiscard">Discard & Leave</SolaraButton>
       </template>
     </SolaraModal>
+
+    <ConfirmDialog
+      :open="Boolean(store.pendingLaunchConfirm)"
+      title="Launch Instance?"
+      :message="
+        store.pendingLaunchConfirm
+          ? `Start ${store.pendingLaunchConfirm.name} (${store.pendingLaunchConfirm.loader} ${store.pendingLaunchConfirm.gameVersion})?`
+          : ''
+      "
+      confirm-label="Launch Now"
+      @confirm="confirmPendingLaunch"
+      @cancel="cancelPendingLaunch"
+    />
   </div>
 </template>

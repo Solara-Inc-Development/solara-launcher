@@ -50,8 +50,7 @@
 
   /* Layout Dimensions */
   --titlebar-height: 48px;
-  --rail-width: 66px;
-  --rail-expanded-width: 216px;
+  --rail-width: 68px;
 
   /* Typography */
   --font-sans: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

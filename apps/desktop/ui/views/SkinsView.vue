@@ -113,7 +113,7 @@ async function onUploadPng(e: Event) {
       selectSavedSkin(saved);
       notify('success', 'Skin imported to library');
     } catch (err) {
-      notify('error', 'Could not import skin', String(err));
+      notify('error', "Couldn't import skin", String(err));
     }
   };
   r.readAsDataURL(file);
@@ -134,7 +134,7 @@ async function saveEditorSkin() {
     await loadAll();
     notify('success', 'Skin saved locally');
   } catch (err) {
-    notify('error', 'Save failed', String(err));
+    notify('error', "Couldn't save skin", String(err));
   } finally {
     saving.value = false;
   }
@@ -147,7 +147,7 @@ async function deleteSkin(skin: SavedSkin) {
     await loadAll();
     notify('info', 'Skin deleted from local library');
   } catch (err) {
-    notify('error', 'Delete failed', String(err));
+    notify('error', "Couldn't delete skin", String(err));
   }
 }
 
@@ -166,7 +166,7 @@ async function applySkinToAccount() {
     notify('success', 'Skin applied to Minecraft account', `Updated active skin for ${selectedAccount.value.username}.`);
     await loadAll();
   } catch (err) {
-    notify('error', 'Could not apply skin', String(err));
+    notify('error', "Couldn't apply skin", String(err));
   } finally {
     uploading.value = false;
   }
@@ -180,7 +180,7 @@ async function equipCape(cape: ProfileCape | null) {
     await loadAll();
     notify('success', cape ? `Equipped ${cape.alias} cape` : 'Cape hidden');
   } catch (err) {
-    notify('error', 'Could not update cape', String(err));
+    notify('error', "Couldn't update cape", String(err));
   }
 }
 </script>

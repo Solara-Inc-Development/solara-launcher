@@ -46,7 +46,7 @@ const categories: { id: SettingsCategory; label: string }[] = [
   { id: 'downloads', label: 'Downloads' },
   { id: 'storage', label: 'Storage & Cache' },
   { id: 'accounts', label: 'Accounts' },
-  { id: 'privacy', label: 'Privacy & Discord' },
+  { id: 'privacy', label: 'Privacy' },
   { id: 'troubleshooting', label: 'Troubleshooting' },
 ];
 
@@ -79,7 +79,7 @@ async function saveChanges() {
     syncFromStore();
     notify('success', 'Settings saved', 'All launcher preferences updated.');
   } catch (err) {
-    notify('error', 'Failed to save settings', String(err));
+    notify('error', "Couldn't save settings", String(err));
   } finally {
     saving.value = false;
   }
@@ -113,7 +113,7 @@ async function clearCache() {
     await loadStorage();
     notify('success', 'Cache cleared', `Freed ${formatBytes(res.freedBytes)} of temporary files.`);
   } catch (err) {
-    notify('error', 'Could not clear cache', String(err));
+    notify('error', "Couldn't clear cache", String(err));
   } finally {
     clearingCache.value = false;
   }
@@ -131,7 +131,7 @@ async function exportDiagnosticsFile() {
     URL.revokeObjectURL(url);
     notify('success', 'Diagnostics exported', 'Tokens and credentials were excluded automatically.');
   } catch (err) {
-    notify('error', 'Export failed', String(err));
+    notify('error', "Couldn't export diagnostics", String(err));
   }
 }
 
@@ -234,14 +234,6 @@ onUnmounted(() => {
                   Compact
                 </button>
               </div>
-            </div>
-
-            <div class="sol-setting-row">
-              <div>
-                <div class="sol-setting-label">Expand Sidebar Labels</div>
-                <div class="sol-muted sol-text-xs">Show text labels beside icons in the left navigation rail.</div>
-              </div>
-              <SolaraToggle v-model="draft.sidebarExpanded" label="Expand sidebar labels" />
             </div>
 
             <div class="sol-setting-row">
@@ -422,21 +414,14 @@ onUnmounted(() => {
 
           <!-- Privacy -->
           <section v-else-if="activeCategory === 'privacy'" class="sol-card sol-stack">
-            <h2 class="sol-card-title sol-inline-flex"><Shield :size="16" /> Privacy & Credentials</h2>
+            <h2 class="sol-card-title sol-inline-flex"><Shield :size="16" /> Privacy &amp; Credentials</h2>
             <p class="sol-muted sol-text-xs">
-              Microsoft and Minecraft access tokens are stored strictly inside your operating system's credential vault and never enter launcher logs or web storage.
+              Microsoft and Minecraft access tokens stay inside your operating system's credential vault and never enter launcher logs or web storage.
             </p>
             <div class="sol-setting-row">
               <div>
-                <div class="sol-setting-label">Discord Rich Presence</div>
-                <div class="sol-muted sol-text-xs">Share active Minecraft status with Discord when running.</div>
-              </div>
-              <SolaraToggle v-model="draft.discord" label="Discord presence" />
-            </div>
-            <div class="sol-setting-row">
-              <div>
                 <div class="sol-setting-label">Local Diagnostic Collection</div>
-                <div class="sol-muted sol-text-xs">Allow generating redacted diagnostic JSON bundles locally.</div>
+                <div class="sol-muted sol-text-xs">Allow saving redacted diagnostic JSON bundles on your computer for support.</div>
               </div>
               <SolaraToggle v-model="draft.diagnosticsEnabled" label="Local diagnostics" />
             </div>

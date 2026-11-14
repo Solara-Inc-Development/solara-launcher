@@ -58,6 +58,18 @@
   padding: 0 10px 0 14px;
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border-subtle);
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.sol-no-drag,
+.sol-titlebar button,
+.sol-titlebar input,
+.sol-titlebar a,
+.sol-win-controls,
+.sol-win-btn {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 }
 
 .sol-titlebar-left,
@@ -297,6 +309,8 @@
    -------------------------------------------------------------------------- */
 .sol-rail {
   width: var(--rail-width);
+  min-width: var(--rail-width);
+  max-width: var(--rail-width);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -305,13 +319,6 @@
   gap: 8px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-subtle);
-  transition: width var(--dur-normal) var(--ease-ui);
-}
-
-.sol-rail.is-expanded {
-  width: var(--rail-expanded-width);
-  align-items: stretch;
-  padding: 10px 10px;
 }
 
 .sol-rail-section,
@@ -348,12 +355,6 @@
   transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
 }
 
-.sol-rail.is-expanded .sol-rail-item,
-.sol-rail.is-expanded .sol-rail-inst,
-.sol-rail.is-expanded .sol-rail-add {
-  justify-content: flex-start;
-}
-
 .sol-rail-item:hover,
 .sol-rail-inst:hover,
 .sol-rail-add:hover {
@@ -378,10 +379,6 @@
   background: var(--accent);
   opacity: 0;
   transition: opacity var(--dur-fast);
-}
-
-.sol-rail.is-expanded .sol-rail-indicator {
-  left: -10px;
 }
 
 .sol-rail-item.is-active .sol-rail-indicator,
@@ -412,10 +409,37 @@
   line-height: 15px;
 }
 
-.sol-rail-label {
-  font-size: 13px;
-  font-weight: 500;
+.sol-rail-tooltip {
+  position: fixed;
+  z-index: 420;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 240px;
+  padding: 7px 11px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-popover);
+}
+
+.sol-rail-tooltip-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sol-rail-tooltip-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sol-rail-instances {
@@ -2045,6 +2069,26 @@
   word-break: break-word;
 }
 
+.sol-log-window-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-sans);
+}
+
+.sol-log-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sol-log-line.is-error { color: #F87171; }
+.sol-log-line.is-warn { color: #FBBF24; }
+.sol-log-ts { color: #7C8798; margin-right: 4px; }
+
 .sol-code-editor {
   width: 100%;
   border-radius: var(--radius-control);
@@ -2072,10 +2116,33 @@
 }
 
 .sol-shot-card:hover { border-color: var(--accent-border); }
-.sol-shot-img { width: 100%; height: 140px; object-fit: cover; display: block; }
+.sol-shot-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--bg-inset); }
+.sol-shot-placeholder {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
 .sol-shot-meta { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
 .sol-shot-name { font-size: 12.5px; font-weight: 600; }
 .sol-lightbox-img { width: 100%; max-height: 68vh; object-fit: contain; border-radius: var(--radius-sm); }
+.sol-lightbox-placeholder {
+  width: 100%;
+  min-height: 260px;
+  max-height: 68vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
 
 /* Discover */
 .sol-discover-grid {

@@ -166,7 +166,7 @@ async function openProject(hit: HitItem) {
       selectedVersionId.value = normalized[0]?.id ?? '';
     }
   } catch (err) {
-    notify('error', 'Failed loading project versions', String(err));
+    notify('error', "Couldn't load project versions", String(err));
   } finally {
     loadingDetail.value = false;
   }
@@ -195,7 +195,7 @@ async function installProject(project: HitItem, versionId?: string) {
     );
     activeProject.value = null;
   } catch (err) {
-    notify('error', `Install failed: ${project.title}`, String(err));
+    notify('error', `Couldn't install ${project.title}`, String(err));
   } finally {
     installingId.value = '';
   }

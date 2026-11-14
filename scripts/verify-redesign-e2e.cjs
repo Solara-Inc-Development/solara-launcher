@@ -1,5 +1,6 @@
 const { chromium } = require('playwright');
 const { spawn } = require('node:child_process');
+const path = require('node:path');
 const assert = require('node:assert/strict');
 
 async function waitForServer(url, timeoutMs = 15000) {
@@ -15,12 +16,11 @@ async function waitForServer(url, timeoutMs = 15000) {
 }
 
 async function main() {
-  const server = spawn('npx', ['vite', '--port', '4173', '--host', '127.0.0.1'], {
-    stdio: ['ignore', 'pipe', 'pipe'],
+  const viteBin = path.resolve(__dirname, '..', 'node_modules', 'vite', 'bin', 'vite.js');
+  const server = spawn(process.execPath, [viteBin, '--port', '4173', '--host', '127.0.0.1'], {
+    stdio: 'ignore',
+    detached: true,
   });
-  let serverOut = '';
-  server.stdout.on('data', (d) => (serverOut += d.toString()));
-  server.stderr.on('data', (d) => (serverOut += d.toString()));
 
   let browser;
   try {
@@ -30,6 +30,7 @@ async function main() {
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
+    page.setDefaultTimeout(10000);
 
     const errors = [];
     page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
@@ -44,11 +45,9 @@ async function main() {
           preferences: {
             memory: 4096,
             javaPath: 'auto',
-            discord: false,
             theme: 'dawn-gold',
             uiScale: 100,
             reducedMotion: false,
-            sidebarExpanded: false,
             density: 'comfortable',
             onLaunch: 'keep',
             confirmLaunch: false,
@@ -103,7 +102,16 @@ async function main() {
                   playtimeSeconds: 0,
                 },
               ],
-          accounts: [{ id: 'acc-1', username: 'SolaraTester', selected: true }],
+          accounts: [
+            {
+              id: 'acc-1',
+              username: 'SolaraTester',
+              selected: true,
+              name: 'SolaraTester',
+              active: true,
+              owned: true,
+            },
+          ],
           downloads: [
             {
               id: 'job-1',
@@ -118,6 +126,10 @@ async function main() {
           ],
           winActions: [],
           savedSkins: [],
+          mods: [
+            { path: 'mods/sodium-0.6.jar', fileName: 'sodium-0.6.jar', name: 'Sodium', version: '0.6.0', modId: 'sodium', enabled: true, size: 950000 },
+            { path: 'mods/iris-1.8.jar.disabled', fileName: 'iris-1.8.jar.disabled', name: 'Iris Shaders', version: '1.8.0', modId: null, enabled: false, size: 1450000 },
+          ],
         };
         window.__SOLARA_TEST_STATE__ = state;
 
@@ -202,7 +214,23 @@ async function main() {
               return { totalBytes: 104857600, instancesBytes: 83886080, cacheBytes: 10485760, javaBytes: 10485760, skinsBytes: 4096 };
             }
             if (cmd === 'instance_mods') {
-              return [{ path: 'mods/sodium-0.6.jar', fileName: 'sodium-0.6.jar', name: 'Sodium', version: '0.6.0', modId: 'sodium', enabled: true, size: 950000 }];
+              return state.mods.map((m) => ({ ...m }));
+            }
+            if (cmd === 'toggle_instance_mod') {
+              const mod = state.mods.find((m) => m.path === args.path);
+              if (!mod) throw new Error('Mod not found');
+              if (mod.enabled === args.enabled) {
+                throw new Error('This mod is already in the requested state');
+              }
+              mod.enabled = Boolean(args.enabled);
+              if (mod.enabled && mod.path.endsWith('.jar.disabled')) {
+                mod.path = mod.path.slice(0, -'.disabled'.length);
+                mod.fileName = mod.fileName.slice(0, -'.disabled'.length);
+              } else if (!mod.enabled && mod.path.endsWith('.jar')) {
+                mod.path = `${mod.path}.disabled`;
+                mod.fileName = `${mod.fileName}.disabled`;
+              }
+              return null;
             }
             if (cmd === 'instance_packs') return [];
             if (cmd === 'instance_worlds') {
@@ -212,10 +240,50 @@ async function main() {
               return [{ name: 'mods', path: 'mods', directory: true, size: 0, editable: false, image: false }, { name: 'options.txt', path: 'options.txt', directory: false, size: 1200, editable: true, image: false }];
             }
             if (cmd === 'instance_trash') return [];
-            if (cmd === 'instance_disk_logs') return [{ name: 'latest.log', size: 512, modifiedMs: Date.now(), gzipped: false }];
-            if (cmd === 'instance_disk_log') return '[10:00:00] [main/INFO]: Sound engine started\n[10:00:01] [main/WARN]: Example warn line';
+            if (cmd === 'instance_disk_logs') return [{ name: 'latest.log', size: 16384, modifiedMs: Date.now(), gzipped: false }];
+            if (cmd === 'instance_disk_log') {
+              const lines = [];
+              for (let i = 1; i <= 358; i++) {
+                lines.push(`[10:00:${String(i % 60).padStart(2, '0')}] [main/INFO]: Boot step ${i}`);
+              }
+              lines.push('[10:05:59] [main/WARN]: Example warn line');
+              lines.push('[14Nov2026 10:06:00.123] [main/ERROR]: Example error trace');
+              lines.push('[14Nov2026 10:06:01.000] [main/FATAL]: Example fatal trace');
+              return lines.join('\n');
+            }
             if (cmd === 'instance_logs') return '[10:00:00] [main/INFO]: Live process';
-            if (cmd === 'launcher_screenshots') return [];
+            if (cmd === 'launcher_screenshots') {
+              const items = [];
+              for (let i = 0; i < 80; i++) {
+                const name = `dawn-view-${String(i).padStart(3, '0')}.png`;
+                items.push({
+                  instanceId: 'inst-1',
+                  instanceName: 'Dawn SMP',
+                  fileName: name,
+                  path: `screenshots/${name}`,
+                  fullPath: `C:\\Users\\Solara\\AppData\\Local\\in.solara.launcher\\custom-instances\\inst-1\\game\\screenshots\\${name}`,
+                  size: 2048 + i,
+                  modifiedMs: Date.now() - i * 5000,
+                });
+              }
+              return items;
+            }
+            if (cmd === 'launcher_screenshot_image') {
+              state.screenshotImageCalls = (state.screenshotImageCalls || 0) + 1;
+              state.screenshotImagePaths = state.screenshotImagePaths || [];
+              state.screenshotImagePaths.push(args.path);
+              return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=';
+            }
+            if (cmd === 'launch_instance') {
+              const inst = state.instances.find((i) => i.id === args.id);
+              if (inst) inst.running = true;
+              return null;
+            }
+            if (cmd === 'stop_instance') {
+              const inst = state.instances.find((i) => i.id === args.id);
+              if (inst) inst.running = false;
+              return null;
+            }
             if (cmd === 'instance_backups') return [];
             if (cmd === 'check_instance_content_updates') return [];
             if (cmd === 'saved_skins_list') return state.savedSkins;
@@ -245,7 +313,18 @@ async function main() {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ announcements: [] }),
+          body: JSON.stringify({
+            items: [
+              {
+                id: 'ann-1',
+                title: 'Solara Dawn Gold Update',
+                summary: 'Clean Obsidian workspace and faster setup.',
+                content: 'Clean Obsidian workspace and faster setup.',
+                category: 'Release',
+                date: new Date().toISOString(),
+              },
+            ],
+          }),
         });
       });
       await targetPage.route('https://mc-heads.net/**', async (route) => {
@@ -278,7 +357,7 @@ async function main() {
     await installTauriMock(page, { freshOnboarding: false });
     await installNetworkMocks(page);
 
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 25000 });
     await page.waitForSelector('.sol-launch-title', { timeout: 10000 });
 
     // 1. Verify Dawn Gold Obsidian theme colors & zero outer document scrollbars
@@ -301,12 +380,22 @@ async function main() {
     assert.ok(metrics.docScrollW <= metrics.docClientW, `Horizontal overflow detected: ${metrics.docScrollW} > ${metrics.docClientW}`);
     assert.ok(metrics.docScrollH <= metrics.docClientH, `Outer vertical scrollbar detected: ${metrics.docScrollH} > ${metrics.docClientH}`);
 
+    // Verify permanently compact 68px icon-only sidebar rail & sleek floating tooltip
+    const railBox = await page.locator('.sol-rail').boundingBox();
+    assert.ok(railBox && Math.round(railBox.width) === 68, `Expected compact 68px sidebar rail, got ${railBox?.width}`);
+    assert.equal(await page.locator('button[title="Expand sidebar"], button[title="Collapse sidebar"]').count(), 0);
+    assert.equal(await page.locator('.sol-rail button[title]').count(), 0, 'Rail buttons should not use slow native browser title attributes');
+    await page.hover('.sol-rail-item[aria-label="Library"]');
+    await page.waitForSelector('.sol-rail-tooltip[role="tooltip"]:has-text("Library")');
+    const tipShadow = await page.locator('.sol-rail-tooltip').evaluate((el) => getComputedStyle(el).boxShadow);
+    assert.ok(tipShadow && tipShadow !== 'none', `Expected valid box-shadow on rail tooltip, got ${tipShadow}`);
+
     // 2. Verify Home Dashboard shows Dawn SMP selected instance
     const homeTitle = await page.textContent('.sol-launch-title');
     assert.equal(homeTitle?.trim(), 'Dawn SMP');
 
     // 3. Navigate to Library, switch grid/list, create instance
-    await page.click('.sol-rail-item[title="Library"]');
+    await page.click('.sol-rail-item[aria-label="Library"]');
     await page.waitForSelector('.sol-inst-grid');
     await page.click('button[aria-label="List view"]');
     await page.waitForSelector('.sol-list-table');
@@ -323,39 +412,111 @@ async function main() {
     await page.click('.sol-modal-footer button:has-text("Create Instance")');
     await page.waitForSelector('.sol-inst-title:has-text("E2E Fabric Test")');
 
-    // 4. Test Instance Detail tabs (Overview, Content, Files, Worlds, Logs, Screenshots, Settings)
+    // 4. Test Instance Detail tabs (Overview, Content + Bulk Mixed Toggle, Worlds, Logs windowing/filters/clear, Files, Settings Launch Hooks warning)
     await page.click('.sol-inst-header-left >> .. >> .. >> button[role="tab"]:has-text("Content")');
     await page.waitForSelector('button:has-text("Mods")');
+    await page.waitForSelector('text=Iris Shaders');
+    const modCheckboxes = page.locator('.sol-content-row input[type="checkbox"]');
+    await modCheckboxes.nth(0).check();
+    await modCheckboxes.nth(1).check();
+    await page.waitForSelector('.sol-bulk-bar:has-text("2 selected")');
+    await page.click('.sol-bulk-bar button:has-text("Enable")');
+    await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.mods.every((m) => m.enabled === true));
+    assert.equal(await page.locator('.sol-toast--error').count(), 0, 'Mixed-state bulk enable must not emit redundant-toggle errors');
     await page.click('button[role="tab"]:has-text("Worlds")');
     await page.waitForSelector('.sol-world-name:has-text("Dawn Survival")');
     await page.click('button[role="tab"]:has-text("Logs")');
     await page.waitForSelector('.sol-log-viewer');
+    await page.waitForSelector('.sol-log-window-bar');
+    assert.equal(await page.locator('.sol-log-line').count(), 300, 'Large log should window initial DOM lines to 300');
+    await page.click('.sol-seg-btn:has-text("ERROR")');
+    assert.equal(await page.locator('.sol-log-line').count(), 2, 'ERROR filter should show ERROR and FATAL lines');
+    assert.ok((await page.locator('.sol-log-ts').count()) >= 2, 'Forge-style timestamps should parse into .sol-log-ts');
+    await page.click('.sol-seg-btn:has-text("ALL")');
+    await page.click('button:has-text("Timestamps")');
+    assert.equal(await page.locator('.sol-log-ts').count(), 0, 'Toggling timestamps off should hide timestamp spans');
+    await page.click('button:has-text("Pause")');
+    await page.waitForSelector('button:has-text("Resume")');
+    await page.click('button:has-text("Clear")');
+    await page.waitForSelector('.sol-log-viewer:has-text("No matching log output.")');
     await page.click('button[role="tab"]:has-text("Files")');
     await page.waitForSelector('text=options.txt');
+    await page.click('button[role="tab"]:has-text("Settings")');
+    await page.click('.sol-settings-nav button:has-text("Launch Hooks")');
+    await page.waitForSelector('.sol-banner--warning:has-text("without a system shell")');
 
     // 5. Test Discover page & Vanilla compatibility notice
-    await page.click('.sol-rail-item[title="Discover"]');
+    await page.click('.sol-rail-item[aria-label="Discover"]');
     await page.waitForSelector('.sol-discover-title:has-text("Sodium")');
 
-    // 6. Test Skins 3D Viewer & Editor
-    await page.click('.sol-rail-item[title="Skin & Capes"]');
+    // 6. Test Skins 3D Viewer & Editor (verify empty library still initializes a saveable starter PNG)
+    await page.click('.sol-rail-item[aria-label="Skin & Capes"]');
     await page.waitForSelector('.sol-skin-canvas');
     await page.click('button[role="tab"]:has-text("Skin Editor")');
     await page.waitForSelector('.sol-editor-canvas');
     await page.click('button:has-text("Save to Library")');
-    await page.waitForTimeout(150);
+    await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.savedSkins.length === 1);
+    const savedSkinDataUrl = await page.evaluate(() => window.__SOLARA_TEST_STATE__.savedSkins[0]?.pngDataUrl || '');
+    assert.ok(savedSkinDataUrl.startsWith('data:image/png'), 'Expected saved starter skin PNG data URL');
 
-    // 7. Test Global Settings + Unsaved SaveBar + Dirty Leave Guard
-    await page.click('.sol-rail-item[title="Settings"]');
+    // 7. Test Global Settings + Privacy cleanup + Unsaved SaveBar + Dirty Leave Guard + Confirm Launch
+    await page.click('.sol-rail-item[aria-label="Settings"]');
     await page.waitForSelector('.sol-settings-sidebar');
+    assert.equal(await page.locator('.sol-settings-nav-item:has-text("Privacy & Discord")').count(), 0);
+    await page.click('.sol-settings-nav-item:has-text("Privacy")');
+    assert.equal(await page.locator('text=Discord Rich Presence').count(), 0, 'Unimplemented Discord Rich Presence toggle must be removed');
+    await page.click('.sol-settings-nav-item:has-text("Appearance")');
     await page.click('.sol-chip:has-text("Obsidian Slate")');
     await page.waitForSelector('.sol-savebar');
     // Try navigating away with unsaved changes -> leave dialog appears!
-    await page.click('.sol-rail-item[title="Home"]');
+    await page.click('.sol-rail-item[aria-label="Home"]');
     await page.waitForSelector('.sol-modal-title:has-text("Unsaved Changes")');
     await page.click('button:has-text("Stay & Keep Editing")');
+    await page.click('.sol-settings-nav-item:has-text("Behaviour")');
+    await page.click('button[aria-label="Confirm launch"]');
     await page.click('.sol-savebar button:has-text("Save Changes")');
     await page.waitForTimeout(150);
+
+    // Verify Confirm Launch dialog works on Home Play button
+    await page.click('.sol-rail-item[aria-label="Home"]');
+    await page.waitForSelector('.sol-launch-title');
+    await page.click('.sol-launch-cta button:has-text("Play")');
+    await page.waitForSelector('.sol-modal-title:has-text("Launch Instance?")');
+    await page.click('.sol-modal-footer button:has-text("Launch Now")');
+    await page.waitForSelector('.sol-launch-cta button:has-text("Stop")');
+    await page.click('.sol-launch-cta button:has-text("Stop")');
+
+    // Verify Screenshots page loads lazy previews on-demand, survives >72 LRU eviction on scroll-back, and lightbox shows Copy file path
+    await page.click('.sol-rail-item[aria-label="Screenshots"]');
+    await page.waitForSelector('.sol-shot-card img');
+    await page.waitForTimeout(150);
+    const initialCalls = await page.evaluate(() => window.__SOLARA_TEST_STATE__.screenshotImageCalls || 0);
+    assert.ok(initialCalls > 0 && initialCalls < 80, `Expected lazy screenshot loading (<80 initial reads), got ${initialCalls}`);
+    // Scroll down in steps so IntersectionObserver loads all 80 cards and evicts the earliest from 72-entry LRU
+    await page.evaluate(async () => {
+      const scroller = document.querySelector('.sol-page.sol-scroll');
+      if (!scroller) return;
+      for (let y = 0; y <= scroller.scrollHeight; y += 350) {
+        scroller.scrollTop = y;
+        await new Promise((r) => setTimeout(r, 40));
+      }
+      scroller.scrollTop = scroller.scrollHeight;
+    });
+    await page.waitForTimeout(250);
+    const afterScrollDownCalls = await page.evaluate(() => window.__SOLARA_TEST_STATE__.screenshotImageCalls || 0);
+    assert.ok(afterScrollDownCalls >= 80, `Expected remaining screenshots to load on scroll, got ${afterScrollDownCalls}`);
+    // Scroll back to top and verify first card reloads cleanly instead of staying blank after LRU eviction
+    await page.evaluate(() => {
+      const scroller = document.querySelector('.sol-page.sol-scroll');
+      if (scroller) scroller.scrollTop = 0;
+    });
+    await page.waitForSelector('.sol-shot-card:first-child img');
+    const afterScrollUpCalls = await page.evaluate(() => window.__SOLARA_TEST_STATE__.screenshotImageCalls || 0);
+    assert.ok(afterScrollUpCalls > afterScrollDownCalls, 'Expected evicted top screenshot to reload on scroll back');
+    await page.click('.sol-shot-card:first-child');
+    await page.waitForSelector('.sol-lightbox-img');
+    await page.waitForSelector('.sol-modal-footer button:has-text("Copy file path")');
+    await page.keyboard.press('Escape');
 
     // 8. Test Global Quick Search (Ctrl+K) & Tasks Popover & Window Controls
     await page.keyboard.press('Control+k');
@@ -377,7 +538,7 @@ async function main() {
       { width: 940, height: 560 },
     ]) {
       await page.setViewportSize(vp);
-      await page.click('.sol-rail-item[title="Home"]');
+      await page.click('.sol-rail-item[aria-label="Home"]');
       await page.waitForTimeout(120);
       const vpCheck = await page.evaluate(() => ({
         sw: document.documentElement.scrollWidth,
@@ -392,6 +553,7 @@ async function main() {
     // 10. Verify 4-step Onboarding flow on fresh launch
     const onboardCtx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const onboardPage = await onboardCtx.newPage();
+    onboardPage.setDefaultTimeout(10000);
     onboardPage.on('pageerror', (err) => errors.push(`onboarding pageerror: ${err.message}`));
     onboardPage.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(`onboarding console.error: ${msg.text()}`);
@@ -414,7 +576,11 @@ async function main() {
     console.log('E2E verification passed: all routes, onboarding, controls, Dawn Gold tokens, responsive viewports, and zero console/page errors verified.');
   } finally {
     if (browser) await browser.close().catch(() => {});
-    server.kill('SIGTERM');
+    if (server && server.pid) {
+      try {
+        process.kill(-server.pid, 'SIGTERM');
+      } catch {}
+    }
   }
 }
 

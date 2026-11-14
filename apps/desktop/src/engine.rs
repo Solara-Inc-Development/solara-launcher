@@ -13,8 +13,70 @@ use crate::game_core::{
 use anyhow::{bail, Context, Result};
 use serde_json::{json, Value};
 use solara_local_server::{LocalServers, ServerConfig};
-use std::path::PathBuf;
-use tokio::sync::{OnceCell, Semaphore};
+use std::{
+    path::{Path, PathBuf},
+    sync::atomic::{AtomicUsize, Ordering},
+};
+use tokio::sync::{watch, OnceCell};
+
+struct DownloadGate {
+    limit: AtomicUsize,
+    active: std::sync::Mutex<usize>,
+    notify_tx: watch::Sender<u64>,
+}
+
+struct DownloadPermit<'a> {
+    gate: &'a DownloadGate,
+}
+
+impl Drop for DownloadPermit<'_> {
+    fn drop(&mut self) {
+        if let Ok(mut active) = self.gate.active.lock() {
+            *active = active.saturating_sub(1);
+        }
+        self.gate.notify_tx.send_modify(|v| *v = v.wrapping_add(1));
+    }
+}
+
+impl DownloadGate {
+    fn new(limit: u32) -> Self {
+        let (notify_tx, _) = watch::channel(0u64);
+        Self {
+            limit: AtomicUsize::new((limit.clamp(1, 8)) as usize),
+            active: std::sync::Mutex::new(0),
+            notify_tx,
+        }
+    }
+
+    fn limit(&self) -> usize {
+        self.limit.load(Ordering::Acquire).clamp(1, 8)
+    }
+
+    fn set_limit(&self, limit: u32) {
+        self.limit.store((limit.clamp(1, 8)) as usize, Ordering::Release);
+        self.notify_tx.send_modify(|v| *v = v.wrapping_add(1));
+    }
+
+    async fn acquire(&self) -> Result<DownloadPermit<'_>> {
+        let mut rx = self.notify_tx.subscribe();
+        loop {
+            {
+                let mut active = self
+                    .active
+                    .lock()
+                    .map_err(|_| anyhow::anyhow!("Download concurrency state poisoned"))?;
+                let limit = self.limit();
+                if *active < limit {
+                    *active += 1;
+                    return Ok(DownloadPermit { gate: self });
+                }
+            }
+            rx.changed()
+                .await
+                .map_err(|_| anyhow::anyhow!("Download queue closed"))?;
+        }
+    }
+}
 
 static ENGINE: OnceCell<Engine> = OnceCell::const_new();
 pub struct Engine {
@@ -27,7 +89,7 @@ pub struct Engine {
     pub java: Runtimes,
     pub files: Files,
     cache: FileCache,
-    slots: Semaphore,
+    slots: DownloadGate,
 }
 pub async fn get() -> Result<&'static Engine> {
     ENGINE.get().context("Launcher engine is not initialized")
@@ -52,6 +114,7 @@ pub async fn initialize() -> Result<()> {
                         .await?;
                 }
             }
+            let initial_prefs = read_preferences_from_dir(&data).await.unwrap_or_default();
             Ok::<_, anyhow::Error>(Engine {
                 local: LocalServers::new(data.join("local-servers")),
                 instances,
@@ -61,25 +124,43 @@ pub async fn initialize() -> Result<()> {
                 java: Runtimes::new(data.join("java-runtimes")),
                 files: Files::default(),
                 cache: FileCache::new(data.join("verified-game-files"))?,
-                slots: Semaphore::new(2),
+                slots: DownloadGate::new(initial_prefs.max_concurrent_downloads),
                 data,
             })
         })
         .await?;
     Ok(())
 }
-pub async fn snapshot() -> Result<Value> {
-    let engine = get().await?;
-    if let Ok(finished) = engine.games.collect_finished_playtime().await {
-        for (inst_id, elapsed) in finished {
-            let _ = engine
-                .instances
-                .change(&inst_id, |i| {
-                    i.playtime_seconds = i.playtime_seconds.saturating_add(elapsed);
-                })
-                .await;
+async fn process_finished_games(engine: &Engine) {
+    if let Ok(finished) = engine.games.collect_finished().await {
+        for fg in finished {
+            if fg.elapsed_seconds > 0 {
+                let _ = engine
+                    .instances
+                    .change(&fg.instance_id, |i| {
+                        i.playtime_seconds = i.playtime_seconds.saturating_add(fg.elapsed_seconds);
+                    })
+                    .await;
+            }
+            if let Some(hook) = fg
+                .post_exit
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+            {
+                let instance_id = fg.instance_id;
+                let game_dir = fg.game_dir;
+                tokio::spawn(async move {
+                    if let Err(err) = crate::game_core::launch::run_hook(&hook, &game_dir).await {
+                        eprintln!("[hooks] post-exit hook warning for {instance_id}: {err:#}");
+                    }
+                });
+            }
         }
     }
+}
+pub async fn snapshot() -> Result<Value> {
+    let engine = get().await?;
+    process_finished_games(engine).await;
     let running = engine.games.running().await?;
     let raw_instances = engine.instances.list().await?;
     let mut instances = Vec::with_capacity(raw_instances.len());
@@ -105,8 +186,24 @@ pub async fn snapshot() -> Result<Value> {
             .into_iter()
             .map(|j| serde_json::to_value(j).unwrap_or_default()),
     );
+    let minecraft_accounts: Vec<Value> = engine
+        .accounts
+        .list()
+        .await?
+        .into_iter()
+        .map(|a| {
+            json!({
+                "id": a.id,
+                "username": a.name,
+                "selected": a.active,
+                "name": a.name,
+                "active": a.active,
+                "owned": a.owned,
+            })
+        })
+        .collect();
     Ok(
-        json!({"instances":instances,"minecraftAccounts":engine.accounts.list().await?,"localServers":engine.local.list().await?,"downloads":downloads}),
+        json!({"instances":instances,"minecraftAccounts":minecraft_accounts,"localServers":engine.local.list().await?,"downloads":downloads}),
     )
 }
 pub async fn versions() -> Result<Value> {
@@ -433,6 +530,16 @@ pub async fn launch(id: String) -> Result<Value> {
         .resolution
         .or(Some([prefs.default_width, prefs.default_height]));
     let fullscreen = record.fullscreen.unwrap_or(prefs.fullscreen);
+    let game_dir = engine.instances.game_dir(&id).await?;
+    if let Some(hook) = record
+        .pre_launch
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        crate::game_core::launch::run_hook(hook, &game_dir).await?;
+    }
+    process_finished_games(engine).await;
     let pid = engine
         .games
         .start(
@@ -444,6 +551,7 @@ pub async fn launch(id: String) -> Result<Value> {
             jvm_args,
             resolution,
             fullscreen,
+            record.post_exit.clone(),
         )
         .await?;
     let _ = engine
@@ -452,21 +560,20 @@ pub async fn launch(id: String) -> Result<Value> {
             i.last_played = Some(chrono::Utc::now().to_rfc3339());
         })
         .await;
+    let watch_id = id.clone();
+    tokio::spawn(async move {
+        if let Ok(engine) = get().await {
+            if engine.games.poll_until_exited(&watch_id, pid).await {
+                process_finished_games(engine).await;
+            }
+        }
+    });
     Ok(json!({"processId":pid}))
 }
 pub async fn stop(id: String) -> Result<()> {
     let engine = get().await?;
     engine.games.stop(&id).await?;
-    if let Ok(finished) = engine.games.collect_finished_playtime().await {
-        for (inst_id, elapsed) in finished {
-            let _ = engine
-                .instances
-                .change(&inst_id, |i| {
-                    i.playtime_seconds = i.playtime_seconds.saturating_add(elapsed);
-                })
-                .await;
-        }
-    }
+    process_finished_games(engine).await;
     Ok(())
 }
 pub async fn edit(id: String, name: String, memory: u32, java_path: String) -> Result<()> {
@@ -521,6 +628,33 @@ pub async fn update_instance_meta(id: &str, patch: InstanceMetaPatch) -> Result<
         || patch.post_exit.is_some();
     if needs_idle && engine.games.running().await?.iter().any(|k| k == id) {
         bail!("Close this game before changing launch or memory settings");
+    }
+    if let Some(Some(ref raw)) = patch.jvm_args {
+        let trimmed = raw.trim();
+        if !trimmed.is_empty() {
+            crate::game_core::launch::split_command_args(trimmed)
+                .context("Invalid custom JVM arguments")?;
+        }
+    }
+    if let Some(Some(ref raw)) = patch.pre_launch {
+        let trimmed = raw.trim();
+        if !trimmed.is_empty() {
+            let parts = crate::game_core::launch::split_command_args(trimmed)
+                .context("Invalid pre-launch hook command")?;
+            if parts.first().is_some_and(|p| p.is_empty()) {
+                bail!("Pre-launch hook cannot start with an empty executable name");
+            }
+        }
+    }
+    if let Some(Some(ref raw)) = patch.post_exit {
+        let trimmed = raw.trim();
+        if !trimmed.is_empty() {
+            let parts = crate::game_core::launch::split_command_args(trimmed)
+                .context("Invalid post-exit hook command")?;
+            if parts.first().is_some_and(|p| p.is_empty()) {
+                bail!("Post-exit hook cannot start with an empty executable name");
+            }
+        }
     }
     let defaults = preferences().await?;
     let icon_override = match &patch.icon {
@@ -937,11 +1071,9 @@ pub async fn clear_finished_downloads() -> Result<()> {
 pub struct Preferences {
     pub memory: u32,
     pub java_path: String,
-    pub discord: bool,
     pub theme: String,
     pub ui_scale: u32,
     pub reduced_motion: bool,
-    pub sidebar_expanded: bool,
     pub density: String,
     pub on_launch: String,
     pub confirm_launch: bool,
@@ -959,11 +1091,9 @@ impl Default for Preferences {
         Self {
             memory: 4096,
             java_path: "auto".into(),
-            discord: false,
             theme: "dawn-gold".into(),
             ui_scale: 100,
             reduced_motion: false,
-            sidebar_expanded: false,
             density: "comfortable".into(),
             on_launch: "keep".into(),
             confirm_launch: false,
@@ -978,8 +1108,8 @@ impl Default for Preferences {
         }
     }
 }
-pub async fn preferences() -> Result<Preferences> {
-    let path = get().await?.data.join("preferences.json");
+async fn read_preferences_from_dir(data: &Path) -> Result<Preferences> {
+    let path = data.join("preferences.json");
     match tokio::fs::metadata(&path).await {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(Preferences::default()),
         Ok(meta) => {
@@ -992,6 +1122,9 @@ pub async fn preferences() -> Result<Preferences> {
         }
         Err(e) => Err(e.into()),
     }
+}
+pub async fn preferences() -> Result<Preferences> {
+    read_preferences_from_dir(&get().await?.data).await
 }
 fn validate_preferences(value: &Preferences) -> Result<()> {
     if !(512..=65536).contains(&value.memory)
@@ -1008,17 +1141,10 @@ fn validate_preferences(value: &Preferences) -> Result<()> {
     };
     Ok(())
 }
-pub async fn save_preferences(
-    memory: u32,
-    java_path: String,
-    discord: Option<bool>,
-) -> Result<()> {
+pub async fn save_preferences(memory: u32, java_path: String) -> Result<()> {
     let mut value = preferences().await.unwrap_or_default();
     value.memory = memory;
     value.java_path = java_path;
-    if let Some(d) = discord {
-        value.discord = d;
-    }
     validate_preferences(&value)?;
     write_json(&get().await?.data.join("preferences.json"), &value).await
 }
@@ -1036,7 +1162,9 @@ pub async fn save_preferences_full(mut value: Preferences) -> Result<Preferences
         .take(50)
         .collect();
     validate_preferences(&value)?;
-    write_json(&get().await?.data.join("preferences.json"), &value).await?;
+    let engine = get().await?;
+    write_json(&engine.data.join("preferences.json"), &value).await?;
+    engine.slots.set_limit(value.max_concurrent_downloads);
     Ok(value)
 }
 
@@ -1141,6 +1269,11 @@ pub async fn list_screenshots(instance_id: Option<&str>) -> Result<Value> {
     Ok(serde_json::to_value(
         extras::list_screenshots(&engine.instances, instance_id).await?,
     )?)
+}
+
+pub async fn read_screenshot_image(instance_id: &str, path: &str) -> Result<String> {
+    let engine = get().await?;
+    extras::read_screenshot_image(&engine.instances, instance_id, path).await
 }
 
 pub async fn list_disk_logs(id: &str) -> Result<Value> {
@@ -1811,6 +1944,67 @@ mod tests {
         let second = migrate_clean_slate_v23(data).await?;
         assert!(!second, "second run must do nothing");
         assert!(user_file.exists(), "new instance must be preserved");
+
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn download_gate_enforces_and_resizes_concurrency_limits() -> Result<()> {
+        use std::sync::Arc;
+        let gate = Arc::new(DownloadGate::new(2));
+        let p1 = gate.acquire().await?;
+        let p2 = gate.acquire().await?;
+
+        // Third acquire must wait while 2 permits are held
+        let gate_wait = gate.clone();
+        let waiting = tokio::spawn(async move { gate_wait.acquire().await.map(|_| ()) });
+        tokio::task::yield_now().await;
+        assert!(!waiting.is_finished(), "third acquire must block at limit=2");
+
+        // Raising limit dynamically wakes the waiting task immediately
+        gate.set_limit(3);
+        tokio::time::timeout(std::time::Duration::from_secs(1), waiting)
+            .await
+            .context("raised limit should wake waiting acquire")??
+            .unwrap();
+
+        // Lowering limit prevents new acquires while still allowing active permits to drain
+        gate.set_limit(1);
+        let gate_blocked = gate.clone();
+        let blocked = tokio::spawn(async move { gate_blocked.acquire().await.map(|_| ()) });
+        tokio::task::yield_now().await;
+        assert!(!blocked.is_finished(), "should block at lowered limit=1 while active=2");
+
+        drop(p1);
+        drop(p2);
+        tokio::time::timeout(std::time::Duration::from_secs(1), blocked)
+            .await
+            .context("dropping permits should wake acquire under limit=1")??
+            .unwrap();
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn read_preferences_from_dir_persists_max_concurrent_downloads() -> Result<()> {
+        let dir = std::env::temp_dir()
+            .join(format!("solara-prefs-test-{}", uuid::Uuid::new_v4()));
+        tokio::fs::create_dir_all(&dir).await?;
+        assert_eq!(read_preferences_from_dir(&dir).await?.max_concurrent_downloads, 4);
+
+        let mut custom = Preferences::default();
+        custom.max_concurrent_downloads = 6;
+        write_json(&dir.join("preferences.json"), &custom).await?;
+        assert_eq!(read_preferences_from_dir(&dir).await?.max_concurrent_downloads, 6);
+
+        // Legacy fields ("discord", "sidebarExpanded") from older preferences.json deserialize cleanly
+        tokio::fs::write(
+            dir.join("preferences.json"),
+            r#"{"memory":4096,"javaPath":"auto","discord":true,"sidebarExpanded":true,"maxConcurrentDownloads":5}"#,
+        )
+        .await?;
+        let migrated = read_preferences_from_dir(&dir).await?;
+        assert_eq!(migrated.max_concurrent_downloads, 5);
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())

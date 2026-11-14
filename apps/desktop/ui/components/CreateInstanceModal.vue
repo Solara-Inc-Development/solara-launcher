@@ -72,7 +72,7 @@ watch(
       const firstRelease = list.find((v) => v.type === 'release') ?? list[0];
       if (firstRelease) gameVersion.value = firstRelease.id;
     } catch (err) {
-      errorMsg.value = `Could not load official Minecraft versions: ${String(err)}`;
+      errorMsg.value = `Couldn't load official Minecraft versions: ${String(err)}`;
     }
     if (store.desktop) {
       native<DetectedJava[]>('detect_java_runtimes')

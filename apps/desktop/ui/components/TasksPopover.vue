@@ -14,7 +14,7 @@ async function cancelJob(id: string) {
     await native('download_action', { id, action: 'cancel' });
     await refreshSnapshot();
   } catch (err) {
-    notify('error', 'Could not cancel task', String(err));
+    notify('error', "Couldn't cancel task", String(err));
   }
 }
 
@@ -23,7 +23,7 @@ async function retryJob(id: string) {
     await native('download_action', { id, action: 'retry' });
     await refreshSnapshot();
   } catch (err) {
-    notify('error', 'Could not retry task', String(err));
+    notify('error', "Couldn't retry task", String(err));
   }
 }
 
@@ -32,7 +32,7 @@ async function clearFinished() {
     await native('clear_finished_downloads');
     await refreshSnapshot();
   } catch (err) {
-    notify('error', 'Could not clear tasks', String(err));
+    notify('error', "Couldn't clear tasks", String(err));
   }
 }
 

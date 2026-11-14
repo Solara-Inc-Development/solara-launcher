@@ -21,7 +21,7 @@ async function selectAccount(id: string) {
     await refreshSnapshot();
     notify('success', 'Active account switched');
   } catch (err) {
-    notify('error', 'Failed switching account', String(err));
+    notify('error', "Couldn't switch account", String(err));
   } finally {
     busyId.value = '';
   }
@@ -34,7 +34,7 @@ async function signOut(id: string, username: string) {
     await refreshSnapshot();
     notify('info', `Signed out of ${username}`);
   } catch (err) {
-    notify('error', 'Sign out failed', String(err));
+    notify('error', "Couldn't sign out", String(err));
   } finally {
     busyId.value = '';
   }

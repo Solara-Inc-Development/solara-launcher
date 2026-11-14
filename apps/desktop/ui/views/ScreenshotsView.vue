@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { Camera, Search, FolderOpen, Trash2, RefreshCw } from '../icons';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { Camera, Search, FolderOpen, Trash2, RefreshCw, Copy } from '../icons';
 import { store, formatBytes, formatRelativeTime, native, notify } from '../state';
+import {
+  copyScreenshotPath,
+  getCachedPreview,
+  invalidateScreenshotPreview,
+  loadFullScreenshot,
+  loadScreenshotPreview,
+  peekCachedPreview,
+  screenshotKey,
+} from '../screenshots';
 import type { ScreenshotEntry } from '../types';
 import SolaraButton from '../components/SolaraButton.vue';
 import SolaraEmptyState from '../components/SolaraEmptyState.vue';
@@ -12,6 +21,43 @@ const loading = ref(false);
 const instanceFilter = ref('all');
 const search = ref('');
 const lightbox = ref<ScreenshotEntry | null>(null);
+const lightboxSrc = ref<string | null>(null);
+const lightboxLoading = ref(false);
+const lightboxError = ref<string | null>(null);
+
+const observedMap = new WeakMap<Element, ScreenshotEntry>();
+const observedElements = new WeakSet<Element>();
+let observer: IntersectionObserver | null = null;
+
+function ensureObserver() {
+  if (observer || typeof IntersectionObserver === 'undefined') return;
+  observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const shot = observedMap.get(entry.target);
+        if (shot && !peekCachedPreview(shot)) {
+          void loadScreenshotPreview(shot);
+        }
+      }
+    },
+    { rootMargin: '160px' },
+  );
+}
+
+function bindCardRef(shot: ScreenshotEntry, el: unknown) {
+  if (!(el instanceof Element)) return;
+  if (typeof IntersectionObserver === 'undefined') {
+    if (!peekCachedPreview(shot)) void loadScreenshotPreview(shot);
+    return;
+  }
+  ensureObserver();
+  observedMap.set(el, shot);
+  if (!observedElements.has(el)) {
+    observedElements.add(el);
+    observer?.observe(el);
+  }
+}
 
 async function loadAll() {
   if (!store.desktop) return;
@@ -21,13 +67,45 @@ async function loadAll() {
       instanceId: null,
     });
   } catch (e) {
-    notify('error', 'Failed loading screenshots', String(e));
+    notify('error', "Couldn't load screenshots", String(e));
   } finally {
     loading.value = false;
   }
 }
 
+async function openLightbox(shot: ScreenshotEntry) {
+  lightbox.value = shot;
+  lightboxSrc.value = getCachedPreview(shot) ?? null;
+  lightboxError.value = null;
+  lightboxLoading.value = true;
+  try {
+    const full = await loadFullScreenshot(shot);
+    if (lightbox.value && screenshotKey(lightbox.value) === screenshotKey(shot)) {
+      lightboxSrc.value = full;
+    }
+  } catch (e) {
+    if (lightbox.value && screenshotKey(lightbox.value) === screenshotKey(shot)) {
+      lightboxError.value = String(e);
+    }
+  } finally {
+    if (lightbox.value && screenshotKey(lightbox.value) === screenshotKey(shot)) {
+      lightboxLoading.value = false;
+    }
+  }
+}
+
+function closeLightbox() {
+  lightbox.value = null;
+  lightboxSrc.value = null;
+  lightboxError.value = null;
+  lightboxLoading.value = false;
+}
+
 onMounted(loadAll);
+onBeforeUnmount(() => {
+  observer?.disconnect();
+  observer = null;
+});
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase();
@@ -45,11 +123,12 @@ async function trashShot(s: ScreenshotEntry) {
       action: 'trash',
       path: s.path,
     });
-    lightbox.value = null;
+    invalidateScreenshotPreview(s);
+    closeLightbox();
     await loadAll();
-    notify('info', 'Screenshot moved to instance trash');
+    notify('info', 'Moved screenshot to trash');
   } catch (e) {
-    notify('error', 'Failed', String(e));
+    notify('error', "Couldn't move screenshot to trash", String(e));
   }
 }
 </script>
@@ -89,11 +168,20 @@ async function trashShot(s: ScreenshotEntry) {
       <div v-else class="sol-shots-grid">
         <div
           v-for="shot in filtered"
-          :key="`${shot.instanceId}-${shot.path}`"
+          :key="screenshotKey(shot)"
+          :ref="(el) => bindCardRef(shot, el)"
           class="sol-shot-card"
-          @click="lightbox = shot"
+          @click="openLightbox(shot)"
         >
-          <img :src="shot.dataUrl" :alt="shot.fileName" class="sol-shot-img" loading="lazy" />
+          <img
+            v-if="peekCachedPreview(shot)"
+            :src="peekCachedPreview(shot)"
+            :alt="shot.fileName"
+            class="sol-shot-img"
+          />
+          <div v-else class="sol-shot-placeholder">
+            <Camera :size="20" />
+          </div>
           <div class="sol-shot-meta">
             <div class="sol-truncate sol-shot-name">{{ shot.fileName }}</div>
             <div class="sol-muted sol-text-xs sol-truncate">
@@ -109,10 +197,23 @@ async function trashShot(s: ScreenshotEntry) {
       :title="lightbox?.fileName"
       :subtitle="lightbox ? `${lightbox.instanceName} • ${formatBytes(lightbox.size)}` : ''"
       width="lg"
-      @close="lightbox = null"
+      @close="closeLightbox"
     >
-      <img v-if="lightbox" :src="lightbox.dataUrl" :alt="lightbox.fileName" class="sol-lightbox-img" />
+      <img
+        v-if="lightbox && lightboxSrc"
+        :src="lightboxSrc"
+        :alt="lightbox.fileName"
+        class="sol-lightbox-img"
+      />
+      <div v-else-if="lightbox" class="sol-lightbox-placeholder">
+        <Camera :size="26" />
+        <span v-if="lightboxLoading">Loading full-resolution image...</span>
+        <span v-else-if="lightboxError" class="sol-muted sol-text-xs">{{ lightboxError }}</span>
+      </div>
       <template v-if="lightbox" #footer>
+        <SolaraButton variant="secondary" size="sm" @click="copyScreenshotPath(lightbox)">
+          <Copy :size="13" /> Copy file path
+        </SolaraButton>
         <SolaraButton
           variant="secondary"
           size="sm"

@@ -165,12 +165,12 @@ async function handleContextAction(action: string) {
       await refreshSnapshot();
       notify('success', 'Instance duplicated', `Created a copy of ${inst.name}.`);
     } catch (err) {
-      notify('error', 'Duplicate failed', String(err));
+      notify('error', "Couldn't duplicate instance", String(err));
     }
   } else if (action === 'folder') {
     if (store.desktop) {
       native('open_instance_folder', { id: inst.id }).catch((err) =>
-        notify('error', 'Open folder failed', String(err)),
+        notify('error', "Couldn't open folder", String(err)),
       );
     }
   } else if (action === 'delete') {
@@ -190,7 +190,7 @@ async function confirmCreateGroup() {
     groupFilter.value = clean;
     notify('success', 'Group created', `Added group "${clean}".`);
   } catch (err) {
-    notify('error', 'Could not create group', String(err));
+    notify('error', "Couldn't create group", String(err));
   } finally {
     savingGroup.value = false;
   }
@@ -205,7 +205,7 @@ async function confirmRename() {
     renameTarget.value = null;
     notify('success', 'Instance renamed');
   } catch (err) {
-    notify('error', 'Rename failed', String(err));
+    notify('error', "Couldn't rename instance", String(err));
   }
 }
 
@@ -223,7 +223,7 @@ async function confirmAssignGroup() {
     assignGroupTarget.value = null;
     notify('success', 'Group updated');
   } catch (err) {
-    notify('error', 'Could not update group', String(err));
+    notify('error', "Couldn't update group", String(err));
   }
 }
 
@@ -237,7 +237,7 @@ async function confirmDeleteInstance() {
     await refreshSnapshot();
     notify('success', 'Instance deleted', `${name} was removed from disk.`);
   } catch (err) {
-    notify('error', 'Delete failed', String(err));
+    notify('error', "Couldn't delete instance", String(err));
   } finally {
     deleting.value = false;
   }
