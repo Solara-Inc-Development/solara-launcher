@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.48 — Smooth Animations Across Views, Modals, Tabs, Cards & Progress Indicators (reducedMotion gated).
+# Owner-approved preview candidate: V-0.0.48 — Smooth Animations Across Views, Modals, Tabs, Cards & Progress Indicators (reducedMotion gated, keyframe modal entrance).
 on:
   workflow_dispatch:
   push:

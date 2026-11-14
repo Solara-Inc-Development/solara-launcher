@@ -4707,29 +4707,28 @@
   transform: translateY(-4px);
 }
 
-.sol-modal-fade-enter-active,
-.sol-modal-fade-leave-active {
-  transition: opacity 160ms var(--ease-ui);
+@keyframes sol-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.sol-modal-fade-enter-active .sol-modal,
-.sol-modal-fade-leave-active .sol-modal {
-  transition: opacity 160ms var(--ease-ui), transform 200ms var(--ease-ui);
+@keyframes sol-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.sol-modal-fade-enter-from,
-.sol-modal-fade-leave-to {
-  opacity: 0;
+.sol-modal-backdrop {
+  animation: sol-backdrop-in 150ms var(--ease-ui) both;
 }
 
-.sol-modal-fade-enter-from .sol-modal {
-  opacity: 0;
-  transform: translateY(12px) scale(0.975);
-}
-
-.sol-modal-fade-leave-to .sol-modal {
-  opacity: 0;
-  transform: translateY(6px) scale(0.985);
+.sol-modal-backdrop > .sol-modal {
+  animation: sol-modal-in 190ms var(--ease-ui) both;
 }
 
 .sol-toast-enter-active,
