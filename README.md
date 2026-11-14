@@ -110,22 +110,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.37 available.** Complete Dawn Gold — Obsidian Edition desktop redesign: fixed compact 68px navigation rail with pinned instance shortcuts and tooltips, custom titlebar without outer document scrollbars, 4-step first-launch onboarding, returning Home launch dashboard, Library with groups/favorites/grid-list views and Create Instance modal, Discover/Install flow, Instance Detail (Content manager, 1-click mod updates, NBT Worlds, windowed Logs, Files, Java/Memory/Hooks Settings with sticky save bar), interactive 3D Skin & Capes viewer with pixel Skin Editor, Screenshots gallery, Download Tasks queue, and global Search (`Ctrl+K`).
+**Testing preview V-0.0.38 available.** Fixes the Play launch bug where starting Minecraft could close or hide the launcher window (removing legacy `close`/`hide` on-launch behaviors, normalizing saved preferences to `keep`, and only minimizing after verifying Minecraft is running), plus V3 Obsidian Dawn Gold OLED surfaces, original geometric `SolaraLogo`, animated startup `SplashScreen`, offline bundled `DM Sans` typography, and safer RAII launch/backup lifecycle hardening.
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates download and apply automatically when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.37 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.37/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.37/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.37/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.37/source.zip)
-- **SHA-256**: `25b2d467968bf8b3d7a73ef31e47b3a80b00e9d3ff5689142361e7223b33fd85`
+- **GitHub Release**: [Solara Launcher V-0.0.38 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.38/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.38/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.38/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.38/source.zip)
+- **SHA-256**: `cfc44137f973ccf0c65ff22a415c5ad035d6949ff560c2bfb753807e2c7cd5bc`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.37 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.38 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | Live auto-update | Live on `https://api.solara-inc.in/v1/launcher/update/windows/x86_64` |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
