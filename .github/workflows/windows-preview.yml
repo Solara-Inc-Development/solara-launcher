@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 218 - Auto-Java Install, Windows 26.3 Launch Fix & Crash Diagnostics (V-0.0.41 candidate).
+# Owner-approved preview candidate: V-0.0.42 — Official Bordered Logo, Multi-Size Icons & Core Java/Crash Fixes.
 on:
   workflow_dispatch:
   push:

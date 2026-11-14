@@ -86,6 +86,19 @@
   justify-content: center;
 }
 
+.sol-brand-mark {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.sol-brand-mark.is-framed {
+  border-radius: 22%;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+}
+
 .sol-brand-btn {
   display: inline-flex;
   align-items: center;

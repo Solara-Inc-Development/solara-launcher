@@ -1161,6 +1161,12 @@ async function run() {
 
 
     // Verify Solara Blue theme token & non-automatic startup update check + modal + topbar "Restart to Update" flow
+    const titleLogoInfo = await page.evaluate(() => {
+      const img = document.querySelector('.sol-titlebar .sol-brand-btn img.sol-brand-mark');
+      return img ? { src: img.getAttribute('src'), complete: img.complete, w: img.naturalWidth } : null;
+    });
+    assert(titleLogoInfo && titleLogoInfo.src === '/logo.svg' && titleLogoInfo.complete && titleLogoInfo.w > 0, `TitleBar must display official bordered /logo.svg cleanly, got ${JSON.stringify(titleLogoInfo)}`);
+
     const accentHex = await page.evaluate(() =>
       getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase(),
     );

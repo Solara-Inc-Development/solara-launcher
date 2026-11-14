@@ -1,5 +1,17 @@
 # Changelog
 
+## Testing Preview V-0.0.42 — 2026-11-15
+
+- **Official Bordered Solara Logo & Multi-Size Desktop Icons**:
+  - Copied the official bordered Solara logo assets (`logo.svg`, `logo-192.png`, `logo-512.png`) into `public/` and wired `SolaraLogo.vue` across `TitleBar.vue`, `SplashScreen.vue`, `UpdatePromptModal.vue`, `OnboardingView.vue`, and `GlobalSettingsModal.vue` About.
+  - Regenerated multi-size `apps/desktop/icons/icon.ico` (16x16 through 256x256) and `apps/desktop/icons/icon.png` (256x256) from the official bordered logo.
+- **Azul Zulu Rounded Metadata Size Fix & Improved Crash Diagnostics**:
+  - Handled Azul Zulu's rounded `detail.size` estimates separately from exact SHA-256 verification and `Content-Length` bounds (`apps/desktop/src/game_core/java.rs`), plus cancellation checks and regular non-symlink `bin/javaw.exe` cache verification.
+  - Added `logs/latest.log` fallback alongside `hs_err_pid*.log`, launch-timestamp cutoff filtering (`inspect_crash_diagnosis_since`), clean-exit skipping (`launch.rs`, `engine.rs`), and Netty `aarch_64` native filtering (`plan.rs`, `launch.rs`).
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.41 — 2026-11-15
 
 - **Automatic Missing/Incompatible Java Installation & Azul Zulu + Adoptium Support**:
