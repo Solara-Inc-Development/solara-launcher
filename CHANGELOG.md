@@ -1,5 +1,14 @@
 # Changelog
 
+## Testing Preview V-0.0.49 — 2026-11-15
+
+- **Keyframe Modal Entrance & Instant Escape Unmount**:
+  - Replaced `SolaraModal.vue` leave transition delay with GPU-friendly `@keyframes sol-backdrop-in` and `@keyframes sol-modal-in` entrance animations so modals animate smoothly on open while dismissing immediately on `Escape` or backdrop click.
+  - Verified full `npm run check`, `npm test` (`43/43`), `npm run test:csp`, `npm run test:window-controls`, and Chromium E2E (`verify-redesign-e2e.cjs`) on commit `e9707f7`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.48 — 2026-11-15
 
 - **Smooth Animation & Micro-Interaction System (`reducedMotion` Gated)**:
