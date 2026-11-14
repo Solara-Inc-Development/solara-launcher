@@ -72,7 +72,7 @@ export interface LauncherPreferences {
   prefsVersion?: number;
   memory: number;
   javaPath: string;
-  theme: 'dawn-gold' | 'slate' | 'midnight';
+  theme: 'obsidian-blue' | 'dawn-gold' | 'slate' | 'midnight';
   uiScale: number;
   reducedMotion: boolean;
   density: 'comfortable' | 'compact';
@@ -235,6 +235,11 @@ export interface ProfileSkin {
 export interface UpdateStatus {
   stage: string;
   version: string | null;
+  publicVersion?: string | null;
+  currentVersion?: string | null;
+  notes?: string | null;
+  downloaded?: number;
+  total?: number | null;
   error: string | null;
   checkedAt?: string | null;
 }

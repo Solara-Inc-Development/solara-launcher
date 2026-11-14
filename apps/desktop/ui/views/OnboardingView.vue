@@ -33,7 +33,7 @@ const emit = defineEmits<{ (e: 'start-signin'): void }>();
 const step = ref(1);
 const memory = ref(store.preferences.memory || 4096);
 const javaPath = ref(store.preferences.javaPath || 'auto');
-const theme = ref(store.preferences.theme || 'dawn-gold');
+const theme = ref(store.preferences.theme || 'obsidian-blue');
 const detectedJava = ref<DetectedJava[]>([]);
 const scanningJava = ref(false);
 
@@ -280,9 +280,9 @@ async function completeOnboarding(launchNow = false) {
             <div class="sol-chip-row">
               <button
                 v-for="opt in [
-                  { id: 'dawn-gold', label: 'Dawn Gold Obsidian' },
+                  { id: 'obsidian-blue', label: 'Solara Blue Obsidian' },
                   { id: 'slate', label: 'Obsidian Slate' },
-                  { id: 'midnight', label: 'Midnight Gold' },
+                  { id: 'midnight', label: 'Midnight Blue' },
                 ] as const"
                 :key="opt.id"
                 type="button"

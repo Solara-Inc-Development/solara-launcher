@@ -170,16 +170,16 @@ onUnmounted(() => {
           <!-- Appearance -->
           <section v-if="activeCategory === 'appearance'" class="sol-card sol-stack">
             <h2 class="sol-card-title">Appearance</h2>
-            <p class="sol-muted sol-text-xs">Solara Dawn Gold — Obsidian Edition theme variants and layout density.</p>
+            <p class="sol-muted sol-text-xs">Solara Obsidian Blue Edition theme variants and layout density.</p>
 
             <div class="sol-field">
               <label class="sol-label">Theme Variant</label>
               <div class="sol-chip-row">
                 <button
                   v-for="t in [
-                    { id: 'dawn-gold', label: 'Dawn Gold Obsidian' },
+                    { id: 'obsidian-blue', label: 'Solara Blue Obsidian' },
                     { id: 'slate', label: 'Obsidian Slate' },
-                    { id: 'midnight', label: 'Midnight Gold' },
+                    { id: 'midnight', label: 'Midnight Blue' },
                   ] as const"
                   :key="t.id"
                   type="button"

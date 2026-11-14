@@ -201,13 +201,13 @@ async function confirmDelete(): Promise<void> {
             <SolaraButton variant="secondary" size="sm" type="submit">Add</SolaraButton>
             <SolaraButton variant="ghost" size="sm" @click="showNewGroupInput = false">Cancel</SolaraButton>
           </form>
-          <SolaraButton v-else variant="secondary" size="sm" @click.stop="showNewGroupInput = true">
-            <Plus :size="13" /> New Group
-          </SolaraButton>
+            <SolaraButton variant="secondary" size="md" @click.stop="showNewGroupInput = true">
+              <Plus :size="15" /> New Group
+            </SolaraButton>
 
-          <SolaraButton variant="primary" size="sm" @click="openCreateInstance()">
-            <Plus :size="14" /> New Instance
-          </SolaraButton>
+            <SolaraButton variant="primary" size="md" @click="openCreateInstance()">
+              <Plus :size="16" /> New Instance
+            </SolaraButton>
         </div>
 
         <!-- Row 2: Sort | Group | Filter | Grid/List toggle -->
@@ -305,8 +305,8 @@ async function confirmDelete(): Promise<void> {
               :loader="inst.loader"
               :icon="inst.icon"
               :custom-icon="inst.customIcon"
-              :size="48"
-              :rounded="11"
+              :size="54"
+              :rounded="13"
             />
             <div class="sol-inst-card-titlewrap">
               <div class="sol-inst-card-name sol-truncate">{{ inst.name }}</div>
@@ -363,11 +363,11 @@ async function confirmDelete(): Promise<void> {
               </button>
               <SolaraButton
                 :variant="inst.running ? 'danger' : 'primary'"
-                size="xs"
+                size="sm"
                 @click="launchOrStopInstance(inst)"
               >
-                <Square v-if="inst.running" :size="11" />
-                <Play v-else :size="11" />
+                <Square v-if="inst.running" :size="13" />
+                <Play v-else :size="13" />
                 {{ inst.running ? 'Stop' : 'Play' }}
               </SolaraButton>
             </div>
@@ -393,8 +393,8 @@ async function confirmDelete(): Promise<void> {
               :loader="inst.loader"
               :icon="inst.icon"
               :custom-icon="inst.customIcon"
-              :size="36"
-              :rounded="8"
+              :size="42"
+              :rounded="10"
             />
             <div class="sol-row-item-text">
               <div class="sol-row-item-title">{{ inst.name }}</div>
@@ -407,16 +407,16 @@ async function confirmDelete(): Promise<void> {
           </div>
 
           <div class="sol-row-item-actions" @click.stop>
-            <SolaraButton variant="ghost" size="xs" @click="openInstanceSettings(inst.id)">
-              <Sliders :size="13" /> Settings
+            <SolaraButton variant="ghost" size="sm" @click="openInstanceSettings(inst.id)">
+              <Sliders :size="14" /> Settings
             </SolaraButton>
             <SolaraButton
               :variant="inst.running ? 'danger' : 'primary'"
-              size="xs"
+              size="sm"
               @click="launchOrStopInstance(inst)"
             >
-              <Square v-if="inst.running" :size="11" />
-              <Play v-else :size="11" />
+              <Square v-if="inst.running" :size="13" />
+              <Play v-else :size="13" />
               {{ inst.running ? 'Stop' : 'Play' }}
             </SolaraButton>
           </div>

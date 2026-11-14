@@ -2,12 +2,82 @@ use crate::{engine, identity};
 use serde_json::Value;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
-    Arc,
+    Arc, Once,
 };
 use tauri::WindowEvent;
 use tauri_plugin_opener::OpenerExt;
+
+static PANIC_HOOK_INIT: Once = Once::new();
+
 fn err(e: impl std::fmt::Display) -> String {
     e.to_string()
+}
+
+fn redact_panic_text(raw: &str) -> String {
+    let bearer_re = regex::Regex::new(r"(?i)bearer\s+[A-Za-z0-9\-._~+/]+=*").ok();
+    let kv_re = regex::Regex::new(
+        r"(?i)(access_token|refresh_token|minecraft_token|password|secret|token|authorization)\s*[:=]\s*[^\s,;]+",
+    )
+    .ok();
+    let mut cleaned = raw.replace(['\r', '\n'], " ");
+    if let Some(re) = bearer_re {
+        cleaned = re.replace_all(&cleaned, "Bearer [REDACTED]").into_owned();
+    }
+    if let Some(re) = kv_re {
+        cleaned = re.replace_all(&cleaned, "$1=[REDACTED]").into_owned();
+    }
+    cleaned.chars().take(512).collect()
+}
+
+fn crash_log_path() -> std::path::PathBuf {
+    dirs::data_local_dir()
+        .map(|dir| dir.join("in.solara.launcher"))
+        .unwrap_or_else(std::env::temp_dir)
+        .join("crash.log")
+}
+
+fn install_panic_hook() {
+    PANIC_HOOK_INIT.call_once(|| {
+        let previous = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |info| {
+            let msg = if let Some(s) = info.payload().downcast_ref::<&str>() {
+                *s
+            } else if let Some(s) = info.payload().downcast_ref::<String>() {
+                s.as_str()
+            } else {
+                "non-string panic payload"
+            };
+            let loc = info
+                .location()
+                .map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column()))
+                .unwrap_or_else(|| "unknown".into());
+            let thread = std::thread::current()
+                .name()
+                .unwrap_or("unnamed")
+                .to_string();
+            let line = format!(
+                "[{}] thread={} location={} panic={}\n",
+                chrono::Utc::now().to_rfc3339(),
+                thread,
+                loc,
+                redact_panic_text(msg)
+            );
+            let path = crash_log_path();
+            if let Some(parent) = path.parent() {
+                let _ = std::fs::create_dir_all(parent);
+            }
+            if let Ok(mut file) = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&path)
+            {
+                use std::io::Write;
+                let _ = file.write_all(line.as_bytes());
+            }
+            eprintln!("[solara-panic] {line}");
+            previous(info);
+        }));
+    });
 }
 #[tauri::command]
 async fn initialize_launcher() -> Result<(), String> {
@@ -38,16 +108,19 @@ async fn create_instance(
     loader_version: String,
     options: Option<engine::CreateInstanceOptions>,
 ) -> Result<Value, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::create_instance_with_options(
-        name,
-        game_version,
-        loader,
-        loader_version,
-        options.unwrap_or_default(),
-    )
+    Box::pin(async move {
+        let _operation = crate::app_updates::OPERATIONS.read().await;
+        engine::create_instance_with_options(
+            name,
+            game_version,
+            loader,
+            loader_version,
+            options.unwrap_or_default(),
+        )
+        .await
+        .map_err(err)
+    })
     .await
-    .map_err(err)
 }
 #[tauri::command]
 async fn update_instance_meta(id: String, patch: engine::InstanceMetaPatch) -> Result<Value, String> {
@@ -56,8 +129,11 @@ async fn update_instance_meta(id: String, patch: engine::InstanceMetaPatch) -> R
 }
 #[tauri::command]
 async fn repair_instance(id: String) -> Result<String, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::repair_instance(id).await.map_err(err)
+    Box::pin(async move {
+        let _operation = crate::app_updates::OPERATIONS.read().await;
+        engine::repair_instance(id).await.map_err(err)
+    })
+    .await
 }
 #[tauri::command]
 async fn duplicate_instance(id: String, name: Option<String>) -> Result<Value, String> {
@@ -76,49 +152,52 @@ async fn delete_instance(id: String) -> Result<(), String> {
 }
 #[tauri::command]
 async fn launch_instance(app: tauri::AppHandle, id: String) -> Result<Value, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    let emit_app = app.clone();
-    let emit_id = id.clone();
-    let exit_app = app.clone();
-    let exit_id = id.clone();
-    let error_id = id.clone();
-    let res = engine::launch_with_events(
-        id,
-        move |stage, detail| {
+    Box::pin(async move {
+        let _operation = crate::app_updates::OPERATIONS.read().await;
+        let emit_app = app.clone();
+        let emit_id = id.clone();
+        let exit_app = app.clone();
+        let exit_id = id.clone();
+        let error_id = id.clone();
+        let res = engine::launch_with_events(
+            id,
+            move |stage, detail| {
+                use tauri::Emitter;
+                let _ = emit_app.emit_to(
+                    "main",
+                    "launch-progress",
+                    serde_json::json!({
+                        "instanceId": emit_id,
+                        "stage": stage,
+                        "detail": detail,
+                    }),
+                );
+            },
+            move |status| {
+                use tauri::Emitter;
+                let _ = exit_app.emit_to("main", "game-exited", serde_json::json!({
+                    "instanceId": exit_id,
+                    "exitCode": status.code(),
+                    "success": status.success(),
+                }));
+            },
+        )
+        .await;
+        if let Err(ref e) = res {
             use tauri::Emitter;
-            let _ = emit_app.emit_to(
+            let _ = app.emit_to(
                 "main",
                 "launch-progress",
                 serde_json::json!({
-                    "instanceId": emit_id,
-                    "stage": stage,
-                    "detail": detail,
+                    "instanceId": error_id,
+                    "stage": "error",
+                    "detail": err(anyhow::anyhow!("{e:#}")),
                 }),
             );
-        },
-        move |status| {
-            use tauri::Emitter;
-            let _ = exit_app.emit_to("main", "game-exited", serde_json::json!({
-                "instanceId": exit_id,
-                "exitCode": status.code(),
-                "success": status.success(),
-            }));
-        },
-    )
-    .await;
-    if let Err(ref e) = res {
-        use tauri::Emitter;
-        let _ = app.emit_to(
-            "main",
-            "launch-progress",
-            serde_json::json!({
-                "instanceId": error_id,
-                "stage": "error",
-                "detail": err(anyhow::anyhow!("{e:#}")),
-            }),
-        );
-    }
-    res.map_err(err)
+        }
+        res.map_err(err)
+    })
+    .await
 }
 #[tauri::command]
 async fn stop_instance(id: String) -> Result<(), String> {
@@ -280,10 +359,13 @@ async fn install_content(
     version_id: Option<String>,
     world: Option<String>,
 ) -> Result<Value, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::install_content(instance_id, project_id, content_type, version_id, world)
-        .await
-        .map_err(err)
+    Box::pin(async move {
+        let _operation = crate::app_updates::OPERATIONS.read().await;
+        engine::install_content(instance_id, project_id, content_type, version_id, world)
+            .await
+            .map_err(err)
+    })
+    .await
 }
 #[tauri::command]
 async fn download_action(id: String, action: String) -> Result<(), String> {
@@ -363,8 +445,11 @@ async fn check_instance_content_updates(id: String) -> Result<Value, String> {
 }
 #[tauri::command]
 async fn apply_instance_content_updates(id: String, items: Vec<Value>) -> Result<Value, String> {
-    let _operation = crate::app_updates::OPERATIONS.read().await;
-    engine::apply_content_updates(&id, items).await.map_err(err)
+    Box::pin(async move {
+        let _operation = crate::app_updates::OPERATIONS.read().await;
+        engine::apply_content_updates(&id, items).await.map_err(err)
+    })
+    .await
 }
 #[tauri::command]
 async fn instance_worlds(id: String) -> Result<Value, String> {
@@ -613,13 +698,18 @@ fn start_dragging(window: tauri::Window) -> Result<(), String> {
 }
 #[tauri::command]
 async fn check_update(app: tauri::AppHandle) -> Result<Value, String> {
-    crate::app_updates::trigger(&app).await.map_err(err)
+    Box::pin(async move { crate::app_updates::trigger(&app).await.map_err(err) }).await
+}
+#[tauri::command]
+async fn install_update(app: tauri::AppHandle) -> Result<Value, String> {
+    Box::pin(async move { crate::app_updates::install_now(&app).await.map_err(err) }).await
 }
 #[tauri::command]
 fn app_update_status() -> Value {
     crate::app_updates::snapshot()
 }
 pub fn run() {
+    install_panic_hook();
     let closing = Arc::new(AtomicBool::new(false));
     let handler: Box<dyn Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send + Sync> =
         Box::new(tauri::generate_handler![
@@ -694,6 +784,7 @@ pub fn run() {
             window_action,
             start_dragging,
             check_update,
+            install_update,
             app_update_status
         ]);
     let app = tauri::Builder::default()
@@ -758,4 +849,42 @@ pub fn run() {
         }
         _ => {}
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn redact_panic_text_removes_tokens_and_newlines() {
+        let raw = "panic\nwith Bearer abc.def.ghi and access_token=secret123 password:my_pass\r\ndone";
+        let cleaned = redact_panic_text(raw);
+        assert!(!cleaned.contains('\n'));
+        assert!(!cleaned.contains('\r'));
+        assert!(!cleaned.contains("abc.def.ghi"));
+        assert!(!cleaned.contains("secret123"));
+        assert!(!cleaned.contains("my_pass"));
+        assert!(cleaned.contains("Bearer [REDACTED]"));
+        assert!(cleaned.contains("access_token=[REDACTED]"));
+        assert!(cleaned.contains("password=[REDACTED]"));
+    }
+
+    #[test]
+    fn boxed_shell_command_futures_stay_small() {
+        let install_fut = install_content(None, "proj".into(), "mod".into(), None, None);
+        assert!(std::mem::size_of_val(&install_fut) <= 2048);
+        drop(install_fut);
+
+        let updates_fut = apply_instance_content_updates("inst-1".into(), Vec::new());
+        assert!(std::mem::size_of_val(&updates_fut) <= 2048);
+        drop(updates_fut);
+
+        let create_fut = create_instance("n".into(), "1.21.4".into(), "fabric".into(), "0.16.10".into(), None);
+        assert!(std::mem::size_of_val(&create_fut) <= 2048);
+        drop(create_fut);
+
+        let repair_fut = repair_instance("inst-1".into());
+        assert!(std::mem::size_of_val(&repair_fut) <= 2048);
+        drop(repair_fut);
+    }
 }

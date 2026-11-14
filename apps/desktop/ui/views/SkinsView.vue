@@ -42,14 +42,14 @@ interface PreviewCapeSpec {
 const STARTER_SKIN_SPECS: StarterSkinSpec[] = [
   {
     id: 'starter-dawn',
-    name: 'Dawn Explorer',
+    name: 'Cobalt Explorer',
     variant: 'classic',
     skinTone: '#e8c3a5',
     hair: '#221c18',
     shirt: '#17171c',
-    shirtTrim: '#e9b86d',
+    shirtTrim: '#3b82f6',
     pants: '#282a34',
-    eyes: '#e9b86d',
+    eyes: '#60a5fa',
   },
   {
     id: 'starter-steve',
@@ -78,24 +78,24 @@ const STARTER_SKIN_SPECS: StarterSkinSpec[] = [
 const PREVIEW_CAPE_SPECS: PreviewCapeSpec[] = [
   {
     id: 'preview-dawn-banner',
-    name: 'Dawn Banner',
-    base: '#121216',
-    accent: '#e9b86d',
-    trim: '#f5cd91',
+    name: 'Solara Banner',
+    base: '#0d1322',
+    accent: '#3b82f6',
+    trim: '#60a5fa',
   },
   {
     id: 'preview-obsidian-crest',
-    name: 'Obsidian Crest',
+    name: 'Cobalt Crest',
     base: '#09090c',
-    accent: '#c89543',
-    trim: '#e9b86d',
+    accent: '#2563eb',
+    trim: '#3b82f6',
   },
   {
     id: 'preview-solstice-wing',
-    name: 'Solstice Wing',
-    base: '#191512',
-    accent: '#f5cd91',
-    trim: '#8f6428',
+    name: 'Glacier Wing',
+    base: '#0c1629',
+    accent: '#7dd3fc',
+    trim: '#1d4ed8',
   },
 ];
 

@@ -27,7 +27,7 @@ type ToolKind = 'pencil' | 'eraser' | 'eyedropper' | 'bucket';
 type RegionView = 'head-front' | 'torso-front' | 'arm-r' | 'leg-r' | 'full';
 
 const tool = ref<ToolKind>('pencil');
-const color = ref('#E9B86D');
+const color = ref('#3B82F6');
 const mirror = ref(false);
 const layerMode = ref<'base' | 'overlay'>('base');
 const activeRegion = ref<RegionView>('head-front');
@@ -44,7 +44,7 @@ const redoStack = ref<ImageData[]>([]);
 const importInput = ref<HTMLInputElement | null>(null);
 
 const swatchPalette = [
-  '#E9B86D', '#F5CD91', '#D7A258', '#17130E',
+  '#3B82F6', '#60A5FA', '#1D4ED8', '#0F2142',
   '#F5F4F1', '#9BA3AF', '#252B36', '#090B0F',
   '#23C987', '#65A9F5', '#F06471', '#E8A64B',
   '#C89B74', '#8D5524', '#4A3020', '#FFFFFF',

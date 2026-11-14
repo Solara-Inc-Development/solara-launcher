@@ -787,8 +787,8 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
             :loader="instance.loader"
             :icon="instance.icon"
             :custom-icon="instance.customIcon"
-            :size="54"
-            :rounded="12"
+            :size="62"
+            :rounded="14"
           />
           <div class="sol-inst-header-meta">
             <div class="sol-row-gap">
@@ -822,12 +822,12 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
         <div class="sol-inst-header-right" @click.stop>
           <SolaraButton
             :variant="instance.running ? 'danger' : 'primary'"
-            size="md"
+            size="lg"
             :loading="isLaunching"
             @click="launchOrStopInstance(instance)"
           >
-            <Square v-if="instance.running" :size="14" />
-            <Play v-else :size="15" />
+            <Square v-if="instance.running" :size="15" />
+            <Play v-else :size="17" />
             {{
               instance.running
                 ? 'Stop'
@@ -838,7 +838,7 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
           </SolaraButton>
 
           <SolaraButton variant="secondary" size="md" @click="openInstanceSettings(instance.id)">
-            <Sliders :size="14" /> Settings
+            <Sliders :size="16" /> Settings
           </SolaraButton>
 
           <div class="sol-menu-wrap">
@@ -1118,7 +1118,7 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
             @click="openFileEntry(f)"
           >
             <div class="sol-row-gap">
-              <Folder v-if="f.directory" :size="15" class="sol-gold" />
+              <Folder v-if="f.directory" :size="15" class="sol-accent-text" />
               <File v-else :size="15" class="sol-muted" />
               <span>{{ f.name }}</span>
             </div>

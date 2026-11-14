@@ -365,7 +365,7 @@ pub struct ContentUpdateItem {
 fn sha1_file_hex(path: &Path) -> Result<String> {
     let mut f = std::fs::File::open(path)?;
     let mut hasher = sha1_smol::Sha1::new();
-    let mut buf = [0u8; 65536];
+    let mut buf = vec![0u8; 65536];
     loop {
         let n = f.read(&mut buf)?;
         if n == 0 {
@@ -602,45 +602,48 @@ pub async fn apply_content_updates(
     cancel: &Cancellation,
     mut report: impl FnMut(String, u64, u64) + Send,
 ) -> Result<()> {
-    let total: u64 = items.iter().map(|i| i.size).sum();
-    let mut completed = 0u64;
-    for (idx, item) in items.iter().enumerate() {
-        cancel.check()?;
-        content::allowed_content_destination(&item.destination)?;
-        let artifact = Artifact {
-            url: item.download_url.clone(),
-            sha1: item.sha1.clone(),
-            size: item.size,
-            path: Some(item.destination.clone()),
-        };
-        artifact.validate()?;
-        let phase = format!("Updating {} ({}/{})", item.project_name, idx + 1, items.len());
-        let cached = cache
-            .obtain(&artifact, cancel, |done, _| {
-                report(phase.clone(), completed.saturating_add(done), total);
-            })
-            .await?;
-        if !content::verify_sha512(&cached, &item.sha512, item.size).await? {
-            let _ = tokio::fs::remove_file(&cached).await;
-            bail!("Updated file for {} failed SHA-512 verification", item.project_name);
-        }
-        let target_final = files::resolve_create_parents(store, id, &item.destination).await?;
-        let temp = target_final.with_file_name(format!(".solara-update-{}.tmp", uuid::Uuid::new_v4()));
-        tokio::fs::copy(&cached, &temp).await?;
-        if let Err(e) = tokio::fs::rename(&temp, &target_final).await {
-            let _ = tokio::fs::remove_file(&temp).await;
-            return Err(e.into());
-        }
-        // Only remove previous file AFTER new verified file is safely in place
-        if item.current_path != item.destination {
-            if let Ok(old_path) = files::resolve(store, id, &item.current_path, false).await {
-                let _ = tokio::fs::remove_file(&old_path).await;
+    Box::pin(async move {
+        let total: u64 = items.iter().map(|i| i.size).sum();
+        let mut completed = 0u64;
+        for (idx, item) in items.iter().enumerate() {
+            cancel.check()?;
+            content::allowed_content_destination(&item.destination)?;
+            let artifact = Artifact {
+                url: item.download_url.clone(),
+                sha1: item.sha1.clone(),
+                size: item.size,
+                path: Some(item.destination.clone()),
+            };
+            artifact.validate()?;
+            let phase = format!("Updating {} ({}/{})", item.project_name, idx + 1, items.len());
+            let cached = cache
+                .obtain(&artifact, cancel, |done, _| {
+                    report(phase.clone(), completed.saturating_add(done), total);
+                })
+                .await?;
+            if !content::verify_sha512(&cached, &item.sha512, item.size).await? {
+                let _ = tokio::fs::remove_file(&cached).await;
+                bail!("Updated file for {} failed SHA-512 verification", item.project_name);
             }
+            let target_final = files::resolve_create_parents(store, id, &item.destination).await?;
+            let temp = target_final.with_file_name(format!(".solara-update-{}.tmp", uuid::Uuid::new_v4()));
+            tokio::fs::copy(&cached, &temp).await?;
+            if let Err(e) = tokio::fs::rename(&temp, &target_final).await {
+                let _ = tokio::fs::remove_file(&temp).await;
+                return Err(e.into());
+            }
+            // Only remove previous file AFTER new verified file is safely in place
+            if item.current_path != item.destination {
+                if let Ok(old_path) = files::resolve(store, id, &item.current_path, false).await {
+                    let _ = tokio::fs::remove_file(&old_path).await;
+                }
+            }
+            completed = completed.saturating_add(item.size);
         }
-        completed = completed.saturating_add(item.size);
-    }
-    report("Updates applied".into(), total, total);
-    Ok(())
+        report("Updates applied".into(), total, total);
+        Ok(())
+    })
+    .await
 }
 
 // ---------------------------------------------------------------------------

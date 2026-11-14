@@ -13,7 +13,7 @@ const props = withDefaults(
 );
 
 const uid = useId();
-const gradId = computed(() => `sol-gold-${uid}`);
+const gradId = computed(() => `sol-blue-${uid}`);
 const rimId = computed(() => `sol-rim-${uid}`);
 </script>
 
@@ -28,12 +28,12 @@ const rimId = computed(() => `sol-rim-${uid}`);
   >
     <defs>
       <linearGradient :id="gradId" x1="12" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#F5CD91" />
-        <stop offset="52%" stop-color="#E9B86D" />
-        <stop offset="100%" stop-color="#C89543" />
+        <stop offset="0%" stop-color="#7DD3FC" />
+        <stop offset="52%" stop-color="#3B82F6" />
+        <stop offset="100%" stop-color="#1D4ED8" />
       </linearGradient>
       <linearGradient :id="rimId" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#392B18" />
+        <stop offset="0%" stop-color="#172554" />
         <stop offset="50%" stop-color="#29292F" />
         <stop offset="100%" stop-color="#1C1C21" />
       </linearGradient>
@@ -58,9 +58,9 @@ const rimId = computed(() => `sol-rim-${uid}`);
       stroke-width="4.4"
       stroke-linecap="round"
     />
-    <!-- Dawn ray dot on upper right -->
-    <circle cx="48.8" cy="24.6" r="2.6" fill="#F5CD91" />
-    <!-- Precision geometric Solara sunbeam bolt -->
+    <!-- Azure pulse dot on upper right -->
+    <circle cx="48.8" cy="24.6" r="2.6" fill="#7DD3FC" />
+    <!-- Precision geometric Solara bolt -->
     <path
       d="M35.2 18.5L23.5 33.4H31.8L28.8 45.5L40.8 30.6H32.2L35.2 18.5Z"
       :fill="`url(#${gradId})`"

@@ -459,7 +459,7 @@ pub async fn verify_sha512(path: &Path, expected_sha512: &str, expected_size: u6
     }
     let mut file = tokio::fs::File::open(path).await?;
     let mut hasher = Sha512::new();
-    let mut buffer = [0u8; 65536];
+    let mut buffer = vec![0u8; 65536];
     loop {
         let read = file.read(&mut buffer).await?;
         if read == 0 {

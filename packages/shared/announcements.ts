@@ -11,6 +11,23 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-056',
+    title: 'Solara Launcher V-0.0.39: Play Stack Fix, Obsidian Blue UI & Interactive Update Prompt',
+    date: '2026-11-14',
+    category: 'Update',
+    summary: 'Fixes the Windows release stack overflow that closed the launcher on Play, introduces the spacious Obsidian Blue OLED theme, and adds the interactive startup update prompt with Restart to Update.',
+    content: `Solara Launcher V-0.0.39 fixes the critical Windows Play crash, scales up the entire desktop UI, refreshes Solara with Obsidian Blue on True OLED Black, and puts you in complete control of updates!
+
+Key highlights of this update:
+• Windows Play Stability Fix: Heap-boxed heavy async launch commands and 64 KB buffers and raised the Windows UI stack reserve to 8 MB so clicking Play never hits a release-mode stack overflow.
+• Bigger, Roomier Desktop Layout & Obsidian Blue: Expanded the header (56px), sidebar rail (84px), typography, cards, and modals on True OLED Black with Cobalt & Electric Blue accents across both launcher and website.
+• Interactive Startup Update Prompt: Checks for updates on launch without silently auto-updating in the background. When a new release is found, a "New Version Available" modal opens with release notes and "Update Now" or "I'll do it later" choices, plus a persistent "Restart to Update" button in the title bar.
+
+Signed testing preview updates verify cryptographically and apply only when triggered.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-055',
     title: 'Solara Launcher V-0.0.38: Play Launch Stability Fix & V3 Obsidian Dawn Gold Polish',
     date: '2026-11-14',
@@ -24,8 +41,7 @@ Key highlights of this update:
 • Safer Launch & Data Engine: Real-time launch-progress/game-exited event wiring, RAII concurrent launch guard, non-destructive clean-slate data migration, and improved backup failure retention.
 
 Signed testing preview updates verify cryptographically and apply when idle.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-054',

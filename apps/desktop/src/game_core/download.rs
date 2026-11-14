@@ -52,7 +52,7 @@ pub async fn verified_file(path: &Path, artifact: &Artifact) -> Result<bool> {
     }
     let mut file = tokio::fs::File::open(path).await?;
     let mut hash = sha1_smol::Sha1::new();
-    let mut buffer = [0u8; 65536];
+    let mut buffer = vec![0u8; 65536];
     loop {
         let read = file.read(&mut buffer).await?;
         if read == 0 {

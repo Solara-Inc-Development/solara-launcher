@@ -8,6 +8,7 @@ import {
   initializeEngine,
   refreshSnapshot,
   refreshUpdateStatus,
+  applyUpdatePayload,
   goBack,
   goForward,
   navigate,
@@ -29,6 +30,7 @@ import CreateInstanceModal from './ui/components/CreateInstanceModal.vue';
 import GlobalSearchModal from './ui/components/GlobalSearchModal.vue';
 import GlobalSettingsModal from './ui/components/GlobalSettingsModal.vue';
 import InstanceSettingsModal from './ui/components/InstanceSettingsModal.vue';
+import UpdatePromptModal from './ui/components/UpdatePromptModal.vue';
 import TasksPopover from './ui/components/TasksPopover.vue';
 import ConfirmDialog from './ui/components/ConfirmDialog.vue';
 import SolaraModal from './ui/components/SolaraModal.vue';
@@ -206,6 +208,16 @@ onMounted(async () => {
     } catch {
       // ignore
     }
+    try {
+      const u5 = await listen<Record<string, unknown>>('app-update-status', (ev) => {
+        if (ev.payload && typeof ev.payload === 'object') {
+          applyUpdatePayload(ev.payload, false);
+        }
+      });
+      unlistenFns.push(u5);
+    } catch {
+      // ignore
+    }
 
     pollTimer = setInterval(() => {
       if (!document.hidden) {
@@ -269,6 +281,7 @@ function cancelPendingLaunch() {
     <GlobalSearchModal />
     <GlobalSettingsModal @start-signin="startMinecraftSignIn" />
     <InstanceSettingsModal />
+    <UpdatePromptModal />
     <div v-if="store.showTasksPopover" class="sol-tasks-anchor">
       <TasksPopover @close="store.showTasksPopover = false" />
     </div>

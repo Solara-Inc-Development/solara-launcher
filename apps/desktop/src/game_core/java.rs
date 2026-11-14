@@ -106,7 +106,7 @@ async fn digest(path: &Path) -> Result<String> {
     }
     let mut file = tokio::fs::File::open(path).await?;
     let mut hash = Sha256::new();
-    let mut buf = [0; 65536];
+    let mut buf = vec![0u8; 65536];
     loop {
         let n = file.read(&mut buf).await?;
         if n == 0 {
@@ -323,7 +323,7 @@ fn extract(archive: &Path, output: &Path, cancel: &Cancellation) -> Result<()> {
             .create_new(true)
             .open(dest)?;
         let mut size = 0;
-        let mut bytes = [0; 65536];
+        let mut bytes = vec![0u8; 65536];
         loop {
             cancel.check()?;
             let n = entry.read(&mut bytes)?;

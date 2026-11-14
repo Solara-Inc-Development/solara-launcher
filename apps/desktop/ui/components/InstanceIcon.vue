@@ -20,21 +20,21 @@ const presetPalette = computed(() => {
   const key = props.icon || '';
   switch (key) {
     case 'preset:dawn-crest':
-      return { bg: '#2B2012', fg: '#E9B86D', shape: 'crest' };
+      return { bg: '#0F2142', fg: '#60A5FA', shape: 'crest' };
     case 'preset:obsidian-cube':
       return { bg: '#161619', fg: '#F7F7F8', shape: 'cube' };
     case 'preset:amber-emerald':
       return { bg: '#10241B', fg: '#23C987', shape: 'gem' };
     case 'preset:solar-compass':
-      return { bg: '#121E2B', fg: '#65A9F5', shape: 'compass' };
+      return { bg: '#102038', fg: '#38BDF8', shape: 'compass' };
     case 'preset:forge-anvil':
-      return { bg: '#261C12', fg: '#E8A64B', shape: 'anvil' };
+      return { bg: '#171E30', fg: '#60A5FA', shape: 'anvil' };
     case 'preset:nether-portal':
-      return { bg: '#241814', fg: '#D7A258', shape: 'portal' };
+      return { bg: '#1A1830', fg: '#818CF8', shape: 'portal' };
     case 'preset:redstone-core':
       return { bg: '#281418', fg: '#F06471', shape: 'core' };
     case 'preset:end-crystal':
-      return { bg: '#1D1A14', fg: '#F5CD91', shape: 'crystal' };
+      return { bg: '#0E1F3A', fg: '#7DD3FC', shape: 'crystal' };
     default:
       return null;
   }
@@ -43,13 +43,13 @@ const presetPalette = computed(() => {
 const loaderColor = computed(() => {
   switch (props.loader) {
     case 'fabric':
-      return { bg: '#241C11', fg: '#E9B86D' };
+      return { bg: '#0F2142', fg: '#60A5FA' };
     case 'quilt':
-      return { bg: '#1F1B15', fg: '#F5CD91' };
+      return { bg: '#161C38', fg: '#818CF8' };
     case 'forge':
-      return { bg: '#141D26', fg: '#65A9F5' };
+      return { bg: '#102136', fg: '#38BDF8' };
     case 'neoforge':
-      return { bg: '#261A12', fg: '#E8A64B' };
+      return { bg: '#0E2433', fg: '#7DD3FC' };
     default:
       return { bg: '#122219', fg: '#23C987' };
   }

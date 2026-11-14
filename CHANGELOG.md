@@ -1,5 +1,20 @@
 # Changelog
 
+## Testing Preview V-0.0.39 — 2026-11-14
+
+- **Fixed Windows Play-Closes-Launcher Stack Overflow (`STATUS_STACK_OVERFLOW`)**:
+  - Identified that release Tauri IPC builds pass async command futures by value on the Windows WebView2 UI thread, causing `launch_instance` (and nested 64 KB stack arrays inside async `java.rs`/`download.rs`/`content.rs`/`extras.rs` functions) to exceed the default 1 MB GUI stack reserve (`0xC00000FD`) before `launch_instance` ever started.
+  - Wrapped heavy Tauri IPC commands (`launch_instance`, `apply_instance_content_updates`, `install_content`, `create_instance`, `repair_instance`, `check_update`, `install_update`) and `engine::launch_with_events` / `engine::apply_content_updates` / `extras::apply_content_updates` in `Box::pin(async move { ... }).await`, heap-allocated 64 KB async file/hashing buffers (`vec![0u8; 65536]`), configured Windows MSVC `/STACK:8388608` (8 MB stack reserve) in `build.rs`, and added a sanitized local `crash.log` panic hook.
+- **Spacious Modrinth-Proportioned Header, Sidebar & Controls**:
+  - Enlarged the custom TitleBar (`56px`), SidebarRail (`84px`, `50x50px` tiles, glowing Cobalt active left bar, click-dismissed floating tooltips), baseline typography (`15px`), buttons, cards, modals, Skin Studio single-line cape labels, and centered Settings dialog navigation across all views while keeping zero document overflow down to `940x560`.
+- **Manual-Consent Update Flow & Topbar "Restart to Update"**:
+  - Removed silent automatic background update downloads and installations; Solara now checks for available updates on startup (respecting `autoUpdateEnabled`) without applying changes unexpectedly, preserves pending update metadata across checks/errors, shows the **"New Version Available"** (`V-x.x.x`) modal with **"Update Now"** and **"I'll do it later"**, and keeps **"Restart to Update"** in the title bar when deferred.
+- **Complete Solara Obsidian Blue Redesign (Launcher & Website)**:
+  - Replaced Dawn Gold and old slate/green website styles across the desktop launcher, Solara Hub website (`index.html`, `website.css`, `base.css`, `motion.css`), 3D skin studio, instance icons, splash screen, installer branding, and app/SVG icons with Cobalt / Electric Blue (`#3B82F6` / `#60A5FA` / `#2563EB`) on True OLED Black (`#000000`), restored vertical scrolling on `index.html`, and migrated legacy saved `dawn-gold` preferences to `obsidian-blue`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.38 — 2026-11-14
 
 - **Fixed Launcher Closing When Clicking Play**:

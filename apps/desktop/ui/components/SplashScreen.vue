@@ -10,7 +10,7 @@ import { store, initializeEngine } from '../state';
     <div v-if="!store.splashDone" class="sol-splash" role="status" aria-live="polite">
       <div class="sol-splash-inner">
         <div class="sol-splash-logo">
-          <SolaraLogo :size="68" />
+          <SolaraLogo :size="84" />
         </div>
         <div class="sol-splash-brand">
           <span class="sol-splash-title">Solara</span>

@@ -25,7 +25,7 @@ export const DEFAULT_PREFERENCES: LauncherPreferences = {
   prefsVersion: 2,
   memory: 4096,
   javaPath: 'auto',
-  theme: 'dawn-gold',
+  theme: 'obsidian-blue',
   uiScale: 100,
   reducedMotion: false,
   density: 'comfortable',
@@ -76,7 +76,19 @@ export const store = reactive({
   selectedInstanceId: null as string | null,
   mcVersions: [] as McVersionSummary[],
   mcVersionsLoaded: false,
-  updateStatus: { stage: 'idle', version: null, error: null } as UpdateStatus,
+  updateStatus: {
+    stage: 'idle',
+    version: null,
+    publicVersion: null,
+    currentVersion: null,
+    notes: null,
+    downloaded: 0,
+    total: null,
+    error: null,
+  } as UpdateStatus,
+  showUpdateModal: false,
+  updatePromptDismissedForVersion: null as string | null,
+  updateInstallPending: false,
   announcements: [] as LauncherAnnouncement[],
   announcementsSource: 'loading' as 'loading' | 'live' | 'unavailable',
   solaraProfile: { signedIn: false } as SolaraProfile,
@@ -139,12 +151,13 @@ export const shouldShowOnboarding = computed(
 export function applyAppearance(prefs: LauncherPreferences): void {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
-  root.setAttribute('data-theme', prefs.theme || 'dawn-gold');
+  const activeTheme = !prefs.theme || prefs.theme === 'dawn-gold' ? 'obsidian-blue' : prefs.theme;
+  root.setAttribute('data-theme', activeTheme);
   root.setAttribute('data-density', prefs.density || 'comfortable');
   root.setAttribute('data-reduced-motion', prefs.reducedMotion ? 'true' : 'false');
   const scale = Math.min(125, Math.max(80, prefs.uiScale || 100));
   root.style.setProperty('--ui-scale', String(scale / 100));
-  root.style.fontSize = `${(13.5 * scale) / 100}px`;
+  root.style.fontSize = `${(15 * scale) / 100}px`;
 }
 
 let toastSeq = 0;
@@ -395,6 +408,7 @@ export async function refreshPreferences(): Promise<void> {
     const normalized: LauncherPreferences = {
       ...DEFAULT_PREFERENCES,
       ...prefs,
+      theme: !prefs?.theme || prefs.theme === 'dawn-gold' ? 'obsidian-blue' : prefs.theme,
       onLaunch: prefs?.onLaunch === 'minimize' ? 'minimize' : 'keep',
     };
     store.preferences = normalized;
@@ -407,6 +421,7 @@ export async function refreshPreferences(): Promise<void> {
 export async function savePreferencesFull(next: LauncherPreferences): Promise<LauncherPreferences> {
   const cleanNext: LauncherPreferences = {
     ...next,
+    theme: !next.theme || next.theme === 'dawn-gold' ? 'obsidian-blue' : next.theme,
     onLaunch: next.onLaunch === 'minimize' ? 'minimize' : 'keep',
   };
   applyAppearance(cleanNext);
@@ -420,6 +435,7 @@ export async function savePreferencesFull(next: LauncherPreferences): Promise<La
   store.preferences = {
     ...DEFAULT_PREFERENCES,
     ...saved,
+    theme: !saved?.theme || saved.theme === 'dawn-gold' ? 'obsidian-blue' : saved.theme,
     onLaunch: saved?.onLaunch === 'minimize' ? 'minimize' : 'keep',
   };
   applyAppearance(store.preferences);
@@ -463,13 +479,125 @@ export async function loadAnnouncements(): Promise<void> {
   }
 }
 
+export function formatPublicVersion(version: string | null | undefined): string {
+  const trimmed = (version ?? '').trim();
+  if (!trimmed) return 'V-0.0.00';
+  const clean = trimmed.replace(/^[Vv]-?/, '');
+  return `V-${clean}`;
+}
+
+export function applyUpdatePayload(
+  next: (Partial<UpdateStatus> & { state?: string; available?: boolean }) | null | undefined,
+  forceOpenModal = false,
+): void {
+  if (!next || typeof next !== 'object') return;
+  const stage = next.stage || next.state || store.updateStatus.stage || 'idle';
+  const preservePendingMeta =
+    stage === 'checking' && next.version == null && Boolean(store.updateStatus.version);
+  const version = preservePendingMeta
+    ? store.updateStatus.version
+    : next.version !== undefined
+      ? next.version
+      : store.updateStatus.version;
+  const publicVersion = preservePendingMeta
+    ? store.updateStatus.publicVersion
+    : next.publicVersion !== undefined
+      ? next.publicVersion
+      : version
+        ? formatPublicVersion(version)
+        : null;
+  store.updateStatus = {
+    stage,
+    version: version ?? null,
+    publicVersion,
+    currentVersion: next.currentVersion ?? store.updateStatus.currentVersion ?? null,
+    notes: preservePendingMeta
+      ? store.updateStatus.notes ?? null
+      : next.notes !== undefined
+        ? next.notes
+        : store.updateStatus.notes ?? null,
+    downloaded: typeof next.downloaded === 'number' ? next.downloaded : store.updateStatus.downloaded ?? 0,
+    total: next.total !== undefined ? next.total : store.updateStatus.total ?? null,
+    error: next.error !== undefined ? next.error : null,
+    checkedAt: next.checkedAt ?? store.updateStatus.checkedAt ?? null,
+  };
+  if (stage === 'up-to-date') {
+    store.showUpdateModal = false;
+  }
+  const hasNewVersion =
+    (stage === 'available' || stage === 'ready') && Boolean(publicVersion || version);
+  if (hasNewVersion) {
+    const key = publicVersion || formatPublicVersion(version);
+    if (forceOpenModal || store.updatePromptDismissedForVersion !== key) {
+      store.showUpdateModal = true;
+    }
+  }
+}
+
+export function dismissUpdateModalForLater(): void {
+  const key =
+    store.updateStatus?.publicVersion ||
+    (store.updateStatus?.version ? formatPublicVersion(store.updateStatus.version) : null);
+  if (key) {
+    store.updatePromptDismissedForVersion = key;
+  }
+  store.showUpdateModal = false;
+}
+
+export async function checkForAppUpdate(openModalIfAvailable = true, silent = false): Promise<void> {
+  if (!store.desktop) return;
+  try {
+    const res = await native<(Partial<UpdateStatus> & { state?: string; available?: boolean }) | null>(
+      'check_update',
+    );
+    await refreshUpdateStatus();
+    if (res && typeof res === 'object') {
+      applyUpdatePayload(res, openModalIfAvailable);
+    }
+    const stage = store.updateStatus?.stage;
+    if (!silent && stage !== 'available' && stage !== 'ready') {
+      notify(
+        'info',
+        stage === 'up-to-date' ? 'Up to date' : 'Update check complete',
+        stage === 'up-to-date'
+          ? 'You are already running the latest version.'
+          : `Status: ${stage ?? 'idle'}`,
+      );
+    }
+  } catch (err) {
+    if (!silent) {
+      notify('error', "Couldn't check for updates", String(err));
+    }
+  }
+}
+
+export async function installAppUpdate(): Promise<void> {
+  if (!store.desktop || store.updateInstallPending) return;
+  store.updateInstallPending = true;
+  store.showUpdateModal = true;
+  try {
+    const res = await native<(Partial<UpdateStatus> & { state?: string }) | null>('install_update');
+    if (res && typeof res === 'object') {
+      applyUpdatePayload(res, true);
+    }
+    await refreshUpdateStatus();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    store.updateStatus = {
+      ...store.updateStatus,
+      error: msg,
+    };
+    notify('warning', 'Update paused', msg);
+  } finally {
+    store.updateInstallPending = false;
+  }
+}
+
 export async function refreshUpdateStatus(): Promise<void> {
   if (!store.desktop) return;
   try {
     const next = await native<(Partial<UpdateStatus> & { state?: string }) | null>('app_update_status');
-    if (next && typeof next === 'object' && (next.stage || next.state)) {
-      store.updateStatus = { stage: next.stage || next.state || 'idle', version: next.version ?? null, error: next.error ?? null };
-    }
+    applyUpdatePayload(next, false);
   } catch {
     // ignore update check status failure
   }
@@ -545,6 +673,9 @@ export async function initializeEngine(): Promise<void> {
     store.splashDone = true;
     void loadAnnouncements();
     void refreshSolaraBootstrap();
+    if (store.desktop && store.preferences.autoUpdateEnabled !== false) {
+      void checkForAppUpdate(true, true);
+    }
   } catch (err) {
     store.initError = err instanceof Error ? err.message : String(err);
     store.initPhase = 'Startup failed';

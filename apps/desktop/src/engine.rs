@@ -531,88 +531,91 @@ pub async fn launch_with_events(
     on_stage: impl Fn(&str, &str) + Send + Sync,
     on_exit: impl FnOnce(std::process::ExitStatus) + Send + 'static,
 ) -> Result<Value> {
-    on_stage("checking", "Checking files...");
-    if !cfg!(windows) {
-        bail!("Minecraft play is available on Windows in this first preview")
-    }
-    let engine = get().await?;
-    // Reserve before Java/account/hook work so repeated Play requests cannot
-    // execute hooks twice or launch while another job changes game files.
-    assert_writable(&id).await?;
-    let _launch = engine.reserve_launch(&id)?;
-    if engine.instances.get(&id).await?.state != "installed" {
-        bail!("Finish installing this instance before playing")
-    }
-    let record = engine.instances.get(&id).await?;
-    let prefs = preferences().await.unwrap_or_default();
-    on_stage("java", "Preparing Java...");
-    let java_job = engine
-        .jobs
-        .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
-    let result = resolve_java(&id, &java_job.cancel, |phase, done, total| {
-        engine.jobs.report(&java_job.id, phase.into(), done, total)
-    })
-    .await;
-    engine.jobs.finish(
-        &java_job.id,
-        result.is_ok(),
-        java_job.cancel.check().is_err(),
-    );
-    let java = result?;
-    on_stage("mods", "Loading mods...");
-    let session = engine.accounts.session().await?;
-    let version = windows_version().await?;
-    let jvm_args = record
-        .jvm_args
-        .as_deref()
-        .filter(|s| !s.trim().is_empty())
-        .or_else(|| (!prefs.jvm_args.trim().is_empty()).then_some(prefs.jvm_args.as_str()));
-    let resolution = record
-        .resolution
-        .or(Some([prefs.default_width, prefs.default_height]));
-    let fullscreen = record.fullscreen.unwrap_or(prefs.fullscreen);
-    let game_dir = engine.instances.game_dir(&id).await?;
-    if let Some(hook) = record
-        .pre_launch
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
-        crate::game_core::launch::run_hook(hook, &game_dir).await?;
-    }
-    process_finished_games(engine).await;
-    on_stage("starting", "Starting Minecraft...");
-    let pid = engine
-        .games
-        .start(
-            &engine.instances,
-            &id,
-            session,
-            version.as_deref(),
-            &java,
-            jvm_args,
-            resolution,
-            fullscreen,
-            record.post_exit.clone(),
-        )
-        .await?;
-    on_stage("running", "Minecraft is running");
-    let _ = engine
-        .instances
-        .change(&id, |i| {
-            i.last_played = Some(chrono::Utc::now().to_rfc3339());
+    Box::pin(async move {
+        on_stage("checking", "Checking files...");
+        if !cfg!(windows) {
+            bail!("Minecraft play is available on Windows in this first preview")
+        }
+        let engine = get().await?;
+        // Reserve before Java/account/hook work so repeated Play requests cannot
+        // execute hooks twice or launch while another job changes game files.
+        assert_writable(&id).await?;
+        let _launch = engine.reserve_launch(&id)?;
+        if engine.instances.get(&id).await?.state != "installed" {
+            bail!("Finish installing this instance before playing")
+        }
+        let record = engine.instances.get(&id).await?;
+        let prefs = preferences().await.unwrap_or_default();
+        on_stage("java", "Preparing Java...");
+        let java_job = engine
+            .jobs
+            .begin_kind(&id, &format!("Java for {}", record.name), "java")?;
+        let result = resolve_java(&id, &java_job.cancel, |phase, done, total| {
+            engine.jobs.report(&java_job.id, phase.into(), done, total)
         })
         .await;
-    let watch_id = id.clone();
-    tokio::spawn(async move {
-        if let Ok(engine) = get().await {
-            if let Some(status) = engine.games.poll_until_exited(&watch_id, pid).await {
-                process_finished_games(engine).await;
-                on_exit(status);
-            }
+        engine.jobs.finish(
+            &java_job.id,
+            result.is_ok(),
+            java_job.cancel.check().is_err(),
+        );
+        let java = result?;
+        on_stage("mods", "Loading mods...");
+        let session = engine.accounts.session().await?;
+        let version = windows_version().await?;
+        let jvm_args = record
+            .jvm_args
+            .as_deref()
+            .filter(|s| !s.trim().is_empty())
+            .or_else(|| (!prefs.jvm_args.trim().is_empty()).then_some(prefs.jvm_args.as_str()));
+        let resolution = record
+            .resolution
+            .or(Some([prefs.default_width, prefs.default_height]));
+        let fullscreen = record.fullscreen.unwrap_or(prefs.fullscreen);
+        let game_dir = engine.instances.game_dir(&id).await?;
+        if let Some(hook) = record
+            .pre_launch
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+        {
+            crate::game_core::launch::run_hook(hook, &game_dir).await?;
         }
-    });
-    Ok(json!({"processId":pid}))
+        process_finished_games(engine).await;
+        on_stage("starting", "Starting Minecraft...");
+        let pid = engine
+            .games
+            .start(
+                &engine.instances,
+                &id,
+                session,
+                version.as_deref(),
+                &java,
+                jvm_args,
+                resolution,
+                fullscreen,
+                record.post_exit.clone(),
+            )
+            .await?;
+        on_stage("running", "Minecraft is running");
+        let _ = engine
+            .instances
+            .change(&id, |i| {
+                i.last_played = Some(chrono::Utc::now().to_rfc3339());
+            })
+            .await;
+        let watch_id = id.clone();
+        tokio::spawn(async move {
+            if let Ok(engine) = get().await {
+                if let Some(status) = engine.games.poll_until_exited(&watch_id, pid).await {
+                    process_finished_games(engine).await;
+                    on_exit(status);
+                }
+            }
+        });
+        Ok(json!({"processId":pid}))
+    })
+    .await
 }
 pub async fn stop(id: String) -> Result<()> {
     let engine = get().await?;
@@ -1158,7 +1161,7 @@ impl Default for Preferences {
             prefs_version: 2,
             memory: 4096,
             java_path: "auto".into(),
-            theme: "dawn-gold".into(),
+            theme: "obsidian-blue".into(),
             ui_scale: 100,
             reduced_motion: false,
             density: "comfortable".into(),
@@ -1200,6 +1203,13 @@ async fn read_preferences_from_dir(data: &Path) -> Result<Preferences> {
                 ) {
                     // Migrate any legacy/invalid/non-string onLaunch (such as "hide" or "close") to "keep" so Play never closes Solara unexpectedly.
                     obj.insert("onLaunch".into(), serde_json::json!("keep"));
+                    needs_persist = true;
+                }
+                if matches!(
+                    obj.get("theme").and_then(|v| v.as_str()),
+                    Some("dawn-gold") | Some("")
+                ) {
+                    obj.insert("theme".into(), serde_json::json!("obsidian-blue"));
                     needs_persist = true;
                 }
                 if had_version < 2 {
@@ -1340,17 +1350,20 @@ pub async fn check_content_updates(id: &str) -> Result<Value> {
 }
 
 pub async fn apply_content_updates(id: &str, items: Vec<Value>) -> Result<Value> {
-    assert_writable(id).await?;
-    let engine = get().await?;
-    let parsed: Vec<extras::ContentUpdateItem> = items
-        .into_iter()
-        .map(serde_json::from_value)
-        .collect::<std::result::Result<Vec<_>, _>>()?;
-    let cancel = Cancellation::default();
-    let count = parsed.len();
-    extras::apply_content_updates(&engine.instances, &engine.cache, id, &parsed, &cancel, |_, _, _| {})
-        .await?;
-    Ok(json!({ "updated": count }))
+    Box::pin(async move {
+        assert_writable(id).await?;
+        let engine = get().await?;
+        let parsed: Vec<extras::ContentUpdateItem> = items
+            .into_iter()
+            .map(serde_json::from_value)
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        let cancel = Cancellation::default();
+        let count = parsed.len();
+        extras::apply_content_updates(&engine.instances, &engine.cache, id, &parsed, &cancel, |_, _, _| {})
+            .await?;
+        Ok(json!({ "updated": count }))
+    })
+    .await
 }
 
 pub async fn list_worlds(id: &str) -> Result<Value> {
@@ -2138,18 +2151,20 @@ mod tests {
         assert_eq!(migrated.on_launch, "keep");
         assert_eq!(migrated.prefs_version, 2);
 
-        // Even v2 preferences with "close" must migrate to "keep" and persist so Play never closes the launcher
+        // Even v2 preferences with "close" or "dawn-gold" migrate to "keep" / "obsidian-blue" and persist cleanly
         tokio::fs::write(
             dir.join("preferences.json"),
-            r#"{"prefsVersion":2,"memory":4096,"javaPath":"auto","onLaunch":"close"}"#,
+            r#"{"prefsVersion":2,"memory":4096,"javaPath":"auto","onLaunch":"close","theme":"dawn-gold"}"#,
         )
         .await?;
         let migrated_v2 = read_preferences_from_dir(&dir).await?;
         assert_eq!(migrated_v2.on_launch, "keep");
+        assert_eq!(migrated_v2.theme, "obsidian-blue");
         assert_eq!(migrated_v2.prefs_version, 2);
         let persisted_v2: serde_json::Value =
             serde_json::from_slice(&tokio::fs::read(dir.join("preferences.json")).await?)?;
         assert_eq!(persisted_v2["onLaunch"], "keep");
+        assert_eq!(persisted_v2["theme"], "obsidian-blue");
 
         // "minimize" remains valid across both v1->v2 migration and v2 preferences
         tokio::fs::write(
@@ -2186,5 +2201,24 @@ mod tests {
 
         let _ = tokio::fs::remove_dir_all(&dir).await;
         Ok(())
+    }
+
+    #[test]
+    fn heavy_async_engine_futures_stay_boxed_and_small() {
+        let launch_fut = launch_with_events("inst-1".into(), |_, _| {}, |_| {});
+        let launch_size = std::mem::size_of_val(&launch_fut);
+        assert!(
+            launch_size <= 2048,
+            "launch_with_events future must stay boxed (<= 2048 B), got {launch_size} B"
+        );
+        drop(launch_fut);
+
+        let update_fut = apply_content_updates("inst-1", Vec::new());
+        let update_size = std::mem::size_of_val(&update_fut);
+        assert!(
+            update_size <= 2048,
+            "apply_content_updates future must stay boxed (<= 2048 B), got {update_size} B"
+        );
+        drop(update_fut);
     }
 }

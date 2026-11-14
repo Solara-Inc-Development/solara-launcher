@@ -23,6 +23,7 @@ import {
 } from '../icons';
 import {
   applyAppearance,
+  checkForAppUpdate,
   registerUnsavedChanges,
   runWithDirtyGuard,
   DEFAULT_PREFERENCES,
@@ -31,7 +32,6 @@ import {
   navigate,
   notify,
   playerAvatarUrl,
-  refreshUpdateStatus,
   savePreferencesFull,
   store,
 } from '../state';
@@ -143,10 +143,10 @@ async function runUpdateCheck(): Promise<void> {
   checkingUpdate.value = true;
   try {
     if (store.desktop) {
-      await native('check_update');
-      await refreshUpdateStatus();
+      await checkForAppUpdate(true, false);
+    } else {
+      notify('info', 'Update check complete', `Status: ${store.updateStatus.stage}`);
     }
-    notify('info', 'Update check complete', `Status: ${store.updateStatus.stage}`);
   } catch (err) {
     notify('error', "Couldn't check for updates", String(err));
   } finally {
@@ -200,7 +200,7 @@ watch(
   <SolaraModal
     :open="store.showSettingsModal"
     title="Launcher Settings"
-    subtitle="Solara Dawn Gold — Obsidian Edition"
+    subtitle="Solara Obsidian Blue Edition"
     width="xl"
     :closable="!saving"
     @close="handleClose"
@@ -229,8 +229,8 @@ watch(
             <div class="sol-chip-row">
               <button
                 v-for="t in [
-                  { id: 'dawn-gold', label: 'OLED Black + Dawn Gold' },
-                  { id: 'midnight', label: 'Deep Obsidian' },
+                  { id: 'obsidian-blue', label: 'OLED Black + Solara Blue' },
+                  { id: 'midnight', label: 'Deep Midnight Blue' },
                   { id: 'slate', label: 'Obsidian Slate' },
                 ] as const"
                 :key="t.id"
@@ -299,10 +299,10 @@ watch(
 
           <div class="sol-setting-row">
             <div>
-              <div class="sol-setting-label">Automatic Background Update Checks</div>
-              <div class="sol-muted sol-text-xs">Safely check for new Solara Launcher releases while idle.</div>
+              <div class="sol-setting-label">Startup &amp; Background Update Checks</div>
+              <div class="sol-muted sol-text-xs">Notify you when new Solara Launcher releases are available. Updates wait for you to click Update Now or Restart to Update.</div>
             </div>
-            <SolaraToggle v-model="draft.autoUpdateEnabled" label="Auto updates" />
+            <SolaraToggle v-model="draft.autoUpdateEnabled" label="Update checks" />
           </div>
         </section>
 
@@ -515,7 +515,7 @@ watch(
             <div>
               <h3 class="sol-about-title">Solara Launcher</h3>
               <p class="sol-muted sol-text-xs">
-                Independent Minecraft: Java Edition Launcher · Dawn Gold OLED Edition
+                Independent Minecraft: Java Edition Launcher · Obsidian Blue Edition
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-/* Solara Dawn Gold — Obsidian Edition Application Stylesheet */
+/* Solara Obsidian Blue Edition Application Stylesheet */
 
 .sol-shell {
   display: flex;
@@ -81,7 +81,7 @@
 }
 
 .sol-titlebar-center {
-  flex: 0 1 320px;
+  flex: 0 1 440px;
   display: flex;
   justify-content: center;
 }
@@ -227,7 +227,7 @@
   color: var(--success);
 }
 
-.sol-status-pill--gold {
+.sol-status-pill--accent {
   border-color: var(--accent-border);
   background: var(--accent-soft);
   color: var(--accent);
@@ -274,9 +274,9 @@
 .sol-win-controls {
   display: flex;
   align-items: center;
-  gap: 2px;
-  margin-left: 4px;
-  padding-left: 6px;
+  gap: 4px;
+  margin-left: 6px;
+  padding-left: 10px;
   border-left: 1px solid var(--border-subtle);
 }
 
@@ -284,10 +284,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 28px;
+  width: 40px;
+  height: 34px;
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -418,17 +418,17 @@
   flex-direction: column;
   gap: 2px;
   max-width: 240px;
-  padding: 7px 11px;
-  border-radius: var(--radius-control);
-  border: 1px solid var(--border-strong);
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-popover);
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: 1px solid #2d2d3a;
+  background: #14141b;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.72);
 }
 
 .sol-rail-tooltip-label {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #f7f7f8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -585,7 +585,8 @@
   gap: 5px;
 }
 
-.sol-truncate {
+.sol-truncate,
+.sol-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -637,10 +638,10 @@
   cursor: not-allowed;
 }
 
-.sol-btn--xs { height: 27px; padding: 0 9px; font-size: 11.5px; border-radius: var(--radius-sm); }
-.sol-btn--sm { height: 32px; padding: 0 12px; font-size: 12.5px; }
-.sol-btn--md { height: 36px; padding: 0 15px; font-size: 13px; }
-.sol-btn--lg { height: 42px; padding: 0 20px; font-size: 14px; }
+.sol-btn--xs { height: 31px; padding: 0 11px; font-size: 12.5px; border-radius: var(--radius-sm); }
+.sol-btn--sm { height: 36px; padding: 0 14px; font-size: 13.5px; }
+.sol-btn--md { height: 42px; padding: 0 18px; font-size: 14.5px; }
+.sol-btn--lg { height: 48px; padding: 0 24px; font-size: 15.5px; }
 .sol-btn--block { width: 100%; }
 
 .sol-btn--primary {
@@ -692,8 +693,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
@@ -702,8 +703,8 @@
   transition: background var(--dur-fast), color var(--dur-fast);
 }
 
-.sol-icon-btn--sm { width: 30px; height: 30px; }
-.sol-icon-btn--xs { width: 26px; height: 26px; border-radius: var(--radius-xs); }
+.sol-icon-btn--sm { width: 34px; height: 34px; }
+.sol-icon-btn--xs { width: 30px; height: 30px; border-radius: var(--radius-xs); }
 
 .sol-icon-btn:hover:not(:disabled) {
   background: var(--bg-hover);
@@ -760,7 +761,7 @@
 }
 
 .sol-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -768,25 +769,25 @@
 .sol-input,
 .sol-select,
 .sol-textarea {
-  height: 36px;
-  padding: 0 11px;
+  height: 42px;
+  padding: 0 14px;
   border-radius: var(--radius-control);
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 14px;
   transition: border-color var(--dur-fast);
 }
 
 .sol-input--sm {
-  height: 30px;
-  font-size: 12px;
-  padding: 0 9px;
+  height: 34px;
+  font-size: 13px;
+  padding: 0 11px;
 }
 
 .sol-textarea {
   height: auto;
-  padding: 10px 11px;
+  padding: 12px 14px;
   resize: vertical;
   line-height: 1.5;
 }
@@ -1030,8 +1031,8 @@
 /* Toggle Switch */
 .sol-toggle {
   position: relative;
-  width: 40px;
-  height: 22px;
+  width: 44px;
+  height: 24px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
@@ -1049,15 +1050,15 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--text-primary);
   transition: transform var(--dur-fast) var(--ease-ui), background var(--dur-fast);
 }
 
 .sol-toggle.is-on .sol-toggle-thumb {
-  transform: translateX(18px);
+  transform: translateX(20px);
   background: var(--accent-fg);
 }
 
@@ -1126,7 +1127,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(5, 7, 10, 0.72);
+  background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(6px);
 }
 
@@ -1146,34 +1147,34 @@
   outline: none;
 }
 
-.sol-modal--sm { max-width: 420px; }
-.sol-modal--md { max-width: 580px; }
-.sol-modal--lg { max-width: 780px; }
-.sol-modal--xl { max-width: 960px; }
+.sol-modal--sm { max-width: 460px; }
+.sol-modal--md { max-width: 640px; }
+.sol-modal--lg { max-width: 860px; }
+.sol-modal--xl { max-width: 1040px; }
 
 .sol-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px 20px;
+  gap: 14px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .sol-modal-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 650;
 }
 
 .sol-modal-subtitle {
-  margin: 2px 0 0;
-  font-size: 12px;
+  margin: 3px 0 0;
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
 .sol-modal-body {
-  padding: 18px 20px;
+  padding: 22px 24px;
   flex: 1;
   min-height: 0;
 }
@@ -1182,8 +1183,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 13px 20px;
+  gap: 10px;
+  padding: 15px 24px;
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-sidebar);
 }
@@ -1651,7 +1652,7 @@
 .sol-recent-card.is-selected,
 .sol-inst-card.is-selected {
   border-color: var(--accent-border);
-  background: linear-gradient(180deg, rgba(233, 184, 109, 0.06), transparent 55%), var(--bg-card);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.06), transparent 55%), var(--bg-card);
 }
 
 .sol-recent-top,
@@ -1793,7 +1794,7 @@
 }
 
 .sol-list-row.is-selected {
-  background: rgba(233, 184, 109, 0.06);
+  background: rgba(59, 130, 246, 0.06);
 }
 
 .sol-list-cell-main,
@@ -2202,7 +2203,7 @@
 }
 
 .sol-skin-stage { display: flex; flex-direction: column; gap: 12px; }
-.sol-skin-viewer { position: relative; width: 100%; border-radius: var(--radius-sm); background: radial-gradient(circle at 50% 42%, rgba(233, 184, 109, 0.08), var(--bg-elevated) 72%); overflow: hidden; }
+.sol-skin-viewer { position: relative; width: 100%; border-radius: var(--radius-sm); background: radial-gradient(circle at 50% 42%, rgba(59, 130, 246, 0.08), var(--bg-elevated) 72%); overflow: hidden; }
 .sol-skin-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
 .sol-skin-canvas:active { cursor: grabbing; }
 .sol-viewer-reset { position: absolute; top: 8px; right: 8px; background: rgba(17, 20, 26, 0.72); }
@@ -2527,7 +2528,7 @@
 
 
 /* ==========================================================================
-   SOLARA CRITICAL REDESIGN CORRECTION — TRUE OLED BLACK + RICH DAWN GOLD
+   SOLARA CRITICAL REDESIGN CORRECTION — TRUE OLED BLACK + SOLARA COBALT BLUE
    ========================================================================== */
 
 :root {
@@ -2541,18 +2542,18 @@
   --bg-hover: rgba(255, 255, 255, 0.06);
   --border: #29292f;
   --border-subtle: rgba(41, 41, 47, 0.72);
-  --accent: #e9b86d;
-  --accent-hover: #f5cd91;
-  --accent-pressed: #c89543;
-  --accent-fg: #140f08;
-  --accent-soft: #392b18;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-pressed: #2563eb;
+  --accent-fg: #ffffff;
+  --accent-soft: #0f2142;
   --text-primary: #f7f7f8;
   --text-secondary: #a6a6b0;
   --text-muted: #777781;
-  --radius-sm: 7px;
-  --radius-control: 9px;
-  --radius-card: 12px;
-  --radius-modal: 16px;
+  --radius-sm: 9px;
+  --radius-control: 11px;
+  --radius-card: 14px;
+  --radius-modal: 18px;
 }
 
 /* Shell & Custom Overlay Scrollbars */
@@ -2566,14 +2567,14 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 26px 32px;
+  padding: 28px 34px 44px;
   background: #000000;
 }
 
 .sol-scroll::-webkit-scrollbar,
 .sol-page::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
 }
 
 .sol-scroll::-webkit-scrollbar-track,
@@ -2583,77 +2584,86 @@
 
 .sol-scroll::-webkit-scrollbar-thumb,
 .sol-page::-webkit-scrollbar-thumb {
-  background: rgba(166, 166, 176, 0.2);
+  background: rgba(166, 166, 176, 0.22);
   border-radius: 999px;
 }
 
 .sol-scroll::-webkit-scrollbar-thumb:hover,
 .sol-page::-webkit-scrollbar-thumb:hover {
-  background: rgba(233, 184, 109, 0.45);
+  background: rgba(59, 130, 246, 0.5);
 }
 
 /* Titlebar */
 .sol-titlebar {
-  background: #0c0c0f;
-  border-bottom: 1px solid #1e1e24;
-  height: 44px;
+  background: linear-gradient(180deg, #0d0d11 0%, #09090c 100%);
+  border-bottom: 1px solid #1e1e26;
+  height: var(--titlebar-height);
+  padding: 0 14px 0 18px;
+  gap: 16px;
+}
+
+.sol-brand-btn {
+  padding: 6px 12px;
+  gap: 10px;
+  border-radius: 10px;
 }
 
 .sol-brand-name {
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
   color: #f7f7f8;
 }
 
 .sol-nav-history {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .sol-titlebar-crumb {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
-  margin-left: 4px;
+  margin-left: 6px;
 }
 
 .sol-crumb-title {
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
   color: #f7f7f8;
   white-space: nowrap;
 }
 
 .sol-crumb-sub {
-  font-size: 11.5px;
-  color: #777781;
+  font-size: 12.5px;
+  color: #848490;
   white-space: nowrap;
 }
 
 .sol-search-trigger {
   width: 100%;
-  max-width: 310px;
-  height: 29px;
-  padding: 0 10px;
+  max-width: 460px;
+  height: 38px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 8px;
-  border: 1px solid #232329;
-  background: #141418;
-  color: #777781;
-  font-size: 12px;
+  gap: 10px;
+  border-radius: 11px;
+  border: 1px solid #26262f;
+  background: #141419;
+  color: #868692;
+  font-size: 13.5px;
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
 
 .sol-search-trigger:hover {
-  border-color: #3a3a44;
-  background: #19191f;
-  color: #a6a6b0;
+  border-color: rgba(59, 130, 246, 0.45);
+  background: #191922;
+  color: #c2c2cc;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
 .sol-search-trigger span {
@@ -2665,35 +2675,35 @@
 }
 
 .sol-search-trigger kbd {
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: #0c0c0f;
-  border: 1px solid #29292f;
-  color: #777781;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #0c0c10;
+  border: 1px solid #2b2b34;
+  color: #8b8b96;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .sol-status-pill {
-  height: 26px;
-  max-width: 240px;
-  padding: 0 10px;
+  height: 32px;
+  max-width: 270px;
+  padding: 0 13px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border-radius: 999px;
-  border: 1px solid #29292f;
-  background: #161619;
+  border: 1px solid #2b2b34;
+  background: #16161b;
   color: #f7f7f8;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
 }
 
 .sol-status-pill--launching {
-  border-color: rgba(233, 184, 109, 0.45);
-  background: #231b0f;
-  color: #f5cd91;
+  border-color: rgba(59, 130, 246, 0.45);
+  background: #0c1b36;
+  color: #60a5fa;
 }
 
 .sol-status-pill--running {
@@ -2708,10 +2718,10 @@
   color: #f06471;
 }
 
-.sol-status-pill--gold {
-  border-color: rgba(233, 184, 109, 0.5);
-  background: #392b18;
-  color: #f5cd91;
+.sol-status-pill--accent {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: #0f2142;
+  color: #60a5fa;
 }
 
 .sol-tasks-btn {
@@ -2720,38 +2730,38 @@
 
 .sol-badge-count {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
   border-radius: 999px;
-  background: #e9b86d;
-  color: #140f08;
-  font-size: 9.5px;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 10.5px;
   font-weight: 700;
-  line-height: 14px;
+  line-height: 16px;
 }
 
 .sol-tasks-anchor > .sol-popover {
   position: fixed;
-  top: 50px;
-  right: 110px;
+  top: 62px;
+  right: 120px;
   z-index: 80;
 }
 
-/* Sidebar 68px Compact Rail */
+/* Sidebar 84px Spacious Icon Rail (Modrinth Desktop Proportions) */
 .sol-rail {
-  width: 68px !important;
-  min-width: 68px !important;
-  max-width: 68px !important;
-  background: #0d0d10;
-  border-right: 1px solid #1d1d22;
-  padding: 10px 0;
+  width: 84px !important;
+  min-width: 84px !important;
+  max-width: 84px !important;
+  background: linear-gradient(180deg, #0d0d11 0%, #09090c 100%);
+  border-right: 1px solid #1d1d24;
+  padding: 14px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-rail-top,
@@ -2761,7 +2771,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
 }
 
 .sol-rail-pinned {
@@ -2781,18 +2791,18 @@
 }
 
 .sol-rail-sep {
-  width: 28px;
+  width: 36px;
   height: 1px;
-  background: #23232a;
-  margin: 3px 0;
+  background: #25252e;
+  margin: 4px 0;
 }
 
 .sol-rail-item,
 .sol-rail-inst {
   position: relative;
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   border: 1px solid transparent;
   background: transparent;
   color: #9b9ba6;
@@ -2800,72 +2810,103 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 120ms ease;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 120ms ease, box-shadow 140ms ease;
 }
 
 .sol-rail-item:hover,
 .sol-rail-inst:hover {
-  background: #17171c;
+  background: #181820;
+  border-color: #2b2b36;
   color: #f7f7f8;
+  transform: translateY(-1px);
 }
 
 .sol-rail-item.is-active,
 .sol-rail-inst.is-active {
-  background: #392b18;
-  border-color: rgba(233, 184, 109, 0.5);
-  color: #e9b86d;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(37, 99, 235, 0.12));
+  border-color: rgba(59, 130, 246, 0.55);
+  color: #60a5fa;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
+}
+
+.sol-rail-item.is-active::before,
+.sol-rail-inst.is-active::before {
+  content: '';
+  position: absolute;
+  left: -17px;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.55);
 }
 
 .sol-rail-item--add {
-  border: 1px dashed #2e2e36;
-  color: #e9b86d;
+  border: 1px dashed #30303b;
+  color: #60a5fa;
 }
 
 .sol-rail-item--add:hover {
   border-style: solid;
-  border-color: #e9b86d;
-  background: #2b2113;
+  border-color: #3b82f6;
+  background: #12264d;
 }
 
 .sol-rail-avatar-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   object-fit: cover;
 }
 
 .sol-rail-dot,
 .sol-rail-running-dot {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 8px;
-  height: 8px;
+  bottom: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: 2px solid #0d0d10;
-  background: #e9b86d;
+  border: 2px solid #0d0d11;
+  background: #3b82f6;
 }
 
 .sol-rail-running-dot {
   background: #23c987;
 }
 
-/* Pure CSS Floating Hover Tooltip on 68px Rail */
-.sol-rail [data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: fixed;
-  left: 76px;
-  padding: 5px 10px;
-  border-radius: 7px;
-  background: #161619;
-  border: 1px solid #2d2d35;
-  color: #f7f7f8;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 99;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+@media (max-height: 640px) {
+  .sol-rail {
+    padding: 8px 0;
+    gap: 5px;
+  }
+
+  .sol-rail-top,
+  .sol-rail-pinned,
+  .sol-rail-bottom {
+    gap: 4px;
+  }
+
+  .sol-rail-item,
+  .sol-rail-inst {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+  }
+
+  .sol-rail-item.is-active::before,
+  .sol-rail-inst.is-active::before {
+    left: -23px;
+    top: 8px;
+    bottom: 8px;
+  }
+
+  .sol-rail-avatar-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
 }
 
 /* OLED Startup Splash Screen */
@@ -2927,7 +2968,7 @@
 .sol-splash-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #c89543, #e9b86d, #f5cd91);
+  background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
   transition: width 180ms ease;
 }
 
@@ -2966,17 +3007,17 @@
 /* Shared Layout Primitives */
 .sol-home-wrap,
 .sol-view-wrap {
-  max-width: 1180px;
+  max-width: 1260px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
 
 .sol-row-gap {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -2984,13 +3025,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .sol-page-title {
   margin: 0;
-  font-size: 19px;
+  font-size: 25px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #f7f7f8;
@@ -3000,12 +3041,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
 }
 
 .sol-section-title {
   margin: 0;
-  font-size: 14px;
+  font-size: 16.5px;
   font-weight: 600;
   color: #f7f7f8;
 }
@@ -3013,59 +3054,59 @@
 .sol-link-btn {
   border: none;
   background: transparent;
-  padding: 2px 4px;
+  padding: 3px 6px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  color: #e9b86d;
-  font-size: 12px;
+  gap: 5px;
+  color: #3b82f6;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .sol-link-btn:hover {
-  color: #f5cd91;
+  color: #60a5fa;
   text-decoration: underline;
 }
 
 .sol-clickable { cursor: pointer; }
-.sol-gold { color: #e9b86d; }
+.sol-accent-text { color: #3b82f6; }
 .sol-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.sol-text-xs { font-size: 11.5px; }
-.sol-text-sm { font-size: 12.5px; }
-.sol-avatar-18 { width: 18px; height: 18px; border-radius: 5px; }
-.sol-avatar-24 { width: 24px; height: 24px; border-radius: 6px; }
-.sol-avatar-40 { width: 40px; height: 40px; border-radius: 10px; }
+.sol-text-xs { font-size: 12.5px; }
+.sol-text-sm { font-size: 13.5px; }
+.sol-avatar-18 { width: 22px; height: 22px; border-radius: 6px; }
+.sol-avatar-24 { width: 28px; height: 28px; border-radius: 7px; }
+.sol-avatar-40 { width: 46px; height: 46px; border-radius: 11px; }
 
 .sol-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #e9b86d;
+  background: #3b82f6;
 }
 
 .sol-dot--gold {
-  background: #e9b86d;
+  background: #3b82f6;
   animation: sol-pulse 1.2s ease-in-out infinite;
 }
 
 .sol-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid #29292f;
   background: #141418;
   color: #a6a6b0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .sol-badge--gold {
-  border-color: rgba(233, 184, 109, 0.4);
-  background: #2b2012;
-  color: #f5cd91;
+  border-color: rgba(59, 130, 246, 0.42);
+  background: #0f2142;
+  color: #60a5fa;
 }
 
 .sol-badge--success {
@@ -3085,60 +3126,60 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .sol-home-heading {
   margin: 0;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: #f7f7f8;
 }
 
 .sol-acct-pill {
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid #26262c;
-  background: #101013;
+  height: 36px;
+  padding: 0 13px;
+  border-radius: 10px;
+  border: 1px solid #272730;
+  background: #111115;
   color: #f7f7f8;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
 }
 
 .sol-acct-pill:hover {
-  border-color: #3a3a42;
-  background: #161619;
+  border-color: #3a3a44;
+  background: #17171d;
 }
 
 .sol-acct-pill--solara {
-  border-color: rgba(233, 184, 109, 0.32);
-  color: #f5cd91;
+  border-color: rgba(59, 130, 246, 0.36);
+  color: #60a5fa;
 }
 
 .sol-launch-hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
-  padding: 16px 18px;
-  border-radius: 13px;
-  background: linear-gradient(90deg, rgba(57, 43, 24, 0.32), #0b0b0e 65%);
-  border: 1px solid #29292f;
-  border-left: 3px solid #e9b86d;
+  padding: 22px 26px;
+  border-radius: 16px;
+  background: linear-gradient(95deg, rgba(59, 130, 246, 0.16), #0b0d13 58%, #09090d 100%);
+  border: 1px solid #282c38;
+  border-left: 4px solid #3b82f6;
 }
 
 .sol-launch-hero-main {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
   min-width: 0;
   flex: 1;
 }
@@ -3146,7 +3187,7 @@
 .sol-launch-hero-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -3155,22 +3196,22 @@
   background: transparent;
   padding: 0;
   color: #f7f7f8;
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 700;
   cursor: pointer;
   text-align: left;
 }
 
 .sol-hero-title-btn:hover {
-  color: #f5cd91;
+  color: #60a5fa;
 }
 
 .sol-launch-hero-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: 13.5px;
   color: #a6a6b0;
 }
 
@@ -3178,9 +3219,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 2px;
-  font-size: 12px;
-  color: #f5cd91;
+  margin-top: 3px;
+  font-size: 13px;
+  color: #60a5fa;
 }
 
 .sol-launch-stage-err {
@@ -3193,64 +3234,65 @@
 .sol-launch-hero-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-home-empty {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
-  padding: 20px;
-  border-radius: 13px;
+  padding: 26px;
+  border-radius: 16px;
   border: 1px dashed #2d2d35;
   background: #0a0a0c;
 }
 
 .sol-home-empty-text h2 {
-  margin: 0 0 4px;
-  font-size: 16px;
+  margin: 0 0 6px;
+  font-size: 18px;
 }
 
 .sol-home-empty-text p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .sol-home-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Jump Back In Dense Horizontal Instance Rows */
 .sol-jump-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 9px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
 }
 
 .sol-jump-item {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 9px 11px;
-  border-radius: 10px;
-  border: 1px solid #222228;
-  background: #0c0c0f;
+  gap: 14px;
+  padding: 13px 15px;
+  border-radius: 13px;
+  border: 1px solid #222229;
+  background: #0c0c10;
   cursor: pointer;
-  transition: background 130ms ease, border-color 130ms ease;
+  transition: background 130ms ease, border-color 130ms ease, transform 120ms ease;
 }
 
 .sol-jump-item:hover {
-  background: #141418;
-  border-color: #34343d;
+  background: #14141a;
+  border-color: #363642;
+  transform: translateY(-1px);
 }
 
 .sol-jump-item.is-selected {
-  border-color: rgba(233, 184, 109, 0.55);
-  background: #15120d;
+  border-color: rgba(59, 130, 246, 0.55);
+  background: #0c1a33;
 }
 
 .sol-jump-info {
@@ -3259,24 +3301,24 @@
 }
 
 .sol-jump-name {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   color: #f7f7f8;
 }
 
 .sol-jump-sub {
-  font-size: 11.5px;
-  color: #777781;
-  margin-top: 2px;
+  font-size: 12.5px;
+  color: #82828e;
+  margin-top: 3px;
 }
 
 .sol-jump-play {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   border: none;
-  background: #392b18;
-  color: #e9b86d;
+  background: #0f2142;
+  color: #3b82f6;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3285,8 +3327,8 @@
 }
 
 .sol-jump-play:hover {
-  background: #e9b86d;
-  color: #140f08;
+  background: #3b82f6;
+  color: #ffffff;
 }
 
 .sol-jump-play.is-running {
@@ -3296,34 +3338,34 @@
 
 .sol-home-footer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 12px;
-  padding-top: 6px;
-  border-top: 1px solid #18181d;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid #18181f;
 }
 
 .sol-strip-box {
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #1f1f25;
-  background: #09090b;
+  padding: 16px 18px;
+  border-radius: 13px;
+  border: 1px solid #202028;
+  background: #09090c;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-strip-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-strip-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 7px;
+  font-size: 13px;
   font-weight: 600;
   color: #a6a6b0;
 }
@@ -3332,72 +3374,81 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .sol-strip-title {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #f5cd91;
+  color: #60a5fa;
 }
 
 .sol-news-compact {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .sol-news-pill {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 6px 9px;
-  border-radius: 7px;
-  border: 1px solid #222228;
-  background: #101013;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid #23232b;
+  background: #101014;
   color: #f7f7f8;
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
   cursor: pointer;
 }
 
 .sol-news-pill:hover {
-  border-color: rgba(233, 184, 109, 0.45);
+  border-color: rgba(59, 130, 246, 0.45);
 }
 
 .sol-news-pill-title {
   font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sol-news-pill > span:last-child {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Toolbars, Search, Select, Chips, Rows */
 .sol-toolbar-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .sol-search-box {
-  height: 33px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid #26262c;
-  background: #141418;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 1px solid #272730;
+  background: #141419;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
 }
 
 .sol-search-box--grow {
   flex: 1;
-  min-width: 210px;
+  min-width: 240px;
 }
 
 .sol-search-box:focus-within {
-  border-color: #e9b86d;
+  border-color: #3b82f6;
 }
 
 .sol-search-input {
@@ -3406,7 +3457,7 @@
   border: none;
   background: transparent;
   color: #f7f7f8;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .sol-search-input:focus {
@@ -3414,37 +3465,37 @@
 }
 
 .sol-select {
-  height: 33px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid #26262c;
-  background: #141418;
+  height: 40px;
+  padding: 0 13px;
+  border-radius: 11px;
+  border: 1px solid #272730;
+  background: #141419;
   color: #f7f7f8;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .sol-select:focus {
   outline: none;
-  border-color: #e9b86d;
+  border-color: #3b82f6;
 }
 
 .sol-seg-group {
   display: inline-flex;
-  border-radius: 8px;
-  border: 1px solid #26262c;
-  background: #0f0f13;
-  padding: 2px;
-  gap: 2px;
+  border-radius: 10px;
+  border: 1px solid #272730;
+  background: #0f0f14;
+  padding: 3px;
+  gap: 3px;
 }
 
 .sol-seg-btn {
-  height: 27px;
-  padding: 0 9px;
+  height: 32px;
+  padding: 0 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
   color: #a6a6b0;
-  font-size: 12px;
+  font-size: 13px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3452,72 +3503,73 @@
 }
 
 .sol-seg-btn.is-active {
-  background: #392b18;
-  color: #e9b86d;
+  background: #0f2142;
+  color: #3b82f6;
 }
 
 .sol-chip-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .sol-chip {
-  height: 28px;
-  padding: 0 11px;
+  height: 34px;
+  padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid #26262c;
-  background: #101013;
+  border: 1px solid #272730;
+  background: #101014;
   color: #a6a6b0;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
 }
 
 .sol-chip:hover {
-  border-color: #3a3a43;
+  border-color: #3a3a45;
   color: #f7f7f8;
 }
 
 .sol-chip.is-active {
-  border-color: #e9b86d;
-  background: #392b18;
-  color: #f5cd91;
+  border-color: #3b82f6;
+  background: #0f2142;
+  color: #60a5fa;
 }
 
 /* Library Grid & List */
 .sol-inst-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
 }
 
 .sol-inst-card {
-  padding: 12px 13px;
-  border-radius: 11px;
-  border: 1px solid #232329;
-  background: #0d0d10;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid #23232b;
+  background: #0d0d11;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease, transform 120ms ease;
 }
 
 .sol-inst-card:hover {
-  background: #141418;
-  border-color: #363640;
+  background: #14141a;
+  border-color: #383844;
+  transform: translateY(-1px);
 }
 
 .sol-inst-card.is-selected {
-  border-color: #e9b86d;
+  border-color: #3b82f6;
 }
 
 .sol-inst-card-top {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 13px;
 }
 
 .sol-inst-card-titlewrap {
@@ -3526,7 +3578,7 @@
 }
 
 .sol-inst-card-name {
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 600;
   color: #f7f7f8;
 }
@@ -3535,7 +3587,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-menu-wrap {
@@ -3547,28 +3599,28 @@
   top: 100%;
   right: 0;
   z-index: 40;
-  min-width: 175px;
+  min-width: 190px;
   margin-top: 4px;
-  padding: 5px;
-  border-radius: 9px;
-  border: 1px solid #2c2c34;
-  background: #121216;
+  padding: 6px;
+  border-radius: 11px;
+  border: 1px solid #2c2c36;
+  background: #121217;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .sol-menu-dropdown button {
   border: none;
   background: transparent;
-  padding: 7px 9px;
-  border-radius: 6px;
+  padding: 8px 11px;
+  border-radius: 7px;
   color: #f7f7f8;
-  font-size: 12px;
+  font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   text-align: left;
   cursor: pointer;
 }
@@ -3584,7 +3636,7 @@
 .sol-row-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .sol-row-item,
@@ -3592,28 +3644,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  border: 1px solid #212127;
-  background: #0c0c0f;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #222229;
+  background: #0c0c10;
 }
 
 .sol-row-item:hover,
 .sol-content-row:hover {
-  border-color: #31313a;
-  background: #131317;
+  border-color: #32323d;
+  background: #131319;
 }
 
 .sol-row-item.is-selected {
-  border-color: #e9b86d;
+  border-color: #3b82f6;
 }
 
 .sol-row-item-main,
 .sol-content-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
   min-width: 0;
 }
@@ -3621,7 +3673,7 @@
 .sol-content-meta {
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 3px;
 }
 
 .sol-content-row.is-disabled {
@@ -3629,9 +3681,9 @@
 }
 
 .sol-content-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -3640,9 +3692,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1c1c21;
+  background: #1c1c23;
   color: #a6a6b0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -3651,16 +3703,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #1e1e24;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #1e1e26;
 }
 
 .sol-inst-header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   min-width: 0;
   flex: 1;
 }
@@ -3668,13 +3720,13 @@
 .sol-inst-header-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .sol-inst-title {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: #f7f7f8;
 }
@@ -3682,33 +3734,33 @@
 .sol-inst-header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-inst-tabs {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid #222228;
-  background: #0c0c0f;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid #23232b;
+  background: #0c0c10;
   align-self: flex-start;
   flex-wrap: wrap;
 }
 
 .sol-inst-tab {
-  height: 31px;
-  padding: 0 12px;
+  height: 36px;
+  padding: 0 15px;
   border: none;
-  border-radius: 7px;
+  border-radius: 9px;
   background: transparent;
   color: #a6a6b0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
 }
 
@@ -3718,58 +3770,59 @@
 }
 
 .sol-inst-tab.is-active {
-  background: #392b18;
-  color: #f5cd91;
+  background: #0f2142;
+  color: #60a5fa;
   font-weight: 600;
 }
 
 .sol-inst-pane {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Discover Modpacks */
 .sol-discover-head {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sol-discover-search {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .sol-pack-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .sol-pack-row {
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 11px 14px;
-  border-radius: 11px;
-  border: 1px solid #222228;
-  background: #0d0d10;
+  gap: 16px;
+  padding: 15px 18px;
+  border-radius: 14px;
+  border: 1px solid #23232b;
+  background: #0d0d11;
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease, transform 120ms ease;
 }
 
 .sol-pack-row:hover {
-  background: #141418;
-  border-color: #e9b86d;
+  background: #14141a;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
 }
 
 .sol-pack-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -3778,9 +3831,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1c1c21;
-  color: #e9b86d;
+  background: #1c1c23;
+  color: #3b82f6;
   font-weight: 700;
+  font-size: 16px;
 }
 
 .sol-pack-body {
@@ -3788,23 +3842,23 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .sol-pack-top {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-pack-title {
-  font-size: 14px;
+  font-size: 16px;
   color: #f7f7f8;
 }
 
 .sol-pack-desc {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: #a6a6b0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3815,60 +3869,60 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sol-gallery-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
 }
 
 .sol-gallery-thumb {
   width: 100%;
-  height: 92px;
+  height: 108px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #26262c;
+  border-radius: 10px;
+  border: 1px solid #26262f;
 }
 
 /* Instance Content Browser Modal */
 .sol-browser-wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .sol-browser-tabs {
   display: flex;
   align-items: center;
-  gap: 4px;
-  border-bottom: 1px solid #24242a;
-  padding-bottom: 8px;
+  gap: 6px;
+  border-bottom: 1px solid #24242c;
+  padding-bottom: 10px;
   flex-wrap: wrap;
 }
 
 .sol-browser-tab {
-  height: 30px;
-  padding: 0 12px;
+  height: 35px;
+  padding: 0 15px;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 9px;
   background: transparent;
   color: #a6a6b0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
 }
 
 .sol-browser-tab.is-active {
-  background: #392b18;
-  border-color: rgba(233, 184, 109, 0.45);
-  color: #f5cd91;
+  background: #0f2142;
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #60a5fa;
 }
 
 .sol-browser-match {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 12.5px;
   color: #a6a6b0;
 }
 
@@ -3876,43 +3930,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  border: 1px solid rgba(233, 184, 109, 0.35);
-  background: #1b160f;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  border: 1px solid rgba(59, 130, 246, 0.36);
+  background: #0c172b;
   flex-wrap: wrap;
 }
 
 .sol-datapack-target-label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12.5px;
+  gap: 3px;
+  font-size: 13.5px;
 }
 
 .sol-browser-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 340px;
+  gap: 8px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
 .sol-browser-row {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 8px 10px;
-  border-radius: 9px;
-  border: 1px solid #222228;
-  background: #0c0c0f;
+  gap: 13px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  border: 1px solid #23232b;
+  background: #0c0c10;
 }
 
 .sol-browser-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -3921,10 +3975,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1c1c21;
-  color: #e9b86d;
+  background: #1c1c23;
+  color: #3b82f6;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .sol-browser-meta {
@@ -3933,43 +3987,43 @@
 }
 
 .sol-browser-version-box {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #29292f;
-  background: #141418;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #292932;
+  background: #141419;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 /* Centered Two-Column Settings Dialogs */
 .sol-settings-dialog {
   display: grid;
-  grid-template-columns: 195px 1fr;
-  gap: 18px;
-  min-height: 390px;
-  max-height: 58vh;
+  grid-template-columns: 224px 1fr;
+  gap: 22px;
+  min-height: 500px;
+  max-height: calc(100vh - 170px);
 }
 
 .sol-settings-dialog-nav {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding-right: 12px;
-  border-right: 1px solid #24242a;
+  gap: 4px;
+  padding-right: 14px;
+  border-right: 1px solid #24242c;
   overflow-y: auto;
 }
 
 .sol-settings-nav-btn {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 10px;
+  gap: 10px;
+  padding: 8.5px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   color: #a6a6b0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -3981,14 +4035,14 @@
 }
 
 .sol-settings-nav-btn.is-active {
-  background: #392b18;
-  color: #f5cd91;
+  background: #0f2142;
+  color: #60a5fa;
   font-weight: 600;
 }
 
 .sol-settings-dialog-body {
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 6px;
 }
 
 .sol-modal-footer .sol-savebar {
@@ -3996,32 +4050,32 @@
   position: static;
   margin: 0;
   box-shadow: none;
-  border: 1px solid rgba(233, 184, 109, 0.35);
-  background: #1c160d;
+  border: 1px solid rgba(59, 130, 246, 0.36);
+  background: #0c172b;
 }
 
 .sol-about-hero {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #26262c;
-  background: #141418;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 13px;
+  border: 1px solid #272730;
+  background: #141419;
 }
 
 .sol-about-title {
-  margin: 0 0 2px;
-  font-size: 16px;
+  margin: 0 0 3px;
+  font-size: 18px;
 }
 
 .sol-danger-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
   border: 1px solid rgba(240, 100, 113, 0.35);
   background: rgba(240, 100, 113, 0.08);
 }
@@ -4031,7 +4085,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -4039,51 +4093,51 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(233, 184, 109, 0.4);
-  background: linear-gradient(90deg, rgba(57, 43, 24, 0.35), #0d0d10);
+  padding: 18px 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: linear-gradient(95deg, rgba(59, 130, 246, 0.16), #0d0f16 68%);
 }
 
 .sol-network-emblem {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: #392b18;
-  color: #e9b86d;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #0f2142;
+  color: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .sol-network-emblem--sm {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
 }
 
 .sol-hub-net-title {
-  font-size: 15px;
+  font-size: 17px;
   color: #f7f7f8;
 }
 
 .sol-services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 9px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
 }
 
 .sol-service-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 11px 13px;
-  border-radius: 10px;
-  border: 1px solid #222228;
-  background: #0d0d10;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #23232b;
+  background: #0d0d11;
 }
 
 /* Alerts & Banners */
@@ -4092,10 +4146,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  font-size: 12.5px;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 11px;
+  font-size: 13.5px;
 }
 
 .sol-banner-info {
@@ -4105,9 +4159,9 @@
 }
 
 .sol-banner-warn {
-  border: 1px solid rgba(232, 166, 75, 0.38);
-  background: rgba(232, 166, 75, 0.1);
-  color: #f5cd91;
+  border: 1px solid rgba(232, 166, 75, 0.42);
+  background: rgba(232, 166, 75, 0.11);
+  color: #f6b95c;
 }
 
 .sol-tag-x {
@@ -4115,21 +4169,21 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font-size: 13px;
-  padding: 0 2px;
+  font-size: 14px;
+  padding: 0 3px;
 }
 
 .sol-log-viewer {
   margin: 0;
-  padding: 12px;
-  border-radius: 9px;
-  border: 1px solid #24242a;
-  background: #08080a;
+  padding: 14px;
+  border-radius: 11px;
+  border: 1px solid #24242c;
+  background: #08080b;
   color: #d4d4dc;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11.5px;
-  line-height: 1.5;
-  max-height: 460px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-height: 480px;
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
@@ -4137,47 +4191,47 @@
 
 .sol-shots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
 }
 
 .sol-shot-card {
-  border-radius: 10px;
-  border: 1px solid #232329;
-  background: #0c0c0f;
+  border-radius: 13px;
+  border: 1px solid #23232b;
+  background: #0c0c10;
   overflow: hidden;
   cursor: pointer;
 }
 
 .sol-shot-card:hover {
-  border-color: #e9b86d;
+  border-color: #3b82f6;
 }
 
 .sol-shot-img {
   width: 100%;
-  height: 132px;
+  height: 156px;
   object-fit: cover;
   display: block;
 }
 
 .sol-shot-placeholder {
-  height: 132px;
+  height: 156px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #777781;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .sol-shot-foot {
-  padding: 7px 9px;
+  padding: 9px 11px;
 }
 
 .sol-lightbox-img {
   width: 100%;
   max-height: 70vh;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .sol-overlay {
@@ -4188,15 +4242,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
 }
 
 .sol-dialog-box {
   width: 100%;
-  padding: 18px;
-  border-radius: 14px;
-  border: 1px solid #2a2a32;
-  background: #101013;
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid #2a2a34;
+  background: #101014;
 }
 
 @media (max-width: 720px) {
@@ -4216,18 +4270,18 @@
 
 
 /* -------------------------------------------------------------------------
- * V3 Obsidian Gold Final Polish & Interactive Helpers
+ * V3 Obsidian Blue Final Polish & Interactive Helpers
  * ------------------------------------------------------------------------- */
 .sol-btn--primary {
-  background: linear-gradient(135deg, #f5cd91 0%, #e9b86d 52%, #c89543 100%);
-  color: #17130e;
-  border: 1px solid rgba(245, 205, 145, 0.42);
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 52%, #2563eb 100%);
+  color: #ffffff;
+  border: 1px solid rgba(96, 165, 250, 0.42);
   font-weight: 600;
   transition: transform 0.12s ease, filter 0.14s ease, border-color 0.14s ease;
 }
 
 .sol-btn--primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f7d7a3 0%, #efc27c 54%, #d19e4b 100%);
+  background: linear-gradient(135deg, #7cc2fc 0%, #4f93f8 54%, #1d4ed8 100%);
   filter: brightness(1.04);
 }
 
@@ -4292,24 +4346,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 156px;
-  padding: 14px;
-  border-radius: 11px;
-  border: 1px dashed #3a3225;
-  background: #0b0b0d;
-  color: #e9b86d;
+  gap: 8px;
+  min-height: 180px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(59, 130, 246, 0.38);
+  background: #0b0b0e;
+  color: #3b82f6;
   cursor: pointer;
   transition: border-color 0.14s ease, background 0.14s ease;
 }
 
 .sol-skin-add-tile:hover {
-  border-color: #e9b86d;
-  background: #151518;
+  border-color: #3b82f6;
+  background: #141822;
 }
 
 .sol-skin-add-tile span {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #a6a6b0;
 }
 
@@ -4317,8 +4371,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 12.5px;
+  gap: 10px;
+  font-size: 13.5px;
 }
 
 .sol-skin-meta strong {
@@ -4348,9 +4402,9 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(233, 184, 109, 0.35);
-  background: #392b18;
-  color: #f5cd91;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: #0f2142;
+  color: #60a5fa;
   font-size: 11px;
   font-weight: 500;
 }
@@ -4362,9 +4416,9 @@
   gap: 8px;
   padding: 7px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(233, 184, 109, 0.32);
-  background: rgba(57, 43, 24, 0.55);
-  color: #f5cd91;
+  border: 1px solid rgba(59, 130, 246, 0.32);
+  background: rgba(15, 33, 66, 0.55);
+  color: #60a5fa;
   font-size: 11.5px;
 }
 
@@ -4398,4 +4452,77 @@
   border-radius: 8px;
   object-fit: contain;
   background: #000000;
+}
+
+/* Startup Update Prompt & Topbar Restart Action */
+.sol-update-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sol-update-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(59, 130, 246, 0.34);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.12), rgba(15, 33, 66, 0.26));
+}
+
+.sol-update-hero-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.sol-update-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sol-badge--accent {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #0f2142;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sol-update-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sol-update-progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  background: #171a24;
+  overflow: hidden;
+}
+
+.sol-update-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6, #7dd3fc);
+  transition: width 160ms ease;
+}
+
+.sol-update-notes {
+  max-height: 200px;
+  padding: 14px 16px;
+  border-radius: 11px;
+  border: 1px solid #282830;
+  background: #0b0d13;
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
 }

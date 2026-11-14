@@ -363,7 +363,7 @@ onMounted(() => {
         <div v-else class="sol-row-list">
           <div v-for="srv in store.localServers" :key="srv.id" class="sol-row-item">
             <div class="sol-row-gap">
-              <Server :size="18" class="sol-gold" />
+              <Server :size="18" class="sol-accent-text" />
               <div>
                 <div class="sol-row-gap">
                   <strong>{{ srv.name }}</strong>

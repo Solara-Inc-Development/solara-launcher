@@ -94,7 +94,7 @@ async function main() {
             return {
               memory: 4096,
               javaPath: 'auto',
-              theme: 'dawn-gold',
+              theme: 'obsidian-blue',
               uiScale: 100,
               reducedMotion: false,
               density: 'comfortable',
@@ -124,6 +124,10 @@ async function main() {
           if (command === 'check_update') {
             window.__ACTION_LOG__.push('check_update');
             return { stage: 'current', version: null, error: null };
+          }
+          if (command === 'install_update') {
+            window.__ACTION_LOG__.push('install_update');
+            return { stage: 'installing', version: '0.0.99', error: null };
           }
           if (command === 'window_action') {
             window.__ACTION_LOG__.push(args.action);
@@ -260,9 +264,9 @@ async function main() {
     );
     assert.equal(closeAfter, closeBefore + 1, 'Rapid duplicate close clicks within 180ms deduplicate to 1 action');
 
-    // 4. Permanently compact 68px icon-only left rail
+    // 4. Permanently compact 84px icon-only left rail
     const railBox = await page.locator('.sol-rail').boundingBox();
-    assert.ok(railBox && Math.round(railBox.width) === 68, `Expected 68px compact rail, got ${railBox?.width}`);
+    assert.ok(railBox && Math.round(railBox.width) === 84, `Expected 84px compact rail, got ${railBox?.width}`);
     assert.equal(await page.locator('button[title="Expand sidebar"], button[title="Collapse sidebar"]').count(), 0);
 
     // 5. Global browser contextmenu suppression across redesigned shell
@@ -325,7 +329,7 @@ async function main() {
     await page.waitForFunction(() => window.__ACTION_LOG__.includes('minecraft_sign_out:mc-2'));
 
     assert.equal(errors.length, 0, `Browser errors occurred:\n${errors.join('\n')}`);
-    console.log('PASS: Window controls, 68px compact rail, context menu guard, and Microsoft PKCE modal verified cleanly!');
+    console.log('PASS: Window controls, 84px compact rail, context menu guard, and Microsoft PKCE modal verified cleanly!');
   } finally {
     if (browser) await browser.close().catch(() => {});
     if (devServer && devServer.pid) {

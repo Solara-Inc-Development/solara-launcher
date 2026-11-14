@@ -5,10 +5,10 @@ import {
   Activity,
   ChevronLeft,
   ChevronRight,
-  Download,
   Minus,
   Maximize2,
   Play,
+  RefreshCw,
   Search,
   Square,
   X,
@@ -19,12 +19,13 @@ import {
   canGoForward,
   currentPageTitle,
   currentRoute,
+  formatPublicVersion,
   goBack,
   goForward,
+  installAppUpdate,
   native,
   navigate,
   notify,
-  openGlobalSettings,
   runningInstances,
   selectedInstance,
   store,
@@ -74,16 +75,6 @@ async function startDrag(e: MouseEvent): Promise<void> {
   }
 }
 
-async function applyAppUpdate(): Promise<void> {
-  if (!store.desktop) return;
-  try {
-    notify('info', 'Checking for updates', 'Contacting Solara update service...');
-    await native('check_update');
-  } catch (err) {
-    notify('error', "Couldn't check update", String(err));
-  }
-}
-
 const activeLaunchEntry = computed(() => {
   for (const [id, st] of Object.entries(store.launchStates)) {
     if (st && st.stage !== 'running') {
@@ -107,8 +98,31 @@ const updateAvailable = computed(
   () =>
     store.updateStatus?.stage === 'ready' ||
     store.updateStatus?.stage === 'available' ||
-    store.updateStatus?.stage === 'downloading',
+    store.updateStatus?.stage === 'downloading' ||
+    store.updateStatus?.stage === 'installing' ||
+    store.updateStatus?.stage === 'waiting-for-idle',
 );
+
+const updatePillLabel = computed(() => {
+  const st = store.updateStatus?.stage;
+  if (st === 'installing') return 'Restarting...';
+  if (st === 'downloading') return 'Downloading Update...';
+  return 'Restart to Update';
+});
+
+const updatePillTitle = computed(() => {
+  const ver = store.updateStatus?.publicVersion || store.updateStatus?.version;
+  return ver ? `Restart to update to ${formatPublicVersion(ver)}` : 'Restart to update Solara Launcher';
+});
+
+async function handleUpdatePillClick(): Promise<void> {
+  if (!store.desktop) return;
+  if (store.updateStatus?.stage === 'downloading' || store.updateStatus?.stage === 'installing') {
+    store.showUpdateModal = true;
+    return;
+  }
+  await installAppUpdate();
+}
 
 onMounted(() => {
   void syncMaximizedState();
@@ -131,7 +145,7 @@ onBeforeUnmount(() => {
         title="Go to Home"
         @click="navigate('home')"
       >
-        <SolaraLogo :size="18" />
+        <SolaraLogo :size="26" />
         <span class="sol-brand-name">Solara</span>
       </button>
 
@@ -144,7 +158,7 @@ onBeforeUnmount(() => {
           aria-label="Back"
           @click="goBack"
         >
-          <ChevronLeft :size="16" />
+          <ChevronLeft :size="18" />
         </button>
         <button
           type="button"
@@ -154,7 +168,7 @@ onBeforeUnmount(() => {
           aria-label="Forward"
           @click="goForward"
         >
-          <ChevronRight :size="16" />
+          <ChevronRight :size="18" />
         </button>
       </div>
 
@@ -171,7 +185,7 @@ onBeforeUnmount(() => {
         title="Search instances &amp; modpacks (Ctrl+K)"
         @click="store.showGlobalSearch = true"
       >
-        <Search :size="13" />
+        <Search :size="15" />
         <span>Search instances, modpacks, tools...</span>
         <kbd>Ctrl K</kbd>
       </button>
@@ -203,16 +217,16 @@ onBeforeUnmount(() => {
         <span>Running: {{ runningInstances[0].name }}</span>
       </button>
 
-      <!-- Update Ready Indicator -->
+      <!-- Restart to Update Action -->
       <button
         v-if="updateAvailable"
         type="button"
-        class="sol-status-pill sol-status-pill--gold sol-no-drag"
-        :title="`Solara update ${store.updateStatus?.version ?? ''} ready`"
-        @click="store.updateStatus?.stage === 'ready' ? applyAppUpdate() : openGlobalSettings('about')"
+        class="sol-status-pill sol-status-pill--accent sol-no-drag"
+        :title="updatePillTitle"
+        @click="handleUpdatePillClick"
       >
-        <Download :size="12" />
-        <span>{{ store.updateStatus?.stage === 'ready' ? 'Update Ready' : 'Updating...' }}</span>
+        <RefreshCw :size="14" />
+        <span>{{ updatePillLabel }}</span>
       </button>
 
       <!-- Tasks Popover Trigger -->
@@ -224,7 +238,7 @@ onBeforeUnmount(() => {
         aria-label="Tasks"
         @click="store.showTasksPopover = !store.showTasksPopover"
       >
-        <Activity :size="15" />
+        <Activity :size="18" />
         <span v-if="activeJobs.length > 0" class="sol-badge-count">{{ activeJobs.length }}</span>
       </button>
 
@@ -236,7 +250,7 @@ onBeforeUnmount(() => {
           aria-label="Minimize window"
           @click="winAction('minimize')"
         >
-          <Minus :size="14" />
+          <Minus :size="15" />
         </button>
         <button
           type="button"
@@ -245,8 +259,8 @@ onBeforeUnmount(() => {
           aria-label="Maximize or restore window"
           @click="winAction('maximize')"
         >
-          <Square v-if="isMaximized" :size="11" />
-          <Maximize2 v-else :size="12" />
+          <Square v-if="isMaximized" :size="13" />
+          <Maximize2 v-else :size="14" />
         </button>
         <button
           type="button"
@@ -255,7 +269,7 @@ onBeforeUnmount(() => {
           aria-label="Close window"
           @click="winAction('close')"
         >
-          <X :size="14" />
+          <X :size="16" />
         </button>
       </div>
     </div>

@@ -85,10 +85,10 @@ function buildDefaultSkinCanvas(): HTMLCanvasElement {
   ctx.fillStyle = '#3b4f91';
   ctx.fillRect(10, 11, 1, 1);
   ctx.fillRect(13, 11, 1, 1);
-  // Torso (Solara Dawn Gold shirt)
+  // Torso (Solara Blue shirt)
   ctx.fillStyle = '#252b36';
   ctx.fillRect(16, 16, 24, 16);
-  ctx.fillStyle = '#E9B86D';
+  ctx.fillStyle = '#3B82F6';
   ctx.fillRect(22, 21, 4, 6);
   // Arms
   ctx.fillStyle = '#252b36';

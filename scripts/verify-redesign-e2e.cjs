@@ -60,7 +60,7 @@ function buildMockInitScript() {
         prefsVersion: 2,
         memory: 4096,
         javaPath: '/usr/lib/jvm/java-21-openjdk/bin/java',
-        theme: 'dawn-gold',
+        theme: 'obsidian-blue',
         uiScale: 100,
         reducedMotion: false,
         density: 'comfortable',
@@ -338,12 +338,29 @@ function buildMockInitScript() {
             return state.prefs;
           case 'app_update_status':
           case 'check_update':
-            return {
-              state: 'up-to-date',
-              version: '0.0.1',
+            return (
+              state.updateStatus || {
+                available: false,
+                state: 'up-to-date',
+                stage: 'up-to-date',
+                version: null,
+                publicVersion: null,
+                currentVersion: 'V-0.0.38',
+                notes: null,
+                downloaded: 0,
+                total: null,
+                error: null,
+                checkedAt: '2026-11-14T10:00:00Z',
+              }
+            );
+          case 'install_update':
+            state.updateStatus = {
+              ...(state.updateStatus || {}),
+              state: 'installing',
+              stage: 'installing',
               error: null,
-              checkedAt: '2026-11-14T10:00:00Z',
             };
+            return state.updateStatus;
           case 'solara_profile':
             return state.solaraProfile;
           case 'solara_request':
@@ -810,7 +827,7 @@ async function run() {
     }
     await page.waitForTimeout(150);
 
-    // Verify Theme Palette, 68px rail, 44px TitleBar, and Zero Document Scroll
+    // Verify Theme Palette, 84px rail, 56px TitleBar, and Zero Document Scroll
     const layoutMetrics = await page.evaluate(() => {
       const rootStyle = getComputedStyle(document.documentElement);
       const bodyStyle = getComputedStyle(document.body);
@@ -830,10 +847,10 @@ async function run() {
     });
 
     assert.strictEqual(layoutMetrics.bgRoot, '#000000', 'OLED --bg-main must be #000000');
-    assert.strictEqual(layoutMetrics.accent, '#e9b86d', 'Dawn Gold --accent must be #E9B86D');
+    assert.strictEqual(layoutMetrics.accent, '#3b82f6', 'Cobalt Blue --accent must be #3B82F6');
     assert.strictEqual(layoutMetrics.bodyBg, 'rgb(0, 0, 0)', 'Body background must be pure OLED black');
-    assert(Math.abs(layoutMetrics.railW - 68) <= 2, `Expected 68px SidebarRail, got ${layoutMetrics.railW}`);
-    assert(Math.abs(layoutMetrics.titlebarH - 44) <= 2, `Expected 44px TitleBar, got ${layoutMetrics.titlebarH}`);
+    assert(Math.abs(layoutMetrics.railW - 84) <= 2, `Expected 84px SidebarRail, got ${layoutMetrics.railW}`);
+    assert(Math.abs(layoutMetrics.titlebarH - 56) <= 2, `Expected 56px TitleBar, got ${layoutMetrics.titlebarH}`);
     assert(!layoutMetrics.docOverflowX && !layoutMetrics.docOverflowY, 'Zero document-level overflow expected');
     assert(layoutMetrics.hasTasksAnchor, 'TitleBar must expose .sol-tasks-anchor');
     assert(layoutMetrics.hasAccountBtn, 'SidebarRail must expose .sol-rail-account');
@@ -1023,9 +1040,12 @@ async function run() {
     assert(await page.getByRole('button', { name: 'Copy file path', exact: true }).isVisible());
     await page.locator('.sol-dialog-box').getByRole('button', { name: 'Close', exact: true }).click();
 
-    // Discover Page -> Modpacks ONLY
+    // Discover Page -> Modpacks ONLY (and verify rail hover tooltip opens + dismisses on click)
+    await page.hover('button[data-tooltip="Discover Modpacks"]');
+    await page.waitForSelector('.sol-rail-tooltip', { timeout: 2000 });
     await page.click('button[data-tooltip="Discover Modpacks"]');
     await page.waitForSelector('h1:has-text("Discover Modpacks")', { timeout: 5000 });
+    assert.strictEqual(await page.locator('.sol-rail-tooltip').count(), 0, 'Rail tooltip must dismiss immediately on click');
     await page.waitForSelector('text=Dawn Performance Pack', { timeout: 5000 });
     const hasModTypeTabs = await page.locator('button:has-text("Shaders"), button:has-text("Datapacks")').count();
     assert.strictEqual(hasModTypeTabs, 0, 'Global Discover must ONLY browse Modpacks');
@@ -1040,6 +1060,8 @@ async function run() {
     await page.waitForSelector('.sol-cape-preview-badge', { timeout: 3000 });
     await page.click('.sol-capes-grid >> nth=1 >> article >> nth=0');
     await page.waitForSelector('.sol-cape-preview-note', { timeout: 3000 });
+    const capeTitleWrapHeight = await page.locator('.sol-capes-grid .sol-ellipsis').first().evaluate((el) => el.getBoundingClientRect().height);
+    assert(capeTitleWrapHeight <= 28, `Expected single-line .sol-ellipsis cape title, got height ${capeTitleWrapHeight}`);
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skins.png') });
     await page.getByRole('button', { name: 'Pause Walk', exact: true }).click();
     await page.waitForTimeout(150);
@@ -1109,6 +1131,8 @@ async function run() {
 
     await page.click('.sol-settings-nav-btn:has-text("Privacy")');
     await page.waitForSelector('text=Local Redacted Diagnostics Only', { timeout: 3000 });
+    const navFitsWithoutClip = await page.locator('.sol-settings-dialog-nav').evaluate((el) => el.scrollHeight <= el.clientHeight + 2);
+    assert(navFitsWithoutClip, 'Settings navigation list must fit without vertical clipping at 1440x900');
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-settings.png') });
     await page.getByRole('switch', { name: 'Local diagnostics', exact: true }).click();
     await page.click('button[aria-label="Close dialog"]');
@@ -1136,6 +1160,74 @@ async function run() {
     assert(await page.getByRole('button', { name: 'Open Instance', exact: true }).first().isVisible());
 
 
+    // Verify Solara Blue theme token & non-automatic startup update check + modal + topbar "Restart to Update" flow
+    const accentHex = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase(),
+    );
+    assert.strictEqual(accentHex, '#3b82f6', `Expected Solara Blue --accent #3b82f6, got ${accentHex}`);
+
+    const invokedPreUpdate = await page.evaluate(() =>
+      window.__SOLARA_TEST_STATE__.invoked.map((i) => i.cmd),
+    );
+    assert(invokedPreUpdate.includes('check_update'), 'Startup must automatically check for updates on launch');
+    assert(!invokedPreUpdate.includes('install_update'), 'Updates must never auto-install without user confirmation');
+
+    await page.evaluate(() => {
+      const next = {
+        available: true,
+        state: 'available',
+        stage: 'available',
+        version: '0.0.99',
+        publicVersion: 'V-0.0.99',
+        currentVersion: 'V-0.0.38',
+        notes: 'Blue UI & Restart-to-Update check',
+        downloaded: 0,
+        total: null,
+        error: null,
+      };
+      window.__SOLARA_TEST_STATE__.updateStatus = next;
+      window.__SOLARA_TEST_STATE__.emit('app-update-status', next);
+    });
+    const updateDialog = page.getByRole('dialog', { name: 'New Version Available', exact: true });
+    await updateDialog.waitFor({ state: 'visible', timeout: 3000 });
+    assert(await updateDialog.getByText('V-0.0.99').first().isVisible(), 'Update modal must show V-0.0.99');
+    assert(await updateDialog.getByRole('button', { name: 'Update Now' }).isVisible(), 'Update modal must show Update Now button');
+    assert(await updateDialog.getByRole('button', { name: "I'll do it later" }).isVisible(), "Update modal must show I'll do it later button");
+
+    await updateDialog.getByRole('button', { name: "I'll do it later" }).click();
+    await updateDialog.waitFor({ state: 'detached', timeout: 3000 });
+    assert.strictEqual(
+      await page.evaluate(() => window.__SOLARA_TEST_STATE__.invoked.filter((i) => i.cmd === 'install_update').length),
+      0,
+      'Clicking later must not trigger install_update',
+    );
+    const restartBtn = page.locator('.sol-titlebar').getByRole('button', { name: 'Restart to Update' });
+    await restartBtn.waitFor({ state: 'visible', timeout: 3000 });
+    await restartBtn.click();
+    assert.strictEqual(
+      await page.evaluate(() => window.__SOLARA_TEST_STATE__.invoked.filter((i) => i.cmd === 'install_update').length),
+      1,
+      'Clicking Restart to Update must trigger install_update',
+    );
+    // Verify checking/waiting-for-idle preserve V-0.0.99 cleanly without V-0.0.00 flash
+    await page.evaluate(() => {
+      const checking = { stage: 'checking', state: 'checking', version: null, publicVersion: null, notes: null, error: null };
+      window.__SOLARA_TEST_STATE__.emit('app-update-status', checking);
+    });
+    assert(await updateDialog.getByText('V-0.0.99').first().isVisible(), 'Transitional checking stage must preserve V-0.0.99');
+    assert.strictEqual(await updateDialog.getByText('V-0.0.00').count(), 0, 'Checking stage must never render V-0.0.00');
+    await page.evaluate(() => {
+      const waiting = { stage: 'waiting-for-idle', state: 'waiting-for-idle', version: '0.0.99', publicVersion: 'V-0.0.99', error: null };
+      window.__SOLARA_TEST_STATE__.emit('app-update-status', waiting);
+    });
+    assert(await updateDialog.getByText(/waiting for your running game/i).isVisible(), 'waiting-for-idle stage must display idle-wait guidance');
+    // Reset mock update state cleanly before viewport overflow check
+    await page.evaluate(() => {
+      const done = { stage: 'up-to-date', state: 'up-to-date', version: null, publicVersion: null, error: null };
+      window.__SOLARA_TEST_STATE__.updateStatus = done;
+      window.__SOLARA_TEST_STATE__.emit('app-update-status', done);
+    });
+
     // Responsive Overflow Check at 1280x720 and 940x560
     for (const vp of [
       { width: 1280, height: 720, label: '1280x720' },
@@ -1150,6 +1242,29 @@ async function run() {
       }));
       assert(!ov.x && !ov.y, `Document overflow detected at ${vp.label}: ${JSON.stringify(ov)}`);
     }
+
+    // Verify public website (/) uses True OLED Black + Cobalt Blue and scrolls properly
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'domcontentloaded', timeout: 25000 });
+    await page.waitForSelector('.web-hero h1', { timeout: 15000 });
+    await page.waitForTimeout(200);
+    const webTheme = await page.evaluate(() => {
+      const site = document.querySelector('.website');
+      const siteStyle = site ? getComputedStyle(site) : null;
+      const bodyStyle = getComputedStyle(document.body);
+      return {
+        bodyBg: bodyStyle.backgroundColor,
+        siteBg: siteStyle ? siteStyle.backgroundColor : '',
+        accent: siteStyle ? siteStyle.getPropertyValue('--accent').trim().toLowerCase() : '',
+        scrollHeight: document.documentElement.scrollHeight,
+        innerHeight: window.innerHeight,
+      };
+    });
+    assert.strictEqual(webTheme.bodyBg, 'rgb(0, 0, 0)', 'Website body background must be OLED #000000');
+    assert.strictEqual(webTheme.siteBg, 'rgb(0, 0, 0)', 'Website .website background must be OLED #000000');
+    assert.strictEqual(webTheme.accent, '#3b82f6', 'Website Cobalt Blue --accent must be #3b82f6');
+    assert(webTheme.scrollHeight > webTheme.innerHeight + 500, `Website must scroll vertically (got scrollHeight=${webTheme.scrollHeight})`);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-website.png') });
 
     assert.strictEqual(errors.length, 0, `Runtime errors encountered:\n${errors.join('\n')}`);
     console.log('SOLARA V3 E2E VERIFICATION PASSED (all assertions + screenshots captured).');

@@ -148,8 +148,8 @@ async function copyNetworkIp(): Promise<void> {
             :loader="heroInstance.loader"
             :icon="heroInstance.icon"
             :custom-icon="heroInstance.customIcon"
-            :size="56"
-            :rounded="12"
+            :size="68"
+            :rounded="15"
             class="sol-clickable"
             @click="openInstanceContent(heroInstance)"
           />
@@ -196,27 +196,27 @@ async function copyNetworkIp(): Promise<void> {
         <div class="sol-launch-hero-actions">
           <SolaraButton
             variant="secondary"
-            size="sm"
+            size="md"
             @click="openInstanceContent(heroInstance)"
           >
-            <FolderOpen :size="14" /> Content
+            <FolderOpen :size="16" /> Content
           </SolaraButton>
           <SolaraButton
             variant="ghost"
-            size="sm"
+            size="md"
             title="Instance Settings"
             @click="openInstanceSettings(heroInstance.id)"
           >
-            <Sliders :size="14" />
+            <Sliders :size="16" />
           </SolaraButton>
           <SolaraButton
             :variant="heroInstance.running ? 'danger' : 'primary'"
-            size="md"
+            size="lg"
             :loading="isHeroLaunching"
             @click="launchOrStopInstance(heroInstance)"
           >
-            <Square v-if="heroInstance.running" :size="14" />
-            <Play v-else :size="15" />
+            <Square v-if="heroInstance.running" :size="15" />
+            <Play v-else :size="17" />
             {{
               heroInstance.running
                 ? 'Stop'
@@ -278,8 +278,8 @@ async function copyNetworkIp(): Promise<void> {
               :loader="inst.loader"
               :icon="inst.icon"
               :custom-icon="inst.customIcon"
-              :size="38"
-              :rounded="9"
+              :size="46"
+              :rounded="11"
             />
 
             <div class="sol-jump-info">
@@ -297,8 +297,8 @@ async function copyNetworkIp(): Promise<void> {
               :aria-label="inst.running ? `Stop ${inst.name}` : `Play ${inst.name}`"
               @click.stop="launchOrStopInstance(inst)"
             >
-              <Square v-if="inst.running" :size="13" />
-              <Play v-else :size="14" />
+              <Square v-if="inst.running" :size="15" />
+              <Play v-else :size="16" />
             </button>
           </div>
         </div>

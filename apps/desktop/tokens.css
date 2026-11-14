@@ -1,4 +1,4 @@
-/* Solara Dawn Gold — True OLED Black Design Tokens */
+/* Solara Obsidian Blue — True OLED Black Design Tokens */
 @font-face {
   font-family: 'DM Sans';
   font-style: normal;
@@ -8,16 +8,16 @@
 }
 
 :root {
-  /* Brand Accent (Dawn Gold) */
-  --accent: #E9B86D;
-  --accent-hover: #F5CD91;
-  --accent-pressed: #C89543;
-  --accent-deep: #C89543;
-  --accent-fg: #140F08;
-  --accent-selected-bg: #392B18;
-  --accent-soft: rgba(233, 184, 109, 0.14);
-  --accent-border: rgba(233, 184, 109, 0.48);
-  --accent-focus: rgba(233, 184, 109, 0.36);
+  /* Brand Accent (Solara Electric Cobalt Blue) */
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-pressed: #2563EB;
+  --accent-deep: #1D4ED8;
+  --accent-fg: #FFFFFF;
+  --accent-selected-bg: #0F2142;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --accent-border: rgba(96, 165, 250, 0.5);
+  --accent-focus: rgba(59, 130, 246, 0.38);
 
   /* True OLED Black Surfaces */
   --bg-main: #000000;
@@ -53,15 +53,15 @@
   --info-soft: rgba(101, 169, 245, 0.14);
 
   /* Radii */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-control: 10px;
-  --radius-card: 12px;
-  --radius-modal: 16px;
+  --radius-xs: 7px;
+  --radius-sm: 9px;
+  --radius-control: 11px;
+  --radius-card: 14px;
+  --radius-modal: 18px;
 
   /* Layout Dimensions */
-  --titlebar-height: 44px;
-  --rail-width: 68px;
+  --titlebar-height: 56px;
+  --rail-width: 84px;
 
   /* Typography */
   --font-sans: 'DM Sans', 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -79,30 +79,30 @@
   --ui-scale: 1;
 }
 
-/* Optional Deep Obsidian Gold variant */
+/* Optional Obsidian Slate variant */
 :root[data-theme='slate'] {
-  --bg-main: #060608;
-  --bg-secondary: #0B0B0E;
-  --bg-sidebar: #101014;
-  --bg-header: #0E0E12;
-  --bg-modal: #141418;
-  --bg-elevated: #1A1A20;
-  --bg-card: #121216;
-  --bg-input: #1E1E25;
-  --border: #2C2C34;
+  --bg-main: #06070A;
+  --bg-secondary: #0B0D13;
+  --bg-sidebar: #0E1118;
+  --bg-header: #0D1017;
+  --bg-modal: #121620;
+  --bg-elevated: #171D2B;
+  --bg-card: #11151E;
+  --bg-input: #1B2130;
+  --border: #283042;
 }
 
-/* Optional Warm Dawn Bronze contrast */
+/* Optional Deep Midnight Blue contrast */
 :root[data-theme='midnight'] {
   --bg-main: #000000;
-  --bg-secondary: #070605;
-  --bg-sidebar: #0D0C0A;
-  --bg-header: #0C0B09;
-  --bg-modal: #100F0D;
-  --bg-elevated: #171512;
-  --bg-card: #100F0D;
-  --bg-input: #1D1A15;
-  --border: #2B261E;
+  --bg-secondary: #040710;
+  --bg-sidebar: #080E1C;
+  --bg-header: #070C18;
+  --bg-modal: #0B1224;
+  --bg-elevated: #111B33;
+  --bg-card: #0B1224;
+  --bg-input: #14213D;
+  --border: #1F2E52;
 }
 
 /* Density modes */
@@ -146,8 +146,8 @@ body {
   background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 13.5px;
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none;
@@ -212,7 +212,7 @@ a:hover {
 }
 
 .sol-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(233, 184, 109, 0.42);
+  background: rgba(59, 130, 246, 0.45);
 }
 
 /* Accessible focus ring */

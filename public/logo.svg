@@ -1,18 +1,18 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="solara-dawn" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#F5CD91"/>
-      <stop offset="52%" stop-color="#E9B86D"/>
-      <stop offset="100%" stop-color="#C89543"/>
+    <linearGradient id="solara-blue" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7DD3FC"/>
+      <stop offset="52%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
     </linearGradient>
     <linearGradient id="solara-rim" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#392B18"/>
-      <stop offset="55%" stop-color="#29292F"/>
+      <stop offset="0%" stop-color="#172554"/>
+      <stop offset="55%" stop-color="#28282D"/>
       <stop offset="100%" stop-color="#1C1C21"/>
     </linearGradient>
   </defs>
   <rect x="2" y="2" width="60" height="60" rx="16" fill="#080809" stroke="url(#solara-rim)" stroke-width="2"/>
-  <path d="M44.8 18.2A17.5 17.5 0 1 0 47.6 39.8" stroke="url(#solara-dawn)" stroke-width="4.4" stroke-linecap="round"/>
-  <circle cx="48.8" cy="24.6" r="2.6" fill="#F5CD91"/>
-  <path d="M35.2 18.5L23.5 33.4H31.8L28.8 45.5L40.8 30.6H32.2L35.2 18.5Z" fill="url(#solara-dawn)"/>
+  <path d="M44.8 18.2A17.5 17.5 0 1 0 47.6 39.8" stroke="url(#solara-blue)" stroke-width="4.4" stroke-linecap="round"/>
+  <circle cx="48.8" cy="24.6" r="2.6" fill="#7DD3FC"/>
+  <path d="M35.2 18.5L23.5 33.4H31.8L28.8 45.5L40.8 30.6H32.2L35.2 18.5Z" fill="url(#solara-blue)"/>
 </svg>

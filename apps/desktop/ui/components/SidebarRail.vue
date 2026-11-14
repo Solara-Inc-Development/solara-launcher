@@ -23,7 +23,41 @@ import {
   selectedAccount,
   store,
 } from '../state';
+import { ref } from 'vue';
 import type { PageId } from '../types';
+
+const tooltip = ref<{ label: string; x: number; y: number } | null>(null);
+
+function showTip(ev: Event): void {
+  const el = ev.currentTarget as HTMLElement | null;
+  const label = el?.getAttribute('data-tooltip');
+  if (!el || !label) return;
+  const rect = el.getBoundingClientRect();
+  tooltip.value = {
+    label,
+    x: Math.round(rect.right + 12),
+    y: Math.round(rect.top + rect.height / 2),
+  };
+}
+
+function hideTip(): void {
+  tooltip.value = null;
+}
+
+function goPage(page: PageId, extra?: { instanceId?: string; tab?: 'content' }): void {
+  hideTip();
+  navigate(page, extra);
+}
+
+function openCreateFromRail(): void {
+  hideTip();
+  openCreateInstance();
+}
+
+function openSettingsFromRail(): void {
+  hideTip();
+  openGlobalSettings('appearance');
+}
 
 function isActive(page: PageId): boolean {
   if (store.showSettingsModal) return false;
@@ -37,7 +71,7 @@ function isPinnedActive(instId: string): boolean {
 </script>
 
 <template>
-  <aside class="sol-rail" aria-label="Primary Navigation">
+  <aside class="sol-rail" aria-label="Primary Navigation" @mouseleave="hideTip">
     <nav class="sol-rail-top">
       <button
         type="button"
@@ -45,9 +79,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('home') }"
         data-tooltip="Home"
         aria-label="Home"
-        @click="navigate('home')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('home')"
       >
-        <Home :size="19" />
+        <Home :size="22" />
       </button>
 
       <button
@@ -56,9 +94,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('library') }"
         data-tooltip="Library"
         aria-label="Library"
-        @click="navigate('library')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('library')"
       >
-        <Library :size="19" />
+        <Library :size="22" />
       </button>
 
       <button
@@ -67,9 +109,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('discover') }"
         data-tooltip="Discover Modpacks"
         aria-label="Discover Modpacks"
-        @click="navigate('discover')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('discover')"
       >
-        <Compass :size="19" />
+        <Compass :size="22" />
       </button>
 
       <button
@@ -78,9 +124,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('skins') }"
         data-tooltip="Skins &amp; Capes"
         aria-label="Skins &amp; Capes"
-        @click="navigate('skins')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('skins')"
       >
-        <Shirt :size="19" />
+        <Shirt :size="22" />
       </button>
 
       <button
@@ -89,9 +139,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('screenshots') }"
         data-tooltip="Screenshots"
         aria-label="Screenshots"
-        @click="navigate('screenshots')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('screenshots')"
       >
-        <Camera :size="19" />
+        <Camera :size="22" />
       </button>
 
       <button
@@ -101,9 +155,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('solara') }"
         data-tooltip="Solara Hub &amp; Servers"
         aria-label="Solara Hub &amp; Servers"
-        @click="navigate('solara')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('solara')"
       >
-        <Server :size="19" />
+        <Server :size="22" />
       </button>
 
       <button
@@ -112,9 +170,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('tasks') }"
         data-tooltip="Downloads"
         aria-label="Downloads"
-        @click="navigate('tasks')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('tasks')"
       >
-        <Download :size="19" />
+        <Download :size="22" />
         <span v-if="activeJobs.length > 0" class="sol-rail-dot" />
       </button>
     </nav>
@@ -122,7 +184,7 @@ function isPinnedActive(instId: string): boolean {
     <div class="sol-rail-sep" />
 
     <!-- Pinned instances + Create Instance (+) -->
-    <div class="sol-rail-pinned">
+    <div class="sol-rail-pinned" @scroll.passive="hideTip">
       <button
         v-for="inst in pinnedInstances"
         :key="inst.id"
@@ -131,15 +193,19 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isPinnedActive(inst.id), 'is-running': inst.running }"
         :data-tooltip="inst.name"
         :aria-label="inst.name"
-        @click="navigate('instance', { instanceId: inst.id, tab: 'content' })"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('instance', { instanceId: inst.id, tab: 'content' })"
       >
         <InstanceIcon
           :name="inst.name"
           :loader="inst.loader"
           :icon="inst.icon"
           :custom-icon="inst.customIcon"
-          :size="34"
-          :rounded="9"
+          :size="38"
+          :rounded="11"
         />
         <span v-if="inst.running" class="sol-rail-running-dot" />
       </button>
@@ -149,9 +215,13 @@ function isPinnedActive(instId: string): boolean {
         class="sol-rail-item sol-rail-item--add"
         data-tooltip="Create Instance"
         aria-label="Create Instance"
-        @click="openCreateInstance()"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="openCreateFromRail()"
       >
-        <Plus :size="19" />
+        <Plus :size="22" />
       </button>
     </div>
 
@@ -163,9 +233,13 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': store.showSettingsModal }"
         data-tooltip="Settings"
         aria-label="Settings"
-        @click="openGlobalSettings('appearance')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="openSettingsFromRail()"
       >
-        <Settings :size="19" />
+        <Settings :size="22" />
       </button>
 
       <button
@@ -174,7 +248,11 @@ function isPinnedActive(instId: string): boolean {
         :class="{ 'is-active': isActive('account') }"
         :data-tooltip="selectedAccount ? selectedAccount.username : 'Accounts'"
         aria-label="Accounts"
-        @click="navigate('account')"
+        @mouseenter="showTip"
+        @mouseleave="hideTip"
+        @focusin="showTip"
+        @focusout="hideTip"
+        @click="goPage('account')"
       >
         <img
           v-if="selectedAccount"
@@ -182,8 +260,17 @@ function isPinnedActive(instId: string): boolean {
           :alt="selectedAccount.username"
           class="sol-rail-avatar-img"
         />
-        <User v-else :size="19" />
+        <User v-else :size="22" />
       </button>
+    </div>
+
+    <div
+      v-if="tooltip"
+      class="sol-rail-tooltip"
+      role="tooltip"
+      :style="{ top: `${tooltip.y}px`, left: `${tooltip.x}px` }"
+    >
+      <span class="sol-rail-tooltip-label">{{ tooltip.label }}</span>
     </div>
   </aside>
 </template>
