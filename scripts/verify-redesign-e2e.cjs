@@ -737,18 +737,22 @@ async function run() {
     }
     await page.waitForTimeout(150);
 
-    // Verify Theme Palette, 84px rail, 56px TitleBar, and Zero Document Scroll
+    // Verify Theme Palette, 84px rail, 62px TitleBar, and Zero Document Scroll
     const layoutMetrics = await page.evaluate(() => {
       const rootStyle = getComputedStyle(document.documentElement);
       const bodyStyle = getComputedStyle(document.body);
       const rail = document.querySelector('.sol-rail');
       const titlebar = document.querySelector('.sol-titlebar');
+      const searchBtn = document.querySelector('.sol-titlebar-center');
+      const searchRect = searchBtn ? searchBtn.getBoundingClientRect() : null;
+      const centerOffset = searchRect ? Math.abs(searchRect.left + searchRect.width / 2 - window.innerWidth / 2) : 999;
       return {
         bgRoot: rootStyle.getPropertyValue('--bg-main').trim().toLowerCase(),
         accent: rootStyle.getPropertyValue('--accent').trim().toLowerCase(),
         bodyBg: bodyStyle.backgroundColor,
         railW: rail ? rail.getBoundingClientRect().width : 0,
         titlebarH: titlebar ? titlebar.getBoundingClientRect().height : 0,
+        centerOffset,
         docOverflowX: document.documentElement.scrollWidth > window.innerWidth,
         docOverflowY: document.documentElement.scrollHeight > window.innerHeight,
         hasTasksAnchor: Boolean(document.querySelector('.sol-tasks-anchor')),
@@ -760,7 +764,8 @@ async function run() {
     assert.strictEqual(layoutMetrics.accent, '#3b82f6', 'Cobalt Blue --accent must be #3B82F6');
     assert.strictEqual(layoutMetrics.bodyBg, 'rgb(0, 0, 0)', 'Body background must be pure OLED black');
     assert(Math.abs(layoutMetrics.railW - 84) <= 2, `Expected 84px SidebarRail, got ${layoutMetrics.railW}`);
-    assert(Math.abs(layoutMetrics.titlebarH - 56) <= 2, `Expected 56px TitleBar, got ${layoutMetrics.titlebarH}`);
+    assert(Math.abs(layoutMetrics.titlebarH - 62) <= 2, `Expected 62px TitleBar, got ${layoutMetrics.titlebarH}`);
+    assert(layoutMetrics.centerOffset <= 24, `TitleBar search trigger must stay centered, offset=${layoutMetrics.centerOffset}px`);
     assert(!layoutMetrics.docOverflowX && !layoutMetrics.docOverflowY, 'Zero document-level overflow expected');
     assert(layoutMetrics.hasTasksAnchor, 'TitleBar must expose .sol-tasks-anchor');
     assert(layoutMetrics.hasAccountBtn, 'SidebarRail must expose .sol-rail-account');
@@ -1108,7 +1113,7 @@ async function run() {
       window.__SOLARA_TEST_STATE__.updateStatus = next;
       window.__SOLARA_TEST_STATE__.emit('app-update-status', next);
     });
-    const updateDialog = page.getByRole('dialog', { name: 'New Version Available', exact: true });
+    const updateDialog = page.getByRole('dialog', { name: 'New Version Available V-0.0.99', exact: true });
     await updateDialog.waitFor({ state: 'visible', timeout: 3000 });
     assert(await updateDialog.getByText('V-0.0.99').first().isVisible(), 'Update modal must show V-0.0.99');
     assert(await updateDialog.getByRole('button', { name: 'Update Now' }).isVisible(), 'Update modal must show Update Now button');

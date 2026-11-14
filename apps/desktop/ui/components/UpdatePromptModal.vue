@@ -66,7 +66,7 @@ function handleClose(): void {
 <template>
   <SolaraModal
     :open="store.showUpdateModal"
-    title="New Version Available"
+    :title="newPublicVersion !== 'latest release' ? `New Version Available ${newPublicVersion}` : 'New Version Available'"
     :subtitle="
       currentPublicVersion
         ? `Installed: ${currentPublicVersion}  →  Latest: ${newPublicVersion}`
@@ -78,7 +78,7 @@ function handleClose(): void {
   >
     <div class="sol-update-modal">
       <div class="sol-update-hero">
-        <SolaraLogo :size="52" />
+        <SolaraLogo :size="56" />
         <div class="sol-update-hero-copy">
           <div class="sol-update-title-row">
             <strong>New Version Available</strong>

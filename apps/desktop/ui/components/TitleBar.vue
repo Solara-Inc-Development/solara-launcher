@@ -145,7 +145,7 @@ onBeforeUnmount(() => {
         title="Go to Home"
         @click="navigate('home')"
       >
-        <SolaraLogo :size="26" />
+        <SolaraLogo :size="30" />
         <span class="sol-brand-name">Solara</span>
       </button>
 
@@ -221,11 +221,11 @@ onBeforeUnmount(() => {
       <button
         v-if="updateAvailable"
         type="button"
-        class="sol-status-pill sol-status-pill--accent sol-no-drag"
+        class="sol-status-pill sol-status-pill--accent sol-status-pill--update sol-no-drag"
         :title="updatePillTitle"
         @click="handleUpdatePillClick"
       >
-        <RefreshCw :size="14" />
+        <RefreshCw :size="14" :class="{ 'sol-spin-icon': store.updateStatus?.stage === 'downloading' || store.updateStatus?.stage === 'installing' }" />
         <span>{{ updatePillLabel }}</span>
       </button>
 

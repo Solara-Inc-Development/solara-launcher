@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.46 — 2026-11-15
+
+- **Rebuilt Sidebar Rail, Balanced 62px Title Bar & Update Prompt Polish**:
+  - Rebuilt `SidebarRail.vue` cleanly from scratch (`84px` icon rail) with row-aligned active indicators (`left: 0` with zero height-breakpoint drift), scrollable pinned instances, clean bottom Settings/Accounts controls, numeric active-job badge, update-ready dot, and viewport-clamped frosted `<Teleport to="body">` tooltips dismissed reliably on click, scroll, blur, resize, or `Escape`.
+  - Upgraded `TitleBar.vue` (`62px` height via `--titlebar-height`) to a balanced 3-column grid so the center search trigger remains truly centered alongside the top-left `30px` bordered Solara logo, navigation history, breadcrumbs, `"Restart to Update"` pill, and window controls.
+  - Polished `UpdatePromptModal.vue` to surface `"New Version Available V-x.x.x"` clearly with `Update Now` / `I'll do it later` controls and consolidated duplicate `.sol-rail*` CSS rules in `apps/desktop/launcher.css`.
+  - Added `tests/shell-nav.test.mjs` unit/contract tests and centered-header/update-title assertions in `scripts/verify-redesign-e2e.cjs`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.45 — 2026-11-15
 
 - **Restored Animated OLED Startup Loading Screen (`SplashScreen.vue`)**:

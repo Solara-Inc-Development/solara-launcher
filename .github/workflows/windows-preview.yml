@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.45 — Restored Animated OLED SplashScreen with Real Startup Stage Progress.
+# Owner-approved preview candidate: V-0.0.46 — Ground-Up SidebarRail Rebuild, Balanced 62px TitleBar & Update Prompt Polish.
 on:
   workflow_dispatch:
   push:

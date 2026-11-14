@@ -318,110 +318,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   Left Navigation Rail
+   Left Navigation Rail Tooltip (Portal)
    -------------------------------------------------------------------------- */
-.sol-rail {
-  width: var(--rail-width);
-  min-width: var(--rail-width);
-  max-width: var(--rail-width);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 8px;
-  gap: 8px;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border-subtle);
-}
-
-.sol-rail-section,
-.sol-rail-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-}
-
-.sol-rail-divider {
-  width: 100%;
-  height: 1px;
-  background: var(--border-subtle);
-  flex-shrink: 0;
-}
-
-.sol-rail-item,
-.sol-rail-inst,
-.sol-rail-add {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  height: 40px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
-}
-
-.sol-rail-item:hover,
-.sol-rail-inst:hover,
-.sol-rail-add:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.sol-rail-item.is-active,
-.sol-rail-inst.is-active {
-  background: var(--accent-selected-bg);
-  border-color: var(--accent-border);
-  color: var(--accent);
-}
-
-.sol-rail-indicator {
-  position: absolute;
-  left: -8px;
-  top: 9px;
-  bottom: 9px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity var(--dur-fast);
-}
-
-.sol-rail-item.is-active .sol-rail-indicator,
-.sol-rail-inst.is-active .sol-rail-indicator {
-  opacity: 1;
-}
-
-.sol-rail-icon {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sol-rail-badge {
-  position: absolute;
-  top: -5px;
-  right: -7px;
-  min-width: 15px;
-  height: 15px;
-  padding: 0 3px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  font-size: 9.5px;
-  font-weight: 700;
-  line-height: 15px;
-}
-
 .sol-rail-tooltip {
   position: fixed;
   z-index: 420;
@@ -430,12 +328,26 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-width: 240px;
-  padding: 7px 12px;
-  border-radius: 9px;
-  border: 1px solid #2d2d3a;
-  background: #14141b;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.72);
+  max-width: 248px;
+  padding: 8px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 17, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: sol-tip-in 120ms var(--ease-ui) both;
+}
+
+@keyframes sol-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-4px, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
 }
 
 .sol-rail-tooltip-label {
@@ -453,54 +365,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.sol-rail-instances {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sol-rail-inst {
-  height: 44px;
-  padding: 0 7px;
-}
-
-.sol-rail-inst-avatar {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.sol-running-dot {
-  position: absolute;
-  right: -2px;
-  bottom: -2px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--success);
-  border: 2px solid var(--bg-sidebar);
-}
-
-.sol-rail-add {
-  border: 1px dashed var(--border);
-  color: var(--text-muted);
-}
-
-.sol-rail-add:hover {
-  border-color: var(--accent-border);
-  color: var(--accent);
-}
-
-.sol-rail-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  object-fit: cover;
-  image-rendering: pixelated;
 }
 
 /* --------------------------------------------------------------------------
@@ -2596,21 +2460,42 @@
 
 /* Titlebar */
 .sol-titlebar {
-  background: linear-gradient(180deg, #0d0d11 0%, #09090c 100%);
-  border-bottom: 1px solid #1e1e26;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 460px) minmax(0, 1fr);
+  align-items: center;
+  background: linear-gradient(180deg, rgba(13, 13, 18, 0.94) 0%, rgba(7, 7, 10, 0.96) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   height: var(--titlebar-height);
   padding: 0 14px 0 18px;
-  gap: 16px;
+  gap: 18px;
+}
+
+.sol-titlebar-left {
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.sol-titlebar-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.sol-titlebar-right {
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .sol-brand-btn {
-  padding: 6px 12px;
+  padding: 6px 11px 6px 8px;
   gap: 10px;
-  border-radius: 10px;
+  border-radius: 11px;
 }
 
 .sol-brand-name {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 750;
   letter-spacing: -0.02em;
   color: #f7f7f8;
@@ -2627,7 +2512,7 @@
   align-items: baseline;
   gap: 10px;
   min-width: 0;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 
 .sol-crumb-title {
@@ -2641,20 +2526,24 @@
   font-size: 12.5px;
   color: #848490;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sol-search-trigger {
   width: 100%;
   max-width: 460px;
-  height: 38px;
+  height: 40px;
   padding: 0 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-radius: 11px;
-  border: 1px solid #26262f;
-  background: #141419;
-  color: #868692;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(20, 20, 27, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #8b8b97;
   font-size: 13.5px;
   cursor: pointer;
   transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
@@ -2662,9 +2551,9 @@
 
 .sol-search-trigger:hover {
   border-color: rgba(59, 130, 246, 0.45);
-  background: #191922;
-  color: #c2c2cc;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+  background: rgba(25, 25, 36, 0.9);
+  color: #c8c8d4;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .sol-search-trigger span {
@@ -2677,18 +2566,18 @@
 
 .sol-search-trigger kbd {
   padding: 2px 7px;
-  border-radius: 5px;
-  background: #0c0c10;
-  border: 1px solid #2b2b34;
+  border-radius: 6px;
+  background: rgba(8, 8, 12, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #8b8b96;
   font-family: inherit;
   font-size: 11px;
 }
 
 .sol-status-pill {
-  height: 32px;
+  height: 34px;
   max-width: 270px;
-  padding: 0 13px;
+  padding: 0 14px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -2697,8 +2586,9 @@
   background: #16161b;
   color: #f7f7f8;
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 120ms ease, box-shadow 140ms ease;
 }
 
 .sol-status-pill--launching {
@@ -2720,9 +2610,20 @@
 }
 
 .sol-status-pill--accent {
-  border-color: rgba(59, 130, 246, 0.5);
-  background: #0f2142;
-  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.55);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(37, 99, 235, 0.22));
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22);
+}
+
+.sol-status-pill--update:hover {
+  border-color: rgba(147, 197, 253, 0.78);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(37, 99, 235, 0.34));
+  transform: translateY(-1px);
+}
+
+.sol-spin-icon {
+  animation: sol-spin 0.9s linear infinite;
 }
 
 .sol-tasks-btn {
@@ -2746,23 +2647,27 @@
 
 .sol-tasks-anchor > .sol-popover {
   position: fixed;
-  top: 62px;
+  top: calc(var(--titlebar-height) + 6px);
   right: 120px;
   z-index: 80;
 }
 
-/* Sidebar 84px Spacious Icon Rail (Modrinth Desktop Proportions) */
+/* Sidebar 84px Spacious Icon Rail (100% original Solara architecture) */
 .sol-rail {
-  width: 84px !important;
-  min-width: 84px !important;
-  max-width: 84px !important;
-  background: linear-gradient(180deg, #0d0d11 0%, #09090c 100%);
-  border-right: 1px solid #1d1d24;
+  width: var(--rail-width) !important;
+  min-width: var(--rail-width) !important;
+  max-width: var(--rail-width) !important;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(13, 13, 18, 0.96) 0%, rgba(7, 7, 10, 0.98) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   padding: 14px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  overflow: hidden;
 }
 
 .sol-rail-top,
@@ -2779,7 +2684,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
   scrollbar-width: none;
 }
 
@@ -2789,13 +2694,44 @@
 
 .sol-rail-bottom {
   margin-top: auto;
+  flex-shrink: 0;
 }
 
-.sol-rail-sep {
-  width: 36px;
+.sol-rail-divider {
+  width: 38px;
   height: 1px;
-  background: #25252e;
-  margin: 4px 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  margin: 3px 0;
+  flex-shrink: 0;
+}
+
+.sol-rail-row {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sol-rail-indicator {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+  opacity: 0;
+  transform: scaleY(0.45);
+  transition: opacity 150ms var(--ease-ui), transform 160ms var(--ease-ui);
+  pointer-events: none;
+}
+
+.sol-rail-indicator.is-active {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 .sol-rail-item,
@@ -2803,10 +2739,11 @@
   position: relative;
   width: 50px;
   height: 50px;
+  padding: 0;
   border-radius: 14px;
   border: 1px solid transparent;
   background: transparent;
-  color: #9b9ba6;
+  color: #9b9ba8;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2816,42 +2753,29 @@
 
 .sol-rail-item:hover,
 .sol-rail-inst:hover {
-  background: #181820;
-  border-color: #2b2b36;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
   color: #f7f7f8;
   transform: translateY(-1px);
 }
 
 .sol-rail-item.is-active,
 .sol-rail-inst.is-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(37, 99, 235, 0.12));
-  border-color: rgba(59, 130, 246, 0.55);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(37, 99, 235, 0.14));
+  border-color: rgba(59, 130, 246, 0.56);
   color: #60a5fa;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
-}
-
-.sol-rail-item.is-active::before,
-.sol-rail-inst.is-active::before {
-  content: '';
-  position: absolute;
-  left: -17px;
-  top: 10px;
-  bottom: 10px;
-  width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: linear-gradient(180deg, #60a5fa, #3b82f6);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.55);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.2);
 }
 
 .sol-rail-item--add {
-  border: 1px dashed #30303b;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
   color: #60a5fa;
 }
 
 .sol-rail-item--add:hover {
   border-style: solid;
   border-color: #3b82f6;
-  background: #12264d;
+  background: rgba(37, 99, 235, 0.2);
 }
 
 .sol-rail-avatar-img {
@@ -2859,28 +2783,50 @@
   height: 34px;
   border-radius: 10px;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
-.sol-rail-dot,
-.sol-rail-running-dot {
+.sol-rail-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.sol-rail-running-dot,
+.sol-rail-update-dot,
+.sol-rail-account-dot {
   position: absolute;
   bottom: 6px;
   right: 6px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 2px solid #0d0d11;
-  background: #3b82f6;
+  border: 2px solid #0b0b10;
+  background: #23c987;
 }
 
-.sol-rail-running-dot {
-  background: #23c987;
+.sol-rail-update-dot {
+  top: 7px;
+  bottom: auto;
+  right: 7px;
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.85);
 }
 
 @media (max-height: 640px) {
   .sol-rail {
     padding: 8px 0;
-    gap: 5px;
+    gap: 6px;
   }
 
   .sol-rail-top,
@@ -2891,14 +2837,12 @@
 
   .sol-rail-item,
   .sol-rail-inst {
-    width: 40px;
-    height: 40px;
-    border-radius: 11px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
   }
 
-  .sol-rail-item.is-active::before,
-  .sol-rail-inst.is-active::before {
-    left: -23px;
+  .sol-rail-indicator {
     top: 8px;
     bottom: 8px;
   }
