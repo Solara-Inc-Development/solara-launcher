@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: Milestone 205 - Official Solara Microsoft Client ID & 1-Click Direct Browser Sign-In (V-0.0.36 candidate build).
+# Owner-approved preview candidate: Milestone 211 - Solara Dawn Gold Redesign & Complete Instance/Content/Skin/Settings Studio (V-0.0.37 candidate build).
 on:
   workflow_dispatch:
   push:

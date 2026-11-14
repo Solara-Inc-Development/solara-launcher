@@ -3687,7 +3687,7 @@ dependencies = [
 
 [[package]]
 name = "solara-launcher"
-version = "0.0.36"
+version = "0.0.37"
 dependencies = [
  "anyhow",
  "base64 0.22.1",

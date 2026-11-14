@@ -11,6 +11,26 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-054',
+    title: 'Solara Launcher V-0.0.37: Dawn Gold Redesign & Complete Instance Studio',
+    date: '2026-11-14',
+    category: 'Release',
+    summary: 'Complete Dawn Gold — Obsidian Edition desktop redesign with compact 68px icon rail, Library & Create Instance flow, Content Manager, 3D Skin Editor & Capes, Worlds, Logs, and Settings.',
+    content: `Solara Launcher V-0.0.37 introduces a full native-feeling desktop redesign built on the Dawn Gold — Obsidian Edition theme!
+
+Key highlights of this update:
+• Compact 68px Icon Rail & Custom Title Bar: Fixed desktop layout with floating hover/focus tooltips, back/forward history, Tasks popover, and independent content scrolling without outer window scrollbars.
+• New Onboarding & Returning Home: Streamlined 4-step first launch setup and a focused Play dashboard with recent instances, account switcher, activity, and release announcements.
+• Library & Create Instance Flow: Grid/list filtering, custom groups, pinned shortcuts, custom/preset icons, and official Vanilla, Fabric, Quilt, Forge, and NeoForge loader support.
+• Instance Manager & Content Studio: Mods, Datapacks, Resource Packs, Shaders, Modrinth discovery, bulk updates modal, NBT Worlds manager, windowed Live Logs, and lazy memory-safe Screenshots.
+• 3D Skin Selector, Editor & Capes: Interactive 3D character preview, pixel texture editor with Wide/Slim arm styles, saved skins library, and official Mojang cape selection.
+• Global & Per-Instance Settings: Categorized settings with sticky Unsaved Changes bar, Java scanner, concurrent download limit, safe launch hooks, and preserved 1-click Microsoft PKCE sign-in.
+
+Signed testing preview updates verify cryptographically and apply when idle.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-053',
     title: 'Solara Launcher V-0.0.36: 1-Click Direct Browser Sign-In & Official Identity',
     date: '2026-11-12',
@@ -26,8 +46,7 @@ Key highlights of this update:
 • DPAPI Vault Encryption: Refresh tokens and credentials remain encrypted exclusively in your local Windows vault and never touch Solara servers.
 
 All updates download and verify cryptographically through our Minisign background service.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-052',

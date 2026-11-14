@@ -1,5 +1,23 @@
 # Changelog
 
+## Testing Preview V-0.0.37 — 2026-11-14
+
+- **Solara Dawn Gold — Obsidian Edition Redesign**:
+  - Rebuilt the desktop shell around the Dawn Gold (`#E9B86D`) and Obsidian Dark (`#090B0F` / `#11141A`) design system with a native custom title bar, fixed 68px permanent icon-only sidebar rail with floating tooltips, and independent content scrolling without an outer document scrollbar.
+- **First-Time Onboarding & Returning Home Dashboard**:
+  - Added a streamlined 4-step initial onboarding flow alongside a focused returning-user Home dashboard with Quick Play, active account card, recent instances, recent tasks/activity, and compact announcements.
+- **Library, Groups & Create Instance Experience**:
+  - Added grid/list Library view with search, custom groups, pinning, sorting, filtering, context menus, and a full Create Instance modal supporting built-in/custom icons, official Minecraft version filtering, and Vanilla, Fabric, Quilt, Forge, and NeoForge loaders.
+- **Instance Workspace, Content Manager, Worlds, Logs & Memory-Safe Screenshots**:
+  - Added dense per-instance management tabs for Content (Mods, Datapacks, Resource Packs, Shaders, Modrinth browse, and bulk updates modal), Worlds (NBT metadata, backup, restore, rename, delete), Files, Launch Hooks/Concurrency controls, windowed Live Logs (`INFO`/`WARN`/`ERROR`/`FATAL`), and lazy `IntersectionObserver` screenshot browsing with on-demand full viewer and Copy Path.
+- **3D Skin Selector, Skin Editor & Capes**:
+  - Added interactive 3D skin and cape preview, pixel-level 2D Skin Editor with Wide/Slim arm styles, undo/redo, layers, local saved-skins library, and official Mojang account skin/cape status support.
+- **Global & Per-Instance Settings with Sticky Save Bar**:
+  - Added categorized Settings and Instance Settings with the sticky Unsaved Changes bar (`Reset` / `Save Changes`), navigation guard, Java runtime scanner, verified cache tools, diagnostic export, and preserved 1-click Microsoft PKCE loopback sign-in.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.36 — 2026-11-12
 
 - **Official Solara Microsoft Identity & Branding**:
