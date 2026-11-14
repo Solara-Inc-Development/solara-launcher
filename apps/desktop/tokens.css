@@ -52,6 +52,30 @@
   --info: #65A9F5;
   --info-soft: rgba(101, 169, 245, 0.14);
 
+  /* Frosted OLED Glass Surfaces & Translucent Controls */
+  --glass-surface: rgba(14, 15, 21, 0.72);
+  --glass-surface-strong: rgba(18, 20, 28, 0.86);
+  --glass-elevated: rgba(24, 27, 38, 0.68);
+  --glass-btn: rgba(255, 255, 255, 0.055);
+  --glass-btn-hover: rgba(255, 255, 255, 0.115);
+  --glass-border: rgba(255, 255, 255, 0.095);
+  --glass-border-strong: rgba(255, 255, 255, 0.18);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.065);
+  --glass-blur: blur(18px) saturate(145%);
+  --glass-blur-sm: blur(12px) saturate(130%);
+
+  /* Tasteful Loader & Category Highlights */
+  --loader-fabric: #60A5FA;
+  --loader-fabric-soft: rgba(59, 130, 246, 0.16);
+  --loader-forge: #F59E0B;
+  --loader-forge-soft: rgba(245, 158, 11, 0.15);
+  --loader-neoforge: #FB923C;
+  --loader-neoforge-soft: rgba(251, 146, 60, 0.15);
+  --loader-quilt: #A78BFA;
+  --loader-quilt-soft: rgba(167, 139, 250, 0.15);
+  --loader-vanilla: #23C987;
+  --loader-vanilla-soft: rgba(35, 201, 135, 0.15);
+
   /* Radii */
   --radius-xs: 7px;
   --radius-sm: 9px;

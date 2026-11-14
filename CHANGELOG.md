@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.47 — 2026-11-15
+
+- **True Oiled OLED `#000000` + Frosted Glass & Colorful Loader Accents**:
+  - Added frosted/blurred OLED glass design tokens (`--glass-surface`, `--glass-surface-strong`, `--glass-btn`, `--glass-blur`) and tasteful loader/category highlight tokens (`--loader-fabric`, `--loader-forge`, `--loader-neoforge`, `--loader-quilt`, `--loader-vanilla`) in `apps/desktop/tokens.css`.
+  - Applied `backdrop-filter: blur(...)` translucency, hairline highlights, and hover elevation across `.sol-card`, `.sol-modal`, `.sol-launch-hero`, `.sol-jump-item`, `.sol-inst-card`, `.sol-strip-box`, `.sol-btn--secondary`, `.sol-btn--ghost`, `.sol-seg-group`, and `.sol-chip`, while concentrating Cobalt Blue gradients strictly on primary action buttons and active controls.
+  - Wired per-loader color badges & dots across `InstanceIcon.vue`, `HomeView.vue`, and `LibraryView.vue` and added `tests/theme-glass.test.mjs` + frosted-glass runtime checks in `scripts/verify-redesign-e2e.cjs`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.46 — 2026-11-15
 
 - **Rebuilt Sidebar Rail, Balanced 62px Title Bar & Update Prompt Polish**:

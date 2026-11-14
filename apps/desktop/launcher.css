@@ -412,10 +412,13 @@
 }
 
 .sol-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-card);
   padding: var(--card-pad);
+  box-shadow: var(--glass-highlight);
 }
 
 .sol-card-title {
@@ -522,28 +525,42 @@
 .sol-btn--block { width: 100%; }
 
 .sol-btn--primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: rgba(147, 197, 253, 0.36);
   color: var(--accent-fg);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
-.sol-btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
-.sol-btn--primary:active:not(:disabled) { background: var(--accent-pressed); }
+.sol-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.sol-btn--primary:active:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
 
 .sol-btn--secondary {
-  background: var(--bg-elevated);
-  border-color: var(--border);
+  background: var(--glass-btn);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border-color: var(--glass-border);
   color: var(--text-primary);
+  box-shadow: var(--glass-highlight);
 }
 .sol-btn--secondary:hover:not(:disabled) {
-  border-color: var(--border-strong);
-  background: #222630;
+  border-color: var(--glass-border-strong);
+  background: var(--glass-btn-hover);
 }
 
 .sol-btn--ghost {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: transparent;
   color: var(--text-secondary);
 }
 .sol-btn--ghost:hover:not(:disabled) {
-  background: var(--bg-hover);
+  background: var(--glass-btn-hover);
+  border-color: var(--glass-border);
   color: var(--text-primary);
 }
 
@@ -743,8 +760,10 @@
   display: inline-flex;
   padding: 3px;
   border-radius: var(--radius-control);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   gap: 2px;
 }
 
@@ -782,13 +801,21 @@
   height: 30px;
   padding: 0 11px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-btn);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   color: var(--text-secondary);
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+}
+
+.sol-chip:hover {
+  background: var(--glass-btn-hover);
+  border-color: var(--glass-border-strong);
+  color: var(--text-primary);
 }
 
 .sol-chip.is-active {
@@ -838,6 +865,53 @@
   background: var(--accent-soft);
   border-color: var(--accent-border);
   color: var(--accent);
+}
+
+.sol-badge--fabric {
+  background: var(--loader-fabric-soft);
+  border-color: rgba(96, 165, 250, 0.36);
+  color: var(--loader-fabric);
+}
+
+.sol-badge--forge {
+  background: var(--loader-forge-soft);
+  border-color: rgba(245, 158, 11, 0.38);
+  color: var(--loader-forge);
+}
+
+.sol-badge--neoforge {
+  background: var(--loader-neoforge-soft);
+  border-color: rgba(251, 146, 60, 0.38);
+  color: var(--loader-neoforge);
+}
+
+.sol-badge--quilt {
+  background: var(--loader-quilt-soft);
+  border-color: rgba(167, 139, 250, 0.38);
+  color: var(--loader-quilt);
+}
+
+.sol-badge--vanilla {
+  background: var(--loader-vanilla-soft);
+  border-color: rgba(35, 201, 135, 0.36);
+  color: var(--loader-vanilla);
+}
+
+.sol-loader-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--loader-vanilla);
+}
+.sol-loader-dot.is-fabric { background: var(--loader-fabric); }
+.sol-loader-dot.is-forge { background: var(--loader-forge); }
+.sol-loader-dot.is-neoforge { background: var(--loader-neoforge); }
+.sol-loader-dot.is-quilt { background: var(--loader-quilt); }
+.sol-loader-dot.is-vanilla { background: var(--loader-vanilla); }
+
+.sol-dot--accent {
+  background: var(--accent);
 }
 
 .sol-group-chip {
@@ -1014,8 +1088,11 @@
   width: 100%;
   max-height: calc(100vh - 48px);
   border-radius: var(--radius-modal);
-  background: var(--bg-modal);
-  box-shadow: var(--shadow-modal);
+  background: var(--glass-surface-strong);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.88), var(--glass-highlight);
   overflow: hidden;
 }
 
@@ -2433,7 +2510,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 28px 34px 44px;
-  background: #000000;
+  background: radial-gradient(ellipse 75% 42% at 50% -10%, rgba(37, 99, 235, 0.08), transparent 65%), #000000;
 }
 
 .sol-scroll::-webkit-scrollbar,
@@ -3178,19 +3255,51 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: 999px;
-  border: 1px solid #29292f;
-  background: #141418;
-  color: #a6a6b0;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-btn);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #b4b4c0;
   font-size: 12px;
   font-weight: 600;
 }
 
 .sol-badge--gold {
   border-color: rgba(59, 130, 246, 0.42);
-  background: #0f2142;
+  background: rgba(15, 33, 66, 0.72);
   color: #60a5fa;
+}
+
+.sol-badge--fabric {
+  background: var(--loader-fabric-soft);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: var(--loader-fabric);
+}
+
+.sol-badge--forge {
+  background: var(--loader-forge-soft);
+  border-color: rgba(245, 158, 11, 0.42);
+  color: var(--loader-forge);
+}
+
+.sol-badge--neoforge {
+  background: var(--loader-neoforge-soft);
+  border-color: rgba(251, 146, 60, 0.42);
+  color: var(--loader-neoforge);
+}
+
+.sol-badge--quilt {
+  background: var(--loader-quilt-soft);
+  border-color: rgba(167, 139, 250, 0.42);
+  color: var(--loader-quilt);
+}
+
+.sol-badge--vanilla {
+  background: var(--loader-vanilla-soft);
+  border-color: rgba(35, 201, 135, 0.4);
+  color: var(--loader-vanilla);
 }
 
 .sol-badge--success {
@@ -3255,9 +3364,12 @@
   flex-wrap: wrap;
   padding: 22px 26px;
   border-radius: 16px;
-  background: linear-gradient(95deg, rgba(59, 130, 246, 0.16), #0b0d13 58%, #09090d 100%);
-  border: 1px solid #282c38;
+  background: linear-gradient(100deg, rgba(59, 130, 246, 0.16), rgba(14, 16, 24, 0.78) 54%, rgba(10, 11, 16, 0.72) 100%);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.11);
   border-left: 4px solid #3b82f6;
+  box-shadow: var(--glass-highlight), 0 18px 44px rgba(0, 0, 0, 0.52);
 }
 
 .sol-launch-hero-main {
@@ -3362,21 +3474,25 @@
   gap: 14px;
   padding: 13px 15px;
   border-radius: 13px;
-  border: 1px solid #222229;
-  background: #0c0c10;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
   cursor: pointer;
-  transition: background 130ms ease, border-color 130ms ease, transform 120ms ease;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
 .sol-jump-item:hover {
-  background: #14141a;
-  border-color: #363642;
-  transform: translateY(-1px);
+  background: rgba(24, 27, 38, 0.82);
+  border-color: var(--glass-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--glass-highlight), 0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
 .sol-jump-item.is-selected {
   border-color: rgba(59, 130, 246, 0.55);
-  background: #0c1a33;
+  background: rgba(15, 33, 66, 0.42);
 }
 
 .sol-jump-info {
@@ -3431,8 +3547,11 @@
 .sol-strip-box {
   padding: 16px 18px;
   border-radius: 13px;
-  border: 1px solid #202028;
-  background: #09090c;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -3631,23 +3750,28 @@
 .sol-inst-card {
   padding: 16px 18px;
   border-radius: 14px;
-  border: 1px solid #23232b;
-  background: #0d0d11;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 14px;
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease, transform 120ms ease;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
 }
 
 .sol-inst-card:hover {
-  background: #14141a;
-  border-color: #383844;
-  transform: translateY(-1px);
+  background: rgba(24, 27, 38, 0.84);
+  border-color: var(--glass-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--glass-highlight), 0 12px 28px rgba(0, 0, 0, 0.48);
 }
 
 .sol-inst-card.is-selected {
   border-color: #3b82f6;
+  background: rgba(15, 33, 66, 0.36);
 }
 
 .sol-inst-card-top {

@@ -310,8 +310,9 @@ async function confirmDelete(): Promise<void> {
             />
             <div class="sol-inst-card-titlewrap">
               <div class="sol-inst-card-name sol-truncate">{{ inst.name }}</div>
-              <div class="sol-muted sol-text-xs">
-                {{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}
+              <div class="sol-muted sol-text-xs sol-inline-flex">
+                <span :class="['sol-loader-dot', `is-${inst.loader}`]" />
+                <span>{{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}</span>
               </div>
             </div>
 

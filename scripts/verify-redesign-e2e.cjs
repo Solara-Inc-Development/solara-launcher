@@ -770,6 +770,25 @@ async function run() {
     assert(layoutMetrics.hasTasksAnchor, 'TitleBar must expose .sol-tasks-anchor');
     assert(layoutMetrics.hasAccountBtn, 'SidebarRail must expose .sol-rail-account');
 
+    const glassMetrics = await page.evaluate(() => {
+      const hero = document.querySelector('.sol-launch-hero');
+      const secBtn = document.querySelector('.sol-launch-hero .sol-btn--secondary');
+      const loaderBadge = document.querySelector('.sol-launch-hero .sol-badge');
+      const getFilter = (el) => {
+        if (!el) return '';
+        const cs = getComputedStyle(el);
+        return cs.backdropFilter || cs.webkitBackdropFilter || '';
+      };
+      return {
+        heroBackdrop: getFilter(hero),
+        btnBackdrop: getFilter(secBtn),
+        hasLoaderBadge: Boolean(loaderBadge && /sol-badge--(fabric|forge|neoforge|quilt|vanilla)/.test(loaderBadge.className)),
+      };
+    });
+    assert(glassMetrics.heroBackdrop.includes('blur'), `Expected frosted blur on .sol-launch-hero, got "${glassMetrics.heroBackdrop}"`);
+    assert(glassMetrics.btnBackdrop.includes('blur'), `Expected frosted blur on .sol-btn--secondary, got "${glassMetrics.btnBackdrop}"`);
+    assert(glassMetrics.hasLoaderBadge, 'Hero instance must display colorful per-loader badge');
+
     // Home Screenshot (1440x900)
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-home.png') });
     await page.screenshot({ path: DASHBOARD_SHOT });

@@ -129,7 +129,7 @@ function openInstanceLogs(inst: InstanceRecord): void {
               >
                 {{ heroInstance.name }}
               </button>
-              <span class="sol-badge sol-badge--gold">
+              <span :class="['sol-badge', `sol-badge--${heroInstance.loader}`]">
                 {{ LOADER_LABEL[heroInstance.loader] ?? heroInstance.loader }} {{ heroInstance.gameVersion }}
               </span>
               <span v-if="heroInstance.running" class="sol-badge sol-badge--success">Running</span>
@@ -152,7 +152,7 @@ function openInstanceLogs(inst: InstanceRecord): void {
                 </button>
               </template>
               <template v-else>
-                <span class="sol-dot sol-dot--gold" />
+                <span class="sol-dot sol-dot--accent" />
                 <span>{{ heroLaunchState.detail }}</span>
               </template>
             </div>

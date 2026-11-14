@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.46 — Ground-Up SidebarRail Rebuild, Balanced 62px TitleBar & Update Prompt Polish.
+# Owner-approved preview candidate: V-0.0.47 — True Oiled OLED #000000, Frosted Glass Surfaces/Buttons, Cobalt Blue CTAs & Loader Highlights.
 on:
   workflow_dispatch:
   push:

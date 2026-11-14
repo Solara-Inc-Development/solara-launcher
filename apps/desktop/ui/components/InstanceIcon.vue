@@ -45,13 +45,13 @@ const loaderColor = computed(() => {
     case 'fabric':
       return { bg: '#0F2142', fg: '#60A5FA' };
     case 'quilt':
-      return { bg: '#161C38', fg: '#818CF8' };
+      return { bg: '#1D1438', fg: '#A78BFA' };
     case 'forge':
-      return { bg: '#102136', fg: '#38BDF8' };
+      return { bg: '#2B1B08', fg: '#F59E0B' };
     case 'neoforge':
-      return { bg: '#0E2433', fg: '#7DD3FC' };
+      return { bg: '#2D160B', fg: '#FB923C' };
     default:
-      return { bg: '#122219', fg: '#23C987' };
+      return { bg: '#0E241A', fg: '#23C987' };
   }
 });
 
