@@ -40,18 +40,18 @@
     "scripts/third-party.mjs"
   ],
   "windowsSourceCheck": {
-    "run": 43674008023,
-    "sourceCommit": "df970a29b3378d60ab277f0e06a2c6efc7b5e47b",
+    "run": 43675617222,
+    "sourceCommit": "9b0590953ea3a82a0759e374215905105808771b",
     "result": "passed"
   },
   "windowsInstallerBuild": {
-    "run": 43674008085,
+    "run": 43675617208,
     "result": "passed",
-    "publicVersion": "V-0.0.59",
-    "sourceCommit": "df970a29b3378d60ab277f0e06a2c6efc7b5e47b",
+    "publicVersion": "V-0.0.60",
+    "sourceCommit": "9b0590953ea3a82a0759e374215905105808771b",
     "staticVerification": "Genuine CI-built NSIS installer and x64 PE headers (SizeOfStackReserve 8 MiB), artifact SHA-256, source privacy/version/public-key checks and persistent Minisign updater signature verified. The original CI source ZIP is preserved unchanged.",
-    "installerSha256": "97513465f58a5f4b4fc12c1f2ff01729786efce7457282d0e440ae91068c76c1",
-    "sourceArchiveSha256": "40e984780bb89708c403661c2471517dd26bef96d1a4a16910dfb7bdd625ed0c",
+    "installerSha256": "072c06640f997eef157adbf014f514a93ddf5e6c27816ee95e6e5f5cde3eb4e2",
+    "sourceArchiveSha256": "6b4bd94de33342d6cf358ae60b3df0fce8dba194dd992d5a451e18fdda53b05d",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live"
