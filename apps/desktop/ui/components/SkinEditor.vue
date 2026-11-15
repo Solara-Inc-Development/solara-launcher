@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Palette,
   Eraser,
@@ -10,8 +10,11 @@ import {
   FlipHorizontal,
   Download,
   Upload,
+  Eye,
+  EyeOff,
 } from '../icons';
 import SolaraButton from './SolaraButton.vue';
+import { getUvRegionBox, SKIN_BODY_PARTS, SKIN_FACES } from '../skinUv.mjs';
 
 const props = defineProps<{
   modelValue: string;
@@ -24,13 +27,16 @@ const emit = defineEmits<{
 }>();
 
 type ToolKind = 'pencil' | 'eraser' | 'eyedropper' | 'bucket';
-type RegionView = 'head-front' | 'torso-front' | 'arm-r' | 'leg-r' | 'full';
+type PartKind = 'head' | 'torso' | 'arm-r' | 'arm-l' | 'leg-r' | 'leg-l' | 'full';
+type FaceKind = 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom';
 
 const tool = ref<ToolKind>('pencil');
 const color = ref('#3B82F6');
 const mirror = ref(false);
 const layerMode = ref<'base' | 'overlay'>('base');
-const activeRegion = ref<RegionView>('head-front');
+const activePart = ref<PartKind>('head');
+const activeFace = ref<FaceKind>('front');
+const showBaseGuide = ref(true);
 const zoom = ref(16);
 
 const pixelCanvas = document.createElement('canvas');
@@ -50,22 +56,17 @@ const swatchPalette = [
   '#C89B74', '#8D5524', '#4A3020', '#FFFFFF',
 ];
 
+const currentBox = computed(() =>
+  getUvRegionBox({
+    part: activePart.value,
+    face: activeFace.value,
+    layer: layerMode.value,
+    variant: props.variant,
+  }),
+);
+
 function getRegionBox(): { x: number; y: number; w: number; h: number } {
-  const isOv = layerMode.value === 'overlay';
-  switch (activeRegion.value) {
-    case 'head-front':
-      return isOv ? { x: 40, y: 8, w: 8, h: 8 } : { x: 8, y: 8, w: 8, h: 8 };
-    case 'torso-front':
-      return isOv ? { x: 20, y: 36, w: 8, h: 12 } : { x: 20, y: 20, w: 8, h: 12 };
-    case 'arm-r':
-      return isOv
-        ? { x: 44, y: 36, w: props.variant === 'slim' ? 3 : 4, h: 12 }
-        : { x: 44, y: 20, w: props.variant === 'slim' ? 3 : 4, h: 12 };
-    case 'leg-r':
-      return isOv ? { x: 4, y: 36, w: 4, h: 12 } : { x: 4, y: 20, w: 4, h: 12 };
-    default:
-      return { x: 0, y: 0, w: 64, h: 64 };
-  }
+  return currentBox.value;
 }
 
 let loadGeneration = 0;
@@ -98,7 +99,7 @@ watch(
   },
 );
 
-watch([activeRegion, layerMode, zoom, () => props.variant], () => renderView());
+watch([activePart, activeFace, layerMode, showBaseGuide, zoom, () => props.variant], () => renderView());
 
 onMounted(() => {
   if (props.modelValue) {
@@ -117,7 +118,7 @@ function renderView() {
   const vc = viewCanvasRef.value;
   if (!vc) return;
   const box = getRegionBox();
-  const pxScale = activeRegion.value === 'full' ? Math.max(4, Math.floor(zoom.value / 2.5)) : zoom.value;
+  const pxScale = activePart.value === 'full' ? Math.max(4, Math.floor(zoom.value / 2.5)) : zoom.value;
   vc.width = box.w * pxScale;
   vc.height = box.h * pxScale;
   const vctx = vc.getContext('2d')!;
@@ -129,6 +130,20 @@ function renderView() {
       vctx.fillStyle = (x + y) % 2 === 0 ? '#181B22' : '#12151B';
       vctx.fillRect(x * pxScale, y * pxScale, pxScale, pxScale);
     }
+  }
+
+  // Translucent Base Layer reference when editing Outer Layer
+  if (layerMode.value === 'overlay' && activePart.value !== 'full' && showBaseGuide.value) {
+    const baseBox = getUvRegionBox({
+      part: activePart.value,
+      face: activeFace.value,
+      layer: 'base',
+      variant: props.variant,
+    });
+    vctx.save();
+    vctx.globalAlpha = 0.28;
+    vctx.drawImage(pixelCanvas, baseBox.x, baseBox.y, baseBox.w, baseBox.h, 0, 0, vc.width, vc.height);
+    vctx.restore();
   }
 
   vctx.drawImage(pixelCanvas, box.x, box.y, box.w, box.h, 0, 0, vc.width, vc.height);
@@ -372,42 +387,67 @@ function onImportFile(e: Event) {
       </div>
     </div>
 
-    <!-- Region & Layer Controls -->
+    <!-- Body Part, 6-Face Cube UV & Layer Controls -->
     <div class="sol-editor-subbar">
-      <div class="sol-seg-group">
+      <div class="sol-seg-group" role="group" aria-label="Body part">
         <button
-          v-for="r in [
-            { id: 'head-front', label: 'Head' },
-            { id: 'torso-front', label: 'Torso' },
-            { id: 'arm-r', label: 'Arm' },
-            { id: 'leg-r', label: 'Leg' },
-            { id: 'full', label: 'Full UV (64×64)' },
-          ] as const"
-          :key="r.id"
+          v-for="part in SKIN_BODY_PARTS"
+          :key="part.id"
           type="button"
-          :class="['sol-seg-btn', { 'is-active': activeRegion === r.id }]"
-          @click="activeRegion = r.id"
+          :class="['sol-seg-btn', { 'is-active': activePart === part.id }]"
+          @click="activePart = part.id as PartKind"
         >
-          {{ r.label }}
+          {{ part.label }}
         </button>
       </div>
 
-      <div class="sol-seg-group">
+      <div class="sol-row-gap">
+        <div class="sol-seg-group" role="group" aria-label="Skin layer">
+          <button
+            type="button"
+            :class="['sol-seg-btn', { 'is-active': layerMode === 'base' }]"
+            @click="layerMode = 'base'"
+          >
+            Base Layer
+          </button>
+          <button
+            type="button"
+            :class="['sol-seg-btn', { 'is-active': layerMode === 'overlay' }]"
+            @click="layerMode = 'overlay'"
+          >
+            Outer Layer
+          </button>
+        </div>
+
         <button
+          v-if="layerMode === 'overlay' && activePart !== 'full'"
           type="button"
-          :class="['sol-seg-btn', { 'is-active': layerMode === 'base' }]"
-          @click="layerMode = 'base'"
+          :class="['sol-icon-btn', 'sol-icon-btn--xs', { 'is-active': showBaseGuide }]"
+          title="Toggle translucent base guide"
+          aria-label="Toggle base layer guide"
+          @click="showBaseGuide = !showBaseGuide"
         >
-          Base Layer
-        </button>
-        <button
-          type="button"
-          :class="['sol-seg-btn', { 'is-active': layerMode === 'overlay' }]"
-          @click="layerMode = 'overlay'"
-        >
-          Outer Layer
+          <Eye v-if="showBaseGuide" :size="13" />
+          <EyeOff v-else :size="13" />
         </button>
       </div>
+    </div>
+
+    <div v-if="activePart !== 'full'" class="sol-editor-facebar">
+      <div class="sol-seg-group" role="group" aria-label="6-face UV selector">
+        <button
+          v-for="face in SKIN_FACES"
+          :key="face.id"
+          type="button"
+          :class="['sol-seg-btn', 'sol-face-btn', { 'is-active': activeFace === face.id }]"
+          @click="activeFace = face.id as FaceKind"
+        >
+          {{ face.label }}
+        </button>
+      </div>
+      <span class="sol-pill sol-uv-readout">
+        UV ({{ currentBox.x }}, {{ currentBox.y }}) · {{ currentBox.w }}×{{ currentBox.h }}
+      </span>
     </div>
 
     <!-- Main Pixel Canvas & Color Palette -->

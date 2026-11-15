@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.53 — 3D Skin Viewer Rebuild (studio GLSL lighting, Idle/Walk/Run/Cape poses, drag inertia, front/back flip).
+# Owner-approved preview candidate: V-0.0.54 — 6-Face UV Body-Part Skin Editor Part 1 (Head/Torso/Arms/Legs x 6 cube faces, Outer Layer base guide).
 on:
   workflow_dispatch:
   push:

@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.54 — 2026-11-15
+
+- **Skins Studio — 6-Face UV Body-Part Editor (Part 1)**:
+  - Extracted shared `apps/desktop/ui/skinUv.mjs` mapping every Minecraft 64×64 body part (`Head`, `Torso`, `R. Arm`, `L. Arm`, `R. Leg`, `L. Leg`, `Full UV (64×64)`) across all 6 cube faces (`Front`, `Back`, `Right`, `Left`, `Top`, `Bottom`), Base vs Outer layers, and Classic (4px) / Slim (3px) arm geometry.
+  - Upgraded `SkinEditor.vue` and `apps/desktop/launcher.css` with interactive 6-face UV cube selection, live UV pixel coordinate readout (`UV (x, y) · w×h`), and a toggleable translucent Base Layer guide while painting Outer Layer pixels.
+  - Added `tests/skin-editor-uv.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to test multi-part 6-face UV switching and capture `e2e-skin-editor.png`.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.53 — 2026-11-15
 
 - **Skins Studio — 3D WebGL Viewport Rebuild**:

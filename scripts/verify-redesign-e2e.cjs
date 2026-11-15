@@ -1063,6 +1063,15 @@ async function run() {
     assert.strictEqual(await page.evaluate(() => window.__SOLARA_TEST_STATE__.bufferCreates), pausedRender.buffers, 'Camera changes should reuse GPU mesh buffers');
     await page.getByRole('button', { name: 'Edit Skin', exact: true }).click();
     await page.locator('.sol-editor-canvas').waitFor();
+    await page.waitForSelector('.sol-uv-readout:has-text("UV (8, 8) · 8×8")', { timeout: 3000 });
+    await page.click('.sol-skin-editor [aria-label="Body part"] button:has-text("L. Arm")');
+    await page.click('.sol-skin-editor [aria-label="6-face UV selector"] button:has-text("Back")');
+    await page.click('.sol-skin-editor [aria-label="Skin layer"] button:has-text("Outer Layer")');
+    await page.waitForSelector('.sol-uv-readout:has-text("UV (60, 52) · 4×12")', { timeout: 3000 });
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skin-editor.png') });
+    await page.click('.sol-skin-editor [aria-label="Body part"] button:has-text("Head")');
+    await page.click('.sol-skin-editor [aria-label="6-face UV selector"] button:has-text("Front")');
+    await page.click('.sol-skin-editor [aria-label="Skin layer"] button:has-text("Base Layer")');
     await page.waitForTimeout(100);
     await page.locator('.sol-editor-canvas').click({ position: { x: 18, y: 18 } });
     await page.getByText('Unsaved pixels', { exact: true }).waitFor();
