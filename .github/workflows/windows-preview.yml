@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.55 — Skin Editor Tools Part 2 (Grid toggle, Mirror guide, Recent Colors, Undo/Redo shortcuts, bounded flood-fill).
+# Owner-approved preview candidate: V-0.0.56 — Clean Cape Studio Overhaul (status strip, 6 preview capes, 64x32 preview PNG import, auto 3D back-turn).
 on:
   workflow_dispatch:
   push:

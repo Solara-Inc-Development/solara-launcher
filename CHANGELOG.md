@@ -1,5 +1,14 @@
 # Changelog
 
+## Testing Preview V-0.0.56 — 2026-11-15
+
+- **Skins Studio — Clean Cape Studio Overhaul**:
+  - Upgraded `SkinsView.vue` Capes tab and `apps/desktop/launcher.css` with a frosted `.sol-cape-status-strip`, expanded **6 built-in Local 3D Preview Capes**, custom **64×32 PNG cape preview upload** with strict dimension validation (`Preview only`), automatic 3D character back-turn (`viewerPose = 'cape'`) when equipping or previewing a cape, and busy-locked `Equip` / `3D View` / `Clear Preview` actions.
+  - Added `tests/cape-studio.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to assert all 6 preview capes, status strip, automatic `data-pose="cape"` turn, and `e2e-capes.png` capture.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.55 — 2026-11-15
 
 - **Skins Studio — Painting Tools & Shortcuts (Part 2)**:

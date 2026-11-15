@@ -2486,12 +2486,27 @@
   display: block;
 }
 
+.sol-cape-status-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(10, 12, 18, 0.86));
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .sol-cape-preview {
   width: 100%;
   height: 110px;
   object-fit: contain;
   image-rendering: pixelated;
-  background: var(--bg-elevated);
+  background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.1), #040508 78%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-sm);
 }
 

@@ -135,6 +135,27 @@ const PREVIEW_CAPE_SPECS: PreviewCapeSpec[] = [
     accent: '#7dd3fc',
     trim: '#1d4ed8',
   },
+  {
+    id: 'preview-emerald-ward',
+    name: 'Emerald Ward',
+    base: '#0b1e18',
+    accent: '#10b981',
+    trim: '#34d399',
+  },
+  {
+    id: 'preview-nether-ember',
+    name: 'Nether Ember',
+    base: '#210e16',
+    accent: '#f43f5e',
+    trim: '#fbbf24',
+  },
+  {
+    id: 'preview-amethyst-prism',
+    name: 'Amethyst Prism',
+    base: '#171026',
+    accent: '#a855f7',
+    trim: '#c084fc',
+  },
 ];
 
 function buildStarterSkinPng(spec: StarterSkinSpec): string {
@@ -317,6 +338,8 @@ const filteredStarterSkins = computed(() => {
 const saving = ref(false);
 const uploading = ref(false);
 const loadingProfile = ref(false);
+const equippingCapeId = ref<string | null>(null);
+const capeFileInput = ref<HTMLInputElement | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const starterSkins = ref<Array<StarterSkinSpec & { pngDataUrl: string }>>([]);
@@ -596,26 +619,80 @@ async function applySkinToAccount() {
 }
 
 async function equipCape(cape: ProfileCape | null) {
-  if (!selectedAccount.value) return;
+  if (!selectedAccount.value || equippingCapeId.value !== null) return;
   previewCapeId.value = null;
+  equippingCapeId.value = cape?.id ?? 'none';
   try {
     await native('set_minecraft_cape', { capeId: cape?.id ?? null });
     activeCapeDataUrl.value = cape?.dataUrl ?? null;
+    viewerPose.value = cape ? 'cape' : 'walk';
+    animateModel.value = true;
     await loadAll();
     notify('success', cape ? `Equipped ${cape.alias} cape` : 'Cape hidden');
   } catch (err) {
     notify('error', "Couldn't update cape", String(err));
+  } finally {
+    equippingCapeId.value = null;
   }
 }
 
-function previewLocalCape(cape: PreviewCapeSpec & { dataUrl: string }) {
+function previewLocalCape(cape: { id: string; dataUrl: string }) {
   previewCapeId.value = cape.id;
   activeCapeDataUrl.value = cape.dataUrl;
+  viewerPose.value = 'cape';
+  animateModel.value = true;
 }
 
 function clearLocalCapePreview() {
   previewCapeId.value = null;
   activeCapeDataUrl.value = equippedCape.value?.dataUrl ?? null;
+  if (!equippedCape.value) viewerPose.value = 'walk';
+}
+
+function onUploadPreviewCape(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  (e.target as HTMLInputElement).value = '';
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const dataUrl = typeof r.result === 'string' ? r.result : '';
+    if (!dataUrl.startsWith('data:image/png')) {
+      notify('error', 'Invalid cape file', 'Minecraft cape previews must be a 64×32 PNG.');
+      return;
+    }
+    const probe = new Image();
+    probe.onload = () => {
+      if (probe.width !== 64 || probe.height !== 32) {
+        notify('error', 'Invalid cape dimensions', `Expected 64×32 PNG, got ${probe.width}×${probe.height}.`);
+        return;
+      }
+      const thumb = document.createElement('canvas');
+      thumb.width = 10;
+      thumb.height = 16;
+      const tctx = thumb.getContext('2d');
+      tctx?.drawImage(probe, 1, 1, 10, 16, 0, 0, 10, 16);
+      const customId = `preview-custom-${Date.now()}`;
+      previewCapes.value = [
+        {
+          id: customId,
+          name: file.name.replace(/\.png$/i, '') || 'Custom Preview Cape',
+          base: '#0d1322',
+          accent: '#3b82f6',
+          trim: '#60a5fa',
+          dataUrl,
+          thumbUrl: thumb.toDataURL('image/png'),
+        },
+        ...previewCapes.value,
+      ];
+      previewLocalCape({ id: customId, dataUrl });
+      notify('info', 'Loaded 3D cape preview', 'Preview only — local capes do not equip onto your Minecraft account.');
+    };
+    probe.onerror = () => {
+      notify('error', 'Corrupted image', 'Could not decode the selected cape PNG.');
+    };
+    probe.src = dataUrl;
+  };
+  r.readAsDataURL(file);
 }
 </script>
 
@@ -936,10 +1013,48 @@ function clearLocalCapePreview() {
 
           <!-- Account-Owned Capes + Local 3D Preview Capes -->
           <div v-else class="sol-section-stack">
+            <div class="sol-cape-status-strip">
+              <div>
+                <div class="sol-row-gap">
+                  <strong>
+                    {{
+                      isPreviewingLocalCape
+                        ? `3D Preview: ${previewCapes.find((c) => c.id === previewCapeId)?.name ?? 'Custom Cape'}`
+                        : equippedCape
+                          ? `Equipped on Account: ${equippedCape.alias}`
+                          : 'No Account Cape Active'
+                    }}
+                  </strong>
+                  <span :class="['sol-pill', { 'is-active': Boolean(equippedCape) && !isPreviewingLocalCape }]">
+                    {{ isPreviewingLocalCape ? 'Preview only' : equippedCape ? 'Account Active' : 'Hidden' }}
+                  </span>
+                </div>
+                <div class="sol-muted" style="font-size: 12px; margin-top: 2px">
+                  {{
+                    selectedAccount
+                      ? `Selecting an owned cape equips it for ${selectedAccount.username} and turns the 3D stage to inspect the back.`
+                      : 'Sign in with Microsoft to equip owned capes, or test local 3D preview designs below.'
+                  }}
+                </div>
+              </div>
+              <div class="sol-row-gap">
+                <input ref="capeFileInput" type="file" accept="image/png" hidden @change="onUploadPreviewCape" />
+                <SolaraButton variant="secondary" size="xs" @click="capeFileInput?.click()">
+                  <Upload :size="12" /> Preview 64×32 PNG
+                </SolaraButton>
+                <SolaraButton variant="ghost" size="xs" @click="viewerPose = 'cape'; animateModel = true">
+                  Inspect Back in 3D
+                </SolaraButton>
+                <SolaraButton v-if="isPreviewingLocalCape" variant="ghost" size="xs" @click="clearLocalCapePreview">
+                  Clear Preview
+                </SolaraButton>
+              </div>
+            </div>
+
             <div>
               <div class="sol-side-head" style="margin-bottom: 10px">
                 <h2 class="sol-section-title">Account-Owned Capes</h2>
-                <span v-if="selectedAccount" class="sol-muted">Equips directly on {{ selectedAccount.username }}</span>
+                <span v-if="selectedAccount" class="sol-muted">{{ profileCapes.length }} owned on {{ selectedAccount.username }}</span>
                 <span v-else class="sol-muted">Sign in with Microsoft to equip owned capes</span>
               </div>
 
@@ -965,9 +1080,28 @@ function clearLocalCapePreview() {
                   <div v-else class="sol-cape-preview sol-cape-preview--none">{{ cape.alias }}</div>
                   <div class="sol-skin-meta">
                     <strong class="sol-ellipsis">{{ cape.alias }}</strong>
-                    <span class="sol-pill" :class="{ 'is-active': cape.state === 'ACTIVE' }">
+                    <span class="sol-pill" :class="{ 'is-active': cape.state === 'ACTIVE' && !isPreviewingLocalCape }">
                       {{ cape.state === 'ACTIVE' ? 'Equipped' : 'Owned' }}
                     </span>
+                  </div>
+                  <div class="sol-skin-actions">
+                    <SolaraButton
+                      variant="primary"
+                      size="xs"
+                      :loading="equippingCapeId === cape.id"
+                      :disabled="cape.state === 'ACTIVE' && !isPreviewingLocalCape"
+                      @click.stop="equipCape(cape)"
+                    >
+                      {{ cape.state === 'ACTIVE' ? 'Equipped' : 'Equip' }}
+                    </SolaraButton>
+                    <SolaraButton
+                      v-if="cape.dataUrl"
+                      variant="ghost"
+                      size="xs"
+                      @click.stop="previewLocalCape({ id: cape.id, dataUrl: cape.dataUrl })"
+                    >
+                      3D View
+                    </SolaraButton>
                   </div>
                 </article>
               </div>
@@ -1002,6 +1136,15 @@ function clearLocalCapePreview() {
                     <span class="sol-pill">
                       <Sparkles :size="10" /> Preview only
                     </span>
+                  </div>
+                  <div class="sol-skin-actions">
+                    <SolaraButton
+                      :variant="previewCapeId === cape.id ? 'primary' : 'secondary'"
+                      size="xs"
+                      @click.stop="previewCapeId === cape.id ? clearLocalCapePreview() : previewLocalCape(cape)"
+                    >
+                      {{ previewCapeId === cape.id ? 'Previewing' : 'Preview 3D' }}
+                    </SolaraButton>
                   </div>
                 </article>
               </div>

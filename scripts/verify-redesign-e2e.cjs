@@ -1038,10 +1038,16 @@ async function run() {
     await page.waitForTimeout(120);
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skins.png') });
     await page.click('button:has-text("Capes")');
+    await page.waitForSelector('.sol-cape-status-strip', { timeout: 5000 });
     await page.waitForSelector('text=Local 3D Preview Capes', { timeout: 5000 });
     await page.waitForSelector('.sol-cape-preview-badge', { timeout: 3000 });
+    const previewCapeCards = await page.locator('.sol-starter-block .sol-cape-card').count();
+    assert.strictEqual(previewCapeCards, 6, `Expected 6 built-in preview capes, got ${previewCapeCards}`);
     await page.click('.sol-capes-grid >> nth=1 >> article >> nth=0');
     await page.waitForSelector('.sol-cape-preview-note', { timeout: 3000 });
+    await page.waitForSelector('.sol-skin-viewer[data-pose="cape"]', { timeout: 2000 });
+    await page.waitForTimeout(220);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-capes.png') });
     const capeTitleWrapHeight = await page.locator('.sol-capes-grid .sol-ellipsis').first().evaluate((el) => el.getBoundingClientRect().height);
     assert(capeTitleWrapHeight <= 28, `Expected single-line .sol-ellipsis cape title, got height ${capeTitleWrapHeight}`);
     await page.click('.sol-pose-btn:has-text("Run")');

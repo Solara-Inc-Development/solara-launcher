@@ -525,22 +525,22 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     const pose = props.pose ?? 'walk';
     let swing = 0;
     let breath = 0;
-    let capeAngle = -0.14;
+    let capeAngle = 0.14;
     if (isAnim) {
       if (pose === 'idle') {
         swing = Math.sin(t * 1.4) * 0.05;
         breath = Math.sin(t * 2.1) * 0.14;
-        capeAngle = -0.1 - Math.abs(Math.sin(t * 1.4)) * 0.04;
+        capeAngle = 0.1 + Math.abs(Math.sin(t * 1.4)) * 0.04;
       } else if (pose === 'run') {
         swing = Math.sin(t * 5.2) * 0.68;
         breath = Math.abs(Math.sin(t * 5.2)) * 0.35;
-        capeAngle = -0.34 - Math.abs(swing) * 0.28;
+        capeAngle = 0.34 + Math.abs(swing) * 0.28;
       } else if (pose === 'cape') {
         swing = Math.sin(t * 1.8) * 0.12;
-        capeAngle = -0.26 - Math.sin(t * 2.2) * 0.09;
+        capeAngle = 0.26 + Math.sin(t * 2.2) * 0.09;
       } else {
         swing = Math.sin(t * 2.4) * 0.38;
-        capeAngle = -0.16 - Math.abs(swing) * 0.22;
+        capeAngle = 0.16 + Math.abs(swing) * 0.22;
       }
     }
 
@@ -615,11 +615,14 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
       );
     }
 
-    // Optional Cape on back
+    // Optional Cape on back (u=0, v=0 box puts front face (u+d, v+d) = (1, 1) facing -Z back of player)
     if (capeReady && capeImg) {
       parts.push({
         box: { w: 10, h: 16, d: 1, texW: 64, texH: 32, u: 0, v: 0 },
-        m: mat4Mul(mat4Trans(0, 8, -2.5), mat4Mul(mat4RotX(capeAngle), mat4Trans(0, -8, 0))),
+        m: mat4Mul(
+          mat4Trans(0, 8, -2.5),
+          mat4Mul(mat4RotY(Math.PI), mat4Mul(mat4RotX(-capeAngle), mat4Trans(0, -8, 0))),
+        ),
         tex: capeTex,
       });
     }
