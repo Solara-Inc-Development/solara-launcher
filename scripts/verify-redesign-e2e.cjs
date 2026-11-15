@@ -806,9 +806,19 @@ async function run() {
     assert(motionCheck.reducedDur === '0s', `Expected 0s transition when data-reduced-motion=true, got ${motionCheck.reducedDur}`);
     assert(motionCheck.reducedAnim === 'none', `Expected animation=none when data-reduced-motion=true, got ${motionCheck.reducedAnim}`);
 
+    // Let staggered jump-back-in card entrance settle after toggling reducedMotion before screenshot capture
+    await page.waitForTimeout(380);
+
     // Home Screenshot (1440x900)
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-home.png') });
     await page.screenshot({ path: DASHBOARD_SHOT });
+
+    // Verify In-Place Quick Profile Sheet opens over Home and closes via Escape without navigating away
+    await page.click('.sol-launch-hero-actions button:has-text("Quick Info")');
+    await page.waitForSelector('.sol-modal--sheet .sol-sheet-action-grid', { timeout: 4000 });
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-home-sheet.png') });
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.sol-modal--sheet', { state: 'detached', timeout: 4000 });
 
     // Verify Play launches with Keep Launcher Open default
     await page.click('.sol-launch-hero-actions button:has-text("Play")');

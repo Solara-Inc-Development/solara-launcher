@@ -12,9 +12,11 @@ const props = withDefaults(
     title?: string;
     subtitle?: string;
     width?: 'sm' | 'md' | 'lg' | 'xl';
+    variant?: 'dialog' | 'sheet';
     closable?: boolean;
   }>(),
   {
+    variant: 'dialog',
     closable: true,
   },
 );
@@ -72,13 +74,19 @@ onUnmounted(() => { removeFromStack(); window.removeEventListener('keydown', onK
     <div
       v-if="open"
       class="sol-modal-backdrop"
+      :class="{ 'sol-modal-backdrop--sheet': variant === 'sheet' }"
       :style="{ zIndex }"
       role="dialog"
       aria-modal="true"
       :aria-label="title"
       @mousedown.self="closable !== false && emit('close')"
     >
-      <div ref="dialog" tabindex="-1" :class="['sol-modal', `sol-modal--${width ?? 'md'}`]">
+      <div
+        ref="dialog"
+        tabindex="-1"
+        class="sol-modal"
+        :class="[`sol-modal--${width ?? 'md'}`, { 'sol-modal--sheet': variant === 'sheet' }]"
+      >
         <header v-if="title || $slots.header" class="sol-modal-header">
           <slot name="header">
             <div class="sol-modal-title-wrap">

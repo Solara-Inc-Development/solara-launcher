@@ -58,8 +58,9 @@ const totalHits = ref(0);
 const loading = ref(false);
 const errorMsg = ref<string | null>(null);
 
-// Modpack detail dialog state
+// Modpack detail sheet state
 const activePack = ref<ModrinthHit | null>(null);
+const activeSheetTab = ref<'overview' | 'versions' | 'gallery'>('overview');
 const loadingDetail = ref(false);
 const versions = ref<ModrinthVersion[]>([]);
 const selectedVersionId = ref('');
@@ -122,6 +123,7 @@ async function runSearch(resetOffset = true): Promise<void> {
 
 async function openModpack(hit: ModrinthHit): Promise<void> {
   activePack.value = hit;
+  activeSheetTab.value = 'overview';
   customInstanceName.value = hit.title;
   versions.value = [];
   selectedVersionId.value = '';
@@ -357,21 +359,48 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Rich Modpack Detail & Create-Instance Modal -->
+    <!-- In-Place Tabbed Modpack Detail & Create-Instance Sheet -->
     <SolaraModal
       :open="Boolean(activePack)"
+      variant="sheet"
       :title="activePack?.title"
-      :subtitle="activePack ? `Modpack by ${activePack.author || 'Unknown'}` : ''"
+      :subtitle="activePack ? `Modpack by ${activePack.author || 'Unknown'} · ${formatDownloads(activePack.downloads)} downloads` : ''"
       width="lg"
       @close="activePack = null"
     >
       <template v-if="activePack">
         <div class="sol-stack">
           <div class="sol-row-between">
-            <div class="sol-tag-row">
-              <span class="sol-badge sol-badge--gold">Modpack</span>
-              <span v-for="c in activePack.categories.slice(0, 5)" :key="c" class="sol-badge">{{ c }}</span>
+            <div class="sol-sheet-tabs" role="tablist" aria-label="Modpack detail sections">
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="activeSheetTab === 'overview'"
+                :class="['sol-sheet-tab', { 'is-active': activeSheetTab === 'overview' }]"
+                @click="activeSheetTab = 'overview'"
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="activeSheetTab === 'versions'"
+                :class="['sol-sheet-tab', { 'is-active': activeSheetTab === 'versions' }]"
+                @click="activeSheetTab = 'versions'"
+              >
+                Versions ({{ versions.length }})
+              </button>
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="activeSheetTab === 'gallery'"
+                :class="['sol-sheet-tab', { 'is-active': activeSheetTab === 'gallery' }]"
+                @click="activeSheetTab = 'gallery'"
+              >
+                Gallery ({{ packGallery.length }})
+              </button>
             </div>
+
             <button
               type="button"
               class="sol-link-btn"
@@ -379,17 +408,6 @@ onMounted(() => {
             >
               View on Modrinth <ArrowUpRight :size="13" />
             </button>
-          </div>
-
-          <div v-if="packGallery.length > 0" class="sol-gallery-strip">
-            <img
-              v-for="img in packGallery"
-              :key="img.url"
-              :src="img.url"
-              :alt="img.title || activePack.title"
-              class="sol-gallery-thumb"
-              loading="lazy"
-            />
           </div>
 
           <div class="sol-split-2">
@@ -410,13 +428,65 @@ onMounted(() => {
             </div>
           </div>
 
-          <div v-if="selectedVersionObj?.dependencies?.length" class="sol-muted sol-text-xs">
-            Bundled dependencies: {{ selectedVersionObj.dependencies.length }} referenced modules/packs.
-          </div>
+          <template v-if="activeSheetTab === 'overview'">
+            <div class="sol-tag-row">
+              <span class="sol-badge sol-badge--gold">Modpack</span>
+              <span v-for="c in activePack.categories.slice(0, 5)" :key="c" class="sol-badge">{{ c }}</span>
+            </div>
 
-          <div v-if="packBody" class="sol-project-body sol-scroll selectable">
-            {{ packBody }}
-          </div>
+            <div v-if="selectedVersionObj?.dependencies?.length" class="sol-muted sol-text-xs">
+              Bundled dependencies: {{ selectedVersionObj.dependencies.length }} referenced modules/packs.
+            </div>
+
+            <div v-if="packBody" class="sol-project-body sol-scroll selectable">
+              {{ packBody }}
+            </div>
+            <p v-else class="sol-muted sol-text-xs">
+              {{ activePack.description || 'No detailed description provided by author.' }}
+            </p>
+          </template>
+
+          <template v-else-if="activeSheetTab === 'versions'">
+            <div v-if="loadingDetail" class="sol-muted sol-text-xs">Loading release versions...</div>
+            <div v-else-if="versions.length === 0" class="sol-muted sol-text-xs">
+              No downloadable versions found for this modpack.
+            </div>
+            <div v-else class="sol-pack-version-list">
+              <button
+                v-for="v in versions.slice(0, 24)"
+                :key="v.id"
+                type="button"
+                :class="['sol-pack-version-row', { 'is-selected': selectedVersionId === v.id }]"
+                @click="selectedVersionId = v.id"
+              >
+                <div>
+                  <div style="font-weight: 600; font-size: 13px">{{ v.name }}</div>
+                  <div class="sol-muted sol-text-xs">
+                    {{ (v.loaders || []).join(', ') || 'modpack' }} · {{ (v.game_versions || []).slice(0, 3).join(', ') }}
+                  </div>
+                </div>
+                <span :class="['sol-badge', selectedVersionId === v.id ? 'sol-badge--accent' : '']">
+                  {{ v.version_type || 'release' }}
+                </span>
+              </button>
+            </div>
+          </template>
+
+          <template v-else>
+            <div v-if="packGallery.length === 0" class="sol-muted sol-text-xs">
+              No gallery screenshots attached to this modpack.
+            </div>
+            <div v-else class="sol-gallery-grid">
+              <img
+                v-for="img in packGallery"
+                :key="img.url"
+                :src="img.url"
+                :alt="img.title || activePack.title"
+                class="sol-gallery-card"
+                loading="lazy"
+              />
+            </div>
+          </template>
         </div>
       </template>
 

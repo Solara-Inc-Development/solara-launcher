@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.50 — 2026-11-15
+
+- **Welcoming Home Redesign & In-Place Modal/Sheet UIs (Part 1)**:
+  - Upgraded `SolaraModal.vue` and `apps/desktop/launcher.css` with a frosted slide-over `variant="sheet"` drawer (`@keyframes sol-sheet-in`, reduced-motion gated), `.sol-sheet-tabs`, `.sol-sheet-stats`, and `.sol-sheet-action-grid`.
+  - Redesigned `HomeView.vue` with dynamic time-of-day welcoming header, active profile/session pills, loader-tinted Launch Hero accents, `Jump back in` quick-info triggers, and an in-place **Instance Quick Profile Sheet** so users can inspect stats, errors, folders, logs, content, or launch directly without full-page redirects.
+  - Upgraded `DiscoverView.vue` Modpack Detail dialog into a crisp in-place tabbed frosted sheet (`Overview`, `Versions`, `Gallery`) with one-click release row selection and instant instance creation.
+  - Added `tests/home-discover-modals.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to test and capture the Home Quick Profile Sheet.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.49 — 2026-11-15
 
 - **Keyframe Modal Entrance & Instant Escape Unmount**:

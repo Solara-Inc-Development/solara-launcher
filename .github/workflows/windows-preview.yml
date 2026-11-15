@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.48 — Smooth Animations Across Views, Modals, Tabs, Cards & Progress Indicators (reducedMotion gated, keyframe modal entrance).
+# Owner-approved preview candidate: V-0.0.50 — Welcoming Home Redesign & In-Place Modal/Sheet UIs Part 1 (SolaraModal sheet variant, Home Quick Profile Sheet, Discover tabbed sheet).
 on:
   workflow_dispatch:
   push:
