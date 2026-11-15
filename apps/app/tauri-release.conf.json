@@ -1,6 +1,11 @@
 {
 	"bundle": {
-		"createUpdaterArtifacts": false
+		"createUpdaterArtifacts": false,
+		"resources": {
+			"../../LICENSE": "licenses/SOLARA-LICENSE.txt",
+			"../../THIRD_PARTY_NOTICES.md": "licenses/THIRD_PARTY_NOTICES.md",
+			"../../dist/third-party/": "licenses/dependencies/"
+		}
 	},
 	"build": {
 		"features": ["updater"]

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara cyan rebrand testing preview; genuine Windows bytes are signed privately.
+# Solara cyan preview with dependency licence payload verification; signing stays private.
 on:
   workflow_dispatch:
   push:
