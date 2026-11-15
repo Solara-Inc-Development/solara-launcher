@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { RotateCw, ZoomIn, ZoomOut } from '../icons';
+import { FlipHorizontal, RotateCw, ZoomIn, ZoomOut } from '../icons';
+
+export type SkinViewerPose = 'idle' | 'walk' | 'run' | 'cape';
 
 const props = withDefaults(
   defineProps<{
@@ -9,11 +11,13 @@ const props = withDefaults(
     variant?: 'classic' | 'slim';
     showOuter?: boolean;
     animate?: boolean;
+    pose?: SkinViewerPose;
     height?: number;
   }>(),
   {
     showOuter: true,
     animate: true,
+    pose: 'walk',
   },
 );
 
@@ -29,6 +33,7 @@ let needsRender = true;
 let lastRenderedAt = -Infinity;
 let releaseGpu: (() => void) | null = null;
 let resizeObserver: ResizeObserver | null = null;
+let velYaw = 0;
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const reducedMotion = ref(motionPreference.matches);
 function scheduleRender(): void {
@@ -39,19 +44,32 @@ function tick(now: number): void {
   rafId = 0;
   if (!renderCurrent || document.hidden) return;
   const animate = props.animate !== false && !reducedMotion.value;
+  if (animate && !dragging && Math.abs(velYaw) > 0.0008) {
+    yaw.value += velYaw;
+    velYaw *= 0.88;
+    needsRender = true;
+  } else if (!animate) {
+    velYaw = 0;
+  }
   if (needsRender || (animate && now - lastRenderedAt >= 1000 / 30)) {
     renderCurrent();
     needsRender = false;
     lastRenderedAt = now;
   }
-  if (animate) rafId = requestAnimationFrame(tick);
+  if (animate || Math.abs(velYaw) > 0.0008) rafId = requestAnimationFrame(tick);
 }
 function onVisibilityChange(): void {
   if (document.hidden) { cancelAnimationFrame(rafId); rafId = 0; }
   else scheduleRender();
 }
 function onMotionChange(): void { reducedMotion.value = motionPreference.matches; scheduleRender(); }
-watch(() => [yaw.value, pitch.value, zoom.value, props.variant, props.showOuter, props.animate, props.height], scheduleRender);
+watch(() => [yaw.value, pitch.value, zoom.value, props.variant, props.showOuter, props.animate, props.pose, props.height], scheduleRender);
+watch(() => props.pose, (next) => {
+  if (next === 'cape') {
+    yaw.value = Math.PI - 0.52;
+    pitch.value = 0.14;
+  }
+});
 let dragging = false;
 let lastX = 0;
 let lastY = 0;
@@ -168,18 +186,23 @@ function createBoxGeometry(box: MeshBox) {
   const hy = h / 2;
   const hz = d / 2;
   const positions: number[] = [];
+  const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
 
   function addFace(
     verts: [number, number, number][],
+    normal: [number, number, number],
     rx: number,
     ry: number,
     rw: number,
     rh: number,
   ) {
     const base = positions.length / 3;
-    for (const [x, y, z] of verts) positions.push(x, y, z);
+    for (const [x, y, z] of verts) {
+      positions.push(x, y, z);
+      normals.push(normal[0], normal[1], normal[2]);
+    }
     const u0 = rx / texW;
     const v0 = ry / texH;
     const u1 = (rx + rw) / texW;
@@ -196,6 +219,7 @@ function createBoxGeometry(box: MeshBox) {
       [hx, -hy, hz],
       [hx, -hy, -hz],
     ],
+    [1, 0, 0],
     u,
     v + d,
     d,
@@ -208,6 +232,7 @@ function createBoxGeometry(box: MeshBox) {
       [-hx, -hy, -hz],
       [-hx, -hy, hz],
     ],
+    [-1, 0, 0],
     u + d + w,
     v + d,
     d,
@@ -220,6 +245,7 @@ function createBoxGeometry(box: MeshBox) {
       [hx, hy, hz],
       [-hx, hy, hz],
     ],
+    [0, 1, 0],
     u + d,
     v,
     w,
@@ -232,6 +258,7 @@ function createBoxGeometry(box: MeshBox) {
       [hx, -hy, -hz],
       [-hx, -hy, -hz],
     ],
+    [0, -1, 0],
     u + d + w,
     v,
     w,
@@ -244,6 +271,7 @@ function createBoxGeometry(box: MeshBox) {
       [hx, -hy, hz],
       [-hx, -hy, hz],
     ],
+    [0, 0, 1],
     u + d,
     v + d,
     w,
@@ -256,6 +284,7 @@ function createBoxGeometry(box: MeshBox) {
       [-hx, -hy, -hz],
       [hx, -hy, -hz],
     ],
+    [0, 0, -1],
     u + d + w + d,
     v + d,
     w,
@@ -264,6 +293,7 @@ function createBoxGeometry(box: MeshBox) {
 
   return {
     positions: new Float32Array(positions),
+    normals: new Float32Array(normals),
     uvs: new Float32Array(uvs),
     indices: new Uint16Array(indices),
   };
@@ -362,22 +392,32 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
 
   const vsSrc = `
     attribute vec3 aPos;
+    attribute vec3 aNorm;
     attribute vec2 aUv;
     uniform mat4 uMvp;
+    uniform mat4 uModel;
     varying vec2 vUv;
+    varying vec3 vNormal;
     void main() {
       gl_Position = uMvp * vec4(aPos, 1.0);
       vUv = aUv;
+      vNormal = normalize((uModel * vec4(aNorm, 0.0)).xyz);
     }
   `;
   const fsSrc = `
     precision mediump float;
     uniform sampler2D uTex;
     varying vec2 vUv;
+    varying vec3 vNormal;
     void main() {
       vec4 col = texture2D(uTex, vUv);
       if (col.a < 0.05) discard;
-      gl_FragColor = col;
+      vec3 n = normalize(vNormal);
+      float key = max(dot(n, normalize(vec3(0.45, 0.78, 0.62))), 0.0);
+      float fill = max(dot(n, normalize(vec3(-0.6, 0.35, -0.45))), 0.0);
+      float shade = clamp(0.58 + key * 0.42 + fill * 0.14, 0.48, 1.08);
+      vec3 lit = col.rgb * shade + vec3(0.03, 0.05, 0.09) * fill;
+      gl_FragColor = vec4(clamp(lit, 0.0, 1.0), col.a);
     }
   `;
   const compile = (type: number, src: string) => {
@@ -395,8 +435,10 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
   ctx.useProgram(prog);
 
   const aPos = ctx.getAttribLocation(prog, 'aPos');
+  const aNorm = ctx.getAttribLocation(prog, 'aNorm');
   const aUv = ctx.getAttribLocation(prog, 'aUv');
   const uMvp = ctx.getUniformLocation(prog, 'uMvp');
+  const uModel = ctx.getUniformLocation(prog, 'uModel');
   const uTex = ctx.getUniformLocation(prog, 'uTex');
 
   const createTex = () => {
@@ -413,30 +455,37 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
   let uploadedSkin: unknown = null;
   let uploadedCape: unknown = null;
 
-  const meshes = new Map<string, { p: WebGLBuffer | null; u: WebGLBuffer | null; i: WebGLBuffer | null; count: number }>();
-  const drawBox = (box: MeshBox, mvp: Float32Array, tex: WebGLTexture) => {
+  const meshes = new Map<string, { p: WebGLBuffer | null; n: WebGLBuffer | null; u: WebGLBuffer | null; i: WebGLBuffer | null; count: number }>();
+  const drawBox = (box: MeshBox, model: Float32Array, mvp: Float32Array, tex: WebGLTexture) => {
     const key = JSON.stringify(box);
     let mesh = meshes.get(key);
     if (!mesh) {
       const geom = createBoxGeometry(box);
-      const p = ctx.createBuffer(), u = ctx.createBuffer(), i = ctx.createBuffer();
+      const p = ctx.createBuffer(), n = ctx.createBuffer(), u = ctx.createBuffer(), i = ctx.createBuffer();
       ctx.bindBuffer(ctx.ARRAY_BUFFER, p); ctx.bufferData(ctx.ARRAY_BUFFER, geom.positions, ctx.STATIC_DRAW);
+      ctx.bindBuffer(ctx.ARRAY_BUFFER, n); ctx.bufferData(ctx.ARRAY_BUFFER, geom.normals, ctx.STATIC_DRAW);
       ctx.bindBuffer(ctx.ARRAY_BUFFER, u); ctx.bufferData(ctx.ARRAY_BUFFER, geom.uvs, ctx.STATIC_DRAW);
       ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, i); ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, geom.indices, ctx.STATIC_DRAW);
-      mesh = { p, u, i, count: geom.indices.length };
+      mesh = { p, n, u, i, count: geom.indices.length };
       meshes.set(key, mesh);
     }
     ctx.bindBuffer(ctx.ARRAY_BUFFER, mesh.p);
     ctx.enableVertexAttribArray(aPos); ctx.vertexAttribPointer(aPos, 3, ctx.FLOAT, false, 0, 0);
+    if (aNorm >= 0) {
+      ctx.bindBuffer(ctx.ARRAY_BUFFER, mesh.n);
+      ctx.enableVertexAttribArray(aNorm); ctx.vertexAttribPointer(aNorm, 3, ctx.FLOAT, false, 0, 0);
+    }
     ctx.bindBuffer(ctx.ARRAY_BUFFER, mesh.u);
     ctx.enableVertexAttribArray(aUv); ctx.vertexAttribPointer(aUv, 2, ctx.FLOAT, false, 0, 0);
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, mesh.i);
     ctx.activeTexture(ctx.TEXTURE0); ctx.bindTexture(ctx.TEXTURE_2D, tex);
-    ctx.uniform1i(uTex, 0); ctx.uniformMatrix4fv(uMvp, false, mvp);
+    ctx.uniform1i(uTex, 0);
+    if (uModel) ctx.uniformMatrix4fv(uModel, false, model);
+    ctx.uniformMatrix4fv(uMvp, false, mvp);
     ctx.drawElements(ctx.TRIANGLES, mesh.count, ctx.UNSIGNED_SHORT, 0);
   };
   releaseGpu = () => {
-    for (const mesh of meshes.values()) { ctx.deleteBuffer(mesh.p); ctx.deleteBuffer(mesh.u); ctx.deleteBuffer(mesh.i); }
+    for (const mesh of meshes.values()) { ctx.deleteBuffer(mesh.p); ctx.deleteBuffer(mesh.n); ctx.deleteBuffer(mesh.u); ctx.deleteBuffer(mesh.i); }
     meshes.clear(); ctx.deleteTexture(skinTex); ctx.deleteTexture(capeTex);
     ctx.deleteProgram(prog); ctx.deleteShader(vertexShader); ctx.deleteShader(fragmentShader);
   };
@@ -472,11 +521,32 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
     const t = (performance.now() - startTime) / 1000;
-    const swing = props.animate !== false && !reducedMotion.value ? Math.sin(t * 2.4) * 0.35 : 0;
+    const isAnim = props.animate !== false && !reducedMotion.value;
+    const pose = props.pose ?? 'walk';
+    let swing = 0;
+    let breath = 0;
+    let capeAngle = -0.14;
+    if (isAnim) {
+      if (pose === 'idle') {
+        swing = Math.sin(t * 1.4) * 0.05;
+        breath = Math.sin(t * 2.1) * 0.14;
+        capeAngle = -0.1 - Math.abs(Math.sin(t * 1.4)) * 0.04;
+      } else if (pose === 'run') {
+        swing = Math.sin(t * 5.2) * 0.68;
+        breath = Math.abs(Math.sin(t * 5.2)) * 0.35;
+        capeAngle = -0.34 - Math.abs(swing) * 0.28;
+      } else if (pose === 'cape') {
+        swing = Math.sin(t * 1.8) * 0.12;
+        capeAngle = -0.26 - Math.sin(t * 2.2) * 0.09;
+      } else {
+        swing = Math.sin(t * 2.4) * 0.38;
+        capeAngle = -0.16 - Math.abs(swing) * 0.22;
+      }
+    }
 
     const proj = mat4Persp(0.6, canvas.width / Math.max(1, canvas.height), 0.1, 200);
     const cam = mat4Mul(
-      mat4Trans(0, -1, -62 / zoom.value),
+      mat4Trans(0, -1 + breath * 0.25, -62 / zoom.value),
       mat4Mul(mat4RotX(pitch.value), mat4RotY(yaw.value)),
     );
     const vp = mat4Mul(proj, cam);
@@ -549,13 +619,13 @@ function initWebGL(canvas: HTMLCanvasElement): boolean {
     if (capeReady && capeImg) {
       parts.push({
         box: { w: 10, h: 16, d: 1, texW: 64, texH: 32, u: 0, v: 0 },
-        m: mat4Mul(mat4Trans(0, 8, -2.5), mat4Mul(mat4RotX(-0.14 - Math.abs(swing) * 0.2), mat4Trans(0, -8, 0))),
+        m: mat4Mul(mat4Trans(0, 8, -2.5), mat4Mul(mat4RotX(capeAngle), mat4Trans(0, -8, 0))),
         tex: capeTex,
       });
     }
 
     for (const p of parts) {
-      drawBox(p.box, mat4Mul(vp, p.m), p.tex);
+      drawBox(p.box, p.m, mat4Mul(vp, p.m), p.tex);
     }
   };
 
@@ -601,6 +671,7 @@ onUnmounted(() => {
 
 function onPointerDown(e: PointerEvent) {
   dragging = true;
+  velYaw = 0;
   lastX = e.clientX;
   lastY = e.clientY;
   (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -612,12 +683,19 @@ function onPointerMove(e: PointerEvent) {
   const dy = e.clientY - lastY;
   lastX = e.clientX;
   lastY = e.clientY;
-  yaw.value += dx * 0.012;
+  const stepYaw = dx * 0.012;
+  yaw.value += stepYaw;
+  velYaw = stepYaw * 0.65;
   pitch.value = Math.max(-0.9, Math.min(0.9, pitch.value + dy * 0.01));
 }
 
 function onPointerUp() {
   dragging = false;
+  if (Math.abs(velYaw) > 0.0008 && props.animate !== false && !reducedMotion.value) {
+    scheduleRender();
+  } else {
+    velYaw = 0;
+  }
 }
 
 function onWheel(e: WheelEvent) {
@@ -626,9 +704,15 @@ function onWheel(e: WheelEvent) {
 }
 
 function resetCamera() {
+  velYaw = 0;
   yaw.value = -0.42;
   pitch.value = 0.18;
   zoom.value = 1.0;
+}
+
+function flipView() {
+  velYaw = 0;
+  yaw.value = Math.cos(yaw.value) >= 0 ? Math.PI - 0.42 : -0.42;
 }
 
 function adjustZoom(delta: number) {
@@ -637,7 +721,7 @@ function adjustZoom(delta: number) {
 </script>
 
 <template>
-  <div class="sol-skin-viewer" :style="{ height: `${height ?? 320}px` }">
+  <div class="sol-skin-viewer" :style="{ height: `${height ?? 320}px` }" :data-renderer="rendererMode" :data-pose="pose">
     <canvas
       ref="canvasRef"
       class="sol-skin-canvas"
@@ -647,6 +731,15 @@ function adjustZoom(delta: number) {
       @wheel="onWheel"
     />
     <div class="sol-viewer-tools">
+      <button
+        type="button"
+        class="sol-icon-btn sol-icon-btn--xs"
+        title="Turn front or back"
+        aria-label="Flip front and back view"
+        @click="flipView"
+      >
+        <FlipHorizontal :size="12" />
+      </button>
       <button
         type="button"
         class="sol-icon-btn sol-icon-btn--xs"

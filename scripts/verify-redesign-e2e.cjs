@@ -1044,6 +1044,14 @@ async function run() {
     await page.waitForSelector('.sol-cape-preview-note', { timeout: 3000 });
     const capeTitleWrapHeight = await page.locator('.sol-capes-grid .sol-ellipsis').first().evaluate((el) => el.getBoundingClientRect().height);
     assert(capeTitleWrapHeight <= 28, `Expected single-line .sol-ellipsis cape title, got height ${capeTitleWrapHeight}`);
+    await page.click('.sol-pose-btn:has-text("Run")');
+    await page.waitForSelector('.sol-skin-viewer[data-pose="run"]', { timeout: 2000 });
+    await page.click('.sol-pose-btn:has-text("Walk")');
+    await page.waitForSelector('.sol-skin-viewer[data-pose="walk"]', { timeout: 2000 });
+    await page.click('button[aria-label="Flip front and back view"]');
+    await page.waitForTimeout(80);
+    await page.click('button[aria-label="Flip front and back view"]');
+    await page.waitForTimeout(80);
     await page.getByRole('button', { name: 'Pause Walk', exact: true }).click();
     await page.waitForTimeout(150);
     const pausedRender = await page.evaluate(() => ({ draws: window.__SOLARA_TEST_STATE__.renderCalls, buffers: window.__SOLARA_TEST_STATE__.bufferCreates }));

@@ -2292,6 +2292,28 @@
 .sol-viewer-hint { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 10.5px; color: var(--text-muted); pointer-events: none; }
 .sol-stage-controls { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
+.sol-pose-pills {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  width: 100%;
+}
+
+.sol-pose-btn {
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 17, 24, 0.8);
+  color: var(--text-secondary);
+  transition: border-color 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.sol-pose-btn.is-active {
+  border-color: rgba(59, 130, 246, 0.65);
+  background: rgba(37, 99, 235, 0.24);
+  color: #dbeafe;
+}
+
 .sol-skin-account-strip {
   display: flex;
   align-items: center;

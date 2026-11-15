@@ -250,6 +250,7 @@ const previewCapeId = ref<string | null>(null);
 const activeVariant = ref<'classic' | 'slim'>('classic');
 const showOuter = ref(true);
 const animateModel = ref(true);
+const viewerPose = ref<'idle' | 'walk' | 'run' | 'cape'>('walk');
 
 const editorName = ref('Custom Solara Skin');
 const editorSkinId = ref<string | null>(null);
@@ -653,6 +654,7 @@ function clearLocalCapePreview() {
             :variant="activeVariant"
             :show-outer="showOuter"
             :animate="animateModel && !store.preferences.reducedMotion"
+            :pose="viewerPose"
             :height="320"
           />
 
@@ -681,6 +683,18 @@ function clearLocalCapePreview() {
               </button>
             </div>
 
+            <div class="sol-pose-pills" role="group" aria-label="3D viewer pose">
+              <button
+                v-for="p in (['idle', 'walk', 'run', 'cape'] as const)"
+                :key="p"
+                type="button"
+                :class="['sol-pill', 'sol-pose-btn', { 'is-active': viewerPose === p }]"
+                @click="viewerPose = p; animateModel = true"
+              >
+                {{ p[0].toUpperCase() + p.slice(1) }}
+              </button>
+            </div>
+
             <div class="sol-row-gap" style="justify-content: space-between; width: 100%">
               <SolaraButton variant="ghost" size="xs" @click="showOuter = !showOuter">
                 <Eye v-if="showOuter" :size="13" />
@@ -688,7 +702,7 @@ function clearLocalCapePreview() {
                 Outer Layer
               </SolaraButton>
               <SolaraButton variant="ghost" size="xs" @click="animateModel = !animateModel">
-                {{ animateModel ? 'Pause Walk' : 'Walk Pose' }}
+                {{ animateModel ? 'Pause Walk' : 'Resume Pose' }}
               </SolaraButton>
             </div>
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.53 — 2026-11-15
+
+- **Skins Studio — 3D WebGL Viewport Rebuild**:
+  - Rebuilt `SkinViewer3D.vue` with directional 3-point + cool ambient studio lighting (`aNorm` + `uModel` vertex/fragment GLSL shading while preserving GPU mesh buffer reuse), four character poses (`Idle`, `Walk`, `Run`, `Cape`), smooth damped drag inertia (`velYaw` gated cleanly by pause/reduced-motion), and a one-click **Flip Front/Back** view button.
+  - Added `Idle / Walk / Run / Cape` pose selector pills (`.sol-pose-pills`) to `SkinsView.vue` and `apps/desktop/launcher.css`.
+  - Added `tests/skin-viewer-3d.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to exercise Run/Walk pose transitions and Front/Back flip alongside zero-buffer-leak Pause & Zoom checks.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.52 — 2026-11-15
 
 - **Skins Studio — Skin Selector Overhaul**:
