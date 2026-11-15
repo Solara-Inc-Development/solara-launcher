@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.51 — In-Place Modal/Sheet UIs Part 2 & Frosted Library / InstanceDetail Ergonomics (Quick Profile Sheet, SolaraModal lightbox/delete, loader headers).
+# Owner-approved preview candidate: V-0.0.52 — Skin Selector Overhaul (search, Classic/Slim filters, 6 starter presets, 64x64/64x32 guard, SolaraModal delete).
 on:
   workflow_dispatch:
   push:

@@ -1019,10 +1019,24 @@ async function run() {
     assert.strictEqual(hasModTypeTabs, 0, 'Global Discover must ONLY browse Modpacks');
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-discover.png') });
 
-    // Skin Studio -> Edit Skin button, Add Skin tile, Default Starter Skins, Local 3D Preview Capes
+    // Skin Studio -> Search, Classic/Slim filter pills, 6 starter presets, Add Skin tile, and Local 3D Preview Capes
     await page.click('button[data-tooltip="Skins & Capes"]');
     await page.waitForSelector('.sol-skin-add-tile', { timeout: 5000 });
+    await page.waitForSelector('.sol-skin-toolbar', { timeout: 5000 });
     await page.waitForSelector('text=Default Starter Skins', { timeout: 5000 });
+    const initialStarterCards = await page.locator('.sol-starter-block .sol-skin-card').count();
+    assert(initialStarterCards === 6, `Expected 6 starter skin cards, got ${initialStarterCards}`);
+    await page.click('.sol-skin-filter-btn:has-text("Slim")');
+    await page.waitForTimeout(100);
+    const slimStarterCards = await page.locator('.sol-starter-block .sol-skin-card').count();
+    assert(slimStarterCards >= 1 && slimStarterCards < initialStarterCards, `Expected Slim filter to narrow starter presets, got ${slimStarterCards}`);
+    await page.click('.sol-skin-filter-btn:has-text("All Models")');
+    await page.fill('input[aria-label="Search skins"]', 'Obsidian');
+    await page.waitForTimeout(100);
+    assert.strictEqual(await page.locator('.sol-starter-block .sol-skin-card').count(), 1, 'Search for Obsidian should isolate 1 starter skin');
+    await page.click('button[aria-label="Clear skin search"]');
+    await page.waitForTimeout(120);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skins.png') });
     await page.click('button:has-text("Capes")');
     await page.waitForSelector('text=Local 3D Preview Capes', { timeout: 5000 });
     await page.waitForSelector('.sol-cape-preview-badge', { timeout: 3000 });
@@ -1030,7 +1044,6 @@ async function run() {
     await page.waitForSelector('.sol-cape-preview-note', { timeout: 3000 });
     const capeTitleWrapHeight = await page.locator('.sol-capes-grid .sol-ellipsis').first().evaluate((el) => el.getBoundingClientRect().height);
     assert(capeTitleWrapHeight <= 28, `Expected single-line .sol-ellipsis cape title, got height ${capeTitleWrapHeight}`);
-    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skins.png') });
     await page.getByRole('button', { name: 'Pause Walk', exact: true }).click();
     await page.waitForTimeout(150);
     const pausedRender = await page.evaluate(() => ({ draws: window.__SOLARA_TEST_STATE__.renderCalls, buffers: window.__SOLARA_TEST_STATE__.bufferCreates }));

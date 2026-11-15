@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.52 — 2026-11-15
+
+- **Skins Studio — Skin Selector Overhaul**:
+  - Upgraded `SkinsView.vue` Skin Selector with search + `All Models` / `Classic (4px)` / `Slim (3px)` filter chips, **New Blank Skin** creation, **6 built-in starter presets**, 64×64 / 64×32 PNG dimension validation on upload, one-click **Equip**, **Duplicate**, active account skin sync (`Save Active to Library`), head-crop preview badges (`skinHeadThumbs`), and focus-trapped `<SolaraModal>` delete confirmation.
+  - Upgraded `.sol-skin-stage`, `.sol-skin-card`, `.sol-cape-card`, `.sol-skin-add-tile`, `.sol-skin-toolbar`, and `.sol-skin-account-strip` in `apps/desktop/launcher.css` with frosted OLED glass surfaces and reduced-motion-safe hover lift.
+  - Added `tests/skins-selector.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to test skin search, model filtering, and selector layout.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.51 — 2026-11-15
 
 - **In-Place Modal/Sheet Ergonomics (Part 2) & Frosted Library / Instance Detail UI**:

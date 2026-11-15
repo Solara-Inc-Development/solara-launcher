@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
+  Copy,
   Upload,
   RefreshCw,
+  Search,
   Trash2,
   Check,
   Eye,
@@ -11,10 +13,13 @@ import {
   Edit3,
   Palette,
   Sparkles,
+  User,
+  X,
 } from '../icons';
 import { store, selectedAccount, native, notify, registerUnsavedChanges, runWithDirtyGuard } from '../state';
 import type { ProfileCape, ProfileSkin, SavedSkin } from '../types';
 import SolaraButton from '../components/SolaraButton.vue';
+import SolaraModal from '../components/SolaraModal.vue';
 import SolaraTabs from '../components/SolaraTabs.vue';
 import SkinViewer3D from '../components/SkinViewer3D.vue';
 import SkinEditor from '../components/SkinEditor.vue';
@@ -72,6 +77,39 @@ const STARTER_SKIN_SPECS: StarterSkinSpec[] = [
     shirtTrim: '#d9b56c',
     pants: '#4e3c2c',
     eyes: '#3b7346',
+  },
+  {
+    id: 'starter-obsidian-knight',
+    name: 'Obsidian Knight',
+    variant: 'classic',
+    skinTone: '#e2bfa3',
+    hair: '#15171e',
+    shirt: '#12151f',
+    shirtTrim: '#3b82f6',
+    pants: '#0b0d14',
+    eyes: '#60a5fa',
+  },
+  {
+    id: 'starter-emerald-ranger',
+    name: 'Emerald Ranger',
+    variant: 'slim',
+    skinTone: '#ecc6a8',
+    hair: '#5c3822',
+    shirt: '#184e3c',
+    shirtTrim: '#23c987',
+    pants: '#2c251d',
+    eyes: '#34d399',
+  },
+  {
+    id: 'starter-nether-alchemist',
+    name: 'Crimson Alchemist',
+    variant: 'classic',
+    skinTone: '#dcb292',
+    hair: '#2a1829',
+    shirt: '#4a1936',
+    shirtTrim: '#f59e0b',
+    pants: '#1d1424',
+    eyes: '#fbbf24',
   },
 ];
 
@@ -229,6 +267,52 @@ const unregisterSkinGuard = registerUnsavedChanges(
 function changeSkinTab(tab: string): void {
   runWithDirtyGuard(() => { activeTab.value = tab as 'library' | 'editor' | 'capes'; });
 }
+const skinSearch = ref('');
+const skinVariantFilter = ref<'all' | 'classic' | 'slim'>('all');
+const deleteConfirmSkin = ref<SavedSkin | null>(null);
+const deletingSkin = ref(false);
+const skinHeadThumbs = ref<Record<string, string>>({});
+
+function extractHeadThumbnail(key: string, pngDataUrl: string): void {
+  if (!pngDataUrl || skinHeadThumbs.value[key]) return;
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = 8;
+    c.height = 8;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
+    if (img.height >= 64) {
+      ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
+    }
+    skinHeadThumbs.value = { ...skinHeadThumbs.value, [key]: c.toDataURL('image/png') };
+  };
+  img.src = pngDataUrl;
+}
+
+const activeAccountSkin = computed(
+  () => profileSkins.value.find((s) => s.state === 'ACTIVE') ?? null,
+);
+
+const filteredSavedSkins = computed(() => {
+  const q = skinSearch.value.trim().toLowerCase();
+  return savedSkins.value.filter((skin) => {
+    if (skinVariantFilter.value !== 'all' && skin.variant !== skinVariantFilter.value) return false;
+    if (q && !skin.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+});
+
+const filteredStarterSkins = computed(() => {
+  const q = skinSearch.value.trim().toLowerCase();
+  return starterSkins.value.filter((skin) => {
+    if (skinVariantFilter.value !== 'all' && skin.variant !== skinVariantFilter.value) return false;
+    if (q && !skin.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+});
+
 const saving = ref(false);
 const uploading = ref(false);
 const loadingProfile = ref(false);
@@ -253,6 +337,7 @@ async function loadAll() {
   if (!store.desktop) return;
   try {
     savedSkins.value = await native<SavedSkin[]>('saved_skins_list');
+    for (const s of savedSkins.value) extractHeadThumbnail(s.id, s.pngDataUrl);
   } catch {
     savedSkins.value = [];
   }
@@ -266,6 +351,9 @@ async function loadAll() {
       profileSkins.value = prof.skins ?? [];
       profileCapes.value = prof.capes ?? [];
       const activeProfSkin = profileSkins.value.find((s) => s.state === 'ACTIVE');
+      if (activeProfSkin?.dataUrl) {
+        extractHeadThumbnail('account-active', activeProfSkin.dataUrl);
+      }
       if (activeProfSkin?.dataUrl && !activeSkinDataUrl.value) {
         activeSkinDataUrl.value = activeProfSkin.dataUrl;
         activeVariant.value = activeProfSkin.variant === 'SLIM' ? 'slim' : 'classic';
@@ -296,10 +384,11 @@ async function loadAll() {
 }
 
 onMounted(() => {
-  starterSkins.value = STARTER_SKIN_SPECS.map((s) => ({
-    ...s,
-    pngDataUrl: buildStarterSkinPng(s),
-  }));
+  starterSkins.value = STARTER_SKIN_SPECS.map((s) => {
+    const pngDataUrl = buildStarterSkinPng(s);
+    extractHeadThumbnail(s.id, pngDataUrl);
+    return { ...s, pngDataUrl };
+  });
   previewCapes.value = PREVIEW_CAPE_SPECS.map((c) => {
     const built = buildPreviewCapePng(c);
     return {
@@ -354,27 +443,95 @@ async function onUploadPng(e: Event) {
   (e.target as HTMLInputElement).value = '';
   if (!file) return;
   const r = new FileReader();
-  r.onload = async () => {
+  r.onload = () => {
     const dataUrl = typeof r.result === 'string' ? r.result : '';
     if (!dataUrl.startsWith('data:image/png')) {
       notify('error', 'Invalid file', 'Minecraft skins must be a 64×64 or 64×32 PNG.');
       return;
     }
-    try {
-      const saved = await native<SavedSkin>('saved_skins_save', {
-        id: null,
-        name: file.name.replace(/\.png$/i, '') || 'Imported Skin',
-        variant: activeVariant.value,
-        pngDataUrl: dataUrl,
-      });
-      await loadAll();
-      selectSavedSkin(saved);
-      notify('success', 'Skin imported to library');
-    } catch (err) {
-      notify('error', "Couldn't import skin", String(err));
-    }
+    const probe = new Image();
+    probe.onload = async () => {
+      const validSize = (probe.width === 64 && (probe.height === 64 || probe.height === 32));
+      if (!validSize) {
+        notify('error', 'Invalid skin dimensions', `Expected 64×64 or 64×32 PNG, got ${probe.width}×${probe.height}.`);
+        return;
+      }
+      try {
+        const saved = await native<SavedSkin>('saved_skins_save', {
+          id: null,
+          name: file.name.replace(/\.png$/i, '') || 'Imported Skin',
+          variant: activeVariant.value,
+          pngDataUrl: dataUrl,
+        });
+        await loadAll();
+        selectSavedSkin(saved);
+        notify('success', 'Skin imported to library');
+      } catch (err) {
+        notify('error', "Couldn't import skin", String(err));
+      }
+    };
+    probe.onerror = () => {
+      notify('error', 'Corrupted image', 'Could not decode the selected PNG file.');
+    };
+    probe.src = dataUrl;
   };
   r.readAsDataURL(file);
+}
+
+function createBlankSkin() {
+  const starter = starterSkins.value[0];
+  if (starter) {
+    activeSkinDataUrl.value = starter.pngDataUrl;
+    activeVariant.value = 'classic';
+  }
+  editorSkinId.value = null;
+  editorName.value = 'New Custom Skin';
+  editorDirty.value = false;
+  rememberOriginalSkin();
+  activeTab.value = 'editor';
+}
+
+async function duplicateSkin(skin: SavedSkin) {
+  try {
+    const saved = await native<SavedSkin>('saved_skins_save', {
+      id: null,
+      name: `${skin.name} Copy`,
+      variant: skin.variant,
+      pngDataUrl: skin.pngDataUrl,
+    });
+    await loadAll();
+    selectSavedSkin(saved);
+    notify('success', `Duplicated ${skin.name}`);
+  } catch (err) {
+    notify('error', "Couldn't duplicate skin", String(err));
+  }
+}
+
+async function quickEquipSkin(pngDataUrl: string, variant: 'classic' | 'slim', label: string) {
+  activeSkinDataUrl.value = pngDataUrl;
+  activeVariant.value = variant;
+  await applySkinToAccount();
+  if (selectedAccount.value) {
+    notify('info', `Selected ${label}`, `Applied to ${selectedAccount.value.username}.`);
+  }
+}
+
+async function syncAccountSkinToLibrary() {
+  if (!activeAccountSkin.value?.dataUrl) return;
+  try {
+    const variant = activeAccountSkin.value.variant === 'SLIM' ? 'slim' : 'classic';
+    const saved = await native<SavedSkin>('saved_skins_save', {
+      id: null,
+      name: `${selectedAccount.value?.username || 'Account'} Skin`,
+      variant,
+      pngDataUrl: activeAccountSkin.value.dataUrl,
+    });
+    await loadAll();
+    selectSavedSkin(saved);
+    notify('success', 'Saved active account skin to library');
+  } catch (err) {
+    notify('error', "Couldn't save account skin", String(err));
+  }
 }
 
 async function saveEditorSkin() {
@@ -399,14 +556,20 @@ async function saveEditorSkin() {
   }
 }
 
-async function deleteSkin(skin: SavedSkin) {
+async function confirmDeleteSkin() {
+  const skin = deleteConfirmSkin.value;
+  if (!skin || deletingSkin.value) return;
+  deletingSkin.value = true;
   try {
     await native('saved_skins_delete', { id: skin.id });
     if (editorSkinId.value === skin.id) editorSkinId.value = null;
+    deleteConfirmSkin.value = null;
     await loadAll();
     notify('info', 'Skin deleted from local library');
   } catch (err) {
     notify('error', "Couldn't delete skin", String(err));
+  } finally {
+    deletingSkin.value = false;
   }
 }
 
@@ -564,8 +727,63 @@ function clearLocalCapePreview() {
             </SolaraButton>
           </div>
 
-          <!-- Saved Skins + Add Skin Tile + Default Starter Skins -->
+          <!-- Saved Skins + Account Sync + Filter Toolbar + Default Starter Skins -->
           <div v-if="activeTab === 'library'" class="sol-section-stack">
+            <div v-if="selectedAccount && activeAccountSkin?.dataUrl" class="sol-skin-account-strip">
+              <div class="sol-row-gap">
+                <img
+                  :src="skinHeadThumbs['account-active'] || activeAccountSkin.dataUrl"
+                  :alt="selectedAccount.username"
+                  class="sol-skin-head-chip"
+                />
+                <div>
+                  <div class="sol-row-gap">
+                    <strong>{{ selectedAccount.username }}</strong>
+                    <span class="sol-pill is-active">{{ activeAccountSkin.variant === 'SLIM' ? 'Slim' : 'Classic' }}</span>
+                  </div>
+                  <div class="sol-muted" style="font-size: 12px">Active Minecraft profile skin</div>
+                </div>
+              </div>
+              <SolaraButton variant="secondary" size="xs" @click="syncAccountSkinToLibrary">
+                <User :size="12" /> Save Active to Library
+              </SolaraButton>
+            </div>
+
+            <div class="sol-skin-toolbar">
+              <label class="sol-skin-search">
+                <Search :size="14" />
+                <input
+                  v-model="skinSearch"
+                  type="text"
+                  placeholder="Search saved or starter skins..."
+                  aria-label="Search skins"
+                />
+                <button
+                  v-if="skinSearch"
+                  type="button"
+                  class="sol-skin-search-clear"
+                  aria-label="Clear skin search"
+                  @click="skinSearch = ''"
+                >
+                  <X :size="12" />
+                </button>
+              </label>
+              <div class="sol-skin-filter-pills" role="group" aria-label="Filter skin model">
+                <button
+                  v-for="opt in (['all', 'classic', 'slim'] as const)"
+                  :key="opt"
+                  type="button"
+                  :class="['sol-pill', 'sol-skin-filter-btn', { 'is-active': skinVariantFilter === opt }]"
+                  @click="skinVariantFilter = opt"
+                >
+                  {{ opt === 'all' ? 'All Models' : opt === 'classic' ? 'Classic (4px)' : 'Slim (3px)' }}
+                </button>
+              </div>
+              <SolaraButton variant="secondary" size="xs" @click="createBlankSkin">
+                <Sparkles :size="12" /> New Blank Skin
+              </SolaraButton>
+            </div>
+
             <div class="sol-skins-grid">
               <button
                 type="button"
@@ -574,21 +792,37 @@ function clearLocalCapePreview() {
               >
                 <Plus :size="20" />
                 <strong>Add Skin</strong>
-                <span>Import 64×64 PNG</span>
+                <span>Import 64×64 / 64×32 PNG</span>
               </button>
 
               <article
-                v-for="skin in savedSkins"
+                v-for="skin in filteredSavedSkins"
                 :key="skin.id"
                 :class="['sol-card', 'sol-skin-card', { 'is-selected': activeSkinDataUrl === skin.pngDataUrl }]"
                 @click="selectSavedSkin(skin)"
               >
-                <img :src="skin.pngDataUrl" :alt="skin.name" class="sol-skin-thumb" />
+                <div class="sol-skin-thumb-wrap">
+                  <img :src="skin.pngDataUrl" :alt="skin.name" class="sol-skin-thumb" />
+                  <img
+                    v-if="skinHeadThumbs[skin.id]"
+                    :src="skinHeadThumbs[skin.id]"
+                    :alt="`${skin.name} face`"
+                    class="sol-skin-head-chip"
+                  />
+                </div>
                 <div class="sol-skin-meta">
                   <strong class="sol-ellipsis">{{ skin.name }}</strong>
                   <span class="sol-pill">{{ skin.variant === 'slim' ? 'Slim' : 'Classic' }}</span>
                 </div>
-                <div class="sol-row-gap" style="justify-content: flex-end">
+                <div class="sol-skin-actions">
+                  <SolaraButton
+                    v-if="selectedAccount"
+                    variant="primary"
+                    size="xs"
+                    @click.stop="quickEquipSkin(skin.pngDataUrl, skin.variant, skin.name)"
+                  >
+                    Equip
+                  </SolaraButton>
                   <SolaraButton
                     variant="ghost"
                     size="xs"
@@ -596,31 +830,66 @@ function clearLocalCapePreview() {
                   >
                     <Palette :size="12" /> Edit
                   </SolaraButton>
-                  <SolaraButton variant="danger" size="xs" @click.stop="deleteSkin(skin)">
+                  <SolaraButton
+                    variant="ghost"
+                    size="xs"
+                    title="Duplicate skin"
+                    aria-label="Duplicate skin"
+                    @click.stop="duplicateSkin(skin)"
+                  >
+                    <Copy :size="12" />
+                  </SolaraButton>
+                  <SolaraButton
+                    variant="danger"
+                    size="xs"
+                    title="Delete skin"
+                    aria-label="Delete skin"
+                    @click.stop="deleteConfirmSkin = skin"
+                  >
                     <Trash2 :size="12" />
                   </SolaraButton>
                 </div>
               </article>
             </div>
 
+            <div v-if="savedSkins.length > 0 && filteredSavedSkins.length === 0" class="sol-muted" style="font-size: 12.5px">
+              No saved skins match "{{ skinSearch }}" ({{ skinVariantFilter }}).
+            </div>
+
             <div class="sol-starter-block">
               <div class="sol-side-head">
                 <h2 class="sol-section-title">Default Starter Skins</h2>
-                <span class="sol-muted">Built-in 64×64 presets</span>
+                <span class="sol-muted">{{ filteredStarterSkins.length }} built-in 64×64 presets</span>
               </div>
               <div class="sol-skins-grid">
                 <article
-                  v-for="starter in starterSkins"
+                  v-for="starter in filteredStarterSkins"
                   :key="starter.id"
                   :class="['sol-card', 'sol-skin-card', { 'is-selected': activeSkinDataUrl === starter.pngDataUrl }]"
                   @click="selectStarterSkin(starter)"
                 >
-                  <img :src="starter.pngDataUrl" :alt="starter.name" class="sol-skin-thumb" />
+                  <div class="sol-skin-thumb-wrap">
+                    <img :src="starter.pngDataUrl" :alt="starter.name" class="sol-skin-thumb" />
+                    <img
+                      v-if="skinHeadThumbs[starter.id]"
+                      :src="skinHeadThumbs[starter.id]"
+                      :alt="`${starter.name} face`"
+                      class="sol-skin-head-chip"
+                    />
+                  </div>
                   <div class="sol-skin-meta">
                     <strong class="sol-ellipsis">{{ starter.name }}</strong>
                     <span class="sol-pill">{{ starter.variant === 'slim' ? 'Slim' : 'Classic' }}</span>
                   </div>
-                  <div class="sol-row-gap" style="justify-content: flex-end">
+                  <div class="sol-skin-actions">
+                    <SolaraButton
+                      v-if="selectedAccount"
+                      variant="primary"
+                      size="xs"
+                      @click.stop="quickEquipSkin(starter.pngDataUrl, starter.variant, starter.name)"
+                    >
+                      Equip
+                    </SolaraButton>
                     <SolaraButton variant="secondary" size="xs" @click.stop="saveStarterToLibrary(starter)">
                       <Plus :size="12" /> Save
                     </SolaraButton>
@@ -727,5 +996,22 @@ function clearLocalCapePreview() {
         </section>
       </div>
     </div>
+
+    <SolaraModal
+      :open="Boolean(deleteConfirmSkin)"
+      title="Delete Saved Skin?"
+      size="sm"
+      @close="deleteConfirmSkin = null"
+    >
+      <p class="sol-muted" style="margin: 0 0 14px; font-size: 13px; line-height: 1.5">
+        Remove <strong>{{ deleteConfirmSkin?.name }}</strong> from your local skin library? This cannot be undone.
+      </p>
+      <template #footer>
+        <SolaraButton variant="ghost" size="sm" @click="deleteConfirmSkin = null">Cancel</SolaraButton>
+        <SolaraButton variant="danger" size="sm" :loading="deletingSkin" @click="confirmDeleteSkin">
+          <Trash2 :size="13" /> Delete Skin
+        </SolaraButton>
+      </template>
+    </SolaraModal>
   </div>
 </template>
