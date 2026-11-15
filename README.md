@@ -110,22 +110,22 @@ Run a local Java server on your own machine with EULA checks, memory/port settin
 
 ## Download
 
-**Testing preview V-0.0.55 available.** Skin Editor painting tools Part 2 with pixel grid, mirror guide, recent colors, and keyboard shortcuts
+**Testing preview V-0.0.56 available.** Clean Cape Studio overhaul with status strip, 6 preview capes, 64x32 import, and 3D cape fix
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check GitHub Releases CDN on startup and prompt before downloading/installing when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.55 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.55/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.55/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.55/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.55/source.zip)
-- **SHA-256**: `cc955ca8e88b2963fec75aa6f371dd3e25db58c688ffa2998400f7ee5ecf2566`
+- **GitHub Release**: [Solara Launcher V-0.0.56 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (6.9 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.56/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.56/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.56/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.56/source.zip)
+- **SHA-256**: `74b980a9c7f970f4c4b0cd6e9a4f89fe604b2cd740f727a36e86beb7231d0eca`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.55 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.56 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | GitHub Releases CDN | Live via `latest.json` on GitHub Releases CDN (Minisign-verified) |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
