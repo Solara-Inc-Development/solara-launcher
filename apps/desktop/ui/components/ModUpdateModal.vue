@@ -99,7 +99,7 @@ async function applySelected() {
   <SolaraModal
     :open="open"
     title="Smart Content Updates"
-    :subtitle="`Checking Modrinth hashes & compatible releases for ${instanceName}`"
+    :subtitle="`Checking installed mod hashes & compatible releases for ${instanceName}`"
     width="lg"
     :closable="!applying"
     @close="!applying && emit('close')"
@@ -110,14 +110,14 @@ async function applySelected() {
     </div>
     <div v-if="checking" class="sol-center-state">
       <RefreshCw :size="20" class="is-spinning sol-accent" />
-      <span>Verifying installed mod hashes against Modrinth...</span>
+      <span>Verifying installed mod hashes against community releases...</span>
     </div>
 
     <div v-else-if="updates.length === 0 && !errorMsg" class="sol-center-state">
       <CheckCircle2 :size="24" class="sol-success" />
       <div class="sol-center-title">Everything checked is up to date</div>
       <div class="sol-muted sol-text-xs">
-        All tracked Modrinth mods matching this Minecraft version and loader are on their latest release.
+        All tracked community mods matching this Minecraft version and loader are on their latest release.
       </div>
     </div>
 

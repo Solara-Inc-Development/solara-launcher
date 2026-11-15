@@ -541,7 +541,7 @@ async fn upload_minecraft_skin(variant: String, png_data_url: String) -> Result<
         .map_err(err)
 }
 #[tauri::command]
-async fn set_minecraft_cape(cape_id: Option<String>) -> Result<(), String> {
+async fn set_minecraft_cape(cape_id: Option<String>) -> Result<Value, String> {
     engine::set_minecraft_cape(cape_id.as_deref())
         .await
         .map_err(err)

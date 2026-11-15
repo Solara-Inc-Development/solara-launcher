@@ -22,7 +22,7 @@ watch(
 const pageEntries = [
   { id: 'home', label: 'Home', hint: 'Launcher overview & quick launch' },
   { id: 'library', label: 'Library', hint: 'Manage all Minecraft instances & groups' },
-  { id: 'discover', label: 'Discover Modpacks', hint: 'Browse curated Modrinth modpacks' },
+  { id: 'discover', label: 'Discover Modpacks', hint: 'Browse curated modpacks and mods' },
   { id: 'skins', label: 'Skins & Capes', hint: '3D viewer, skin editor, owned capes' },
   { id: 'screenshots', label: 'Screenshots', hint: 'Browse captures across instances' },
   { id: 'tasks', label: 'Downloads & Tasks', hint: 'Installation and update queue' },

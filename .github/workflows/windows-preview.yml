@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.58 — Website Frosted OLED Redesign, Colorful Feature Cards, and Refreshed Launcher Screenshots.
+# Owner-approved preview candidate: V-0.0.59 — Live Mojang Skin & Cape Sync/Upload, Pure Catalog Copy, and Test Hardening.
 on:
   workflow_dispatch:
   push:

@@ -376,7 +376,7 @@ async function openSheetFolder(inst: InstanceRecord): Promise<void> {
           <div class="sol-strip-row">
             <div>
               <div class="sol-strip-title">Discover Modpacks &amp; Mods</div>
-              <div class="sol-muted sol-text-xs">Verified Modrinth packs for Fabric, Forge, NeoForge, and Quilt</div>
+              <div class="sol-muted sol-text-xs">Curated modpacks &amp; mods for Fabric, Forge, NeoForge, and Quilt</div>
             </div>
             <div class="sol-row-gap">
               <SolaraButton variant="secondary" size="xs" @click="navigate('discover')">

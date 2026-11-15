@@ -179,7 +179,7 @@ async function completeOnboarding(launchNow = false) {
             <span class="sol-mini-feature-icon sol-mini-feature-icon--purple"><Sparkles :size="16" /></span>
             <div>
               <div class="sol-mini-feature-title">Content, Worlds, Skins & Logs</div>
-              <div class="sol-mini-feature-desc">Browse Modrinth content, inspect worlds, edit files, and customize 3D skins.</div>
+              <div class="sol-mini-feature-desc">Browse curated modpacks and mods, inspect worlds, edit files, and customize 3D skins.</div>
             </div>
           </div>
         </div>

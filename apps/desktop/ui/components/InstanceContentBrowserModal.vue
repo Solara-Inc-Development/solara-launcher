@@ -153,7 +153,7 @@ async function runSearch(resetOffset = true): Promise<void> {
     const res = await fetch(`https://api.modrinth.com/v2/search?${params.toString()}`, {
       headers: { Accept: 'application/json' }, signal: controller.signal,
     });
-    if (!res.ok) throw new Error(`Modrinth returned HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`Content catalog returned HTTP ${res.status}`);
     const data = (await res.json()) as { hits?: ModrinthHit[] };
     if (!controller.signal.aborted) hits.value = Array.isArray(data.hits) ? data.hits : [];
   } catch (err) {
@@ -420,7 +420,7 @@ onMounted(() => {
               class="sol-link-btn"
               @click="openExternal(`https://modrinth.com/${activeTab}/${activeProject.slug || activeProject.project_id}`)"
             >
-              Modrinth <ArrowUpRight :size="12" />
+              Open Project Page <ArrowUpRight :size="12" />
             </button>
             <SolaraButton variant="ghost" size="xs" @click="activeProject = null">Back to results</SolaraButton>
           </div>
@@ -459,7 +459,7 @@ onMounted(() => {
       </div>
 
       <div v-else-if="errorMsg" class="sol-banner-warn">
-        <span>Couldn't search Modrinth: {{ errorMsg }}</span>
+        <span>Couldn't search content catalog: {{ errorMsg }}</span>
         <SolaraButton variant="secondary" size="xs" @click="runSearch(false)">
           <RefreshCw :size="12" /> Retry
         </SolaraButton>

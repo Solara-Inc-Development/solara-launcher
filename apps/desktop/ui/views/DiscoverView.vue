@@ -110,7 +110,7 @@ async function runSearch(resetOffset = true): Promise<void> {
     const res = await fetch(`https://api.modrinth.com/v2/search?${params.toString()}`, {
       headers: { Accept: 'application/json' },
     });
-    if (!res.ok) throw new Error(`Modrinth returned HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`Content catalog returned HTTP ${res.status}`);
     const data = (await res.json()) as { hits?: ModrinthHit[]; total_hits?: number };
     hits.value = Array.isArray(data.hits) ? data.hits : [];
     totalHits.value = data.total_hits ?? hits.value.length;
@@ -406,7 +406,7 @@ onMounted(() => {
               class="sol-link-btn"
               @click="openExternal(`https://modrinth.com/modpack/${activePack.slug || activePack.project_id}`)"
             >
-              View on Modrinth <ArrowUpRight :size="13" />
+              Open Project Page <ArrowUpRight :size="13" />
             </button>
           </div>
 

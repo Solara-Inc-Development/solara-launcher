@@ -1028,7 +1028,7 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
         <SolaraEmptyState
           v-if="!loadingContent && unifiedRows.length === 0"
           title="No content installed yet"
-          description="Browse Modrinth content tailored to this Minecraft version & loader, or upload .jar / .zip files."
+          description="Browse community content tailored to this Minecraft version & loader, or upload .jar / .zip files."
         >
           <template #icon><Package :size="26" /></template>
           <template #actions>

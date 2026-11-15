@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.59 — 2026-11-15
+
+- **Live Mojang Skin & Cape Sync + Pure Catalog Copy**:
+  - Upgraded `apps/desktop/src/game_core/extras.rs`, `engine.rs`, `shell.rs`, and `SkinsView.vue` so signed-in Microsoft accounts fetch live skins and owned capes directly from Mojang (`GET /minecraft/profile`, including `http://` -> `https://textures.minecraft.net` normalization), display them cleanly as the live source of truth (`Live on Mojang`, `Sync from Mojang`), and upload edited/imported/selected skins live to Mojang (`POST /minecraft/profile/skins`) and equip/hide owned capes (`PUT`/`DELETE /minecraft/profile/capes/active`) with hydrated profile responses and honest error/signed-out states.
+  - Added Rust HTTP loopback unit tests in `extras.rs` covering profile hydration, multipart skin upload, cape activation/removal, untrusted host blocking, and access-token redaction across errors.
+  - Replaced remaining user-facing Modrinth brand strings across `HomeView.vue`, `DiscoverView.vue`, `OnboardingView.vue`, `InstanceDetailView.vue`, `GlobalSearchModal.vue`, `GlobalSettingsModal.vue`, `InstanceContentBrowserModal.vue`, and `ModUpdateModal.vue` with clean community catalog copy while preserving required provenance notices and API endpoints.
+  - Added `tests/release-hardening-v59.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` live Mojang upload/cape assertions.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.58 — 2026-11-15
 
 - **Website Frosted OLED Redesign & Refreshed Desktop Previews**:

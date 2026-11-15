@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   Copy,
   Upload,
@@ -16,7 +16,7 @@ import {
   User,
   X,
 } from '../icons';
-import { store, selectedAccount, native, notify, registerUnsavedChanges, runWithDirtyGuard } from '../state';
+import { store, selectedAccount, native, notify, navigate, registerUnsavedChanges, runWithDirtyGuard } from '../state';
 import type { ProfileCape, ProfileSkin, SavedSkin } from '../types';
 import SolaraButton from '../components/SolaraButton.vue';
 import SolaraModal from '../components/SolaraModal.vue';
@@ -338,6 +338,8 @@ const filteredStarterSkins = computed(() => {
 const saving = ref(false);
 const uploading = ref(false);
 const loadingProfile = ref(false);
+const profileError = ref<string | null>(null);
+const lastSyncedAt = ref<string | null>(null);
 const equippingCapeId = ref<string | null>(null);
 const capeFileInput = ref<HTMLInputElement | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -357,7 +359,50 @@ const equippedCape = computed(
 
 const isPreviewingLocalCape = computed(() => previewCapeId.value !== null);
 
-async function loadAll() {
+interface MojangProfilePayload {
+  skins?: ProfileSkin[];
+  capes?: ProfileCape[];
+}
+
+function cleanMojangError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err ?? '');
+  return msg.replace(/^Error:\s*/i, '').trim() || 'Could not reach Mojang profile service.';
+}
+
+function applyProfilePayload(
+  prof: MojangProfilePayload,
+  opts: { syncStageSkin?: boolean; fallbackSkinDataUrl?: string } = {},
+): boolean {
+  profileSkins.value = prof.skins ?? [];
+  profileCapes.value = prof.capes ?? [];
+  profileError.value = null;
+  lastSyncedAt.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const activeProfSkin = profileSkins.value.find((s) => s.state === 'ACTIVE');
+  const liveSkinUrl = activeProfSkin?.dataUrl || opts.fallbackSkinDataUrl || '';
+  if (liveSkinUrl) {
+    extractHeadThumbnail('account-active', liveSkinUrl);
+  }
+  if (liveSkinUrl && (opts.syncStageSkin || !activeSkinDataUrl.value)) {
+    activeSkinDataUrl.value = liveSkinUrl;
+    if (activeProfSkin) {
+      activeVariant.value = activeProfSkin.variant === 'SLIM' ? 'slim' : 'classic';
+    }
+    editorSkinId.value = null;
+    if (selectedAccount.value) {
+      editorName.value = `${selectedAccount.value.username} Live Skin`;
+    }
+    editorDirty.value = false;
+    rememberOriginalSkin();
+  }
+  if (!previewCapeId.value) {
+    const activeCap = profileCapes.value.find((c) => c.state === 'ACTIVE');
+    activeCapeDataUrl.value = activeCap?.dataUrl ?? null;
+  }
+  return Boolean(liveSkinUrl);
+}
+
+async function loadAll(opts: { preferAccountSkin?: boolean } = {}) {
   if (!store.desktop) return;
   try {
     savedSkins.value = await native<SavedSkin[]>('saved_skins_list');
@@ -365,34 +410,30 @@ async function loadAll() {
   } catch {
     savedSkins.value = [];
   }
+
+  let loadedFromMojang = false;
   if (selectedAccount.value) {
     loadingProfile.value = true;
+    profileError.value = null;
     try {
-      const prof = await native<{
-        skins?: ProfileSkin[];
-        capes?: ProfileCape[];
-      }>('profile_skins_and_capes');
-      profileSkins.value = prof.skins ?? [];
-      profileCapes.value = prof.capes ?? [];
-      const activeProfSkin = profileSkins.value.find((s) => s.state === 'ACTIVE');
-      if (activeProfSkin?.dataUrl) {
-        extractHeadThumbnail('account-active', activeProfSkin.dataUrl);
-      }
-      if (activeProfSkin?.dataUrl && !activeSkinDataUrl.value) {
-        activeSkinDataUrl.value = activeProfSkin.dataUrl;
-        activeVariant.value = activeProfSkin.variant === 'SLIM' ? 'slim' : 'classic';
-      }
-      if (!previewCapeId.value) {
-        const activeCap = profileCapes.value.find((c) => c.state === 'ACTIVE');
-        activeCapeDataUrl.value = activeCap?.dataUrl ?? null;
-      }
-    } catch {
-      // keep local skins functional even if profile API fails
+      const prof = await native<MojangProfilePayload>('profile_skins_and_capes');
+      const syncStageSkin = Boolean(opts.preferAccountSkin || (!editorDirty.value && !activeSkinDataUrl.value));
+      loadedFromMojang = applyProfilePayload(prof, { syncStageSkin });
+    } catch (err) {
+      profileSkins.value = [];
+      profileCapes.value = [];
+      profileError.value = cleanMojangError(err);
     } finally {
       loadingProfile.value = false;
     }
+  } else {
+    profileSkins.value = [];
+    profileCapes.value = [];
+    profileError.value = null;
+    lastSyncedAt.value = null;
   }
-  if (!activeSkinDataUrl.value) {
+
+  if (!loadedFromMojang && !activeSkinDataUrl.value) {
     if (savedSkins.value.length > 0) {
       activeSkinDataUrl.value = savedSkins.value[0].pngDataUrl;
       activeVariant.value = savedSkins.value[0].variant;
@@ -404,6 +445,19 @@ async function loadAll() {
       editorName.value = starterSkins.value[0].name;
       editorSkinId.value = null;
     }
+  }
+}
+
+async function syncFromMojang() {
+  if (!selectedAccount.value) {
+    notify('warning', 'Sign in required', 'Sign in with Microsoft to sync & update skins live on Mojang.');
+    return;
+  }
+  await loadAll({ preferAccountSkin: true });
+  if (profileError.value) {
+    notify('error', "Couldn't sync from Mojang", profileError.value);
+  } else {
+    notify('success', 'Synced from Mojang', `Loaded live skin and capes for ${selectedAccount.value.username}.`);
   }
 }
 
@@ -421,8 +475,24 @@ onMounted(() => {
       thumbUrl: built.thumbUrl,
     };
   });
-  void loadAll().then(rememberOriginalSkin);
+  void loadAll({ preferAccountSkin: true }).then(rememberOriginalSkin);
 });
+
+watch(
+  () => selectedAccount.value?.id,
+  (nextId, prevId) => {
+    if (nextId === prevId) return;
+    activeSkinDataUrl.value = '';
+    activeCapeDataUrl.value = null;
+    previewCapeId.value = null;
+    editorSkinId.value = null;
+    editorDirty.value = false;
+    profileSkins.value = [];
+    profileCapes.value = [];
+    profileError.value = null;
+    void loadAll({ preferAccountSkin: true }).then(rememberOriginalSkin);
+  },
+);
 
 onUnmounted(() => {
   unregisterSkinGuard();
@@ -534,9 +604,10 @@ async function duplicateSkin(skin: SavedSkin) {
 async function quickEquipSkin(pngDataUrl: string, variant: 'classic' | 'slim', label: string) {
   activeSkinDataUrl.value = pngDataUrl;
   activeVariant.value = variant;
-  await applySkinToAccount();
-  if (selectedAccount.value) {
-    notify('info', `Selected ${label}`, `Applied to ${selectedAccount.value.username}.`);
+  editorName.value = label;
+  const ok = await applySkinToAccount();
+  if (ok) {
+    rememberOriginalSkin();
   }
 }
 
@@ -597,40 +668,61 @@ async function confirmDeleteSkin() {
   }
 }
 
-async function applySkinToAccount() {
+async function applySkinToAccount(): Promise<boolean> {
   if (!selectedAccount.value) {
-    notify('warning', 'Sign in required', 'Sign in with Microsoft first to apply skins to your account.');
-    return;
+    notify('warning', 'Sign in required', 'Sign in with Microsoft to sync & update skins live on Mojang.');
+    return false;
   }
-  if (!activeSkinDataUrl.value) return;
+  if (!activeSkinDataUrl.value) return false;
   uploading.value = true;
   try {
-    await native('upload_minecraft_skin', {
+    const uploadedPng = activeSkinDataUrl.value;
+    const prof = await native<MojangProfilePayload>('upload_minecraft_skin', {
       variant: activeVariant.value,
-      pngDataUrl: activeSkinDataUrl.value,
+      pngDataUrl: uploadedPng,
     });
-    notify('success', 'Skin applied to Minecraft account', `Updated active skin for ${selectedAccount.value.username}.`);
-    await loadAll();
+    if (Array.isArray(prof?.skins)) {
+      applyProfilePayload(prof, { syncStageSkin: true, fallbackSkinDataUrl: uploadedPng });
+    } else {
+      await loadAll({ preferAccountSkin: true });
+    }
+    editorDirty.value = false;
+    rememberOriginalSkin();
+    notify('success', 'Skin updated live on Mojang', `Active skin for ${selectedAccount.value.username} is now live.`);
+    return true;
   } catch (err) {
-    notify('error', "Couldn't apply skin", String(err));
+    const msg = cleanMojangError(err);
+    profileError.value = msg;
+    notify('error', "Couldn't update skin on Mojang", msg);
+    return false;
   } finally {
     uploading.value = false;
   }
 }
 
 async function equipCape(cape: ProfileCape | null) {
-  if (!selectedAccount.value || equippingCapeId.value !== null) return;
+  if (!selectedAccount.value) {
+    notify('warning', 'Sign in required', 'Sign in with Microsoft to equip owned capes on Mojang.');
+    return;
+  }
+  if (equippingCapeId.value !== null) return;
   previewCapeId.value = null;
   equippingCapeId.value = cape?.id ?? 'none';
   try {
-    await native('set_minecraft_cape', { capeId: cape?.id ?? null });
-    activeCapeDataUrl.value = cape?.dataUrl ?? null;
+    const prof = await native<MojangProfilePayload>('set_minecraft_cape', { capeId: cape?.id ?? null });
+    if (Array.isArray(prof?.capes)) {
+      applyProfilePayload(prof, { syncStageSkin: false });
+    } else {
+      await loadAll({ preferAccountSkin: false });
+    }
+    activeCapeDataUrl.value = equippedCape.value?.dataUrl ?? cape?.dataUrl ?? null;
     viewerPose.value = cape ? 'cape' : 'walk';
     animateModel.value = true;
-    await loadAll();
-    notify('success', cape ? `Equipped ${cape.alias} cape` : 'Cape hidden');
+    notify('success', cape ? `Equipped ${cape.alias} live on Mojang` : 'Cape hidden on Mojang');
   } catch (err) {
-    notify('error', "Couldn't update cape", String(err));
+    const msg = cleanMojangError(err);
+    profileError.value = msg;
+    notify('error', "Couldn't update cape on Mojang", msg);
   } finally {
     equippingCapeId.value = null;
   }
@@ -707,6 +799,15 @@ function onUploadPreviewCape(e: Event) {
 
         <div class="sol-row-gap">
           <input ref="fileInput" type="file" accept="image/png" hidden @change="onUploadPng" />
+          <SolaraButton
+            v-if="selectedAccount"
+            variant="ghost"
+            size="sm"
+            :loading="loadingProfile"
+            @click="syncFromMojang"
+          >
+            <RefreshCw :size="14" :class="{ 'is-spinning': loadingProfile }" /> Sync from Mojang
+          </SolaraButton>
           <SolaraButton variant="secondary" size="sm" @click="fileInput?.click()">
             <Upload :size="14" /> Import PNG
           </SolaraButton>
@@ -717,7 +818,7 @@ function onUploadPreviewCape(e: Event) {
             :disabled="!activeSkinDataUrl || !selectedAccount"
             @click="applySkinToAccount"
           >
-            <Check :size="14" /> Apply to Account
+            <Check :size="14" /> Apply Live to Mojang
           </SolaraButton>
         </div>
       </header>
@@ -798,29 +899,52 @@ function onUploadPreviewCape(e: Event) {
         <section class="sol-skin-workspace">
           <div class="sol-side-head" style="margin-bottom: 12px">
             <SolaraTabs :model-value="activeTab" :tabs="tabs" @update:model-value="changeSkinTab" />
-            <SolaraButton
-              v-if="activeTab === 'editor'"
-              variant="primary"
-              size="xs"
-              :loading="saving"
-              @click="saveEditorSkin"
-            >
-              Save to Library
-            </SolaraButton>
+            <div v-if="activeTab === 'editor'" class="sol-row-gap">
+              <SolaraButton
+                variant="secondary"
+                size="xs"
+                :loading="saving"
+                @click="saveEditorSkin"
+              >
+                Save to Library
+              </SolaraButton>
+              <SolaraButton
+                variant="primary"
+                size="xs"
+                :loading="uploading"
+                :disabled="!activeSkinDataUrl || !selectedAccount"
+                @click="applySkinToAccount"
+              >
+                <Check :size="12" /> Apply Live to Mojang
+              </SolaraButton>
+            </div>
             <SolaraButton
               v-else-if="activeTab === 'capes' && selectedAccount"
               variant="ghost"
               size="xs"
               :loading="loadingProfile"
-              @click="loadAll"
+              @click="syncFromMojang"
             >
-              <RefreshCw :size="13" /> Refresh Capes
+              <RefreshCw :size="13" :class="{ 'is-spinning': loadingProfile }" /> Refresh Capes
             </SolaraButton>
           </div>
 
-          <!-- Saved Skins + Account Sync + Filter Toolbar + Default Starter Skins -->
+          <!-- Saved Skins + Live Mojang Sync + Filter Toolbar + Starter Templates -->
           <div v-if="activeTab === 'library'" class="sol-section-stack">
-            <div v-if="selectedAccount && activeAccountSkin?.dataUrl" class="sol-skin-account-strip">
+            <div v-if="selectedAccount && profileError" class="sol-skin-account-strip sol-skin-account-strip--error">
+              <div>
+                <div class="sol-row-gap">
+                  <strong>Couldn't load live skin from Mojang</strong>
+                  <span class="sol-pill">{{ selectedAccount.username }}</span>
+                </div>
+                <div class="sol-muted" style="font-size: 12px">{{ profileError }}</div>
+              </div>
+              <SolaraButton variant="secondary" size="xs" :loading="loadingProfile" @click="syncFromMojang">
+                <RefreshCw :size="12" /> Retry Sync
+              </SolaraButton>
+            </div>
+
+            <div v-else-if="selectedAccount && activeAccountSkin?.dataUrl" class="sol-skin-account-strip">
               <div class="sol-row-gap">
                 <img
                   :src="skinHeadThumbs['account-active'] || activeAccountSkin.dataUrl"
@@ -830,13 +954,42 @@ function onUploadPreviewCape(e: Event) {
                 <div>
                   <div class="sol-row-gap">
                     <strong>{{ selectedAccount.username }}</strong>
+                    <span class="sol-pill is-live">Live on Mojang</span>
                     <span class="sol-pill is-active">{{ activeAccountSkin.variant === 'SLIM' ? 'Slim' : 'Classic' }}</span>
                   </div>
-                  <div class="sol-muted" style="font-size: 12px">Active Minecraft profile skin</div>
+                  <div class="sol-muted" style="font-size: 12px">
+                    Synced directly from Mojang profile{{ lastSyncedAt ? ` · ${lastSyncedAt}` : '' }}
+                  </div>
                 </div>
               </div>
-              <SolaraButton variant="secondary" size="xs" @click="syncAccountSkinToLibrary">
-                <User :size="12" /> Save Active to Library
+              <div class="sol-row-gap">
+                <SolaraButton variant="ghost" size="xs" :loading="loadingProfile" @click="syncFromMojang">
+                  <RefreshCw :size="12" /> Sync
+                </SolaraButton>
+                <SolaraButton variant="secondary" size="xs" @click="syncAccountSkinToLibrary">
+                  <User :size="12" /> Save Active to Library
+                </SolaraButton>
+              </div>
+            </div>
+
+            <div v-else-if="selectedAccount && loadingProfile" class="sol-skin-account-strip">
+              <div class="sol-row-gap">
+                <RefreshCw :size="15" class="is-spinning sol-accent" />
+                <span class="sol-muted" style="font-size: 12.5px">Fetching live skin &amp; capes from Mojang for {{ selectedAccount.username }}...</span>
+              </div>
+            </div>
+
+            <div v-else-if="!selectedAccount" class="sol-skin-account-strip sol-skin-account-strip--guest">
+              <div>
+                <div class="sol-row-gap">
+                  <strong>Sign in to sync &amp; update live on Mojang</strong>
+                </div>
+                <div class="sol-muted" style="font-size: 12px">
+                  Sign in with Microsoft to load your active Mojang skin and publish changes live. Local templates are preview-only until signed in.
+                </div>
+              </div>
+              <SolaraButton variant="primary" size="xs" @click="navigate('account')">
+                <User :size="12" /> Sign In
               </SolaraButton>
             </div>
 
@@ -949,8 +1102,8 @@ function onUploadPreviewCape(e: Event) {
 
             <div class="sol-starter-block">
               <div class="sol-side-head">
-                <h2 class="sol-section-title">Default Starter Skins</h2>
-                <span class="sol-muted">{{ filteredStarterSkins.length }} built-in 64×64 presets</span>
+                <h2 class="sol-section-title">Optional Starter Templates</h2>
+                <span class="sol-muted">{{ filteredStarterSkins.length }} local presets — click Equip to update live on Mojang</span>
               </div>
               <div class="sol-skins-grid">
                 <article

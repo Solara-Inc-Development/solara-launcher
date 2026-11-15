@@ -393,7 +393,7 @@ watch(
             <input v-model.number="draft.maxConcurrentDownloads" type="range" min="1" max="8" step="1" class="sol-range" />
           </div>
           <p class="sol-muted sol-text-xs">
-            Every Mojang jar, Modrinth release, asset, and Java runtime is verified against SHA-1/SHA-512 checksums before activation.
+            Every Mojang jar, community content release, asset, and Java runtime is verified against SHA-1/SHA-512 checksums before activation.
           </p>
         </section>
 

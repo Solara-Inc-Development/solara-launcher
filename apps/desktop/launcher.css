@@ -2422,6 +2422,22 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
+.sol-skin-account-strip--error {
+  background: linear-gradient(135deg, rgba(240, 100, 113, 0.16), rgba(10, 12, 18, 0.9));
+  border-color: rgba(240, 100, 113, 0.36);
+}
+
+.sol-skin-account-strip--guest {
+  background: linear-gradient(135deg, rgba(232, 166, 75, 0.12), rgba(10, 12, 18, 0.88));
+  border-color: rgba(232, 166, 75, 0.28);
+}
+
+.sol-pill.is-live {
+  background: rgba(35, 201, 135, 0.16);
+  border-color: rgba(35, 201, 135, 0.38);
+  color: #4ade80;
+}
+
 .sol-skin-toolbar {
   display: flex;
   align-items: center;

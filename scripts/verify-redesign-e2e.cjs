@@ -500,9 +500,34 @@ function buildMockInitScript() {
           }
           case 'profile_skins_and_capes':
             return {
-              skins: [{ id: 'mc-skin-1', state: 'ACTIVE', variant: 'CLASSIC', dataUrl: samplePng }],
-              capes: [{ id: 'cape-migrator', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng }],
+              skins: state.profileSkins || [{ id: 'mc-skin-1', state: 'ACTIVE', variant: 'CLASSIC', dataUrl: samplePng }],
+              capes: state.profileCapes || [
+                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
+                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+              ],
             };
+          case 'upload_minecraft_skin': {
+            const variant = String(args.variant || 'classic').toUpperCase() === 'SLIM' ? 'SLIM' : 'CLASSIC';
+            state.profileSkins = [{ id: 'mc-skin-live-2', state: 'ACTIVE', variant, dataUrl: args.pngDataUrl || samplePng }];
+            return {
+              skins: state.profileSkins,
+              capes: state.profileCapes || [
+                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
+                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+              ],
+            };
+          }
+          case 'set_minecraft_cape': {
+            const capes = (state.profileCapes || [
+              { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
+              { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+            ]).map((c) => ({ ...c, state: args.capeId && c.id === args.capeId ? 'ACTIVE' : 'INACTIVE' }));
+            state.profileCapes = capes;
+            return {
+              skins: state.profileSkins || [{ id: 'mc-skin-1', state: 'ACTIVE', variant: 'CLASSIC', dataUrl: samplePng }],
+              capes,
+            };
+          }
           case 'launcher_storage_summary':
             return {
               dataDir: state.snapshot.dataDir,
@@ -1025,11 +1050,14 @@ async function run() {
     assert.strictEqual(hasModTypeTabs, 0, 'Global Discover must ONLY browse Modpacks');
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-discover.png') });
 
-    // Skin Studio -> Search, Classic/Slim filter pills, 6 starter presets, Add Skin tile, and Local 3D Preview Capes
+    // Skin Studio -> Live Mojang Sync, Apply Live to Mojang, Search, Classic/Slim filter pills, 6 templates, and Cape Studio
     await page.click('button[data-tooltip="Skins & Capes"]');
     await page.waitForSelector('.sol-skin-add-tile', { timeout: 5000 });
     await page.waitForSelector('.sol-skin-toolbar', { timeout: 5000 });
-    await page.waitForSelector('text=Default Starter Skins', { timeout: 5000 });
+    await page.waitForSelector('text=Live on Mojang', { timeout: 5000 });
+    await page.waitForSelector('text=Optional Starter Templates', { timeout: 5000 });
+    await page.click('button:has-text("Sync from Mojang")');
+    await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.invoked.filter((c) => c.cmd === 'profile_skins_and_capes').length >= 2);
     const initialStarterCards = await page.locator('.sol-starter-block .sol-skin-card').count();
     assert(initialStarterCards === 6, `Expected 6 starter skin cards, got ${initialStarterCards}`);
     await page.click('.sol-skin-filter-btn:has-text("Slim")');
@@ -1042,6 +1070,8 @@ async function run() {
     assert.strictEqual(await page.locator('.sol-starter-block .sol-skin-card').count(), 1, 'Search for Obsidian should isolate 1 starter skin');
     await page.click('button[aria-label="Clear skin search"]');
     await page.waitForTimeout(120);
+    await page.click('button:has-text("Apply Live to Mojang")');
+    await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.invoked.some((c) => c.cmd === 'upload_minecraft_skin'));
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-skins.png') });
     await page.click('button:has-text("Capes")');
     await page.waitForSelector('.sol-cape-status-strip', { timeout: 5000 });
@@ -1049,6 +1079,8 @@ async function run() {
     await page.waitForSelector('.sol-cape-preview-badge', { timeout: 3000 });
     const previewCapeCards = await page.locator('.sol-starter-block .sol-cape-card').count();
     assert.strictEqual(previewCapeCards, 6, `Expected 6 built-in preview capes, got ${previewCapeCards}`);
+    await page.click('.sol-capes-grid >> nth=0 >> article:has-text("Pan") button:has-text("Equip")');
+    await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.invoked.some((c) => c.cmd === 'set_minecraft_cape' && c.args.capeId === '22222222-2222-4222-8222-222222222222'));
     await page.click('.sol-capes-grid >> nth=1 >> article >> nth=0');
     await page.waitForSelector('.sol-cape-preview-note', { timeout: 3000 });
     await page.waitForSelector('.sol-skin-viewer[data-pose="cape"]', { timeout: 2000 });

@@ -1511,7 +1511,7 @@ pub async fn upload_minecraft_skin(variant: &str, png_data_url: &str) -> Result<
     extras::upload_minecraft_skin(&session, variant, png_data_url).await
 }
 
-pub async fn set_minecraft_cape(cape_id: Option<&str>) -> Result<()> {
+pub async fn set_minecraft_cape(cape_id: Option<&str>) -> Result<Value> {
     let engine = get().await?;
     let session = engine.accounts.session().await?;
     extras::set_minecraft_cape(&session, cape_id).await

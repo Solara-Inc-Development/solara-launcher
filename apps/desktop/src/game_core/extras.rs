@@ -1458,11 +1458,54 @@ pub async fn saved_skins_delete(root: &Path, id: &str) -> Result<()> {
     write_json(&root.join("index.json"), &list).await
 }
 
-async fn fetch_minecraft_texture_data_url(url_str: &str) -> Option<String> {
-    let url = reqwest::Url::parse(url_str).ok()?;
-    if url.scheme() != "https" || url.host_str() != Some("textures.minecraft.net") {
-        return None;
+fn validate_and_normalize_texture_url(url_str: &str, allow_http_loopback: bool) -> Option<reqwest::Url> {
+    let mut url = reqwest::Url::parse(url_str.trim()).ok()?;
+    let host = url.host_str()?.to_ascii_lowercase();
+    if host == "textures.minecraft.net" {
+        if url.scheme() == "http" {
+            let _ = url.set_scheme("https");
+        }
+        return (url.scheme() == "https").then_some(url);
     }
+    if allow_http_loopback && (host == "127.0.0.1" || host == "localhost") && url.scheme() == "http" {
+        return Some(url);
+    }
+    None
+}
+
+fn sanitize_mojang_error_message(status: reqwest::StatusCode, body: &str, access_token: &str) -> String {
+    let code = status.as_u16();
+    let mut base = match code {
+        401 => "Minecraft session expired. Sign in again.".to_string(),
+        403 => "Minecraft denied the skin or cape change for this account.".to_string(),
+        429 => "Mojang skin service rate limit reached. Wait a moment and try again.".to_string(),
+        _ => {
+            let detail = serde_json::from_str::<Value>(body)
+                .ok()
+                .and_then(|v| {
+                    v.get("errorMessage")
+                        .or_else(|| v.get("error"))
+                        .and_then(Value::as_str)
+                        .map(|s| s.chars().filter(|c| !c.is_control()).take(180).collect::<String>())
+                })
+                .filter(|s| !s.trim().is_empty());
+            match detail {
+                Some(msg) => format!("Minecraft rejected the request ({code}): {}", msg.trim()),
+                None => format!("Minecraft skin service returned HTTP {code}"),
+            }
+        }
+    };
+    if !access_token.is_empty() && base.contains(access_token) {
+        base = base.replace(access_token, "[redacted]");
+    }
+    base
+}
+
+async fn fetch_minecraft_texture_data_url_with_policy(
+    url_str: &str,
+    allow_http_loopback: bool,
+) -> Option<String> {
+    let url = validate_and_normalize_texture_url(url_str, allow_http_loopback)?;
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(15))
@@ -1482,25 +1525,13 @@ async fn fetch_minecraft_texture_data_url(url_str: &str) -> Option<String> {
     ))
 }
 
-pub async fn fetch_profile_skins_and_capes(session: &Session) -> Result<Value> {
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .timeout(std::time::Duration::from_secs(20))
-        .build()?;
-    let resp = client
-        .get("https://api.minecraftservices.com/minecraft/profile")
-        .bearer_auth(&session.access_token)
-        .send()
-        .await
-        .context("Minecraft profile service is unavailable")?;
-    if !resp.status().is_success() {
-        bail!("Could not load Minecraft profile skins and capes");
-    }
-    let mut profile: Value = resp.json().await?;
+async fn hydrate_profile_textures(profile: &mut Value, allow_http_loopback: bool) {
     if let Some(skins) = profile["skins"].as_array_mut() {
         for skin in skins {
             if let Some(url) = skin["url"].as_str() {
-                if let Some(data_url) = fetch_minecraft_texture_data_url(url).await {
+                if let Some(data_url) =
+                    fetch_minecraft_texture_data_url_with_policy(url, allow_http_loopback).await
+                {
                     skin["dataUrl"] = json!(data_url);
                 }
             }
@@ -1509,20 +1540,75 @@ pub async fn fetch_profile_skins_and_capes(session: &Session) -> Result<Value> {
     if let Some(capes) = profile["capes"].as_array_mut() {
         for cape in capes {
             if let Some(url) = cape["url"].as_str() {
-                if let Some(data_url) = fetch_minecraft_texture_data_url(url).await {
+                if let Some(data_url) =
+                    fetch_minecraft_texture_data_url_with_policy(url, allow_http_loopback).await
+                {
                     cape["dataUrl"] = json!(data_url);
                 }
             }
         }
     }
+}
+
+pub async fn fetch_profile_skins_and_capes(session: &Session) -> Result<Value> {
+    fetch_profile_skins_and_capes_with_base(session, "https://api.minecraftservices.com", false).await
+}
+
+async fn fetch_profile_skins_and_capes_with_base(
+    session: &Session,
+    api_base: &str,
+    allow_http_loopback: bool,
+) -> Result<Value> {
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(std::time::Duration::from_secs(20))
+        .build()?;
+    let endpoint = format!("{}/minecraft/profile", api_base.trim_end_matches('/'));
+    let resp = client
+        .get(&endpoint)
+        .bearer_auth(&session.access_token)
+        .send()
+        .await
+        .context("Minecraft profile service is unavailable")?;
+    let status = resp.status();
+    if !status.is_success() {
+        let body = resp.text().await.unwrap_or_default();
+        bail!("{}", sanitize_mojang_error_message(status, &body, &session.access_token));
+    }
+    let mut profile: Value = resp
+        .json()
+        .await
+        .context("Minecraft profile response was not valid JSON")?;
+    hydrate_profile_textures(&mut profile, allow_http_loopback).await;
     Ok(profile)
 }
 
 pub async fn upload_minecraft_skin(session: &Session, variant: &str, png_data_url: &str) -> Result<Value> {
+    upload_minecraft_skin_with_base(
+        session,
+        variant,
+        png_data_url,
+        "https://api.minecraftservices.com",
+        false,
+    )
+    .await
+}
+
+async fn upload_minecraft_skin_with_base(
+    session: &Session,
+    variant: &str,
+    png_data_url: &str,
+    api_base: &str,
+    allow_http_loopback: bool,
+) -> Result<Value> {
     if !matches!(variant, "classic" | "slim") {
         bail!("Skin variant must be classic or slim");
     }
     let bytes = decode_skin_png_input(png_data_url)?;
+    let normalized_data_url = format!(
+        "data:image/png;base64,{}",
+        base64::engine::general_purpose::STANDARD.encode(&bytes)
+    );
     // Construct multipart/form-data cleanly without adding extra crates
     let boundary = format!("----SolaraSkinBoundary{}", uuid::Uuid::new_v4().simple());
     let mut body = Vec::with_capacity(bytes.len() + 512);
@@ -1538,30 +1624,62 @@ pub async fn upload_minecraft_skin(session: &Session, variant: &str, png_data_ur
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(30))
         .build()?;
+    let endpoint = format!("{}/minecraft/profile/skins", api_base.trim_end_matches('/'));
     let resp = client
-        .post("https://api.minecraftservices.com/minecraft/profile/skins")
+        .post(&endpoint)
         .bearer_auth(&session.access_token)
         .header("Content-Type", format!("multipart/form-data; boundary={boundary}"))
         .body(body)
         .send()
         .await
         .context("Minecraft skin upload service is unavailable")?;
-    if !resp.status().is_success() {
-        bail!("Minecraft rejected the skin upload ({})", resp.status().as_u16());
+    let status = resp.status();
+    let resp_text = resp.text().await.unwrap_or_default();
+    if !status.is_success() {
+        bail!("{}", sanitize_mojang_error_message(status, &resp_text, &session.access_token));
     }
-    Ok(resp.json().await.unwrap_or_else(|_| json!({ "ok": true })))
+    let mut profile = serde_json::from_str::<Value>(&resp_text).unwrap_or_else(|_| json!({}));
+    if !profile["skins"].is_array() {
+        if let Ok(fresh) =
+            fetch_profile_skins_and_capes_with_base(session, api_base, allow_http_loopback).await
+        {
+            profile = fresh;
+        }
+    } else {
+        hydrate_profile_textures(&mut profile, allow_http_loopback).await;
+    }
+    if let Some(skins) = profile["skins"].as_array_mut() {
+        for skin in skins {
+            if skin["state"].as_str() == Some("ACTIVE")
+                && skin["dataUrl"].as_str().is_none_or(str::is_empty)
+            {
+                skin["dataUrl"] = json!(normalized_data_url);
+            }
+        }
+    }
+    Ok(profile)
 }
 
-pub async fn set_minecraft_cape(session: &Session, cape_id: Option<&str>) -> Result<()> {
+pub async fn set_minecraft_cape(session: &Session, cape_id: Option<&str>) -> Result<Value> {
+    set_minecraft_cape_with_base(session, cape_id, "https://api.minecraftservices.com", false).await
+}
+
+async fn set_minecraft_cape_with_base(
+    session: &Session,
+    cape_id: Option<&str>,
+    api_base: &str,
+    allow_http_loopback: bool,
+) -> Result<Value> {
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(20))
         .build()?;
+    let endpoint = format!("{}/minecraft/profile/capes/active", api_base.trim_end_matches('/'));
     let resp = match cape_id.map(str::trim).filter(|s| !s.is_empty()) {
         Some(id) => {
             uuid::Uuid::parse_str(id).context("Invalid cape identifier")?;
             client
-                .put("https://api.minecraftservices.com/minecraft/profile/capes/active")
+                .put(&endpoint)
                 .bearer_auth(&session.access_token)
                 .json(&json!({ "capeId": id }))
                 .send()
@@ -1569,17 +1687,25 @@ pub async fn set_minecraft_cape(session: &Session, cape_id: Option<&str>) -> Res
         }
         None => {
             client
-                .delete("https://api.minecraftservices.com/minecraft/profile/capes/active")
+                .delete(&endpoint)
                 .bearer_auth(&session.access_token)
                 .send()
                 .await
         }
     }
     .context("Minecraft cape service is unavailable")?;
-    if !resp.status().is_success() {
-        bail!("Minecraft rejected the cape change ({})", resp.status().as_u16());
+    let status = resp.status();
+    let resp_text = resp.text().await.unwrap_or_default();
+    if !status.is_success() {
+        bail!("{}", sanitize_mojang_error_message(status, &resp_text, &session.access_token));
     }
-    Ok(())
+    let mut profile = serde_json::from_str::<Value>(&resp_text).unwrap_or_else(|_| json!({}));
+    if !profile["capes"].is_array() {
+        profile = fetch_profile_skins_and_capes_with_base(session, api_base, allow_http_loopback).await?;
+    } else {
+        hydrate_profile_textures(&mut profile, allow_http_loopback).await;
+    }
+    Ok(profile)
 }
 
 #[cfg(test)]
@@ -1753,5 +1879,321 @@ mod tests {
         }
 
         let _ = tokio::fs::remove_dir_all(&root).await;
+    }
+
+    fn minimal_skin_png(w: u32, h: u32) -> Vec<u8> {
+        let mut png = Vec::new();
+        png.extend_from_slice(b"\x89PNG\r\n\x1a\n");
+        png.extend_from_slice(&13u32.to_be_bytes());
+        png.extend_from_slice(b"IHDR");
+        png.extend_from_slice(&w.to_be_bytes());
+        png.extend_from_slice(&h.to_be_bytes());
+        png.extend_from_slice(&[8, 6, 0, 0, 0]);
+        png
+    }
+
+    fn test_session(token: &str) -> Session {
+        Session {
+            profile: super::super::auth::Profile {
+                id: "11111111-2222-3333-4444-555555555555".into(),
+                name: "SolaraPlayer".into(),
+                active: true,
+                owned: true,
+            },
+            access_token: token.into(),
+            xuid: Some("2535400000000000".into()),
+        }
+    }
+
+    async fn read_http_request(stream: &mut tokio::net::TcpStream) -> (String, String, Vec<u8>) {
+        use tokio::io::AsyncReadExt;
+        let mut buf = Vec::new();
+        let mut chunk = [0u8; 4096];
+        let header_end = loop {
+            let n = stream.read(&mut chunk).await.unwrap();
+            assert!(n > 0, "unexpected EOF reading request headers");
+            buf.extend_from_slice(&chunk[..n]);
+            if let Some(pos) = buf.windows(4).position(|w| w == b"\r\n\r\n") {
+                break pos + 4;
+            }
+        };
+        let head = String::from_utf8_lossy(&buf[..header_end]).to_string();
+        let content_len = head
+            .lines()
+            .find_map(|l| {
+                let (k, v) = l.split_once(':')?;
+                k.eq_ignore_ascii_case("content-length")
+                    .then(|| v.trim().parse::<usize>().ok())?
+            })
+            .unwrap_or(0);
+        while buf.len() < header_end + content_len {
+            let n = stream.read(&mut chunk).await.unwrap();
+            assert!(n > 0, "unexpected EOF reading request body");
+            buf.extend_from_slice(&chunk[..n]);
+        }
+        let body = buf[header_end..header_end + content_len].to_vec();
+        let first_line = head.lines().next().unwrap_or("").to_string();
+        (first_line, head, body)
+    }
+
+    #[test]
+    fn texture_url_validator_upgrades_http_mojang_and_blocks_untrusted_hosts() {
+        let upgraded = validate_and_normalize_texture_url(
+            "http://textures.minecraft.net/texture/abc123",
+            false,
+        )
+        .unwrap();
+        assert_eq!(upgraded.scheme(), "https");
+        assert_eq!(upgraded.host_str(), Some("textures.minecraft.net"));
+
+        assert!(validate_and_normalize_texture_url(
+            "https://evil.example.com/skin.png",
+            false,
+        )
+        .is_none());
+        assert!(validate_and_normalize_texture_url(
+            "http://127.0.0.1:8080/skin.png",
+            false,
+        )
+        .is_none());
+        assert!(validate_and_normalize_texture_url(
+            "http://127.0.0.1:8080/skin.png",
+            true,
+        )
+        .is_some());
+    }
+
+    #[tokio::test]
+    async fn mojang_profile_fetch_hydrates_live_skins_and_capes_and_ignores_untrusted_textures() {
+        use tokio::io::AsyncWriteExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let base = format!("http://{addr}");
+        let skin_png = minimal_skin_png(64, 64);
+        let cape_png = minimal_skin_png(64, 32);
+
+        let srv = tokio::spawn(async move {
+            for _ in 0..3 {
+                let (mut stream, _) = listener.accept().await.unwrap();
+                let (req_line, headers, _) = read_http_request(&mut stream).await;
+                if req_line.starts_with("GET /minecraft/profile ") {
+                    assert!(headers.contains("authorization: Bearer secret-mc-tok")
+                        || headers.contains("Authorization: Bearer secret-mc-tok"));
+                    let payload = serde_json::json!({
+                        "id": "11111111222233334444555555555555",
+                        "name": "SolaraPlayer",
+                        "skins": [{
+                            "id": "skin-live-1",
+                            "state": "ACTIVE",
+                            "variant": "SLIM",
+                            "url": format!("http://{addr}/tex/skin.png")
+                        }, {
+                            "id": "skin-untrusted",
+                            "state": "INACTIVE",
+                            "variant": "CLASSIC",
+                            "url": "https://untrusted.example.invalid/bad.png"
+                        }],
+                        "capes": [{
+                            "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                            "state": "ACTIVE",
+                            "alias": "Migrator",
+                            "url": format!("http://{addr}/tex/cape.png")
+                        }]
+                    });
+                    let json_bytes = serde_json::to_vec(&payload).unwrap();
+                    let resp = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                        json_bytes.len()
+                    );
+                    stream.write_all(resp.as_bytes()).await.unwrap();
+                    stream.write_all(&json_bytes).await.unwrap();
+                } else if req_line.starts_with("GET /tex/skin.png ") {
+                    let resp = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                        skin_png.len()
+                    );
+                    stream.write_all(resp.as_bytes()).await.unwrap();
+                    stream.write_all(&skin_png).await.unwrap();
+                } else if req_line.starts_with("GET /tex/cape.png ") {
+                    let resp = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                        cape_png.len()
+                    );
+                    stream.write_all(resp.as_bytes()).await.unwrap();
+                    stream.write_all(&cape_png).await.unwrap();
+                } else {
+                    panic!("unexpected request {req_line}");
+                }
+            }
+        });
+
+        let session = test_session("secret-mc-tok");
+        let prof = fetch_profile_skins_and_capes_with_base(&session, &base, true)
+            .await
+            .unwrap();
+        assert_eq!(prof["skins"][0]["state"], "ACTIVE");
+        assert_eq!(prof["skins"][0]["variant"], "SLIM");
+        assert!(prof["skins"][0]["dataUrl"]
+            .as_str()
+            .unwrap()
+            .starts_with("data:image/png;base64,"));
+        assert!(prof["skins"][1]["dataUrl"].is_null());
+        assert_eq!(prof["capes"][0]["alias"], "Migrator");
+        assert!(prof["capes"][0]["dataUrl"]
+            .as_str()
+            .unwrap()
+            .starts_with("data:image/png;base64,"));
+        srv.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn mojang_skin_upload_sends_multipart_and_returns_hydrated_profile() {
+        use tokio::io::AsyncWriteExt;
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let base = format!("http://{addr}");
+        let png = minimal_skin_png(64, 64);
+        let data_url = format!(
+            "data:image/png;base64,{}",
+            base64::engine::general_purpose::STANDARD.encode(&png)
+        );
+        let expected_png = png.clone();
+
+        let srv = tokio::spawn(async move {
+            let (mut stream, _) = listener.accept().await.unwrap();
+            let (req_line, headers, body) = read_http_request(&mut stream).await;
+            assert!(req_line.starts_with("POST /minecraft/profile/skins "));
+            assert!(headers.to_ascii_lowercase().contains("multipart/form-data; boundary="));
+            let body_str = String::from_utf8_lossy(&body);
+            assert!(body_str.contains("name=\"variant\"\r\n\r\nslim\r\n"));
+            assert!(body_str.contains("name=\"file\"; filename=\"skin.png\""));
+            assert!(body.windows(expected_png.len()).any(|w| w == expected_png.as_slice()));
+
+            let payload = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [{
+                    "id": "skin-uploaded-2",
+                    "state": "ACTIVE",
+                    "variant": "SLIM",
+                    "url": format!("http://{addr}/tex/uploaded.png")
+                }],
+                "capes": []
+            });
+            let json_bytes = serde_json::to_vec(&payload).unwrap();
+            let resp = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                json_bytes.len()
+            );
+            stream.write_all(resp.as_bytes()).await.unwrap();
+            stream.write_all(&json_bytes).await.unwrap();
+
+            let (mut tex_stream, _) = listener.accept().await.unwrap();
+            let (tex_line, _, _) = read_http_request(&mut tex_stream).await;
+            assert!(tex_line.starts_with("GET /tex/uploaded.png "));
+            let tex_resp = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                expected_png.len()
+            );
+            tex_stream.write_all(tex_resp.as_bytes()).await.unwrap();
+            tex_stream.write_all(&expected_png).await.unwrap();
+        });
+
+        let session = test_session("upload-tok-123");
+        let updated = upload_minecraft_skin_with_base(&session, "slim", &data_url, &base, true)
+            .await
+            .unwrap();
+        assert_eq!(updated["skins"][0]["id"], "skin-uploaded-2");
+        assert!(updated["skins"][0]["dataUrl"]
+            .as_str()
+            .unwrap()
+            .starts_with("data:image/png;base64,"));
+        srv.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn mojang_cape_put_delete_and_error_handling_never_leak_tokens() {
+        use tokio::io::AsyncWriteExt;
+        let cape_uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        let secret_tok = "ultra-secret-bearer-token-xyz";
+        let session = test_session(secret_tok);
+
+        // Invalid cape UUID and invalid skin PNG fail cleanly before network
+        assert!(set_minecraft_cape_with_base(&session, Some("not-a-uuid"), "http://127.0.0.1:9", true)
+            .await
+            .is_err());
+        assert!(upload_minecraft_skin_with_base(&session, "giant", "data:image/png;base64,AA==", "http://127.0.0.1:9", true)
+            .await
+            .is_err());
+
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let base = format!("http://{addr}");
+
+        let srv = tokio::spawn(async move {
+            // 1: PUT cape
+            let (mut s1, _) = listener.accept().await.unwrap();
+            let (line1, _, body1) = read_http_request(&mut s1).await;
+            assert!(line1.starts_with("PUT /minecraft/profile/capes/active "));
+            let parsed: Value = serde_json::from_slice(&body1).unwrap();
+            assert_eq!(parsed["capeId"], cape_uuid);
+            let put_resp = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [],
+                "capes": [{ "id": cape_uuid, "state": "ACTIVE", "alias": "Pan", "url": "https://untrusted.local/c.png" }]
+            });
+            let b1 = serde_json::to_vec(&put_resp).unwrap();
+            s1.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b1.len()).as_bytes()).await.unwrap();
+            s1.write_all(&b1).await.unwrap();
+
+            // 2: DELETE cape -> 204 No Content -> triggers profile re-fetch
+            let (mut s2, _) = listener.accept().await.unwrap();
+            let (line2, _, _) = read_http_request(&mut s2).await;
+            assert!(line2.starts_with("DELETE /minecraft/profile/capes/active "));
+            s2.write_all(b"HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").await.unwrap();
+
+            let (mut s2b, _) = listener.accept().await.unwrap();
+            let (line2b, _, _) = read_http_request(&mut s2b).await;
+            assert!(line2b.starts_with("GET /minecraft/profile "));
+            let del_resp = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [],
+                "capes": [{ "id": cape_uuid, "state": "INACTIVE", "alias": "Pan", "url": "https://untrusted.local/c.png" }]
+            });
+            let b2 = serde_json::to_vec(&del_resp).unwrap();
+            s2b.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b2.len()).as_bytes()).await.unwrap();
+            s2b.write_all(&b2).await.unwrap();
+
+            // 3: 400 error echoing token must be redacted
+            let (mut s3, _) = listener.accept().await.unwrap();
+            let (line3, _, _) = read_http_request(&mut s3).await;
+            assert!(line3.starts_with("GET /minecraft/profile "));
+            let err_json = serde_json::json!({
+                "errorMessage": format!("bad token {secret_tok} rejected")
+            });
+            let b3 = serde_json::to_vec(&err_json).unwrap();
+            s3.write_all(format!("HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b3.len()).as_bytes()).await.unwrap();
+            s3.write_all(&b3).await.unwrap();
+        });
+
+        let after_put = set_minecraft_cape_with_base(&session, Some(cape_uuid), &base, true)
+            .await
+            .unwrap();
+        assert_eq!(after_put["capes"][0]["state"], "ACTIVE");
+
+        let after_del = set_minecraft_cape_with_base(&session, None, &base, true)
+            .await
+            .unwrap();
+        assert_eq!(after_del["capes"][0]["state"], "INACTIVE");
+
+        let err = fetch_profile_skins_and_capes_with_base(&session, &base, true)
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(!err.contains(secret_tok), "error leaked access token: {err}");
+        assert!(err.contains("[redacted]"));
+        srv.await.unwrap();
     }
 }
