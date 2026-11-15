@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.60 — 2026-11-15
+
+- **Flagship OLED Glass & Live Skin Studio Final Polish**:
+  - Added front-face (`10×16`) pixel-art cape thumbnail extraction (`extractCapeThumb`) for owned Mojang capes and defensive dimension fallbacks in `extractHeadThumbnail` inside `SkinsView.vue`, alongside crisp pixelated cape previews and snappier startup splash progress tracking (`140ms`) in `apps/desktop/launcher.css`.
+  - Upgraded Chromium E2E skin & cape fixtures in `scripts/verify-redesign-e2e.cjs` with full 64×64 skin and 64×32 cape textures and audited all desktop and website captures (`e2e-splash.png`, `e2e-home.png`, `e2e-skins.png`, `e2e-capes.png`, `e2e-skin-editor.png`, `e2e-settings.png`, `e2e-website.png`, `public/screenshots/dashboard.png`, `public/screenshots/library.png`).
+  - Added `tests/release-hardening-v60.test.mjs` completing the sequential `V-0.0.42` through `V-0.0.60` pure-launcher OLED glass, Skin/Cape Studio, website, and live Mojang sync release series.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.59 — 2026-11-15
 
 - **Live Mojang Skin & Cape Sync + Pure Catalog Copy**:

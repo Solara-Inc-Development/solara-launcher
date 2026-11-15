@@ -53,8 +53,55 @@ async function waitForServer(url, timeoutMs = 15000) {
 
 function buildMockInitScript() {
   return () => {
-    const samplePng =
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAbElEQVR42u3QMQEAAAgDoGlyo1jBTwI4c2bs3QYBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQGBqwEn2gABpT8c6wAAAABJRU5ErkJggg==';
+    const samplePng = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#E8C3A5';
+        ctx.fillRect(0, 0, 32, 16);
+        ctx.fillStyle = '#3B281E';
+        ctx.fillRect(8, 0, 8, 8);
+        ctx.fillRect(8, 8, 8, 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(9, 11, 2, 1);
+        ctx.fillRect(13, 11, 2, 1);
+        ctx.fillStyle = '#3B82F6';
+        ctx.fillRect(10, 11, 1, 1);
+        ctx.fillRect(13, 11, 1, 1);
+        ctx.fillStyle = '#1E293B';
+        ctx.fillRect(16, 16, 40, 16);
+        ctx.fillStyle = '#3B82F6';
+        ctx.fillRect(20, 20, 8, 12);
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 16, 16, 16);
+        ctx.fillRect(16, 48, 16, 16);
+        ctx.fillStyle = '#E8C3A5';
+        ctx.fillRect(44, 28, 4, 4);
+        ctx.fillRect(36, 60, 4, 4);
+      }
+      return c.toDataURL('image/png');
+    })();
+
+    const sampleCapePng = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 32;
+      const ctx = c.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#0B1220';
+        ctx.fillRect(0, 0, 22, 17);
+        ctx.fillStyle = '#F59E0B';
+        ctx.fillRect(1, 1, 10, 1);
+        ctx.fillRect(1, 16, 10, 1);
+        ctx.fillRect(1, 1, 1, 16);
+        ctx.fillRect(10, 1, 1, 16);
+        ctx.fillStyle = '#FBBF24';
+        ctx.fillRect(4, 6, 4, 5);
+      }
+      return c.toDataURL('image/png');
+    })();
 
     const state = {
       prefs: {
@@ -502,8 +549,8 @@ function buildMockInitScript() {
             return {
               skins: state.profileSkins || [{ id: 'mc-skin-1', state: 'ACTIVE', variant: 'CLASSIC', dataUrl: samplePng }],
               capes: state.profileCapes || [
-                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
-                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: sampleCapePng },
+                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: sampleCapePng },
               ],
             };
           case 'upload_minecraft_skin': {
@@ -512,15 +559,15 @@ function buildMockInitScript() {
             return {
               skins: state.profileSkins,
               capes: state.profileCapes || [
-                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
-                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+                { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: sampleCapePng },
+                { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: sampleCapePng },
               ],
             };
           }
           case 'set_minecraft_cape': {
             const capes = (state.profileCapes || [
-              { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: samplePng },
-              { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: samplePng },
+              { id: '11111111-1111-4111-8111-111111111111', state: 'ACTIVE', alias: 'Migrator', dataUrl: sampleCapePng },
+              { id: '22222222-2222-4222-8222-222222222222', state: 'INACTIVE', alias: 'Pan', dataUrl: sampleCapePng },
             ]).map((c) => ({ ...c, state: args.capeId && c.id === args.capeId ? 'ACTIVE' : 'INACTIVE' }));
             state.profileCapes = capes;
             return {

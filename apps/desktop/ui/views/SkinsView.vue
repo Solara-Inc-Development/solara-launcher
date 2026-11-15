@@ -294,6 +294,7 @@ const skinVariantFilter = ref<'all' | 'classic' | 'slim'>('all');
 const deleteConfirmSkin = ref<SavedSkin | null>(null);
 const deletingSkin = ref(false);
 const skinHeadThumbs = ref<Record<string, string>>({});
+const capeThumbs = ref<Record<string, string>>({});
 
 function extractHeadThumbnail(key: string, pngDataUrl: string): void {
   if (!pngDataUrl || skinHeadThumbs.value[key]) return;
@@ -304,11 +305,34 @@ function extractHeadThumbnail(key: string, pngDataUrl: string): void {
     c.height = 8;
     const ctx = c.getContext('2d');
     if (!ctx) return;
-    ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
-    if (img.height >= 64) {
-      ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
+    if (img.width >= 64 && img.height >= 32) {
+      ctx.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8);
+      if (img.height >= 64) {
+        ctx.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
+      }
+    } else {
+      ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 8, 8);
     }
     skinHeadThumbs.value = { ...skinHeadThumbs.value, [key]: c.toDataURL('image/png') };
+  };
+  img.src = pngDataUrl;
+}
+
+function extractCapeThumb(key: string, pngDataUrl: string): void {
+  if (!pngDataUrl || capeThumbs.value[key]) return;
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = 10;
+    c.height = 16;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    if (img.width >= 64 && img.height >= 32) {
+      ctx.drawImage(img, 1, 1, 10, 16, 0, 0, 10, 16);
+    } else {
+      ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, 10, 16);
+    }
+    capeThumbs.value = { ...capeThumbs.value, [key]: c.toDataURL('image/png') };
   };
   img.src = pngDataUrl;
 }
@@ -398,6 +422,9 @@ function applyProfilePayload(
   if (!previewCapeId.value) {
     const activeCap = profileCapes.value.find((c) => c.state === 'ACTIVE');
     activeCapeDataUrl.value = activeCap?.dataUrl ?? null;
+  }
+  for (const cap of profileCapes.value) {
+    if (cap.dataUrl) extractCapeThumb(cap.id, cap.dataUrl);
   }
   return Boolean(liveSkinUrl);
 }
@@ -1229,7 +1256,7 @@ function onUploadPreviewCape(e: Event) {
                   :class="['sol-card', 'sol-cape-card', { 'is-selected': cape.state === 'ACTIVE' && !isPreviewingLocalCape }]"
                   @click="equipCape(cape)"
                 >
-                  <img v-if="cape.dataUrl" :src="cape.dataUrl" :alt="cape.alias" class="sol-cape-preview" />
+                  <img v-if="cape.dataUrl" :src="capeThumbs[cape.id] || cape.dataUrl" :alt="cape.alias" class="sol-cape-preview" />
                   <div v-else class="sol-cape-preview sol-cape-preview--none">{{ cape.alias }}</div>
                   <div class="sol-skin-meta">
                     <strong class="sol-ellipsis">{{ cape.alias }}</strong>
