@@ -1172,9 +1172,20 @@ async function run() {
     await page.waitForTimeout(80);
     await page.click('.sol-skin-editor button[aria-label="Toggle pixel grid"]');
     await page.click('.sol-skin-editor button[aria-label="Toggle pixel grid"]');
+    const profileSyncsBeforeLocalSave = await page.evaluate(() =>
+      window.__SOLARA_TEST_STATE__.invoked.filter((c) => c.cmd === 'profile_skins_and_capes').length,
+    );
     await page.getByRole('button', { name: 'Save to Library', exact: true }).click();
     await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.invoked.some((c) => c.cmd === 'saved_skins_save' && c.args.pngDataUrl.startsWith('data:image/png;base64,')));
     await page.waitForSelector('text=Unsaved pixels', { state: 'detached' });
+    const profileSyncsAfterLocalSave = await page.evaluate(() =>
+      window.__SOLARA_TEST_STATE__.invoked.filter((c) => c.cmd === 'profile_skins_and_capes').length,
+    );
+    assert.strictEqual(
+      profileSyncsAfterLocalSave,
+      profileSyncsBeforeLocalSave,
+      'Saving a local skin to library must not trigger redundant Mojang profile syncs',
+    );
 
 
     // Verify Pure Minecraft Launcher clean removals (no Solara Hub, server hosting, play.solaranetwork.in, or SSO promos)

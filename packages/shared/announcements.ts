@@ -11,6 +11,22 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-059',
+    title: 'Solara Launcher V-0.0.61: Skin Studio & Mojang Sync Hardening',
+    date: '2026-11-15',
+    category: 'Update',
+    summary: 'Hardens live Mojang skin and cape sync against partial profile responses, account-switch races, stale thumbnail caches, and redundant local skin network calls.',
+    content: `Solara Launcher V-0.0.61 ships post-review hardening fixes for Skin Studio and live Mojang profile synchronization:
+
+• Partial Profile Preservation: Automatic profile re-fetch when Mojang skin upload or cape toggle responses omit either skins or capes.
+• Faster Local Skin Edits: Local Saved Skins CRUD no longer triggers unnecessary Mojang profile network requests.
+• Cache & Concurrency Safety: Keyed head/cape thumbnail caches by image data URL and guarded upload/equip actions across account switches.
+
+Signed testing preview updates verify cryptographically and apply only when triggered.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-058',
     title: 'Solara Launcher V-0.0.41: Auto-Java Install & Windows 26.3 Launch Fix',
     date: '2026-11-15',
@@ -24,8 +40,7 @@ Key highlights of this update:
 • GPU Driver & Crash Diagnostics: Automatically inspects hs_err_pid*.log and game logs on unexpected exit to identify AMD (atio6axx.dll), NVIDIA (nvoglv64.dll), Intel OpenGL, Java mismatch, and memory crashes with actionable recovery guidance.
 
 Signed testing preview updates verify cryptographically and apply only when triggered.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-057',

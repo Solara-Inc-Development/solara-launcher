@@ -48,6 +48,10 @@ test('SkinsView and extras.rs implement live Mojang sync, direct live upload, an
   assert.match(skinsView, /Sign in to sync &amp; update live on Mojang/);
   assert.match(skinsView, /watch\(\s*\(\) => selectedAccount\.value\?\.id/);
   assert.match(skinsView, /async function applySkinToAccount\(\): Promise<boolean>/);
+  assert.match(skinsView, /if \(uploading\.value \|\| !activeSkinDataUrl\.value\) return false;/);
+  assert.match(skinsView, /if \(Array\.isArray\(prof\.skins\)\) \{\s*profileSkins\.value = prof\.skins;/);
+  assert.match(skinsView, /if \(Array\.isArray\(prof\.capes\)\) \{\s*profileCapes\.value = prof\.capes;/);
+  assert.match(skinsView, /async function reloadSavedSkins\(\)/);
   assert.match(skinsView, /const ok = await applySkinToAccount\(\);/);
   assert.doesNotMatch(skinsView, /notify\('info', `Selected \$\{label\}`/);
 
@@ -55,6 +59,7 @@ test('SkinsView and extras.rs implement live Mojang sync, direct live upload, an
   assert.match(extrasRs, /sanitize_mojang_error_message/);
   assert.match(extrasRs, /set_minecraft_cape_with_base/);
   assert.match(extrasRs, /upload_minecraft_skin_with_base/);
+  assert.match(extrasRs, /!profile\["skins"\]\.is_array\(\) \|\| !profile\["capes"\]\.is_array\(\)/);
 });
 
 test('skinUv and skinTools enforce boundary guards, invalid hex normalization, and slim arm symmetry', () => {

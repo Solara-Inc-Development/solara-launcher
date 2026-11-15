@@ -295,11 +295,15 @@ const deleteConfirmSkin = ref<SavedSkin | null>(null);
 const deletingSkin = ref(false);
 const skinHeadThumbs = ref<Record<string, string>>({});
 const capeThumbs = ref<Record<string, string>>({});
+const skinHeadThumbSrc: Record<string, string> = {};
+const capeThumbSrc: Record<string, string> = {};
 
 function extractHeadThumbnail(key: string, pngDataUrl: string): void {
-  if (!pngDataUrl || skinHeadThumbs.value[key]) return;
+  if (!pngDataUrl || skinHeadThumbSrc[key] === pngDataUrl) return;
+  skinHeadThumbSrc[key] = pngDataUrl;
   const img = new Image();
   img.onload = () => {
+    if (skinHeadThumbSrc[key] !== pngDataUrl) return;
     const c = document.createElement('canvas');
     c.width = 8;
     c.height = 8;
@@ -319,9 +323,11 @@ function extractHeadThumbnail(key: string, pngDataUrl: string): void {
 }
 
 function extractCapeThumb(key: string, pngDataUrl: string): void {
-  if (!pngDataUrl || capeThumbs.value[key]) return;
+  if (!pngDataUrl || capeThumbSrc[key] === pngDataUrl) return;
+  capeThumbSrc[key] = pngDataUrl;
   const img = new Image();
   img.onload = () => {
+    if (capeThumbSrc[key] !== pngDataUrl) return;
     const c = document.createElement('canvas');
     c.width = 10;
     c.height = 16;
@@ -393,12 +399,18 @@ function cleanMojangError(err: unknown): string {
   return msg.replace(/^Error:\s*/i, '').trim() || 'Could not reach Mojang profile service.';
 }
 
+let profileSyncSeq = 0;
+
 function applyProfilePayload(
   prof: MojangProfilePayload,
   opts: { syncStageSkin?: boolean; fallbackSkinDataUrl?: string } = {},
 ): boolean {
-  profileSkins.value = prof.skins ?? [];
-  profileCapes.value = prof.capes ?? [];
+  if (Array.isArray(prof.skins)) {
+    profileSkins.value = prof.skins;
+  }
+  if (Array.isArray(prof.capes)) {
+    profileCapes.value = prof.capes;
+  }
   profileError.value = null;
   lastSyncedAt.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -429,7 +441,7 @@ function applyProfilePayload(
   return Boolean(liveSkinUrl);
 }
 
-async function loadAll(opts: { preferAccountSkin?: boolean } = {}) {
+async function reloadSavedSkins() {
   if (!store.desktop) return;
   try {
     savedSkins.value = await native<SavedSkin[]>('saved_skins_list');
@@ -437,21 +449,32 @@ async function loadAll(opts: { preferAccountSkin?: boolean } = {}) {
   } catch {
     savedSkins.value = [];
   }
+}
+
+async function loadAll(opts: { preferAccountSkin?: boolean } = {}) {
+  if (!store.desktop) return;
+  await reloadSavedSkins();
 
   let loadedFromMojang = false;
-  if (selectedAccount.value) {
+  const targetAccountId = selectedAccount.value?.id ?? null;
+  const reqSeq = ++profileSyncSeq;
+  if (targetAccountId) {
     loadingProfile.value = true;
     profileError.value = null;
     try {
       const prof = await native<MojangProfilePayload>('profile_skins_and_capes');
+      if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== targetAccountId) return;
       const syncStageSkin = Boolean(opts.preferAccountSkin || (!editorDirty.value && !activeSkinDataUrl.value));
       loadedFromMojang = applyProfilePayload(prof, { syncStageSkin });
     } catch (err) {
+      if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== targetAccountId) return;
       profileSkins.value = [];
       profileCapes.value = [];
       profileError.value = cleanMojangError(err);
     } finally {
-      loadingProfile.value = false;
+      if (reqSeq === profileSyncSeq) {
+        loadingProfile.value = false;
+      }
     }
   } else {
     profileSkins.value = [];
@@ -517,6 +540,14 @@ watch(
     profileSkins.value = [];
     profileCapes.value = [];
     profileError.value = null;
+    delete skinHeadThumbSrc['account-active'];
+    if (skinHeadThumbs.value['account-active']) {
+      const nextHeads = { ...skinHeadThumbs.value };
+      delete nextHeads['account-active'];
+      skinHeadThumbs.value = nextHeads;
+    }
+    capeThumbs.value = {};
+    for (const k of Object.keys(capeThumbSrc)) delete capeThumbSrc[k];
     void loadAll({ preferAccountSkin: true }).then(rememberOriginalSkin);
   },
 );
@@ -551,7 +582,7 @@ async function saveStarterToLibrary(skin: StarterSkinSpec & { pngDataUrl: string
       variant: skin.variant,
       pngDataUrl: skin.pngDataUrl,
     });
-    await loadAll();
+    await reloadSavedSkins();
     selectSavedSkin(saved);
     notify('success', `${skin.name} added to Saved Skins`);
   } catch (err) {
@@ -584,7 +615,7 @@ async function onUploadPng(e: Event) {
           variant: activeVariant.value,
           pngDataUrl: dataUrl,
         });
-        await loadAll();
+        await reloadSavedSkins();
         selectSavedSkin(saved);
         notify('success', 'Skin imported to library');
       } catch (err) {
@@ -620,7 +651,7 @@ async function duplicateSkin(skin: SavedSkin) {
       variant: skin.variant,
       pngDataUrl: skin.pngDataUrl,
     });
-    await loadAll();
+    await reloadSavedSkins();
     selectSavedSkin(saved);
     notify('success', `Duplicated ${skin.name}`);
   } catch (err) {
@@ -648,7 +679,7 @@ async function syncAccountSkinToLibrary() {
       variant,
       pngDataUrl: activeAccountSkin.value.dataUrl,
     });
-    await loadAll();
+    await reloadSavedSkins();
     selectSavedSkin(saved);
     notify('success', 'Saved active account skin to library');
   } catch (err) {
@@ -669,7 +700,7 @@ async function saveEditorSkin() {
     editorSkinId.value = saved.id;
     editorDirty.value = false;
     rememberOriginalSkin();
-    await loadAll();
+    await reloadSavedSkins();
     notify('success', 'Skin saved locally');
   } catch (err) {
     notify('error', "Couldn't save skin", String(err));
@@ -686,7 +717,7 @@ async function confirmDeleteSkin() {
     await native('saved_skins_delete', { id: skin.id });
     if (editorSkinId.value === skin.id) editorSkinId.value = null;
     deleteConfirmSkin.value = null;
-    await loadAll();
+    await reloadSavedSkins();
     notify('info', 'Skin deleted from local library');
   } catch (err) {
     notify('error', "Couldn't delete skin", String(err));
@@ -696,18 +727,21 @@ async function confirmDeleteSkin() {
 }
 
 async function applySkinToAccount(): Promise<boolean> {
-  if (!selectedAccount.value) {
+  const account = selectedAccount.value;
+  if (!account) {
     notify('warning', 'Sign in required', 'Sign in with Microsoft to sync & update skins live on Mojang.');
     return false;
   }
-  if (!activeSkinDataUrl.value) return false;
+  if (uploading.value || !activeSkinDataUrl.value) return false;
   uploading.value = true;
+  const reqSeq = ++profileSyncSeq;
   try {
     const uploadedPng = activeSkinDataUrl.value;
     const prof = await native<MojangProfilePayload>('upload_minecraft_skin', {
       variant: activeVariant.value,
       pngDataUrl: uploadedPng,
     });
+    if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== account.id) return false;
     if (Array.isArray(prof?.skins)) {
       applyProfilePayload(prof, { syncStageSkin: true, fallbackSkinDataUrl: uploadedPng });
     } else {
@@ -715,9 +749,10 @@ async function applySkinToAccount(): Promise<boolean> {
     }
     editorDirty.value = false;
     rememberOriginalSkin();
-    notify('success', 'Skin updated live on Mojang', `Active skin for ${selectedAccount.value.username} is now live.`);
+    notify('success', 'Skin updated live on Mojang', `Active skin for ${account.username} is now live.`);
     return true;
   } catch (err) {
+    if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== account.id) return false;
     const msg = cleanMojangError(err);
     profileError.value = msg;
     notify('error', "Couldn't update skin on Mojang", msg);
@@ -728,15 +763,18 @@ async function applySkinToAccount(): Promise<boolean> {
 }
 
 async function equipCape(cape: ProfileCape | null) {
-  if (!selectedAccount.value) {
+  const account = selectedAccount.value;
+  if (!account) {
     notify('warning', 'Sign in required', 'Sign in with Microsoft to equip owned capes on Mojang.');
     return;
   }
   if (equippingCapeId.value !== null) return;
   previewCapeId.value = null;
   equippingCapeId.value = cape?.id ?? 'none';
+  const reqSeq = ++profileSyncSeq;
   try {
     const prof = await native<MojangProfilePayload>('set_minecraft_cape', { capeId: cape?.id ?? null });
+    if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== account.id) return;
     if (Array.isArray(prof?.capes)) {
       applyProfilePayload(prof, { syncStageSkin: false });
     } else {
@@ -747,6 +785,7 @@ async function equipCape(cape: ProfileCape | null) {
     animateModel.value = true;
     notify('success', cape ? `Equipped ${cape.alias} live on Mojang` : 'Cape hidden on Mojang');
   } catch (err) {
+    if (reqSeq !== profileSyncSeq || selectedAccount.value?.id !== account.id) return;
     const msg = cleanMojangError(err);
     profileError.value = msg;
     notify('error', "Couldn't update cape on Mojang", msg);
@@ -1090,6 +1129,7 @@ function onUploadPreviewCape(e: Event) {
                     v-if="selectedAccount"
                     variant="primary"
                     size="xs"
+                    :disabled="uploading"
                     @click.stop="quickEquipSkin(skin.pngDataUrl, skin.variant, skin.name)"
                   >
                     Equip
@@ -1157,6 +1197,7 @@ function onUploadPreviewCape(e: Event) {
                       v-if="selectedAccount"
                       variant="primary"
                       size="xs"
+                      :disabled="uploading"
                       @click.stop="quickEquipSkin(starter.pngDataUrl, starter.variant, starter.name)"
                     >
                       Equip

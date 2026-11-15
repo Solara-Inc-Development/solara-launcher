@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.60 — Flagship OLED Glass, Live Mojang Skin/Cape Studio, and Website Final Polish & Audit.
+# Owner-approved preview candidate: V-0.0.61 — Skin Studio & Mojang Sync Hardening.
 on:
   workflow_dispatch:
   push:

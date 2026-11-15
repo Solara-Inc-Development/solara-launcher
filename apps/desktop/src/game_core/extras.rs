@@ -1639,11 +1639,13 @@ async fn upload_minecraft_skin_with_base(
         bail!("{}", sanitize_mojang_error_message(status, &resp_text, &session.access_token));
     }
     let mut profile = serde_json::from_str::<Value>(&resp_text).unwrap_or_else(|_| json!({}));
-    if !profile["skins"].is_array() {
+    if !profile["skins"].is_array() || !profile["capes"].is_array() {
         if let Ok(fresh) =
             fetch_profile_skins_and_capes_with_base(session, api_base, allow_http_loopback).await
         {
             profile = fresh;
+        } else {
+            hydrate_profile_textures(&mut profile, allow_http_loopback).await;
         }
     } else {
         hydrate_profile_textures(&mut profile, allow_http_loopback).await;
@@ -1700,8 +1702,16 @@ async fn set_minecraft_cape_with_base(
         bail!("{}", sanitize_mojang_error_message(status, &resp_text, &session.access_token));
     }
     let mut profile = serde_json::from_str::<Value>(&resp_text).unwrap_or_else(|_| json!({}));
-    if !profile["capes"].is_array() {
-        profile = fetch_profile_skins_and_capes_with_base(session, api_base, allow_http_loopback).await?;
+    if !profile["capes"].is_array() || !profile["skins"].is_array() {
+        if let Ok(fresh) =
+            fetch_profile_skins_and_capes_with_base(session, api_base, allow_http_loopback).await
+        {
+            profile = fresh;
+        } else if profile["capes"].is_array() {
+            hydrate_profile_textures(&mut profile, allow_http_loopback).await;
+        } else {
+            bail!("Minecraft cape service returned an incomplete profile");
+        }
     } else {
         hydrate_profile_textures(&mut profile, allow_http_loopback).await;
     }
@@ -2194,6 +2204,94 @@ mod tests {
             .to_string();
         assert!(!err.contains(secret_tok), "error leaked access token: {err}");
         assert!(err.contains("[redacted]"));
+        srv.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn partial_mojang_skin_or_cape_responses_preserve_both_arrays_via_refetch() {
+        use base64::Engine as _;
+        use tokio::io::AsyncWriteExt;
+
+        let cape_uuid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        let skin_png = minimal_skin_png(64, 64);
+        let data_url = format!(
+            "data:image/png;base64,{}",
+            base64::engine::general_purpose::STANDARD.encode(&skin_png)
+        );
+        let session = test_session("partial-tok-456");
+
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        let base = format!("http://{addr}");
+
+        let srv = tokio::spawn(async move {
+            // 1: POST /minecraft/profile/skins returns partial JSON (only skins, missing capes)
+            let (mut s1, _) = listener.accept().await.unwrap();
+            let (line1, _, _) = read_http_request(&mut s1).await;
+            assert!(line1.starts_with("POST /minecraft/profile/skins "));
+            let partial_skin = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [{ "id": "skin-1", "state": "ACTIVE", "variant": "CLASSIC", "url": "https://untrusted.local/s.png" }]
+            });
+            let b1 = serde_json::to_vec(&partial_skin).unwrap();
+            s1.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b1.len()).as_bytes()).await.unwrap();
+            s1.write_all(&b1).await.unwrap();
+
+            // 1b: Re-fetch GET /minecraft/profile supplies both skins and capes
+            let (mut s1b, _) = listener.accept().await.unwrap();
+            let (line1b, _, _) = read_http_request(&mut s1b).await;
+            assert!(line1b.starts_with("GET /minecraft/profile "));
+            let full1 = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [{ "id": "skin-1", "state": "ACTIVE", "variant": "CLASSIC", "url": "https://untrusted.local/s.png" }],
+                "capes": [{ "id": cape_uuid, "state": "INACTIVE", "alias": "Pan", "url": "https://untrusted.local/c.png" }]
+            });
+            let b1b = serde_json::to_vec(&full1).unwrap();
+            s1b.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b1b.len()).as_bytes()).await.unwrap();
+            s1b.write_all(&b1b).await.unwrap();
+
+            // 2: PUT /minecraft/profile/capes/active returns partial JSON (only capes, missing skins)
+            let (mut s2, _) = listener.accept().await.unwrap();
+            let (line2, _, _) = read_http_request(&mut s2).await;
+            assert!(line2.starts_with("PUT /minecraft/profile/capes/active "));
+            let partial_cape = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "capes": [{ "id": cape_uuid, "state": "ACTIVE", "alias": "Pan", "url": "https://untrusted.local/c.png" }]
+            });
+            let b2 = serde_json::to_vec(&partial_cape).unwrap();
+            s2.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b2.len()).as_bytes()).await.unwrap();
+            s2.write_all(&b2).await.unwrap();
+
+            // 2b: Re-fetch GET /minecraft/profile supplies both skins and capes
+            let (mut s2b, _) = listener.accept().await.unwrap();
+            let (line2b, _, _) = read_http_request(&mut s2b).await;
+            assert!(line2b.starts_with("GET /minecraft/profile "));
+            let full2 = serde_json::json!({
+                "id": "11111111222233334444555555555555",
+                "name": "SolaraPlayer",
+                "skins": [{ "id": "skin-1", "state": "ACTIVE", "variant": "CLASSIC", "url": "https://untrusted.local/s.png" }],
+                "capes": [{ "id": cape_uuid, "state": "ACTIVE", "alias": "Pan", "url": "https://untrusted.local/c.png" }]
+            });
+            let b2b = serde_json::to_vec(&full2).unwrap();
+            s2b.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", b2b.len()).as_bytes()).await.unwrap();
+            s2b.write_all(&b2b).await.unwrap();
+        });
+
+        let after_upload = upload_minecraft_skin_with_base(&session, "classic", &data_url, &base, true)
+            .await
+            .unwrap();
+        assert_eq!(after_upload["skins"][0]["id"], "skin-1");
+        assert_eq!(after_upload["capes"][0]["id"], cape_uuid);
+
+        let after_cape = set_minecraft_cape_with_base(&session, Some(cape_uuid), &base, true)
+            .await
+            .unwrap();
+        assert_eq!(after_cape["skins"][0]["id"], "skin-1");
+        assert_eq!(after_cape["capes"][0]["state"], "ACTIVE");
+
         srv.await.unwrap();
     }
 }

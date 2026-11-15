@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.61 — 2026-11-15
+
+- **Mojang Skin & Cape Sync Hardening + Cache & Concurrency Fixes**:
+  - Updated `apps/desktop/src/game_core/extras.rs` (`upload_minecraft_skin_with_base`, `set_minecraft_cape_with_base`) so partial Mojang profile responses missing either `skins` or `capes` automatically re-fetch `GET /minecraft/profile` and preserve both arrays without wiping state, with a dedicated Rust loopback regression test (`partial_mojang_skin_or_cape_responses_preserve_both_arrays_via_refetch`).
+  - Updated `apps/desktop/ui/views/SkinsView.vue` to split local-only `reloadSavedSkins()` from Mojang profile sync, key head/cape thumbnail caches by source `pngDataUrl` (cleared on account switch), guard `applySkinToAccount()` and `equipCape()` against concurrent/stale account-switch races via `profileSyncSeq`, and disable `Equip` while uploading.
+  - Expanded `scripts/verify-redesign-e2e.cjs` and `tests/release-hardening-v59.test.mjs` to assert zero redundant Mojang profile syncs on local skin saves and partial-response re-fetching.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.60 — 2026-11-15
 
 - **Flagship OLED Glass & Live Skin Studio Final Polish**:
