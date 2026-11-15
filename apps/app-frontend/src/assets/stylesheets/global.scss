@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '@modrinth/ui/src/styles/tailwind-utilities.css';
+
+.font-minecraft {
+	font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+:root {
+	font-family: var(--font-standard, sans-serif), sans-serif;
+	color-scheme: dark;
+	--view-width: calc(100% - 5rem);
+	--expanded-view-width: calc(100% - 13rem);
+	--medal-promotion-bg: #000;
+	--medal-promotion-bg-orange: rgba(208, 246, 255, 0.25);
+	--medal-promotion-text-orange: #42abff;
+	--medal-promotion-bg-gradient: linear-gradient(
+		90deg,
+		rgba(66, 170, 255, 0.15),
+		rgba(0, 0, 0, 0) 100%
+	);
+}
+
+html.light-mode {
+	color-scheme: light;
+}
+
+body {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.card-divider {
+	background-color: var(--color-button-bg);
+	border: none;
+	color: var(--color-button-bg);
+	height: 1px;
+	margin: var(--gap-sm) 0;
+}
+
+.no-wrap {
+	white-space: nowrap;
+}
+
+.no-select {
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+	-webkit-font-smoothing: antialiased;
+	will-change: filter;
+}
+
+.badge {
+	display: flex;
+	border-radius: var(--radius-md);
+	white-space: nowrap;
+	align-items: center;
+	background-color: var(--color-bg);
+	padding-block: var(--gap-sm);
+	padding-inline: var(--gap-lg);
+	width: min-content;
+
+	svg {
+		width: 1.1rem;
+		height: 1.1rem;
+		margin-right: 0.5rem;
+	}
+
+	&.featured {
+		background-color: var(--color-brand-highlight);
+		color: var(--color-contrast);
+	}
+}
+
+* {
+	scrollbar-width: auto;
+	scrollbar-color: var(--color-scrollbar) var(--color-bg);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+	width: 16px;
+	border: 3px solid transparent;
+	opacity: 0.5;
+	transition: opacity 0.2s ease-in-out;
+}
+
+*::-webkit-scrollbar:hover {
+	opacity: 1;
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: var(--color-scrollbar);
+	border-radius: var(--radius-lg);
+	border: 5px solid transparent;
+	background-clip: content-box;
+}
+
+.highlighted {
+	box-shadow: 0 0 1rem var(--color-brand) !important;
+}
+
+.gecko {
+	background-color: var(--color-raised-bg);
+	box-shadow: none !important;
+}
+
+img {
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+.card-shadow {
+	box-shadow: var(--shadow-card);
+}
+
+// From the Bootstrap project
+// The MIT License (MIT)
+// Copyright (c) 2011-2023 The Bootstrap Authors
+// https://github.com/twbs/bootstrap/blob/2f617215755b066904248525a8c56ea425dde871/scss/mixins/_visually-hidden.scss#L8
+.visually-hidden {
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+
+	&:not(caption) {
+		position: absolute !important;
+	}
+}
+
+@import '@modrinth/assets/omorphia.scss';
+
+input {
+	border-radius: var(--size-rounded-sm);
+	box-sizing: border-box;
+	border: 2px solid transparent;
+	// safari iOS rounds inputs by default
+	// set the appearance to none to prevent this
+	appearance: none !important;
+}
+
+pre {
+	font-weight: var(--font-weight-regular);
+}
+
+input,
+textarea {
+	background: var(--color-button-bg);
+	color: var(--color-text);
+	padding: 0.5rem 1rem;
+	font-weight: var(--font-weight-medium);
+	border: none;
+	outline: 2px solid transparent;
+	box-shadow:
+		var(--shadow-inset-sm),
+		0 0 0 0 transparent;
+	transition: box-shadow 0.1s ease-in-out;
+	min-height: 36px;
+
+	&:focus,
+	&:focus-visible {
+		box-shadow:
+			inset 0 0 0 transparent,
+			0 0 0 0.25rem var(--color-brand-shadow);
+		color: var(--color-button-text-active);
+	}
+
+	&:disabled,
+	&[disabled='true'] {
+		opacity: 0.6;
+		pointer-events: none;
+		cursor: not-allowed;
+	}
+
+	&:focus::placeholder {
+		opacity: 0.8;
+	}
+
+	&::placeholder {
+		color: var(--color-button-text);
+		opacity: 0.6;
+	}
+}

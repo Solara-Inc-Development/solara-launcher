@@ -1,0 +1,130 @@
+use super::filesystem::{
+    symlink_metadata_if_exists, validate_parent_directories,
+};
+use crate::ErrorKind;
+use crate::state::content_store::{
+    StoredFileMetadata, StoredFileStatus, validate_digest,
+};
+use crate::util::content_hash::{FileHashes, hash_file};
+use anyhow::Context;
+use std::collections::HashSet;
+use std::path::Path;
+use tokio::fs::{self, DirEntry, ReadDir};
+
+pub(in crate::state::content_store) struct UnregisteredFiles {
+    prefixes: ReadDir,
+    entries: Option<ReadDir>,
+    prefix: String,
+    known: HashSet<String>,
+}
+
+impl UnregisteredFiles {
+    pub(in crate::state::content_store) async fn open(
+        root: &Path,
+        known: HashSet<String>,
+    ) -> crate::Result<Option<Self>> {
+        let objects = root.join("objects");
+        validate_parent_directories(root, &objects.join("object")).await?;
+        let prefixes = match fs::read_dir(&objects).await {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(None);
+            }
+            Err(error) => return Err(error.into()),
+        };
+        Ok(Some(Self {
+            prefixes,
+            entries: None,
+            prefix: String::new(),
+            known,
+        }))
+    }
+
+    /// Unreadable entries are skipped so one damaged file cannot block the
+    /// rest of the scan.
+    pub(in crate::state::content_store) async fn next_file(
+        &mut self,
+    ) -> crate::Result<Option<StoredFileMetadata>> {
+        loop {
+            if let Some(entries) = &mut self.entries {
+                loop {
+                    let entry = match entries.next_entry().await {
+                        Ok(Some(entry)) => entry,
+                        Ok(None) => break,
+                        Err(error) => {
+                            tracing::warn!(prefix = %self.prefix, "Skipping unreadable store directory: {error}");
+                            break;
+                        }
+                    };
+                    let path = entry.path();
+                    match adopt(&entry, &self.prefix, &self.known).await {
+                        Ok(Some(file)) => return Ok(Some(file)),
+                        Ok(None) => {}
+                        Err(error) => {
+                            tracing::warn!(path = %path.display(), "Skipping unreadable store object: {error}");
+                        }
+                    }
+                }
+                self.entries = None;
+            }
+            let Some(prefix) = self.prefixes.next_entry().await? else {
+                return Ok(None);
+            };
+            let name = prefix.file_name().to_string_lossy().into_owned();
+            if validate_digest(&name, 2).is_err()
+                || !prefix.file_type().await.is_ok_and(|kind| kind.is_dir())
+            {
+                continue;
+            }
+            match fs::read_dir(prefix.path()).await {
+                Ok(entries) => {
+                    self.entries = Some(entries);
+                    self.prefix = name;
+                }
+                Err(error) => {
+                    tracing::warn!(path = %prefix.path().display(), "Skipping unreadable store directory: {error}");
+                }
+            }
+        }
+    }
+}
+
+async fn adopt(
+    entry: &DirEntry,
+    prefix: &str,
+    known: &HashSet<String>,
+) -> crate::Result<Option<StoredFileMetadata>> {
+    let hash = entry.file_name().to_string_lossy().into_owned();
+    if validate_digest(&hash, 128).is_err()
+        || !hash.starts_with(prefix)
+        || known.contains(&hash)
+        || !entry.file_type().await?.is_file()
+    {
+        return Ok(None);
+    }
+    let path = entry.path();
+    let Some(metadata) = symlink_metadata_if_exists(&path).await? else {
+        return Ok(None);
+    };
+    if !metadata.is_file() {
+        return Ok(None);
+    }
+    let FileHashes { sha512, size } = hash_file(&path).await?;
+    if sha512 != hash {
+        tracing::warn!(path = %path.display(), "Preserving an unregistered store object with an unexpected hash");
+        return Ok(None);
+    }
+    let mut permissions = metadata.permissions();
+    permissions.set_readonly(true);
+    fs::set_permissions(&path, permissions).await?;
+    Ok(Some(StoredFileMetadata {
+        sha512,
+        size: size.try_into().context(ErrorKind::ContentStoreError(
+            "content file is too large".into(),
+        ))?,
+        status: StoredFileStatus::Ready,
+        modified_as: crate::state::file_modified_at_ns(&metadata)? as i64,
+        last_used_at: chrono::Utc::now().timestamp(),
+        sources: "[]".to_string(),
+    }))
+}

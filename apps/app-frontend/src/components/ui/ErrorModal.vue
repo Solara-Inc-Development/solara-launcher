@@ -1,0 +1,402 @@
+<script setup>
+import {
+	CheckIcon,
+	CopyIcon,
+	DropdownIcon,
+	FolderOpenIcon,
+	HammerIcon,
+	LogInIcon,
+	UpdatedIcon,
+	WrenchIcon,
+	XIcon,
+} from '@modrinth/assets'
+import {
+	Button,
+	ButtonLink,
+	Collapsible,
+	defineMessages,
+	IconButton,
+	injectNotificationManager,
+	useVIntl,
+} from '@modrinth/ui'
+import { computed, ref } from 'vue'
+
+import { ChatIcon } from '@/assets/icons'
+import ModalWrapper from '@/components/ui/modal/ModalWrapper.vue'
+import { handleSevereError } from '@/composables/use-error.js'
+import { trackEvent } from '@/helpers/analytics'
+import { login as login_flow, set_default_user } from '@/helpers/auth.js'
+import { install_existing_instance } from '@/helpers/install'
+import { cancel_directory_change } from '@/helpers/settings.ts'
+import { showAppDbBackupsFolder } from '@/helpers/utils.js'
+
+const { handleError } = injectNotificationManager()
+const { formatMessage } = useVIntl()
+
+const messages = defineMessages({
+	openBackupsFolder: {
+		id: 'app.error.state-init.open-backups-folder',
+		defaultMessage: 'Open backups folder',
+	},
+})
+
+const errorModal = ref()
+const error = ref()
+const closable = ref(true)
+const errorCollapsed = ref(false)
+
+const title = ref('An error occurred')
+const errorType = ref('unknown')
+const supportLink = ref('https://support.modrinth.com')
+const metadata = ref({})
+
+defineExpose({
+	async show(errorVal, context, canClose = true, source = null) {
+		console.log(errorVal, context, canClose, source)
+		closable.value = canClose
+
+		if (errorVal.code?.startsWith('minecraft_auth_')) {
+			title.value = 'Unable to sign in to Minecraft'
+			errorType.value = 'minecraft_auth'
+			supportLink.value =
+				'https://support.modrinth.com/en/articles/9038231-minecraft-sign-in-issues'
+
+			if (errorVal.code === 'minecraft_auth_network') {
+				metadata.value.network = true
+			}
+			if (errorVal.code === 'minecraft_auth_connection_refused') {
+				metadata.value.hostsFile = true
+			}
+		} else if (errorVal.code?.startsWith('directory_move_')) {
+			title.value = 'Could not change app directory'
+			errorType.value = 'directory_move'
+			supportLink.value = 'https://support.modrinth.com'
+
+			if (errorVal.code === 'directory_move_permission_denied') {
+				metadata.value.readOnly = true
+			}
+
+			if (errorVal.code === 'directory_move_no_space') {
+				metadata.value.notEnoughSpace = true
+			}
+		} else if (errorVal.code === 'no_loader_version') {
+			title.value = 'No loader selected'
+			errorType.value = 'no_loader_version'
+			supportLink.value = 'https://support.modrinth.com'
+			metadata.value.instanceId = context.instanceId
+		} else if (source === 'state_init') {
+			title.value = 'Error initializing Modrinth App'
+			errorType.value = 'state_init'
+			supportLink.value = 'https://support.modrinth.com'
+		} else {
+			title.value = 'An error occurred'
+			errorType.value = 'unknown'
+			supportLink.value = 'https://support.modrinth.com'
+			metadata.value = {}
+		}
+
+		error.value = errorVal
+		errorModal.value.show()
+	},
+})
+
+const loadingMinecraft = ref(false)
+async function loginMinecraft() {
+	try {
+		loadingMinecraft.value = true
+		const loggedIn = await login_flow()
+
+		if (loggedIn) {
+			await set_default_user(loggedIn.profile.id).catch(handleError)
+		}
+
+		await trackEvent('AccountLogIn', { source: 'ErrorModal' })
+		loadingMinecraft.value = false
+		errorModal.value.hide()
+	} catch (err) {
+		loadingMinecraft.value = false
+		handleSevereError(err)
+	}
+}
+
+async function cancelDirectoryChange() {
+	try {
+		await cancel_directory_change()
+		window.location.reload()
+	} catch (err) {
+		handleError(err)
+	}
+}
+
+function retryDirectoryChange() {
+	window.location.reload()
+}
+
+async function openDbBackupsFolder() {
+	await showAppDbBackupsFolder().catch(handleError)
+}
+
+const loadingRepair = ref(false)
+async function repairInstance() {
+	loadingRepair.value = true
+	try {
+		await install_existing_instance(metadata.value.instanceId, false)
+		errorModal.value.hide()
+	} catch (err) {
+		handleSevereError(err)
+	}
+	loadingRepair.value = false
+}
+
+const hasDebugInfo = computed(
+	() =>
+		errorType.value === 'directory_move' ||
+		errorType.value === 'minecraft_auth' ||
+		errorType.value === 'state_init' ||
+		errorType.value === 'no_loader_version',
+)
+
+const debugInfo = computed(() => error.value.message ?? error.value ?? 'No error message.')
+
+const copied = ref(false)
+
+async function copyToClipboard(text) {
+	await navigator.clipboard.writeText(text)
+	copied.value = true
+	setTimeout(() => {
+		copied.value = false
+	}, 3000)
+}
+</script>
+
+<template>
+	<ModalWrapper ref="errorModal" :header="title" :closable="closable">
+		<div class="modal-body max-w-[550px]">
+			<div class="markdown-body">
+				<template v-if="errorType === 'minecraft_auth'">
+					<template v-if="metadata.network">
+						<h3>Network issues</h3>
+						<p>
+							It looks like there were issues with the Modrinth App connecting to Microsoft's
+							servers. This is often the result of a poor connection, so we recommend trying again
+							to see if it works. If issues continue to persist, follow the steps in
+							<a
+								href="https://support.modrinth.com/en/articles/9038231-minecraft-sign-in-issues#h_e71a5f805f"
+							>
+								our support article
+							</a>
+							to troubleshoot.
+						</p>
+					</template>
+					<template v-else-if="metadata.hostsFile">
+						<h3>Network issues</h3>
+						<p>
+							The Modrinth App tried to connect to Microsoft / Xbox / Minecraft services, but the
+							remote server rejected the connection. This may indicate that these services are
+							blocked by the hosts file. Please visit
+							<a
+								href="https://support.modrinth.com/en/articles/9038231-minecraft-sign-in-issues#h_d694a29256"
+							>
+								our support article
+							</a>
+							for steps on how to fix the issue.
+						</p>
+					</template>
+					<template v-else>
+						<h3>Try another Microsoft account</h3>
+						<p>
+							Double check you've signed in with the right account. You may own Minecraft on a
+							different Microsoft account.
+						</p>
+						<div class="cta-button">
+							<button class="btn btn-primary" :disabled="loadingMinecraft" @click="loginMinecraft">
+								<LogInIcon /> Try another account
+							</button>
+						</div>
+						<h3>Using PC Game Pass, coming from Bedrock, or just bought the game?</h3>
+						<p>
+							Try signing in with the
+							<a href="https://www.minecraft.net/en-us/download">official Minecraft Launcher</a>
+							first. Once you're done, come back here and sign in!
+						</p>
+					</template>
+					<div class="cta-button">
+						<button class="btn btn-primary" :disabled="loadingMinecraft" @click="loginMinecraft">
+							<LogInIcon /> Try signing in again
+						</button>
+					</div>
+				</template>
+				<template v-if="errorType === 'directory_move'">
+					<template v-if="metadata.readOnly">
+						<h3>Change directory permissions</h3>
+						<p>
+							It looks like the Modrinth App is unable to write to the directory you selected.
+							Please adjust the permissions of the directory and try again or cancel the directory
+							change.
+						</p>
+					</template>
+					<template v-else-if="metadata.notEnoughSpace">
+						<h3>Not enough space</h3>
+						<p>
+							It looks like there is not enough space on the disk containing the directory you
+							selected. Please free up some space and try again or cancel the directory change.
+						</p>
+					</template>
+					<template v-else>
+						<p>
+							The Modrinth App is unable to migrate to the new directory you selected. Please
+							contact support for help or cancel the directory change.
+						</p>
+					</template>
+
+					<div class="cta-button">
+						<button class="btn" @click="retryDirectoryChange">
+							<UpdatedIcon /> Retry directory change
+						</button>
+						<button class="btn btn-danger" @click="cancelDirectoryChange">
+							<XIcon /> Cancel directory change
+						</button>
+					</div>
+				</template>
+				<template v-else-if="errorType === 'state_init'">
+					<p>
+						Modrinth App failed to load correctly. This may be because of a corrupted file, or
+						because the app is missing crucial files.
+					</p>
+					<p>You may be able to fix it through one of the following ways:</p>
+					<ul>
+						<li>Ensuring you are connected to the internet, then try restarting the app.</li>
+						<li>Redownloading the app.</li>
+					</ul>
+				</template>
+				<template v-else-if="errorType === 'no_loader_version'">
+					<p>The Modrinth App failed to find the loader version for this instance.</p>
+					<p>To resolve this, you need to repair the instance. Click the button below to do so.</p>
+					<div class="cta-button">
+						<button class="btn btn-primary" :disabled="loadingRepair" @click="repairInstance">
+							<HammerIcon /> Repair instance
+						</button>
+					</div>
+				</template>
+				<template v-else>
+					{{ debugInfo }}
+				</template>
+				<template v-if="hasDebugInfo">
+					<div class="w-full h-[1px] bg-surface-5 mb-3"></div>
+					<p>
+						If nothing is working and you need help, visit
+						<a :href="supportLink">our support page</a>
+						and start a chat using the widget in the bottom right and we will be more than happy to
+						assist! Make sure to provide the following debug information to the agent:
+					</p>
+				</template>
+			</div>
+			<div class="flex items-center gap-2">
+				<ButtonLink :href="supportLink" @click="errorModal.hide()"
+					><ChatIcon /> Get support</ButtonLink
+				>
+				<Button v-if="closable" @click="errorModal.hide()"><XIcon /> Close</Button>
+			</div>
+			<template v-if="hasDebugInfo">
+				<div class="flex flex-col gap-2">
+					<div class="w-full h-[1px] bg-surface-5"></div>
+
+					<div class="overflow-clip">
+						<button
+							class="flex items-center justify-between w-full bg-transparent border-0 py-4 cursor-pointer"
+							@click="errorCollapsed = !errorCollapsed"
+						>
+							<span class="flex items-center gap-2 text-contrast font-extrabold m-0">
+								<WrenchIcon class="h-4 w-4" />
+								Debug information
+							</span>
+							<DropdownIcon
+								class="h-5 w-5 text-secondary transition-transform"
+								:class="{ 'rotate-180': !errorCollapsed }"
+							/>
+						</button>
+						<Collapsible :collapsed="errorCollapsed">
+							<div
+								class="p-3 bg-surface-2 rounded-2xl text-xs grid grid-cols-[1fr_auto] max-w-full items-start"
+							>
+								<div
+									class="m-0 p-0 rounded-none bg-transparent text-sm font-mono break-words overflow-auto"
+								>
+									{{ debugInfo }}
+									<button class="btn" @click="openDbBackupsFolder">
+										<FolderOpenIcon aria-hidden="true" />
+										{{ formatMessage(messages.openBackupsFolder) }}
+									</button>
+								</div>
+								<IconButton
+									v-tooltip="'Copy debug info'"
+									:label="'Copy debug info'"
+									:disabled="copied"
+									@click="copyToClipboard(debugInfo)"
+								>
+									<template v-if="copied"> <CheckIcon class="text-green" /> </template>
+									<template v-else> <CopyIcon /> </template>
+								</IconButton>
+							</div>
+						</Collapsible>
+					</div>
+				</div>
+			</template>
+		</div>
+	</ModalWrapper>
+</template>
+
+<style>
+.light-mode {
+	--color-orange-bg: rgba(255, 163, 71, 0.2);
+}
+
+.dark-mode,
+.oled-mode {
+	--color-orange-bg: rgba(224, 131, 37, 0.2);
+}
+</style>
+
+<style scoped lang="scss">
+.cta-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+	gap: 0.5rem;
+}
+
+.warning-banner {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: var(--gap-lg);
+	background-color: var(--color-orange-bg);
+	border: 2px solid var(--color-orange);
+	border-radius: var(--radius-md);
+	margin-bottom: 1rem;
+}
+
+.warning-banner__title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 700;
+
+	svg {
+		color: var(--color-orange);
+		height: 1.5rem;
+		width: 1.5rem;
+	}
+}
+
+.modal-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-md);
+}
+
+.markdown-body {
+	overflow: auto;
+}
+</style>

@@ -1,0 +1,1159 @@
+<template>
+	<div v-if="data">
+		<Teleport to="#sidebar-teleport-target">
+			<ProjectSidebarCompatibility
+				v-if="!isServerProject"
+				:project="data"
+				:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
+				:project-v3="projectV3"
+				class="project-sidebar-section"
+			/>
+			<ProjectSidebarServerInfo
+				v-if="isServerProject"
+				:project-v3="projectV3"
+				:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
+				:required-content="serverRequiredContent"
+				:recommended-version="serverRecommendedVersion"
+				:supported-versions="serverSupportedVersions"
+				:loaders="serverModpackLoaders"
+				:ping="serverPing"
+				:status-online="serverStatusOnline"
+				class="project-sidebar-section"
+			/>
+			<ProjectSidebarLinks
+				link-target="_blank"
+				:project="data"
+				:project-v3="projectV3"
+				class="project-sidebar-section"
+			/>
+			<ProjectSidebarTags :project="data" class="project-sidebar-section" />
+			<ProjectSidebarCreators
+				:organization="organization"
+				:members="members"
+				:org-link="(slug) => `https://modrinth.com/organization/${slug}`"
+				:user-link="(username) => `/user/${encodeURIComponent(username)}`"
+				link-target="_blank"
+				:user-link-target="null"
+				class="project-sidebar-section"
+			/>
+			<ProjectSidebarDetails
+				:project="data"
+				:has-versions="versions.length > 0"
+				:link-target="`_blank`"
+				:hide-license="isServerProject"
+				:show-followers="isServerProject"
+				class="project-sidebar-section"
+			/>
+		</Teleport>
+		<div class="flex flex-col gap-4 p-6">
+			<div
+				v-if="projectInstallContext"
+				class="sticky top-0 z-20 -mx-6 -mt-6 rounded-tl-[--radius-xl] border-0 border-b border-solid bg-surface-1 px-6 py-4 border-surface-5"
+			>
+				<BrowseInstallHeader :install-context="projectHeaderInstallContext" />
+			</div>
+			<InstanceIndicator v-if="instance && !projectInstallContext" :instance="instance" />
+			<template v-if="data">
+				<Teleport
+					v-if="appSettings.featureFlags.project_background"
+					to="#background-teleport-target"
+				>
+					<ProjectBackgroundGradient :project="data" />
+				</Teleport>
+				<ProjectPageHeader
+					v-else
+					:project="data"
+					:project-v3="projectV3"
+					:show-status-badge="data.status !== 'approved'"
+					@contextmenu.prevent.stop="handleRightClick"
+					@category="(category) => router.push(`${projectSearchUrl}?f=categories:${category}`)"
+				>
+					<template #actions>
+						<template v-if="isServerProject">
+							<Button
+								v-if="serverPlaying"
+								type="colored"
+								color="red"
+								size="xl"
+								native-type="button"
+								@click="handleStopServer"
+							>
+								<StopCircleIcon />
+								{{ formatMessage(commonMessages.stopButton) }}
+							</Button>
+							<Button
+								v-else
+								type="colored"
+								color="brand"
+								size="xl"
+								native-type="button"
+								:disabled="serverInstallLoading"
+								@click="handleClickPlay"
+							>
+								<PlayIcon />
+								{{
+									serverInstallLoading
+										? formatMessage(commonMessages.installingLabel)
+										: formatMessage(commonMessages.playButton)
+								}}
+							</Button>
+							<IconButton
+								v-tooltip="formatMessage(commonMessages.addServerToInstanceButton)"
+								size="xl"
+								:label="formatMessage(commonMessages.addServerToInstanceButton)"
+								native-type="button"
+								@click="handleAddServerToInstance"
+							>
+								<PlusIcon />
+							</IconButton>
+							<TeleportOverflowMenu
+								type="quiet"
+								size="xl"
+								:label="formatMessage(messages.moreOptions)"
+								:options="serverProjectHeaderMoreActions"
+							>
+								<MoreVerticalIcon />
+							</TeleportOverflowMenu>
+						</template>
+						<template v-else>
+							<Button
+								v-if="showSwitchVersion && onVersionsPage"
+								v-tooltip="formatMessage(messages.alreadyInstalled)"
+								size="xl"
+								native-type="button"
+								disabled
+							>
+								<CheckIcon />
+								{{ formatMessage(commonMessages.installedLabel) }}
+							</Button>
+							<Button
+								v-else-if="showSwitchVersion"
+								size="xl"
+								native-type="button"
+								@click="goToVersions"
+							>
+								<SwapIcon />
+								{{ formatMessage(messages.switchVersion) }}
+							</Button>
+							<Button
+								v-else
+								v-tooltip="
+									installButtonInstalled ? formatMessage(messages.alreadyInstalled) : undefined
+								"
+								type="colored"
+								color="brand"
+								size="xl"
+								native-type="button"
+								:disabled="installButtonDisabled"
+								@click="install(null)"
+							>
+								<component :is="installButtonIcon" :class="installButtonIconClass" />
+								{{
+									installButtonInstalled
+										? formatMessage(commonMessages.installedLabel)
+										: installButtonValidating
+											? formatMessage(commonMessages.validatingLabel)
+											: installButtonLoading
+												? formatMessage(commonMessages.installingLabel)
+												: serverProjectSelected
+													? formatMessage(commonMessages.selectedLabel)
+													: formatMessage(commonMessages.installButton)
+								}}
+							</Button>
+							<TeleportOverflowMenu
+								type="quiet"
+								size="xl"
+								:label="formatMessage(messages.moreOptions)"
+								:options="projectHeaderMoreActions"
+							>
+								<MoreVerticalIcon />
+							</TeleportOverflowMenu>
+						</template>
+					</template>
+				</ProjectPageHeader>
+				<NavTabs
+					:links="[
+						{
+							label: formatMessage(messages.descriptionTab),
+							href: projectDescriptionHref,
+						},
+						{
+							label: formatMessage(messages.versionsTab),
+							href: versionsHref,
+							subpages: ['version'],
+							shown: projectV3?.minecraft_server == null,
+						},
+						{
+							label: formatMessage(messages.galleryTab),
+							href: projectGalleryHref,
+							shown: data.gallery.length > 0,
+						},
+					]"
+				/>
+				<RouterView
+					:route="displayedProjectRoute"
+					:project="data"
+					:versions="versions"
+					:members="members"
+					:instance="instance"
+					:install="install"
+					:installed="installed"
+					:installing="installing"
+					:installed-version="installedVersion"
+					:server-install-context="serverProjectInstallContext"
+					:server-installed="serverProjectInstalled"
+					:server-selected-version-id="serverSelectedVersionId"
+					:loader-tags="allLoaders ?? []"
+					:game-version-tags="allGameVersions ?? []"
+				/>
+			</template>
+			<template v-else>{{ formatMessage(messages.loadError) }}</template>
+		</div>
+		<SelectedProjectsFloatingBar
+			v-if="projectInstallContext"
+			:install-context="projectInstallContext"
+		/>
+		<ContextMenu ref="options" :label="formatMessage(messages.projectActionsLabel)">
+			<template #open_link="{ option }">
+				<GlobeIcon /> {{ option.label }} <ExternalIcon />
+			</template>
+		</ContextMenu>
+		<CreationFlowModal
+			v-if="
+				serverInstallContent.isServerContext.value &&
+				serverInstallContent.serverFlowFrom.value !== 'onboarding'
+			"
+			ref="serverSetupModalRef"
+			:type="
+				serverInstallContent.serverFlowFrom.value === 'reset-server'
+					? 'reset-server'
+					: 'server-onboarding'
+			"
+			:available-loaders="['vanilla', 'fabric', 'neoforge', 'forge', 'quilt', 'paper', 'purpur']"
+			:show-snapshot-toggle="true"
+			:on-back="serverInstallContent.onServerFlowBack"
+			:get-project-versions="serverInstallContent.getServerProjectVersions"
+			:get-loader-manifest="getLoaderManifest"
+			@hide="serverInstallContent.onServerFlowHide"
+			@browse-modpacks="() => {}"
+			@create="serverInstallContent.handleServerModpackFlowCreate"
+		/>
+	</div>
+</template>
+
+<script setup>
+import {
+	BookmarkIcon,
+	CheckIcon,
+	ClipboardCopyIcon,
+	DownloadIcon,
+	ExternalIcon,
+	GlobeIcon,
+	HeartIcon,
+	MoreVerticalIcon,
+	PlayIcon,
+	PlusIcon,
+	ReportIcon,
+	SpinnerIcon,
+	StopCircleIcon,
+} from '@modrinth/assets'
+import {
+	BrowseInstallHeader,
+	Button,
+	commonMessages,
+	ContextMenu,
+	CreationFlowModal,
+	defineMessages,
+	getTargetInstallPreferences,
+	IconButton,
+	injectNotificationManager,
+	NavTabs,
+	ProjectBackgroundGradient,
+	ProjectPageHeader,
+	ProjectSidebarCompatibility,
+	ProjectSidebarCreators,
+	ProjectSidebarDetails,
+	ProjectSidebarLinks,
+	ProjectSidebarServerInfo,
+	ProjectSidebarTags,
+	requestInstall,
+	SelectedProjectsFloatingBar,
+	TeleportOverflowMenu,
+	useVIntl,
+} from '@modrinth/ui'
+import { useQueryClient } from '@tanstack/vue-query'
+import { openUrl } from '@tauri-apps/plugin-opener'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { computed, ref, shallowRef, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { SwapIcon } from '@/assets/icons/index.js'
+import InstanceIndicator from '@/components/ui/InstanceIndicator.vue'
+import { useAppEvent } from '@/composables/use-app-event'
+import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { fetchCachedServerStatus, getFreshCachedServerStatus } from '@/features/servers/queries'
+import {
+	get_organization,
+	get_project,
+	get_project_v3,
+	get_team,
+	get_version,
+	get_version_many,
+} from '@/helpers/cache.js'
+import {
+	get as getInstance,
+	get_projects as getInstanceProjects,
+	getInstanceIconUrl,
+	kill,
+	list as listInstances,
+} from '@/helpers/instance'
+import { get_loader_versions as getLoaderManifest } from '@/helpers/metadata'
+import { get_by_instance_id } from '@/helpers/process'
+import { get_categories, get_game_versions, get_loaders } from '@/helpers/tags'
+import { getServerAddress } from '@/helpers/worlds'
+import { useServerInstallContent } from '@/platform/adapters/browse/server-install-content'
+import { injectContentInstall } from '@/providers/content-install'
+import { injectServerInstall } from '@/providers/server-install'
+import { provideBreadcrumbParent, useBreadcrumb } from '@/shared/breadcrumbs'
+
+dayjs.extend(relativeTime)
+
+const { handleError } = injectNotificationManager()
+const { install: installVersion } = injectContentInstall()
+const route = useRoute()
+const router = useRouter()
+
+const displayedProjectRoute = shallowRef(router.currentRoute.value)
+watch(
+	() => router.currentRoute.value,
+	(nextRoute) => {
+		if (nextRoute.path.startsWith('/project/')) {
+			displayedProjectRoute.value = nextRoute
+		}
+	},
+	{ immediate: true },
+)
+const projectBreadcrumbTo = computed(() => {
+	const currentRoute = displayedProjectRoute.value
+	if (currentRoute.name === 'Version') {
+		return {
+			name: 'Versions',
+			params: { id: currentRoute.params.id },
+			query: currentRoute.query,
+		}
+	}
+
+	return currentRoute.fullPath
+})
+const queryClient = useQueryClient()
+const appSettings = useAppSettings()
+const { formatMessage } = useVIntl()
+
+const messages = defineMessages({
+	moreOptions: { id: 'app.project.more-options', defaultMessage: 'More options' },
+	projectActionsLabel: { id: 'app.project.actions.label', defaultMessage: 'Project actions' },
+	descriptionTab: { id: 'app.project.tab.description', defaultMessage: 'Description' },
+	versionsTab: { id: 'app.project.tab.versions', defaultMessage: 'Versions' },
+	galleryTab: { id: 'app.project.tab.gallery', defaultMessage: 'Gallery' },
+	loadError: {
+		id: 'app.project.load-error',
+		defaultMessage: 'Project data could not be loaded.',
+	},
+	comingSoon: { id: 'app.project.coming-soon', defaultMessage: 'Coming soon' },
+	backToBrowse: {
+		id: 'app.project.install-context.back-to-browse',
+		defaultMessage: 'Back to discover',
+	},
+	backToInstance: {
+		id: 'app.project.install-context.back-to-instance',
+		defaultMessage: 'Back to instance',
+	},
+	alreadyInstalled: {
+		id: 'app.project.install-button.already-installed',
+		defaultMessage: 'This project is already installed',
+	},
+	switchVersion: {
+		id: 'app.project.install-button.switch-version',
+		defaultMessage: 'Switch version',
+	},
+})
+
+const { installingServerProjects, playServerProject, showAddServerToInstanceModal } =
+	injectServerInstall()
+const installing = ref(false)
+const data = shallowRef(null)
+
+function getProjectBreadcrumbSummary(projectId) {
+	const identifier = Array.isArray(projectId) ? projectId[0] : projectId
+	if (typeof identifier !== 'string' || !identifier) return undefined
+
+	return queryClient.getQueryData(['projects', 'summary', identifier])
+}
+
+function getProjectBreadcrumbLabel(projectId) {
+	const summary = getProjectBreadcrumbSummary(projectId)
+	return summary?.name ?? summary?.title ?? formatMessage(commonMessages.loadingLabel)
+}
+
+const projectBreadcrumbLabel = ref(getProjectBreadcrumbLabel(route.params.id))
+const projectBreadcrumb = useBreadcrumb({
+	slot: 'project',
+	id: () => `project:${String(displayedProjectRoute.value.params.id ?? '')}`,
+	label: projectBreadcrumbLabel,
+	visual: () => {
+		const identifier = String(displayedProjectRoute.value.params.id ?? '')
+		const loadedProject =
+			data.value?.id === identifier || data.value?.slug === identifier ? data.value : undefined
+		const project = loadedProject ?? getProjectBreadcrumbSummary(identifier)
+		return {
+			type: 'image',
+			src: project?.icon_url,
+			alt: projectBreadcrumbLabel.value,
+			tintBy: identifier,
+		}
+	},
+	to: projectBreadcrumbTo,
+})
+provideBreadcrumbParent(projectBreadcrumb)
+
+const versions = shallowRef([])
+const members = shallowRef([])
+const categories = shallowRef([])
+const organization = shallowRef(null)
+const instance = ref(null)
+const instanceProjects = ref(null)
+
+const installed = ref(false)
+const installedVersion = ref(null)
+const isServerProject = ref(false)
+const projectV3 = shallowRef(null)
+const serverRequiredContent = shallowRef(null)
+const serverRecommendedVersion = shallowRef(null)
+const serverSupportedVersions = shallowRef([])
+const serverModpackLoaders = shallowRef([])
+const serverPing = ref(undefined)
+const serverStatusOnline = ref(false)
+const serverInstancePath = ref(null)
+const serverPlaying = ref(false)
+const serverSetupModalRef = ref(null)
+const serverInstallContent = useServerInstallContent({
+	serverSetupModalRef,
+	inheritBreadcrumbServer: true,
+})
+
+serverInstallContent.watchServerContextChanges()
+await serverInstallContent.initServerContext()
+
+const instanceFilters = computed(() => {
+	if (!instance.value) {
+		return {}
+	}
+
+	const loaders = []
+	if (data.value.project_type === 'mod') {
+		if (instance.value.loader !== 'vanilla') {
+			loaders.push(instance.value.loader)
+		}
+		if (instance.value.loader === 'vanilla' || data.value.loaders.includes('datapack')) {
+			loaders.push('datapack')
+		}
+	}
+
+	return { l: loaders, g: instance.value.game_version }
+})
+
+function buildProjectHref(path, extraQuery = {}) {
+	const params = new URLSearchParams()
+	for (const [key, val] of Object.entries({ ...route.query, ...extraQuery })) {
+		if (Array.isArray(val)) {
+			for (const v of val) params.append(key, v)
+		} else if (val) {
+			params.append(key, String(val))
+		}
+	}
+	const qs = params.toString()
+	return qs ? `${path}?${qs}` : path
+}
+
+function buildBrowseHref(path) {
+	const params = new URLSearchParams()
+	for (const [key, val] of Object.entries(route.query)) {
+		if (key === 'b' || key === 'g' || key === 'l') continue
+		if (Array.isArray(val)) {
+			for (const v of val) params.append(key, v)
+		} else if (val) {
+			params.append(key, String(val))
+		}
+	}
+	const qs = params.toString()
+	return qs ? `${path}?${qs}` : path
+}
+
+const projectDescriptionHref = computed(() => buildProjectHref(`/project/${route.params.id}`))
+const versionsHref = computed(() =>
+	buildProjectHref(`/project/${route.params.id}/versions`, instanceFilters.value),
+)
+const projectGalleryHref = computed(() => buildProjectHref(`/project/${route.params.id}/gallery`))
+
+const projectBrowseBackUrl = computed(() => {
+	const browsePath = route.query.b
+	if (typeof browsePath === 'string' && browsePath.startsWith('/browse/')) return browsePath
+	if (serverInstallContent.isServerContext.value) return serverInstallContent.serverBackUrl.value
+	const instanceId = route.query.i
+	if (typeof instanceId === 'string' && instanceId) {
+		return `/instance/${encodeURIComponent(instanceId)}`
+	}
+	const type = data.value?.project_type ? `${data.value.project_type}` : 'mod'
+	return buildBrowseHref(`/browse/${type}`)
+})
+const projectBackLabel = computed(() => {
+	if (typeof route.query.b === 'string') return formatMessage(messages.backToBrowse)
+	if (serverInstallContent.isServerContext.value) return serverInstallContent.serverBackLabel.value
+	return typeof route.query.i === 'string'
+		? formatMessage(messages.backToInstance)
+		: formatMessage(messages.backToBrowse)
+})
+
+const projectInstallContext = computed(() => {
+	const serverData = serverInstallContent.serverContextServerData.value
+	if (serverData) {
+		return {
+			name: serverData.name,
+			loader: serverInstallContent.serverContextPlatform.value.loader ?? '',
+			gameVersion: serverInstallContent.serverContextPlatform.value.gameVersion ?? '',
+			serverId: serverInstallContent.serverIdQuery.value,
+			upstream: serverData.upstream,
+			iconSrc: null,
+			isMedal: serverData.is_medal,
+			backUrl: projectBrowseBackUrl.value,
+			backLabel: projectBackLabel.value,
+			heading: serverInstallContent.serverBrowseHeading.value,
+			queuedCount: serverInstallContent.queuedServerInstallCount.value,
+			selectedProjects: serverInstallContent.selectedServerInstallProjects.value,
+			isInstallingSelected: serverInstallContent.isInstallingQueuedServerInstalls.value,
+			installProgress: serverInstallContent.queuedInstallProgress.value,
+			clearQueued: serverInstallContent.clearQueuedServerInstalls,
+			clearSelected: serverInstallContent.clearQueuedServerInstalls,
+			discardSelectedAndBack: serverInstallContent.discardQueuedServerInstallsAndBack,
+			installSelected: serverInstallContent.installQueuedServerInstallsAndBack,
+		}
+	}
+
+	if (instance.value) {
+		return {
+			name: instance.value.name,
+			loader: instance.value.loader,
+			gameVersion: instance.value.game_version,
+			iconSrc: getInstanceIconUrl(instance.value.icon_path),
+			backUrl: projectBrowseBackUrl.value,
+			backLabel: projectBackLabel.value,
+			heading: formatMessage(commonMessages.installingContentLabel),
+		}
+	}
+
+	return null
+})
+
+/**
+ * Going back from a project returns to browse, where the selection is still shown, so the header
+ * skips the "selected projects not installed yet" prompt that would otherwise leave to the server.
+ */
+const projectHeaderInstallContext = computed(() => {
+	const context = projectInstallContext.value
+	if (!context) return null
+	return {
+		...context,
+		selectedProjects: [],
+		isInstallingSelected: false,
+	}
+})
+
+const serverProjectInstallContext = computed(
+	() =>
+		!!serverInstallContent.serverContextServerData.value &&
+		['modpack', 'mod', 'plugin', 'datapack', 'resourcepack', 'shader'].includes(
+			data.value?.project_type,
+		),
+)
+const serverProjectSelected = computed(
+	() =>
+		!serverInstallContent.isSetupServerContext.value &&
+		!!data.value &&
+		serverInstallContent.queuedServerInstallProjectIds.value.has(data.value.id),
+)
+const serverProjectInstalled = computed(
+	() =>
+		!serverInstallContent.isSetupServerContext.value &&
+		!!data.value &&
+		(serverInstallContent.serverContentProjectIds.value.has(data.value.id) ||
+			serverInstallContent.serverContextServerData.value?.upstream?.project_id === data.value.id),
+)
+const serverSelectedVersionId = computed(() =>
+	serverProjectInstallContext.value && serverProjectSelected.value
+		? (serverInstallContent.getQueuedServerInstallPlans().get(data.value.id)?.versionId ?? null)
+		: null,
+)
+const installButtonLoading = computed(
+	() =>
+		installing.value ||
+		serverInstallContent.isInstallingQueuedServerInstalls.value ||
+		serverInstallContent.activeServerModpackInstallProjectId.value === data.value?.id,
+)
+const installButtonValidating = computed(
+	() =>
+		serverProjectInstallContext.value &&
+		installing.value &&
+		data.value?.project_type !== 'modpack' &&
+		!serverInstallContent.isInstallingQueuedServerInstalls.value,
+)
+const installButtonInstalled = computed(() =>
+	serverProjectInstallContext.value ? serverProjectInstalled.value : installed.value,
+)
+const installButtonDisabled = computed(
+	() => installButtonInstalled.value || installButtonLoading.value,
+)
+const serverInstallLoading = computed(
+	() => !!data.value && installingServerProjects.value.includes(data.value.id),
+)
+const installButtonIcon = computed(() => {
+	if (installButtonLoading.value && !installButtonInstalled.value) return SpinnerIcon
+	if (!installButtonInstalled.value && !serverProjectSelected.value) return DownloadIcon
+	return CheckIcon
+})
+const installButtonIconClass = computed(() =>
+	installButtonLoading.value && !installButtonInstalled.value ? 'animate-spin' : undefined,
+)
+const serverProjectHeaderMoreActions = computed(() => [
+	{
+		id: 'open-in-browser',
+		label: formatMessage(commonMessages.openInModrinthButton),
+		icon: ExternalIcon,
+		action: openProjectInBrowser,
+	},
+	{
+		type: 'divider',
+	},
+	{
+		id: 'report',
+		label: formatMessage(commonMessages.reportButton),
+		icon: ReportIcon,
+		tone: 'red',
+		action: reportProject,
+	},
+])
+const projectHeaderMoreActions = computed(() => [
+	{
+		id: 'follow',
+		label: formatMessage(commonMessages.followButton),
+		icon: HeartIcon,
+		disabled: true,
+		tooltip: formatMessage(messages.comingSoon),
+		action: () => {},
+	},
+	{
+		id: 'save',
+		label: formatMessage(commonMessages.saveButton),
+		icon: BookmarkIcon,
+		disabled: true,
+		tooltip: formatMessage(messages.comingSoon),
+		action: () => {},
+	},
+	{
+		id: 'open-in-browser',
+		label: formatMessage(commonMessages.openInModrinthButton),
+		icon: ExternalIcon,
+		action: openProjectInBrowser,
+	},
+	{
+		type: 'divider',
+	},
+	{
+		id: 'report',
+		label: formatMessage(commonMessages.reportButton),
+		icon: ReportIcon,
+		tone: 'red',
+		action: reportProject,
+	},
+])
+const projectSearchUrl = computed(
+	() => `/browse/${isServerProject.value ? 'server' : data.value?.project_type}`,
+)
+
+const showSwitchVersion = computed(() => !!instance.value && installed.value)
+const onVersionsPage = computed(() => route.name === 'Versions')
+
+function goToVersions() {
+	router.push(versionsHref.value)
+}
+
+const [allLoaders, allGameVersions] = await Promise.all([
+	get_loaders().catch(handleError).then(ref),
+	get_game_versions().catch(handleError).then(ref),
+])
+
+async function handleClickPlay() {
+	if (!isServerProject.value) return
+	await playServerProject(data.value.id).catch(handleError)
+	await updateServerPlayState()
+}
+
+async function updateServerPlayState() {
+	if (!isServerProject.value || !data.value) return
+	const packs = await listInstances()
+	const inst = packs.find((p) => p.link?.project_id === data.value.id)
+	if (inst) {
+		serverInstancePath.value = inst.id
+		const processes = await get_by_instance_id(inst.id).catch(() => [])
+		serverPlaying.value = Array.isArray(processes) && processes.length > 0
+	} else {
+		serverInstancePath.value = null
+		serverPlaying.value = false
+	}
+}
+
+async function handleStopServer() {
+	if (!serverInstancePath.value) return
+	await kill(serverInstancePath.value).catch(() => {})
+	serverPlaying.value = false
+}
+
+function handleAddServerToInstance() {
+	const address = getServerAddress(projectV3.value?.minecraft_java_server)
+	if (!address || !data.value) return
+	showAddServerToInstanceModal(data.value.title, address)
+}
+
+function openProjectInBrowser() {
+	if (!data.value) return
+	const type = isServerProject.value ? 'project' : data.value.project_type
+	void openUrl(`https://modrinth.com/${type}/${data.value.slug}`)
+}
+
+function reportProject() {
+	if (!data.value) return
+	void openUrl(`https://modrinth.com/report?item=project&itemID=${data.value.id}`)
+}
+
+async function fetchProjectData() {
+	const requestedId = String(route.params.id ?? '')
+	projectBreadcrumbLabel.value = getProjectBreadcrumbLabel(requestedId)
+	const [project, projectV3Result] = await Promise.all([
+		get_project(requestedId, 'must_revalidate').catch(handleError),
+		get_project_v3(requestedId, 'must_revalidate').catch(handleError),
+	])
+	if (String(route.params.id ?? '') !== requestedId) {
+		return
+	}
+
+	projectV3.value = projectV3Result
+
+	if (!project) {
+		handleError('Error loading project')
+		return
+	}
+
+	data.value = project
+	projectBreadcrumbLabel.value = project.title
+	;[versions.value, members.value, categories.value, instance.value, instanceProjects.value] =
+		await Promise.all([
+			get_version_many(project.versions, 'must_revalidate').catch(handleError),
+			get_team(project.team).catch(handleError),
+			get_categories().catch(handleError),
+			route.query.i ? getInstance(route.query.i).catch(handleError) : Promise.resolve(),
+			route.query.i ? getInstanceProjects(route.query.i).catch(handleError) : Promise.resolve(),
+		])
+	if (String(route.params.id ?? '') !== requestedId) {
+		return
+	}
+
+	for (const member of members.value ?? []) {
+		for (const identifier of [member.user.id, member.user.username]) {
+			if (identifier) {
+				queryClient.setQueryData(['users', 'summary', identifier], member.user)
+			}
+		}
+	}
+
+	versions.value = versions.value.sort((a, b) => dayjs(b.date_published) - dayjs(a.date_published))
+
+	const installedFile = instanceProjects.value
+		? Object.values(instanceProjects.value).find(
+				(x) => x.metadata && x.metadata.project_id === data.value.id,
+			)
+		: undefined
+	installed.value = !!installedFile
+	installedVersion.value = installedFile?.metadata.version_id ?? null
+
+	if (project.organization) {
+		organization.value = await get_organization(project.organization).catch(handleError)
+	} else {
+		organization.value = null
+	}
+	if (String(route.params.id ?? '') !== requestedId) {
+		return
+	}
+
+	isServerProject.value = projectV3.value?.minecraft_server != null
+	serverStatusOnline.value = !!projectV3.value?.minecraft_java_server?.ping?.data
+
+	fetchDeferredServerData(project)
+}
+
+function fetchDeferredServerData(project) {
+	const serverAddress = projectV3.value?.minecraft_java_server?.address
+	if (serverAddress) {
+		const cachedStatus = getFreshCachedServerStatus(queryClient, serverAddress)
+		if (cachedStatus) {
+			serverPing.value = cachedStatus.ping
+			serverStatusOnline.value = true
+		} else {
+			serverPing.value = undefined
+		}
+
+		fetchCachedServerStatus(queryClient, serverAddress)
+			.then((status) => {
+				if (projectV3.value?.minecraft_java_server?.address !== serverAddress) return
+				serverPing.value = status.ping
+				serverStatusOnline.value = true
+			})
+			.catch((error) => {
+				console.error(`Failed to ping server ${serverAddress}:`, error)
+			})
+	}
+
+	const content = projectV3.value?.minecraft_java_server?.content
+	if (content?.kind === 'modpack' && content.version_id) {
+		get_version(content.version_id, 'bypass')
+			.catch(handleError)
+			.then(async (modpackVersion) => {
+				if (!modpackVersion) return
+				serverRecommendedVersion.value = modpackVersion.game_versions?.[0] ?? null
+				serverModpackLoaders.value = modpackVersion.mrpack_loaders ?? []
+				if (modpackVersion.project_id) {
+					const modpackProject = await get_project_v3(
+						modpackVersion.project_id,
+						'must_revalidate',
+					).catch(handleError)
+					if (modpackProject) {
+						const primaryFile =
+							modpackVersion.files?.find((f) => f.primary) ?? modpackVersion.files?.[0]
+
+						serverRequiredContent.value = {
+							name: modpackProject.name,
+							versionNumber: modpackVersion.version_number ?? '',
+							icon: modpackProject.icon_url,
+							onclickName:
+								modpackProject.id !== project.id
+									? () => router.push(`/project/${modpackProject.id}`)
+									: undefined,
+							onclickVersion:
+								modpackProject.id !== project.id
+									? () => router.push(`/project/${modpackProject.id}/version/${modpackVersion.id}`)
+									: undefined,
+							onclickDownload: primaryFile?.url ? () => openUrl(primaryFile.url) : undefined,
+							showCustomModpackTooltip: modpackProject.id === project.id,
+						}
+					}
+				}
+			})
+	} else if (content?.kind === 'vanilla') {
+		serverRecommendedVersion.value = content.recommended_game_version ?? null
+		const supported = content.supported_game_versions ?? []
+		serverSupportedVersions.value = supported.filter((v) => !!v)
+	}
+
+	updateServerPlayState()
+}
+
+await fetchProjectData()
+
+useAppEvent('process', (e) => {
+	if (
+		e.event === 'finished' &&
+		serverInstancePath.value &&
+		e.instance_id === serverInstancePath.value
+	) {
+		serverPlaying.value = false
+	}
+})
+
+watch(
+	() => route.params.id,
+	async () => {
+		if (route.params.id && route.path.startsWith('/project')) {
+			await fetchProjectData()
+		}
+	},
+)
+
+async function install(version) {
+	if (serverProjectInstallContext.value && data.value) {
+		if (serverProjectSelected.value) {
+			serverInstallContent.removeQueuedServerInstall(data.value.id)
+			return
+		}
+		if (installButtonDisabled.value) return
+
+		installing.value = true
+		try {
+			const contentType = data.value.project_type
+			await requestInstall({
+				project: {
+					...data.value,
+					project_id: data.value.id,
+					icon_url: data.value.icon_url,
+				},
+				contentType,
+				mode:
+					contentType === 'modpack' || serverInstallContent.isSetupServerContext.value
+						? 'immediate'
+						: 'queue',
+				selectedFilters: [],
+				providedFilters: [],
+				overriddenProvidedFilterTypes: [],
+				targetPreferences: serverInstallContent.isSetupServerContext.value
+					? {}
+					: getTargetInstallPreferences(
+							{
+								gameVersion: serverInstallContent.serverContextPlatform.value.gameVersion,
+								loader: serverInstallContent.serverContextPlatform.value.loader,
+							},
+							contentType,
+						),
+				updateChannel: version ? undefined : await serverInstallContent.getServerUpdateChannel(),
+				getProjectVersions: async () =>
+					version ? versions.value.filter((candidate) => candidate.id === version) : versions.value,
+				queue: {
+					get: serverInstallContent.getQueuedServerInstallPlans,
+					set: serverInstallContent.setQueuedServerInstallPlans,
+				},
+				install: (plan) =>
+					serverInstallContent.openServerModpackInstallFlow({
+						projectId: plan.projectId,
+						contentType: plan.contentType,
+						versionId: plan.versionId,
+						name: plan.project.title ?? plan.project.name ?? data.value.title,
+						iconUrl: plan.project.icon_url ?? undefined,
+					}),
+			})
+		} catch (err) {
+			handleError(err)
+		} finally {
+			installing.value = false
+		}
+		return
+	}
+
+	installing.value = true
+	await installVersion(
+		data.value.id,
+		version,
+		instance.value ? instance.value.id : null,
+		'ProjectPage',
+		(version, installedProjectIds) => {
+			installing.value = false
+
+			const installedIds = installedProjectIds ?? [data.value.id]
+			if (instance.value && version && installedIds.includes(data.value.id)) {
+				installed.value = true
+				installedVersion.value = version
+			}
+		},
+		(profile) => {
+			router.push(`/instance/${profile}`)
+		},
+	).catch(handleError)
+}
+
+const options = ref(null)
+const handleRightClick = (event) => {
+	const project = data.value
+	options.value.open(event, [
+		{
+			id: 'install',
+			label: formatMessage(commonMessages.installButton),
+			icon: DownloadIcon,
+			action: () => install(null),
+		},
+		{ type: 'divider' },
+		{
+			id: 'open_link',
+			label: formatMessage(commonMessages.openInModrinthButton),
+			icon: GlobeIcon,
+			action: () => openProjectLink(project),
+		},
+		{
+			id: 'copy_link',
+			label: formatMessage(commonMessages.copyLinkButton),
+			icon: ClipboardCopyIcon,
+			action: () => copyProjectLink(project),
+		},
+	])
+}
+const getProjectLink = (project) => `https://modrinth.com/${project.project_type}/${project.slug}`
+const openProjectLink = (project) => openUrl(getProjectLink(project))
+const copyProjectLink = (project) => navigator.clipboard.writeText(getProjectLink(project))
+</script>
+
+<style scoped lang="scss">
+.root-container {
+	display: flex;
+	flex-direction: row;
+	min-height: 100%;
+}
+
+.project-sidebar {
+	position: fixed;
+	width: calc(300px + 1.5rem);
+	min-height: calc(100vh - 3.25rem);
+	height: fit-content;
+	max-height: calc(100vh - 3.25rem);
+	padding: 1rem 0.5rem 1rem 1rem;
+	overflow-y: auto;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		width: 0;
+		background: transparent;
+	}
+}
+
+.sidebar-card {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.content-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 1rem;
+	margin-left: calc(300px + 1rem);
+}
+
+.button-group {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	gap: 0.5rem;
+}
+
+.stats {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	gap: var(--gap-md);
+
+	.stat {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		width: fit-content;
+		gap: var(--gap-xs);
+		--stat-strong-size: 1.25rem;
+
+		strong {
+			font-size: var(--stat-strong-size);
+		}
+
+		p {
+			margin: 0;
+		}
+
+		svg {
+			min-height: var(--stat-strong-size);
+			min-width: var(--stat-strong-size);
+		}
+	}
+
+	.date {
+		margin-top: auto;
+	}
+}
+
+.tabs {
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+	margin-bottom: var(--gap-md);
+	justify-content: space-between;
+
+	.tab {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		border-radius: var(--border-radius);
+		cursor: pointer;
+		transition: background-color 0.2s ease-in-out;
+
+		&:hover {
+			background-color: var(--color-raised-bg);
+		}
+
+		&.router-view-active {
+			background-color: var(--color-raised-bg);
+		}
+	}
+}
+
+.links {
+	a {
+		display: inline-flex;
+		align-items: center;
+		border-radius: 1rem;
+		color: var(--color-text);
+
+		svg,
+		img {
+			height: 1rem;
+			width: 1rem;
+		}
+
+		span {
+			margin-left: 0.25rem;
+			text-decoration: underline;
+			line-height: 2rem;
+		}
+
+		&:focus-visible,
+		&:hover {
+			svg,
+			img,
+			span {
+				color: var(--color-heading);
+			}
+		}
+
+		&:active {
+			svg,
+			img,
+			span {
+				color: var(--color-text-dark);
+			}
+		}
+
+		&:not(:last-child)::after {
+			content: '•';
+			margin: 0 0.25rem;
+		}
+	}
+}
+
+.install-loading {
+	scale: 0.2;
+	height: 1rem;
+	width: 1rem;
+	margin-right: -1rem;
+
+	:deep(svg) {
+		color: var(--color-contrast);
+	}
+}
+
+.project-sidebar-section {
+	@apply p-4 flex flex-col gap-2 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid;
+}
+</style>

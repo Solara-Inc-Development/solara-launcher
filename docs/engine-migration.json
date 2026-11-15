@@ -34,8 +34,9 @@
     "game recovery after launcher restart"
   ],
   "evidence": [
-    "apps/desktop/src/game_core/",
-    "apps/desktop/src/engine.rs",
+    "apps/app/src/",
+    "apps/app-frontend/src/",
+    "packages/app-lib/src/",
     "Cargo.lock",
     "scripts/third-party.mjs"
   ],

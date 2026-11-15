@@ -1,0 +1,839 @@
+{
+  "app.action-bar.downloading-java": {
+    "message": "Laster ned Java {version}"
+  },
+  "app.action-bar.downloading-update": {
+    "message": "Laster ned oppdatering"
+  },
+  "app.action-bar.downloads": {
+    "message": "Nedlastninger"
+  },
+  "app.action-bar.hide-downloads": {
+    "message": "Gjem aktive nedlastinger"
+  },
+  "app.action-bar.hide-more-running-instances": {
+    "message": "Skjul flere kjørende tilfeller"
+  },
+  "app.action-bar.install.copied-details": {
+    "message": "Kopiert"
+  },
+  "app.action-bar.install.copy-details": {
+    "message": "Kopidetaljer"
+  },
+  "app.action-bar.install.dismiss": {
+    "message": "Avvis"
+  },
+  "app.action-bar.install.open-instance": {
+    "message": "Åpne tilfelle"
+  },
+  "app.action-bar.install.retry": {
+    "message": "Prøv igjen"
+  },
+  "app.action-bar.install.summary.app-closing": {
+    "message": "Avbrutt grunnet lukking av app"
+  },
+  "app.action-bar.install.summary.bad-modpack-file": {
+    "message": "Kunne ikke lese modpack"
+  },
+  "app.action-bar.install.summary.canceled": {
+    "message": "Avbrutt"
+  },
+  "app.action-bar.install.summary.cleanup-incomplete": {
+    "message": "Opprydding ble ikke ferdig"
+  },
+  "app.action-bar.install.summary.content-download-failed": {
+    "message": "Kunne ikke laste ned filer"
+  },
+  "app.action-bar.install.summary.corrupt-download": {
+    "message": "Nedlastet fil er ødelagt"
+  },
+  "app.action-bar.install.summary.could-not-save-files": {
+    "message": "Kunne ikke lagre filer"
+  },
+  "app.action-bar.install.summary.download-failed": {
+    "message": "Nedlasting kunne ikke fullføres"
+  },
+  "app.action-bar.install.summary.instance-error": {
+    "message": "Kunne ikke forberede instans"
+  },
+  "app.action-bar.install.summary.invalid-file-path": {
+    "message": "Filbanen er ugyldig"
+  },
+  "app.action-bar.install.summary.invalid-modpack": {
+    "message": "Modpackdata er ugyldig"
+  },
+  "app.action-bar.install.summary.invalid-modpack-files": {
+    "message": "Modpackfiler har ugyldig metadata"
+  },
+  "app.action-bar.install.summary.java-setup-failed": {
+    "message": "Konfigureringen av Java kunne ikke fullføres"
+  },
+  "app.action-bar.install.summary.loader-setup-failed": {
+    "message": "Oppsett av loader feilet"
+  },
+  "app.action-bar.install.summary.local-data-error": {
+    "message": "Kunne ikke oppdatere lokale data"
+  },
+  "app.action-bar.install.summary.minecraft-setup-failed": {
+    "message": "Oppsett av Minecraft mislyktes"
+  },
+  "app.action-bar.install.summary.modrinth-unreachable": {
+    "message": "Kunne ikke nå Modrinth"
+  },
+  "app.action-bar.install.summary.no-write-permission": {
+    "message": "Ikke tillatelse til å skrive"
+  },
+  "app.action-bar.install.summary.pack-download-failed": {
+    "message": "Kunne ikke laste ned filer"
+  },
+  "app.action-bar.install.summary.unexpected-error": {
+    "message": "Noe gikk galt"
+  },
+  "app.action-bar.install.unknown-instance": {
+    "message": "Ukjent tilfelle"
+  },
+  "app.action-bar.install.updating-shared-content": {
+    "message": "Oppdaterer delt innhold"
+  },
+  "app.action-bar.make-primary-instance": {
+    "message": "Gjør om til primærtilfelle"
+  },
+  "app.action-bar.no-instances-running": {
+    "message": "Ingen kjørende tilfeller"
+  },
+  "app.action-bar.offline": {
+    "message": "Uten nett"
+  },
+  "app.action-bar.primary-instance": {
+    "message": "Primærtilfelle"
+  },
+  "app.action-bar.reload-to-update": {
+    "message": "Last inn på nytt for å oppdatere"
+  },
+  "app.action-bar.show-downloads": {
+    "message": "Vis aktive nedlastninger"
+  },
+  "app.action-bar.show-more-running-instances": {
+    "message": "Vis flere kjørende tilfeller"
+  },
+  "app.action-bar.stop-instance": {
+    "message": "Stopp tilfelle"
+  },
+  "app.action-bar.update": {
+    "message": "Oppdater"
+  },
+  "app.action-bar.view-active-downloads": {
+    "message": "Vis aktive nedlastninger"
+  },
+  "app.action-bar.view-instance": {
+    "message": "Vis tilfelle"
+  },
+  "app.action-bar.view-logs": {
+    "message": "Vis logger"
+  },
+  "app.ads-consent.accept": {
+    "message": "Godta alt"
+  },
+  "app.ads-consent.body": {
+    "message": "Annonser gjør Modrinth mulig og finansierer betalinger til skapere. Partnerne våre kan lagre eller få tilgang til informasjonskapsler i appen for å tilpasse annonser og måle ytelse."
+  },
+  "app.ads-consent.manage": {
+    "message": "Administrer preferanser"
+  },
+  "app.ads-consent.reject": {
+    "message": "Avslå alle"
+  },
+  "app.ads-consent.title": {
+    "message": "Ditt personvern og hvordan annonser støtter Modrinth"
+  },
+  "app.appearance-settings.compact-mode.description": {
+    "message": "Vis instanser i biblioteket i et kompakt radoppsett."
+  },
+  "app.appearance-settings.compact-mode.title": {
+    "message": "Kompakt modus"
+  },
+  "app.appearance-settings.default-landing-page.home": {
+    "message": "Hjem"
+  },
+  "app.appearance-settings.default-landing-page.library": {
+    "message": "Bibliotek"
+  },
+  "app.appearance-settings.hide-nametag.description": {
+    "message": "Skjul brukernavnet ditt over spillerforhåndsvisningen på skinnvelgersiden."
+  },
+  "app.appearance-settings.hide-nametag.title": {
+    "message": "Gjøm navnelapp"
+  },
+  "app.appearance-settings.minimize-launcher.description": {
+    "message": "Minimer Modrinth App når Minecraft starter."
+  },
+  "app.appearance-settings.minimize-launcher.title": {
+    "message": "Minimer app"
+  },
+  "app.appearance-settings.show-play-time.description": {
+    "message": "Vis hvor lenge du har spilt hver instans."
+  },
+  "app.appearance-settings.show-play-time.title": {
+    "message": "Vis spilletid"
+  },
+  "app.appearance-settings.skip-non-essential-warnings.description": {
+    "message": "Hopp  over  bekreftelser for lav risiko handlinger som for eksempel dupliserte innstallasjoner, normal sletting av innhold, masseoppdateringer, avkoblinger, og reparasjoner. Advarsler for farlige handlinger vises alltid."
+  },
+  "app.appearance-settings.skip-non-essential-warnings.title": {
+    "message": "Hopp over mindre viktige advarsler"
+  },
+  "app.appearance-settings.toggle-sidebar.description": {
+    "message": "Skjul høyre menylinje som standard og legg til knapp for å vise eller skjule den."
+  },
+  "app.appearance-settings.toggle-sidebar.title": {
+    "message": "Skjul høyre menylinje"
+  },
+  "app.appearance-settings.unknown-pack-warning.description": {
+    "message": "Vis en sikkerhetsvarsling før innstallering av en Modrinth Pack (.mrpack) som ikke hostes på Modrinth."
+  },
+  "app.appearance-settings.unknown-pack-warning.title": {
+    "message": "Advar meg før jeg installerer ukjente modpakker"
+  },
+  "app.auth-servers.unreachable.body": {
+    "message": "Minecraft-autentiseringsservere kan være nede for øyeblikket. Kontroller internettforbindelsen din og prøv igjen senere."
+  },
+  "app.auth-servers.unreachable.header": {
+    "message": "Kan ikke nå autentiseringsservere"
+  },
+  "app.behavior-settings.confirmations.title": {
+    "message": "Bekreftelser"
+  },
+  "app.behavior-settings.content.title": {
+    "message": "Hjem og innhold"
+  },
+  "app.behavior-settings.refocus-on-game-close.description": {
+    "message": "Vis Modrinth App i forgrunnen når Minecraft lukkes."
+  },
+  "app.behavior-settings.refocus-on-game-close.title": {
+    "message": "Refokuser appen når Minecraft lukkes"
+  },
+  "app.behavior-settings.startup-and-navigation.title": {
+    "message": "Oppstart og navigasjon"
+  },
+  "app.behavior-settings.sync-across-devices.description": {
+    "message": "Bruk disse oppførselsinnstillingene overalt hvor du er logget in. La denne være av for å beholde separate innstillinger på denne enheten."
+  },
+  "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
+    "message": "Logg inn på en Modrinth-konto for å synkronisere innstillinger."
+  },
+  "app.behavior-settings.sync-across-devices.title": {
+    "message": "Synkroniser oppførsel på tvers av enheter"
+  },
+  "app.browse.add-servers-to-instance": {
+    "message": "Legger til server til tilfelle"
+  },
+  "app.browse.add-to-an-instance": {
+    "message": "Legg til til et tilfelle"
+  },
+  "app.browse.add-to-instance": {
+    "message": "Legg til til tilfelle"
+  },
+  "app.browse.add-to-instance-name": {
+    "message": "Legg til til {instanceName}"
+  },
+  "app.browse.added": {
+    "message": "Lagt til"
+  },
+  "app.browse.already-added": {
+    "message": "Allerede lagt til"
+  },
+  "app.browse.back-to-instance": {
+    "message": "Tilbake til tilfelle"
+  },
+  "app.browse.discover-project-type": {
+    "message": "Oppdag {projectType}"
+  },
+  "app.browse.discover-servers": {
+    "message": "Oppdag servere"
+  },
+  "app.browse.hide-added-servers": {
+    "message": "Gjem servere som allerede er lagt til"
+  },
+  "app.browse.hide-installed-modpacks": {
+    "message": "Skjul allerede installerte"
+  },
+  "app.browse.project-actions.label": {
+    "message": "Prosjekthandlinger"
+  },
+  "app.browse.project-type.data-packs": {
+    "message": "Datapakker"
+  },
+  "app.browse.project-type.modpacks": {
+    "message": "Modpakker"
+  },
+  "app.browse.project-type.mods": {
+    "message": "Mods"
+  },
+  "app.browse.project-type.resource-packs": {
+    "message": "Ressurspakker"
+  },
+  "app.browse.project-type.servers": {
+    "message": "Servere"
+  },
+  "app.browse.project-type.shaders": {
+    "message": "Skyggepakker"
+  },
+  "app.browse.server-instance-content-warning": {
+    "message": "Ved å legge til innhold kan dette hindre deg av å logge på serveren. Alt innhold du har lagt til vil bli fjernet når serveren oppdateres."
+  },
+  "app.browse.server.installing": {
+    "message": "Installerer"
+  },
+  "app.content-install.no-compatible-versions": {
+    "message": "Ingen tilgjengelige versjoner matcher {compatibilityLabel}. Velg en versjon for å installere uansett. Avhengigheter vil ikke bli installert automatisk."
+  },
+  "app.content.desync-pack": {
+    "message": "Avsynkroniser"
+  },
+  "app.content.sync-data-packs-disabled": {
+    "message": "Slå av datapakkesynkronisering i app-innstillingene først."
+  },
+  "app.content.sync-pack": {
+    "message": "Synkroniser"
+  },
+  "app.content.sync-resource-packs-disabled": {
+    "message": "Slå på synkronisering av ressurspakker i appinstillingene først."
+  },
+  "app.debug-export.canceling": {
+    "message": "Avbryter eksport..."
+  },
+  "app.debug-export.exporting": {
+    "message": "Eksporterer..."
+  },
+  "app.debug-export.finishing": {
+    "message": "Fullfører..."
+  },
+  "app.debug-export.preparing": {
+    "message": "Forbereder filer..."
+  },
+  "app.download-manager.active": {
+    "message": "Aktive"
+  },
+  "app.download-manager.attention": {
+    "message": "Krever oppmerksomhet"
+  },
+  "app.download-manager.bulk-update-content": {
+    "message": "Oppdaterer {count, plural, one {# fil} other {# filer}}"
+  },
+  "app.download-manager.cancel": {
+    "message": "Avbryt innstallasjon"
+  },
+  "app.download-manager.canceling": {
+    "message": "Avbryter innstallasjon..."
+  },
+  "app.download-manager.clear-all": {
+    "message": "Fjern alle"
+  },
+  "app.download-manager.clear-completed": {
+    "message": "Fjern alle fullførte oppgaver"
+  },
+  "app.download-manager.complete": {
+    "message": "Fullførte"
+  },
+  "app.download-manager.duplicated-instance": {
+    "message": "Dupliserte innstanser"
+  },
+  "app.download-manager.estimated-rate": {
+    "message": "Estimert nedlastingshastighet"
+  },
+  "app.download-manager.eta": {
+    "message": "Estimert tid som gjenstår for denne nedlastingen"
+  },
+  "app.download-manager.imported-instance": {
+    "message": "Importert instans"
+  },
+  "app.download-manager.instance-installation": {
+    "message": "Instansinnstallasjon"
+  },
+  "app.download-manager.modpack": {
+    "message": "Modpakker"
+  },
+  "app.download-manager.modpack-installation": {
+    "message": "Modpakkeinstallasjon"
+  },
+  "app.download-manager.new-instance": {
+    "message": "Ny instans"
+  },
+  "app.download-manager.pause": {
+    "message": "Sett innstalasjonen på pause"
+  },
+  "app.download-manager.paused": {
+    "message": "Pauset"
+  },
+  "app.download-manager.remove": {
+    "message": "Fjern fra logg"
+  },
+  "app.download-manager.resume": {
+    "message": "Gjenoppta innstallasjon"
+  },
+  "app.download-manager.shared-instance": {
+    "message": "Delt instans"
+  },
+  "app.download-manager.shared-instance-update": {
+    "message": "Delt instans oppdatering"
+  },
+  "app.download-manager.tasks": {
+    "message": "Oppgaver"
+  },
+  "app.download-manager.title": {
+    "message": "Nedlastingsbehandler"
+  },
+  "app.error.state-init.open-backups-folder": {
+    "message": "Åpne backups-mappe"
+  },
+  "app.export-modal.description-placeholder": {
+    "message": "Skriv en modpakkebeskrivelse..."
+  },
+  "app.export-modal.export-button": {
+    "message": "Eksperter"
+  },
+  "app.export-modal.export-complete": {
+    "message": "Eksportering fullført"
+  },
+  "app.export-modal.export-complete-description": {
+    "message": "{name} ble eksportert med suksess "
+  },
+  "app.export-modal.header": {
+    "message": "Eksperter modpakke"
+  },
+  "app.export-modal.modpack-name-label": {
+    "message": "Navn på modpakke"
+  },
+  "app.export-modal.modpack-name-placeholder": {
+    "message": "Modpakkenavn"
+  },
+  "app.export-modal.version-number-label": {
+    "message": "Versjonsnummer"
+  },
+  "app.export-modal.version-number-placeholder": {
+    "message": "1.0.0"
+  },
+  "app.features-settings.instance-pages.title": {
+    "message": "Instanser"
+  },
+  "app.features-settings.play-page.title": {
+    "message": "Spillside"
+  },
+  "app.features-settings.quick-instances.description": {
+    "message": "Velg maksimal antall av installasjoner vist i venstre sidebar. Du kan også justere dette med å dra på divideren."
+  },
+  "app.features-settings.show-jump-in.title": {
+    "message": "Vis Hopp i seksjon"
+  },
+  "app.features-settings.sync-across-devices.description": {
+    "message": "Bruk disse oppførselsinnstillingene overalt hvor du er logget in. La denne være av for å beholde separate innstillinger på denne enheten."
+  },
+  "app.features-settings.sync-across-devices.signed-out-tooltip": {
+    "message": "Logg inn på en Modrinth-konto for å synkronisere innstillinger."
+  },
+  "app.features-settings.sync-across-devices.title": {
+    "message": "Synkroniser oppførsel på tvers av enheter"
+  },
+  "app.file-download.canceling": {
+    "message": "Avbryter nedlasting…"
+  },
+  "app.file-download.waiting": {
+    "message": "Venter på server…"
+  },
+  "app.home.jump-back-in.actions.label": {
+    "message": "Instans handlinger"
+  },
+  "app.home.jump-back-in.instance-locked": {
+    "message": "Denne instansen har blitt låst"
+  },
+  "app.home.jump-back-in.instance-open": {
+    "message": "Instansen er allerede åpen"
+  },
+  "app.home.jump-back-in.more-options": {
+    "message": "Flere alternativer"
+  },
+  "app.home.jump-back-in.never-played": {
+    "message": "Aldri spilt"
+  },
+  "app.home.jump-back-in.new-instance": {
+    "message": "Ny instans"
+  },
+  "app.home.jump-back-in.resize": {
+    "message": "Dra for å endre størrelse"
+  },
+  "app.home.jump-back-in.title": {
+    "message": "Hopp inn"
+  },
+  "app.home.jump-back-in.view-instance": {
+    "message": "Vis instans"
+  },
+  "app.install.phase.downloading_content": {
+    "message": "Laster ned innhold"
+  },
+  "app.install.phase.downloading_minecraft": {
+    "message": "Laster ned Minecraft"
+  },
+  "app.install.phase.downloading_pack_file": {
+    "message": "Laster ned pakkfil"
+  },
+  "app.install.phase.preparing_java.downloading": {
+    "message": "Laster ned Java {version}"
+  },
+  "app.install.phase.preparing_java.fetching-metadata": {
+    "message": "Henter Java {version}"
+  },
+  "app.install.phase.preparing_java.resolving": {
+    "message": "Klargjør Java {version}"
+  },
+  "app.install.phase.preparing_java.validating": {
+    "message": "Validerer Java {version}"
+  },
+  "app.install.phase.reading_pack_manifest": {
+    "message": "Leser pakkemanifest"
+  },
+  "app.install.phase.resolving_minecraft": {
+    "message": "Løser Minecraft"
+  },
+  "app.install.phase.resolving_pack": {
+    "message": "Løser innhold"
+  },
+  "app.instance.action.add-content": {
+    "message": "Legg til innhold"
+  },
+  "app.instance.action.copy-path": {
+    "message": "Kopier sti"
+  },
+  "app.instance.action.edit": {
+    "message": "Rediger"
+  },
+  "app.instance.confirm-delete.delete-button": {
+    "message": "Slett tilfelle"
+  },
+  "app.instance.confirm-delete.header": {
+    "message": "Slett tilfelle"
+  },
+  "app.instance.modpack-already-installed.create": {
+    "message": "Opprett"
+  },
+  "app.instance.modpack-already-installed.header": {
+    "message": "Modpakka er allerede installert"
+  },
+  "app.instance.modpack-already-installed.instance": {
+    "message": "Tilfelle"
+  },
+  "app.instance.mods.content-type-project": {
+    "message": "prosjekt"
+  },
+  "app.instance.mods.project-was-added": {
+    "message": "\"{name}\" ble lagt til"
+  },
+  "app.instance.mods.projects-were-added": {
+    "message": "{count} prosjekter ble lagt til"
+  },
+  "app.instance.mods.share-text": {
+    "message": "Sjekk ut prosjektene jeg bruker i min modpakke!"
+  },
+  "app.modal.install-to-play.header": {
+    "message": "Installer for å spille"
+  },
+  "app.modal.install-to-play.install-button": {
+    "message": "Installer"
+  },
+  "app.modal.install-to-play.mod-count": {
+    "message": "{count, plural, one {#mod} other {# modder}}"
+  },
+  "app.modal.install-to-play.shared-instance": {
+    "message": "Delt tilfelle"
+  },
+  "app.modal.update-to-play.header": {
+    "message": "Oppdater for å spille"
+  },
+  "app.settings.developer-mode-enabled": {
+    "message": "Utviklermodus aktivert."
+  },
+  "app.settings.downloading": {
+    "message": "Laster ned v{version}"
+  },
+  "app.settings.tabs.appearance": {
+    "message": "Utseende"
+  },
+  "app.settings.tabs.java-installations": {
+    "message": "Java installasjoner"
+  },
+  "app.settings.tabs.language": {
+    "message": "Språk"
+  },
+  "app.settings.tabs.privacy": {
+    "message": "Personvern"
+  },
+  "app.update.complete-toast.text": {
+    "message": "Klikk her for å se endringsloggen."
+  },
+  "app.update.complete-toast.title": {
+    "message": "Versjon {version} ble installert!"
+  },
+  "friends.action.add-friend": {
+    "message": "Legg til en venn"
+  },
+  "friends.action.view-friend-requests": {
+    "message": "{count} venne{count, plural,one {forespørsel} other {forespørsler}}"
+  },
+  "friends.add-friend.submit": {
+    "message": "Send venneforespørsel"
+  },
+  "friends.add-friend.title": {
+    "message": "Legger til en venn"
+  },
+  "friends.add-friend.username.description": {
+    "message": "Det kan være annerledes enn Minecraft-brukernavnet deres!"
+  },
+  "friends.add-friend.username.placeholder": {
+    "message": "Fyll ut Modrinth-brukernavn..."
+  },
+  "friends.add-friend.username.title": {
+    "message": "Hva er Modrinth-brukernavnet til vennen din?"
+  },
+  "friends.add-friends-to-share": {
+    "message": "<link>Legg til venner</link> for å se hva de spiller!"
+  },
+  "friends.friend.cancel-request": {
+    "message": "Avbryt forespørsel"
+  },
+  "friends.friend.remove-friend": {
+    "message": "Fjern venn"
+  },
+  "friends.friend.request-sent": {
+    "message": "Venneforespørsel sent"
+  },
+  "friends.friend.view-profile": {
+    "message": "Vis profil"
+  },
+  "friends.heading": {
+    "message": "Venner"
+  },
+  "friends.heading.active": {
+    "message": "Aktiv"
+  },
+  "friends.heading.offline": {
+    "message": "Av"
+  },
+  "friends.heading.online": {
+    "message": "På"
+  },
+  "friends.heading.pending": {
+    "message": "Ventende"
+  },
+  "friends.no-friends-match": {
+    "message": "Ingen venner som samsvarer \"{query}\""
+  },
+  "friends.search-friends-placeholder": {
+    "message": "Søk venner..."
+  },
+  "friends.section.heading": {
+    "message": "{title} - {count}"
+  },
+  "friends.sign-in-to-add-friends": {
+    "message": "<link>Logg inn til en Modrinth-bruker</link> for å legge til venner og se hva de spiller!"
+  },
+  "instance.add-server.add-and-play": {
+    "message": "Legg til og spill"
+  },
+  "instance.add-server.add-server": {
+    "message": "Legg til server"
+  },
+  "instance.add-server.resource-pack.disabled": {
+    "message": "Deaktivert"
+  },
+  "instance.add-server.resource-pack.enabled": {
+    "message": "Aktivert"
+  },
+  "instance.add-server.resource-pack.prompt": {
+    "message": "Spør"
+  },
+  "instance.add-server.title": {
+    "message": "Legg til server"
+  },
+  "instance.edit-server.title": {
+    "message": "Rediger server"
+  },
+  "instance.edit-world.hide-from-home": {
+    "message": "Sjul fra hjemside"
+  },
+  "instance.edit-world.name": {
+    "message": "Navn"
+  },
+  "instance.edit-world.placeholder-name": {
+    "message": "Minecraft Verden"
+  },
+  "instance.edit-world.reset-icon": {
+    "message": "Reset ikon"
+  },
+  "instance.edit-world.title": {
+    "message": "Rediger verden"
+  },
+  "instance.server-modal.address": {
+    "message": "Adresse"
+  },
+  "instance.server-modal.name": {
+    "message": "Navn"
+  },
+  "instance.server-modal.placeholder-name": {
+    "message": "Minecraft Server"
+  },
+  "instance.server-modal.resource-pack": {
+    "message": "Resurspakke"
+  },
+  "instance.settings.tabs.general": {
+    "message": "Generelt"
+  },
+  "instance.settings.tabs.general.delete": {
+    "message": "Slett instans"
+  },
+  "instance.settings.tabs.general.delete.button": {
+    "message": "Slett instans"
+  },
+  "instance.settings.tabs.general.delete.description": {
+    "message": "Permanent sletter en instans fra enheten din, inkludert verdener, konfigurasjoner og alt installert innhold. Vær forsiktig, når du sletter en instans er det ingen måte å få den tilbake."
+  },
+  "instance.settings.tabs.general.deleting.button": {
+    "message": "Sletter..."
+  },
+  "instance.settings.tabs.general.duplicate-button": {
+    "message": "Dupliser"
+  },
+  "instance.settings.tabs.general.duplicate-button.tooltip.installing": {
+    "message": "Kan ikkje dupliseres under installering."
+  },
+  "instance.settings.tabs.general.duplicate-instance": {
+    "message": "Dupliser instans"
+  },
+  "instance.settings.tabs.general.duplicate-instance.description": {
+    "message": "Lager en kopi av instansen, inkludert verdener, konfigurasjoner, mods, osv."
+  },
+  "instance.settings.tabs.general.edit-icon": {
+    "message": "Rediger ikon"
+  },
+  "instance.settings.tabs.general.edit-icon.remove": {
+    "message": "Fjern ikon"
+  },
+  "instance.settings.tabs.general.edit-icon.replace": {
+    "message": "Bytt ut ikon"
+  },
+  "instance.settings.tabs.general.edit-icon.select": {
+    "message": "Velg ikon"
+  },
+  "instance.settings.tabs.general.name": {
+    "message": "Navn"
+  },
+  "instance.settings.tabs.hooks.post-exit": {
+    "message": "Etter avslutning"
+  },
+  "instance.settings.tabs.hooks.post-exit.description": {
+    "message": "Kørt etter spillet lukkes."
+  },
+  "instance.settings.tabs.hooks.post-exit.enter": {
+    "message": "Skriv inn kommando etter avslutning..."
+  },
+  "instance.settings.tabs.hooks.pre-launch": {
+    "message": "Før oppstart"
+  },
+  "instance.settings.tabs.hooks.pre-launch.description": {
+    "message": "Kjøres før tilfellet startes."
+  },
+  "instance.settings.tabs.hooks.pre-launch.enter": {
+    "message": "Skriv inn forstartskommando..."
+  },
+  "instance.settings.tabs.hooks.wrapper": {
+    "message": "Wrapper"
+  },
+  "instance.settings.tabs.hooks.wrapper.description": {
+    "message": "Innpakningskommando for å starte Minecraft."
+  },
+  "instance.settings.tabs.hooks.wrapper.enter": {
+    "message": "Skriv inn wrapper-kommando..."
+  },
+  "instance.settings.tabs.installation": {
+    "message": "Installasjon"
+  },
+  "instance.settings.tabs.installation.loader-version": {
+    "message": "{loader} versjon"
+  },
+  "instance.settings.tabs.java.hooks": {
+    "message": "Hooker"
+  },
+  "instance.settings.tabs.window.fullscreen": {
+    "message": "Fullskjerm"
+  },
+  "instance.settings.tabs.window.fullscreen.description": {
+    "message": "Få spillet til å starte i fullskjerm når det starter opp (ved å bruke options.txt)."
+  },
+  "instance.settings.tabs.window.height": {
+    "message": "Høyde"
+  },
+  "instance.settings.tabs.window.height.description": {
+    "message": "Høyden til spillvinduet når spillet startes."
+  },
+  "instance.settings.tabs.window.height.enter": {
+    "message": "Angi høyde..."
+  },
+  "instance.settings.tabs.window.width": {
+    "message": "Bredde"
+  },
+  "instance.settings.tabs.window.width.description": {
+    "message": "Bredden til spillvinduet når spillet startes."
+  },
+  "instance.settings.tabs.window.width.enter": {
+    "message": "Angi bredde..."
+  },
+  "instance.worlds.a_minecraft_server": {
+    "message": "En Minecraft server"
+  },
+  "instance.worlds.cant_connect": {
+    "message": "Kunne ikke koble til serveren"
+  },
+  "instance.worlds.copy_address": {
+    "message": "Kopier addresse"
+  },
+  "instance.worlds.dont_show_on_home": {
+    "message": "Ikke vis på Hjem"
+  },
+  "instance.worlds.game_already_open": {
+    "message": "Tilfellet er allerede open"
+  },
+  "instance.worlds.hardcore": {
+    "message": "Hardbarket modus"
+  },
+  "instance.worlds.incompatible_server": {
+    "message": "Serveren er inkompatibel"
+  },
+  "instance.worlds.no_contact": {
+    "message": "Server kunne ikke kontaktes"
+  },
+  "instance.worlds.no_server_quick_play": {
+    "message": "Du kan bare hoppe rett inn i servere på Minecraft Alpha 1.0.5+"
+  },
+  "instance.worlds.no_singleplayer_quick_play": {
+    "message": "Du kan bare hoppe rett inn i enkeltspiller-verdener på Minecraft 1.20+"
+  },
+  "instance.worlds.play_instance": {
+    "message": "Spill tilfelle"
+  },
+  "instance.worlds.view_instance": {
+    "message": "Vis instans"
+  },
+  "instance.worlds.world_in_use": {
+    "message": "Verdenen er i bruk"
+  },
+  "search.filter.locked.instance": {
+    "message": "Levert av instansen"
+  },
+  "search.filter.locked.instance-game-version.title": {
+    "message": "Spillversjon er levert av instansen"
+  },
+  "search.filter.locked.instance-loader.title": {
+    "message": "Oppstarter er levert av instansen"
+  },
+  "search.filter.locked.instance.sync": {
+    "message": "Synkroniser med instans"
+  }
+}

@@ -1,0 +1,207 @@
+{
+	"$schema": "./node_modules/turbo/schema.json",
+	"concurrency": "100%",
+	"futureFlags": {
+		"experimentalCargoWorkspaces": true,
+		"experimentalTaskCommand": true
+	},
+	"globalDependencies": [
+		"packages/tooling-config/**",
+		"!packages/tooling-config/.turbo/**",
+		"!packages/tooling-config/node_modules/**",
+		"packages/app-lib/.env",
+		"clippy.toml"
+	],
+	"globalEnv": [
+		"MODRINTH_URL",
+		"MODRINTH_API_BASE_URL",
+		"SHARED_INSTANCES_API_BASE_URL",
+		"MODRINTH_ARCHON_BASE_URL",
+		"VITE_STRIPE_PUBLISHABLE_KEY"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": ["//#i18n:coverage", "^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": [".nuxt/**", "dist/**", ".output/**"],
+			"env": [
+				"NODE_ENV",
+				"SITE_URL",
+				"BASE_URL",
+				"PREVIEW",
+				"BUILD_ENV",
+				"FLAG_OVERRIDES",
+				"BROWSER_BASE_URL",
+				"RATE_LIMIT_IGNORE_KEY",
+				"VERCEL_*",
+				"CF_PAGES_*",
+				"HEROKU_APP_NAME",
+				"STRIPE_PUBLISHABLE_KEY",
+				"INTERCOM_APP_ID",
+				"INTERCOM_IDENTITY_SECRET",
+				"PYRO_BASE_URL",
+				"PROD_OVERRIDE",
+				"PYRO_MASTER_KEY",
+				"PORT",
+				"SQLX_OFFLINE",
+				"DATABASE_URL",
+				"CARGO_*",
+				"RUST_*",
+				"RUSTFLAGS",
+				"FORCE_COLOR",
+				"NEXTEST_*"
+			],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+		},
+		"lint": {
+			"command": { "rust": ["cargo", "clippy", "--all-targets", "--locked"] },
+			"env": [
+				"DATABASE_URL",
+				"SQLX_OFFLINE",
+				"CARGO_*",
+				"RUST_*",
+				"RUSTFLAGS",
+				"FORCE_COLOR",
+				"NEXTEST_*"
+			],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+		},
+		"lint:ancillary": {},
+		"//#i18n:coverage": {
+			"inputs": [
+				"package.json",
+				"scripts/modrinth/run.mjs",
+				"scripts/modrinth/coverage-i18n.ts",
+				"scripts/modrinth/i18n-icu-contract.ts",
+				"apps/app-frontend/src/**/*.vue",
+				"apps/app-frontend/src/locales/**/*.json",
+				"apps/frontend/src/**/*.vue",
+				"apps/frontend/src/locales/**/*.json",
+				"packages/moderation/src/**/*.vue",
+				"packages/moderation/src/locales/**/*.json",
+				"packages/ui/src/**/*.vue",
+				"packages/ui/src/locales/**/*.json"
+			],
+			"outputs": [
+				"packages/ui/src/layouts/wrapped/settings/language-settings/language-settings-coverage.generated.ts"
+			]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true,
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"env": ["CARGO_*", "RUST_*", "RUSTFLAGS", "FORCE_COLOR", "NEXTEST_*"],
+			"passThroughEnv": ["DISPLAY", "WEBKIT_DISABLE_DMABUF_RENDERER", "JAVA_HOME"]
+		},
+		"test": {
+			"command": {
+				"rust": ["cargo", "nextest", "run", "--all-targets", "--no-fail-fast", "--locked"]
+			},
+			"env": [
+				"SQLX_OFFLINE",
+				"DATABASE_URL",
+				"REDIS_*",
+				"CARGO_*",
+				"RUST_*",
+				"RUSTFLAGS",
+				"FORCE_COLOR",
+				"NEXTEST_*"
+			],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+		},
+		"fix": {},
+		"modrinth-rust#lint": {
+			"dependsOn": ["@modrinth/app-frontend#build"],
+			"command": ["cargo", "clippy", "--all-targets", "--locked"],
+			"env": [
+				"DATABASE_URL",
+				"SQLX_OFFLINE",
+				"CARGO_*",
+				"RUST_*",
+				"RUSTFLAGS",
+				"FORCE_COLOR",
+				"NEXTEST_*"
+			],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+		},
+		"modrinth-rust#test": {
+			"dependsOn": ["@modrinth/app-frontend#build"],
+			"command": ["cargo", "nextest", "run", "--all-targets", "--no-fail-fast", "--locked"],
+			"env": [
+				"SQLX_OFFLINE",
+				"DATABASE_URL",
+				"REDIS_*",
+				"CARGO_*",
+				"RUST_*",
+				"RUSTFLAGS",
+				"FORCE_COLOR",
+				"NEXTEST_*"
+			],
+			"passThroughEnv": ["SCCACHE_*", "RUSTC_WRAPPER", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+		},
+		"modrinth-rust#fix": {
+			"dependsOn": ["@modrinth/app#fix"],
+			"command": [
+				"cargo",
+				"clippy",
+				"--workspace",
+				"--all-targets",
+				"--fix",
+				"--allow-dirty",
+				"--locked"
+			]
+		},
+		"modrinth-rust#format": {
+			"dependsOn": ["modrinth-rust#fix"]
+		},
+		"modrinth-rust#prepr": {
+			"dependsOn": ["modrinth-rust#format"]
+		},
+		"modrinth-rust#lint:ancillary": {
+			"command": [
+				"pnpm",
+				"exec",
+				"prettier",
+				"--check",
+				"apps/labrinth",
+				"apps/app-playground",
+				"apps/meta-generator",
+				"packages/app-lib",
+				"packages/minecraft-meta-model",
+				"packages/minecraft-meta-manifest"
+			]
+		},
+		"modrinth-rust#fix:ancillary": {
+			"cache": false,
+			"command": [
+				"pnpm",
+				"exec",
+				"prettier",
+				"--write",
+				"apps/labrinth",
+				"apps/app-playground",
+				"apps/meta-generator",
+				"packages/app-lib",
+				"packages/minecraft-meta-model",
+				"packages/minecraft-meta-manifest"
+			]
+		},
+		"labrinth#dev": {
+			"cache": false,
+			"persistent": true,
+			"env": ["CARGO_*", "RUST_*", "RUSTFLAGS", "FORCE_COLOR"],
+			"command": ["cargo", "run", "--package=labrinth"]
+		},
+		"fix:ancillary": {
+			"cache": false
+		},
+		"intl:extract": {},
+		"intl:prune-local": {
+			"cache": false,
+			"dependsOn": ["intl:extract"]
+		},
+		"prepr": {
+			"dependsOn": ["^prepr", "fix", "intl:extract", "intl:prune-local"]
+		}
+	}
+}

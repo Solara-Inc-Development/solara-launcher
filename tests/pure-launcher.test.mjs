@@ -19,11 +19,17 @@ function walkFiles(dir, exts, out = []) {
   return out;
 }
 
-test('pure Minecraft launcher removals: legacy hub, server hosting, and SSO identity modules are deleted', () => {
+test('pure Minecraft launcher removals: legacy hub, server hosting, ads, mr_auth, and SSO identity modules are deleted', () => {
   for (const rel of [
-    'apps/desktop/src/identity.rs',
-    'apps/desktop/src/resource_policy.rs',
-    'apps/desktop/ui/views/SolaraHubView.vue',
+    'apps/desktop',
+    'apps/app/src/api/ads.rs',
+    'apps/app/src/api/mr_auth.rs',
+    'apps/app/src/api/friends.rs',
+    'apps/app/capabilities/ads.json',
+    'apps/app-frontend/src/app/shell/sidebar/promotion.vue',
+    'apps/app-frontend/src/features/hosting',
+    'apps/app-frontend/src/features/campaigns',
+    'apps/app-frontend/src/pages/instance/share',
     'packages/local-server',
     'packages/local-server/Cargo.toml',
   ]) {
@@ -32,14 +38,17 @@ test('pure Minecraft launcher removals: legacy hub, server hosting, and SSO iden
 
   const rootCargo = fs.readFileSync(path.join(ROOT, 'Cargo.toml'), 'utf8');
   assert.equal(rootCargo.includes('local-server'), false, 'Cargo.toml must not reference local-server');
+  assert.equal(rootCargo.includes('sentry'), false, 'Cargo.toml must not reference sentry');
 
-  const desktopCargo = fs.readFileSync(path.join(ROOT, 'apps/desktop/Cargo.toml'), 'utf8');
-  assert.equal(desktopCargo.includes('solara-local-server'), false, 'desktop Cargo.toml must not depend on solara-local-server');
+  const appCargo = fs.readFileSync(path.join(ROOT, 'apps/app/Cargo.toml'), 'utf8');
+  assert.equal(appCargo.includes('solara-local-server'), false, 'app Cargo.toml must not depend on solara-local-server');
+  assert.equal(appCargo.includes('tauri-plugin-updater'), false, 'app Cargo.toml must not depend on tauri-plugin-updater');
 });
 
 test('pure Minecraft launcher UI & client contain zero server hosting, Solara ID SSO, or play.solaranetwork.in promos', () => {
   const files = [
-    ...walkFiles(path.join(ROOT, 'apps/desktop'), ['.vue', '.ts', '.css', '.rs']),
+    ...walkFiles(path.join(ROOT, 'apps/app/src'), ['.rs']),
+    ...walkFiles(path.join(ROOT, 'apps/app-frontend/src'), ['.vue', '.ts', '.js', '.css']),
     ...walkFiles(path.join(ROOT, 'apps/website'), ['.vue', '.ts', '.css']),
     path.join(ROOT, 'packages/shared/client.ts'),
   ];
@@ -54,12 +63,12 @@ test('pure Minecraft launcher UI & client contain zero server hosting, Solara ID
     'create_local_server',
     'local_server_action',
     'SolaraHubView',
-    'sol-home-side',
     'solaraHubEnabled',
     'solaraBootstrap',
     'solaraProfile',
     'LocalServerRecord',
     'Sign in with Solara ID',
+    'hasPride26Badge',
   ];
 
   for (const file of files) {

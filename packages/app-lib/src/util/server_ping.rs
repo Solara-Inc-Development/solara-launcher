@@ -1,0 +1,398 @@
+use crate::error::Result;
+use crate::util::protocol_version::ProtocolVersion;
+use anyhow::{anyhow, bail};
+use serde::{Deserialize, Serialize};
+use serde_json::value::RawValue;
+use std::time::Duration;
+use tokio::net::ToSocketAddrs;
+use tokio::select;
+use url::Url;
+
+const MAX_MINECRAFT_STATUS_STRING_LENGTH: usize = 32_767;
+const MAX_MODERN_STATUS_PACKET_LENGTH: usize =
+    MAX_MINECRAFT_STATUS_STRING_LENGTH + 4;
+const MAX_LEGACY_STATUS_UTF16_LENGTH: usize =
+    MAX_MINECRAFT_STATUS_STRING_LENGTH;
+const SERVER_STATUS_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Ensures the length of a packet as stated by a server is not longer than a
+/// hard-coded limit.
+///
+/// For example, if we ping a server that says its status packet is 2 billion
+/// bytes long, we don't try to allocate a 2 billion byte buffer, since that
+/// will OOM our machine.
+///
+/// Implemented as a function so that you can easily find callsites and see
+/// where we accept unvalidated input from servers.
+fn cap_length(
+    length: usize,
+    max_length: usize,
+    context: &'static str,
+) -> Result<usize> {
+    if length > max_length {
+        bail!(context);
+    }
+
+    Ok(length)
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ServerStatus {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<RawValue>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub players: Option<ServerPlayers>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<ServerVersion>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub favicon: Option<Url>,
+    #[serde(default)]
+    pub enforces_secure_chat: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ping: Option<i64>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct ServerPlayers {
+    pub max: i32,
+    pub online: i32,
+    #[serde(default)]
+    pub sample: Vec<ServerGameProfile>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct ServerGameProfile {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct ServerVersion {
+    pub name: String,
+    pub protocol: i32,
+    #[serde(skip_deserializing)]
+    pub legacy: bool,
+}
+
+pub async fn get_server_status(
+    address: &impl ToSocketAddrs,
+    original_address: (&str, u16),
+    protocol_version: Option<ProtocolVersion>,
+) -> Result<ServerStatus> {
+    select! {
+        res = async {
+            match protocol_version {
+                Some(ProtocolVersion { legacy: true, version }) => legacy::status(address, original_address, Some(version as u8)).await,
+                protocol => modern::status(address, original_address, protocol.map(|v| v.version)).await,
+            }
+        } => res,
+        _ = tokio::time::sleep(SERVER_STATUS_TIMEOUT) => Err(anyhow!(
+            "ping of {}:{} timed out", original_address.0, original_address.1
+        ))
+    }
+}
+
+mod modern {
+    use super::ServerStatus;
+    use anyhow::{Context, bail};
+    use std::time::Instant;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio::net::{TcpStream, ToSocketAddrs};
+
+    pub async fn status(
+        address: &impl ToSocketAddrs,
+        original_address: (&str, u16),
+        protocol_version: Option<u32>,
+    ) -> crate::Result<ServerStatus> {
+        let mut stream = TcpStream::connect(address)
+            .await
+            .context("connecting to server")?;
+        stream.set_nodelay(true)?;
+        handshake(&mut stream, original_address, protocol_version)
+            .await
+            .context("sending handshake")?;
+        let mut result = status_body(&mut stream)
+            .await
+            .context("reading status response")?;
+        result.ping = ping(&mut stream).await.ok();
+        Ok(result)
+    }
+
+    async fn handshake(
+        stream: &mut TcpStream,
+        original_address: (&str, u16),
+        protocol_version: Option<u32>,
+    ) -> crate::Result<()> {
+        let (host, port) = original_address;
+        let protocol_version = protocol_version.map_or(-1, |x| x as i32);
+
+        const PACKET_ID: i32 = 0;
+        const NEXT_STATE: i32 = 1;
+
+        let packet_size = varint::get_byte_size(PACKET_ID)
+            + varint::get_byte_size(protocol_version)
+            + varint::get_byte_size(host.len() as i32)
+            + host.len()
+            + size_of::<u16>()
+            + varint::get_byte_size(NEXT_STATE);
+
+        let mut packet_buffer = Vec::with_capacity(
+            varint::get_byte_size(packet_size as i32) + packet_size,
+        );
+
+        varint::write(&mut packet_buffer, packet_size as i32);
+        varint::write(&mut packet_buffer, PACKET_ID);
+        varint::write(&mut packet_buffer, protocol_version);
+        varint::write(&mut packet_buffer, host.len() as i32);
+        packet_buffer.extend_from_slice(host.as_bytes());
+        packet_buffer.extend_from_slice(&port.to_be_bytes());
+        varint::write(&mut packet_buffer, NEXT_STATE);
+
+        stream.write_all(&packet_buffer).await?;
+        stream.flush().await?;
+
+        Ok(())
+    }
+
+    async fn status_body(
+        stream: &mut TcpStream,
+    ) -> crate::Result<ServerStatus> {
+        stream.write_all(&[0x01, 0x00]).await?;
+        stream.flush().await?;
+
+        let packet_length = cap_varint_length(
+            varint::read(stream).await?,
+            super::MAX_MODERN_STATUS_PACKET_LENGTH,
+            "invalid status response packet length",
+        )?;
+
+        let mut packet_stream = stream.take(packet_length as u64);
+        let packet_id = varint::read(&mut packet_stream).await?;
+        if packet_id != 0x00 {
+            bail!("unexpected status response packet id {packet_id}");
+        }
+        let response_length = cap_varint_length(
+            varint::read(&mut packet_stream).await?,
+            super::MAX_MINECRAFT_STATUS_STRING_LENGTH,
+            "invalid status response length",
+        )?;
+        let mut json_response = vec![0_u8; response_length];
+        packet_stream.read_exact(&mut json_response).await?;
+
+        if packet_stream.limit() > 0 {
+            tokio::io::copy(&mut packet_stream, &mut tokio::io::sink()).await?;
+        }
+
+        serde_json::from_slice(&json_response)
+            .context("parsing status response json")
+    }
+
+    /// Ensures the length of a varint as stated by a server is not longer than a
+    /// hard-coded limit.
+    ///
+    /// For example, if we ping a server that says its status packet is 2 billion
+    /// bytes long, we don't try to allocate a 2 billion byte buffer, since that
+    /// will OOM our machine.
+    ///
+    /// Implemented as a function so that you can easily find callsites and see
+    /// where we accept unvalidated input from servers.
+    fn cap_varint_length(
+        length: i32,
+        max_length: usize,
+        context: &'static str,
+    ) -> crate::Result<usize> {
+        if length < 0 {
+            bail!(context);
+        }
+
+        super::cap_length(length as usize, max_length, context)
+    }
+
+    async fn ping(stream: &mut TcpStream) -> crate::Result<i64> {
+        let ping_magic = chrono::Utc::now().timestamp_millis();
+
+        let start_time = Instant::now();
+        stream.write_all(&[0x09, 0x01]).await?;
+        stream.write_i64(ping_magic).await?;
+        stream.flush().await?;
+
+        let mut response_prefix = [0_u8; 2];
+        stream.read_exact(&mut response_prefix).await?;
+        let response_magic = stream.read_i64().await?;
+        if response_prefix != [0x09, 0x01] || response_magic != ping_magic {
+            bail!("unexpected ping response");
+        }
+
+        Ok(start_time.elapsed().as_millis() as i64)
+    }
+
+    mod varint {
+        use std::io;
+        use tokio::io::{AsyncRead, AsyncReadExt};
+
+        const MAX_VARINT_SIZE: usize = 5;
+        const DATA_BITS_MASK: u32 = 0x7f;
+        const CONT_BIT_MASK_U8: u8 = 0x80;
+        const CONT_BIT_MASK_U32: u32 = CONT_BIT_MASK_U8 as u32;
+        const DATA_BITS_PER_BYTE: usize = 7;
+
+        pub fn get_byte_size(x: i32) -> usize {
+            let x = x as u32;
+            for size in 1..MAX_VARINT_SIZE {
+                if (x & (u32::MAX << (size * DATA_BITS_PER_BYTE))) == 0 {
+                    return size;
+                }
+            }
+            MAX_VARINT_SIZE
+        }
+
+        pub fn write(out: &mut Vec<u8>, value: i32) {
+            let mut value = value as u32;
+            while value >= CONT_BIT_MASK_U32 {
+                out.push(((value & DATA_BITS_MASK) | CONT_BIT_MASK_U32) as u8);
+                value >>= DATA_BITS_PER_BYTE;
+            }
+            out.push(value as u8);
+        }
+
+        pub async fn read<R: AsyncRead + Unpin>(
+            reader: &mut R,
+        ) -> io::Result<i32> {
+            let mut result = 0;
+            let mut shift = 0;
+
+            loop {
+                let b = reader.read_u8().await?;
+                result |=
+                    (b as u32 & DATA_BITS_MASK) << (shift * DATA_BITS_PER_BYTE);
+                shift += 1;
+                if shift > MAX_VARINT_SIZE {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "VarInt too big",
+                    ));
+                }
+                if b & CONT_BIT_MASK_U8 == 0 {
+                    return Ok(result as i32);
+                }
+            }
+        }
+    }
+}
+
+mod legacy {
+    use super::ServerStatus;
+    use crate::worlds::{ServerPlayers, ServerVersion};
+    use anyhow::{Context, bail};
+    use serde_json::value::to_raw_value;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio::net::{TcpStream, ToSocketAddrs};
+
+    pub async fn status(
+        address: &impl ToSocketAddrs,
+        original_address: (&str, u16),
+        protocol_version: Option<u8>,
+    ) -> crate::Result<ServerStatus> {
+        let protocol_version = protocol_version.unwrap_or(74);
+
+        let mut packet = vec![0xfe];
+        if protocol_version >= 47 {
+            packet.push(0x01);
+        }
+        if protocol_version >= 73 {
+            packet.push(0xfa);
+            write_legacy(&mut packet, "MC|PingHost");
+
+            let (host, port) = original_address;
+            let len_index = packet.len();
+            packet.push(protocol_version);
+            write_legacy(&mut packet, host);
+            packet.extend_from_slice(&(port as u32).to_be_bytes());
+            packet.splice(
+                len_index..len_index,
+                ((packet.len() - len_index) as u16).to_be_bytes(),
+            );
+        }
+
+        let mut stream = TcpStream::connect(address)
+            .await
+            .context("connecting to server")?;
+        stream
+            .write_all(&packet)
+            .await
+            .context("sending legacy status request")?;
+        stream
+            .flush()
+            .await
+            .context("sending legacy status request")?;
+
+        let packet_id = stream
+            .read_u8()
+            .await
+            .context("reading legacy status response")?;
+        if packet_id != 0xff {
+            bail!("unexpected legacy status response packet id {packet_id}");
+        }
+
+        let data_length = super::cap_length(
+            stream
+                .read_u16()
+                .await
+                .context("reading legacy status response")?
+                as usize,
+            super::MAX_LEGACY_STATUS_UTF16_LENGTH,
+            "invalid legacy status response length",
+        )?;
+        let data_byte_length = data_length
+            .checked_mul(2)
+            .context("invalid legacy status response length")?;
+        let mut data = vec![0u8; data_byte_length];
+        stream
+            .read_exact(&mut data)
+            .await
+            .context("reading legacy status response")?;
+
+        drop(stream);
+
+        let data = String::from_utf16_lossy(
+            &data
+                .chunks_exact(2)
+                .map(|a| u16::from_be_bytes([a[0], a[1]]))
+                .collect::<Vec<u16>>(),
+        );
+        let mut ancient_server = false;
+        let mut parts = data.split('\0');
+        if parts.next() != Some("§1") {
+            ancient_server = true;
+            parts = data.split('§');
+        }
+
+        Ok(ServerStatus {
+            version: (!ancient_server).then(|| ServerVersion {
+                protocol: parts
+                    .next()
+                    .and_then(|x| x.parse().ok())
+                    .unwrap_or(0),
+                name: parts.next().unwrap_or("").to_owned(),
+                legacy: true,
+            }),
+            description: parts.next().and_then(|x| to_raw_value(x).ok()),
+            players: Some(ServerPlayers {
+                online: parts.next().and_then(|x| x.parse().ok()).unwrap_or(-1),
+                max: parts.next().and_then(|x| x.parse().ok()).unwrap_or(-1),
+                sample: vec![],
+            }),
+            favicon: None,
+            enforces_secure_chat: false,
+            ping: None,
+        })
+    }
+
+    fn write_legacy(out: &mut Vec<u8>, text: &str) {
+        let encoded = text.encode_utf16().collect::<Vec<_>>();
+        out.extend_from_slice(&(encoded.len() as u16).to_be_bytes());
+        out.extend(encoded.into_iter().flat_map(u16::to_be_bytes));
+    }
+}

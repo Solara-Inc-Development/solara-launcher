@@ -1,0 +1,299 @@
+import type { Labrinth } from '@modrinth/api-client'
+
+import { compareByIndex } from './utils'
+// noinspection JSUnusedGlobalSymbols
+
+export const isApproved = (project) => {
+	return project && APPROVED_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isListed = (project) => {
+	return project && LISTED_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isUnlisted = (project) => {
+	return project && UNLISTED_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isPrivate = (project) => {
+	return project && PRIVATE_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isRejected = (project) => {
+	return project && REJECTED_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isUnderReview = (project) => {
+	return project && UNDER_REVIEW_PROJECT_STATUSES.includes(project.status)
+}
+
+export const isDraft = (project) => {
+	return project && DRAFT_PROJECT_STATUSES.includes(project.status)
+}
+
+export const showDownloadCount = (project) => {
+	return project && !['draft', 'processing', 'rejected'].includes(project.status)
+}
+
+export const APPROVED_PROJECT_STATUSES = ['approved', 'archived', 'unlisted', 'private']
+export const LISTED_PROJECT_STATUSES = ['approved', 'archived']
+export const UNLISTED_PROJECT_STATUSES = ['unlisted', 'withheld']
+export const PRIVATE_PROJECT_STATUSES = ['private', 'rejected', 'processing']
+export const REJECTED_PROJECT_STATUSES = ['rejected', 'withheld']
+export const UNDER_REVIEW_PROJECT_STATUSES = ['processing']
+export const DRAFT_PROJECT_STATUSES = ['draft']
+
+export type GameVersionTag = {
+	version: string
+	version_type: string
+	date: string
+	major: boolean
+}
+
+export type DisplayProjectType =
+	| 'mod'
+	| 'plugin'
+	| 'datapack'
+	| 'resourcepack'
+	| 'modpack'
+	| 'shader'
+	| 'server'
+	| 'project'
+
+export type PlatformTag = {
+	icon: string
+	name: string
+	supported_project_types: DisplayProjectType[]
+}
+
+export type VersionDisplayGroup = {
+	label: string
+	versions: string[]
+}
+
+export function getVersionsToDisplay(project, allGameVersions: GameVersionTag[]) {
+	return formatVersionsForDisplay(project.game_versions.slice(), allGameVersions)
+}
+
+export function formatVersionsForDisplay(
+	gameVersions: string[],
+	allGameVersions: GameVersionTag[],
+) {
+	return getVersionGroupsForDisplay(gameVersions, allGameVersions).map((group) => group.label)
+}
+
+export function getVersionGroupsForDisplay(
+	gameVersions: string[],
+	allGameVersions: GameVersionTag[],
+): VersionDisplayGroup[] {
+	const inputVersions = gameVersions.slice()
+	const allVersions = allGameVersions.slice()
+	const versionTags = new Map(allVersions.map((version) => [version.version, version]))
+
+	const allSnapshots = allVersions.filter((version) => version.version_type === 'snapshot')
+	const allReleases = allVersions.filter((version) => version.version_type === 'release')
+	const allLegacy = allVersions.filter(
+		(version) => version.version_type !== 'snapshot' && version.version_type !== 'release',
+	)
+
+	{
+		const indices = allVersions.reduce((map, gameVersion, index) => {
+			map[gameVersion.version] = index
+			return map
+		}, {})
+		inputVersions.sort((a, b) => indices[a] - indices[b])
+	}
+
+	const releaseVersions = inputVersions.filter(
+		(projVer) => versionTags.get(projVer)?.version_type === 'release',
+	)
+
+	const dateString = versionTags.get(releaseVersions[0])?.date
+
+	const latestReleaseVersionDate = dateString ? Date.parse(dateString) : 0
+	const latestSnapshot = inputVersions.find((projVer) => {
+		const gameVer = versionTags.get(projVer)
+		return (
+			gameVer?.version_type === 'snapshot' &&
+			(!latestReleaseVersionDate || latestReleaseVersionDate < Date.parse(gameVer.date))
+		)
+	})
+
+	const allReleasesGrouped = groupVersions(
+		allReleases.map((release) => release.version),
+		false,
+	)
+	const projectVersionsGrouped = groupVersions(releaseVersions, true)
+
+	const releaseVersionsAsRanges: VersionDisplayGroup[] = projectVersionsGrouped.map(
+		({ major, minor }) => {
+			const versions = minor.map((minorVersion) => formatMinecraftMinorVersion(major, minorVersion))
+
+			if (minor.length === 1) {
+				return { label: versions[0], versions }
+			}
+
+			const range = allReleasesGrouped.find((x) => x.major === major)
+
+			if (range?.minor.every((value, index) => value === minor[index])) {
+				return { label: `${major}.x`, versions }
+			}
+
+			return {
+				label: `${formatMinecraftMinorVersion(major, minor[0])}–${formatMinecraftMinorVersion(major, minor[minor.length - 1])}`,
+				versions,
+			}
+		},
+	)
+
+	const legacyVersionsAsRanges = groupConsecutiveIndices(
+		inputVersions.filter((projVer) => {
+			const gameVer = versionTags.get(projVer)
+			return gameVer && gameVer.version_type !== 'snapshot' && gameVer.version_type !== 'release'
+		}),
+		allLegacy,
+	)
+
+	let output: VersionDisplayGroup[] = [...legacyVersionsAsRanges]
+
+	// show all snapshots if there's no release versions
+	if (releaseVersionsAsRanges.length === 0) {
+		const snapshotVersions = inputVersions.filter(
+			(projVer) => versionTags.get(projVer)?.version_type === 'snapshot',
+		)
+		const snapshotVersionsAsRanges =
+			snapshotVersions.length > 3
+				? groupConsecutiveIndices(snapshotVersions, allSnapshots)
+				: snapshotVersions.map((version) => ({ label: version, versions: [version] }))
+		output = [...snapshotVersionsAsRanges, ...output]
+	} else {
+		output = [...releaseVersionsAsRanges, ...output]
+	}
+
+	if (releaseVersionsAsRanges.length > 0 && latestSnapshot) {
+		output = [{ label: latestSnapshot, versions: [latestSnapshot] }, ...output]
+	}
+	return output
+}
+
+const mcVersionRegex = /^([0-9]+.[0-9]+)(.[0-9]+)?$/
+
+type VersionRange = {
+	major: string
+	minor: number[]
+}
+
+function groupVersions(versions: string[], consecutive = false) {
+	return versions
+		.slice()
+		.reverse()
+		.reduce((ranges: VersionRange[], version: string) => {
+			const matchesVersion = version.match(mcVersionRegex)
+
+			if (matchesVersion) {
+				const majorVersion = matchesVersion[1]
+				const minorVersion = matchesVersion[2]
+				const minorNumeric = minorVersion ? parseInt(minorVersion.replace('.', '')) : 0
+
+				const prevInRange = ranges.find(
+					(x) => x.major === majorVersion && (!consecutive || x.minor.at(-1) === minorNumeric - 1),
+				)
+				if (prevInRange) {
+					prevInRange.minor.push(minorNumeric)
+					return ranges
+				}
+
+				return [...ranges, { major: majorVersion, minor: [minorNumeric] }]
+			}
+
+			return ranges
+		}, [])
+		.reverse()
+}
+
+function groupConsecutiveIndices(
+	versions: string[],
+	referenceList: GameVersionTag[],
+): VersionDisplayGroup[] {
+	if (!versions || versions.length === 0) {
+		return []
+	}
+
+	const referenceMap = new Map()
+	referenceList.forEach((item, index) => {
+		referenceMap.set(item.version, index)
+	})
+
+	const sortedList: string[] = versions
+		.slice()
+		.sort((a, b) => referenceMap.get(a) - referenceMap.get(b))
+
+	const ranges: VersionDisplayGroup[] = []
+	let rangeStartIndex = 0
+
+	for (let i = 1; i <= sortedList.length; i++) {
+		if (
+			i === sortedList.length ||
+			referenceMap.get(sortedList[i]) !== referenceMap.get(sortedList[i - 1]) + 1
+		) {
+			const members = sortedList.slice(rangeStartIndex, i)
+			ranges.push({
+				label: validateRange(`${members[members.length - 1]}–${members[0]}`),
+				versions: members,
+			})
+			rangeStartIndex = i
+		}
+	}
+
+	return ranges
+}
+
+function validateRange(range: string): string {
+	switch (range) {
+		case 'rd-132211–b1.8.1':
+			return 'All legacy versions'
+		case 'a1.0.4–b1.8.1':
+			return 'All alpha and beta versions'
+		case 'a1.0.4–a1.2.6':
+			return 'All alpha versions'
+		case 'b1.0–b1.8.1':
+			return 'All beta versions'
+		case 'rd-132211–inf20100618':
+			return 'All pre-alpha versions'
+	}
+	const splitRange = range.split('–')
+	if (splitRange && splitRange[0] === splitRange[1]) {
+		return splitRange[0]
+	}
+	return range
+}
+
+function formatMinecraftMinorVersion(major: string, minor: number): string {
+	return minor === 0 ? major : `${major}.${minor}`
+}
+
+export const PROJECT_TYPE_PRECEDENCE = [
+	'server',
+	'modpack',
+	'datapack',
+	'plugin',
+	'shader',
+	'resourcepack',
+	'mod',
+	'project',
+] as const
+
+export function getPrimaryProjectType(project: Labrinth.Projects.v3.Project): DisplayProjectType {
+	if (project.minecraft_server != null) {
+		return 'server'
+	} else {
+		const sorted = project.project_types
+			.slice()
+			.sort((a, b) => compareByIndex(PROJECT_TYPE_PRECEDENCE, a, b))
+		if (sorted.length > 0) {
+			return sorted[0]
+		} else {
+			return 'project'
+		}
+	}
+}

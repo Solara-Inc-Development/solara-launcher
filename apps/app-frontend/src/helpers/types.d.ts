@@ -1,0 +1,253 @@
+import type { IconConfig } from '@modrinth/api-client'
+import type { ModrinthId } from '@modrinth/utils'
+
+export type GameInstance = {
+	id: string
+	path: string
+	install_stage: InstallStage
+	launcher_feature_version: string
+
+	name: string
+	icon_path?: string
+	icon_config?: IconConfig | null
+
+	game_version: string
+	protocol_version?: number
+	loader: InstanceLoader
+	loader_version?: string
+
+	group_ids: string[]
+	synced_options: {
+		resource_packs: boolean
+		data_packs: boolean
+		game_options: boolean
+		command_history: boolean
+		multiplayer_servers: boolean
+		creative_hotbars: boolean
+		screenshots: boolean
+	}
+
+	link?: InstanceLink | null
+	shared_instance?: SharedInstanceAttachment | null
+	quarantined: boolean
+	launch_blocked: boolean
+	content_locked: boolean
+	update_channel: ReleaseChannel
+
+	created: Date
+	modified: Date
+	last_played?: Date
+
+	submitted_time_played: number
+	recent_time_played: number
+
+	java_path?: string
+	extra_launch_args?: string[]
+	custom_env_vars?: [string, string][]
+
+	memory?: MemorySettings
+	force_fullscreen?: boolean
+	game_resolution?: [number, number]
+	hooks: Hooks
+	visible_tabs: {
+		files: boolean
+		worlds: boolean
+		screenshots: boolean
+	}
+}
+
+type InstallStage =
+	| 'installed'
+	| 'minecraft_installing'
+	| 'pack_installed'
+	| 'pack_installing'
+	| 'not_installed'
+
+type InstanceLinkIdentity = {
+	project_id?: ModrinthId | null
+	version_id?: ModrinthId | null
+	server_project_id?: ModrinthId | null
+	content_project_id?: ModrinthId | null
+	content_version_id?: ModrinthId | null
+}
+
+export type InstanceLink = InstanceLinkIdentity &
+	(
+		| {
+				type: 'modrinth_modpack'
+				project_id: ModrinthId
+				version_id: ModrinthId
+		  }
+		| {
+				type: 'server_project'
+				project_id: ModrinthId
+		  }
+		| {
+				type: 'server_project_modpack'
+				server_project_id: ModrinthId
+				content_project_id?: ModrinthId | null
+				content_version_id: ModrinthId
+				project_id?: ModrinthId
+				version_id?: ModrinthId
+		  }
+		| {
+				type: 'imported_modpack'
+				project_id?: ModrinthId | null
+				version_id?: ModrinthId | null
+				name?: string | null
+				version_number?: string | null
+				filename?: string | null
+		  }
+		| {
+				type: 'modrinth_hosting'
+				server_id: string
+				instance_ids: string[]
+				active_instance_id?: string | null
+		  }
+		| {
+				type: 'shared_instance'
+				modpack_project_id?: ModrinthId | null
+				modpack_version_id?: ModrinthId | null
+		  }
+	)
+
+export type SharedInstanceAttachment = {
+	id: string
+	role: 'owner' | 'member'
+	manager_id?: string | null
+	server_manager_name?: string | null
+	server_manager_icon_url?: string | null
+	linked_user_id?: string | null
+	status:
+		| 'unknown'
+		| 'up_to_date'
+		| 'update_available'
+		| 'applying'
+		| 'stale'
+		| 'not_ready'
+		| 'error'
+	applied_version?: number | null
+	latest_version?: number | null
+	restored_from_remote?: boolean
+}
+
+export type Instance = GameInstance
+
+type ReleaseChannel = 'release' | 'beta' | 'alpha'
+
+export type InstanceLoader = 'vanilla' | 'forge' | 'fabric' | 'quilt' | 'neoforge'
+
+export type ContentSourceKind =
+	| 'local'
+	| 'modrinth_modpack'
+	| 'server_project'
+	| 'modrinth_hosting'
+	| 'imported_modpack'
+	| 'shared_instance'
+
+export type ContentFile = {
+	enabled: boolean
+	locked: boolean
+	source_kind?: ContentSourceKind | null
+	metadata?: {
+		project_id: string
+		version_id: string
+	}
+}
+
+export type ContentFileProjectType = 'mod' | 'datapack' | 'resourcepack' | 'shaderpack'
+
+export type CacheBehaviour =
+	// Serve expired data. If fetch fails / launcher is offline, errors are ignored
+	| 'stale_while_revalidate_skip_offline'
+	// Serve expired data, revalidate in background
+	| 'stale_while_revalidate'
+	// Must revalidate if data is expired
+	| 'must_revalidate'
+	// Ignore cache- always fetch updated data from origin
+	| 'bypass'
+
+type MemorySettings = {
+	maximum: number
+}
+
+export type WindowSize = [number, number]
+
+type Hooks = {
+	pre_launch?: string
+	wrapper?: string
+	post_exit?: string
+}
+
+export type Manifest = {
+	gameVersions: ManifestGameVersion[]
+	versionGroups?: ManifestVersionGroup[]
+}
+
+type ManifestGameVersion = {
+	id: string
+	stable: boolean
+	versionGroup?: string
+	loaders: ManifestLoaderVersion[]
+}
+
+type ManifestVersionGroup = {
+	id: string
+	loaders: ManifestLoaderVersion[]
+}
+
+type ManifestLoaderVersion = {
+	id: string
+	url: string
+	stable: boolean
+}
+
+export type AppSettings = {
+	max_concurrent_downloads: number
+	max_concurrent_writes: number
+
+	theme: 'dark' | 'light' | 'oled' | 'retro' | 'system'
+	default_page: 'Home' | 'Library'
+	collapsed_navigation: boolean
+	advanced_rendering: boolean
+	native_decorations: boolean
+	worlds_in_home: boolean
+	sync_theme_across_devices: boolean
+	sync_behavior_across_devices: boolean
+	sync_features_across_devices: boolean
+	show_files_tab_in_instances: boolean
+	show_worlds_tab_in_instances: boolean
+	show_screenshots_tab_in_instances: boolean
+	show_skin_selector_in_sidebar: boolean
+
+	telemetry: boolean
+	discord_rpc: boolean
+	developer_mode: boolean
+	personalized_ads: boolean
+
+	extra_launch_args: string[]
+	custom_env_vars: [string, string][]
+	memory: MemorySettings
+	force_fullscreen: boolean
+	game_resolution: [number, number]
+	hide_on_process_start: boolean
+	show_jump_in: boolean
+	always_show_copy_details: boolean
+	hide_installed_modpacks: boolean
+	advanced_filters_collapsed: boolean
+	dismissed_photosensitivity_filter_warning: boolean
+	friends_active_collapsed: boolean
+	friends_online_collapsed: boolean
+	friends_offline_collapsed: boolean
+	friends_pending_collapsed: boolean
+	refocus_on_game_close: boolean
+	compact_instance_cards: boolean
+	show_play_time: boolean
+	warn_on_unknown_modpacks: boolean
+	skip_non_essential_warnings: boolean
+	hooks: Hooks
+
+	custom_dir?: string
+	prev_custom_dir?: string
+	migrated: boolean
+}

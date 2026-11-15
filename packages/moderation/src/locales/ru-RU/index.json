@@ -1,0 +1,522 @@
+{
+  "nags.add-description.description": {
+    "defaultMessage": "Необходимо чёткое описание содержимого, цели и особенностей проекта."
+  },
+  "nags.add-description.title": {
+    "defaultMessage": "Добавьте описание"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Уникальная, подходящая и привлекательная иконка сделает проект узнаваемым и заметным."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Добавьте иконку"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Добавьте IP‑адрес и порт, по которым игроки войдут на сервер в Java Edition."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Укажите адрес для Java"
+  },
+  "nags.add-license-details.description": {
+    "defaultMessage": "Укажите URL и название (или идентификатор SPDX) у своей лицензии."
+  },
+  "nags.add-license-details.title": {
+    "defaultMessage": "Дополните лицензию"
+  },
+  "nags.add-links-server.description": {
+    "defaultMessage": "Добавьте ссылки на внешние ресурсы: сайт, магазин и постоянное приглашение в Discord."
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Добавьте ссылки"
+  },
+  "nags.add-links.description": {
+    "defaultMessage": "Добавьте ссылки на внешние ресурсы: трекер проблем, исходный код и постоянное приглашение в Discord."
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Добавьте внешние ссылки"
+  },
+  "nags.adjacent-headers.description": {
+    "defaultMessage": "Заголовки одного уровня не должны быть рядом."
+  },
+  "nags.adjacent-headers.title": {
+    "defaultMessage": "Разделите заголовки"
+  },
+  "nags.all-languages.description": {
+    "defaultMessage": "Выбраны все доступные языки. Укажите только те, которые сервер активно поддерживает."
+  },
+  "nags.all-languages.title": {
+    "defaultMessage": "Оставьте активные языки"
+  },
+  "nags.all-tags-selected.description": {
+    "defaultMessage": "Выбраны все {totalAvailableTags, plural, one {# тег} few {# тега} other {# тегов}}. Теги должны помогать с поиском проектов. Оставьте только релевантные теги."
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Оставьте ключевые теги"
+  },
+  "nags.check-disclosures.description": {
+    "defaultMessage": "Предупредите о важных особенностях проекта, заполнив маркировку контента."
+  },
+  "nags.check-disclosures.title": {
+    "defaultMessage": "Проверьте маркировку"
+  },
+  "nags.description-ends-with-header.description": {
+    "defaultMessage": "Описание проекта не должно оканчиваться заголовком."
+  },
+  "nags.description-ends-with-header.title": {
+    "defaultMessage": "Очистите конец текста"
+  },
+  "nags.description-too-short.description": {
+    "defaultMessage": "Описание слишком короткое. Напишите о содержимом, цели и особенностях подробнее."
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Расширьте описание"
+  },
+  "nags.disclosures-special-formatting.description": {
+    "defaultMessage": "HTML не поддерживается в маркировке. Используйте только строчный Markdown или простой текст."
+  },
+  "nags.disclosures-special-formatting.title": {
+    "defaultMessage": "Упростите маркировку"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Изменить описание"
+  },
+  "nags.edit-gallery.title": {
+    "defaultMessage": "Изменить галерею"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Изменить сводку"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Изменить теги"
+  },
+  "nags.edit-title.title": {
+    "defaultMessage": "Изменить название"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "Обложка часто создаёт первое впечатление о проекте."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Выберите обложку"
+  },
+  "nags.gallery-text-non-standard.description": {
+    "defaultMessage": "Нестандартные символы, такие как «Fancy text» или «Zalgo», не допускаются в названиях или описаниях изображений в галерее."
+  },
+  "nags.gallery-text-profanity.description": {
+    "defaultMessage": "Заголовки и описания изображений не должны содержать бранные слова. Обнаружено: «{value}»."
+  },
+  "nags.gallery-text-slur.description": {
+    "defaultMessage": "В названиях и описаниях изображений не должно быть оскорблений. Обнаружено: «{value}»."
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Перейти в галерею"
+  },
+  "nags.gpl-license-source-required.description": {
+    "defaultMessage": "Лицензия проекта требует публикации исходного кода. Укажите ссылку на исходный код, добавьте исходные файлы или смените лицензию."
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Укажите исходный код"
+  },
+  "nags.invalid-gallery-text.title": {
+    "defaultMessage": "Измените текст изображения"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "URL лицензии имеет неверный формат. Укажите действительную ссылку на текст лицензии."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Исправьте URL лицензии"
+  },
+  "nags.invalid-project-description.title": {
+    "defaultMessage": "Измените описание"
+  },
+  "nags.invalid-project-name.title": {
+    "defaultMessage": "Переименуйте проект"
+  },
+  "nags.invalid-project-summary.title": {
+    "defaultMessage": "Измените сводку"
+  },
+  "nags.license-url.not-in-allowlist.description": {
+    "defaultMessage": "URL лицензии не распознан как ссылка на лицензию. Убедитесь, что он ведёт на текст лицензии."
+  },
+  "nags.license-url.not-in-allowlist.title": {
+    "defaultMessage": "Проверьте ссылку на лицензию"
+  },
+  "nags.link-validation.discord-invite": {
+    "defaultMessage": "Ваша пригласительная ссылка Discord недействительна, истекла или не ведёт на сервер. Замените её действующим приглашением."
+  },
+  "nags.link-validation.discord-invite.title": {
+    "defaultMessage": "Замените Discord"
+  },
+  "nags.link-validation.download": {
+    "defaultMessage": "Ссылки, начинающие скачивание, запрещены. Уберите их из описания."
+  },
+  "nags.link-validation.download.title": {
+    "defaultMessage": "Удалите ссылки на скачивание"
+  },
+  "nags.link-validation.duplicate": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} также используется в {otherLinkField, select, issues {трекере проблем} source {исходном коде} wiki {вики} discord {Discord} site {сайте} store {магазине} license {лицензии} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {другим полем}}. Ссылки не должны повторяться."
+  },
+  "nags.link-validation.duplicate.title": {
+    "defaultMessage": "Уберите копии ссылок"
+  },
+  "nags.link-validation.external-blocklist-match": {
+    "defaultMessage": "Ваша ссылка {linkField} недопустима. Пожалуйста, удалите эту ссылку или замените её на подходящую для типа ссылки {linkField}."
+  },
+  "nags.link-validation.external-blocklist-match.title": {
+    "defaultMessage": "Замените ссылки"
+  },
+  "nags.link-validation.global-blocklist-match": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} использует запрещённый домен. Уберите или замените ссылку."
+  },
+  "nags.link-validation.global-blocklist-match.title": {
+    "defaultMessage": "Удалите запрещённые ссылки"
+  },
+  "nags.link-validation.ip-address": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} использует IP-адрес. Используйте URL с доменным именем."
+  },
+  "nags.link-validation.ip-address.title": {
+    "defaultMessage": "Уберите IP-ссылку"
+  },
+  "nags.link-validation.malformed": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} недействительна. Введите полный HTTPS-адрес."
+  },
+  "nags.link-validation.malformed.title": {
+    "defaultMessage": "Исправьте ссылки"
+  },
+  "nags.link-validation.not-in-allowlist": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} не подходит для своего типа. Убедитесь, что она соответствует назначению."
+  },
+  "nags.link-validation.not-in-allowlist.title": {
+    "defaultMessage": "Проверьте ссылки"
+  },
+  "nags.link-validation.source-repository": {
+    "defaultMessage": "Ссылка на исходный код должна вести на репозиторий на поддерживаемой платформе или на собственный сервер Gitea/Forgejo."
+  },
+  "nags.link-validation.source-repository.title": {
+    "defaultMessage": "Ссылка на репозиторий исходного кода"
+  },
+  "nags.link-validation.title": {
+    "defaultMessage": "Проверьте ссылку"
+  },
+  "nags.link-validation.unverifiable": {
+    "defaultMessage": "Не удалось проверить ссылку на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}}. Проверьте её работу и доступность."
+  },
+  "nags.link-validation.unverifiable.title": {
+    "defaultMessage": "Проверьте доступность ссылки"
+  },
+  "nags.link-validation.wrong-field": {
+    "defaultMessage": "Ссылка на {linkField, select, issues {трекер проблем} source {исходный код} wiki {вики} discord {Discord} site {сайт} store {магазин} license {лицензию} description {описание} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержку}} не подходит для {linkField, select, issues {трекера проблем} source {исходного кода} wiki {вики} discord {Discord} site {сайта} store {магазина} license {лицензии}  description {описания} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {поддержки}}. Уберите или замените её."
+  },
+  "nags.link-validation.wrong-field.title": {
+    "defaultMessage": "Исправьте ссылки"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, one {# заголовок} few {# заголовка} other {# заголовков}} в описании слишком {count, plural, one {длинный} other {длинные}}. Заголовки должны быть краткими названиями разделов, а не предложениями."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Сократите заголовки"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Проект не должен использовать бренд Minecraft или использовать «Minecraft» как основную часть названия."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Соблюдайте права бренда"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "У некоторых изображений нет альтернативного текста. Он нужен для доступности, особенно для слабовидящих пользователей."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Опишите изображения"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Открыть ветку модерации"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Перед повторной отправкой проекта исправьте все замечания модераторов."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Посмотрите замечания"
+  },
+  "nags.modpack-version-not-public.description": {
+    "defaultMessage": "Выбранная версия сборки скрыта. Выберите версию, доступную всем."
+  },
+  "nags.modpack-version-not-public.title": {
+    "defaultMessage": "Выберите общедоступную версию сборки"
+  },
+  "nags.multiple-resolution-tags.description": {
+    "defaultMessage": "{count, plural, one {Выбран # тег} few {Выбрано # тега} other {Выбрано # тегов}} разрешения: {tags}. Рекомендуется оставить один тег с основным разрешением."
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Укажите одно разрешение"
+  },
+  "nags.project-description-content.title": {
+    "defaultMessage": "Проверьте описание"
+  },
+  "nags.project-description-non-english.description": {
+    "defaultMessage": "Описание проекта должно быть написано или переведено на английский."
+  },
+  "nags.project-description-non-english.title": {
+    "defaultMessage": "Переведите описание"
+  },
+  "nags.project-description-non-standard-text.description": {
+    "defaultMessage": "Чрезмерное использование нестандартных символов, например «Fancy text» или «Zalgo», не допускается в описании проекта."
+  },
+  "nags.project-description-profanity.description": {
+    "defaultMessage": "Описание не должно содержать бранные слова. Обнаружено: «{value}»."
+  },
+  "nags.project-description-slur.description": {
+    "defaultMessage": "В описании проекта должно быть оскорблений. Обнаружено: «{value}»."
+  },
+  "nags.project-description-spam.description": {
+    "defaultMessage": "Нельзя заполнять описание повторением символов, слов или фраз."
+  },
+  "nags.project-description-spam.title": {
+    "defaultMessage": "Уберите спам в описании"
+  },
+  "nags.project-name-non-standard-text.description": {
+    "defaultMessage": "Нестандартные символы, такие как «Fancy text» или «Zalgo», не допускаются в названии проекта."
+  },
+  "nags.project-name-profanity.description": {
+    "defaultMessage": "Название проекта не должно содержать бранные слова. Обнаружено: «{value}»."
+  },
+  "nags.project-name-slur.description": {
+    "defaultMessage": "В названии проекта не должно быть оскорблений. Обнаружено: «{value}»."
+  },
+  "nags.project-name-version.title": {
+    "defaultMessage": "Переименуйте проект"
+  },
+  "nags.project-summary-content.title": {
+    "defaultMessage": "Проверьте сводку"
+  },
+  "nags.project-summary-links.description": {
+    "defaultMessage": "Ссылки, URL и IP-адреса не должны быть в сводке. Обнаружено: «{value}»."
+  },
+  "nags.project-summary-links.title": {
+    "defaultMessage": "Уберите ссылки в сводке"
+  },
+  "nags.project-summary-non-english.description": {
+    "defaultMessage": "Сводка проекта должна быть написана или переведена на английский."
+  },
+  "nags.project-summary-non-english.title": {
+    "defaultMessage": "Переведите сводку"
+  },
+  "nags.project-summary-non-standard-text.description": {
+    "defaultMessage": "Нестандартные символы, такие как «Fancy text» или «Zalgo», не допускаются в сводке."
+  },
+  "nags.project-summary-profanity.description": {
+    "defaultMessage": "В сводке проекта не должно быть сквернословия. Обнаружено: «{value}»."
+  },
+  "nags.project-summary-slur.description": {
+    "defaultMessage": "В сводке не должно быть оскорблений. Обнаружено: «{value}»."
+  },
+  "nags.project-summary-spam.description": {
+    "defaultMessage": "Нельзя заполнять сводку повторением символов, слов или фраз."
+  },
+  "nags.project-summary-spam.title": {
+    "defaultMessage": "Уберите спам в сводке"
+  },
+  "nags.review-permissions.description": {
+    "defaultMessage": "Предоставьте подтверждение на включение стороннего контента в свою сборку."
+  },
+  "nags.review-permissions.title": {
+    "defaultMessage": "Укажите авторство"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Настройте поддерживаемые версии, выберите сборку или добавьте собственную."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Укажите совместимость"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "Сообщите игрокам, где находится сервер."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Укажите регион"
+  },
+  "nags.select-environment.description": {
+    "defaultMessage": "Укажите среду, в которой работает проект."
+  },
+  "nags.select-environment.title": {
+    "defaultMessage": "Укажите среду"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Выберите языки, которые поддерживает сервер."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Укажите язык"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Выберите лицензию, под которой распространяется ваш {type}."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Укажите лицензию"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Выберите подходящие проекту теги, чтобы его нашла целевая аудитория."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Укажите теги"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Настроить сервер"
+  },
+  "nags.settings.disclosures.title": {
+    "defaultMessage": "Настроить маркировку"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Настроить лицензию"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Настроить ссылки"
+  },
+  "nags.settings.permissions.title": {
+    "defaultMessage": "Настроить авторство"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Настроить теги"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Перейти в настройки"
+  },
+  "nags.settings.versions.title": {
+    "defaultMessage": "Настроить версии"
+  },
+  "nags.summary-special-formatting.description": {
+    "defaultMessage": "HTML и Markdown не поддерживаются в сводке. Используйте только простой текст."
+  },
+  "nags.summary-special-formatting.title": {
+    "defaultMessage": "Упростите сводку"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Расширьте сводку"
+  },
+  "nags.too-many-languages.description": {
+    "defaultMessage": "{languageCount, plural, one {Выбран # язык} few {Выбрано # языка} other {Выбрано # языков}}. Укажите только те, которые сервер активно поддерживает."
+  },
+  "nags.too-many-languages.title": {
+    "defaultMessage": "Оставьте активные языки"
+  },
+  "nags.too-many-tags-server.description": {
+    "defaultMessage": "{tagCount, plural, one {Выбран # тег} few {Выбрано # тега} other {Выбрано # тегов}}. Оставьте не более {maxTagCount}, чтобы повысить релевантность проекта в поиске."
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Оставьте ключевые теги"
+  },
+  "nags.too-many-tags.description": {
+    "defaultMessage": "{tagCount, plural, one {Выбран # тег} few {Выбрано # тега} other {Выбрано # тегов}}. Оставьте не более {maxTagCount}, чтобы повысить релевантность проекта в поиске."
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Оставьте ключевые теги"
+  },
+  "nags.upload-gallery-image.description": {
+    "defaultMessage": "Нужно минимум одно изображение, чтобы показать контент, входящий в {type}."
+  },
+  "nags.upload-gallery-image.description-resourcepack": {
+    "defaultMessage": "В галерее требуется хотя бы одно изображение, в котором показано содержимое набора ресурсов. Если он содержит только звуки или переводы, укажите это в тегах."
+  },
+  "nags.upload-gallery-image.description-shader": {
+    "defaultMessage": "В галерее требуется хотя бы три изображения, в которых показано содержимое шейдера в различных ситуациях и условиях."
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Добавьте изображения"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Требуется хотя бы одна версия перед отправкой проекта на проверку."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Загрузите версию"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Настроить ссылки"
+  },
+  "project-review.issue-location.disclosures": {
+    "defaultMessage": "Изменить маркировку"
+  },
+  "project-review.issue-location.gallery": {
+    "defaultMessage": "Измените изображения"
+  },
+  "project-review.issue-location.permissions": {
+    "defaultMessage": "Просмотр разрешений"
+  },
+  "project-review.issue-location.versions": {
+    "defaultMessage": "Управление версиями"
+  },
+  "project-review.issue-target.acknowledge": {
+    "defaultMessage": "Понятно"
+  },
+  "project-review.issue-target.add-gallery-images": {
+    "defaultMessage": "Добавьте изображения"
+  },
+  "project-review.issue-target.add-project-disclosures": {
+    "defaultMessage": "Добавить маркировку"
+  },
+  "project-review.issue-target.mark-addressed": {
+    "defaultMessage": "Отметить адресным"
+  },
+  "project-review.issue-target.modify-description": {
+    "defaultMessage": "Изменить описание"
+  },
+  "project-review.issue-target.modify-gallery-image": {
+    "defaultMessage": "Изменить изображение"
+  },
+  "project-review.issue-target.modify-icon": {
+    "defaultMessage": "Изменить иконку"
+  },
+  "project-review.issue-target.modify-license": {
+    "defaultMessage": "Изменить лицензию"
+  },
+  "project-review.issue-target.modify-links": {
+    "defaultMessage": "Изменить ссылки"
+  },
+  "project-review.issue-target.modify-project-disclosure": {
+    "defaultMessage": "Изменить маркировку"
+  },
+  "project-review.issue-target.modify-project-disclosure-note": {
+    "defaultMessage": "Изменить примечание к маркировке"
+  },
+  "project-review.issue-target.modify-server-address": {
+    "defaultMessage": "Сменить адрес сервера"
+  },
+  "project-review.issue-target.modify-server-languages": {
+    "defaultMessage": "Изменить языки сервера"
+  },
+  "project-review.issue-target.modify-slug": {
+    "defaultMessage": "Изменить URL-адрес"
+  },
+  "project-review.issue-target.modify-summary": {
+    "defaultMessage": "Измените сводку"
+  },
+  "project-review.issue-target.modify-team-member-role": {
+    "defaultMessage": "Изменить роль члена команды"
+  },
+  "project-review.issue-target.modify-title": {
+    "defaultMessage": "Изменить заголовок"
+  },
+  "project-review.issue-target.remove-gallery-images": {
+    "defaultMessage": "Удалить изображения"
+  },
+  "project-review.issue-target.remove-icon": {
+    "defaultMessage": "Удалить иконку"
+  },
+  "project-review.issue-target.remove-project-disclosures": {
+    "defaultMessage": "Удалить маркировку"
+  },
+  "project-review.issue-target.remove-tags": {
+    "defaultMessage": "Удалить теги"
+  },
+  "project-review.issue-target.version": {
+    "defaultMessage": "Сменить версию"
+  },
+  "project.text-validation.description-matches-summary": {
+    "defaultMessage": "Описание должно иметь уникальную информацию и не повторять сводку проекта."
+  },
+  "project.text-validation.summary-matches-title": {
+    "defaultMessage": "Сводка должна иметь уникальную информацию и не повторять название проекта."
+  },
+  "project.text-validation.summary-too-short": {
+    "defaultMessage": "Сводка слишком короткая. Добавьте одно-два предложения, описывающие ваш проект."
+  },
+  "project.text-validation.title-version-number": {
+    "defaultMessage": "В названиях проектов не должно быть номеров версий."
+  }
+}
+

@@ -1,0 +1,246 @@
+use crate::SharedInstanceUnavailableReason;
+use crate::event::InstancePayloadType;
+use crate::event::emit::emit_instance;
+use crate::install::{
+    InstallJobSnapshot, SharedInstanceExternalFileData,
+    SharedInstanceInstallData, SharedInstanceRemovedFile,
+};
+use crate::state::instances::{InstanceLink, SharedInstanceAttachment};
+use crate::state::{
+    AppliedContentSetPatch, CacheBehaviour, CachedEntry, ContentSetSyncStatus,
+    ContentSourceKind, EditInstance, IconConfig, ModLoader,
+    ModrinthCredentials, ProjectType, SharedInstanceRole, State,
+};
+use crate::util::fetch::{
+    INSECURE_NO_TIMEOUT_REQWEST_CLIENT, INSECURE_REQWEST_CLIENT,
+    NO_TIMEOUT_REQWEST_CLIENT, REQWEST_CLIENT,
+};
+use anyhow::{Context, bail};
+use chrono::{DateTime, Utc};
+use modrinth_content_management::{
+    Change, CommonExternalFilePolicy, ConfigurationDiff,
+    ContentSetConfiguration, ContentSetDiffEntry, ContentSetDiffKind,
+    ContentSetDiffOptions, ContentSetSnapshot, ExternalFileKey,
+    LoaderReference, diff_configuration, diff_content_sets,
+};
+use reqwest::{Method, StatusCode};
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use std::collections::BTreeSet;
+use std::collections::{HashMap, HashSet};
+use std::io::Read;
+
+pub(crate) const CONFIG_BUNDLE_FILE_TYPE: &str = "configs";
+/// Wire type for an instance file the owner selected to share. The file name
+/// is its instance-relative path.
+pub(crate) const CONFIG_FILE_TYPE: &str = "config";
+pub(crate) const CONFIG_SYNC_ENABLED: bool = true;
+pub(crate) const CONFIG_DIRECTORY: &str = "config";
+pub(crate) const MAX_SHARED_FILES: usize = 4096;
+pub(crate) const MAX_SHARED_FILES_TOTAL_SIZE: u64 = 500 * 1024 * 1024;
+pub(crate) const MAX_CONFIG_BUNDLE_ENTRIES: usize = 4096;
+pub(crate) const MAX_CONFIG_BUNDLE_FILE_SIZE: u64 = 512 * 1024 * 1024;
+pub(crate) const MAX_CONFIG_BUNDLE_TOTAL_SIZE: u64 = 512 * 1024 * 1024;
+pub(crate) const CONFIG_FILE_EXTENSIONS: [&str; 14] = [
+    "json",
+    "json5",
+    "jsonc",
+    "yml",
+    "yaml",
+    "css",
+    "toml",
+    "txt",
+    "ini",
+    "cfg",
+    "conf",
+    "properties",
+    "xml",
+    "nbt",
+];
+
+/// Extensions of executables, scripts and installers. These are hidden from
+/// the publish file selection and never installed; the shared instances
+/// backend also rejects them by content.
+const EXECUTABLE_FILE_EXTENSIONS: &[&str] = &[
+    "exe", "dll", "msi", "msix", "com", "scr", "cpl", "sys", "bat", "cmd",
+    "ps1", "psm1", "vbs", "vbe", "jse", "wsf", "wsh", "hta", "lnk", "reg",
+    "sh", "bash", "zsh", "command", "app", "dylib", "so", "appimage", "apk",
+    "deb", "rpm", "dmg", "pkg", "class",
+];
+
+pub(crate) fn is_supported_config_file(path: &std::path::Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| {
+            CONFIG_FILE_EXTENSIONS
+                .iter()
+                .any(|candidate| extension.eq_ignore_ascii_case(candidate))
+        })
+}
+
+/// Whether members can install a shared file at this instance-relative path.
+/// Content folders are shared through the content set instead.
+pub(crate) fn is_shareable_file_path(path: &str) -> bool {
+    crate::state::content_store::validate_relative(path).is_ok()
+        && is_shareable_path(path)
+        && !is_executable_file(path)
+        && path
+            .split_once('/')
+            .is_none_or(|(root, _)| !is_content_folder(root))
+}
+
+fn is_executable_file(path: &str) -> bool {
+    std::path::Path::new(path)
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| {
+            EXECUTABLE_FILE_EXTENSIONS
+                .iter()
+                .any(|candidate| extension.eq_ignore_ascii_case(candidate))
+        })
+}
+
+/// Leading bytes of each file passed to [`is_executable_content`].
+pub(super) const FILE_SCAN_HEAD_SIZE: usize = 8192;
+
+/// Mirrors the upload scan of the shared instances backend, so files it would
+/// reject fail before a version is created.
+pub(super) fn is_executable_content(head: &[u8]) -> bool {
+    infer::get(head).is_some_and(|kind| match kind.matcher_type() {
+        infer::MatcherType::App => {
+            !matches!(kind.extension(), "der" | "pem" | "obj" | "bc")
+        }
+        _ => matches!(
+            kind.extension(),
+            "sh" | "msi" | "cab" | "deb" | "rpm" | "crx"
+        ),
+    })
+}
+
+/// Whether a directory can hold shareable files, so the rest can be skipped
+/// while walking the instance.
+pub(super) fn is_shareable_directory(path: &str) -> bool {
+    is_shareable_path(path) && !is_content_folder(path)
+}
+
+fn is_shareable_path(path: &str) -> bool {
+    super::export_mrpack::is_exportable_path(path)
+}
+
+fn is_content_folder(path: &str) -> bool {
+    ProjectType::iterator()
+        .any(|project_type| project_type.get_folder() == path)
+}
+
+pub(crate) fn read_bounded_config_bundle_entry(
+    reader: impl Read,
+    declared_size: u64,
+    total_size: &mut u64,
+) -> crate::Result<Vec<u8>> {
+    let remaining = MAX_CONFIG_BUNDLE_TOTAL_SIZE.saturating_sub(*total_size);
+    let entry_limit = MAX_CONFIG_BUNDLE_FILE_SIZE.min(remaining);
+    if declared_size > entry_limit {
+        bail!(crate::ErrorKind::InputError(
+            "shared instance config bundle exceeds the uncompressed size limit"
+                .to_string(),
+        ));
+    }
+
+    let capacity = usize::try_from(declared_size).context(
+        crate::ErrorKind::InputError(
+            "shared instance config bundle entry is too large".to_string(),
+        ),
+    )?;
+    let mut bytes = Vec::with_capacity(capacity);
+    reader
+        .take(entry_limit.saturating_add(1))
+        .read_to_end(&mut bytes)
+        .context("failed to read shared instance config bundle")?;
+    let actual_size = bytes.len() as u64;
+    if actual_size > entry_limit {
+        bail!(crate::ErrorKind::InputError(
+            "shared instance config bundle exceeds the uncompressed size limit"
+                .to_string(),
+        ));
+    }
+    *total_size = total_size.checked_add(actual_size).ok_or(
+        crate::ErrorKind::InputError(
+            "shared instance config bundle size overflowed".to_string(),
+        ),
+    )?;
+
+    Ok(bytes)
+}
+
+mod client;
+mod content;
+mod diff;
+mod icons;
+mod install;
+mod invites;
+mod library;
+mod publish;
+mod relink;
+mod report;
+mod types;
+
+pub(crate) use self::content::shared_modpack_files;
+pub use self::icons::cache_shared_instance_server_icon;
+pub(crate) use self::install::{
+    check_shared_instance_availability_before_launch,
+    shared_instance_update_data,
+};
+pub(crate) use self::publish::sync_shared_instance_icon;
+
+pub use self::install::{
+    accept_shared_instance_invite_for_install,
+    dismiss_shared_instance_restored_notice,
+    get_shared_instance_install_preview,
+    get_shared_instance_invite_install_preview,
+    get_shared_instance_update_preview, install_shared_instance,
+    refresh_shared_instance_lock, refresh_shared_instance_locks,
+    update_shared_instance,
+};
+pub use self::invites::{
+    accept_pending_shared_instance_invite, create_shared_instance_invite_link,
+    decline_pending_shared_instance_invite, get_shared_instance_invites,
+    get_shared_instance_users, invite_shared_instance_users,
+    remove_shared_instance_users, revoke_shared_instance_invite,
+};
+pub use self::library::{
+    cache_shared_instance_library, get_cached_shared_instance_library,
+};
+pub use self::publish::{
+    get_shared_instance_publish_preview, leave_remote_shared_instance,
+    publish_shared_instance, unlink_shared_instance,
+    unpublish_remote_shared_instance, unpublish_shared_instance,
+};
+pub use self::relink::{
+    get_shared_instance_relink_preview, relink_shared_instance,
+};
+pub use self::report::get_shared_instance_publish_support_details;
+pub use self::types::{
+    SharedInstanceExternalFilePreview, SharedInstanceInstallPreview,
+    SharedInstanceInvite, SharedInstanceInviteCreator,
+    SharedInstanceInviteInstallPreview, SharedInstanceInviteLink,
+    SharedInstanceJoinType, SharedInstanceLockStatus,
+    SharedInstancePublishFile, SharedInstancePublishPreview,
+    SharedInstanceRelinkBlocker, SharedInstanceRelinkPreview,
+    SharedInstanceUpdateDiff, SharedInstanceUpdateDiffType,
+    SharedInstanceUpdatePreview, SharedInstanceUser, SharedInstanceUsers,
+};
+
+pub async fn can_active_user_use_shared_instances() -> crate::Result<bool> {
+    let state = State::get().await?;
+    let Some(credentials) =
+        ModrinthCredentials::get_and_refresh(&state.pool, &state.api_semaphore)
+            .await?
+    else {
+        return Ok(true);
+    };
+
+    let status =
+        client::get_user_blacklist_status(&credentials.user_id, &state).await?;
+    Ok(!status.blacklisted)
+}

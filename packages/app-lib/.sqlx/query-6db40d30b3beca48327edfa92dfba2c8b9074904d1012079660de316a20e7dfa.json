@@ -1,0 +1,213 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT\n            instance_id,\n            link_kind,\n            modrinth_project_id,\n            modrinth_version_id,\n            server_project_id,\n            content_project_id,\n            content_version_id,\n            hosting_server_id,\n            json(hosting_instance_ids) AS \"hosting_instance_ids?: String\",\n            hosting_active_instance_id,\n            shared_instance_id,\n            shared_instance_role,\n            shared_instance_manager_id,\n            shared_instance_linked_user_id,\n            imported_name,\n            imported_version_number,\n            imported_filename\n        FROM instance_links\n        WHERE instance_id = ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "instance_id",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "instance_id"
+          }
+        }
+      },
+      {
+        "name": "link_kind",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "link_kind"
+          }
+        }
+      },
+      {
+        "name": "modrinth_project_id",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "modrinth_project_id"
+          }
+        }
+      },
+      {
+        "name": "modrinth_version_id",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "modrinth_version_id"
+          }
+        }
+      },
+      {
+        "name": "server_project_id",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "server_project_id"
+          }
+        }
+      },
+      {
+        "name": "content_project_id",
+        "ordinal": 5,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "content_project_id"
+          }
+        }
+      },
+      {
+        "name": "content_version_id",
+        "ordinal": 6,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "content_version_id"
+          }
+        }
+      },
+      {
+        "name": "hosting_server_id",
+        "ordinal": 7,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "hosting_server_id"
+          }
+        }
+      },
+      {
+        "name": "hosting_instance_ids?: String",
+        "ordinal": 8,
+        "type_info": "Null",
+        "origin": "Expression"
+      },
+      {
+        "name": "hosting_active_instance_id",
+        "ordinal": 9,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "hosting_active_instance_id"
+          }
+        }
+      },
+      {
+        "name": "shared_instance_id",
+        "ordinal": 10,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "shared_instance_id"
+          }
+        }
+      },
+      {
+        "name": "shared_instance_role",
+        "ordinal": 11,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "shared_instance_role"
+          }
+        }
+      },
+      {
+        "name": "shared_instance_manager_id",
+        "ordinal": 12,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "shared_instance_manager_id"
+          }
+        }
+      },
+      {
+        "name": "shared_instance_linked_user_id",
+        "ordinal": 13,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "shared_instance_linked_user_id"
+          }
+        }
+      },
+      {
+        "name": "imported_name",
+        "ordinal": 14,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "imported_name"
+          }
+        }
+      },
+      {
+        "name": "imported_version_number",
+        "ordinal": 15,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "imported_version_number"
+          }
+        }
+      },
+      {
+        "name": "imported_filename",
+        "ordinal": 16,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_links",
+            "name": "imported_filename"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "6db40d30b3beca48327edfa92dfba2c8b9074904d1012079660de316a20e7dfa"
+}

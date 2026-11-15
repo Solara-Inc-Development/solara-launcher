@@ -1,0 +1,100 @@
+{
+	"identifier": "plugins",
+	"description": "",
+	"local": true,
+	"windows": ["main"],
+	"permissions": [
+		"dialog:allow-open",
+		"dialog:allow-confirm",
+		"opener:default",
+		"os:allow-platform",
+		"os:allow-version",
+		"os:allow-os-type",
+		"os:allow-family",
+		"os:allow-arch",
+		"os:allow-exe-extension",
+		"os:allow-locale",
+		"os:allow-hostname",
+		"deep-link:default",
+		"window-state:default",
+		"window-state:allow-restore-state",
+		"window-state:allow-save-window-state",
+		{
+			"identifier": "http:default",
+			"allow": [
+				{
+					"url": "https://api.modrinth.com/*"
+				},
+				{
+					"url": "https://cdn.modrinth.com/*"
+				},
+				{
+					"url": "https://api.mclo.gs/*"
+				},
+				{
+					"url": "https://fill.papermc.io/*"
+				},
+				{
+					"url": "https://api.purpurmc.org/*"
+				},
+				{
+					"url": "https://github.com/Solara-Inc-Development/solara-launcher/*"
+				},
+				{
+					"url": "https://app.solara-inc.in/*"
+				},
+				{
+					"url": "https://api.solara-inc.in/*"
+				}
+			]
+		},
+		"dialog:allow-save",
+		"fs:allow-read-dir",
+		"fs:allow-read-file",
+		"fs:allow-read-text-file",
+		"fs:allow-stat",
+		"fs:allow-exists",
+		{
+			"identifier": "fs:scope",
+			"allow": [
+				{
+					"path": "$APPDATA/profiles"
+				},
+				{
+					"path": "$APPDATA/profiles/**"
+				},
+				{
+					"path": "$APPCONFIG/profiles"
+				},
+				{
+					"path": "$APPCONFIG/profiles/**"
+				},
+				{
+					"path": "$CONFIG/profiles"
+				},
+				{
+					"path": "$CONFIG/profiles/**"
+				}
+			]
+		},
+		"auth:default",
+		"import:default",
+		"jre:default",
+		"logs:default",
+		"metadata:default",
+		"minecraft-skins:default",
+		"onboarding-checklist:default",
+		"instance:default",
+		"install:default",
+		"process:default",
+		"reports:default",
+		"cache:default",
+		"files:default",
+		"settings:default",
+		"shortcuts:default",
+		"tags:default",
+		"users:default",
+		"utils:default",
+		"worlds:default"
+	]
+}

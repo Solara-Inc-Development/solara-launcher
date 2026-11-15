@@ -1,0 +1,417 @@
+{
+  "nags.add-description.description": {
+    "defaultMessage": "En beskrivning som tydligt beskriver ditt projekts innehåll, syfte och tilldragande krävs."
+  },
+  "nags.add-description.title": {
+    "defaultMessage": "Lägg till en beskrivning"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Att lägga till en unik, relevant och engagerande ikon gör ditt projekt identifierbart och hjälper den sticka ut."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Lägg till en ikon"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Lägg till IP-adressen och porten Java Edition-spelare kan använda för att ansluta till din server."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Lägg till en Java-adress"
+  },
+  "nags.add-license-details.description": {
+    "defaultMessage": "Lägg till en giltig URL och ett namn eller en SPDX-identifierare för din anpassade licens."
+  },
+  "nags.add-license-details.title": {
+    "defaultMessage": "Lägg till licensinformation"
+  },
+  "nags.add-links-server.description": {
+    "defaultMessage": "Lägg till relevanta länkar till externa resurser, såsom en webbplats, butik eller en permanent Discord-inbjudan."
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Lägg till externa länkar"
+  },
+  "nags.add-links.description": {
+    "defaultMessage": "Lägg till relevanta länkar till externa resurser, såsom källkod, en issue tracker eller en permanent Discord-inbjudan."
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Lägg till externa länkar"
+  },
+  "nags.adjacent-headers.description": {
+    "defaultMessage": "Rubriker på samma nivå ska inte placeras intill varandra."
+  },
+  "nags.adjacent-headers.title": {
+    "defaultMessage": "Ta bort intilliggande rubriker"
+  },
+  "nags.all-languages.description": {
+    "defaultMessage": "Du har valt alla tillgängliga språkval. Vänligen skriv endast upp språk som din server aktivt stödjer."
+  },
+  "nags.all-languages.title": {
+    "defaultMessage": "Välj lämpliga språk"
+  },
+  "nags.all-tags-selected.description": {
+    "defaultMessage": "Du har valt alla {totalAvailableTags, plural, one {# tillgängliga tagg} other {# tillgängliga taggar}}. Taggar ska användas för att hjälpa användare att hitta relevanta projekt. Välj endast relevanta taggar."
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Välj lämpliga taggar"
+  },
+  "nags.check-disclosures.description": {
+    "defaultMessage": "Se till att användare är upplysta om viktiga detaljer genom att fylla i innehållsupplysningar som gäller för ditt {type}."
+  },
+  "nags.check-disclosures.title": {
+    "defaultMessage": "Granska upplysningar"
+  },
+  "nags.description-ends-with-header.description": {
+    "defaultMessage": "Din projektbeskrivning borde inte avsluta med en rubrik som inte följs av någon text."
+  },
+  "nags.description-ends-with-header.title": {
+    "defaultMessage": "Ta bort avslutande rubrik"
+  },
+  "nags.description-too-short.description": {
+    "defaultMessage": "Ditt projekts beskrivning är för kort. Lägg till mer information för att tydligt beskriva projektets innehåll, syfte och vad som gör det intressant."
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Utöka beskrivningen"
+  },
+  "nags.disclosures-special-formatting.description": {
+    "defaultMessage": "Innehållsbeskrivningar ska inte innehålla HTML, eftersom de endast kan visa inline-Markdown och vanlig text."
+  },
+  "nags.disclosures-special-formatting.title": {
+    "defaultMessage": "Fixa upplysningsformatering"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Redigera beskrivning"
+  },
+  "nags.edit-gallery.title": {
+    "defaultMessage": "Ändra galleriet"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Redigera sammanfattning"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Redigera taggar"
+  },
+  "nags.edit-title.title": {
+    "defaultMessage": "Ändra namn"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "Den utvalda galleribilden är ofta hur ditt projekt gör sitt första intryck."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Visa en galleribild"
+  },
+  "nags.gallery-text-non-standard.description": {
+    "defaultMessage": "Icke-standardiserade tecken, som ”Fancy text” eller ”Zalgo”, är inte tillåtna i titlar eller beskrivningar för galleribilder."
+  },
+  "nags.gallery-text-profanity.description": {
+    "defaultMessage": "Titlar och beskrivningar för dina galleribilder får inte innehålla överdrivet mycket svordomar. Upptäckt: ”{value}”."
+  },
+  "nags.gallery-text-slur.description": {
+    "defaultMessage": "Titlar och beskrivningar för dina galleribilder får inte innehålla kränkande uttryck. Upptäckt: ”{value}”."
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Besök gallerisida"
+  },
+  "nags.gpl-license-source-required.description": {
+    "defaultMessage": "Licensen för ditt {type} kräver att källkoden publiceras. Vänligen förse en länk till källkoden, lägg till källkodsfiler eller ändra den valda licensen."
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Tillförse källkod"
+  },
+  "nags.invalid-gallery-text.title": {
+    "defaultMessage": "Ändra text för galleribild"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "Din licens-URL ser ut att vara söndrig. Vänligen ange en URL till din licenstext."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Lägg till en giltig licenslänk"
+  },
+  "nags.invalid-project-description.title": {
+    "defaultMessage": "Ändra beskrivningen"
+  },
+  "nags.invalid-project-name.title": {
+    "defaultMessage": "Ändra projektnamn"
+  },
+  "nags.invalid-project-summary.title": {
+    "defaultMessage": "Ändra sammanfattningen"
+  },
+  "nags.license-url.not-in-allowlist.description": {
+    "defaultMessage": "Din licens-URL är inte en igenkänd licenslänk. Se till att den länkar direkt till licenstexten."
+  },
+  "nags.license-url.not-in-allowlist.title": {
+    "defaultMessage": "Kontrollera din licenslänk"
+  },
+  "nags.link-validation.discord-invite": {
+    "defaultMessage": "Din Discord-inbjudan är ogiltig, har gått ut eller leder inte till en server. Ersätt den med en aktiv serverinbjudan."
+  },
+  "nags.link-validation.discord-invite.title": {
+    "defaultMessage": "Ersätt ogiltiga Discord-inbjudningar"
+  },
+  "nags.link-validation.download": {
+    "defaultMessage": "Länkar som startar en nedladdning är inte tillåtna. Ta bort sådana länkar från din beskrivning."
+  },
+  "nags.link-validation.download.title": {
+    "defaultMessage": "Ta bort nedladdningslänkar"
+  },
+  "nags.link-validation.duplicate": {
+    "defaultMessage": "Din {linkField, select, issues {issue tracker} source {källkod} wiki {wiki} discord {Discord-inbjudan} site {webbplats} store {butik} license {licens} description {beskrivning} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donationslänk}}-länk används även i {otherLinkField, select, issues {Issue tracker} source {Källkod} wiki {Wiki} discord {Discord-inbjudan} site {Webbplats} store {Butik} license {Licens} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {ett annat fält}}. Varje länk ska endast listas en gång."
+  },
+  "nags.link-validation.duplicate.title": {
+    "defaultMessage": "Ta bort dubbletter av länkar"
+  },
+  "nags.link-validation.external-blocklist-match": {
+    "defaultMessage": "Din {linkField}-länk är inte tillåten. Ta bort länken eller ersätt den med en länk som passar för typen {linkField}."
+  },
+  "nags.link-validation.external-blocklist-match.title": {
+    "defaultMessage": "Ersätt felaktiga länkar"
+  },
+  "nags.link-validation.global-blocklist-match.title": {
+    "defaultMessage": "Ta bort otillåtna länkar"
+  },
+  "nags.link-validation.ip-address": {
+    "defaultMessage": "Din {linkField, select, issues {issue tracker} source {källkods} wiki {wiki} discord {Discord-inbjudan} site {webbplats} store {butik} license {licens} description {beskrivnings} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donations}}-länk använder en IP-adress. Använd en URL med ett domännamn."
+  },
+  "nags.link-validation.ip-address.title": {
+    "defaultMessage": "Ta bort IP-adresslänk"
+  },
+  "nags.link-validation.malformed.title": {
+    "defaultMessage": "Fixa ogiltiga länkar"
+  },
+  "nags.link-validation.title": {
+    "defaultMessage": "Granska den här länken"
+  },
+  "nags.link-validation.wrong-field.title": {
+    "defaultMessage": "Fixa inkorrekta länkar"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, one {# rubrik} other {# rubriker}} i din beskrivning är för {count, plural, one {lång} other {långa}}. Rubriker ska vara korta och fungera som titlar till olika delar, inte hela meningar."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Korta ner rubriker"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Projekt får inte använda Minecrafts varumärke eller ha \"Minecraft\" som en viktig del av namnet."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Undvik varumärkesintrång"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Några av dina bilder saknar alternativ text som är viktig för tillgänglighet, särskilt för synskadade användare."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Lägg till alternativ bildtext"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Visa moderationstråd"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Granska och ta upp alla bekymmer från moderationsteamet innan du skickar in det igen."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Läs återkoppling"
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Välj korrekt upplösning"
+  },
+  "nags.project-description-content.title": {
+    "defaultMessage": "Granska beskrivningen"
+  },
+  "nags.project-description-non-english.description": {
+    "defaultMessage": "Din projektbeskrivning måste vara skriven på engelska eller inkludera en engelsk översättning."
+  },
+  "nags.project-description-non-english.title": {
+    "defaultMessage": "Överrätt beskrivningen"
+  },
+  "nags.project-description-profanity.description": {
+    "defaultMessage": "Din projektbeskrivning ska inte innehålla överdriven användning av svordomar. Upptäckte: ”{value}”."
+  },
+  "nags.project-description-slur.description": {
+    "defaultMessage": "Din projektbeskrivning får inte innehålla kränkande termer. Upptäckte: ”{value}”."
+  },
+  "nags.project-name-slur.description": {
+    "defaultMessage": "Ditt projektnamn får inte innehålla kränkande termer. Upptäckte: ”{value}”."
+  },
+  "nags.project-name-version.title": {
+    "defaultMessage": "Ändra projektnamn"
+  },
+  "nags.project-summary-content.title": {
+    "defaultMessage": "Granska sammanfattningen"
+  },
+  "nags.project-summary-links.description": {
+    "defaultMessage": "Länkar, URL:er och IP-adresser borde inte finnas med i beskrivningen. Upptäckte: ”{value}”"
+  },
+  "nags.project-summary-links.title": {
+    "defaultMessage": "Ta bort länkar i sammanfattningen"
+  },
+  "nags.project-summary-non-english.description": {
+    "defaultMessage": "Din projektsammanfattning måste vara skriven på engelska eller ha en engelsk översättning."
+  },
+  "nags.project-summary-non-english.title": {
+    "defaultMessage": "Översätt sammanfattningen"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Välj vilka versioner din server stödjer, välj ett modpaket, eller ladda upp ditt egna."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Välj kompatibilitet"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "Låt spelare veta vilken region din server ligger i."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Välj en region"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Lista vilka språk som stöds av din server."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Välj ett språk"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Välj licensen ditt {type} är utgiven under."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Välj en licens"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Välj de taggar som passar ditt projekt så att rätt användare kan hitta det."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Välj taggar"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Besök serverinställningar"
+  },
+  "nags.settings.disclosures.title": {
+    "defaultMessage": "Besök upplysningsinställningar"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Besök licensinställningar"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Besök länkinställningar"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Besök tagginställningar"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Besök allmänna inställningar"
+  },
+  "nags.settings.versions.title": {
+    "defaultMessage": "Besök versionsinställningar"
+  },
+  "nags.summary-special-formatting.description": {
+    "defaultMessage": "Din sammanfattning borde inte innehålla Markdown eller HTML eftersom den endast visar oformaterad text."
+  },
+  "nags.summary-special-formatting.title": {
+    "defaultMessage": "Fixa sammanfattningsformatering"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Expandera sammanfattningen"
+  },
+  "nags.too-many-languages.description": {
+    "defaultMessage": "Du har valt {languageCount} språk. Vänligen skriv endast upp språk som din server aktivt stödjer."
+  },
+  "nags.too-many-languages.title": {
+    "defaultMessage": "Välj lämpliga språk"
+  },
+  "nags.too-many-tags-server.description": {
+    "defaultMessage": "Du har valt {tagCount, plural, one {# tagg} other {# taggar}}. Vänligen minska antalet till {maxTagCount} eller färre för att säkerställa att ditt projekt dyker upp i relevanta sökresultat."
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Välj lämpliga taggar"
+  },
+  "nags.too-many-tags.description": {
+    "defaultMessage": "Du har valt {tagCount, plural, one {# tagg} other {# taggar}}. Vänligen minska antalet till {maxTagCount} eller färre för att säkerställa att ditt projekt dyker upp i relevanta sökresultat."
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Välj lämpliga taggar"
+  },
+  "nags.upload-gallery-image.description": {
+    "defaultMessage": "Minst en galleribild krävs för att visa innehållet i ditt {type}."
+  },
+  "nags.upload-gallery-image.description-resourcepack": {
+    "defaultMessage": "Minst en galleribild krävs för att visa innehållet i ditt resurspaket, utom för ljud- eller lokaliseringspaket. Vänligen välj lämplig tagg om det här beskriver ditt paket."
+  },
+  "nags.upload-gallery-image.description-shader": {
+    "defaultMessage": "Minst tre galleribilder krävs för att visa innehållet i din shader i flera olika situationer och förhållanden."
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Ladda upp en galleribild"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Minst en version krävs för att ett projekt ska kunna skickas in för granskning."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Ladda upp en version"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Besök länkinställningar"
+  },
+  "project-review.issue-target.add-gallery-images": {
+    "defaultMessage": "Lägg till galleribilder"
+  },
+  "project-review.issue-target.add-project-disclosures": {
+    "defaultMessage": "Lägg till upplysning"
+  },
+  "project-review.issue-target.modify-description": {
+    "defaultMessage": "Ändra beskrivning"
+  },
+  "project-review.issue-target.modify-gallery-image": {
+    "defaultMessage": "Ändra galleribild"
+  },
+  "project-review.issue-target.modify-icon": {
+    "defaultMessage": "Ändra ikon"
+  },
+  "project-review.issue-target.modify-license": {
+    "defaultMessage": "Ändra licens"
+  },
+  "project-review.issue-target.modify-links": {
+    "defaultMessage": "Ändra länkar"
+  },
+  "project-review.issue-target.modify-project-disclosure": {
+    "defaultMessage": "Ändra upplysning"
+  },
+  "project-review.issue-target.modify-project-disclosure-note": {
+    "defaultMessage": "Ändra upplysningsanteckning"
+  },
+  "project-review.issue-target.modify-server-address": {
+    "defaultMessage": "Ändra serveradress"
+  },
+  "project-review.issue-target.modify-server-languages": {
+    "defaultMessage": "Ändra serverspråk"
+  },
+  "project-review.issue-target.modify-summary": {
+    "defaultMessage": "Ändra beskrivning"
+  },
+  "project-review.issue-target.modify-title": {
+    "defaultMessage": "Ändra titel"
+  },
+  "project-review.issue-target.remove-gallery-images": {
+    "defaultMessage": "Ta bort galleribilder"
+  },
+  "project-review.issue-target.remove-icon": {
+    "defaultMessage": "Ta bort ikon"
+  },
+  "project-review.issue-target.remove-project-disclosures": {
+    "defaultMessage": "Ta bort upplysningar"
+  },
+  "project-review.issue-target.remove-tags": {
+    "defaultMessage": "Ta bort taggar"
+  },
+  "project-review.issue-target.version": {
+    "defaultMessage": "Ändra version"
+  },
+  "project.text-validation.description-matches-summary": {
+    "defaultMessage": "Din projektbeskrivning borde ge unik information och inte upprepa projektsammanfattningen."
+  },
+  "project.text-validation.summary-matches-title": {
+    "defaultMessage": "Din projektsammanfattning borde ge unik information och inte upprepa projektnamnet."
+  },
+  "project.text-validation.summary-too-short": {
+    "defaultMessage": "Din sammanfattning är för kort. Lägg till en eller två meningar som beskriver ditt projekt."
+  },
+  "project.text-validation.title-version-number": {
+    "defaultMessage": "Projektnamn borde inte inkludera versionsnummer."
+  }
+}
+

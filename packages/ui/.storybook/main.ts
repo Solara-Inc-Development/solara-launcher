@@ -1,0 +1,36 @@
+import { fileURLToPath } from 'node:url'
+
+import type { StorybookConfig } from '@storybook/vue3-vite'
+import { mergeConfig } from 'vite'
+
+import moderationMessages from '../../moderation/vite-plugin.ts'
+
+const config: StorybookConfig = {
+	framework: {
+		name: '@storybook/vue3-vite',
+		options: {
+			docgen: false,
+		},
+	},
+	stories: [
+		'../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../apps/frontend/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+	],
+	addons: ['@storybook/addon-themes', '@storybook/addon-a11y'],
+	viteFinal: async (config) =>
+		mergeConfig(config, {
+			plugins: [moderationMessages()],
+			build: {
+				reportCompressedSize: false,
+			},
+			resolve: {
+				alias: {
+					'~': fileURLToPath(new URL('../../../apps/frontend/src', import.meta.url)),
+					'@modrinth/api-client': fileURLToPath(
+						new URL('../../api-client/src/index.ts', import.meta.url),
+					),
+				},
+			},
+		}),
+}
+export default config

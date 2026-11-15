@@ -1,0 +1,177 @@
+{
+  "nags.add-description.title": {
+    "defaultMessage": "Tambah keterangan"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Menambah ikon yang unik, relevan dan menarik menjadikan projek anda boleh dikenal pasti dan membantunya menonjol."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Tambah ikon"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Tambahkan alamat IP dan port yang boleh digunakan oleh pemain Edisi Java untuk menyertai pelayan anda."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Tambah alamat Java"
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Tambah pautan luaran"
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Tambah pautan luaran"
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Pilih tag yang tepat"
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Kembangkan keterangan"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Sunting keterangan"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Sunting ringkasan"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Sunting tag"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "Gambar galeri yang ditampilkan selalunya akan menjadi tampilan pertama untuk projek anda."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Tampilkan satu gambar galeri"
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Kunjungi laman galeri"
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Sediakan kod sumber"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "URL lesen anda nampaknya salah bentuk. Sila berikan URL yang sah kepada teks lesen anda."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Tambahkan pautan lesen yang sah"
+  },
+  "nags.link-validation.duplicate": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discord} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda juga digunakan pada medan {otherLinkField, select, issues {Penjejak isu} source {Kod sumber} wiki {Wiki} discord {Jemputan Discord} site {Laman sesawang} store {Kedai} license {Lesen} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {yang lain}}. Setiap pautan hendaklah disenaraikan sekali sahaja."
+  },
+  "nags.link-validation.global-blocklist-match": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda menggunakan domain yang dilarang. Keluarkan atau gantikan pautan ini."
+  },
+  "nags.link-validation.ip-address": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda menggunakan alamat IP. Gunakan URL dengan nama domain."
+  },
+  "nags.link-validation.malformed": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda tidak sah. Masukkan URL HTTPS yang lengkap."
+  },
+  "nags.link-validation.not-in-allowlist": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda mungkin tidak sesuai untuk jenis pautan tersebut. Sila pastikan ia sesuai dengan tujuan penggunaannya."
+  },
+  "nags.link-validation.unverifiable": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda tidak dapat disahkan. Pastikan ia berada dalam talian dan boleh diakses."
+  },
+  "nags.link-validation.wrong-field": {
+    "defaultMessage": "Pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discor} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}} anda ialah tidak betul untuk pautan {linkField, select, issues {penjejak isu} source {kod sumber} wiki {wiki} discord {jemputan Discord} site {laman sesawang} store {kedai} license {lesen} description {keterangan} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {sumbangan}}. Keluarkan atau gantikannya dengan pautan yang betul."
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, other {# tajuk}} di dalam keterangan anda {count, plural, other {adalah}} terlalu panjang. Tajuk hendaklah ringkas dan bertindak sebagai tajuk bahagian, bukan ayat penuh."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Pendekkan tajuk"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Projek tidak boleh menggunakan penjenamaan Minecraft atau menyertakan \"Minecraft\" sebagai bahagian penting dalam nama tersebut."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Elakkan pelanggaran jenama"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Sesetengah gambar anda tidak memiliki teks alt yang penting untuk kebolehcapaian, terutamanya untuk pengguna yang cacat penglihatan."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Tambahkan teks alt gambar"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Kunjungi bebenang penyederhanaan"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Semak dan tangani semua kebimbangan daripada pasukan penyederhana sebelum menyerahkan semula."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Semak maklum balas"
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Pilih resolusi yang betul"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Pilih versi yang disokong oleh pelayan anda, pilih Pek Mod, atau muat naik milik anda sendiri."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Pilih keserasian"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "Beritahu pemain di rantau mana pelayan anda berada."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Pilih rantau"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Senaraikan bahasa-bahasa yang disokong oleh pelayan anda."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Pilih bahasa"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Pilih lesen yang digunakan untuk pengedaran {type} anda."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Pilih lesen"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Pilih tag yang digunakan dengan betul pada projek anda untuk membantu pengguna yang betul menemuinya."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Pilih tag"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Kunjungi tetapan pelayan"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Kunjungi tetapan lesen"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Kunjungi tetapan pautan"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Kunjungi tetapan tag"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Kunjungi tetapan umum"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Kembangkan ringkasan"
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Pilih tag yang tepat"
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Pilih tag yang tepat"
+  },
+  "nags.upload-gallery-image.description": {
+    "defaultMessage": "Sekurang-kurangnya satu gambar galeri diperlukan untuk mempamerkan kandungan {type} anda."
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Muat naik gambar galeri"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Sekurang-kurangnya satu versi diperlukan untuk projek diserahkan untuk semakan."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Muat naik satu versi"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Kunjungi tetapan pautan"
+  }
+}
+

@@ -19,13 +19,13 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
       - uses: pnpm/action-setup@v4
         with:
           version: '12.11.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -46,15 +46,21 @@ jobs:
           console.log('Release prerequisites are present; version reservation may proceed after checks.');
           NODE
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Test shared logic and UI types
         run: |
           npm test
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm --filter @modrinth/app-frontend build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test launcher core logic
-        run: cargo test -p solara-launcher --lib --locked --no-default-features
+        run: |
+          cargo test -p theseus --lib --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test -p theseus_gui --bin solaralauncher --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Reserve unique public version (draft release)
         run: node scripts/release.mjs reserve --github
       - name: Package signed updater artifacts

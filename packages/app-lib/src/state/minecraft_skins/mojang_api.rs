@@ -1,0 +1,151 @@
+use std::{error::Error, sync::Arc, time::Instant};
+
+use anyhow::bail;
+use bytes::Bytes;
+use futures::TryStream;
+use reqwest::{Body, multipart::Part};
+use serde_json::json;
+use uuid::Uuid;
+
+use super::MinecraftSkinVariant;
+use crate::{
+    data::Credentials,
+    state::{
+        MINECRAFT_SERVICES_USER_AGENT, MinecraftProfile, PROFILE_CACHE,
+        ProfileCacheEntry,
+    },
+    util::fetch::INSECURE_REQWEST_CLIENT,
+};
+
+/// Provides operations for interacting with capes on a Minecraft player profile.
+pub struct MinecraftCapeOperation;
+
+impl MinecraftCapeOperation {
+    pub async fn equip(
+        credentials: &Credentials,
+        cape_id: Uuid,
+    ) -> crate::Result<()> {
+        update_profile_cache_from_response(
+            INSECURE_REQWEST_CLIENT
+				.put("https://api.minecraftservices.com/minecraft/profile/capes/active")
+				.header("Content-Type", "application/json; charset=utf-8")
+				.header("Accept", "application/json")
+				.header("User-Agent", MINECRAFT_SERVICES_USER_AGENT)
+				.bearer_auth(&credentials.access_token)
+				.json(&json!({
+					"capeId": cape_id.hyphenated(),
+                }))
+                .send()
+                .await
+                .and_then(|response| response.error_for_status())?
+        )
+        .await;
+
+        Ok(())
+    }
+
+    pub async fn unequip_any(credentials: &Credentials) -> crate::Result<()> {
+        update_profile_cache_from_response(
+			INSECURE_REQWEST_CLIENT
+				.delete("https://api.minecraftservices.com/minecraft/profile/capes/active")
+				.header("Accept", "application/json")
+				.header("User-Agent", MINECRAFT_SERVICES_USER_AGENT)
+				.bearer_auth(&credentials.access_token)
+				.send()
+				.await
+                .and_then(|response| response.error_for_status())?
+        )
+        .await;
+
+        Ok(())
+    }
+}
+
+/// Provides operations for interacting with skins on a Minecraft player profile.
+pub struct MinecraftSkinOperation;
+
+impl MinecraftSkinOperation {
+    pub async fn equip<TextureStream>(
+        credentials: &Credentials,
+        texture: TextureStream,
+        variant: MinecraftSkinVariant,
+    ) -> crate::Result<Option<Arc<MinecraftProfile>>>
+    where
+        TextureStream: TryStream + Send + 'static,
+        TextureStream::Error: Into<Box<dyn Error + Send + Sync>>,
+        Bytes: From<TextureStream::Ok>,
+    {
+        let form = reqwest::multipart::Form::new()
+            .text(
+                "variant",
+                match variant {
+                    MinecraftSkinVariant::Slim => "slim",
+                    MinecraftSkinVariant::Classic => "classic",
+                    _ => {
+                        bail!("cannot equip skin of unknown model variant");
+                    }
+                },
+            )
+            .part(
+                "file",
+                Part::stream(Body::wrap_stream(texture))
+                    .mime_str("image/png")?
+                    .file_name("skin.png"),
+            );
+
+        let profile = update_profile_cache_from_response(
+            INSECURE_REQWEST_CLIENT
+                .post(
+                    "https://api.minecraftservices.com/minecraft/profile/skins",
+                )
+                .header("Accept", "application/json")
+                .header("User-Agent", MINECRAFT_SERVICES_USER_AGENT)
+                .bearer_auth(&credentials.access_token)
+                .multipart(form)
+                .send()
+                .await
+                .and_then(|response| response.error_for_status())?,
+        )
+        .await;
+
+        Ok(profile)
+    }
+
+    pub async fn unequip_any(credentials: &Credentials) -> crate::Result<()> {
+        update_profile_cache_from_response(
+			INSECURE_REQWEST_CLIENT
+				.delete("https://api.minecraftservices.com/minecraft/profile/skins/active")
+				.header("Accept", "application/json")
+				.header("User-Agent", MINECRAFT_SERVICES_USER_AGENT)
+				.bearer_auth(&credentials.access_token)
+				.send()
+				.await
+                .and_then(|response| response.error_for_status())?
+        )
+        .await;
+
+        Ok(())
+    }
+}
+
+async fn update_profile_cache_from_response(
+    response: reqwest::Response,
+) -> Option<Arc<MinecraftProfile>> {
+    let Some(mut profile) = response.json::<MinecraftProfile>().await.ok()
+    else {
+        tracing::warn!(
+            "Failed to parse player profile from skin or cape operation response, not updating profile cache"
+        );
+        return None;
+    };
+
+    profile.fetch_time = Some(Instant::now());
+    let profile = Arc::new(profile);
+
+    PROFILE_CACHE
+        .lock()
+        .await
+        .insert(profile.id, ProfileCacheEntry::Hit(Arc::clone(&profile)));
+
+    Some(profile)
+}

@@ -1,0 +1,338 @@
+import { ModrinthApiError } from '@modrinth/api-client'
+import {
+	injectAuth,
+	injectModrinthClient,
+	injectNotificationManager,
+	injectPopupNotificationManager,
+} from '@modrinth/ui'
+import { useQueryClient } from '@tanstack/vue-query'
+import { type Ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { get_user } from '@/helpers/cache'
+import { toError } from '@/helpers/errors'
+import {
+	install_accept_pending_shared_instance_invite,
+	install_accept_shared_instance_invite,
+	install_get_shared_instance_invite_preview,
+	install_get_shared_instance_preview,
+	install_shared_instance,
+} from '@/helpers/install'
+import { list } from '@/helpers/instance'
+import { useSharedInstanceErrors } from '@/helpers/shared-instance-errors'
+
+import { parseSharedInstanceInviteNotification } from './shared-instance-invite-parser'
+import type { AppNotification, SharedInstanceInvite } from './shared-instance-invite-types'
+
+type InstallModal = {
+	show(
+		preview: Awaited<ReturnType<typeof install_get_shared_instance_preview>>,
+		install: () => Promise<void>,
+		creator?: SharedInstanceCreator,
+	): void
+}
+
+type SharedInstanceCreator = {
+	id: string | null
+	username: string
+	avatarUrl: string | null
+}
+
+type AccountRequiredModal = {
+	show(event?: MouseEvent): Promise<boolean>
+}
+
+type AlreadyInstalledModal = {
+	show(instanceName: string): void
+}
+
+export function useSharedInstanceInviteHandler(
+	installModal: Ref<InstallModal | undefined>,
+	alreadyInstalledModal: Ref<AlreadyInstalledModal | undefined>,
+	accountRequiredModal: Ref<AccountRequiredModal | undefined>,
+) {
+	const auth = injectAuth()
+	const client = injectModrinthClient()
+	const { handleError } = injectNotificationManager()
+	const { notifySharedInstanceError } = useSharedInstanceErrors()
+	const popupNotificationManager = injectPopupNotificationManager()
+	const queryClient = useQueryClient()
+	const router = useRouter()
+	const appSettings = useAppSettings()
+	const displayedNotifications = new Set<string | number>()
+	const displayedNotificationKeys = new Set<string>()
+	const popupNotificationIds = new Set<string | number>()
+	const notificationPopupIds = new Map<string | number, string | number>()
+	let notificationGeneration = 0
+	let pendingAlreadyInstalled:
+		| {
+				instanceId: string
+				preview: Awaited<ReturnType<typeof install_get_shared_instance_preview>>
+				install: () => Promise<void>
+				creator?: SharedInstanceCreator
+				onGoToInstance?: () => void | Promise<void>
+		  }
+		| undefined
+
+	async function markNotificationRead(notification: AppNotification) {
+		try {
+			await client.labrinth.notifications_v2.markAsRead(String(notification.id))
+		} catch (error) {
+			if (!(error instanceof ModrinthApiError && error.statusCode === 404)) throw error
+		}
+		const popupId = notificationPopupIds.get(notification.id)
+		if (popupId != null) {
+			popupNotificationManager.removeNotification(popupId)
+			popupNotificationIds.delete(popupId)
+			notificationPopupIds.delete(notification.id)
+		}
+	}
+
+	async function resolveInvite(invite: SharedInstanceInvite) {
+		const invitedBy =
+			(!invite.invitedByUsername || !invite.invitedByAvatarUrl) && invite.invitedById
+				? await get_user(invite.invitedById, 'bypass').catch(() => null)
+				: null
+
+		return {
+			...invite,
+			invitedByUsername: invite.invitedByUsername ?? invitedBy?.username ?? null,
+			invitedByAvatarUrl: invite.invitedByAvatarUrl ?? invitedBy?.avatar_url ?? null,
+		}
+	}
+
+	function showInstall(
+		preview: Awaited<ReturnType<typeof install_get_shared_instance_preview>>,
+		install: () => Promise<void>,
+		creator?: SharedInstanceCreator,
+	) {
+		if (!installModal.value) throw new Error('Shared instance install modal is not available.')
+		const generation = notificationGeneration
+		installModal.value.show(
+			preview,
+			async () => {
+				if (generation !== notificationGeneration) return
+				try {
+					await install()
+				} catch (error) {
+					notifySharedInstanceError(error)
+					throw error
+				}
+			},
+			creator,
+		)
+	}
+
+	async function showInstallOrAlreadyInstalled(
+		sharedInstanceId: string,
+		preview: Awaited<ReturnType<typeof install_get_shared_instance_preview>>,
+		install: () => Promise<void>,
+		creator?: SharedInstanceCreator,
+		onGoToInstance?: () => void | Promise<void>,
+	) {
+		const generation = notificationGeneration
+		const existingInstance = (await list()).find(
+			(instance) => instance.shared_instance?.id === sharedInstanceId,
+		)
+		if (generation !== notificationGeneration) return
+
+		if (!existingInstance || appSettings.skipNonEssentialWarnings) {
+			showInstall(preview, install, creator)
+			return
+		}
+
+		if (!alreadyInstalledModal.value) {
+			throw new Error('Shared instance already installed modal is not available.')
+		}
+
+		pendingAlreadyInstalled = {
+			instanceId: existingInstance.id,
+			preview,
+			install,
+			creator,
+			onGoToInstance,
+		}
+		alreadyInstalledModal.value.show(existingInstance.name)
+	}
+
+	function handleAlreadyInstalledCancel() {
+		pendingAlreadyInstalled = undefined
+	}
+
+	async function handleAlreadyInstalledGoToInstance() {
+		const pending = pendingAlreadyInstalled
+		pendingAlreadyInstalled = undefined
+		if (!pending) return
+
+		if (pending.onGoToInstance) {
+			try {
+				await pending.onGoToInstance()
+			} catch (error) {
+				handleError(toError(error))
+			}
+		}
+		await router.push(`/instance/${encodeURIComponent(pending.instanceId)}/`)
+	}
+
+	function handleAlreadyInstalledInstallAnyway() {
+		const pending = pendingAlreadyInstalled
+		pendingAlreadyInstalled = undefined
+		if (!pending) return
+		showInstall(pending.preview, pending.install, pending.creator)
+	}
+
+	async function reviewNotification(notification: AppNotification, invite: SharedInstanceInvite) {
+		const generation = notificationGeneration
+		try {
+			const preview = await install_get_shared_instance_preview(
+				invite.sharedInstanceId,
+				invite.sharedInstanceName,
+			)
+			if (generation !== notificationGeneration) return
+			if (invite.instanceIconUrl) preview.iconUrl = invite.instanceIconUrl
+
+			await showInstallOrAlreadyInstalled(
+				invite.sharedInstanceId,
+				preview,
+				async () => {
+					await install_accept_pending_shared_instance_invite(invite.sharedInstanceId)
+					await install_shared_instance(
+						invite.sharedInstanceId,
+						invite.sharedInstanceName,
+						invite.invitedById,
+						null,
+						null,
+						invite.instanceIconUrl,
+						invite.instanceIconConfig,
+					)
+					await markNotificationRead(notification).catch((error) => handleError(toError(error)))
+					await queryClient.invalidateQueries({ queryKey: ['instances'] })
+				},
+				invite.invitedByUsername
+					? {
+							id: invite.invitedById,
+							username: invite.invitedByUsername,
+							avatarUrl: invite.invitedByAvatarUrl,
+						}
+					: undefined,
+				() => markNotificationRead(notification),
+			)
+		} catch (error) {
+			notifySharedInstanceError(error)
+		}
+	}
+
+	async function handleNotification(notification: AppNotification) {
+		const parsedInvite = parseSharedInstanceInviteNotification(notification)
+		if (!parsedInvite) return false
+		if (displayedNotifications.has(notification.id)) return true
+
+		const generation = notificationGeneration
+		displayedNotifications.add(notification.id)
+		const invite = await resolveInvite(parsedInvite)
+		if (generation !== notificationGeneration) return true
+
+		const notificationKey = JSON.stringify([
+			invite.sharedInstanceId,
+			invite.invitedById ?? invite.invitedByUsername,
+			invite.sharedInstanceName,
+			invite.instanceIconUrl,
+		])
+		if (displayedNotificationKeys.has(notificationKey)) {
+			return true
+		}
+
+		displayedNotificationKeys.add(notificationKey)
+		const popupNotification = popupNotificationManager.addPopupNotification({
+			contentType: 'toast',
+			title: invite.sharedInstanceName,
+			type: 'instance-invite',
+			actorName: invite.invitedByUsername,
+			actorAvatarUrl: invite.invitedByAvatarUrl ?? undefined,
+			entityName: invite.sharedInstanceName,
+			entityIconUrl: invite.instanceIconUrl ?? undefined,
+			autoCloseMs: null,
+			onReview: () => reviewNotification(notification, invite),
+			onOpenActor: () => {
+				if (invite.invitedByUsername) {
+					void router.push(`/user/${encodeURIComponent(invite.invitedByUsername)}`)
+				}
+			},
+		})
+		popupNotificationIds.add(popupNotification.id)
+		notificationPopupIds.set(notification.id, popupNotification.id)
+		return true
+	}
+
+	function clearNotifications() {
+		notificationGeneration++
+		for (const id of popupNotificationIds) {
+			popupNotificationManager.removeNotification(id)
+		}
+		displayedNotifications.clear()
+		displayedNotificationKeys.clear()
+		popupNotificationIds.clear()
+		notificationPopupIds.clear()
+		pendingAlreadyInstalled = undefined
+	}
+
+	async function requireAccount() {
+		if (!auth.isReady?.value) {
+			await new Promise<void>((resolve) => {
+				const stop = watch(auth.isReady!, (ready) => {
+					if (ready) {
+						stop()
+						resolve()
+					}
+				})
+			})
+		}
+		if (auth.session_token.value) return true
+		return (await accountRequiredModal.value?.show()) ?? false
+	}
+
+	async function installFromInviteId(inviteId: string) {
+		try {
+			if (!(await requireAccount())) return
+			const generation = notificationGeneration
+			const invite = await install_get_shared_instance_invite_preview(inviteId)
+			if (generation !== notificationGeneration) return
+			await showInstallOrAlreadyInstalled(
+				invite.sharedInstanceId,
+				invite.preview,
+				async () => {
+					await install_accept_shared_instance_invite(invite.sharedInstanceId, inviteId)
+					await install_shared_instance(
+						invite.sharedInstanceId,
+						invite.preview.name,
+						invite.managerId,
+						invite.serverManagerName,
+						invite.serverManagerIconUrl,
+						invite.instanceIconUrl,
+						invite.instanceIconConfig,
+					)
+					await queryClient.invalidateQueries({ queryKey: ['instances'] })
+				},
+				invite.inviter
+					? {
+							id: invite.inviter.id,
+							username: invite.inviter.name,
+							avatarUrl: invite.inviter.avatar,
+						}
+					: undefined,
+			)
+		} catch (error) {
+			notifySharedInstanceError(error)
+		}
+	}
+
+	return {
+		handleNotification,
+		installFromInviteId,
+		clearNotifications,
+		handleAlreadyInstalledCancel,
+		handleAlreadyInstalledGoToInstance,
+		handleAlreadyInstalledInstallAnyway,
+	}
+}

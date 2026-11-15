@@ -8,18 +8,20 @@ if(mode==='reserve'){
  if(process.argv.includes('--github')){const tags=execFileSync('gh',['api','--paginate','repos/{owner}/{repo}/releases','--jq','.[].tag_name'],{cwd:root,encoding:'utf8',maxBuffer:32*1024*1024}).split(/\r?\n/).map(s=>s.trim()).filter(Boolean);minimum=Math.max(1,...tags.filter(t=>/^solara-build-\d+$/.test(t)).map(t=>Number(t.slice(13))+1),...tags.filter(t=>/^V-0\.0\.\d+$/.test(t)).map(t=>Number(t.slice(6))+1));}
  const r=await reserveBuild(dir,{commit,minimum});if(process.argv.includes('--github'))run('gh',['release','create','solara-build-'+Number(r.internalVersion.split('.').at(-1)),'--draft','--title',r.publicVersion,'--notes','Reserved immutable Solara build. Pending packaging, verification and publication.']);
  await json(path.join(dir,'current-build.json'),r);await json(path.join(root,'packages/shared/build.json'),{...r,channel:'release-candidate'});
- const config=await readJson(path.join(root,'apps/desktop/tauri.conf.json'));config.version=r.internalVersion;await json(path.join(root,'apps/desktop/tauri.conf.json'),config);
- const cargo=path.join(root,'apps/desktop/Cargo.toml');await writeFile(cargo,(await readFile(cargo,'utf8')).replace(/version = "[^"]+"/,`version = "${r.internalVersion}"`));run('cargo',['update','--workspace','--offline']);console.log(`${r.publicVersion} allocated; never reuse if this build fails.`);
+ const config=await readJson(path.join(root,'apps/app/tauri.conf.json'));config.version=r.internalVersion;await json(path.join(root,'apps/app/tauri.conf.json'),config);
+ const cargo=path.join(root,'apps/app/Cargo.toml');await writeFile(cargo,(await readFile(cargo,'utf8')).replace(/version = "[^"]+"/,`version = "${r.internalVersion}"`));
+ const libCargo=path.join(root,'packages/app-lib/Cargo.toml');await writeFile(libCargo,(await readFile(libCargo,'utf8')).replace(/version = "[^"]+"/,`version = "${r.internalVersion}"`));
+ run('cargo',['update','--workspace','--offline']);console.log(`${r.publicVersion} allocated; never reuse if this build fails.`);
 }else if(mode==='package'){
  if(process.platform!=='win32')throw Error('Windows packaging requires a Windows x64 runner with MSVC, WebView2 and NSIS prerequisites');
  const candidate=process.argv.includes('--candidate');
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.inheritedEngineRemoved!==true||(!candidate&&(migration.status!=='ready'||migration.windowsAcceptance!==true)))throw Error('Independent engine replacement and Windows acceptance are incomplete');
  if(candidate&&migration.status!=='preview')throw Error('Candidate packaging requires an explicitly declared preview');
  const review=await readJson(path.join(root,'docs/upstream-license-review.json'));if(review.status!=='cleared'||!review.evidence?.length)throw Error('Upstream dependency licence review is unresolved; see THIRD_PARTY_NOTICES.md');
- const key=process.env.SOLARA_UPDATER_PUBLIC_KEY||(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim();
+ const key=process.env.SOLARA_UPDATER_PUBLIC_KEY||(await readFile(path.join(root,'apps/app/updater.pub'),'utf8')).trim();
  if(!key||(!candidate&&!process.env.TAURI_SIGNING_PRIVATE_KEY))throw Error('Updater signing identity is required');
  if(candidate&&process.env.TAURI_SIGNING_PRIVATE_KEY)throw Error('Candidate runners must not receive the private updater key');
- await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/desktop/tauri.conf.json','--config',JSON.stringify({bundle:{createUpdaterArtifacts:!candidate},plugins:{updater:{pubkey:key}}}),'--features','desktop-shell','--bundles','nsis']);
+ await readJson(path.join(dir,'current-build.json'));run(process.execPath,[path.join(root,'node_modules/@tauri-apps/cli/tauri.js'),'build','--ci','--config','apps/app/tauri.conf.json','--config','apps/app/tauri-release.conf.json','--bundles','nsis']);
 }else if(mode==='stage'){
  const r=await readJson(path.join(dir,'current-build.json'));const source=process.argv[3];if(!source)throw Error('Pass the actual NSIS installer path');const sig=(await readFile(source+'.sig','utf8')).trim();const key=process.env.SOLARA_UPDATER_PUBLIC_KEY;if(!key)throw Error('Trusted public key is required');
  const application=process.argv[5];if(!application)throw Error('Pass the actual bundled x64 application binary after the release notes path');
@@ -33,7 +35,7 @@ if(mode==='reserve'){
  const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='preview'||migration.inheritedEngineRemoved!==true)throw Error('Testing publication requires the independent preview core');
  const version=process.argv[3];if(!version)throw Error('Pass the staged testing version');
  const r=await readJson(path.join(dir,version+'.json'));if(r.state!=='staged'||r.acceptance!==false)throw Error('Expected an explicitly unaccepted staged testing candidate');
- const key=(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim();
+ const key=(await readFile(path.join(root,'apps/app/updater.pub'),'utf8')).trim();
  await verifyArtifact(path.join(dir,releaseArtifactPath(r)),r.signature,key,r.internalVersion);
  const files={'solaralauncher.exe':{size:r.size,sha256:r.sha256},'source.zip':r.artifacts?.['source.zip']};
  for(const [name,expected] of Object.entries(files)){

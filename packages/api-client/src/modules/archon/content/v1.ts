@@ -1,0 +1,440 @@
+import { AbstractModule } from '../../../core/abstract-module'
+import type { Archon } from '../types'
+
+export class ArchonContentV1Module extends AbstractModule {
+	public getModuleID(): string {
+		return 'archon_content_v1'
+	}
+
+	public async share(
+		serverId: string,
+		worldId: string,
+		configPaths: string[] = [],
+		options?: { timeout?: number; restart?: boolean },
+	): Promise<Archon.Content.v1.ShareWorldContentResponse> {
+		return this.client.request(
+			`/servers/${encodeURIComponent(serverId)}/worlds/${encodeURIComponent(worldId)}/content/share`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+				timeout: options?.timeout ?? 600_000,
+				retry: false,
+				body: { config_paths: configPaths, restart: options?.restart },
+			},
+		)
+	}
+
+	public async getShareDiff(
+		serverId: string,
+		worldId: string,
+	): Promise<Archon.Content.v1.SharedInstancePublishDiff> {
+		return this.client.request(
+			`/servers/${encodeURIComponent(serverId)}/worlds/${encodeURIComponent(worldId)}/content/share/diff`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	/** GET /v1/:server_id/worlds/:world_id/content/share/files */
+	public async getShareableFiles(
+		serverId: string,
+		worldId: string,
+	): Promise<Archon.Content.v1.ShareableFilesResponse> {
+		return this.client.request(
+			`/servers/${encodeURIComponent(serverId)}/worlds/${encodeURIComponent(worldId)}/content/share/files`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	public async unshare(serverId: string, worldId: string): Promise<void> {
+		return this.client.request(
+			`/servers/${encodeURIComponent(serverId)}/worlds/${encodeURIComponent(worldId)}/content/share`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'DELETE',
+				retry: false,
+			},
+		)
+	}
+
+	/** GET /v1/:server_id/worlds/:world_id/addons */
+	public async getAddons(
+		serverId: string,
+		worldId: string,
+		options?: {
+			from_modpack?: boolean
+			disabled?: boolean
+			needs_side_type_review?: boolean
+			addons?: boolean
+			updates?: boolean
+		},
+	): Promise<Archon.Content.v1.Addons> {
+		const params = new URLSearchParams()
+		if (options?.from_modpack !== undefined)
+			params.set('from_modpack', String(options.from_modpack))
+		if (options?.disabled !== undefined) params.set('disabled', String(options.disabled))
+		if (options?.needs_side_type_review !== undefined)
+			params.set('needs_side_type_review', String(options.needs_side_type_review))
+		if (options?.addons !== undefined) params.set('addons', String(options.addons))
+		if (options?.updates !== undefined) params.set('updates', String(options.updates))
+		const query = params.toString()
+
+		return this.client.request<Archon.Content.v1.Addons>(
+			`/servers/${serverId}/worlds/${worldId}/addons${query ? `?${query}` : ''}`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons */
+	public async addAddon(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.AddAddonRequest,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/install-many */
+	public async addAddons(
+		serverId: string,
+		worldId: string,
+		addons: Archon.Content.v1.AddAddonRequest[],
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/install-many`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: addons satisfies Archon.Content.v1.AddAddonsRequest,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/delete */
+	public async deleteAddon(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.RemoveAddonRequest,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/delete`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/disable */
+	public async disableAddon(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.RemoveAddonRequest,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/disable`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/enable */
+	public async enableAddon(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.RemoveAddonRequest,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/enable`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/set-enabled-server */
+	public async setAddonEnabledServer(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.SetAddonEnabledRequest,
+	): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/addons/set-enabled-server`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+				body: request,
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/set-enabled-player */
+	public async setAddonEnabledPlayer(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.SetAddonEnabledRequest,
+	): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/addons/set-enabled-player`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+				body: request,
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/set-locked-side-toggle */
+	public async setAddonSideToggleLocked(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.SetAddonSideToggleLockedRequest,
+	): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/addons/set-locked-side-toggle`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+				body: request,
+			},
+		)
+	}
+
+	/**
+	 * POST /v1/:server_id/worlds/:world_id/addons/complete-side-type-review
+	 *
+	 * Clears the side review flag of the listed addons, or of every addon when none are listed.
+	 */
+	public async completeSideTypeReview(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.CompleteSideTypeReviewRequest = {},
+	): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/addons/complete-side-type-review`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+				body: request,
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/delete-many */
+	public async deleteAddons(
+		serverId: string,
+		worldId: string,
+		items: Archon.Content.v1.RemoveAddonRequest[],
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/delete-many`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: { items },
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/disable-many */
+	public async disableAddons(
+		serverId: string,
+		worldId: string,
+		items: Archon.Content.v1.RemoveAddonRequest[],
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/disable-many`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: { items },
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/enable-many */
+	public async enableAddons(
+		serverId: string,
+		worldId: string,
+		items: Archon.Content.v1.RemoveAddonRequest[],
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/enable-many`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: { items },
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content */
+	public async installContent(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.InstallWorldContent,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/content`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content/repair */
+	public async repair(serverId: string, worldId: string): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/content/repair`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content/restore-client-files */
+	public async restoreClientFiles(
+		serverId: string,
+		worldId: string,
+	): Promise<Archon.Content.v1.RestoreClientFilesResponse> {
+		return this.client.request<Archon.Content.v1.RestoreClientFilesResponse>(
+			`/servers/${serverId}/worlds/${worldId}/content/restore-client-files`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content/unlink-modpack */
+	public async unlinkModpack(serverId: string, worldId: string): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/content/unlink-modpack`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+			},
+		)
+	}
+
+	/** GET /v1/:server_id/worlds/:world_id/addons/update?filename=... */
+	public async getAddonUpdate(
+		serverId: string,
+		worldId: string,
+		filename: string,
+	): Promise<Archon.Content.v1.Addon> {
+		return this.client.request<Archon.Content.v1.Addon>(
+			`/servers/${serverId}/worlds/${worldId}/addons/update?filename=${encodeURIComponent(filename)}`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/update */
+	public async updateAddon(
+		serverId: string,
+		worldId: string,
+		request: Archon.Content.v1.UpdateAddonRequest,
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/update`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: request,
+		})
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/addons/update-many */
+	public async updateAddons(
+		serverId: string,
+		worldId: string,
+		addons: Archon.Content.v1.UpdateAddonRequest[],
+	): Promise<void> {
+		await this.client.request<void>(`/servers/${serverId}/worlds/${worldId}/addons/update-many`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+			body: { addons },
+		})
+	}
+
+	/** GET /v1/:server_id/worlds/:world_id/content/modpack/update */
+	public async getModpackUpdate(
+		serverId: string,
+		worldId: string,
+	): Promise<Archon.Content.v1.ModpackFields> {
+		return this.client.request<Archon.Content.v1.ModpackFields>(
+			`/servers/${serverId}/worlds/${worldId}/content/modpack/update`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content/modpack/update */
+	public async updateModpack(serverId: string, worldId: string): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/content/modpack/update`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+			},
+		)
+	}
+
+	/** GET /v1/:server_id/worlds/:world_id/content/update-game-version?game_version=... */
+	public async getUpdateGameVersionPreview(
+		serverId: string,
+		worldId: string,
+		gameVersion: string,
+		signal?: AbortSignal,
+	): Promise<Archon.Content.v1.UpdateGameVersionPreview> {
+		return this.client.request<Archon.Content.v1.UpdateGameVersionPreview>(
+			`/servers/${serverId}/worlds/${worldId}/content/update-game-version?game_version=${encodeURIComponent(gameVersion)}`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+				timeout: 1000 * 1000,
+				signal,
+			},
+		)
+	}
+
+	/** POST /v1/:server_id/worlds/:world_id/content/update-game-version?game_version=... */
+	public async applyGameVersionUpdate(
+		serverId: string,
+		worldId: string,
+		gameVersion: string,
+	): Promise<void> {
+		await this.client.request<void>(
+			`/servers/${serverId}/worlds/${worldId}/content/update-game-version?game_version=${encodeURIComponent(gameVersion)}`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+			},
+		)
+	}
+}

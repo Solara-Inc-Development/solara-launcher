@@ -18,9 +18,9 @@
     ]
   },
   "include": [
-    "apps/**/*.ts",
-    "apps/**/*.vue",
-    "packages/**/*.ts",
+    "apps/website/**/*.ts",
+    "apps/website/**/*.vue",
+    "packages/shared/**/*.ts",
     "vite.config.ts"
   ]
 }

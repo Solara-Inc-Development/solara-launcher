@@ -1,0 +1,13 @@
+{
+	"bundle": {
+		"createUpdaterArtifacts": false
+	},
+	"build": {
+		"features": ["updater"]
+	},
+	"app": {
+		"security": {
+			"capabilities": ["core", "plugins"]
+		}
+	}
+}

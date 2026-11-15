@@ -1,0 +1,418 @@
+<template>
+	<PageHeader :title="user.username" :summary="summary">
+		<template #leading>
+			<Avatar
+				:src="user.avatar_url"
+				:raw-src="user.raw_avatar_url"
+				:alt="user.username"
+				:size="isModrinthUser ? '64px' : '96px'"
+				:tint-by="user.username"
+				circle
+			/>
+		</template>
+
+		<template v-if="$slots.badges || isOfficialAccount || user.lock || showRestrictedBadge" #badges>
+			<slot name="badges" />
+			<PageHeaderBadgeItem
+				v-if="isOfficialAccount"
+				:icon="BadgeCheckIcon"
+				:icon-props="{ fill: 'var(--color-brand-highlight)' }"
+				:tooltip="formatMessage(messages.officialAccount)"
+				class="border-brand-highlight bg-brand-highlight !text-brand"
+			>
+				{{ formatMessage(messages.officialAccount) }}
+			</PageHeaderBadgeItem>
+			<PageHeaderBadgeItem
+				v-if="user.lock"
+				:icon="LockIcon"
+				:tooltip="user.lock.reason"
+				class="border-highlight-red bg-highlight-red !text-red"
+			>
+				{{ formatMessage(messages.lockedLabel) }}
+			</PageHeaderBadgeItem>
+			<PageHeaderBadgeItem
+				v-if="showRestrictedBadge"
+				:icon="CircleSlashIcon"
+				:tooltip="user.restriction?.private_reason ?? user.restriction?.reason ?? undefined"
+				class="border-highlight-orange bg-highlight-orange !text-orange"
+			>
+				{{ formatMessage(messages.restrictedLabel) }}
+			</PageHeaderBadgeItem>
+		</template>
+
+		<template v-if="$slots.summary" #summary>
+			<slot name="summary" />
+		</template>
+
+		<template v-if="!isModrinthUser" #metadata>
+			<PageHeaderMetadata>
+				<PageHeaderMetadataNumberItem
+					:icon="BoxIcon"
+					:value="projectsCount"
+					:label="formatMessage(messages.profileProjectCountLabel, { count: projectsCount })"
+				/>
+				<PageHeaderMetadataNumberItem
+					:icon="DownloadIcon"
+					:value="downloads"
+					:label="formatMessage(messages.profileDownloadCountLabel, { count: downloads })"
+					:tooltip="downloadsTooltip"
+				/>
+				<PageHeaderMetadataTimeItem
+					:icon="CalendarIcon"
+					:date="user.created"
+					:label="formatMessage(messages.profileJoinedLabel)"
+					:tooltip="joinedTooltip"
+				/>
+			</PageHeaderMetadata>
+		</template>
+
+		<template #actions>
+			<PageHeaderActions>
+				<Button
+					v-if="isSelf && typeof editProfileLink === 'function'"
+					size="xl"
+					@click="editProfileLink"
+				>
+					<EditIcon />
+					{{ formatMessage(commonMessages.editButton) }}
+				</Button>
+				<ButtonLink
+					v-else-if="isSelf && typeof editProfileLink === 'string'"
+					size="xl"
+					:to="editProfileLink"
+				>
+					<EditIcon />
+					{{ formatMessage(commonMessages.editButton) }}
+				</ButtonLink>
+				<TeleportOverflowMenu
+					type="quiet"
+					size="xl"
+					:label="formatMessage(commonMessages.moreOptionsButton)"
+					:tooltip="formatMessage(commonMessages.moreOptionsButton)"
+					:options="moreActions"
+				>
+					<MoreVerticalIcon />
+				</TeleportOverflowMenu>
+			</PageHeaderActions>
+		</template>
+	</PageHeader>
+</template>
+
+<script setup lang="ts">
+import type { Labrinth } from '@modrinth/api-client'
+import {
+	BadgeCheckIcon,
+	BanIcon,
+	BoxesIcon,
+	BoxIcon,
+	CalendarIcon,
+	ChartIcon,
+	CircleSlashIcon,
+	ClipboardCopyIcon,
+	CurrencyIcon,
+	DownloadIcon,
+	EditIcon,
+	InfoIcon,
+	KeyIcon,
+	LockIcon,
+	LockOpenIcon,
+	LogOutIcon,
+	MoreVerticalIcon,
+	ReportIcon,
+	ShieldAlertIcon,
+} from '@modrinth/assets'
+import { computed } from 'vue'
+
+import Avatar from '#ui/components/base/Avatar.vue'
+import type { ButtonMenuOption } from '#ui/components/base/buttons'
+import { Button, ButtonLink, TeleportOverflowMenu } from '#ui/components/base/buttons'
+import PageHeader from '#ui/components/base/page-header/index.vue'
+import PageHeaderMetadata from '#ui/components/base/page-header/metadata/index.vue'
+import PageHeaderMetadataNumberItem from '#ui/components/base/page-header/metadata/page-header-metadata-number-item.vue'
+import PageHeaderMetadataTimeItem from '#ui/components/base/page-header/metadata/page-header-metadata-time-item.vue'
+import PageHeaderActions from '#ui/components/base/page-header/page-header-actions.vue'
+import PageHeaderBadgeItem from '#ui/components/base/page-header/page-header-badge-item.vue'
+import { defineMessages, useFormatDateTime, useFormatNumber, useVIntl } from '#ui/composables'
+import type { AuthUser } from '#ui/providers/auth'
+import { commonMessages } from '#ui/utils'
+
+const messages = defineMessages({
+	profileManageProjectsButton: {
+		id: 'profile.button.manage-projects',
+		defaultMessage: 'Manage projects',
+	},
+	reset2faButton: {
+		id: 'profile.button.reset-2fa',
+		defaultMessage: 'Reset two-factor authentication',
+	},
+	editUserButton: {
+		id: 'profile.button.edit-user',
+		defaultMessage: 'Edit user',
+	},
+	analyticsButton: {
+		id: 'profile.button.analytics',
+		defaultMessage: 'View user analytics',
+	},
+	billingButton: {
+		id: 'profile.button.billing',
+		defaultMessage: 'Manage user billing',
+	},
+	blockButton: {
+		id: 'profile.button.block',
+		defaultMessage: 'Block',
+	},
+	unblockButton: {
+		id: 'profile.button.unblock',
+		defaultMessage: 'Unblock',
+	},
+	infoButton: {
+		id: 'profile.button.info',
+		defaultMessage: 'View user details',
+	},
+	sharedInstancesButton: {
+		id: 'profile.button.shared-instances',
+		defaultMessage: 'View shared instances',
+	},
+	officialAccount: {
+		id: 'profile.official-account',
+		defaultMessage: 'Official Modrinth account',
+	},
+	profileJoinedLabel: {
+		id: 'profile.label.joined',
+		defaultMessage: 'Joined',
+	},
+	profileProjectCountLabel: {
+		id: 'profile.label.project-count',
+		defaultMessage: '{count, plural, one {project} other {projects}}',
+	},
+	profileDownloadCountLabel: {
+		id: 'profile.label.download-count',
+		defaultMessage: '{count, plural, one {download} other {downloads}}',
+	},
+	lockedLabel: {
+		id: 'profile.label.locked',
+		defaultMessage: 'Locked',
+	},
+	lockButton: {
+		id: 'profile.button.lock',
+		defaultMessage: 'Lock account',
+	},
+	unlockButton: {
+		id: 'profile.button.unlock',
+		defaultMessage: 'Unlock account',
+	},
+	restrictedLabel: {
+		id: 'profile.label.restricted',
+		defaultMessage: 'Restricted',
+	},
+	restrictButton: {
+		id: 'profile.button.restrict',
+		defaultMessage: 'Restrict user',
+	},
+	editRestrictionsButton: {
+		id: 'profile.button.edit-restrictions',
+		defaultMessage: 'Edit restrictions',
+	},
+	revokeSessionsButton: {
+		id: 'profile.button.revoke-sessions',
+		defaultMessage: 'Revoke all sessions',
+	},
+	forcePasswordResetButton: {
+		id: 'profile.button.force-password-reset',
+		defaultMessage: 'Force password reset',
+	},
+})
+
+const props = withDefaults(
+	defineProps<{
+		user: Labrinth.Users.v3.User
+		summary?: string | null
+		authUser?: AuthUser | null
+		editProfileLink?: string | (() => void)
+		isModrinthUser?: boolean
+		isOfficialAccount?: boolean
+		isSelf?: boolean
+		isAdmin?: boolean
+		isStaff?: boolean
+		showStaffActions?: boolean
+		isBlocked?: boolean
+		projectsCount?: number
+		downloads?: number
+	}>(),
+	{
+		summary: null,
+		authUser: null,
+		editProfileLink: '/settings/profile',
+		isModrinthUser: false,
+		isOfficialAccount: false,
+		isSelf: false,
+		isAdmin: false,
+		isStaff: false,
+		showStaffActions: false,
+		isBlocked: false,
+		projectsCount: 0,
+		downloads: 0,
+	},
+)
+
+const emit = defineEmits<{
+	manageProjects: []
+	report: []
+	block: []
+	copyId: []
+	copyPermalink: []
+	openBilling: []
+	openInfo: []
+	openSharedInstances: []
+	openAnalytics: []
+	editUser: []
+	toggleLock: []
+	restrict: []
+	revokeSessions: []
+	forcePasswordReset: []
+	reset2fa: []
+}>()
+
+const showRestrictedBadge = computed(() => props.isStaff && !!props.user.restriction)
+
+const { formatMessage } = useVIntl()
+const formatNumber = useFormatNumber()
+const formatDateTime = useFormatDateTime({
+	timeStyle: 'short',
+	dateStyle: 'long',
+})
+const downloadsTooltip = computed(() => formatNumber(props.downloads))
+const joinedTooltip = computed(() => formatDateTime(props.user.created))
+
+const moreActions = computed<ButtonMenuOption[]>(() => [
+	{
+		id: 'manage-projects',
+		label: formatMessage(messages.profileManageProjectsButton),
+		icon: BoxIcon,
+		action: () => emit('manageProjects'),
+		shown: props.isSelf,
+	},
+	{ type: 'divider', shown: props.isSelf },
+	{
+		id: 'report',
+		label: formatMessage(commonMessages.reportButton),
+		icon: ReportIcon,
+		action: () => emit('report'),
+		tone: 'red',
+		shown: props.authUser?.id !== props.user.id,
+	},
+	{
+		id: 'block',
+		label: formatMessage(props.isBlocked ? messages.unblockButton : messages.blockButton),
+		icon: BanIcon,
+		action: () => emit('block'),
+		tone: 'red',
+		shown: props.authUser?.id !== props.user.id,
+	},
+	{
+		id: 'copy-id',
+		label: formatMessage(commonMessages.copyIdButton),
+		icon: ClipboardCopyIcon,
+		action: () => emit('copyId'),
+	},
+	{
+		id: 'copy-permalink',
+		label: formatMessage(commonMessages.copyPermalinkButton),
+		icon: ClipboardCopyIcon,
+		action: () => emit('copyPermalink'),
+	},
+	{ type: 'divider', shown: props.showStaffActions && (props.isAdmin || props.isStaff) },
+	{
+		id: 'open-info',
+		label: formatMessage(messages.infoButton),
+		icon: InfoIcon,
+		action: () => emit('openInfo'),
+		tone: 'orange',
+		shown: props.showStaffActions && props.isStaff,
+	},
+	{
+		id: 'open-shared-instances',
+		label: formatMessage(messages.sharedInstancesButton),
+		icon: BoxesIcon,
+		action: () => emit('openSharedInstances'),
+		tone: 'orange',
+		shown: props.showStaffActions && props.isStaff,
+	},
+	{
+		id: 'open-analytics',
+		label: formatMessage(messages.analyticsButton),
+		icon: ChartIcon,
+		action: () => emit('openAnalytics'),
+		tone: 'orange',
+		shown: props.showStaffActions && props.isAdmin,
+	},
+	{ type: 'divider', shown: props.showStaffActions && (props.isAdmin || props.isStaff) },
+	{
+		id: 'edit-user',
+		label: formatMessage(messages.editUserButton),
+		icon: EditIcon,
+		action: () => emit('editUser'),
+		tone: 'green',
+		shown: props.showStaffActions && props.isAdmin,
+	},
+	{
+		id: 'open-billing',
+		label: formatMessage(messages.billingButton),
+		icon: CurrencyIcon,
+		action: () => emit('openBilling'),
+		tone: 'green',
+		shown: props.showStaffActions && props.isStaff,
+	},
+	{
+		type: 'divider',
+		shown:
+			props.showStaffActions && props.isAdmin && (props.user.role === 'developer' || !props.isSelf),
+	},
+	{
+		id: 'toggle-lock',
+		label: formatMessage(props.user.lock ? messages.unlockButton : messages.lockButton),
+		icon: props.user.lock ? LockOpenIcon : LockIcon,
+		action: () => emit('toggleLock'),
+		tone: 'red',
+		shown: props.showStaffActions && props.isAdmin && props.user.role === 'developer',
+	},
+	{
+		id: 'restrict',
+		label: formatMessage(
+			props.user.restriction ? messages.editRestrictionsButton : messages.restrictButton,
+		),
+		icon: CircleSlashIcon,
+		action: () => emit('restrict'),
+		tone: 'red',
+		shown: props.showStaffActions && props.isStaff && props.user.role === 'developer',
+	},
+	{
+		id: 'revoke-sessions',
+		label: formatMessage(messages.revokeSessionsButton),
+		icon: LogOutIcon,
+		action: () => emit('revokeSessions'),
+		tone: 'red',
+		shown: props.showStaffActions && props.isAdmin && !props.isSelf,
+	},
+	{
+		id: 'force-password-reset',
+		label: formatMessage(messages.forcePasswordResetButton),
+		icon: KeyIcon,
+		action: () => emit('forcePasswordReset'),
+		tone: 'red',
+		shown: props.showStaffActions && props.isAdmin && props.user.role === 'developer',
+	},
+	{
+		id: 'reset-2fa',
+		label: formatMessage(messages.reset2faButton),
+		icon: ShieldAlertIcon,
+		action: () => emit('reset2fa'),
+		tone: 'red',
+		shown:
+			props.showStaffActions &&
+			props.isAdmin &&
+			props.user.role === 'developer' &&
+			Boolean(props.user.has_totp),
+	},
+])
+</script>

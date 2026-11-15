@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.62 — Decoupled Website, Toolchain Upgrade & License Audit.
+# Owner-approved preview candidate: V-0.0.63 — Full Modrinth App + Solara Microsoft OAuth & GitHub Releases Auto-Updater.
 on:
   workflow_dispatch:
   push:
@@ -25,13 +25,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: npm
       - uses: pnpm/action-setup@v4
         with:
           version: '12.11.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -45,7 +45,7 @@ jobs:
             target
           key: solara-windows-cargo-v1-${{ hashFiles('Cargo.lock') }}
       - name: Install locked frontend dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Check frontend and independent native core
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
@@ -64,8 +64,10 @@ jobs:
           Run-Check -Command npm -Arguments @('test')
           Run-Check -Command npm -Arguments @('run', 'check')
           Run-Check -Command npm -Arguments @('run', 'build')
+          Run-Check -Command pnpm -Arguments @('--filter', '@modrinth/app-frontend', 'build')
           Run-Check -Command node -Arguments @('scripts/third-party.mjs')
-          Run-Check -Command cargo -Arguments @('test', '-p', 'solara-launcher', '--lib', '--locked', '--no-default-features')
+          Run-Check -Command cargo -Arguments @('test', '-p', 'theseus', '--lib', '--locked')
+          Run-Check -Command cargo -Arguments @('test', '-p', 'theseus_gui', '--bin', 'solaralauncher', '--locked')
       - name: Clean up unreleased candidate reservation draft if rerunning
         env:
           GH_TOKEN: ${{ github.token }}

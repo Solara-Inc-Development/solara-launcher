@@ -1,0 +1,522 @@
+{
+  "nags.add-description.description": {
+    "defaultMessage": "Une description qui décrit clairement l'intérêt du projet et sa fonction est requise."
+  },
+  "nags.add-description.title": {
+    "defaultMessage": "Ajouter une description"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Ajouter une icône unique, pertinente et attrayante rend votre projet identifiable et l’aide à se démarquer."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Ajouter une icône"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Ajoutez l'adresse IP et le port que les joueurs Édition Java peuvent utiliser pour rejoindre votre serveur."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Ajouter une adresse Java"
+  },
+  "nags.add-license-details.description": {
+    "defaultMessage": "Ajoutez une URL et un nom valide ou un identifiant SPDX pour votre licence personnalisé."
+  },
+  "nags.add-license-details.title": {
+    "defaultMessage": "Ajoutez-les détails de votre licence"
+  },
+  "nags.add-links-server.description": {
+    "defaultMessage": "Ajoutez tous les liens pertinents vers des ressources externes, comme un site Web, une boutique ou un lien d'invitation Discord permanent."
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Ajouter des liens externes"
+  },
+  "nags.add-links.description": {
+    "defaultMessage": "Ajoutez tous les liens pertinents vers des ressources externes, comme le code source, un suivi des tickets ou un lien d'invitation Discord permanent."
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Ajouter des liens externes"
+  },
+  "nags.adjacent-headers.description": {
+    "defaultMessage": "Les titres de même niveau ne doivent pas être adjacents."
+  },
+  "nags.adjacent-headers.title": {
+    "defaultMessage": "Supprimer les en-têtes adjacents"
+  },
+  "nags.all-languages.description": {
+    "defaultMessage": "Vous avez sélectionné toutes les options linguistiques disponibles. Veuillez ne lister que les langues activement prises en charge par votre serveur."
+  },
+  "nags.all-languages.title": {
+    "defaultMessage": "Sélectionnez les langues appropriées"
+  },
+  "nags.all-tags-selected.description": {
+    "defaultMessage": "Vous avez sélectionné l'ensemble des {totalAvailableTags, plural, one {# tag disponible} other {# tags disponibles}}. Les tags aident les utilisateurs à trouver des projets pertinents. Veuillez ne sélectionner que les tags adaptés."
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Sélectionner des tags précis"
+  },
+  "nags.check-disclosures.description": {
+    "defaultMessage": "Soyez sûr que tous les utilisateurs sont avertis de tout détail importent en remplissant les avertissements sur le contenu de votre {type}."
+  },
+  "nags.check-disclosures.title": {
+    "defaultMessage": "Vérifier les avertissements de contenu"
+  },
+  "nags.description-ends-with-header.description": {
+    "defaultMessage": "La description de votre projet ne doit pas se terminer par un titre non suivi de texte."
+  },
+  "nags.description-ends-with-header.title": {
+    "defaultMessage": "Supprimer l'en-tête de fin"
+  },
+  "nags.description-too-short.description": {
+    "defaultMessage": "La description de votre projet est trop brève. Donnez plus de détails pour présenter clairement son contenu, son but et ses atouts."
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Étendre la description"
+  },
+  "nags.disclosures-special-formatting.description": {
+    "defaultMessage": "Les avertissements de contenu ne doivent pas contenir de HTML, car ils ne prennent en charge que le Markdown en ligne et le texte brut."
+  },
+  "nags.disclosures-special-formatting.title": {
+    "defaultMessage": "Corriger la mise en forme des avertissements"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Modifier la description"
+  },
+  "nags.edit-gallery.title": {
+    "defaultMessage": "Modifier la galerie"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Modifier le résumé"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Modifier les tags"
+  },
+  "nags.edit-title.title": {
+    "defaultMessage": "Modifier le nom"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "L'image mise en avant dans la galerie est souvent la première impression que votre projet donne."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Mettre en avant une image de la galerie"
+  },
+  "nags.gallery-text-non-standard.description": {
+    "defaultMessage": "Les caractères spéciaux ou stylisés, comme le « texte Unicode » ou « Zalgo », ne sont pas autorisés dans les titres et descriptions de la galerie."
+  },
+  "nags.gallery-text-profanity.description": {
+    "defaultMessage": "Les titres et descriptions de votre galerie ne peuvent pas contenir de langage vulgaire excessif. Détecté : « {value} »."
+  },
+  "nags.gallery-text-slur.description": {
+    "defaultMessage": "Les titres et descriptions d'images de la galerie ne doivent pas contenir de langage vulgaire excessif. Terme détecté : « {value} »."
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Ouvrir la page de la galerie"
+  },
+  "nags.gpl-license-source-required.description": {
+    "defaultMessage": "Votre licence de {type} nécessite le code source afin d'être publié. Veuillez fournir le lien du code source, ajouter les fichiers sources ou changer la licence sélectionnée."
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Fournir le code source"
+  },
+  "nags.invalid-gallery-text.title": {
+    "defaultMessage": "Modifier le texte de l'image de la galerie"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "L’URL de votre licence semble mal formée. Veuillez fournir une URL valide pointant vers le texte de votre licence."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Ajouter un lien de licence valide"
+  },
+  "nags.invalid-project-description.title": {
+    "defaultMessage": "Modifier la description"
+  },
+  "nags.invalid-project-name.title": {
+    "defaultMessage": "Modifier le nom du projet"
+  },
+  "nags.invalid-project-summary.title": {
+    "defaultMessage": "Modifier le résumé"
+  },
+  "nags.license-url.not-in-allowlist.description": {
+    "defaultMessage": "Votre URL de licence n'est pas un lien de licence reconnu. Veuillez vous assurer qu'il amène."
+  },
+  "nags.license-url.not-in-allowlist.title": {
+    "defaultMessage": "Vérifier votre lien vers la licence"
+  },
+  "nags.link-validation.discord-invite": {
+    "defaultMessage": "Votre invitation Discord est invalide, a expiré ou n'invite pas les utilisateurs à un serveur. Replacez-le par une invitation de serveur active."
+  },
+  "nags.link-validation.discord-invite.title": {
+    "defaultMessage": "Remplacer les invitations Discord invalides"
+  },
+  "nags.link-validation.download": {
+    "defaultMessage": "Les liens qui commencent un téléchargement ne sont pas autorisés. Veuillez retirer de tels liens de votre description."
+  },
+  "nags.link-validation.download.title": {
+    "defaultMessage": "Retirer les liens de téléchargement"
+  },
+  "nags.link-validation.duplicate": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} lien est également utilisé dans {otherLinkField, select, issues {Issue tracker} source {Source code} wiki {Wiki} discord {Discord invite} site {Website} store {Store} license {License} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {another field}}. Chaque lien ne doit être répertorié qu'une seule fois."
+  },
+  "nags.link-validation.duplicate.title": {
+    "defaultMessage": "Retirer les liens en double"
+  },
+  "nags.link-validation.external-blocklist-match": {
+    "defaultMessage": "Votre lien vers {linkField} n'est pas autorisé. Merci de retirer ce lien ou de le remplacer par quelque chose d'approprié pour les liens de {linkField}."
+  },
+  "nags.link-validation.external-blocklist-match.title": {
+    "defaultMessage": "Remplacer les liens incorrects"
+  },
+  "nags.link-validation.global-blocklist-match": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} lien utilise un nom de domaine interdit. Supprimez ou remplacez ce lien."
+  },
+  "nags.link-validation.global-blocklist-match.title": {
+    "defaultMessage": "Retirer les liens interdits"
+  },
+  "nags.link-validation.ip-address": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} lien utilise une adresse IP. Utilisez une URL avec un nom de domaine."
+  },
+  "nags.link-validation.ip-address.title": {
+    "defaultMessage": "Retirer le lien adresse IP"
+  },
+  "nags.link-validation.malformed": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} lien n'est pas valide. Saisissez une URL HTTPS complète."
+  },
+  "nags.link-validation.malformed.title": {
+    "defaultMessage": "Corriger les liens invalides"
+  },
+  "nags.link-validation.not-in-allowlist": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} lien peut ne pas être approprié pour le type de lien. Veuillez vous assurer qu'il est adapté à l'usage auquel il est destiné."
+  },
+  "nags.link-validation.not-in-allowlist.title": {
+    "defaultMessage": "Vérifier l'exactitude du lien"
+  },
+  "nags.link-validation.source-repository": {
+    "defaultMessage": "Le lien de votre code source doit rediriger vers une plateforme de publication supportée ou vers un service Gitea/Forgejo autopubliée."
+  },
+  "nags.link-validation.source-repository.title": {
+    "defaultMessage": "Lier un dépôt de code source"
+  },
+  "nags.link-validation.title": {
+    "defaultMessage": "Examiner ce lien"
+  },
+  "nags.link-validation.unverifiable": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} le lien n'a pas pu être vérifié. Vérifiez qu'il est en ligne et accessible."
+  },
+  "nags.link-validation.unverifiable.title": {
+    "defaultMessage": "Vérifier la disponibilité du lien"
+  },
+  "nags.link-validation.wrong-field": {
+    "defaultMessage": "Votre {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} le lien n'est pas correct pour {linkField, select, issues {issue tracker} source {source code} wiki {wiki} discord {Discord invite} site {website} store {store} license {license} description {description} patreon {Patreon} bmac {Buy Me a Coffee} paypal {PayPal} github {GitHub Sponsors} kofi {Ko-fi} other {donation}} liens. Supprimez-le ou remplacez-le par le lien correct."
+  },
+  "nags.link-validation.wrong-field.title": {
+    "defaultMessage": "Corriger les liens incorrects"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, one {# en-tête} other {# en-têtes}} dans votre description {count, plural, one {est trop long} other {sont trop longs}}. Les en-têtes doivent être concis et servir de titres de section, et non de phrases complètes."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Raccourcir les en-têtes"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Les projets ne doivent pas utiliser la marque Minecraft ni inclure « Minecraft » comme élément principal du nom."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Éviter la violation de marque"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Certaines de vos images n’ont pas de texte alternatif, ce qui est important pour l’accessibilité, notamment pour les utilisateurs malvoyants."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Ajouter un texte alternatif"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Accéder au fil de modération"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Examinez et traitez toutes les remarques de l’équipe de modération avant de soumettre à nouveau."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Voir les retours"
+  },
+  "nags.modpack-version-not-public.description": {
+    "defaultMessage": "La version sélectionnée du modpack n'est pas disponible publiquement. Choisissez une version à laquelle tous les joueurs peuvent accéder."
+  },
+  "nags.modpack-version-not-public.title": {
+    "defaultMessage": "Sélectionnez une version d'un modpack public et valide"
+  },
+  "nags.multiple-resolution-tags.description": {
+    "defaultMessage": "Vous avez sélectionné {count, plural, one {# tag de résolution} other {# tags de résolution}} ({tags}). Les packs de ressources ne devraient généralement comporter que le tag correspondant à leur résolution principale."
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Sélectionner la bonne résolution"
+  },
+  "nags.project-description-content.title": {
+    "defaultMessage": "Examiner la description"
+  },
+  "nags.project-description-non-english.description": {
+    "defaultMessage": "La description de votre projet doit être rédigée en anglais ou inclure une traduction en anglais."
+  },
+  "nags.project-description-non-english.title": {
+    "defaultMessage": "Traduire la description"
+  },
+  "nags.project-description-non-standard-text.description": {
+    "defaultMessage": "L'utilisation excessive de caractères spéciaux ou stylisés, comme le « texte Unicode » ou « Zalgo », n'est pas autorisée dans la description de votre projet."
+  },
+  "nags.project-description-profanity.description": {
+    "defaultMessage": "La description de votre projet ne doit pas contenir de langage vulgaire excessif. Terme détecté : « {value} »."
+  },
+  "nags.project-description-slur.description": {
+    "defaultMessage": "La description de votre projet ne doit pas contenir de termes offensants. Détecté : « {value} »."
+  },
+  "nags.project-description-spam.description": {
+    "defaultMessage": "La répétition excessive de caractères, de mots ou de phrases ne peut pas être utilisée pour rallonger la description de votre projet."
+  },
+  "nags.project-description-spam.title": {
+    "defaultMessage": "Supprimer le contenu inutile de la description"
+  },
+  "nags.project-name-non-standard-text.description": {
+    "defaultMessage": "Les caractères spéciaux ou stylisés, comme le « texte Unicode » ou « Zalgo », ne sont pas autorisés dans le nom du projet."
+  },
+  "nags.project-name-profanity.description": {
+    "defaultMessage": "Le nom de votre projet ne doit pas contenir de langage vulgaire. Terme détecté : « {value} »."
+  },
+  "nags.project-name-slur.description": {
+    "defaultMessage": "Le nom de votre projet ne doit pas contenir de termes offensants. Détecté : « {value} »."
+  },
+  "nags.project-name-version.title": {
+    "defaultMessage": "Modifier le nom du projet"
+  },
+  "nags.project-summary-content.title": {
+    "defaultMessage": "Examiner le résumé"
+  },
+  "nags.project-summary-links.description": {
+    "defaultMessage": "Les liens, URL et adresses IP ne doivent pas être placés dans le résumé. Détecté : « {value} »"
+  },
+  "nags.project-summary-links.title": {
+    "defaultMessage": "Supprimer les liens du résumé"
+  },
+  "nags.project-summary-non-english.description": {
+    "defaultMessage": "Le résumé de votre projet doit être en anglais ou inclure une version anglaise."
+  },
+  "nags.project-summary-non-english.title": {
+    "defaultMessage": "Traduire le résumé"
+  },
+  "nags.project-summary-non-standard-text.description": {
+    "defaultMessage": "Les caractères spéciaux ou stylisés, comme le « texte Unicode » ou « Zalgo », ne sont pas autorisés dans le résumé."
+  },
+  "nags.project-summary-profanity.description": {
+    "defaultMessage": "Le résumé de votre projet ne doit pas contenir de langage vulgaire. Terme détecté : « {value} »."
+  },
+  "nags.project-summary-slur.description": {
+    "defaultMessage": "Le résumé de votre projet ne doit pas contenir de termes offensants. Détecté : « {value} »."
+  },
+  "nags.project-summary-spam.description": {
+    "defaultMessage": "​Il est interdit de répéter des caractères, des mots ou des expressions pour artificiellement rallonger le résumé de votre projet."
+  },
+  "nags.project-summary-spam.title": {
+    "defaultMessage": "Nettoyer le résumé"
+  },
+  "nags.review-permissions.description": {
+    "defaultMessage": "Veillez à fournir la preuve de votre autorisation de distribuer tout contenu externe présent dans votre modpack."
+  },
+  "nags.review-permissions.title": {
+    "defaultMessage": "Vérifier les autorisations du contenu"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Sélectionnez quelles versions votre serveur prend en charge, choisissez un modpack, ou publiez le vôtre."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Sélectionner la comptabilité"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "Faites savoir aux joueurs dans quel région se trouve votre serveur."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Supprimer une région"
+  },
+  "nags.select-environment.description": {
+    "defaultMessage": "Précisez l'environnement dans lequel votre projet peut s'exécuter."
+  },
+  "nags.select-environment.title": {
+    "defaultMessage": "Sélectionnez un environnement"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Listez la ou les langues prises en charge par votre serveur."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Sélectionner une langue"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Sélectionnez la licence sous laquelle votre {type} est distribué."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Sélectionner une licence"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Sélectionnez les tags qui correspondent correctement à votre projet afin d’aider les bons utilisateurs à le trouver."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Sélectionner les tags"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Consulter le fil de modération"
+  },
+  "nags.settings.disclosures.title": {
+    "defaultMessage": "Ouvrir les paramètres de divulgation"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Ouvrir les paramètres de licence"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Accéder aux paramètres des liens"
+  },
+  "nags.settings.permissions.title": {
+    "defaultMessage": "Ouvrir les paramètres de permissions"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Ouvrir les paramètres des tags"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Ouvrir les paramètres généraux"
+  },
+  "nags.settings.versions.title": {
+    "defaultMessage": "Ouvrir les paramètres des versions"
+  },
+  "nags.summary-special-formatting.description": {
+    "defaultMessage": "Votre résumé ne doit pas contenir de Markdown ou d'HTML, car seul le texte brut est pris en charge."
+  },
+  "nags.summary-special-formatting.title": {
+    "defaultMessage": "Corriger le formatage du résumé"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Développer le résumé"
+  },
+  "nags.too-many-languages.description": {
+    "defaultMessage": "Vous avez sélectionné {languageCount, plural, one {# langue} other {# langues}}. Veuillez indiquer uniquement les langues prises en charge par votre serveur."
+  },
+  "nags.too-many-languages.title": {
+    "defaultMessage": "Sélectionnez les langues appropriées"
+  },
+  "nags.too-many-tags-server.description": {
+    "defaultMessage": "Vous avez sélectionné {tagCount, plural, one {# tag} other {# tags}}. Veuillez réduire à {maxTagCount} ou moins pour vous assurer que votre projet apparaisse dans les résultats de recherche pertinents."
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Sélectionnez des tags correspondants"
+  },
+  "nags.too-many-tags.description": {
+    "defaultMessage": "Vous avez sélectionné {tagCount, plural, one {# tag} other {# tags}}. Veuillez réduire à {maxTagCount} ou moins pour vous assurer que votre projet apparaisse dans les résultats de recherche pertinents."
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Sélectionnez des tags précis"
+  },
+  "nags.upload-gallery-image.description": {
+    "defaultMessage": "Au moins une image dans la galerie est nécessaire pour montrer le contenu de votre {type}."
+  },
+  "nags.upload-gallery-image.description-resourcepack": {
+    "defaultMessage": "Au moins une image de galerie est requise pour présenter le contenu de votre pack de ressources, sauf s'il s'agit d'un pack audio ou de localisation. Si c'est le cas, veuillez sélectionner le tag approprié."
+  },
+  "nags.upload-gallery-image.description-shader": {
+    "defaultMessage": "Au moins trois images de galerie sont requises pour présenter le contenu de votre shader dans une variété de situations."
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Ajouter une image à la galerie"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Au moins une version est requise pour que le projet puisse être soumis à la révision."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Ajouter une version"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Ouvrir les paramètres des liens"
+  },
+  "project-review.issue-location.disclosures": {
+    "defaultMessage": "Modifier les déclarations"
+  },
+  "project-review.issue-location.gallery": {
+    "defaultMessage": "Modifier les images de la galerie"
+  },
+  "project-review.issue-location.permissions": {
+    "defaultMessage": "Examiner les permissions"
+  },
+  "project-review.issue-location.versions": {
+    "defaultMessage": "Gérer les versions"
+  },
+  "project-review.issue-target.acknowledge": {
+    "defaultMessage": "Prendre en compte"
+  },
+  "project-review.issue-target.add-gallery-images": {
+    "defaultMessage": "Ajouter des images de galerie"
+  },
+  "project-review.issue-target.add-project-disclosures": {
+    "defaultMessage": "Ajouter des divulgations"
+  },
+  "project-review.issue-target.mark-addressed": {
+    "defaultMessage": "Marquer comme traité"
+  },
+  "project-review.issue-target.modify-description": {
+    "defaultMessage": "Changer la description"
+  },
+  "project-review.issue-target.modify-gallery-image": {
+    "defaultMessage": "Changer l'image de galerie"
+  },
+  "project-review.issue-target.modify-icon": {
+    "defaultMessage": "Changer l'icône"
+  },
+  "project-review.issue-target.modify-license": {
+    "defaultMessage": "Changer la licence"
+  },
+  "project-review.issue-target.modify-links": {
+    "defaultMessage": "Changer les liens"
+  },
+  "project-review.issue-target.modify-project-disclosure": {
+    "defaultMessage": "Changer les déclarations"
+  },
+  "project-review.issue-target.modify-project-disclosure-note": {
+    "defaultMessage": "Modifier la note de déclaration"
+  },
+  "project-review.issue-target.modify-server-address": {
+    "defaultMessage": "Changer l'adresse du serveur"
+  },
+  "project-review.issue-target.modify-server-languages": {
+    "defaultMessage": "Changer les langues du serveur"
+  },
+  "project-review.issue-target.modify-slug": {
+    "defaultMessage": "Modifier le slug de l'URL"
+  },
+  "project-review.issue-target.modify-summary": {
+    "defaultMessage": "Changer le résumé"
+  },
+  "project-review.issue-target.modify-team-member-role": {
+    "defaultMessage": "Modifier le rôle du membre de l'équipe"
+  },
+  "project-review.issue-target.modify-title": {
+    "defaultMessage": "Changer le titre"
+  },
+  "project-review.issue-target.remove-gallery-images": {
+    "defaultMessage": "Retirer des images de la galerie"
+  },
+  "project-review.issue-target.remove-icon": {
+    "defaultMessage": "Retirer l'icône"
+  },
+  "project-review.issue-target.remove-project-disclosures": {
+    "defaultMessage": "Supprimer les déclarations"
+  },
+  "project-review.issue-target.remove-tags": {
+    "defaultMessage": "Retirer des tags"
+  },
+  "project-review.issue-target.version": {
+    "defaultMessage": "Changer la version"
+  },
+  "project.text-validation.description-matches-summary": {
+    "defaultMessage": "La description de votre projet doit fournir des informations uniques et ne pas répéter le résumé du projet."
+  },
+  "project.text-validation.summary-matches-title": {
+    "defaultMessage": "Le résumé de votre projet doit fournir des informations uniques et ne pas répéter le nom du projet."
+  },
+  "project.text-validation.summary-too-short": {
+    "defaultMessage": "Votre résumé est trop court. Ajoutez une phrase ou deux pour décrire votre projet."
+  },
+  "project.text-validation.title-version-number": {
+    "defaultMessage": "Le nom du projet ne doit pas inclure de numéro de version."
+  }
+}
+

@@ -1,0 +1,346 @@
+use super::content::get_projects;
+use crate::ErrorKind;
+use crate::server_address::ServerAddress;
+use crate::state::{
+    Credentials, InstanceLink, ProcessMetadata, Settings, State,
+    game_options_sync_is_enabled, load_game_option_preferences,
+};
+use crate::util::fetch;
+use crate::util::io::IOError;
+use anyhow::{Context, bail};
+use serde_json::json;
+use std::collections::HashMap;
+use std::time::Duration;
+use tokio::process::Command;
+use tracing::{info, warn};
+
+#[derive(Debug, Clone)]
+pub enum QuickPlayType {
+    None,
+    Singleplayer(String),
+    Server(ServerAddress),
+}
+
+async fn ensure_launch_allowed(
+    instance_id: &str,
+    state: &State,
+) -> crate::Result<()> {
+    if crate::state::get_instance(instance_id, &state.pool)
+        .await?
+        .is_some_and(|metadata| metadata.launch_blocked)
+    {
+        bail!(ErrorKind::InputError(
+            "this instance has been quarantined".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
+#[tracing::instrument]
+pub async fn run(
+    instance_id: &str,
+    quick_play_type: QuickPlayType,
+) -> crate::Result<ProcessMetadata> {
+    let state = State::get().await?;
+    super::shared::check_shared_instance_availability_before_launch(
+        instance_id,
+        &state,
+    )
+    .await?;
+    ensure_launch_allowed(instance_id, &state).await?;
+
+    let default_account = Credentials::get_default_credential(&state.pool)
+        .await?
+        .ok_or(ErrorKind::NotLoggedIn)?;
+
+    run_credentials(instance_id, &default_account, quick_play_type).await
+}
+
+#[tracing::instrument(skip(credentials))]
+async fn run_credentials(
+    instance_id: &str,
+    credentials: &Credentials,
+    quick_play_type: QuickPlayType,
+) -> crate::Result<ProcessMetadata> {
+    let state = State::get().await?;
+    let settings = Settings::get(&state.pool).await?;
+    let context =
+        crate::state::instances::commands::get_instance_launch_context(
+            instance_id,
+            &state.pool,
+        )
+        .await?
+        .context(format!(
+            "tried to run a nonexistent instance {instance_id}"
+        ))?;
+    let instance_sync_preferences =
+        crate::state::instances::adapters::sqlite::instance_rows::get_instance_sync_preferences(
+            instance_id,
+            &state.pool,
+        )
+        .await?;
+    let fullscreen_is_shared = game_options_sync_is_enabled(&state.pool)
+        .await?
+        && instance_sync_preferences.game_options
+        && load_game_option_preferences(&state.pool)
+            .await?
+            .get("fullscreen")
+            .is_some_and(|preference| preference.enabled);
+    ensure_launch_allowed(instance_id, &state).await?;
+
+    let pre_launch_hook = context
+        .launch_overrides
+        .hooks
+        .pre_launch
+        .as_ref()
+        .or(settings.hooks.pre_launch.as_ref())
+        .filter(|hook_command| !hook_command.is_empty());
+
+    let java_args = context
+        .launch_overrides
+        .extra_launch_args
+        .clone()
+        .unwrap_or(settings.extra_launch_args);
+
+    let wrapper = context
+        .launch_overrides
+        .hooks
+        .wrapper
+        .clone()
+        .or(settings.hooks.wrapper)
+        .filter(|hook_command| !hook_command.is_empty());
+
+    let env_args = context
+        .launch_overrides
+        .custom_env_vars
+        .clone()
+        .unwrap_or(settings.custom_env_vars);
+
+    let post_exit_hook = context
+        .launch_overrides
+        .hooks
+        .post_exit
+        .clone()
+        .or(settings.hooks.post_exit)
+        .filter(|hook_command| !hook_command.is_empty());
+
+    let memory = context.launch_overrides.memory.unwrap_or(settings.memory);
+    let resolution = context
+        .launch_overrides
+        .game_resolution
+        .unwrap_or(settings.game_resolution);
+    let has_hook_commands = pre_launch_hook.is_some()
+        || wrapper.is_some()
+        || post_exit_hook.is_some();
+    let full_path = if has_hook_commands {
+        Some(crate::util::io::canonicalize(
+            state
+                .directories
+                .instances_dir()
+                .join(&context.instance.path),
+        )?)
+    } else {
+        None
+    };
+    let hook_environment = if has_hook_commands {
+        let full_path = full_path
+            .as_ref()
+            .expect("hooked launches always resolve their instance path");
+        let java_version =
+            crate::launcher::resolve_java_for_launch(&context, &state).await?;
+
+        Some(crate::launcher::hooks::HookEnvironment::from_current_env(
+            &env_args,
+            crate::launcher::hooks::HookVariables {
+                instance_name: context.instance.name.clone(),
+                instance_id: context.instance.path.clone(),
+                instance_dir: full_path.to_string_lossy().to_string(),
+                java_path: java_version.path.clone(),
+                java_args: crate::launcher::hooks::build_hook_java_args(
+                    &java_args,
+                    memory,
+                    &java_version,
+                ),
+            },
+        ))
+    } else {
+        None
+    };
+    let launch_env_args = hook_environment
+        .as_ref()
+        .map_or_else(|| env_args.clone(), |env| env.injected_envs());
+
+    if let (Some(hook), Some(hook_environment), Some(full_path)) = (
+        pre_launch_hook,
+        hook_environment.as_ref(),
+        full_path.as_ref(),
+    ) {
+        let expanded_hook = hook_environment.expand(hook);
+        let mut cmd = shlex::split(&expanded_hook)
+            .ok_or(ErrorKind::LauncherError(format!(
+                "invalid pre-launch command {hook}",
+            )))?
+            .into_iter();
+
+        if let Some(command) = cmd.next() {
+            let result = Command::new(command)
+                .args(cmd)
+                .envs(launch_env_args.iter().cloned())
+                .current_dir(full_path)
+                .spawn()
+                .map_err(|e| IOError::with_path(e, full_path))?
+                .wait()
+                .await
+                .map_err(IOError::from)?;
+
+            if !result.success() {
+                bail!(ErrorKind::LauncherError(format!(
+                    "non-zero exit code for pre-launch hook ({})",
+                    result.code().unwrap_or(-1)
+                )));
+            }
+        }
+    }
+
+    let wrapper = wrapper
+        .map(|hook| {
+            hook_environment
+                .as_ref()
+                .map_or(hook.clone(), |env| env.expand(&hook))
+        })
+        .filter(|hook_command| !hook_command.is_empty());
+    let post_exit_hook = post_exit_hook
+        .map(|hook| {
+            hook_environment
+                .as_ref()
+                .map_or(hook.clone(), |env| env.expand(&hook))
+        })
+        .filter(|hook_command| !hook_command.is_empty());
+
+    let mut mc_set_options: Vec<(String, String)> = vec![];
+    if let Some(fullscreen) = context.launch_overrides.force_fullscreen {
+        mc_set_options.push(("fullscreen".to_string(), fullscreen.to_string()));
+    } else if settings.force_fullscreen && !fullscreen_is_shared {
+        mc_set_options.push(("fullscreen".to_string(), "true".to_string()));
+    }
+
+    if let Some(project_id) = server_play_project_id(&context.link)
+        && !project_id.trim().is_empty()
+    {
+        let server_id = uuid::Uuid::new_v4().to_string();
+        let join_result = fetch::INSECURE_REQWEST_CLIENT
+			.post("https://sessionserver.mojang.com/session/minecraft/join")
+			.json(&json!({
+				"accessToken": &credentials.access_token,
+				"selectedProfile": credentials.offline_profile.id.simple().to_string(),
+				"serverId": &server_id,
+			}))
+			.timeout(Duration::from_secs(5))
+			.send()
+			.await;
+
+        match join_result {
+            Ok(resp) if resp.status().is_success() => {
+                let result = fetch::post_json(
+                    concat!(
+                        env!("MODRINTH_API_BASE_URL"),
+                        "analytics/minecraft-server-play"
+                    ),
+                    json!({
+                        "project_id": project_id,
+                        "username": &credentials.offline_profile.name,
+                        "server_id": &server_id,
+                    }),
+                    &state.api_semaphore,
+                    &state.pool,
+                )
+                .await;
+
+                match result {
+                    Ok(()) => {
+                        info!(
+                            "Tracked server play for '{project_id}' in analytics"
+                        )
+                    }
+                    Err(err) => warn!("Failed to report server play: {err:?}"),
+                }
+            }
+            Ok(resp) => warn!(
+                "Failed to join Mojang session server: HTTP {}",
+                resp.status()
+            ),
+            Err(err) => warn!("Failed to join Mojang session server: {err:?}"),
+        }
+    }
+
+    crate::minecraft_skins::flush_pending_skin_change().await?;
+    crate::launcher::launch_minecraft(
+        &java_args,
+        &launch_env_args,
+        &mc_set_options,
+        &wrapper,
+        &memory,
+        &resolution,
+        credentials,
+        post_exit_hook,
+        &context,
+        quick_play_type,
+        &state,
+    )
+    .await
+}
+
+fn server_play_project_id(link: &InstanceLink) -> Option<&String> {
+    match link {
+        InstanceLink::ServerProject { project_id }
+        | InstanceLink::ServerProjectModpack {
+            server_project_id: project_id,
+            ..
+        } => Some(project_id),
+        InstanceLink::Unmanaged
+        | InstanceLink::ModrinthModpack { .. }
+        | InstanceLink::ModrinthHosting { .. }
+        | InstanceLink::ImportedModpack { .. }
+        | InstanceLink::SharedInstance { .. } => None,
+    }
+}
+
+pub async fn kill(instance_id: &str) -> crate::Result<()> {
+    let state = State::get().await?;
+    let processes =
+        crate::api::process::get_by_instance_id(instance_id).await?;
+
+    for process in processes {
+        state.process_manager.kill(process.uuid).await?;
+    }
+
+    Ok(())
+}
+
+#[tracing::instrument]
+pub async fn try_update_playtime_by_instance_id(
+    instance_id: &str,
+) -> crate::Result<()> {
+    let state = State::get().await?;
+    let context =
+        crate::state::instances::commands::get_instance_launch_context(
+            instance_id,
+            &state.pool,
+        )
+        .await?
+        .context(format!(
+            "tried to update playtime for nonexistent instance {instance_id}"
+        ))?;
+    let updated_recent_playtime = context.instance.recent_time_played;
+    if updated_recent_playtime > 0 {
+        crate::state::instances::commands::mark_instance_playtime_submitted(
+            &context.instance.id,
+            updated_recent_playtime,
+            &state.pool,
+        )
+        .await?;
+    }
+
+    Ok(())
+}

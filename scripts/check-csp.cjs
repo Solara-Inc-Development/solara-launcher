@@ -5,7 +5,8 @@ const assert=require('node:assert/strict');
 
 (async()=>{
  const {providerIcon}=await import('../packages/shared/content.mjs');
- const csp=JSON.parse(readFileSync('apps/desktop/tauri.conf.json','utf8')).app.security.csp;
+ const rawCsp=JSON.parse(readFileSync('apps/app/tauri.conf.json','utf8')).app.security.csp;
+ const csp=typeof rawCsp==='string'?rawCsp:Object.entries(rawCsp).map(([k,v])=>`${k} ${Array.isArray(v)?v.join(' '):v}`).join('; ');
  const browser=await chromium.launch({headless:true,args:process.env.CI?[]:['--no-sandbox']});
  try{
   const context=await browser.newContext();

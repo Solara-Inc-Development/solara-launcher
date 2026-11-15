@@ -1,0 +1,152 @@
+import { AbstractModule } from '../../../core/abstract-module'
+import type { Archon } from '../types'
+
+export class ArchonServersV1Module extends AbstractModule {
+	public getModuleID(): string {
+		return 'archon_servers_v1'
+	}
+
+	/**
+	 * Get list of servers for the authenticated user
+	 * GET /v1/servers
+	 */
+	public async list(): Promise<Archon.Servers.v1.ServerFull[]> {
+		return this.client.request<Archon.Servers.v1.ServerFull[]>('/servers', {
+			api: 'archon',
+			version: 1,
+			method: 'GET',
+		})
+	}
+
+	/**
+	 * Get full server details including worlds, backups, and content
+	 * GET /v1/servers/:server_id
+	 */
+	public async get(serverId: string): Promise<Archon.Servers.v1.ServerFull> {
+		return this.client.request<Archon.Servers.v1.ServerFull>(`/servers/${serverId}`, {
+			api: 'archon',
+			version: 1,
+			method: 'GET',
+		})
+	}
+
+	/**
+	 * Select the best currently available download method for a world
+	 * GET /v1/servers/:server_id/worlds/:world_id/select-download
+	 */
+	public async selectWorldDownload(
+		serverId: string,
+		worldId: string,
+	): Promise<Archon.Servers.v1.WorldDownloadMethod> {
+		return this.client.request<Archon.Servers.v1.WorldDownloadMethod>(
+			`/servers/${serverId}/worlds/${worldId}/select-download`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+			},
+		)
+	}
+
+	/**
+	 * Get available regions
+	 * GET /v1/regions
+	 */
+	public async getRegions(): Promise<Archon.Servers.v1.Region[]> {
+		return this.client.request<Archon.Servers.v1.Region[]>('/regions', {
+			api: 'archon',
+			version: 1,
+			method: 'GET',
+			skipAuth: true,
+		})
+	}
+
+	/**
+	 * Get how many servers of each memory size fit in every public region
+	 * GET /v1/stock
+	 */
+	public async getStock(memoryMb: number[]): Promise<Archon.Servers.v1.StockResponse> {
+		return this.client.request<Archon.Servers.v1.StockResponse>('/stock', {
+			api: 'archon',
+			version: 1,
+			method: 'GET',
+			params: { memory_mb: memoryMb.join(',') },
+			skipAuth: true,
+		})
+	}
+
+	/**
+	 * Get how many servers of each memory size fit in every public region when upgrading a server
+	 * GET /v1/servers/:server_id/upgrade-stock
+	 */
+	public async getUpgradeStock(
+		serverId: string,
+		memoryMb: number[],
+	): Promise<Archon.Servers.v1.StockResponse> {
+		return this.client.request<Archon.Servers.v1.StockResponse>(
+			`/servers/${serverId}/upgrade-stock`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'GET',
+				params: { memory_mb: memoryMb.join(',') },
+			},
+		)
+	}
+
+	/**
+	 * End the intro flow for a server
+	 * DELETE /v1/servers/:id/flows/intro
+	 */
+	public async endIntro(serverId: string): Promise<void> {
+		await this.client.request(`/servers/${serverId}/flows/intro`, {
+			api: 'archon',
+			version: 1,
+			method: 'DELETE',
+		})
+	}
+
+	/**
+	 * Reset a world to onboarding
+	 * POST /v1/servers/:id/worlds/:wid/onboard
+	 */
+	public async resetToOnboarding(serverId: string, worldId: string): Promise<void> {
+		await this.client.request(`/servers/${serverId}/worlds/${worldId}/onboard`, {
+			api: 'archon',
+			version: 1,
+			method: 'POST',
+		})
+	}
+
+	/**
+	 * Modify a world
+	 * PATCH /v1/servers/:server_id/worlds/:world_id
+	 */
+	public async patchWorld(
+		serverId: string,
+		worldId: string,
+		body: Archon.Servers.v1.PatchWorld,
+	): Promise<void> {
+		await this.client.request(`/servers/${serverId}/worlds/${worldId}`, {
+			api: 'archon',
+			version: 1,
+			method: 'PATCH',
+			body,
+		})
+	}
+
+	/**
+	 * Roll SFTP credentials for a server
+	 * POST /v1/servers/:server_id/sftp/roll
+	 */
+	public async rollSftp(serverId: string): Promise<Archon.Servers.v1.SftpCredentials> {
+		return this.client.request<Archon.Servers.v1.SftpCredentials>(
+			`/servers/${serverId}/sftp/roll`,
+			{
+				api: 'archon',
+				version: 1,
+				method: 'POST',
+			},
+		)
+	}
+}

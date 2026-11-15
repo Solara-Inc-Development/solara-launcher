@@ -1,0 +1,87 @@
+{
+  "nags.add-description.title": {
+    "defaultMessage": "Lisää kuvaus"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Lisää uniikki, merkityksellinen ja viehättävä kuvake, joka tekee projektistasi tunnistettavan ja auttaa erottumaan joukosta."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Lisää kuvake"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Lisää IP-osoite ja portti, jota Java Edition -pelaajat voivat käyttää liittyäkseen palvelimellesi."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Lisää Java-osoite"
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Lisää ulkoisia linkkejä"
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Lisää ulkoisia linkkejä"
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Valitse sopivat tagit"
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Laajenna kuvausta"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Muokkaa kuvausta"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Muokkaa tiivistelmää"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Muokkaa tageja"
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Esittele galleria kuvaa"
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Käy galleria sivulla"
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Anna lähdekoodi"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "Lisenssin URL-osoite näyttää olevan viallinen. Ole hyvä ja ilmoita kelvollinen URL-osoite lisenssitekstiisi."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Lisää kelvollinen lisenssilinkki"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, one {# otsikko} other {# otsikot}} kuvauksessasi {count, plural,one {on liian pitkä} other {ovat liian pitkiä}}. Otsikoiden tulisi olla tiiviitä ja toimia osioiden otsikkoina, eikä kokonaisina virkkeinä."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Lyhennä otsikoita"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Projektit eivät saa käyttää Minecraftin brändäystä tai sisältää \"Minecraft\" sanaa suurena osana nimeä."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Vältä tuotemerkin loukkauksia"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Joistain kuvistasi puuttuu vaihtoehtoinen teksti, joka on tärkeää saavutettavuudessa, varsinkin näkövammaisille."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Lisää puuttuva vaihtoehtoinen teksti"
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Tarkista palaute"
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Valitse oikea resoluutio"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Valitse, mitä versioita palvelimesi tukee, valitse modipaketti tai lataa oma."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Valitse lisenssi"
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Valitse tagit"
+  }
+}
+

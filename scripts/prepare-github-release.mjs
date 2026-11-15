@@ -76,7 +76,7 @@ export async function prepare(version,output){
       }
     }
   }
-  verifyReleaseAssets(release,version,assets,(await readFile(path.join(root,'apps/desktop/updater.pub'),'utf8')).trim());
+  verifyReleaseAssets(release,version,assets,(await readFile(path.join(root,'apps/app/updater.pub'),'utf8')).trim());
   const latestManifest=buildLatestManifest(release);
   await mkdir(output,{recursive:true});
   for(const [name,bytes] of Object.entries(assets))await writeFile(path.join(output,name),bytes);

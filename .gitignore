@@ -1,6 +1,9 @@
 node_modules/
 dist/
 target/
+.gradle/
+.turbo/
+packages/app-lib/java/build/
 release-assets/
 .upstream/
 .env

@@ -1,0 +1,98 @@
+[package]
+name = "theseus_gui"
+version = "0.0.63"
+edition.workspace = true
+description = "Solara Launcher desktop hub and Minecraft Java launcher (built on Modrinth App / Theseus)"
+repository = "https://github.com/Solara-Inc-Development/solara-launcher"
+license = "GPL-3.0-only"
+
+[[bin]]
+name = "solaralauncher"
+path = "src/main.rs"
+
+[dependencies]
+aes-gcm = { workspace = true }
+anyhow = { workspace = true }
+
+base64 = { workspace = true }
+chrono = { workspace = true }
+dashmap = { workspace = true }
+dirs = { workspace = true }
+either = { workspace = true }
+enumset = { workspace = true, features = ["serde"] }
+hkdf = { workspace = true }
+hyper = { workspace = true, features = ["server"] }
+hyper-util = { workspace = true }
+image = { workspace = true, features = ["gif", "jpeg", "png", "webp"] }
+keyring = { workspace = true }
+minisign-verify = { workspace = true }
+native-dialog = { workspace = true }
+p256 = { workspace = true, features = ["ecdh"] }
+paste = { workspace = true }
+path-util = { workspace = true }
+rand = { workspace = true }
+reqwest = { workspace = true, features = ["json", "rustls-no-provider"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+sha2 = { workspace = true }
+tauri-plugin-deep-link = { workspace = true }
+tauri-plugin-dialog = { workspace = true }
+tauri-plugin-fs = { workspace = true }
+tauri-plugin-http = { workspace = true }
+tauri-plugin-opener = { workspace = true }
+tauri-plugin-os = { workspace = true }
+tauri-plugin-single-instance = { workspace = true }
+tauri-plugin-window-state = { workspace = true }
+tempfile = { workspace = true }
+theseus = { workspace = true, features = ["tauri"] }
+tokio = { workspace = true, features = ["time"] }
+tokio-util = { workspace = true, features = ["rt"] }
+tracing = { workspace = true }
+url = { workspace = true }
+urlencoding = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v4"] }
+zip = { workspace = true }
+
+[dependencies.tauri]
+workspace = true
+features = ["devtools", "macos-private-api", "protocol-asset"]
+
+[dev-dependencies]
+rustls = { workspace = true, features = ["std"] }
+
+[build-dependencies]
+tauri-build = { workspace = true, features = ["codegen"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation.workspace = true
+core-graphics.workspace = true
+objc2-app-kit = { workspace = true, features = ["NSWindow"] }
+
+[target."cfg(windows)".dependencies]
+webview2-com.workspace = true
+windows-core.workspace = true
+
+[target."cfg(windows)".dependencies.windows]
+workspace = true
+features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Dwm",
+  "Win32_Graphics_Gdi",
+  "Win32_System_Com",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+]
+
+[features]
+# by default Tauri runs in production mode
+# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
+default = ["custom-protocol", "updater"]
+# this feature is used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
+custom-protocol = ["tauri/custom-protocol"]
+export-app-events = ["theseus/export-ts"]
+updater = []
+
+[lints]
+workspace = true

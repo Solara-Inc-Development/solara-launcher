@@ -60,7 +60,7 @@ test('auto-update replacement policy defers installation while tasks or games ar
 
 test('all published releases in builds/releases.json have valid signatures, files, and checksums', async () => {
   const releasesPath = path.join(root, 'builds/releases.json');
-  const pubkeyPath = path.join(root, 'apps/desktop/updater.pub');
+  const pubkeyPath = path.join(root, 'apps/app/updater.pub');
   const releasesData = JSON.parse(await readFile(releasesPath, 'utf8'));
   const pubkey = (await readFile(pubkeyPath, 'utf8')).trim();
 

@@ -1,0 +1,159 @@
+{
+  "nags.add-description.title": {
+    "defaultMessage": "Legg til en beskrivelse"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Det å legge til et unikt, relevant, og engasjerende ikon gjør prosjektet ditt identifiserbar og bidrar til at den skiller seg ut."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Legg til et ikon"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Legg til IP adressen og porten som Java Edition spillere kan bruke for å bli med i din server."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Legg til en Java-adresse"
+  },
+  "nags.add-license-details.description": {
+    "defaultMessage": "Legg til en gyldig URL og et navn eller en SPDX identifikator for din egendefinerte lisens."
+  },
+  "nags.add-license-details.title": {
+    "defaultMessage": "Legg til lisensdetaljer"
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Legg til eksterne lenker"
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Legg til eksterne lenker"
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Velg aktuelle tagger"
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Utvid beskrivelsen"
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Rediger beskrivelse"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Rediger oppsummering"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Rediger tagger"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "Det utvalgte galleribildet er ofte det som gir det første inntrykket av prosjektet ditt."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Presenter et galleribilde"
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Besøk galleriside"
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Oppgi kildekode"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "Lisenslenken ser ugyldig ut. Oppgi en gyldig lenke til lisens­teksten."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Legg til en gyldig lisenslenke"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "{count, plural, one {# header} other {# headers}} i beskrivelsen din {count, plural, one {er} other {er}} for lange. Overskrifter skal være korte og fungere som seksjonstitler, ikke som hele setninger."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Forkort overskriftene"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Prosjekter må ikke bruke Minecraft-merkevaren eller ha «Minecraft» som en vesentlig del av navnet."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Unngå brudd på varemerker"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Noen av bildene mangler alternativ tekst/alt-tekst, noe som er viktig for tilgjengelighet, særlig for synshemmede brukere."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Legg til alternativ bildetekst"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Gå til modereringstråden"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Gå gjennom og rett opp alle tilbakemeldingene fra moderatorteamet før du sender inn på nytt."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Se tilbakemeldinger"
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Velg riktig oppløsning"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Velg hvilke versjoner serveren din støtter, velg en modpakke, eller last opp din egen."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Velg kompatibilitet"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "La spillere vite hvilken region serveren din befinner seg i."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Velg en region"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Velg språket eller språk serveren din støtter."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Velg et språk"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Velg lisensen din {type} er distribuert under."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Velg lisens"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Velg tagger som passer prosjektet ditt, slik at riktige brukere finner det."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Velg tagger"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Gå til serverinnstillinger"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Gå til lenkeinnstillinger"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Gå til lenkeinnstillinger"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Gå til tag-innstillinger"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Gå til generelle innstillinger"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Utvid sammendraget"
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Velg aktuelle tagger"
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Velg riktige tagger"
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Last opp et galleribilde"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Minst en versjon kreves for at prosjektet skal kunne sendes inn til gjennomgang."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Gå til versjonssiden"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Gå til lisensinnstillinger"
+  }
+}
+

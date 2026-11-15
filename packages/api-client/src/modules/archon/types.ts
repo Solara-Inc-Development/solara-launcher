@@ -1,0 +1,1831 @@
+import type { IconConfig } from '../../types/icons'
+import type { Labrinth } from '../labrinth/types'
+
+export namespace Archon {
+	export namespace Nodes {
+		export namespace Internal {
+			export type Node = {
+				id: string
+				hostname: string
+				region: string
+				created_at: string | null
+				locked: boolean
+			}
+
+			export type Server = {
+				id: string
+				available: boolean
+			}
+
+			export type NodeFull = Node & {
+				servers: Server[]
+			}
+
+			export type Overview = {
+				node_hostnames: string[]
+				regions: Region[]
+				total_servers_active: number
+			}
+
+			export type Region = {
+				display_name: string
+				country_code: string
+				key: string
+				server_count: number
+				node_count: number
+			}
+
+			export type RegionWithStatistics = {
+				region: Region
+				active_servers: string[]
+			}
+		}
+	}
+
+	export namespace Notices {
+		export namespace v0 {
+			export type Notice = {
+				id: number
+				dismissable: boolean
+				title: string | null
+				message: string
+				level: string
+				announced: string
+			}
+
+			export type ListedNotice = {
+				id: number
+				dismissable: boolean
+				message: string
+				title: string | null
+				level: string
+				announce_at: string
+				expires: string | null
+				assigned: Assignment[]
+				dismissed_by: Dismisser[]
+			}
+
+			export type Dismisser = {
+				server: string
+				dismissed_on: string
+			}
+
+			export type Assignment = {
+				kind: string
+				id: string
+				name: string
+			}
+
+			export type AssignmentTarget = { server: string } | { node: string }
+
+			export type Announce = {
+				message: string
+				title?: string | null
+				level: string
+				dismissable: boolean
+				announce_at: string
+				expires?: string | null
+			}
+
+			export type AnnouncePatch = {
+				message?: string
+				title?: string | null
+				level?: string
+				dismissable?: boolean
+				announce_at?: string
+				expires?: string | null
+			}
+
+			export type PostNoticeResponseBody = {
+				id: number
+			}
+		}
+	}
+
+	export namespace Actions {
+		export namespace v1 {
+			export type SortOrder = 'asc' | 'desc'
+
+			export type ActionName =
+				| 'server_created'
+				| 'changed_server_name'
+				| 'changed_server_subdomain'
+				| 'server_reallocated'
+				| 'server_plan_changed'
+				| 'server_suspended'
+				| 'server_unsuspended'
+				| 'server_suspension_lifted'
+				| 'server_resuspended'
+				| 'user_invited'
+				| 'user_invite_revoked'
+				| 'user_permission_modified'
+				| 'user_removed'
+				| 'addon_added'
+				| 'addon_uploaded'
+				| 'addon_disabled'
+				| 'addon_enabled'
+				| 'addon_deleted'
+				| 'addon_updated'
+				| 'addon_server_enabled'
+				| 'addon_player_enabled'
+				| 'addon_side_toggle_locked'
+				| 'modpack_changed'
+				| 'modpack_unlinked'
+				| 'server_repaired'
+				| 'server_reset'
+				| 'world_data_reset'
+				| 'server_started'
+				| 'server_stopped'
+				| 'server_restarted'
+				| 'server_killed'
+				| 'port_allocation_added'
+				| 'port_allocation_removed'
+				| 'loader_version_edited'
+				| 'game_version_edited'
+				| 'server_properties_modified'
+				| 'file_uploaded'
+				| 'file_deleted'
+				| 'file_renamed'
+				| 'file_edited'
+				| 'sftp_login'
+				| 'sftp_credentials_rolled'
+				| 'console_command_executed'
+				| 'console_cleared'
+				| 'backup_created'
+				| 'backup_renamed'
+				| 'backup_restored'
+				| 'backup_deleted'
+				| 'startup_command_modified'
+				| 'java_runtime_modified'
+				| 'java_version_modified'
+
+			export type Action = {
+				action: ActionName | string
+				metadata?: unknown
+			}
+
+			export type UserPermissionsActionMetadata = {
+				user_id: string
+				permissions?: ServerUsers.v1.UserScope | null
+			}
+
+			export type ActionUser =
+				| {
+						type: 'user'
+						user_id: string
+				  }
+				| {
+						type: 'support'
+						user_id?: string | null
+				  }
+
+			export type ActionEntry = {
+				actor: ActionUser
+				action: Action
+				server_id: string
+				world_id?: string | null
+				timestamp: string
+			}
+
+			export type UserResp = {
+				username: string
+				avatar_url?: string | null
+			}
+
+			export type AddonResp = {
+				title: string
+				slug?: string | null
+				icon_url?: string | null
+				version?: string | null
+			}
+
+			export type VersionResp = {
+				name: string
+				version_number?: string | null
+			}
+
+			export type ActionLogResponse = {
+				next_offset?: number | null
+				data: ActionEntry[]
+				users: Record<string, UserResp>
+				addons: Record<string, AddonResp>
+				versions: Record<string, VersionResp>
+			}
+
+			export type ActionLogFilter = {
+				users?: string[]
+				worlds?: Array<string | null>
+				actions?: ActionName[]
+			}
+
+			export type ListActionLogOptions = {
+				filter?: ActionLogFilter
+				limit?: number
+				offset?: number
+				order?: SortOrder
+				min_datetime?: string
+				max_datetime?: string
+			}
+		}
+	}
+
+	export namespace Transfers {
+		export namespace Internal {
+			export type ProvisionOptions = {
+				region?: string | null
+				node_tags: string[]
+			}
+
+			export type ScheduleServerTransfersRequest = {
+				server_ids: string[]
+				scheduled_at?: string | null
+				target_region?: string | null
+				node_tags?: string[]
+				reason?: string | null
+			}
+
+			export type ScheduleNodeTransfersRequest = {
+				node_hostnames: string[]
+				scheduled_at?: string | null
+				target_region?: string | null
+				node_tags?: string[]
+				reason?: string | null
+				cordon_nodes?: boolean
+				tag_nodes?: string | null
+			}
+
+			export type ScheduleTransfersResponse = {
+				batch_id: number
+				scheduled_count: number
+			}
+
+			export type CancelTransfersRequest = {
+				batch_ids: number[]
+			}
+
+			export type CancelTransfersResponse = {
+				cancelled_count: number
+			}
+
+			export type TransferLogBatchEntry = {
+				id: number
+				created_by: string
+				created_at: string
+				reason?: string | null
+				scheduled_at: string
+				cancelled: boolean
+				log_count: number
+				provision_options: ProvisionOptions
+			}
+
+			export type TransferHistoryQuery = {
+				page?: number
+				page_size?: number
+			}
+
+			export type TransferHistoryResponse = {
+				batches: TransferLogBatchEntry[]
+				total: number
+				page: number
+				page_size: number
+			}
+		}
+	}
+
+	export namespace Content {
+		export namespace v1 {
+			export type ShareWorldContentResponse = {
+				shared_instance_id: string
+				version: number | null
+				restarted: boolean
+			}
+
+			export type RestoreClientFilesResponse = {
+				/** The backup made before restoring, which reports the restoration's progress as its own. */
+				backup_id: string | null
+			}
+
+			export type SharedContentChange<T> =
+				| { kind: 'added'; after: T }
+				| { kind: 'removed'; before: T }
+				| { kind: 'updated'; before: T; after: T }
+
+			export type SharedContentDiffEntry =
+				| { type: 'project'; project_id: string; change: SharedContentChange<string> }
+				| {
+						type: 'external_file'
+						file_type: string
+						file_name: string
+						kind: 'added' | 'removed' | 'updated'
+				  }
+				| { type: 'modpack' | 'game_version'; change: SharedContentChange<string> }
+				| { type: 'loader'; change: SharedContentChange<{ name: string; version: string | null }> }
+
+			export type SharedInstancePublishDiff = {
+				shared_instance_id: string
+				latest_version: number
+				local_updated_at: string
+				has_changes: boolean
+				requires_restart: boolean
+				diffs: SharedContentDiffEntry[]
+				projects: Record<string, { name: string; icon_url: string | null }>
+				versions: Record<
+					string,
+					{
+						project_id: string
+						name: string
+						version_number: string | null
+					}
+				>
+			}
+
+			export type ShareableFile = {
+				path: string
+				size: number
+				blocked: boolean
+			}
+
+			export type ShareableFilesResponse = {
+				files: ShareableFile[]
+				truncated: boolean
+			}
+
+			export type AddonKind = 'mod' | 'plugin' | 'datapack' | 'shader' | 'resourcepack'
+
+			export type ContentOwnerType = 'user' | 'organization'
+
+			export type ContentOwner = {
+				id: string
+				name: string
+				type: ContentOwnerType
+				icon_url: string | null
+			}
+
+			export type AddonVersion = {
+				id: string
+				name: string | null
+				environment?: Labrinth.Projects.v3.Environment | null
+			}
+
+			export type AddonManifestEnvironment =
+				| 'client_and_server'
+				| 'client_only'
+				| 'dedicated_server_only'
+
+			export type AddonManifestWarnings = {
+				multiple_mod_entries: number | null
+				malformed: boolean
+			}
+
+			export type AddonManifest = {
+				platform: Modloader
+				name: string | null
+				version: string | null
+				environment: AddonManifestEnvironment | null
+				icon_embedded: boolean
+				warnings: AddonManifestWarnings
+			}
+
+			export type AddonStatus =
+				| 'pending'
+				| 'installed'
+				| {
+						failed: {
+							error: string
+						}
+				  }
+
+			export type Addon = {
+				id: string
+				filename: string
+				filesize: number
+				btime?: string
+				disabled: boolean
+				disabled_server: boolean
+				disabled_player: boolean
+				side_toggle_unlocked: boolean
+				manifest: AddonManifest | null
+				kind: AddonKind
+				from_modpack: boolean
+				status: AddonStatus
+				pack_client_retained: boolean
+				pack_client_depends: boolean
+				/** Whether the sides were guessed when installing its modpack, and should be reviewed. */
+				needs_side_type_review: boolean
+				has_update: string | null
+				name: string | null
+				project_id: string | null
+				version: AddonVersion | null
+				owner: ContentOwner | null
+				icon_url: string | null
+			}
+
+			export type Addons = {
+				modloader: string | null
+				modloader_version: string | null
+				game_version: string | null
+				/** The least stable channel addon updates are offered from. */
+				update_channel: Archon.Servers.v1.ReleaseChannel
+				modpack: ModpackFields | null
+				installing?: 'loader' | 'modpack'
+				error?: {
+					message: string
+				}
+				/** The number of addons whose sides should be reviewed, regardless of the addon filters. */
+				files_need_side_type_review: number
+				addons: Addon[] | null
+			}
+
+			export type ReviewedAddon = {
+				kind: AddonKind
+				filename: string
+			}
+
+			export type CompleteSideTypeReviewRequest = {
+				/** The addons whose side review is completed, or every addon when absent. */
+				addons?: ReviewedAddon[] | null
+			}
+
+			export type AddAddonRequest = {
+				project_id: string
+				version_id?: string
+				kind?: AddonKind
+			}
+
+			export type AddAddonsRequest = AddAddonRequest[]
+
+			export type RemoveAddonRequest = {
+				kind: AddonKind
+				filename: string
+			}
+
+			export type SetAddonEnabledRequest = RemoveAddonRequest & {
+				enabled: boolean
+			}
+
+			export type SetAddonSideToggleLockedRequest = RemoveAddonRequest & {
+				locked: boolean
+			}
+
+			export type UpdateAddonRequest = {
+				filename: string
+				version_id?: string | null
+			}
+
+			export type Modloader =
+				| 'forge'
+				| 'neo_forge'
+				| 'fabric'
+				| 'quilt'
+				| 'paper'
+				| 'purpur'
+				| 'vanilla'
+
+			export type ModpackSpecModrinth = {
+				platform: 'modrinth'
+				project_id: string
+				version_id: string
+			}
+
+			export type ModpackSpecLocalFile = {
+				platform: 'local_file'
+				filename: string
+				name: string
+				description: string | null
+			}
+
+			export type CurseForgeModpackLink = {
+				project_id: number
+				file_id: number
+				slug: string
+				name: string
+				/** The display name of the client pack file, usually including the modpack version. */
+				version_name: string
+				summary?: string
+				icon_url?: string
+				author?: string
+				server_pack_file_id?: number
+			}
+
+			export type ModpackSpecCurseForge = {
+				platform: 'curseforge'
+				/** The client pack's filename. */
+				filename: string
+				/** Present when installed from a link rather than uploaded packs. */
+				link?: CurseForgeModpackLink
+			}
+
+			export type ModpackSpec = ModpackSpecModrinth | ModpackSpecLocalFile | ModpackSpecCurseForge
+
+			export type ModpackOwner = {
+				id: string
+				name: string
+				type: 'user' | 'organization'
+				icon_url: string | null
+			}
+
+			export type ModpackFields = {
+				spec: ModpackSpec
+				has_update: string | null
+				title: string | null
+				description: string | null
+				icon_url: string | null
+				owner: ModpackOwner | null
+				version_number: string | null
+				date_published: string | null
+				downloads: number | null
+				followers: number | null
+			}
+
+			export type KnownPropertiesFields = {
+				allow_cheats?: string | null
+				allow_flight?: string | null
+				difficulty?: string | null
+				enforce_whitelist?: string | null
+				force_gamemode?: string | null
+				gamemode?: string | null
+				generate_structures?: string | null
+				generator_settings?: string | null
+				hardcore?: string | null
+				level_seed?: string | null
+				level_type?: string | null
+				max_players?: string | null
+				max_tick_time?: string | null
+				motd?: string | null
+				pause_when_empty_seconds?: string | null
+				player_idle_timeout?: string | null
+				require_resource_pack?: string | null
+				resource_pack?: string | null
+				resource_pack_id?: string | null
+				resource_pack_sha1?: string | null
+				simulation_distance?: string | null
+				spawn_protection?: string | null
+				sync_chunk_writes?: string | null
+				view_distance?: string | null
+				white_list?: string | null
+			}
+
+			export type PropertiesFields = {
+				known: KnownPropertiesFields
+				custom?: Record<string, string>
+			}
+
+			export type PatchPropertiesFields = {
+				known?: KnownPropertiesFields
+				custom?: Record<string, string | null>
+			}
+
+			export type JreVendor = 'temurin' | 'corretto' | 'graal'
+
+			export type RuntimeOptions = {
+				java_version: number | null
+				jre_vendor: JreVendor | null
+				original_invocation: string | null
+				startup_command: string | null
+			}
+
+			export type PatchRuntimeOptions = {
+				java_version?: number | null
+				jre_vendor?: JreVendor | null
+				startup_command?: string | null
+			}
+
+			export type InstallWorldContent =
+				| {
+						content_variant: 'modpack'
+						spec: ModpackSpec
+						soft_override: boolean
+						properties?: PropertiesFields | null
+				  }
+				| {
+						content_variant: 'bare'
+						loader: Modloader
+						version: string
+						game_version?: string
+						soft_override: boolean
+						properties?: PropertiesFields | null
+				  }
+
+			export type AddonDiffVersion = {
+				id: string
+				version_number: string
+			}
+
+			export type AddonDiffProject = {
+				id: string
+				title: string
+				icon_url: string | null
+				slug: string
+			}
+
+			export type AddonBaseDiffInfo = {
+				current_version: AddonDiffVersion | null
+				new_version: AddonDiffVersion | null
+				file_name: string | null
+				project_id: string | null
+				project: AddonDiffProject | null
+			}
+
+			export type AddonDiffAdded = AddonBaseDiffInfo & {
+				type: 'added'
+				new_version_id: string
+			}
+
+			export type AddonDiffRemoved = AddonBaseDiffInfo & {
+				type: 'removed'
+			}
+
+			export type AddonDiffUpdated = AddonBaseDiffInfo & {
+				type: 'updated'
+				current_version_id: string
+				new_version_id: string
+			}
+
+			export type AddonDiff = AddonDiffAdded | AddonDiffRemoved | AddonDiffUpdated
+
+			export type UpdateGameVersionPreview = {
+				addon_changes: AddonDiff[]
+				new_game_version: string
+				new_loader_version: string
+				has_unknown_content: boolean
+			}
+		}
+	}
+
+	export namespace ServerUsers {
+		export namespace v1 {
+			export type ServerUserRole = 'Owner' | 'Editor' | 'Viewer' | 'Unknown'
+
+			export type AssignableServerUserRole = Exclude<ServerUserRole, 'Owner' | 'Unknown'>
+
+			export const UserScope = {
+				NONE: '',
+				SERVER_ADMIN: 'SERVER_ADMIN',
+				BASE_READ: 'BASE_READ',
+				POWER_ACTIONS: 'POWER_ACTIONS',
+				EXEC_COMMANDS: 'EXEC_COMMANDS',
+				FILES_WRITE: 'FILES_WRITE',
+				SETUP: 'SETUP',
+				BACKUPS: 'BACKUPS',
+				ADVANCED: 'ADVANCED',
+				RESET_SERVER: 'RESET_SERVER',
+				MANAGE_USERS: 'MANAGE_USERS',
+				SUPPORT_AGENT: 'SUPPORT_AGENT',
+				INFRA_MANAGER: 'INFRA_MANAGER',
+				INFRA_MANAGER_READ: 'INFRA_MANAGER_READ',
+				INFRA_SERVERS_XFER: 'INFRA_SERVERS_XFER',
+				INFRA_USERS: 'INFRA_USERS',
+			} as const
+
+			export type UserScope = string | number
+
+			export type UserResp = {
+				id: string
+				username: string
+				avatar_url?: string | null
+			}
+
+			export type ServerUser = {
+				user: UserResp
+				added_on?: string | null
+				last_invite_sent?: string | null
+				permissions: UserScope
+			}
+
+			export type AddServerUserRequest = {
+				server_id?: string | null
+				user_id: string
+				added_on?: string | null
+				role: ServerUserRole
+			}
+
+			export type ReinviteResponse = {
+				sent: boolean
+				cooldown_seconds: number | null
+			}
+		}
+	}
+
+	export namespace Icons {
+		export namespace v1 {
+			export type ServerIcon = {
+				/** SHA-256 hex digest of the 64x64 game icon. */
+				hash: string
+				config: IconConfig | null
+			}
+		}
+	}
+
+	export namespace Servers {
+		export namespace Internal {
+			export type Lookup = {
+				id: string
+			}
+
+			export type ServerLock = {
+				server_id: string
+				reason: string
+				locked_by?: string
+				created: string
+			}
+
+			export type LockServerRequest = {
+				reason: string
+			}
+
+			export type SuspendServerRequest = {
+				reason: 'moderated' | 'other'
+			}
+
+			export type LiftSuspensionRequest = {
+				/** How long to lift the suspension for, in minutes from now. */
+				minutes: number
+				/** Whether to prevent the server from starting while the suspension is lifted. */
+				restrict_power: boolean
+			}
+
+			export type LiftSuspensionResponse = {
+				lifted_until: string
+				restrict_power: boolean
+			}
+
+			export type DropClientMods = {
+				drop_client_mods: boolean
+			}
+		}
+
+		export namespace v0 {
+			export type ServerGetResponse = {
+				servers: Server[]
+				pagination: Pagination
+				users: Record<string, ServerOwner>
+			}
+
+			export type Pagination = {
+				current_page: number
+				page_size: number
+				total_pages: number
+				total_items: number
+			}
+
+			export type ServerOwner = {
+				id: string
+				username: string
+				avatar_url?: string | null
+			}
+
+			export type Status = 'installing' | 'broken' | 'available' | 'suspended'
+
+			export type SuspensionReason =
+				| 'moderated'
+				| 'paymentfailed'
+				| 'cancelled'
+				| 'upgrading'
+				| 'other'
+
+			export type Loader =
+				| 'Forge'
+				| 'NeoForge'
+				| 'Fabric'
+				| 'Quilt'
+				| 'Purpur'
+				| 'Spigot'
+				| 'Vanilla'
+				| 'Paper'
+
+			export type Game = 'Minecraft'
+
+			export type UpstreamKind = 'modpack' | 'none'
+
+			export type Server = {
+				server_id: string
+				name: string
+				owner_id: string
+				net: Net
+				game: Game
+				backup_quota: number
+				used_backup_quota: number
+				status: Status
+				suspension_reason: SuspensionReason | null
+				/** Set while support temporarily lifts the server's suspension. */
+				suspension_lift?: SuspensionLift | null
+				loader: Loader | null
+				loader_version: string | null
+				mc_version: string | null
+				upstream: Upstream | null
+				sftp_username: string
+				sftp_password: string
+				sftp_host: string
+				datacenter: string
+				notices: Notice[]
+				node: NodeInfo | null
+				flows: Flows
+				is_medal: boolean
+				current_user_permissions: UserScope
+				locked_since: string | null
+				icon: Icons.v1.ServerIcon | null
+
+				medal_expires?: string
+			}
+
+			export type SuspensionLift = {
+				/** When the server is suspended again. */
+				until: string
+				/** Whether the server is prevented from starting while the suspension is lifted. */
+				restrict_power: boolean
+			}
+
+			export type UserScope = number
+
+			export type Net = {
+				ip: string | null
+				port: number
+				domain: string
+			}
+
+			export type Upstream = {
+				kind: UpstreamKind
+				version_id: string
+				project_id: string
+			}
+
+			export type Notice = {
+				id: number
+				dismissable: boolean
+				title: string
+				message: string
+				level: string
+				announced: string
+			}
+
+			export type NodeInfo = {
+				token: string
+				instance: string
+			}
+
+			export type Flows = {
+				intro: boolean
+			}
+
+			export type GetServersOptions = {
+				limit?: number
+				offset?: number
+			}
+
+			export type JWTAuth = {
+				url: string // e.g., "node-xyz.modrinth.com/modrinth/v0/fs"
+				token: string // JWT token for filesystem access
+			}
+
+			export type ReinstallLoaderRequest = {
+				loader: string
+				loader_version?: string
+				game_version?: string
+			}
+
+			export type ReinstallModpackRequest = {
+				project_id: string
+				version_id?: string
+			}
+
+			export type ReinstallRequest = ReinstallLoaderRequest | ReinstallModpackRequest
+
+			export type MrpackReinstallAuth = {
+				url: string
+				token: string
+			}
+
+			export type Allocation = {
+				port: number
+				name: string
+			}
+
+			export type StartupConfig = {
+				invocation: string
+				original_invocation: string
+				jdk_version: 'lts8' | 'lts11' | 'lts17' | 'lts21'
+				jdk_build: 'corretto' | 'temurin' | 'graal'
+			}
+		}
+
+		export namespace v1 {
+			export type WorldDownloadMethod =
+				| {
+						method_type: 'direct_node_download'
+				  }
+				| {
+						method_type: 'backup'
+						backup_id: string
+				  }
+				| {
+						method_type: 'unavailable'
+				  }
+
+			export type ServerFull = {
+				id: string
+				name: string
+				subdomain: string
+				specs: ServerResources
+				sftp_username: string
+				sftp_password: string
+				tags: string[]
+				/**
+				 * Whether the server uses the legacy content behavior: its modpack installations remove
+				 * server-incompatible files, and its content is never disabled on the server.
+				 */
+				drop_client_mods: boolean
+				location: ServerLocation
+				icon: Icons.v1.ServerIcon | null
+				worlds: WorldFull[]
+				/** IDs of the server's backup repositories. Only returned to support agents. */
+				repository_ids?: number[]
+			}
+
+			export type SftpCredentials = {
+				sftp_username: string
+				sftp_password: string
+			}
+
+			export type ServerResources = {
+				cpu: number
+				memory_mb: number
+				storage_mb: number
+				swap_mb: number
+			}
+
+			export type ServerLocation =
+				| {
+						status: 'assigned'
+						location_metadata: {
+							region: string
+							region_should_be_user_displayed: boolean
+							hostname: string
+							url_host: string
+							is_decommissioned_node: boolean
+						}
+				  }
+				| {
+						status: 'unassigned'
+				  }
+
+			export type ReleaseChannel = 'release' | 'beta' | 'alpha'
+
+			export type PatchWorld = {
+				name?: string
+				icon_data?: string
+				update_channel?: ReleaseChannel
+			}
+
+			export type WorldFull = {
+				id: string
+				name: string
+				/** The least stable channel addon updates and dependencies are selected from. */
+				update_channel: ReleaseChannel
+				created_at: string
+				is_active: boolean
+				download_method: WorldDownloadMethod
+				/**
+				 * @deprecated Prefer `client.archon.backups_queue_v1.list()` for queue-aware backup state.
+				 */
+				backups: Archon.Backups.v1.Backup[]
+				content: WorldContentInfo | null
+				readiness: WorldReadiness
+			}
+
+			export type WorldReadiness = {
+				data_synchronized_fetched: boolean
+			}
+
+			export type WorldContentInfo = {
+				shared_instance_id: string | null
+				shared_instance_needs_update: boolean
+				requires_restart: boolean
+				modloader: string
+				modloader_version: string
+				game_version: string
+				java_version: number | null
+				invocation: string | null
+				original_invocation: string | null
+			}
+
+			export type Region = {
+				shortcode: string
+				country_code: string
+				display_name: string
+				lat: number
+				lon: number
+				zone: string
+			}
+
+			export type MemorySizeStock = {
+				/** Number of servers of this memory size that fit in the region */
+				available: number
+				/** Hostnames of the nodes which fit at least one server of this memory size */
+				hostnames: string[]
+			}
+
+			export type RegionStock = {
+				/** Shortcode of the region */
+				region: string
+				/** Stock of each requested memory size, keyed by memory size in MB */
+				stock: Record<number, MemorySizeStock>
+				/** WebSocket URLs of random nodes in the region, to measure the latency to it */
+				ping_urls: string[]
+			}
+
+			export type StockResponse = {
+				regions: RegionStock[]
+				/** Number of servers that fit across all regions, keyed by memory size in MB */
+				total: Record<number, number>
+			}
+		}
+	}
+
+	export namespace Backups {
+		/**
+		 * @deprecated Use {@link Archon.BackupsQueue.v1} and `client.archon.backups_queue_v1` instead.
+		 */
+		export namespace v1 {
+			/** @deprecated Use {@link Archon.BackupsQueue.v1} instead. */
+			export type BackupState = 'ongoing' | 'done' | 'failed' | 'cancelled' | 'unchanged'
+			/** @deprecated Use {@link Archon.BackupsQueue.v1} instead. */
+			export type BackupTask = 'file' | 'create' | 'restore'
+			/** @deprecated Use {@link Archon.BackupsQueue.v1} instead. */
+			export type BackupStatus = 'pending' | 'in_progress' | 'timed_out' | 'error' | 'done'
+
+			/** @deprecated Use {@link Archon.BackupsQueue.v1} instead. */
+			export type BackupTaskProgress = {
+				progress: number // 0.0 to 1.0
+				state: BackupState
+			}
+
+			/** @deprecated Use {@link Archon.BackupsQueue.v1.BackupQueueBackup} instead. */
+			export type Backup = {
+				id: string
+				physical_id: string
+				name: string
+				created_at: string
+				automated: boolean
+				status: BackupStatus
+				interrupted: boolean
+				ongoing: boolean
+				locked: boolean
+				task?: {
+					file?: BackupTaskProgress
+					create?: BackupTaskProgress
+					restore?: BackupTaskProgress
+				}
+			}
+
+			/** @deprecated Use {@link Archon.BackupsQueue.v1.BackupRequest} instead. */
+			export type BackupRequest = {
+				name: string
+			}
+
+			/** @deprecated Use {@link Archon.BackupsQueue.v1} instead. */
+			export type PatchBackup = {
+				name?: string
+			}
+
+			/** @deprecated Use {@link Archon.BackupsQueue.v1.PostBackupQueueResponse} instead. */
+			export type PostBackupResponse = {
+				id: string
+			}
+		}
+	}
+
+	export namespace BackupsQueue {
+		export namespace v1 {
+			export type BackupQueueOperationType = 'create' | 'restore'
+
+			export type BackupQueueState =
+				| 'pending'
+				| 'ongoing'
+				| 'completed'
+				| 'cancelled'
+				| 'failed'
+				| 'timed_out'
+
+			export type BackupStatus = 'pending' | 'in_progress' | 'timed_out' | 'error' | 'done'
+
+			export type BackupRequest = {
+				name: string
+			}
+
+			export type PostBackupQueueResponse = {
+				id: string
+			}
+
+			export type UserInfo = {
+				id: string
+				username: string
+				avatar_url: string | null
+			}
+
+			export type DeleteManyBackupRequest = {
+				backup_ids: string[]
+			}
+
+			export type ActiveOperation = {
+				backup_id: string
+				operation_type: BackupQueueOperationType
+				operation_id: number | null
+				has_parent: boolean
+				scheduled_for: string
+				started_at: string | null
+				synthetic_legacy: boolean
+				user_info: UserInfo | null
+			}
+
+			export type BackupQueueOperation = {
+				operation_type: BackupQueueOperationType
+				operation_id: number | null
+				state: BackupQueueState
+				scheduled_for: string
+				started_at: string | null
+				completed_at: string | null
+				has_parent: boolean
+				error: string | null
+				should_prompt: boolean
+				synthetic_legacy: boolean
+				user_info: UserInfo | null
+			}
+
+			export type BackupQueueBackup = {
+				id: string
+				name: string
+				created_at: string
+				status: BackupStatus
+				locked: boolean
+				automated: boolean
+				rotates_at?: string
+				history: BackupQueueOperation[]
+			}
+
+			/** A backup scheduled for deletion. Only listed for support agents. */
+			export type DeletedBackupQueueBackup = {
+				id: string
+				name: string
+				created_at: string
+				status: BackupStatus
+				automated: boolean
+				created_by?: UserInfo | null
+				/** When the backup's data becomes eligible for permanent deletion. */
+				scheduled_delete: string
+				/** Until when the backup can be undeleted. May be in the past. */
+				undelete_deadline: string
+				deleted_suspension: boolean
+				can_undelete: boolean
+				repository_id: number
+				restic_snapshot_id?: string | null
+				/** Whether the backup's snapshot was forgotten from its repository. */
+				permanently_deleted: boolean
+			}
+
+			export type BackupsQueueResponse = {
+				active_operations: ActiveOperation[]
+				backups: BackupQueueBackup[]
+				/** Only present for support agents. */
+				deleted_backups?: DeletedBackupQueueBackup[] | null
+			}
+
+			export type WorldBackupOptions = {
+				split_automatic: number
+				split_manual: number
+				limit: number
+				interval: number
+			}
+
+			export type BackupsQueueWithOptionsResponse = BackupsQueueResponse & {
+				options: WorldBackupOptions
+				next_auto_backup_at: string | null
+				/** How many backups occupy the manual backup pool. Manual backups can't be created once this reaches `split_manual`. */
+				manual_count: number
+				/** How many backups occupy the automatic backup pool. The oldest ones rotate out once this exceeds `split_automatic`. */
+				auto_count: number
+			}
+
+			export type PatchWorldBackupOptions = {
+				split_automatic?: number
+				split_manual?: number
+				interval?: number
+			}
+
+			export type PatchWorldBackupOptionsResponse = {
+				applied: boolean
+				backup_ids?: string[]
+			}
+		}
+	}
+
+	export namespace BackupRepositories {
+		export namespace Internal {
+			export type OperationType =
+				| 'check'
+				| 'check-read-data'
+				| 'repair-index'
+				| 'repair-packs'
+				| 'repair-snapshots'
+				| 'prune'
+				| 'restore-hidden-versions'
+
+			/** Operations started in an existing run. Checks start a new run instead. */
+			export type RunnableOperationType = Exclude<OperationType, 'check' | 'check-read-data'>
+
+			/**
+			 * `completed` when the operation ran, regardless of what it found, or `failed` when it
+			 * couldn't run.
+			 */
+			export type OperationStatus = 'pending' | 'ongoing' | 'completed' | 'failed'
+
+			export type StartReparationQuery = {
+				/** Whether the run's check reads all pack data, which is much slower. */
+				read?: boolean
+			}
+
+			export type RepairCheckOutput = {
+				type: 'check'
+				exit_code: number | null
+				num_errors: number
+				broken_packs: string[]
+				suggest_repair_index: boolean
+				suggest_prune: boolean
+				/** The first reported errors, capped to keep the result small. */
+				errors: string[]
+				/** Whether more errors were reported than included in `errors`. */
+				errors_truncated: boolean
+			}
+
+			export type RepairSnapshot = {
+				id: string
+				time: string
+				original?: string
+				tags: string[]
+			}
+
+			export type RepairOutput =
+				| RepairCheckOutput
+				| {
+						type: 'snapshots'
+						snapshots: RepairSnapshot[]
+				  }
+				| {
+						type: 'command'
+						exit_code: number | null
+						output_tail: string
+				  }
+
+			/** Results of a completed `repair-snapshots` operation. */
+			export type RepairSnapshotsResults = {
+				repair: RepairOutput
+				remapped_backups: {
+					backup_id: string
+					original_snapshot_id: string
+					snapshot_id: string
+				}[]
+				missing_snapshot_backups: string[]
+			}
+
+			/** Results of a `restore-hidden-versions` operation. Only the destination is set while it runs. */
+			export type RestoreHiddenVersionsResults = {
+				destination_repository_id: number
+				packs?: number
+				hidden_packs?: number
+				snapshots?: number
+				hidden_snapshots?: number
+				bytes?: number
+				copied_objects?: number
+				skipped_objects?: number
+				missing_objects?: string[]
+				repair_index?: RepairOutput
+				imported_backups?: number
+				matched_backups?: number
+			}
+
+			export type ReparationOperation = {
+				id: number
+				operation_type: OperationType
+				status: OperationStatus
+				params: Record<string, unknown>
+				/**
+				 * A {@link RepairOutput} for checks, `repair-index`, `repair-packs` and `prune`, a
+				 * {@link RepairSnapshotsResults} for `repair-snapshots`, and a
+				 * {@link RestoreHiddenVersionsResults} for `restore-hidden-versions`.
+				 */
+				results: RepairOutput | RepairSnapshotsResults | RestoreHiddenVersionsResults | null
+				error: string | null
+				node_id: string | null
+				created_by: string | null
+				created_at: string
+				started_at: string | null
+				completed_at: string | null
+			}
+
+			export type ReparationRun = {
+				id: number
+				repository_id: number
+				server_id: string | null
+				created_by: string | null
+				created_at: string
+				operations: ReparationOperation[]
+			}
+		}
+	}
+
+	export namespace Sync {
+		export namespace v1 {
+			export type SyncCategory = 'backup' | 'users' | 'server' | 'protocol' | 'world'
+			export type SyncIntent = 'all' | SyncCategory | SyncCategory[]
+			export type BackupOperationStatus = 'completed' | 'cancelled' | 'failed' | 'timed-out'
+			export type ServerNetworkPort = { port: number; name: string }
+
+			export type ProtocolResetEvent = { type: 'protocol.reset' }
+			export type ProtocolInvalidEvent = { type: 'protocol.invalid' }
+			export type ProtocolErrorEvent = { type: 'protocol.error'; error: string }
+
+			export type BackupNewEvent = { type: 'backup.new'; id: string }
+			export type BackupPatchEvent = {
+				type: 'backup.patch'
+				world_id: string
+				backup_id: string
+				name: string
+			}
+			export type BackupDeleteEvent = {
+				type: 'backup.delete'
+				world_id: string
+				backup_id: string
+			}
+			export type BackupOperationStartEvent = {
+				type:
+					| 'backup.operation.create.init'
+					| 'backup.operation.create.start'
+					| 'backup.operation.restore.init'
+					| 'backup.operation.restore.start'
+				world_id: string
+				backup_id: string
+				operation_id: number
+			}
+			export type BackupOperationDoneEvent = {
+				type: 'backup.operation.create.done' | 'backup.operation.restore.done'
+				world_id: string
+				backup_id: string
+				operation_id: number
+				status: BackupOperationStatus
+			}
+
+			export type ServerPatchEvent = {
+				type: 'server.patch'
+				name: string
+				subdomain: string
+			}
+			export type ServerNetworkPatchEvent = {
+				type: 'server.network.patch'
+				ports: ServerNetworkPort[]
+			}
+			export type ServerSftpPatchEvent = {
+				type: 'server.sftp.patch'
+				sftp_username: string
+				sftp_password: string
+			}
+			export type ServerTransferEvent = {
+				type: 'server.transfer.start' | 'server.transfer.done'
+				target_node: string
+			}
+			export type ServerIconPatchEvent = {
+				type: 'server.icon.patch'
+				server_icon_hash: string | null
+			}
+
+			export type UsersPatchEvent = { type: 'users.patch' }
+
+			export type WorldPatchEvent = {
+				type: 'world.patch'
+				world_id: string
+				name: string
+			}
+			export type WorldStartupPatchEvent = {
+				type: 'world.startup.patch'
+				world_id: string
+				java_version: number | null
+				invocation: string | null
+				original_invocation: string | null
+			}
+			export type WorldContentAddonPatchEvent = {
+				type: 'world.content.addon.patch'
+				world_id: string
+				specs: Archon.Content.v1.Addon[]
+			}
+			export type WorldContentBaseUpdateEvent = {
+				type: 'world.content.base.update'
+				world_id: string
+				spec: Archon.Content.v1.Addons
+			}
+			export type WorldContentPlatform =
+				| 'forge'
+				| 'neoforge'
+				| 'fabric'
+				| 'quilt'
+				| 'paper'
+				| 'purpur'
+				| 'vanilla'
+			export type WorldContentPlatformData = {
+				platform: WorldContentPlatform
+				game_version: string
+				platform_version: string | null
+			}
+			export type WorldContentCurseForgeModpackLink = {
+				project_id: number
+				file_id: number
+				slug: string
+				name: string
+				version_name: string
+				summary: string | null
+				icon_url: string | null
+				author: string | null
+				server_pack_file_id: number | null
+			}
+			export type WorldContentModpackSource =
+				| {
+						CurseForge: {
+							filename: string
+							link: WorldContentCurseForgeModpackLink | null
+						}
+				  }
+				| {
+						Modrinth: {
+							version_id: string
+							project_id: string
+							mrpack_sha1: string | null
+						}
+				  }
+				| {
+						LocalMrPackFile: {
+							path: string
+							name: string
+							description: string | null
+							version_name: string | null
+						}
+				  }
+			export type WorldContentModpack = {
+				spec: WorldContentModpackSource
+				downloads: number | null
+				followers: number | null
+				icon_url: string | null
+				owner: Archon.Content.v1.ContentOwner | null
+				title: string | null
+				description: string | null
+				version_number: string | null
+				date_published: string | null
+				environment: Labrinth.Projects.v3.Environment | null
+				has_update: string | null
+			}
+			export type WorldContentItem = {
+				disabled_server?: boolean
+				disabled_player?: boolean
+				side_toggle_unlocked?: boolean
+				needs_side_type_review?: boolean
+				parent_directory: string
+				file_sha1: string | null
+				filename: string
+				btime?: string
+				from_modpack: boolean
+				version_id: string | null
+				project_id: string | null
+				pack_client_retained: boolean
+				pack_client_depends: boolean
+				manifest?: Archon.Content.v1.AddonManifest | null
+				status: Archon.Content.v1.AddonStatus
+				filesize: number | null
+				name: string | null
+				version: Archon.Content.v1.AddonVersion | null
+				owner: Archon.Content.v1.ContentOwner | null
+				has_update: string | null
+				icon_url: string | null
+			}
+			export type WorldContentUpdateEvent = {
+				type: 'world.content.update'
+				world_id: string
+				platform_data: WorldContentPlatformData | null
+				linked_modpack: WorldContentModpack | null
+				installing?: 'loader' | 'modpack'
+				error?: {
+					message: string
+				}
+				content: WorldContentItem[]
+			}
+			export type WorldContentFileSideEvent = {
+				type: 'world.content.file.side.server.updated' | 'world.content.file.side.client.updated'
+				world_id: string
+				parent_directory: 'mods' | 'plugins' | 'datapacks' | 'resourcepacks' | 'shaderpacks'
+				filename: string
+				enabled: boolean
+			}
+			export type WorldContentFileSideLockEvent = {
+				type: 'world.content.file.side.lock.updated'
+				world_id: string
+				parent_directory: 'mods' | 'plugins' | 'datapacks' | 'resourcepacks' | 'shaderpacks'
+				filename: string
+				locked: boolean
+			}
+
+			export type WorldSharedInstanceUpdateEvent = {
+				type: 'world.shared_instance.update'
+				world_id: string
+				shared_instance_id: string
+				needs_update: boolean
+				requires_restart: boolean
+			}
+
+			export type WorldSharedInstanceDeleteEvent = {
+				type: 'world.shared_instance.delete'
+				world_id: string
+				shared_instance_id: string
+			}
+
+			export type SyncEvent =
+				| ProtocolResetEvent
+				| ProtocolInvalidEvent
+				| ProtocolErrorEvent
+				| BackupNewEvent
+				| BackupPatchEvent
+				| BackupDeleteEvent
+				| BackupOperationStartEvent
+				| BackupOperationDoneEvent
+				| ServerPatchEvent
+				| ServerNetworkPatchEvent
+				| ServerSftpPatchEvent
+				| ServerTransferEvent
+				| ServerIconPatchEvent
+				| UsersPatchEvent
+				| WorldPatchEvent
+				| WorldStartupPatchEvent
+				| WorldContentAddonPatchEvent
+				| WorldContentBaseUpdateEvent
+				| WorldContentUpdateEvent
+				| WorldContentFileSideEvent
+				| WorldContentFileSideLockEvent
+				| WorldSharedInstanceUpdateEvent
+				| WorldSharedInstanceDeleteEvent
+		}
+	}
+
+	export namespace Websocket {
+		export namespace v0 {
+			export type WSAuth = {
+				url: string
+				token: string
+			}
+
+			export type BackupState =
+				| 'pending'
+				| 'ongoing'
+				| 'done'
+				| 'failed'
+				| 'cancelled'
+				| 'unchanged'
+				| 'damaged'
+			/** `create-with-restore-files` is a backup followed by the client files restoration it triggers, each making up half of the progress. */
+			export type BackupTask = 'file' | 'create' | 'restore' | 'create-with-restore-files'
+
+			export type WSBackupProgressEvent = {
+				event: 'backup-progress'
+				id: string
+				task: BackupTask
+				state: BackupState
+				progress: number
+				start_time?: number | null
+				finish_time?: number | null
+			}
+
+			export type WSLogEvent = {
+				event: 'log'
+				stream: 'stdout' | 'stderr'
+				message: string
+			}
+
+			export type WSLog4jEvent = {
+				event: 'log4j'
+				logger_name?: string
+				level?: string
+				thread_name?: string
+				timestamp_millis?: number
+				message?: string
+				throwable?: string
+			}
+
+			export type WSStatsEvent = {
+				event: 'stats'
+				cpu_percent: number
+				ram_usage_bytes: number
+				ram_total_bytes: number
+				storage_usage_bytes: number
+				storage_total_bytes: number
+				net_tx_bytes: number
+				net_rx_bytes: number
+			}
+
+			export type PowerState = 'running' | 'stopped' | 'starting' | 'stopping' | 'crashed'
+
+			export type WSPowerStateEvent = {
+				event: 'power-state'
+				state: PowerState
+				oom_killed?: boolean
+				exit_code?: number
+			}
+
+			export type WSAuthExpiringEvent = {
+				event: 'auth-expiring'
+			}
+
+			export type WSAuthIncorrectEvent = {
+				event: 'auth-incorrect'
+			}
+
+			export type WSAuthOkEvent = {
+				event: 'auth-ok'
+			}
+
+			export type WSInstallationResultEvent =
+				| WSInstallationResultOkEvent
+				| WSInstallationResultErrEvent
+
+			export type WSInstallationResultOkEvent = {
+				event: 'installation-result'
+				result: 'ok'
+			}
+
+			export type WSInstallationResultErrEvent = {
+				event: 'installation-result'
+				result: 'err'
+				reason?: string
+			}
+
+			export type WSUptimeEvent = {
+				event: 'uptime'
+				uptime: number
+			}
+
+			export type WSNewModEvent = {
+				event: 'new-mod'
+				project_id: string
+				version_id: string
+			}
+
+			export type InstallProgressFileKey = {
+				type: 'file'
+				install_type: 'install' | 'update'
+				project_id: string
+				version_id: string
+				parent_directory: string
+				source_filename: string | null
+				target_filename?: string | null
+			}
+
+			export type InstallProgressModrinthModpackKey = {
+				type: 'modrinth_modpack'
+				project_id: string
+				version_id: string
+			}
+
+			export type InstallProgressLocalModpackKey = {
+				type: 'local_modpack'
+				filename: string
+			}
+
+			export type InstallProgressCurseForgeModpackKey = {
+				type: 'curse_forge_modpack'
+				/** The client pack's filename. */
+				filename: string
+			}
+
+			export type InstallProgressPlatformKey = {
+				type: 'platform'
+				platform: 'forge' | 'neoforge' | 'fabric' | 'quilt' | 'paper' | 'purpur' | 'vanilla'
+				platform_version: string
+				game_version: string
+			}
+
+			export type InstallProgressKey =
+				| InstallProgressFileKey
+				| InstallProgressModrinthModpackKey
+				| InstallProgressLocalModpackKey
+				| InstallProgressCurseForgeModpackKey
+				| InstallProgressPlatformKey
+
+			export type InstallProgressItem = {
+				world_id: string
+				key: InstallProgressKey
+				id: string
+				progress: number | null
+				error: string | null
+			}
+
+			export type WSInstallProgressEvent = {
+				event: 'install-progress'
+				items: InstallProgressItem[]
+			}
+
+			export type FilesystemOpKind = 'unarchive'
+
+			export type FilesystemOpState =
+				| 'queued'
+				| 'ongoing'
+				| 'done'
+				| 'cancelled'
+				| 'failure-corrupted'
+				| 'failure-invalid-path'
+
+			export type FilesystemOperation = {
+				op: FilesystemOpKind
+				id: string
+				progress: number
+				bytes_processed: number
+				files_processed: number
+				state: FilesystemOpState
+				mime: string
+				current_file?: string
+				invalid_path?: string
+				src: string
+				started: string
+			}
+
+			export type QueuedFilesystemOp = {
+				op: FilesystemOpKind
+				src: string
+			}
+
+			export type WSFilesystemOpsEvent = {
+				event: 'filesystem-ops'
+				all: FilesystemOperation[]
+			}
+
+			export type ReadinessState =
+				| 'deprovisioned'
+				| 'waiting_active_world'
+				| 'waiting_world_spec_details_for_progress'
+				| 'pulling_world_data'
+				| 'migration_zfs'
+				| 'sync_content'
+				| 'container_readying'
+				| 'ready'
+
+			export type FlattenedPowerState = 'not_ready' | 'starting' | 'running' | 'stopping' | 'idle'
+
+			export type SyncInstallPhase = 'Analyzing' | 'InstallingPack' | 'InstallingLoader' | 'Addons'
+
+			export type SyncContentProgress = {
+				started_at: string
+				phase: SyncInstallPhase
+				percent: number
+			}
+
+			export type SyncContentError = {
+				step: string
+				description: string
+			}
+
+			export type WSStateEvent = {
+				event: 'state'
+				debug: string
+				power_variant: FlattenedPowerState
+				exit_code?: number | null
+				was_oom?: boolean
+				target: 'start' | 'stop' | 'restart' | null
+				uptime: number
+				progress: SyncContentProgress | null
+				content_error: SyncContentError | null
+			}
+
+			// Outgoing messages (client -> server)
+			export type WSOutgoingMessage = WSAuthMessage | WSCommandMessage
+
+			export type WSAuthMessage = {
+				event: 'auth'
+				jwt: string
+			}
+
+			export type WSCommandMessage = {
+				event: 'command'
+				cmd: string
+			}
+
+			export type WSEvent =
+				| WSBackupProgressEvent
+				| WSLogEvent
+				| WSLog4jEvent
+				| WSStatsEvent
+				| WSPowerStateEvent
+				| WSStateEvent
+				| WSAuthExpiringEvent
+				| WSAuthIncorrectEvent
+				| WSAuthOkEvent
+				| WSInstallationResultEvent
+				| WSUptimeEvent
+				| WSNewModEvent
+				| WSInstallProgressEvent
+				| WSFilesystemOpsEvent
+
+			export type WSEventType = WSEvent['event']
+		}
+	}
+}

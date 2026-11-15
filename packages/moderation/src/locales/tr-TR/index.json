@@ -1,0 +1,249 @@
+{
+  "nags.add-description.description": {
+    "defaultMessage": "Projenizin içeriğini, amacını, neden kabul edilmesini açıklayan bir açıklama gereklidir."
+  },
+  "nags.add-description.title": {
+    "defaultMessage": "Açıklama ekle"
+  },
+  "nags.add-icon.description": {
+    "defaultMessage": "Özgün, alakalı ve güzel bir ikon projeni tanınabilir yapar ve göz önüne çıkmasında yardımcı olur."
+  },
+  "nags.add-icon.title": {
+    "defaultMessage": "Simge ekle"
+  },
+  "nags.add-java-address.description": {
+    "defaultMessage": "Java Sürümü oyuncularının sunucunuza girmek için kullanabileceği IP adresi ve portu girin."
+  },
+  "nags.add-java-address.title": {
+    "defaultMessage": "Java adresi ekle"
+  },
+  "nags.add-license-details.description": {
+    "defaultMessage": "Özel lisansınız için geçerli bir URL ve isim veya SPDX tanımlayıcısı ekleyin."
+  },
+  "nags.add-license-details.title": {
+    "defaultMessage": "Lisans detaylarını ekleyin"
+  },
+  "nags.add-links-server.description": {
+    "defaultMessage": "Web sitesi, mağaza veya kalıcı bir Discord davetiyesi gibi ilgili harici kaynaklara bağlantılar ekleyin."
+  },
+  "nags.add-links-server.title": {
+    "defaultMessage": "Dış bağlantı ekle"
+  },
+  "nags.add-links.description": {
+    "defaultMessage": "Kaynak kodu, sorun izleme sistemi veya kalıcı bir Discord davetiyesi gibi ilgili harici kaynaklara bağlantılar ekleyin."
+  },
+  "nags.add-links.title": {
+    "defaultMessage": "Dış bağlantı ekle"
+  },
+  "nags.adjacent-headers.description": {
+    "defaultMessage": "Aynı seviyenin başlıkları yan yana koyulmamalıdır."
+  },
+  "nags.adjacent-headers.title": {
+    "defaultMessage": "Bitişik başlıkları kaldırın"
+  },
+  "nags.all-languages.description": {
+    "defaultMessage": "Mevcut olan bütün dilleri seçtiniz. Lütfen sadece sunucunuzun desteklediği dilleri seçin."
+  },
+  "nags.all-languages.title": {
+    "defaultMessage": "Doğru dilleri seçin"
+  },
+  "nags.all-tags-selected.title": {
+    "defaultMessage": "Uygun etiketleri seç"
+  },
+  "nags.check-disclosures.description": {
+    "defaultMessage": "{type} açıklamanızı oyuncuların tüm önemli detaylardan haberdar olabileceği şekilde doldurun."
+  },
+  "nags.check-disclosures.title": {
+    "defaultMessage": "Açıklamaları gözden geçirin"
+  },
+  "nags.description-ends-with-header.title": {
+    "defaultMessage": "Bitiş başlığını kaldırın"
+  },
+  "nags.description-too-short.description": {
+    "defaultMessage": "Projenizin açıklaması çok kısa. Projenin içeriğini, amacını ve cazibesini daha net bir şekilde açıklamak için daha fazla detay ekleyin."
+  },
+  "nags.description-too-short.title": {
+    "defaultMessage": "Açıklamayı genişlet"
+  },
+  "nags.disclosures-special-formatting.title": {
+    "defaultMessage": "Açıklamanın şeklini düzeltin."
+  },
+  "nags.edit-description.title": {
+    "defaultMessage": "Açıklamayı düzenle"
+  },
+  "nags.edit-gallery.title": {
+    "defaultMessage": "Galeriyi düzenle"
+  },
+  "nags.edit-summary.title": {
+    "defaultMessage": "Özeti düzenle"
+  },
+  "nags.edit-tags.title": {
+    "defaultMessage": "Etiketleri düzenle"
+  },
+  "nags.edit-title.title": {
+    "defaultMessage": "İsmi düzenle"
+  },
+  "nags.feature-gallery-image.description": {
+    "defaultMessage": "Öne çıkarılan galeri görseli, projenizin genellikle ilk izlenimini oluşturur."
+  },
+  "nags.feature-gallery-image.title": {
+    "defaultMessage": "Bir galeri resmi sun"
+  },
+  "nags.gallery.title": {
+    "defaultMessage": "Galeriye göz at"
+  },
+  "nags.gpl-license-source-required.title": {
+    "defaultMessage": "Kaynak kodu sun"
+  },
+  "nags.invalid-gallery-text.title": {
+    "defaultMessage": "Galeri ikon testini değiştirin"
+  },
+  "nags.invalid-license-url.description.malformed": {
+    "defaultMessage": "Lisans URL'in bozuk gibi görünüyor. Lütfen geçerli bir lisans URL'i gir."
+  },
+  "nags.invalid-license-url.title": {
+    "defaultMessage": "Geçerli bir lisans bağlantısı ekle"
+  },
+  "nags.invalid-project-description.title": {
+    "defaultMessage": "Tanımlamayı değiştirin"
+  },
+  "nags.invalid-project-name.title": {
+    "defaultMessage": "Proje ismini değiştirin"
+  },
+  "nags.invalid-project-summary.title": {
+    "defaultMessage": "Özeti değiştirin"
+  },
+  "nags.long-headers.description": {
+    "defaultMessage": "Açıklamandaki {count, plural, one {# başlık} other {# başlık}} fazla {count, plural, one {uzun} other {uzun}}. Başlıklar kısa olmalı ve tam cümleler değil, bölüm başlıkları olmalı."
+  },
+  "nags.long-headers.title": {
+    "defaultMessage": "Başlıkları kısalt"
+  },
+  "nags.minecraft-title-clause.description": {
+    "defaultMessage": "Projeler Minecraft'ın logolarını kullanmamalı ve isimlerinde \"Minecraft\" içermemeli."
+  },
+  "nags.minecraft-title-clause.title": {
+    "defaultMessage": "Marka ihlalinden kaçının"
+  },
+  "nags.missing-alt-text.description": {
+    "defaultMessage": "Bazı resimlerinin alt yazısı eksik, özellikle görme sorunu olan kullanıcılar için erişilebilirlik için bu çok önemli."
+  },
+  "nags.missing-alt-text.title": {
+    "defaultMessage": "Resim açıklaması ekle"
+  },
+  "nags.moderation.title": {
+    "defaultMessage": "Moderasyon kanalına göz at"
+  },
+  "nags.moderator-feedback.description": {
+    "defaultMessage": "Tekrar göndermeden önce moderasyon ekibinin dediği şeyleri gözden geçir."
+  },
+  "nags.moderator-feedback.title": {
+    "defaultMessage": "Geri bildirimleri incele"
+  },
+  "nags.multiple-resolution-tags.title": {
+    "defaultMessage": "Doğru boyutu seç"
+  },
+  "nags.project-description-content.title": {
+    "defaultMessage": "Tanımlamayı gözden geçirin"
+  },
+  "nags.project-description-non-english.title": {
+    "defaultMessage": "Tanımı çevirin"
+  },
+  "nags.project-summary-content.title": {
+    "defaultMessage": "Özeti gözden geçirin"
+  },
+  "nags.project-summary-links.title": {
+    "defaultMessage": "Özet linklerini kaldırın"
+  },
+  "nags.project-summary-non-english.title": {
+    "defaultMessage": "Özeti çevirin"
+  },
+  "nags.select-compatibility.description": {
+    "defaultMessage": "Sunucunuzun desteklediği sürümleri seçin ve bir Mod Paketi seçin ya da kendinizinkini yükleyin."
+  },
+  "nags.select-compatibility.title": {
+    "defaultMessage": "Uyumluluk seçiniz"
+  },
+  "nags.select-country.description": {
+    "defaultMessage": "Sunucunuzun hangi bölgede bulunduğunu oyunculara belirtin."
+  },
+  "nags.select-country.title": {
+    "defaultMessage": "Bölge seç"
+  },
+  "nags.select-language.description": {
+    "defaultMessage": "Sunucunuz tarafından desteklenen dil veya dilleri seçiniz."
+  },
+  "nags.select-language.title": {
+    "defaultMessage": "Dil seç"
+  },
+  "nags.select-license.description": {
+    "defaultMessage": "Lütfen {type} ürününüzün hangi lisans altında dağıtıldığını seçin."
+  },
+  "nags.select-license.title": {
+    "defaultMessage": "Bir lisans seç"
+  },
+  "nags.select-tags.description": {
+    "defaultMessage": "Projeni bulmak isteyen kişilerin bulabilmesi için projen ile alakalı etiketler seç."
+  },
+  "nags.select-tags.title": {
+    "defaultMessage": "Etiketleri seç"
+  },
+  "nags.server.title": {
+    "defaultMessage": "Sunucu ayarlara göz at"
+  },
+  "nags.settings.disclosures.title": {
+    "defaultMessage": "İçerik açıklamalarını ziyaret et"
+  },
+  "nags.settings.license.title": {
+    "defaultMessage": "Lisans ayarlarına göz at"
+  },
+  "nags.settings.links.title": {
+    "defaultMessage": "Bağlantı ayarlarına göz at"
+  },
+  "nags.settings.tags.title": {
+    "defaultMessage": "Etiket ayarlarına göz at"
+  },
+  "nags.settings.title": {
+    "defaultMessage": "Genel ayarlara göz at"
+  },
+  "nags.settings.versions.title": {
+    "defaultMessage": "Sürüm ayarlarını ziyaret et"
+  },
+  "nags.summary-too-short.title": {
+    "defaultMessage": "Özeti uzat"
+  },
+  "nags.too-many-languages.description": {
+    "defaultMessage": "{languageCount, plural,one {# dil}other {# dil}} seçtiniz. Lütfen sadece sunucunuzun aktif olarak desteklediği dilleri seçiniz."
+  },
+  "nags.too-many-languages.title": {
+    "defaultMessage": "Doğru dilleri seçin"
+  },
+  "nags.too-many-tags-server.title": {
+    "defaultMessage": "Uygun etiketleri seç"
+  },
+  "nags.too-many-tags.title": {
+    "defaultMessage": "Uygun etiketleri seç"
+  },
+  "nags.upload-gallery-image.description": {
+    "defaultMessage": "{type} içeriğinizi sergilemek için en az bir galeri görseli gereklidir."
+  },
+  "nags.upload-gallery-image.description-resourcepack": {
+    "defaultMessage": "Ses veya yerelleştirme paketleri hariç tutulmak üzere, kaynak paketinizin içeriğini sergilemek için en az bir galeri görseli eklemeniz gerekmektedir. Eğer paketiniz bu kategorilerden birine giriyorsa, lütfen ilgili etiketi seçin."
+  },
+  "nags.upload-gallery-image.description-shader": {
+    "defaultMessage": "Shader'ınızdaki içeriği çeşitli şekillerde sergilemek için en az üç görsel gerekmektedir."
+  },
+  "nags.upload-gallery-image.title": {
+    "defaultMessage": "Galeriye resim yükle"
+  },
+  "nags.upload-version.description": {
+    "defaultMessage": "Projeni incelemeye göndermek için en az bir sürüm yüklemelisin."
+  },
+  "nags.upload-version.title": {
+    "defaultMessage": "Bir sürüm yükle"
+  },
+  "nags.visit-links-settings.title": {
+    "defaultMessage": "Bağlantı ayarlarına göz at"
+  }
+}
+

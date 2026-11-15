@@ -1,5 +1,17 @@
 # Changelog
 
+## Testing Preview V-0.0.63 — 2026-11-15
+
+- **Full Modrinth App Integration + Solara Microsoft OAuth & GitHub Releases Auto-Updater**:
+  - Integrated the complete Modrinth App desktop experience (`apps/app` + `apps/app-frontend` + `packages/*`, GPL-3.0-only) including Home, Library, Discover (Modpacks, Mods, Shaders, Resource Packs, Data Packs), 3D Skin & Cape Studio (`Skins.vue`), Instance Creation & Import Flow, Worlds, Mods/Content Manager, Logs, Screenshots, and App Settings.
+  - Preserved Solara's Microsoft OAuth 2.0 PKCE loopback login (`DEFAULT_SOLARA_MICROSOFT_CLIENT_ID = "6a9238bb-3803-46f4-bf38-2f45bdf8c2ea"`, Windows Credential Manager `in.solara.launcher.minecraft.custom`, redacted SQLite/IPC credentials, and automatic migration of existing `V-0.0.6x` `accounts.json` and instances).
+  - Preserved Solara's GitHub Releases CDN + Minisign auto-updater (`apps/app/src/app_updates.rs`, `update_policy.rs`, `updater.pub`, startup `"New Version Available"` modal with `"Update Now"` / `"I'll do it later"`, and topbar `"Restart to Update"` button).
+  - Stripped all ads, telemetry, billing, server hosting, Modrinth account/friends/shared-instances modules, and collapsed the 300x250 sidebar ad placeholder so zero empty ad space remains.
+  - Enforced Windows MSVC 8 MiB main-thread stack (`/STACK:8388608`), `Box::pin` around heavy async Tauri commands, and redacted `crash.log` panic hook.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.62 — 2026-11-15
 
 - **Website Decoupling, Toolchain Upgrade & Upstream License Audit**:

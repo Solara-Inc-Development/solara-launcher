@@ -1,0 +1,495 @@
+<script setup>
+import { EyeIcon, FolderOpenIcon, PlayIcon, SpinnerIcon, StopCircleIcon } from '@modrinth/assets'
+import {
+	Avatar,
+	commonMessages,
+	ContextMenu,
+	defineMessages,
+	injectAuth,
+	injectNotificationManager,
+	injectUserPreferences,
+	useVIntl,
+} from '@modrinth/ui'
+import { useQuery } from '@tanstack/vue-query'
+import dayjs from 'dayjs'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+import NavButton from '@/components/ui/NavButton.vue'
+import { useAppEvent } from '@/composables/use-app-event'
+import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { handleSevereError } from '@/composables/use-error.js'
+import {
+	QUICK_INSTANCE_LIMIT_MAX,
+	useQuickInstanceLimit,
+} from '@/composables/use-quick-instance-limit.ts'
+import { useHiddenInstances } from '@/features/library/hidden-instances/use-hidden-instances'
+import { trackEvent } from '@/helpers/analytics'
+import { getInstanceIconUrl, kill, run } from '@/helpers/instance'
+import { get_all } from '@/helpers/process'
+import { showInstanceInFolder } from '@/helpers/utils'
+import { instanceListQueryOptions } from '@/pages/instance/query-options'
+
+const ITEM_SIZE = 52
+const SYNC_DEBOUNCE_MS = 1000
+const { handleError } = injectNotificationManager()
+const auth = injectAuth()
+const { updatePreferences } = injectUserPreferences()
+const appSettings = useAppSettings()
+const instancesQuery = useQuery(instanceListQueryOptions())
+const router = useRouter()
+const instanceOptions = ref()
+const runningInstances = ref([])
+
+const { formatMessage } = useVIntl()
+
+const container = ref()
+const footer = ref()
+let resizeObserver
+const maxAuto = ref(0)
+const { hiddenIds } = useHiddenInstances()
+const allInstances = computed(() =>
+	(instancesQuery.data.value ?? [])
+		.filter((instance) => !hiddenIds.value.has(instance.id))
+		.sort((a, b) => {
+			const dateACreated = dayjs(a.created)
+			const dateAPlayed = a.last_played ? dayjs(a.last_played) : dayjs(0)
+
+			const dateBCreated = dayjs(b.created)
+			const dateBPlayed = b.last_played ? dayjs(b.last_played) : dayjs(0)
+
+			const dateA = dateACreated.isAfter(dateAPlayed) ? dateACreated : dateAPlayed
+			const dateB = dateBCreated.isAfter(dateBPlayed) ? dateBCreated : dateBPlayed
+
+			if (dateA.isSame(dateB)) {
+				return a.name.localeCompare(b.name)
+			}
+
+			return dateB - dateA
+		}),
+)
+const dragging = ref(false)
+const quickInstances = useQuickInstanceLimit()
+
+const maxVisible = computed(() =>
+	Math.min(maxAuto.value, allInstances.value.length, QUICK_INSTANCE_LIMIT_MAX),
+)
+const visibleCount = computed(() =>
+	Math.min(quickInstances.limit.value ?? maxVisible.value, maxVisible.value),
+)
+const recentInstances = computed(() => allInstances.value.slice(0, visibleCount.value))
+const canDrag = computed(() => maxVisible.value > 0)
+const showOverdrag = ref(false)
+
+const updateMaxAuto = () => {
+	if (!container.value) return
+	const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+	const dividerHeight = rem + 1
+	const gap = rem / 4
+	const footerHeight = (footer.value?.clientHeight ?? 0) + gap
+	maxAuto.value = Math.max(
+		0,
+		Math.floor(
+			(container.value.clientHeight - footerHeight - 2 * dividerHeight - gap) / (3 * rem + gap),
+		),
+	)
+}
+
+const setLimit = (count) => {
+	const clamped = Math.max(0, Math.min(count, maxVisible.value))
+	if (clamped >= maxVisible.value) {
+		quickInstances.setLimit(null)
+	} else {
+		quickInstances.setLimit(clamped)
+	}
+}
+
+const syncLimitToAccount = () => {
+	if (!appSettings.syncFeaturesAcrossDevices || !auth.user.value) {
+		return
+	}
+	updatePreferences({
+		behavior: {
+			quick_instance_count: quickInstances.limit.value ?? QUICK_INSTANCE_LIMIT_MAX,
+		},
+	}).catch(() => undefined)
+}
+
+let syncTimeout = null
+
+const cancelScheduledSync = () => {
+	if (syncTimeout !== null) {
+		clearTimeout(syncTimeout)
+		syncTimeout = null
+	}
+}
+
+const scheduleSync = () => {
+	cancelScheduledSync()
+	syncTimeout = setTimeout(() => {
+		syncTimeout = null
+		syncLimitToAccount()
+	}, SYNC_DEBOUNCE_MS)
+}
+
+const flushScheduledSync = () => {
+	if (syncTimeout !== null) {
+		cancelScheduledSync()
+		syncLimitToAccount()
+	}
+}
+
+const nudgeLimit = (delta) => {
+	if (!canDrag.value) {
+		return
+	}
+	const target = visibleCount.value + delta
+	if (target < 0 || target > maxVisible.value) {
+		flashOverdrag()
+	}
+	const previousLimit = quickInstances.limit.value
+	setLimit(target)
+	if (quickInstances.limit.value !== previousLimit) {
+		scheduleSync()
+	}
+}
+
+let dragStartY = 0
+let dragStartCount = 0
+let dragStartLimit = null
+let dragHadPendingSync = false
+let wasOverdragging = false
+let overdragTimeout = null
+
+const clearOverdragFlash = () => {
+	showOverdrag.value = false
+	if (overdragTimeout !== null) {
+		clearTimeout(overdragTimeout)
+		overdragTimeout = null
+	}
+}
+
+const flashOverdrag = () => {
+	showOverdrag.value = true
+	if (overdragTimeout !== null) {
+		clearTimeout(overdragTimeout)
+	}
+	overdragTimeout = setTimeout(() => {
+		showOverdrag.value = false
+		overdragTimeout = null
+	}, 500)
+}
+
+const onDividerPointerDown = (event) => {
+	if (!canDrag.value) {
+		return
+	}
+	event.preventDefault()
+	dragging.value = true
+	wasOverdragging = false
+	clearOverdragFlash()
+	dragStartY = event.clientY
+	dragStartCount = visibleCount.value
+	dragStartLimit = quickInstances.limit.value
+	dragHadPendingSync = syncTimeout !== null
+	cancelScheduledSync()
+	document.body.classList.add('quick-instance-dragging')
+	event.currentTarget.setPointerCapture(event.pointerId)
+}
+
+const onDividerPointerMove = (event) => {
+	if (!dragging.value) {
+		return
+	}
+	const delta = event.clientY - dragStartY
+	const target = dragStartCount + Math.round(delta / ITEM_SIZE)
+	const isOverdragging = target < 0 || target > maxAuto.value
+	if (isOverdragging && !wasOverdragging) {
+		flashOverdrag()
+	}
+	wasOverdragging = isOverdragging
+	setLimit(target)
+}
+
+const endDrag = (event) => {
+	if (!dragging.value) {
+		return
+	}
+	dragging.value = false
+	wasOverdragging = false
+	clearOverdragFlash()
+	document.body.classList.remove('quick-instance-dragging')
+	if (event?.currentTarget?.hasPointerCapture?.(event.pointerId)) {
+		event.currentTarget.releasePointerCapture(event.pointerId)
+	}
+	if (dragHadPendingSync || quickInstances.limit.value !== dragStartLimit) {
+		syncLimitToAccount()
+	}
+}
+
+const onDividerPointerUp = (event) => {
+	endDrag(event)
+}
+
+await instancesQuery.suspense().catch(handleError)
+
+useAppEvent('process', checkProcesses)
+
+onMounted(() => {
+	resizeObserver = new ResizeObserver(updateMaxAuto)
+	resizeObserver.observe(container.value)
+	resizeObserver.observe(footer.value)
+	updateMaxAuto()
+	checkProcesses()
+})
+
+onUnmounted(() => {
+	resizeObserver?.disconnect()
+	flushScheduledSync()
+	document.body.classList.remove('quick-instance-dragging')
+	clearOverdragFlash()
+})
+
+const messages = defineMessages({
+	dragTooltip: {
+		id: 'app.quick-instance-switcher.drag-tooltip',
+		defaultMessage: 'Drag to resize',
+	},
+	dragShowTooltip: {
+		id: 'app.quick-instance-switcher.drag-show-tooltip',
+		defaultMessage: 'Drag to show recent instances',
+	},
+	viewInstance: {
+		id: 'app.quick-instance-switcher.view-instance',
+		defaultMessage: 'View instance',
+	},
+	instanceActions: {
+		id: 'app.quick-instance-switcher.actions.label',
+		defaultMessage: 'Instance actions',
+	},
+	instanceLocked: {
+		id: 'app.quick-instance-switcher.instance-locked',
+		defaultMessage: 'This instance has been locked',
+	},
+	title: {
+		id: 'app.quick-instance-switcher.title',
+		defaultMessage: 'Recent instances',
+	},
+})
+
+const dividerTooltip = computed(() => {
+	if (!canDrag.value || dragging.value) {
+		return null
+	}
+	return formatMessage(visibleCount.value === 0 ? messages.dragShowTooltip : messages.dragTooltip)
+})
+
+async function checkProcesses() {
+	const processes = (await get_all().catch(handleError)) ?? []
+	runningInstances.value = processes.map((process) => process.instance_id)
+}
+
+async function playInstance(instance) {
+	if (instance.launch_blocked || instance.install_stage !== 'installed') return
+	await run(instance.id)
+		.catch((err) => handleSevereError(err, { instanceId: instance.id }))
+		.finally(() => {
+			trackEvent('InstanceStart', {
+				loader: instance.loader,
+				game_version: instance.game_version,
+				source: 'QuickInstanceSwitcher',
+			})
+		})
+}
+
+async function stopInstance(instance) {
+	await kill(instance.id).catch(handleError)
+	trackEvent('InstanceStop', {
+		loader: instance.loader,
+		game_version: instance.game_version,
+		source: 'QuickInstanceSwitcher',
+	})
+}
+
+function openContextMenu(event, instance) {
+	const playing = runningInstances.value.includes(instance.id)
+	instanceOptions.value?.open(event, [
+		playing
+			? {
+					id: 'stop',
+					label: formatMessage(commonMessages.stopButton),
+					icon: StopCircleIcon,
+					tone: 'red',
+					action: () => stopInstance(instance),
+				}
+			: {
+					id: 'play',
+					label: formatMessage(commonMessages.playButton),
+					icon: PlayIcon,
+					tone: 'brand',
+					disabled: instance.launch_blocked || instance.install_stage !== 'installed',
+					tooltip: instance.launch_blocked ? formatMessage(messages.instanceLocked) : undefined,
+					action: () => playInstance(instance),
+				},
+		{ type: 'divider' },
+		{
+			id: 'open-instance',
+			label: formatMessage(messages.viewInstance),
+			icon: EyeIcon,
+			action: () => router.push(`/instance/${encodeURIComponent(instance.id)}`),
+		},
+		{
+			id: 'open-folder',
+			label: formatMessage(commonMessages.openFolderButton),
+			icon: FolderOpenIcon,
+			action: () => showInstanceInFolder(instance.id),
+		},
+	])
+}
+</script>
+
+<template>
+	<div ref="container" class="flex min-h-0 flex-1 flex-col gap-1">
+		<Transition name="top-divider">
+			<div
+				v-if="recentInstances.length > 0"
+				class="top-divider shrink-0 flex items-center justify-center overflow-hidden"
+			>
+				<div class="h-px w-8 bg-surface-5 shrink-0"></div>
+			</div>
+		</Transition>
+		<div :aria-label="formatMessage(messages.title)">
+			<TransitionGroup name="quick-instance" tag="div" class="flex shrink-0 flex-col items-center">
+				<NavButton
+					v-for="instance in recentInstances"
+					:key="instance.id"
+					v-tooltip.right="instance.name"
+					class="quick-instance-item relative"
+					:to="`/instance/${encodeURIComponent(instance.id)}`"
+					@contextmenu.prevent.stop="(event) => openContextMenu(event, instance)"
+				>
+					<Avatar
+						:src="getInstanceIconUrl(instance.icon_path)"
+						size="28px"
+						:tint-by="instance.id"
+						:class="`transition-all ${instance.install_stage !== 'installed' ? `brightness-[0.25] scale-[0.85]` : `group-hover:brightness-75`}`"
+						pad-transparent-corners
+					/>
+					<div
+						v-if="instance.install_stage !== 'installed'"
+						class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+					>
+						<SpinnerIcon class="animate-spin w-4 h-4" />
+					</div>
+				</NavButton>
+			</TransitionGroup>
+		</div>
+		<ContextMenu ref="instanceOptions" :label="formatMessage(messages.instanceActions)" />
+		<div
+			v-tooltip.right="dividerTooltip"
+			role="separator"
+			aria-orientation="horizontal"
+			:tabindex="canDrag ? 0 : undefined"
+			:aria-valuemin="canDrag ? 0 : undefined"
+			:aria-valuemax="canDrag ? maxVisible : undefined"
+			:aria-valuenow="canDrag ? visibleCount : undefined"
+			class="flex shrink-0 items-center justify-center py-2 select-none"
+			:class="canDrag ? 'cursor-ns-resize touch-none group' : ''"
+			@pointerdown="onDividerPointerDown"
+			@pointermove="onDividerPointerMove"
+			@pointerup="onDividerPointerUp"
+			@pointercancel="onDividerPointerUp"
+			@keydown.up.prevent="nudgeLimit(-1)"
+			@keydown.down.prevent="nudgeLimit(1)"
+		>
+			<div
+				class="h-px w-8 transition-colors duration-200"
+				:class="
+					showOverdrag
+						? 'bg-red'
+						: canDrag
+							? 'bg-surface-5 group-hover:bg-secondary group-focus-visible:bg-secondary'
+							: 'bg-surface-5'
+				"
+			></div>
+		</div>
+		<div ref="footer" class="flex shrink-0 flex-col items-center">
+			<slot />
+		</div>
+	</div>
+</template>
+
+<style scoped lang="scss">
+.top-divider {
+	height: calc(1rem + 1px);
+}
+
+.top-divider-enter-active,
+.top-divider-leave-active {
+	transition:
+		opacity 0.25s ease,
+		height 0.25s ease;
+}
+
+.top-divider-enter-from,
+.top-divider-leave-to {
+	opacity: 0;
+	height: 0;
+}
+
+.quick-instance-item {
+	height: 3rem;
+	overflow: hidden;
+
+	& + & {
+		margin-top: 0.25rem;
+	}
+}
+
+.quick-instance-enter-active,
+.quick-instance-leave-active {
+	transition:
+		opacity 0.25s ease,
+		transform 0.25s ease,
+		height 0.25s ease,
+		margin-top 0.25s ease;
+}
+
+.quick-instance-enter-from,
+.quick-instance-leave-to {
+	opacity: 0;
+	transform: scale(0.5);
+	height: 0;
+	margin-top: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.top-divider-enter-active,
+	.top-divider-leave-active,
+	.quick-instance-enter-active,
+	.quick-instance-leave-active {
+		transition: none;
+	}
+
+	.top-divider-enter-from,
+	.top-divider-leave-to {
+		opacity: 1;
+		height: calc(1rem + 1px);
+	}
+
+	.quick-instance-enter-from,
+	.quick-instance-leave-to {
+		opacity: 1;
+		transform: none;
+		height: 3rem;
+		margin-top: unset !important;
+	}
+}
+</style>
+
+<style lang="scss">
+body.quick-instance-dragging,
+body.quick-instance-dragging * {
+	cursor: ns-resize !important;
+}
+</style>

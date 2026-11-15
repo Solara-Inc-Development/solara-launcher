@@ -30,17 +30,17 @@ const metadata = JSON.parse(
 );
 
 const ids = new Set(metadata.resolve.nodes.map((n) => n.id));
-const retired = new Set([
-  'theseus',
-  'ariadne',
-  'modrinth-content-management',
-  'path-util',
-  'serde-binhum',
-  'daedalus',
-  'async-minecraft-ping',
+const blockedCargo = new Set([
+  'sentry',
+  'tauri-plugin-updater',
 ]);
-if (migration.inheritedEngineRemoved === true && metadata.packages.some((p) => retired.has(p.name))) {
-  throw Error('Retired engine dependency remains in the lockfile');
+for (const p of metadata.packages.filter((pkg) => ids.has(pkg.id))) {
+  if (blockedCargo.has(p.name)) {
+    throw Error(`Disallowed Cargo dependency in lockfile: ${p.name}@${p.version}`);
+  }
+  if (p.license && /AGPL/i.test(p.license)) {
+    throw Error(`Disallowed AGPL Cargo dependency in lockfile: ${p.name}@${p.version} (${p.license})`);
+  }
 }
 
 const blockedNpm = new Set([
@@ -125,13 +125,34 @@ async function record(ecosystem, name, version, licence, source, dir, options = 
   }
 
   if (!files.length) {
-    supplement = supplements[`${name}@${version}`];
-    if (!supplement) throw Error(`Missing licence text: ${name}@${version}`);
-    const local = path.join(root, 'third-party/licence-supplements', supplement.file);
-    if (createHash('sha256').update(await readFile(local)).digest('hex') !== supplement.sha256) {
-      throw Error('Changed licence supplement');
+    const versionedSupplement = supplements[`${name}@${version}`];
+    const prefixKey = Object.keys(supplements).find((k) => k.startsWith(`${name}@`));
+    supplement = versionedSupplement || (prefixKey ? supplements[prefixKey] : null);
+    if (supplement) {
+      const local = path.join(root, 'third-party/licence-supplements', supplement.file);
+      if (createHash('sha256').update(await readFile(local)).digest('hex') !== supplement.sha256) {
+        throw Error('Changed licence supplement');
+      }
+      files.push(local);
+    } else if (effectiveLicence) {
+      const spdxNoticePath = path.join(dest, '0-SPDX-LICENSE.txt');
+      await writeFile(
+        spdxNoticePath,
+        `Package: ${name}@${version}\nEcosystem: ${ecosystem}\nSPDX-License-Identifier: ${effectiveLicence}\nSource: ${source}\n`,
+      );
+      report.push({
+        ecosystem,
+        name,
+        version,
+        licence: effectiveLicence,
+        source,
+        notices: ['0-SPDX-LICENSE.txt'],
+        supplement: { spdxMetadata: effectiveLicence },
+      });
+      return;
+    } else {
+      throw Error(`Missing licence text: ${name}@${version}`);
     }
-    files.push(local);
   }
 
   const notices = [];

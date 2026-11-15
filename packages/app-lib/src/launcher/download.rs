@@ -1,0 +1,1107 @@
+//! Downloader for Minecraft data
+use crate::launcher::profile::{
+    ResolvedVersion as GameVersionInfo, merge_partial_version,
+};
+
+use crate::install::{
+    InstallErrorContext, InstallPhaseDetails, InstallPhaseId, InstallProgress,
+    InstallProgressReporter,
+};
+use crate::instance::QuickPlayType;
+use crate::launcher::library::LibraryExt;
+use crate::launcher::parse_rules;
+use crate::{
+    ErrorKind,
+    event::{
+        LoadingBarId,
+        emit::{emit_loading, loading_try_for_each_concurrent},
+    },
+    state::State,
+    util::{fetch::*, io},
+};
+use anyhow::{Context, bail};
+use futures::prelude::*;
+use minecraft_meta_manifest::minecraft::{LoggingConfiguration, LoggingSide};
+use minecraft_meta_manifest::{
+    self as d,
+    fabriclike::LoaderVersion,
+    minecraft::{Asset, AssetsIndex, Library, Version as GameVersion},
+};
+use reqwest::Method;
+use std::{
+    future::Future,
+    pin::Pin,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
+};
+use tokio::sync::OnceCell;
+
+const MINECRAFT_DOWNLOAD_CONCURRENCY: usize = 8;
+
+const MINECRAFT_DOWNLOAD_PROGRESS_MIN_BYTES: u64 = 256 * 1024;
+
+#[derive(Clone, Debug)]
+pub struct MinecraftDownloadProgress {
+    reporter: InstallProgressReporter,
+    details: InstallPhaseDetails,
+    current: Arc<AtomicU64>,
+    total: Arc<AtomicU64>,
+    last_reported: Arc<AtomicU64>,
+}
+
+impl MinecraftDownloadProgress {
+    async fn new(
+        reporter: InstallProgressReporter,
+        details: InstallPhaseDetails,
+        total: u64,
+    ) -> crate::Result<Self> {
+        let progress = Self {
+            reporter,
+            details,
+            current: Arc::new(AtomicU64::new(0)),
+            total: Arc::new(AtomicU64::new(total)),
+            last_reported: Arc::new(AtomicU64::new(0)),
+        };
+
+        if total > 0 {
+            progress.emit_progress(0, total).await?;
+        }
+
+        Ok(progress)
+    }
+
+    async fn add_total(&self, total: u64) -> crate::Result<()> {
+        if total == 0 {
+            return Ok(());
+        }
+
+        let total = self.total.fetch_add(total, Ordering::Relaxed) + total;
+        self.emit_if_needed(self.current.load(Ordering::Relaxed), total, true)
+            .await
+    }
+
+    async fn add_bytes(&self, bytes: u64) -> crate::Result<()> {
+        if bytes == 0 {
+            return Ok(());
+        }
+
+        let current = self.current.fetch_add(bytes, Ordering::Relaxed) + bytes;
+        let total = self.total.load(Ordering::Relaxed);
+        self.emit_if_needed(current, total, false).await
+    }
+
+    async fn emit_if_needed(
+        &self,
+        current: u64,
+        total: u64,
+        force: bool,
+    ) -> crate::Result<()> {
+        if total == 0 {
+            return Ok(());
+        }
+
+        let min_delta =
+            (total / 200).max(MINECRAFT_DOWNLOAD_PROGRESS_MIN_BYTES);
+        let last_reported = self.last_reported.load(Ordering::Relaxed);
+        if !force
+            && current < total
+            && current.saturating_sub(last_reported) < min_delta
+        {
+            return Ok(());
+        }
+
+        self.last_reported.store(current, Ordering::Relaxed);
+        self.emit_progress(current, total).await
+    }
+
+    async fn emit_progress(
+        &self,
+        current: u64,
+        total: u64,
+    ) -> crate::Result<()> {
+        self.reporter
+            .update(
+                InstallPhaseId::DownloadingMinecraft,
+                Some(InstallProgress {
+                    current: current.min(total),
+                    total,
+                    secondary: None,
+                }),
+                self.details.clone(),
+            )
+            .await
+    }
+
+    async fn set_context(
+        &self,
+        context: InstallErrorContext,
+    ) -> crate::Result<()> {
+        self.reporter.set_transient_context(context).await
+    }
+
+    async fn persist_failure_context(&self, context: InstallErrorContext) {
+        self.reporter.persist_failure_context(context).await;
+    }
+}
+
+async fn fetch_minecraft_file(
+    st: &State,
+    url: &str,
+    sha1: Option<&str>,
+    expected_size: Option<u64>,
+    progress: Option<MinecraftDownloadProgress>,
+    context: InstallErrorContext,
+) -> crate::Result<DownloadedFile> {
+    let mut context = context;
+    context.urls.push(url.to_string());
+    context.expected_hash = sha1.map(str::to_string);
+    context.expected_size = expected_size;
+    if let Some(progress) = &progress {
+        progress.set_context(context.clone()).await?;
+    }
+
+    let Some(progress) = progress else {
+        return fetch_file(
+            url,
+            sha1,
+            None,
+            None,
+            &st.fetch_semaphore,
+            &st.pool,
+            None,
+            &st.directories.store_staging_dir(),
+        )
+        .await;
+    };
+
+    let last_downloaded = Arc::new(AtomicU64::new(0));
+    let mut progress_fn = {
+        let progress = progress.clone();
+        let last_downloaded = last_downloaded.clone();
+        move |downloaded: u64,
+              _total: u64|
+              -> Pin<Box<dyn Future<Output = crate::Result<()>> + Send>> {
+            let previous =
+                last_downloaded.swap(downloaded, Ordering::Relaxed);
+            let delta = downloaded.saturating_sub(previous);
+            let progress = progress.clone();
+            Box::pin(async move { progress.add_bytes(delta).await })
+        }
+    };
+
+    let bytes = match fetch_file(
+        url,
+        sha1,
+        None,
+        None,
+        &st.fetch_semaphore,
+        &st.pool,
+        Some(&mut progress_fn as &mut FetchProgressFn<'_>),
+        &st.directories.store_staging_dir(),
+    )
+    .await
+    {
+        Ok(bytes) => bytes,
+        Err(error) => {
+            progress.persist_failure_context(context).await;
+            return Err(error);
+        }
+    };
+
+    if let Some(expected_size) = expected_size {
+        let downloaded = last_downloaded.load(Ordering::Relaxed);
+        progress
+            .add_bytes(expected_size.saturating_sub(downloaded))
+            .await?;
+    }
+
+    Ok(bytes)
+}
+
+fn should_download(path_exists: bool, force: bool) -> bool {
+    !path_exists || force
+}
+
+/// Installed instances can outlive files in the shared runtime cache. Include
+/// processor-generated libraries so recovery also reruns the loader installer.
+pub(super) fn missing_runtime_file(
+    st: &State,
+    version: &GameVersionInfo,
+    java_arch: &str,
+    minecraft_updated: bool,
+) -> crate::Result<Option<std::path::PathBuf>> {
+    let client_path = st
+        .directories
+        .version_dir(&version.id)
+        .join(format!("{}.jar", version.id));
+    if !client_path.try_exists()? {
+        return Ok(Some(client_path));
+    }
+
+    for library in &version.libraries {
+        if let Some(rules) = &library.rules
+            && !parse_rules(
+                rules,
+                java_arch,
+                &QuickPlayType::None,
+                minecraft_updated,
+            )
+        {
+            continue;
+        }
+        if !library.include_in_classpath
+            || library.native_classifier(java_arch).is_some()
+        {
+            continue;
+        }
+        let path = st
+            .directories
+            .libraries_dir()
+            .join(d::util::get_path_from_artifact(&library.name)?);
+        if !path.try_exists()? {
+            return Ok(Some(path));
+        }
+    }
+
+    Ok(None)
+}
+
+fn missing_client_bytes(
+    st: &State,
+    version: &GameVersionInfo,
+    force: bool,
+) -> crate::Result<u64> {
+    let client_download = version
+        .downloads
+        .get(&d::minecraft::DownloadType::Client)
+        .ok_or(ErrorKind::LauncherError(format!(
+            "no client downloads exist for version {}",
+            version.id
+        )))?;
+    let path = st
+        .directories
+        .version_dir(&version.id)
+        .join(format!("{}.jar", version.id));
+
+    Ok(if should_download(path.exists(), force) {
+        client_download.size as u64
+    } else {
+        0
+    })
+}
+
+fn missing_assets_index_bytes(
+    st: &State,
+    version: &GameVersionInfo,
+    force: bool,
+) -> u64 {
+    let path = st
+        .directories
+        .assets_index_dir()
+        .join(format!("{}.json", &version.asset_index.id));
+
+    if should_download(path.exists(), force) {
+        version.asset_index.size as u64
+    } else {
+        0
+    }
+}
+
+fn missing_log_config_bytes(
+    st: &State,
+    version: &GameVersionInfo,
+    force: bool,
+) -> u64 {
+    let log_download = version
+        .logging
+        .as_ref()
+        .and_then(|x| x.get(&LoggingSide::Client));
+    let Some(LoggingConfiguration::Log4j2Xml {
+        file: log_download, ..
+    }) = log_download
+    else {
+        return 0;
+    };
+
+    let path = st.directories.log_configs_dir().join(&log_download.id);
+    if should_download(path.exists(), force) {
+        log_download.size as u64
+    } else {
+        0
+    }
+}
+
+fn missing_asset_bytes(
+    st: &State,
+    with_legacy: bool,
+    index: &AssetsIndex,
+    force: bool,
+) -> u64 {
+    index
+        .objects
+        .iter()
+        .filter_map(|(name, asset)| {
+            let hash = asset.hash.to_string();
+            let object_path = st.directories.object_dir(&hash);
+            let legacy_path = st.directories.legacy_assets_dir().join(
+                name.replace('/', &String::from(std::path::MAIN_SEPARATOR)),
+            );
+            let should_fetch_object =
+                should_download(object_path.exists(), force);
+            let should_fetch_legacy =
+                (with_legacy && !legacy_path.exists()) || force;
+
+            (should_fetch_object || should_fetch_legacy)
+                .then_some(asset.size as u64)
+        })
+        .sum()
+}
+
+fn missing_library_bytes(
+    st: &State,
+    libraries: &[Library],
+    java_arch: &str,
+    force: bool,
+    minecraft_updated: bool,
+) -> crate::Result<u64> {
+    let mut total = 0;
+
+    for library in libraries {
+        if let Some(rules) = &library.rules
+            && !parse_rules(
+                rules,
+                java_arch,
+                &QuickPlayType::None,
+                minecraft_updated,
+            )
+        {
+            continue;
+        }
+
+        if !library.downloadable {
+            continue;
+        }
+
+        if let Some((_, _, size)) = library.native_download(java_arch)? {
+            total += size.unwrap_or_default() as u64;
+        } else {
+            let artifact_path = d::util::get_path_from_artifact(&library.name)?;
+            let path = st.directories.libraries_dir().join(&artifact_path);
+
+            if path.exists() && !force {
+                continue;
+            }
+
+            if let Some(artifact) = library
+                .downloads
+                .as_ref()
+                .and_then(|downloads| downloads.artifact.as_ref())
+                && artifact.url.is_some()
+            {
+                total += artifact.size as u64;
+            }
+        }
+    }
+
+    Ok(total)
+}
+
+fn missing_initial_minecraft_bytes(
+    st: &State,
+    version: &GameVersionInfo,
+    java_arch: &str,
+    force: bool,
+    minecraft_updated: bool,
+) -> crate::Result<u64> {
+    Ok(missing_client_bytes(st, version, force)?
+        + missing_assets_index_bytes(st, version, force)
+        + missing_log_config_bytes(st, version, force)
+        + missing_library_bytes(
+            st,
+            version.libraries.as_slice(),
+            java_arch,
+            force,
+            minecraft_updated,
+        )?)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn download_minecraft<'a>(
+    st: &'a State,
+    version: &'a GameVersionInfo,
+    loading_bar: Option<&'a LoadingBarId>,
+    java_arch: &'a str,
+    force: bool,
+    minecraft_updated: bool,
+    reporter: Option<InstallProgressReporter>,
+    phase_details: InstallPhaseDetails,
+) -> impl Future<Output = crate::Result<()>> + Send + 'a {
+    Box::pin(download_minecraft_inner(
+        st,
+        version,
+        loading_bar,
+        java_arch,
+        force,
+        minecraft_updated,
+        reporter,
+        phase_details,
+    ))
+}
+
+#[tracing::instrument(skip(st, version, reporter))]
+async fn download_minecraft_inner(
+    st: &State,
+    version: &GameVersionInfo,
+    loading_bar: Option<&LoadingBarId>,
+    java_arch: &str,
+    force: bool,
+    minecraft_updated: bool,
+    reporter: Option<InstallProgressReporter>,
+    phase_details: InstallPhaseDetails,
+) -> crate::Result<()> {
+    tracing::info!("Downloading Minecraft version {}", version.id);
+    let progress = if let Some(reporter) = reporter {
+        Some(
+            MinecraftDownloadProgress::new(
+                reporter,
+                phase_details,
+                missing_initial_minecraft_bytes(
+                    st,
+                    version,
+                    java_arch,
+                    force,
+                    minecraft_updated,
+                )?,
+            )
+            .await?,
+        )
+    } else {
+        None
+    };
+
+    // 5
+    let assets_index = download_assets_index(
+        st,
+        version,
+        loading_bar,
+        force,
+        progress.clone(),
+    )
+    .await
+    .context("downloading assets index")?;
+    if let Some(progress) = &progress {
+        progress
+            .add_total(missing_asset_bytes(
+                st,
+                version.assets == "legacy",
+                &assets_index,
+                force,
+            ))
+            .await?;
+    }
+
+    let amount = if version.processors.as_ref().is_some_and(|x| !x.is_empty()) {
+        25.0
+    } else {
+        40.0
+    };
+
+    let (client, log_config, assets, libraries) = tokio::join! {
+        // Total loading sums to 90/60
+        Box::pin(download_client(st, version, loading_bar, force, progress.clone())), // 9
+        Box::pin(download_log_config(st, version, loading_bar, force, progress.clone())),
+        Box::pin(download_assets(st, version.assets == "legacy", &assets_index, loading_bar, amount, force, progress.clone())), // 40
+        Box::pin(download_libraries(st, version.libraries.as_slice(), &version.id, loading_bar, amount, java_arch, force, minecraft_updated, progress.clone())) // 40
+    };
+    client.context("downloading client")?;
+    log_config.context("downloading log config")?;
+    assets.context("downloading assets")?;
+    libraries.context("downloading libraries")?;
+
+    tracing::info!("Done downloading Minecraft!");
+    Ok(())
+}
+
+#[tracing::instrument(skip_all, fields(version = version.id.as_str(), loader = ?loader))]
+
+pub async fn download_version_info(
+    st: &State,
+    version: &GameVersion,
+    loader: Option<&LoaderVersion>,
+    force: Option<bool>,
+    loading_bar: Option<&LoadingBarId>,
+    reporter: Option<&InstallProgressReporter>,
+) -> crate::Result<GameVersionInfo> {
+    let version_id = loader.map_or(version.id.to_string(), |it| {
+        format!("{}-{}", version.id, it.id)
+    });
+    tracing::debug!("Loading version info for Minecraft {version_id}");
+    let path = st
+        .directories
+        .version_dir(&version_id)
+        .join(format!("{version_id}.json"));
+
+    if let Some(loader) =
+        loader.filter(|loader| super::is_locally_installed_loader(loader))
+        && !path.exists()
+    {
+        bail!(ErrorKind::LauncherError(format!(
+            "loader version {} for Minecraft {} is no longer available",
+            loader.id, version.id
+        )));
+    }
+
+    let removed_loader = loader.is_some_and(super::is_locally_installed_loader);
+    let res = if path.exists() && (!force.unwrap_or(false) || removed_loader) {
+        io::read(&path)
+            .err_into::<crate::Error>()
+            .await
+            .and_then(|ref it| {
+                serde_json::from_slice(it)
+                    .context(format!("parsing version info {}", path.display()))
+            })
+    } else {
+        tracing::info!(
+            "Downloading version info for version {} from {}",
+            &version.id,
+            version.url
+        );
+        if let Some(reporter) = reporter {
+            reporter
+                .set_context(
+                    InstallErrorContext::new(
+                        "download Minecraft version metadata",
+                    )
+                    .minecraft_version(version.id.to_string())
+                    .urls(vec![version.url.to_string()])
+                    .target_path(path.display().to_string())
+                    .build(),
+                )
+                .await?;
+        }
+        let mut info: GameVersionInfo = fetch_json(
+            Method::GET,
+            version.url.as_str(),
+            None,
+            None,
+            None,
+            &st.api_semaphore,
+            &st.pool,
+        )
+        .await
+        .context(format!("fetching Minecraft {} version info", version.id))?;
+
+        if let Some(loader) = loader {
+            if let Some(reporter) = reporter {
+                reporter
+                    .set_context(
+                        InstallErrorContext::new(
+                            "download loader version metadata",
+                        )
+                        .minecraft_version(version.id.to_string())
+                        .urls(vec![loader.url.to_string()])
+                        .target_path(path.display().to_string())
+                        .build(),
+                    )
+                    .await?;
+            }
+            let partial: d::profile::ProfileMetadata = fetch_json(
+                Method::GET,
+                loader.url.as_str(),
+                None,
+                None,
+                None,
+                &st.api_semaphore,
+                &st.pool,
+            )
+            .await
+            .context(format!("fetching loader {} version info", loader.id))?;
+            info = merge_partial_version(partial, info);
+        }
+
+        info.id.0.clone_from(&version_id);
+
+        write(&path, &serde_json::to_vec(&info)?, &st.io_semaphore)
+            .await
+            .context(format!("writing version info to {}", path.display()))?;
+        Ok(info)
+    }?;
+
+    if let Some(loading_bar) = loading_bar {
+        emit_loading(loading_bar, 5.0, None)?;
+    }
+
+    tracing::debug!("Loaded version info for Minecraft {version_id}");
+    Ok(res)
+}
+
+#[tracing::instrument(skip_all)]
+
+pub async fn download_client(
+    st: &State,
+    version_info: &GameVersionInfo,
+    loading_bar: Option<&LoadingBarId>,
+    force: bool,
+    progress: Option<MinecraftDownloadProgress>,
+) -> crate::Result<()> {
+    let version = &version_info.id;
+    tracing::debug!("Locating client for version {version}");
+    let client_download = version_info
+        .downloads
+        .get(&d::minecraft::DownloadType::Client)
+        .ok_or(ErrorKind::LauncherError(format!(
+            "no client downloads exist for version {version}"
+        )))?;
+    let path = st
+        .directories
+        .version_dir(version)
+        .join(format!("{version}.jar"));
+
+    if !path.exists() || force {
+        let bytes = fetch_minecraft_file(
+            st,
+            client_download.url.as_str(),
+            Some(&client_download.sha1.to_string()),
+            Some(client_download.size as u64),
+            progress,
+            InstallErrorContext::new("download Minecraft client")
+                .minecraft_version(version.to_string())
+                .file_path(format!("{version}.jar"))
+                .target_path(path.display().to_string())
+                .build(),
+        )
+        .await?;
+        bytes
+            .copy_to(&path, &st.io_semaphore)
+            .await
+            .context(format!("writing client jar to {}", path.display()))?;
+        tracing::trace!("Fetched client version {version}");
+    }
+    if let Some(loading_bar) = loading_bar {
+        emit_loading(loading_bar, 9.0, None)?;
+    }
+
+    tracing::debug!("Client loaded for version {version}!");
+    Ok(())
+}
+
+#[tracing::instrument(skip_all)]
+
+pub async fn download_assets_index(
+    st: &State,
+    version: &GameVersionInfo,
+    loading_bar: Option<&LoadingBarId>,
+    force: bool,
+    progress: Option<MinecraftDownloadProgress>,
+) -> crate::Result<AssetsIndex> {
+    tracing::debug!("Loading assets index");
+    let path = st
+        .directories
+        .assets_index_dir()
+        .join(format!("{}.json", &version.asset_index.id));
+
+    let res = if path.exists() && !force {
+        io::read(&path)
+            .err_into::<crate::Error>()
+            .await
+            .and_then(|ref it| {
+                serde_json::from_slice(it).context(format!(
+                    "parsing assets index from {}",
+                    path.display()
+                ))
+            })
+    } else {
+        let index = fetch_minecraft_file(
+            st,
+            version.asset_index.url.as_str(),
+            None,
+            Some(version.asset_index.size as u64),
+            progress,
+            InstallErrorContext::new("download Minecraft assets index")
+                .minecraft_version(version.id.to_string())
+                .file_path(format!("{}.json", version.asset_index.id))
+                .target_path(path.display().to_string())
+                .build(),
+        )
+        .await?;
+        let index: AssetsIndex = read_json(index.path(), &st.io_semaphore)
+            .await
+            .context("parsing downloaded assets index")?;
+        write(&path, &serde_json::to_vec(&index)?, &st.io_semaphore)
+            .await
+            .context(format!("writing assets index to {}", path.display()))?;
+        tracing::info!("Fetched assets index");
+        Ok(index)
+    }?;
+
+    if let Some(loading_bar) = loading_bar {
+        emit_loading(loading_bar, 5.0, None)?;
+    }
+    tracing::debug!("Assets index successfully loaded!");
+    Ok(res)
+}
+
+#[tracing::instrument(skip(st, index))]
+
+pub async fn download_assets(
+    st: &State,
+    with_legacy: bool,
+    index: &AssetsIndex,
+    loading_bar: Option<&LoadingBarId>,
+    loading_amount: f64,
+    force: bool,
+    progress: Option<MinecraftDownloadProgress>,
+) -> crate::Result<()> {
+    tracing::debug!("Loading assets");
+    let num_futs = index.objects.len();
+    let assets = stream::iter(index.objects.iter())
+        .map(Ok::<(&String, &Asset), crate::Error>);
+
+    loading_try_for_each_concurrent(assets,
+			Some(MINECRAFT_DOWNLOAD_CONCURRENCY),
+            loading_bar,
+            loading_amount,
+            num_futs,
+            None,
+            |(name, asset)| {
+                let progress = progress.clone();
+                async move {
+				let hash = asset.hash.to_string();
+				let resource_path = st.directories.object_dir(&hash);
+				let legacy_resource_path =
+					st.directories.legacy_assets_dir().join(name.replace(
+						'/',
+						&String::from(std::path::MAIN_SEPARATOR),
+					));
+                let should_fetch_object = !resource_path.exists() || force;
+                let should_fetch_legacy =
+                    (with_legacy && !legacy_resource_path.exists()) || force;
+                let fetch_progress = if should_fetch_object || should_fetch_legacy {
+                    progress.clone()
+                } else {
+                    None
+                };
+                let url = format!(
+                    "https://resources.download.minecraft.net/{sub_hash}/{hash}",
+                    sub_hash = &hash[..2]
+                );
+
+				let fetch_cell = OnceCell::<DownloadedFile>::new();
+                tokio::try_join! {
+                    async {
+                        if should_fetch_object {
+                            let resource = fetch_cell
+                                .get_or_try_init(|| fetch_minecraft_file(
+                                    st,
+                                    &url,
+									Some(&hash),
+                                    Some(asset.size as u64),
+                                    fetch_progress.clone(),
+                                    InstallErrorContext::new("download Minecraft asset")
+                                        .file_path(name.clone())
+                                        .target_path(resource_path.display().to_string())
+                                        .build(),
+                                ))
+                                .await?;
+                            resource.copy_to(&resource_path, &st.io_semaphore).await?;
+                            tracing::trace!("Fetched asset with hash {hash}");
+                        }
+                        Ok::<_, crate::Error>(())
+                    },
+                    async {
+                        if should_fetch_legacy {
+                            let resource = fetch_cell
+                                .get_or_try_init(|| fetch_minecraft_file(
+                                    st,
+                                    &url,
+									Some(&hash),
+                                    Some(asset.size as u64),
+                                    fetch_progress.clone(),
+                                    InstallErrorContext::new("download Minecraft asset")
+                                        .file_path(name.clone())
+                                        .target_path(legacy_resource_path.display().to_string())
+                                        .build(),
+                                ))
+                                .await?;
+                            resource.copy_to(&legacy_resource_path, &st.io_semaphore).await?;
+                            tracing::trace!("Fetched legacy asset with hash {hash}");
+                        }
+                        Ok::<_, crate::Error>(())
+                    },
+                }?;
+
+                tracing::trace!("Loaded asset with hash {hash}");
+                Ok(())
+                }
+            }).await?;
+    tracing::debug!("Done loading assets!");
+    Ok(())
+}
+
+#[tracing::instrument(skip(st, libraries))]
+#[allow(clippy::too_many_arguments)]
+pub async fn download_libraries(
+    st: &State,
+    libraries: &[Library],
+    version: &str,
+    loading_bar: Option<&LoadingBarId>,
+    loading_amount: f64,
+    java_arch: &str,
+    force: bool,
+    minecraft_updated: bool,
+    progress: Option<MinecraftDownloadProgress>,
+) -> crate::Result<()> {
+    tracing::debug!("Loading libraries");
+
+    tokio::try_join! {
+        io::create_dir_all(st.directories.libraries_dir()),
+        io::create_dir_all(st.directories.version_natives_dir(version))
+    }?;
+    let num_files = libraries.len();
+    loading_try_for_each_concurrent(
+        stream::iter(libraries.iter()).map(Ok::<&Library, crate::Error>),
+		Some(MINECRAFT_DOWNLOAD_CONCURRENCY),
+        loading_bar,
+        loading_amount,
+        num_files,
+        None,
+        |library| {
+            let progress = progress.clone();
+            async move {
+            if let Some(rules) = &library.rules
+                && !parse_rules(
+                    rules,
+                    java_arch,
+                    &QuickPlayType::None,
+                    minecraft_updated,
+                )
+            {
+                tracing::trace!("Skipped library {}", &library.name);
+                return Ok(());
+            }
+
+            if !library.downloadable {
+                tracing::trace!(
+                    "Skipped non-downloadable library {}",
+                    &library.name
+                );
+                return Ok(());
+            }
+
+			if library.is_native()
+				&& library.native_classifier(java_arch).is_none()
+			{
+				tracing::trace!(
+					"Skipped incompatible native library {}",
+					&library.name
+				);
+				return Ok(());
+			}
+
+				if let Some((url, sha1, size)) =
+					library.native_download(java_arch)?
+            {
+                    let data = fetch_minecraft_file(
+                        st,
+						url.as_str(),
+						sha1.as_ref().map(ToString::to_string).as_deref(),
+						size.map(u64::from),
+                        progress.clone(),
+                        InstallErrorContext::new("download Minecraft native library")
+                            .minecraft_version(version.to_string())
+                            .file_path(library.name.clone())
+                            .target_path(
+                                st.directories
+                                    .version_natives_dir(version)
+                                    .display()
+                                    .to_string(),
+                            )
+                            .build(),
+                    )
+                    .await?;
+
+                    if let Ok(mut archive) =
+                        zip::ZipArchive::new(std::fs::File::open(data.path())?)
+                    {
+                        match archive.extract(
+                            st.directories.version_natives_dir(version),
+                        ) {
+                            Ok(_) => tracing::debug!(
+                                "Fetched native {}",
+                                &library.name
+                            ),
+                            Err(err) => tracing::error!(
+                                "Failed extracting native {}. err: {err}",
+                                &library.name
+                            ),
+                        }
+                    } else {
+                        tracing::error!(
+                            "Failed extracting native {}",
+                            &library.name
+                        );
+                    }
+            } else {
+					let artifact_path =
+						d::util::get_path_from_artifact(&library.name)?;
+					let path =
+						st.directories.libraries_dir().join(&artifact_path);
+
+                if path.exists() && !force {
+                    return Ok(());
+                }
+
+                if let Some(d::minecraft::LibraryDownloads {
+                    artifact: Some(ref artifact),
+                    ..
+                }) = library.downloads
+						&& artifact.url.is_some()
+                {
+                    let bytes = fetch_minecraft_file(
+                        st,
+							artifact
+								.url
+								.as_ref()
+								.expect("artifact URL checked")
+								.as_str(),
+							Some(&artifact.sha1.to_string()),
+                        Some(artifact.size as u64),
+                        progress.clone(),
+                        InstallErrorContext::new("download Minecraft library")
+                            .minecraft_version(version.to_string())
+                            .file_path(library.name.clone())
+                            .target_path(path.display().to_string())
+                            .build(),
+                    )
+                    .await?;
+                    bytes
+                        .copy_to(&path, &st.io_semaphore)
+                        .await
+                        .context(format!("writing library to {}", path.display()))?;
+
+                    tracing::trace!(
+                        "Fetched library {} to path {:?}",
+                        &library.name,
+                        &path
+                    );
+                } else {
+                    // We lack an artifact URL, so fall back to constructing one ourselves.
+                    // PrismLauncher just ignores the library if this is the case, so it's
+                    // probably not needed, but previous code revisions of the Modrinth App
+                    // intended to do this, so we keep that behavior for compatibility.
+
+                    let url = format!(
+                        "{}{artifact_path}",
+                        library
+                            .url
+                            .as_deref()
+                            .unwrap_or("https://libraries.minecraft.net/")
+                    );
+
+                    tracing::trace!(
+                        "Attempting to fetch {} from {url}",
+                        library.name,
+                    );
+
+                    // It's OK for this fetch to fail, since the URL might not even be valid.
+                    // We're constructing a download URL basically out of thin air, and hoping
+                    // that it's valid. Since PrismLauncher ignores the library (see above), a
+                    // failed download here is not a fatal condition.
+                    //
+                    // See DEV-479.
+                    match fetch_file(
+                        &url,
+                        None,
+                        None,
+                        None,
+                        &st.fetch_semaphore,
+                        &st.pool,
+                        None,
+                        &st.directories.store_staging_dir(),
+                    )
+                    .await
+                    {
+                        Ok(bytes) => {
+                            bytes.copy_to(&path, &st.io_semaphore).await?;
+
+                            tracing::debug!(
+                                "Fetched library {} to path {:?}",
+                                &library.name,
+                                &path
+                            );
+                        }
+                        Err(err) => {
+                            tracing::debug!(
+                                "Failed to download library {} from {url} - \
+                                this is not necessarily an error: {err:#?}",
+                                &library.name
+                            );
+                        }
+                    }
+                }
+            }
+
+            tracing::debug!("Loaded library {}", library.name);
+            Ok(())
+            }
+        },
+    )
+    .await?;
+
+    tracing::debug!("Done loading libraries!");
+    Ok(())
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn download_log_config(
+    st: &State,
+    version_info: &GameVersionInfo,
+    loading_bar: Option<&LoadingBarId>,
+    force: bool,
+    progress: Option<MinecraftDownloadProgress>,
+) -> crate::Result<bool> {
+    let log_download = version_info
+        .logging
+        .as_ref()
+        .and_then(|x| x.get(&LoggingSide::Client));
+    let Some(LoggingConfiguration::Log4j2Xml {
+        file: log_download, ..
+    }) = log_download
+    else {
+        if let Some(loading_bar) = loading_bar {
+            emit_loading(loading_bar, 1.0, None)?;
+        }
+        return Ok(false);
+    };
+
+    let path = st.directories.log_configs_dir().join(&log_download.id);
+
+    if !path.exists() || force {
+        let bytes = fetch_minecraft_file(
+            st,
+            log_download.url.as_str(),
+            Some(&log_download.sha1.to_string()),
+            Some(log_download.size as u64),
+            progress,
+            InstallErrorContext::new("download Minecraft log config")
+                .minecraft_version(version_info.id.to_string())
+                .file_path(log_download.id.clone())
+                .target_path(path.display().to_string())
+                .build(),
+        )
+        .await?;
+        bytes
+            .copy_to(&path, &st.io_semaphore)
+            .await
+            .context(format!("writing log config to {}", path.display()))?;
+        tracing::trace!("Fetched log config {}", log_download.id);
+    }
+    if let Some(loading_bar) = loading_bar {
+        emit_loading(loading_bar, 1.0, None)?;
+    }
+
+    tracing::debug!("Log config {} loaded", log_download.id);
+    Ok(true)
+}

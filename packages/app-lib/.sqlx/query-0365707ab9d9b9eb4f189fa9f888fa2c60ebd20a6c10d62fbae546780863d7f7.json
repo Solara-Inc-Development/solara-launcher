@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n\t\tSELECT feature\n\t\tFROM instance_sync_preferences\n\t\tWHERE instance_id = ? AND enabled = 1\n\t\t",
+  "describe": {
+    "columns": [
+      {
+        "name": "feature",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "instance_sync_preferences",
+            "name": "feature"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0365707ab9d9b9eb4f189fa9f888fa2c60ebd20a6c10d62fbae546780863d7f7"
+}

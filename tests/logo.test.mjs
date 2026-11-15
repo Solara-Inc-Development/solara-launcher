@@ -53,10 +53,10 @@ test('official bordered Solara logo assets are present and valid', () => {
 });
 
 test('desktop icon.png and multi-size icon.ico are generated from official bordered logo', () => {
-  const iconPng = readPngDimensions(fs.readFileSync(path.join(root, 'apps/desktop/icons/icon.png')));
-  assert.deepEqual(iconPng, { width: 256, height: 256 });
+  const iconPng = readPngDimensions(fs.readFileSync(path.join(root, 'apps/app/icons/icon.png')));
+  assert.deepEqual(iconPng, { width: 512, height: 512 });
 
-  const icoSizes = readIcoSizes(fs.readFileSync(path.join(root, 'apps/desktop/icons/icon.ico')));
+  const icoSizes = readIcoSizes(fs.readFileSync(path.join(root, 'apps/app/icons/icon.ico')));
   assert.ok(icoSizes.length >= 6, `expected multi-size ICO, got ${icoSizes.length} entries`);
   for (const required of [16, 24, 32, 48, 64, 128, 256]) {
     assert.ok(
@@ -66,9 +66,15 @@ test('desktop icon.png and multi-size icon.ico are generated from official borde
   }
 });
 
-test('SolaraLogo.vue displays the official bordered logo image instead of custom inline SVG', () => {
-  const vue = fs.readFileSync(path.join(root, 'apps/desktop/ui/components/SolaraLogo.vue'), 'utf8');
-  assert.match(vue, /\/logo\.svg/);
-  assert.match(vue, /\/logo-192\.png/);
-  assert.doesNotMatch(vue, /<svg\b/i, 'SolaraLogo.vue must not render custom-drawn inline SVG');
+test('SolaraIcon in @modrinth/assets matches the official bordered logo.svg and is used in TitleBar and SplashScreen', () => {
+  const solaraIconSvg = fs.readFileSync(path.join(root, 'packages/assets/solara/logo.svg'), 'utf8');
+  const publicLogoSvg = fs.readFileSync(path.join(root, 'public/logo.svg'), 'utf8');
+  assert.equal(solaraIconSvg.replace(/\r\n/g, '\n'), publicLogoSvg.replace(/\r\n/g, '\n'));
+
+  const titleBar = fs.readFileSync(path.join(root, 'apps/app-frontend/src/app/shell/title-bar/index.vue'), 'utf8');
+  const splash = fs.readFileSync(path.join(root, 'apps/app-frontend/src/components/ui/SplashScreen.vue'), 'utf8');
+  assert.match(titleBar, /SolaraIcon/);
+  assert.match(titleBar, /Solara Launcher/);
+  assert.match(splash, /SolaraIcon/);
+  assert.match(splash, /Solara Launcher/);
 });

@@ -1,0 +1,978 @@
+{
+  "action.no-permission": {
+    "defaultMessage": "คุณไม่มีสิทธิ์"
+  },
+  "app.appearance-settings.native-decorations.description": {
+    "defaultMessage": "ใช้แถบชื่อเรื่องและปุ่มควบคุมหน้าต่างของระบบปฏิบัติการ จำเป็นต้องรีสตาร์ทแอป"
+  },
+  "app.appearance-settings.native-decorations.title": {
+    "defaultMessage": "กรอบหน้าต่างระบบ"
+  },
+  "app.instance.admonitions.shared-instance.changes-header": {
+    "defaultMessage": "การเปลี่ยนแปลงของคุณยังไม่ได้ถูกแชร์"
+  },
+  "app.instance.admonitions.shared-instance.publish-button": {
+    "defaultMessage": "ส่งการอัปเดต"
+  },
+  "app.instance.admonitions.shared-instance.publishing-button": {
+    "defaultMessage": "กำลังส่งการอัปเดต..."
+  },
+  "app.instance.admonitions.shared-instance.reviewing-button": {
+    "defaultMessage": "กำลังตรวจสอบ..."
+  },
+  "app.instance.share.members.empty": {
+    "defaultMessage": "ยังไม่มีผู้ใช้ได้เข้าร่วม"
+  },
+  "app.instance.share.members.no-filter-results": {
+    "defaultMessage": "ไม่มีผู้ใช้ที่ตรงกับตัวกรองของคุณ"
+  },
+  "app.server-settings.failed-to-load-server": {
+    "defaultMessage": "โหลดการตั้งค่าเซิร์ฟเวอร์ไม่สำเร็จ"
+  },
+  "badge.alpha": {
+    "defaultMessage": "อัลฟา"
+  },
+  "badge.beta": {
+    "defaultMessage": "เบต้า"
+  },
+  "badge.beta-release": {
+    "defaultMessage": "รุ่นเบต้า"
+  },
+  "badge.new": {
+    "defaultMessage": "ใหม่"
+  },
+  "badge.release": {
+    "defaultMessage": "ตัวเต็ม"
+  },
+  "billing.resubscribe-modal.add-payment-method": {
+    "defaultMessage": "เพิ่มวิธีการชำระเงิน"
+  },
+  "billing.resubscribe-modal.cancel": {
+    "defaultMessage": "ยกเลิก"
+  },
+  "billing.resubscribe-modal.change-payment-method": {
+    "defaultMessage": "เปลี่ยน"
+  },
+  "billing.resubscribe-modal.charged-now": {
+    "defaultMessage": "คุณจะถูกเรียกเก็บเงิน {total} ในวันนี้ และทุกๆ {period} จนกว่าคุณจะยกเลิก คุณสามารถยกเลิกได้ทุกเมื่อจากหน้าการตั้งค่าของคุณ"
+  },
+  "billing.resubscribe-modal.charged-on-date": {
+    "defaultMessage": "คุณจะถูกเรียกเก็บเงิน {total} ในวันที่ <charge-date>{date}</charge-date> และทุกๆ {period} จนกว่าคุณจะยกเลิก คุณสามารถยกเลิกได้ทุกเมื่อจากหน้าการตั้งค่าของคุณ"
+  },
+  "billing.resubscribe-modal.description": {
+    "defaultMessage": "คุณกำลังจะกลับมาสมัครบริการ <server-name>{serverName}</server-name> อีกครั้ง การสมัครบริการของคุณจะได้รับการต่ออายุและเซิร์ฟเวอร์ของคุณจะทำงานต่อไปโดยไม่หยุดชะงัก"
+  },
+  "billing.resubscribe-modal.error.payment-method": {
+    "defaultMessage": "เปลี่ยนวิธีการชำระเงินของคุณไม่สำเร็จ"
+  },
+  "billing.resubscribe-modal.error.text": {
+    "defaultMessage": "ไม่สามารถสมัครบริการอีกครั้งได้ เนื่องจากโหลดรายละเอียดการสมัครบริการไม่สำเร็จ"
+  },
+  "billing.resubscribe-modal.error.title": {
+    "defaultMessage": "ข้อผิดพลาด"
+  },
+  "billing.resubscribe-modal.failed-load": {
+    "defaultMessage": "โหลดรายละเอียดการสมัครบริการไม่สำเร็จ"
+  },
+  "billing.resubscribe-modal.no-payment-method": {
+    "defaultMessage": "ยังไม่ได้เลือกวิธีการชำระเงิน"
+  },
+  "billing.resubscribe-modal.plan-item": {
+    "defaultMessage": "โฮสติ้ง Modrinth ({plan})"
+  },
+  "billing.resubscribe-modal.plan.custom": {
+    "defaultMessage": "กำหนดเอง"
+  },
+  "billing.resubscribe-modal.plan.large": {
+    "defaultMessage": "ใหญ่"
+  },
+  "billing.resubscribe-modal.plan.medium": {
+    "defaultMessage": "กลาง"
+  },
+  "billing.resubscribe-modal.plan.small": {
+    "defaultMessage": "เล็ก"
+  },
+  "billing.resubscribe-modal.preview-error": {
+    "defaultMessage": "เราไม่สามารถคำนวณค่าใช้จ่ายในการสมัครบริการอีกครั้งได้ โปรดตรวจสอบให้แน่ใจว่าวิธีการชำระเงินของคุณมีที่อยู่ออกบิล แล้วลองใหม่อีกครั้ง"
+  },
+  "billing.resubscribe-modal.recurring-notice": {
+    "defaultMessage": "เมื่อคลิก \"สมัครบริการอีกครั้ง\" คุณกำลังฟื้นคืนการสมัครบริการแบบรายเดือน/ตามรอบเวลา"
+  },
+  "billing.resubscribe-modal.resubscribe": {
+    "defaultMessage": "สมัครบริการอีกครั้ง"
+  },
+  "billing.resubscribe-modal.tax-item": {
+    "defaultMessage": "ภาษี"
+  },
+  "billing.resubscribe-modal.title": {
+    "defaultMessage": "สมัครบริการโฮสติ้ง Modrinth อีกครั้ง"
+  },
+  "browse.view-prefix": {
+    "defaultMessage": "ดู:"
+  },
+  "button.accept": {
+    "defaultMessage": "ยอมรับ"
+  },
+  "button.back": {
+    "defaultMessage": "กลับ"
+  },
+  "button.cancel": {
+    "defaultMessage": "ยกเลิก"
+  },
+  "button.clear": {
+    "defaultMessage": "ล้าง"
+  },
+  "button.close": {
+    "defaultMessage": "ปิด"
+  },
+  "button.confirm": {
+    "defaultMessage": "ยืนยัน"
+  },
+  "button.continue": {
+    "defaultMessage": "ดำเนินการต่อ"
+  },
+  "button.copy-id": {
+    "defaultMessage": "คัดลอก ID"
+  },
+  "button.copy-permalink": {
+    "defaultMessage": "คัดลอกลิงก์ถาวร"
+  },
+  "button.create-a-project": {
+    "defaultMessage": "สร้างโปรเจกต์"
+  },
+  "button.disable": {
+    "defaultMessage": "ปิด"
+  },
+  "button.download": {
+    "defaultMessage": "ดาวน์โหลด"
+  },
+  "button.downloading": {
+    "defaultMessage": "กำลังดาวน์โหลด"
+  },
+  "button.edit": {
+    "defaultMessage": "แก้ไข"
+  },
+  "button.enable": {
+    "defaultMessage": "เปิด"
+  },
+  "button.follow": {
+    "defaultMessage": "ติดตาม"
+  },
+  "button.install": {
+    "defaultMessage": "ติดตั้ง"
+  },
+  "button.more-options": {
+    "defaultMessage": "ตัวเลือกเพิ่มเติม"
+  },
+  "button.move": {
+    "defaultMessage": "ย้าย"
+  },
+  "button.next": {
+    "defaultMessage": "ถัดไป"
+  },
+  "button.open-folder": {
+    "defaultMessage": "เปิดโฟลเดอร์"
+  },
+  "button.play": {
+    "defaultMessage": "เล่น"
+  },
+  "button.refresh": {
+    "defaultMessage": "รีเฟรช"
+  },
+  "button.remove": {
+    "defaultMessage": "ลบ"
+  },
+  "button.remove-image": {
+    "defaultMessage": "ลบรูป"
+  },
+  "button.rename": {
+    "defaultMessage": "เปลี่ยนชื่อ"
+  },
+  "button.report": {
+    "defaultMessage": "รายงาน"
+  },
+  "button.reset": {
+    "defaultMessage": "คืนค่า"
+  },
+  "button.retry": {
+    "defaultMessage": "ลองอีกครั้ง"
+  },
+  "button.save": {
+    "defaultMessage": "บันทึก"
+  },
+  "button.save-changes": {
+    "defaultMessage": "บันทึกการเปลี่ยนแปลง"
+  },
+  "button.saving": {
+    "defaultMessage": "บันทึก"
+  },
+  "button.sign-in": {
+    "defaultMessage": "เข้าสู่ระบบ"
+  },
+  "button.sign-out": {
+    "defaultMessage": "ออกจากระบบ"
+  },
+  "button.sign-up": {
+    "defaultMessage": "ลงทะเบียน"
+  },
+  "button.stop": {
+    "defaultMessage": "หยุด"
+  },
+  "button.unfollow": {
+    "defaultMessage": "เลิกติดตาม"
+  },
+  "button.upload-image": {
+    "defaultMessage": "อัพโหลดภาพ"
+  },
+  "changelog.justNow": {
+    "defaultMessage": "ตอนนี้"
+  },
+  "content.card.synced": {
+    "defaultMessage": "ซิงก์ข้ามทุกชุดเซิร์ฟเวอร์แล้ว"
+  },
+  "content.page-layout.update-all": {
+    "defaultMessage": "อัปเดตทั้งหมด"
+  },
+  "content.page-layout.upload-files": {
+    "defaultMessage": "อัปโหลดไฟล์"
+  },
+  "content.selection-bar.bulk.deleting": {
+    "defaultMessage": "กำลังลบ {progress}/{total}{contentType}..."
+  },
+  "content.selection-bar.bulk.deleting-waiting": {
+    "defaultMessage": "กำลังลบ {contentType}..."
+  },
+  "content.selection-bar.bulk.disabling": {
+    "defaultMessage": "กำลังปิดการใช้งาน {progress}/{total} {contentType}..."
+  },
+  "content.selection-bar.bulk.disabling-waiting": {
+    "defaultMessage": "กำลังปิดการใช้งาน {contentType}..."
+  },
+  "content.selection-bar.bulk.enabling": {
+    "defaultMessage": "กำลังเปิดการใช้งาน {progress}/{total} {contentType}..."
+  },
+  "content.selection-bar.bulk.enabling-waiting": {
+    "defaultMessage": "กำลังเปิดการใช้งาน {contentType}..."
+  },
+  "content.selection-bar.bulk.updating": {
+    "defaultMessage": "กำลังอัปเดต {progress}/{total} {contentType}..."
+  },
+  "content.selection-bar.bulk.updating-waiting": {
+    "defaultMessage": "กำลังอัปเดต {contentType}..."
+  },
+  "content.selection-bar.selected-count-simple": {
+    "defaultMessage": "{count, number} เลือกแล้ว"
+  },
+  "creation-flow.button.import-instances": {
+    "defaultMessage": "นำเข้า {count, plural, one {# ชุดเซิร์ฟเวอร์} other {# ชุดเซิร์ฟเวอร์}}"
+  },
+  "creation-flow.modal.import-instance.detecting-launcher-instances": {
+    "defaultMessage": "กำลังตรวจจับชุดเซิร์ฟเวอร์จากตัวเปิดใช้งาน..."
+  },
+  "creation-flow.modal.import-instance.launcher-instances.title": {
+    "defaultMessage": "ชุดเซิร์ฟเวอร์ของตัวเปิดใช้งาน"
+  },
+  "creation-flow.modal.import-instance.notification.no-instances-found.text": {
+    "defaultMessage": "ไม่พบชุดเซิร์ฟเวอร์ที่สามารถนำเข้าได้ที่เส้นทางที่ระบุ"
+  },
+  "creation-flow.modal.import-instance.notification.no-instances-found.title": {
+    "defaultMessage": "ไม่พบชุดเซิร์ฟเวอร์ใด ๆ"
+  },
+  "files.editor.failed-to-open-text": {
+    "defaultMessage": "ไม่สามารถโหลดไฟล์เนื้อหา"
+  },
+  "files.zip-url-modal.install-button": {
+    "defaultMessage": "ติดตั้ง"
+  },
+  "form.label.address-line-2": {
+    "defaultMessage": "ที่อยู่บรรทัดที่ 2 (ไม่จำเป็น)"
+  },
+  "form.label.amount": {
+    "defaultMessage": "จำนวน"
+  },
+  "form.label.bank-name": {
+    "defaultMessage": "ชื่อธนาคาร"
+  },
+  "form.label.business-name": {
+    "defaultMessage": "ชื่อบริษัท"
+  },
+  "form.label.city": {
+    "defaultMessage": "เมือง"
+  },
+  "form.label.country": {
+    "defaultMessage": "ประเทศ"
+  },
+  "form.label.date-of-birth": {
+    "defaultMessage": "วันเกิด"
+  },
+  "form.label.email": {
+    "defaultMessage": "อีเมล"
+  },
+  "form.label.first-name": {
+    "defaultMessage": "ชื่อจริง"
+  },
+  "form.label.last-name": {
+    "defaultMessage": "นามสกุล"
+  },
+  "form.label.postal-code": {
+    "defaultMessage": "รหัสไปรษณีย์"
+  },
+  "form.label.state-province": {
+    "defaultMessage": "รัฐ หรือ จังหวัด"
+  },
+  "form.placeholder.address": {
+    "defaultMessage": "กรอกที่อยู่"
+  },
+  "form.placeholder.amount": {
+    "defaultMessage": "กรอกจำนวน"
+  },
+  "form.placeholder.bank-name": {
+    "defaultMessage": "กรอกชื่อธนาคาร"
+  },
+  "form.placeholder.bank-name-dropdown": {
+    "defaultMessage": "เลือกธนาคาร"
+  },
+  "form.placeholder.business-name": {
+    "defaultMessage": "กรอกชื่อบริษัท"
+  },
+  "form.placeholder.city": {
+    "defaultMessage": "กรอกเมือง"
+  },
+  "form.placeholder.country": {
+    "defaultMessage": "เลือกประเทศ"
+  },
+  "form.placeholder.email": {
+    "defaultMessage": "กรอกอีเมล"
+  },
+  "form.placeholder.first-name": {
+    "defaultMessage": "กรอกชื่อจริง"
+  },
+  "form.placeholder.last-name": {
+    "defaultMessage": "กรอกนามสกุล"
+  },
+  "form.placeholder.postal-code": {
+    "defaultMessage": "กรอกรหัสไปรษณีย์"
+  },
+  "form.placeholder.state": {
+    "defaultMessage": "กรอกรัฐหรือจังหวัด"
+  },
+  "hosting.content.failed-to-bulk-delete": {
+    "defaultMessage": "ไม่สามารถลบเนื้อหาได้"
+  },
+  "hosting.loader.reset-to-onboarding-success-description": {
+    "defaultMessage": "เซิร์ฟเวอร์ถูกส่งกลับไปยังขั้นตอนการตั้งค่าเริ่มต้นแล้ว"
+  },
+  "hosting.loader.reset-to-onboarding-success-title": {
+    "defaultMessage": "รีเซ็ตเซิร์ฟเวอร์ไปยังขั้นตอนเริ่มต้นใช้งานแล้ว"
+  },
+  "icon-select.edit": {
+    "defaultMessage": "แก้ไขไอคอน"
+  },
+  "icon-select.remove": {
+    "defaultMessage": "ลบไอคอน"
+  },
+  "icon-select.replace": {
+    "defaultMessage": "เปลี่ยนไอคอน"
+  },
+  "icon-select.select": {
+    "defaultMessage": "เลือกรูปไอคอน"
+  },
+  "input.search.placeholder": {
+    "defaultMessage": "ค้นหา..."
+  },
+  "input.view.gallery": {
+    "defaultMessage": "มุมมองแกลเลอรี"
+  },
+  "input.view.grid": {
+    "defaultMessage": "มุมมองตาราง"
+  },
+  "input.view.list": {
+    "defaultMessage": "มุมมองแถว"
+  },
+  "instance.worlds.game_mode.adventure": {
+    "defaultMessage": "โหมดผจญภัย"
+  },
+  "instance.worlds.game_mode.creative": {
+    "defaultMessage": "โหมดสร้างสรรค์"
+  },
+  "instance.worlds.game_mode.spectator": {
+    "defaultMessage": "โหมดผู้ชม"
+  },
+  "instance.worlds.game_mode.survival": {
+    "defaultMessage": "โหมดเอาชีวิตรอด"
+  },
+  "instance.worlds.game_mode.unknown": {
+    "defaultMessage": "ไม่ทราบเกมโหมด"
+  },
+  "instances.content-install.compatible-count": {
+    "defaultMessage": "{count} ชุดเซิร์ฟเวอร์ที่เข้ากันได้ {count, plural, one {ชุดเซิร์ฟเวอร์} other {ชุดเซิร์ฟเวอร์}}"
+  },
+  "instances.content-install.existing-tab": {
+    "defaultMessage": "ชุดเซิร์ฟเวอร์ที่มีอยู่"
+  },
+  "instances.content-install.game-version-placeholder": {
+    "defaultMessage": "เลือกเวอร์ชั่น"
+  },
+  "instances.content-install.header": {
+    "defaultMessage": "ติดตั้งโปรเจกต์"
+  },
+  "instances.content-install.hide-unavailable": {
+    "defaultMessage": "ซ่อนรายการที่ไม่พร้อมใช้งาน"
+  },
+  "instances.content-install.incompatible-tooltip": {
+    "defaultMessage": "ชุดเซิร์ฟเวอร์นี้ใช้ตัวโหลดหรือเวอร์ชันเกมที่แตกต่างจากที่โครงการนี้รองรับ"
+  },
+  "instances.content-install.install-button": {
+    "defaultMessage": "ติดตั้ง"
+  },
+  "instances.content-install.installed-badge": {
+    "defaultMessage": "ติดตั้งแล้ว"
+  },
+  "instances.content-install.instance-type": {
+    "defaultMessage": "ประเถทอินสแตนซ์"
+  },
+  "instances.content-install.loader-label": {
+    "defaultMessage": "ตัวโหลด"
+  },
+  "instances.content-install.name-label": {
+    "defaultMessage": "ชื่อ"
+  },
+  "instances.content-install.name-placeholder": {
+    "defaultMessage": "ใส่ชื่ออินสแตนซ์"
+  },
+  "instances.content-install.new-tab": {
+    "defaultMessage": "อินสแตนซ์อันใหม่"
+  },
+  "instances.content-install.no-instances": {
+    "defaultMessage": "ไม่พบชุดเซิร์ฟเวอร์ที่เข้ากันได้"
+  },
+  "instances.content-install.search-placeholder": {
+    "defaultMessage": "ค้นหาอินสแตนซ์"
+  },
+  "instances.content-install.show-unavailable": {
+    "defaultMessage": "แสดงรายการที่ไม่พร้อมใช้งาน"
+  },
+  "instances.managed-content-modal.disabled": {
+    "defaultMessage": "ปิดใช้งานแล้ว"
+  },
+  "instances.managed-content-modal.download-file": {
+    "defaultMessage": "ดาวน์โหลดไฟล์"
+  },
+  "instances.managed-content-modal.empty-description": {
+    "defaultMessage": "แหล่งที่มานี้ไม่ได้รวมเนื้อหาที่จัดการไว้ใดๆ"
+  },
+  "instances.managed-content-modal.empty-title": {
+    "defaultMessage": "ไม่พบเนื้อหาใดๆ"
+  },
+  "instances.managed-content-modal.enabled": {
+    "defaultMessage": "เปิดใช้งานแล้ว"
+  },
+  "instances.managed-content-modal.header": {
+    "defaultMessage": "เนื้อหาที่จัดการไว้"
+  },
+  "instances.managed-content-modal.loading": {
+    "defaultMessage": "กำลังโหลดเนื้อหา..."
+  },
+  "instances.managed-content-modal.no-results": {
+    "defaultMessage": "ไม่พบโครงการที่ตรงกับการค้นหาของคุณ"
+  },
+  "instances.managed-content-modal.open-in-slicer": {
+    "defaultMessage": "เปิดใน Slicer"
+  },
+  "instances.managed-content-modal.search-placeholder": {
+    "defaultMessage": "ค้นหา {count, number} {count, plural, one {โครงการ} other {โครงการต่างๆ}}"
+  },
+  "instances.updater-modal.badge.current": {
+    "defaultMessage": "ปัจจุบัน"
+  },
+  "instances.updater-modal.badge.incompatible": {
+    "defaultMessage": "ไม่เข้ากัน"
+  },
+  "instances.updater-modal.downgrade-to": {
+    "defaultMessage": "ดาวน์เกรดเป็น {version}"
+  },
+  "instances.updater-modal.header": {
+    "defaultMessage": "อัปเดตเวอร์ชัน"
+  },
+  "instances.updater-modal.header-modpack": {
+    "defaultMessage": "เปลี่ยนเวอร์ชันม็อดแพ็ก"
+  },
+  "instances.updater-modal.header-switch": {
+    "defaultMessage": "เปลี่ยนเวอร์ชัน"
+  },
+  "instances.updater-modal.hide-incompatible": {
+    "defaultMessage": "ซ่อนสิ่งที่เข้ากันไม่ได้"
+  },
+  "instances.updater-modal.incompatibility-warning": {
+    "defaultMessage": "เวอร์ชันนี้ไม่ได้ถูกทำเครื่องหมายว่าเข้ากันได้กับชุดเซิร์ฟเวอร์นี้ การพึ่งพาจะไม่ถูกติดตั้งโดยอัตโนมัติ"
+  },
+  "instances.updater-modal.incompatibility-warning-header": {
+    "defaultMessage": "เลือกเวอร์ชัน"
+  },
+  "instances.updater-modal.incompatible-update.description": {
+    "defaultMessage": "{version} ไม่ได้ถูกทำเครื่องหมายว่าเข้ากันได้กับการติดตั้งนี้ อาจทำให้ไม่สามารถเริ่มทำงานหรือทำงานผิดปกติได้"
+  },
+  "instances.updater-modal.incompatible-update.header": {
+    "defaultMessage": "อัปเดตเป็นเวอร์ชันที่ไม่เข้ากัน?"
+  },
+  "instances.updater-modal.incompatible-update.proceed": {
+    "defaultMessage": "อัปเดตอยู่ดี"
+  },
+  "instances.updater-modal.install-anyway": {
+    "defaultMessage": "ติดตั้งอยู่ดี"
+  },
+  "instances.updater-modal.loading-changelog": {
+    "defaultMessage": "กำลังโหลดบันทึกการเปลี่ยนแปลง..."
+  },
+  "instances.updater-modal.loading-versions": {
+    "defaultMessage": "กำลังโหลดเวอร์ชัน..."
+  },
+  "instances.updater-modal.no-changelog": {
+    "defaultMessage": "ไม่มีบันทึกการเปลี่ยนแปลงสำหรับเวอร์ชันนี้ให้แสดง"
+  },
+  "instances.updater-modal.no-versions": {
+    "defaultMessage": "ไม่พบเวอร์ชันใดๆ"
+  },
+  "instances.updater-modal.search-placeholder": {
+    "defaultMessage": "ค้นหาเวอร์ชัน..."
+  },
+  "instances.updater-modal.select-version": {
+    "defaultMessage": "เลือกเวอร์ชันเพื่อดูบันทึกการเปลี่ยนแปลง"
+  },
+  "instances.updater-modal.show-incompatible": {
+    "defaultMessage": "แสดงสิ่งที่เข้ากันไม่ได้"
+  },
+  "instances.updater-modal.switch-to": {
+    "defaultMessage": "เปลี่ยนเป็น {version}"
+  },
+  "instances.updater-modal.update-to": {
+    "defaultMessage": "อัปเดตเป็น {version}"
+  },
+  "instances.updater-modal.warning-app": {
+    "defaultMessage": "การอัปเดตอาจทำให้ชุดเซิร์ฟเวอร์ของคุณเสียหาย โปรดตรวจสอบบันทึกการเปลี่ยนแปลงของเวอร์ชันและสำรองข้อมูลก่อน"
+  },
+  "instances.updater-modal.warning-web": {
+    "defaultMessage": "การอัปเดตอาจทำลายโลกของคุณ โปรดตรวจสอบบันทึกการเปลี่ยนแปลงของเวอร์ชันและสำรองข้อมูลก่อน"
+  },
+  "label.available": {
+    "defaultMessage": "ว่างอยู่ {amount}"
+  },
+  "label.changes-saved": {
+    "defaultMessage": "บันทึกการเปลี่ยนแปลงแล้ว"
+  },
+  "label.collections": {
+    "defaultMessage": "คอลเลกชัน"
+  },
+  "label.content": {
+    "defaultMessage": "เนื้อหา"
+  },
+  "label.created-ago": {
+    "defaultMessage": "สร้างขึ้นเมื่อ {ago}"
+  },
+  "label.dashboard": {
+    "defaultMessage": "แดชบอร์ด"
+  },
+  "label.delete": {
+    "defaultMessage": "ลบ"
+  },
+  "label.description": {
+    "defaultMessage": "คำอธิบาย"
+  },
+  "label.error": {
+    "defaultMessage": "ข้อผิดพลาด"
+  },
+  "label.followed-projects": {
+    "defaultMessage": "โปรเจกต์ที่ติดตาม"
+  },
+  "label.loading": {
+    "defaultMessage": "กำลังโหลด..."
+  },
+  "label.moderation": {
+    "defaultMessage": "การกลั่นกรอง"
+  },
+  "label.notifications": {
+    "defaultMessage": "แจ้งเตือน"
+  },
+  "label.or": {
+    "defaultMessage": "หรือ"
+  },
+  "label.password": {
+    "defaultMessage": "รหัสผ่าน"
+  },
+  "label.public": {
+    "defaultMessage": "สาธารณะ"
+  },
+  "label.rejected": {
+    "defaultMessage": "ไม่อนุมัติ"
+  },
+  "label.saved": {
+    "defaultMessage": "บันทึกแล้ว"
+  },
+  "label.scopes": {
+    "defaultMessage": "ขอบเขต"
+  },
+  "label.server": {
+    "defaultMessage": "เซิร์ฟเวอร์"
+  },
+  "label.servers": {
+    "defaultMessage": "เซิร์ฟเวอร์"
+  },
+  "label.settings": {
+    "defaultMessage": "ตั้งค่า"
+  },
+  "label.singleplayer": {
+    "defaultMessage": "เล่นคนเดียว"
+  },
+  "label.success": {
+    "defaultMessage": "สำเร็จ"
+  },
+  "label.title": {
+    "defaultMessage": "ชื่อ"
+  },
+  "label.unlisted": {
+    "defaultMessage": "ไม่เปิดเผย"
+  },
+  "label.visibility": {
+    "defaultMessage": "การเปิดเผย"
+  },
+  "modal.add-payment-method.action": {
+    "defaultMessage": "เพิ่มช่องทางการชำระเงิน"
+  },
+  "modal.add-payment-method.title": {
+    "defaultMessage": "กำลังเพิ่มช่องทางการชำระเงิน"
+  },
+  "notification.error.title": {
+    "defaultMessage": "เกิดข้อผิดพลาด"
+  },
+  "omorphia.component.badge.label.accepted": {
+    "defaultMessage": "ยอมรับแล้ว"
+  },
+  "omorphia.component.badge.label.approved": {
+    "defaultMessage": "อนุมัติแล้ว"
+  },
+  "omorphia.component.badge.label.archived": {
+    "defaultMessage": "จัดเก็บแล้ว"
+  },
+  "omorphia.component.badge.label.closed": {
+    "defaultMessage": "ถูกปิด"
+  },
+  "omorphia.component.badge.label.draft": {
+    "defaultMessage": "แบบร่าง"
+  },
+  "omorphia.component.badge.label.failed": {
+    "defaultMessage": "ไม่สำเร็จ"
+  },
+  "omorphia.component.badge.label.modrinth-team": {
+    "defaultMessage": "ทีม Modrinth"
+  },
+  "omorphia.component.badge.label.pending": {
+    "defaultMessage": "กําลังดำเนินการ"
+  },
+  "omorphia.component.badge.label.private": {
+    "defaultMessage": "ส่วนตัว"
+  },
+  "omorphia.component.badge.label.processed": {
+    "defaultMessage": "ประมวลผลแล้ว"
+  },
+  "omorphia.component.badge.label.rejected": {
+    "defaultMessage": "ถูกปฏิเสธ"
+  },
+  "omorphia.component.badge.label.returned": {
+    "defaultMessage": "ถูกตีกลับ"
+  },
+  "omorphia.component.badge.label.safe": {
+    "defaultMessage": "ผ่าน"
+  },
+  "omorphia.component.badge.label.under-review": {
+    "defaultMessage": "อยู่ภายใต้การพิจารณา"
+  },
+  "omorphia.component.badge.label.unlisted": {
+    "defaultMessage": "ไม่เผยแพร่"
+  },
+  "omorphia.component.badge.label.unsafe": {
+    "defaultMessage": "ไม่ผ่าน"
+  },
+  "omorphia.component.copy.action.copy": {
+    "defaultMessage": "คัดลอกโค้ดไปยังคลิปบอร์ด"
+  },
+  "omorphia.component.environment-indicator.label.client": {
+    "defaultMessage": "ไคลเอ็นต์"
+  },
+  "omorphia.component.environment-indicator.label.client-and-server": {
+    "defaultMessage": "ไคลเอ็นต์และเซิร์ฟเวอร์"
+  },
+  "omorphia.component.environment-indicator.label.client-or-server": {
+    "defaultMessage": "ไคลเอ็นต์และเซิร์ฟเวอร์"
+  },
+  "omorphia.component.environment-indicator.label.server": {
+    "defaultMessage": "เซิร์ฟเวอร์"
+  },
+  "omorphia.component.environment-indicator.label.unsupported": {
+    "defaultMessage": "ไม่รองรับ"
+  },
+  "payment-method.venmo": {
+    "defaultMessage": "Venmo"
+  },
+  "payment-method.virtual-visa": {
+    "defaultMessage": "Virtual Visa"
+  },
+  "payment-method.virtual-visa-plural": {
+    "defaultMessage": "Virtual Visas"
+  },
+  "profile.block-user.admonition-body": {
+    "defaultMessage": "{username} จะไม่สามารถส่งคำขอเป็นเพื่อน เชิญคุณไปยังชุดเซิร์ฟเวอร์ที่แชร์ หรือเชิญคุณไปยังเซิร์ฟเวอร์โฮสติ้ง Modrinth ได้"
+  },
+  "profile.block-user.success-description": {
+    "defaultMessage": "{username} ถูกบล็อกแล้ว"
+  },
+  "profile.block-user.success-title": {
+    "defaultMessage": "ผู้ใช้ถูกบล็อก"
+  },
+  "profile.button.shared-instances": {
+    "defaultMessage": "ดูชุดเซิร์ฟเวอร์ที่แชร์"
+  },
+  "profile.force-password-reset.success-description": {
+    "defaultMessage": "ลิงก์สำหรับรีเซ็ตรหัสผ่านถูกส่งไปยัง {username} เรียบร้อยแล้ว"
+  },
+  "profile.force-password-reset.success-title": {
+    "defaultMessage": "รีเซ็ตรหัสผ่าน"
+  },
+  "profile.reset-2fa.success-description": {
+    "defaultMessage": "ยกเลิกการยืนยันตัวตนสองขั้นตอนของ {username} เรียบร้อยแล้ว"
+  },
+  "profile.reset-2fa.success-title": {
+    "defaultMessage": "รีเซ็ตการยืนยันตัวตนสองขั้นตอน"
+  },
+  "profile.restrict-user.remove-success-description": {
+    "defaultMessage": "ข้อจำกัดของ {username} ถูกยกเลิกแล้ว"
+  },
+  "profile.restrict-user.remove-success-title": {
+    "defaultMessage": "ยกเลิกข้อจำกัดแล้ว"
+  },
+  "project-type.all": {
+    "defaultMessage": "ทั้งหมด"
+  },
+  "project-type.mod.category": {
+    "defaultMessage": "ม็อด"
+  },
+  "project-type.modpack.category": {
+    "defaultMessage": "ม็อดแพ็ก"
+  },
+  "project-type.plugin.category": {
+    "defaultMessage": "ปลั๊กอิน"
+  },
+  "project-type.resourcepack.category": {
+    "defaultMessage": "รีซอร์ซแพ็ก"
+  },
+  "project-type.server.category": {
+    "defaultMessage": "เซิร์ฟเวอร์"
+  },
+  "project-type.shader.capital": {
+    "defaultMessage": "{count, plural, one {Shader} other {Shaders}}"
+  },
+  "project-type.shader.category": {
+    "defaultMessage": "Shaders"
+  },
+  "project-type.shader.lowercase": {
+    "defaultMessage": "{count, plural, one {shader} other {shaders}}"
+  },
+  "project.about.compatibility.game.minecraftJava": {
+    "defaultMessage": "Minecraft: Java Edition"
+  },
+  "project.about.compatibility.platforms": {
+    "defaultMessage": "แพลตฟอร์ม"
+  },
+  "project.about.creators.title": {
+    "defaultMessage": "ผู้สร้าง"
+  },
+  "project.about.details.created": {
+    "defaultMessage": "สร้างขึ้นเมื่อ {date}"
+  },
+  "project.about.details.licensed": {
+    "defaultMessage": "ไลเซนส์ {license}"
+  },
+  "project.about.details.published": {
+    "defaultMessage": "เผยแพร่เมื่อ {date}"
+  },
+  "project.about.details.updated": {
+    "defaultMessage": "อัพเดทเมื่อ {date}"
+  },
+  "project.about.links.discord": {
+    "defaultMessage": "เข้าร่วม Discord server"
+  },
+  "project.about.links.donate.bmac": {
+    "defaultMessage": "Buy Me a Coffee"
+  },
+  "project.about.links.donate.generic": {
+    "defaultMessage": "สนับสนุน"
+  },
+  "project.about.links.donate.github": {
+    "defaultMessage": "สปอนเซอร์บน GitHub"
+  },
+  "project.about.links.donate.kofi": {
+    "defaultMessage": "สนับสนุนบน Ko-fi"
+  },
+  "project.about.links.donate.patreon": {
+    "defaultMessage": "สนับสนุนบน Patreon"
+  },
+  "project.about.links.donate.paypal": {
+    "defaultMessage": "สนับสนุนบน PayPal"
+  },
+  "project.about.links.issues": {
+    "defaultMessage": "รายงานปัญหา"
+  },
+  "project.about.links.title": {
+    "defaultMessage": "ลิงก์"
+  },
+  "project.server.status.offline": {
+    "defaultMessage": "ออฟไลน์"
+  },
+  "project.server.status.offline.tooltip": {
+    "defaultMessage": "เซิร์ฟเวอร์ออฟไลน์อยู่"
+  },
+  "project.server.status.online": {
+    "defaultMessage": "ออนไลน์"
+  },
+  "project.settings.description.title": {
+    "defaultMessage": "คำอธิบาย"
+  },
+  "project.settings.environment.client_and_server.optional_both_prefers_both.title": {
+    "defaultMessage": "ไม่จำเป็นบนทั้งคู่แต่ทำงานได้ดีที่สุดเพื่อติดตั้งบนทั้งคู่"
+  },
+  "project.settings.environment.client_and_server.optional_client.title": {
+    "defaultMessage": "ไม่จำเป็นสำหรับไคลเอนต์"
+  },
+  "project.settings.environment.client_and_server.optional_server.title": {
+    "defaultMessage": "ไม่จำเป็นบนเซิร์ฟเวอร์"
+  },
+  "project.settings.environment.client_and_server.required_both.title": {
+    "defaultMessage": "จำเป็นบนทั้งคู่"
+  },
+  "project.settings.environment.client_and_server.title": {
+    "defaultMessage": "ไคลเอ็นต์และเซิร์ฟเวอร์"
+  },
+  "project.settings.environment.client_only.title": {
+    "defaultMessage": "ฝั่งไคลเอนต์เท่านั้น"
+  },
+  "project.versions.channel.alpha.symbol": {
+    "defaultMessage": "A"
+  },
+  "project.versions.channel.beta.symbol": {
+    "defaultMessage": "B"
+  },
+  "project.versions.channel.release.symbol": {
+    "defaultMessage": "R"
+  },
+  "project.visibility.draft": {
+    "defaultMessage": "แบบร่าง"
+  },
+  "project.visibility.private": {
+    "defaultMessage": "ส่วนตัว"
+  },
+  "project.visibility.public": {
+    "defaultMessage": "สาธารณะ"
+  },
+  "project.visibility.rejected": {
+    "defaultMessage": "ไม่อนุมัติ"
+  },
+  "project.visibility.under-review": {
+    "defaultMessage": "อยู่ภายใต้การพิจารณา"
+  },
+  "project.visibility.unknown": {
+    "defaultMessage": "ไม่ทราบ"
+  },
+  "project.visibility.unlisted": {
+    "defaultMessage": "ไม่เปิดเผย"
+  },
+  "search.filter_type.environment.server": {
+    "defaultMessage": "เซิร์ฟเวอร์"
+  },
+  "search.filter_type.game_version.all_versions": {
+    "defaultMessage": "ดูทุกเวอร์ชั่น"
+  },
+  "search.filter_type.server_content_type": {
+    "defaultMessage": "ประเภท"
+  },
+  "search.filter_type.shader_loader": {
+    "defaultMessage": "Loader"
+  },
+  "servers.access-page.activity-log-filter.instances": {
+    "defaultMessage": "ชุดเซิร์ฟเวอร์"
+  },
+  "servers.audit-log.column.world.tooltip-description": {
+    "defaultMessage": "ชุดเซิร์ฟเวอร์คือสภาพแวดล้อมที่มีการควบคุมซึ่งมีเนื้อหาและไฟล์โลกที่ติดตั้งไว้เป็นของตัวเอง"
+  },
+  "servers.listing.resubscribe-label": {
+    "defaultMessage": "สมัครบริการอีกครั้ง"
+  },
+  "servers.listing.server-icon-alt": {
+    "defaultMessage": "เซิร์ฟเวอร์ไอคอน"
+  },
+  "servers.manage.resubscribe-error.text": {
+    "defaultMessage": "เกิดข้อผิดพลาดขณะสมัครบริการเซิร์ฟเวอร์ Modrinth ของคุณอีกครั้ง"
+  },
+  "servers.manage.resubscribe-error.title": {
+    "defaultMessage": "เกิดข้อผิดพลาดในการสมัครบริการอีกครั้ง"
+  },
+  "servers.manage.resubscribe-submitted.text": {
+    "defaultMessage": "หากเซิร์ฟเวอร์ถูกยกเลิกอยู่ในขณะนี้ อาจใช้เวลาสูงสุด 10 นาที ในการลองเรียกเก็บเงินอีกครั้ง"
+  },
+  "servers.manage.resubscribe-submitted.title": {
+    "defaultMessage": "ส่งคำขอสมัครบริการอีกครั้งเรียบร้อยแล้ว"
+  },
+  "servers.manage.resubscribe-success.text": {
+    "defaultMessage": "สมัครบริการเซิร์ฟเวอร์อีกครั้งสำเร็จแล้ว"
+  },
+  "servers.manage.resubscribe-success.title": {
+    "defaultMessage": "สำเร็จ"
+  },
+  "servers.medal-listing.server-icon-alt": {
+    "defaultMessage": "เซิร์ฟเวอร์ไอคอน"
+  },
+  "servers.region.prompt": {
+    "defaultMessage": "คุณอยากตั้งเซิร์ฟเวอร์ไว้ที่ไหน"
+  },
+  "settings.account.title": {
+    "defaultMessage": "บัญชีและความปลอดภัย"
+  },
+  "settings.authorized-apps.title": {
+    "defaultMessage": "แอพที่ได้รับอนุญาต"
+  },
+  "settings.display.project-list-layouts.shader": {
+    "defaultMessage": "หน้า Shader"
+  },
+  "settings.display.theme.dark": {
+    "defaultMessage": "มืด"
+  },
+  "settings.display.theme.light": {
+    "defaultMessage": "สว่าง"
+  },
+  "settings.display.theme.oled": {
+    "defaultMessage": "OLED"
+  },
+  "settings.display.theme.title": {
+    "defaultMessage": "ธีมสี"
+  },
+  "settings.language.title": {
+    "defaultMessage": "ภาษา"
+  },
+  "settings.social.blocked-users.restriction.shared-instances": {
+    "defaultMessage": "เชิญคุณไปยังชุดเซิร์ฟเวอร์ที่แชร์"
+  },
+  "settings.social.shared-instance-invites.description": {
+    "defaultMessage": "ควบคุมว่าใครสามารถส่งคำเชิญให้คุณไปยังชุดเซิร์ฟเวอร์ที่แชร์ได้"
+  },
+  "tag.category.core-shaders": {
+    "defaultMessage": "Core Shaders"
+  },
+  "tag.loader.vanilla": {
+    "defaultMessage": "Shader แบบวานิลลา"
+  },
+  "user.profile.badge.early-shader-adopter.about.1": {
+    "defaultMessage": "ผู้ใช้รายนี้ช่วยเราทดสอบโครงการ Shader บน Modrinth ก่อนที่เราจะเปิดตัวพวกมันในเดือนมกราคม 2023"
+  },
+  "user.profile.badge.early-shader-adopter.name": {
+    "defaultMessage": "ผู้รับ Shader กลุ่มแรก"
+  }
+}
+
