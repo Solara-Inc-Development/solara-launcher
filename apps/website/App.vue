@@ -17,11 +17,11 @@ import {
   GitBranch,
   Menu,
   X,
-} from '../../packages/ui/icons';
-import { useInteractions } from '../../packages/ui/interactions';
-import '../../packages/ui/motion.css';
+} from './src/ui/icons';
+import { useInteractions } from './src/ui/interactions';
+import './src/ui/motion.css';
 import { features as featureFlags } from '../../packages/shared/features';
-import WorldArt from '../../packages/ui/WorldArt.vue';
+import WorldArt from './src/ui/WorldArt.vue';
 import {
   snapshot,
   refreshPublic,

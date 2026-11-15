@@ -11,6 +11,22 @@ export interface LauncherAnnouncement {
 
 export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
   {
+    id: 'ann-060',
+    title: 'Solara Launcher V-0.0.62: Website Decoupling, Build Toolchain & License Audit',
+    date: '2026-11-15',
+    category: 'Update',
+    summary: 'Separates website UI components cleanly, upgrades build toolchains to Node 24 + pnpm 12.11.2 + JDK 17, and completes the full GPL-3.0 and transitive dependency license audit.',
+    content: `Solara Launcher V-0.0.62 prepares the workspace cleanly for the upcoming desktop foundation upgrade:
+
+• Independent Website UI: Moved shared website styles and icons cleanly into apps/website/src/ui/.
+• Modernized Toolchains: Upgraded CI and VPS workflows to Node 24.15.0, pnpm 12.11.2, and Temurin JDK 17.
+• Complete License & Notice Tooling: Audited all 825 transitive Windows crates and upgraded third-party notice generation for pnpm-lock.yaml, local workspace crates, and strict proprietary dependency exclusions.
+
+Signed testing preview updates verify cryptographically and apply only when triggered.`,
+    author: 'Solara Core Team',
+    tag: 'Latest Release'
+  },
+  {
     id: 'ann-059',
     title: 'Solara Launcher V-0.0.61: Skin Studio & Mojang Sync Hardening',
     date: '2026-11-15',
@@ -23,8 +39,7 @@ export const ANNOUNCEMENTS: LauncherAnnouncement[] = [
 • Cache & Concurrency Safety: Keyed head/cape thumbnail caches by image data URL and guarded upload/equip actions across account switches.
 
 Signed testing preview updates verify cryptographically and apply only when triggered.`,
-    author: 'Solara Core Team',
-    tag: 'Latest Release'
+    author: 'Solara Core Team'
   },
   {
     id: 'ann-058',

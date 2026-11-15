@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.61 — Skin Studio & Mojang Sync Hardening.
+# Owner-approved preview candidate: V-0.0.62 — Decoupled Website, Toolchain Upgrade & License Audit.
 on:
   workflow_dispatch:
   push:
@@ -27,8 +27,15 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '12.11.2'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache/restore@v4
         id: rust-cache

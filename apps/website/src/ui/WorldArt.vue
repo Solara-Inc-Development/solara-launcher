@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed,ref,watch} from 'vue';
-import landscapes from '../../public/art/landscapes.json';
+import landscapes from '../../../../public/art/landscapes.json';
 const props=withDefaults(defineProps<{scene?:string;eager?:boolean;small?:boolean;decorative?:boolean}>(),{scene:'forest-valley',eager:false,small:false,decorative:true});
 const emit=defineEmits<{settled:[]}>();
 const item=computed(()=>landscapes.find(x=>x.id===`${props.scene}-v1`)||landscapes[0]);

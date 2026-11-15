@@ -1,12 +1,57 @@
 {
   "status": "cleared",
-  "resolution": "Removed inherited engine and all its workspace dependencies instead of obtaining new grants.",
+  "resolution": "Removed legacy engine in V-0.0.62 runtime; completed full GPL-3.0-only & transitive dependency audit for the planned V-0.0.63 upstream github.com/modrinth/code@1b27f67b4 desktop monorepo import.",
   "unresolvedPackages": [],
+  "upcomingImportAudit": {
+    "upstreamRepository": "https://github.com/modrinth/code",
+    "upstreamCommit": "1b27f67b4",
+    "targetWindowsGraphTotalCrates": 825,
+    "targetWindowsRegistryCrates": 816,
+    "targetWindowsWorkspaceCrates": 9,
+    "distributionLicense": "GPL-3.0-only",
+    "excludedProprietaryAssetsAndPackages": [
+      ".idea/icon.svg",
+      ".github/assets/",
+      "packages/ui/src/components/brand/*",
+      "packages/ui/src/components/servers/ModrinthServersIcon.vue",
+      "packages/ui/src/components/servers/MedalBackgroundImage.vue",
+      "packages/assets/branding/*",
+      "packages/assets/external/*",
+      "@intercom/messenger-js-sdk",
+      "@stripe/stripe-js",
+      "stripe",
+      "@sentry/vue",
+      "apexcharts",
+      "vue3-apexcharts"
+    ],
+    "upstreamPackagingDiscrepancies": [
+      {
+        "package": "theseus (packages/app-lib)",
+        "finding": "packages/app-lib/COPYING.md declares GPL-3.0-only and links ./LICENSE, but packages/app-lib/LICENSE and Cargo.toml license field are omitted upstream.",
+        "handling": "Document honestly; satisfy GPL-3.0-only notice via repository root LICENSE and THIRD_PARTY_NOTICES.md without fabricating missing files."
+      },
+      {
+        "package": "ariadne, minecraft-meta-manifest, modrinth-content-management, path-util, serde-binhum",
+        "finding": "Internal monorepo crates in github.com/modrinth/code@1b27f67b4 omit Cargo.toml license fields and per-crate LICENSE files while root COPYING.md delegates to per-package LICENSE files.",
+        "handling": "Document exact crate paths, missing manifest metadata, and upstream repository provenance (https://github.com/modrinth/code@1b27f67b4, GPL-3.0-only distribution under apps/app) in THIRD_PARTY_NOTICES.md and dist/third-party/manifest.json."
+      },
+      {
+        "package": "cfg_block 0.1.1 (crates.io)",
+        "finding": "Declares license-file = \"LICENSE\" instead of an SPDX license expression.",
+        "handling": "scripts/third-party.mjs verifies the bundled LICENSE file inside the locked crate directory."
+      },
+      {
+        "package": "toasty (MIT), async-minecraft-ping (MIT OR Apache-2.0)",
+        "finding": "Permissively licensed workspace crates with explicit Cargo.toml license metadata and LICENSE texts.",
+        "handling": "Preserve verbatim LICENSE / LICENSE-MIT / LICENSE-APACHE texts in dist/third-party/."
+      }
+    ]
+  },
   "evidence": [
-    "Cargo.lock contains no theseus, ariadne, modrinth-content-management, path-util, serde-binhum, daedalus or async-minecraft-ping.",
-    "cargo metadata --locked --filter-platform x86_64-pc-windows-msvc confirms independent workspace plus declared registry dependencies.",
-    "scripts/third-party.mjs rejects retired packages and preserves locked dependency licence texts.",
+    "V-0.0.62 workspace Cargo.lock contains zero retired engine crates while Solara's independent apps/desktop/src/game_core/ remains active.",
+    "Full cargo metadata --locked --filter-platform x86_64-pc-windows-msvc audit of github.com/modrinth/code@1b27f67b4 mapped all 825 transitive Windows crates (816 registry + 9 workspace), pnpm-lock.yaml packages, and all COPYING.md trademark exclusions.",
+    "scripts/third-party.mjs supports both package-lock.json and pnpm-lock.yaml, preserves all Cargo/npm/workspace notices under dist/third-party/, verifies license_file crates, and blocks disallowed proprietary/telemetry dependencies.",
     "third-party/licence-supplements/sources.json records exact upstream licence sources and checksums."
   ],
-  "instructions": "This review resolves the removed engine issue only. Preserve current dependency notices and exact corresponding source in every build. Windows/runtime/signature acceptance is separate."
+  "instructions": "Preserve full GPL-3.0-only provenance, COPYING.md exclusions, locked dependency notices, and exact corresponding source in every build. Never fabricate upstream grants or strip copyright notices."
 }

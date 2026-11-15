@@ -1,5 +1,5 @@
 import { h, type FunctionalComponent } from 'vue';
-export * from '../../../packages/ui/icons';
+export * from '../../website/src/ui/icons';
 
 type IconProps = { size?: number; strokeWidth?: number; class?: string };
 

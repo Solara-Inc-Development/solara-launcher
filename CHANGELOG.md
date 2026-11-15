@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.62 — 2026-11-15
+
+- **Website Decoupling, Toolchain Upgrade & Upstream License Audit**:
+  - Relocated Solara's website UI components and CSS tokens cleanly from `packages/ui/` into `apps/website/src/ui/` (`apps/website/main.ts`, `apps/website/App.vue`, `apps/desktop/ui/icons.ts`) so the website stays independently buildable ahead of desktop workspace integration.
+  - Upgraded GitHub Actions workflows (`.github/workflows/windows-check.yml`, `windows-preview.yml`, `publish-release.yml`, `windows.yml`) and VPS build environment to Node `24.15.0`, `pnpm@12.11.2`, and Temurin JDK `17` cleanly.
+  - Completed full `GPL-3.0-only` & transitive dependency license review (`docs/upstream-license-review.json`, `THIRD_PARTY_NOTICES.md`) and upgraded `scripts/third-party.mjs` to support both `package-lock.json` and `pnpm-lock.yaml`, local workspace crates, `license-file` crates (`cfg_block`), and strict blocking of proprietary/telemetry dependencies.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.61 — 2026-11-15
 
 - **Mojang Skin & Cape Sync Hardening + Cache & Concurrency Fixes**:
