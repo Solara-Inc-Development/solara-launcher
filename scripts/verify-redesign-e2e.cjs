@@ -19,6 +19,7 @@ const SHOT_DIR =
   process.env.SOLARA_E2E_SHOT_DIR ||
   path.join(ROOT, 'checks/continuation');
 const DASHBOARD_SHOT = path.join(ROOT, 'public/screenshots/dashboard.png');
+const LIBRARY_SHOT = path.join(ROOT, 'public/screenshots/library.png');
 
 function findPlaywright() {
   for (const candidate of [
@@ -853,6 +854,11 @@ async function run() {
     // Library Page + New Group + Right-click Context Menu
     await page.click('button[data-tooltip="Library"]');
     await page.waitForSelector('.sol-inst-grid', { timeout: 5000 });
+    await page.evaluate(() => {
+      document.querySelectorAll('.sol-toast button[aria-label="Dismiss notification"]').forEach((btn) => btn.click());
+    });
+    await page.waitForTimeout(340);
+    await page.screenshot({ path: LIBRARY_SHOT });
     await page.click('.sol-inst-card >> nth=0', { button: 'right' });
     await page.waitForSelector('.sol-context-fixed', { timeout: 3000 });
     const ctxWidth = await page.locator('.sol-context-fixed').evaluate((el) => el.getBoundingClientRect().width);
@@ -1276,19 +1282,32 @@ async function run() {
       assert(!ov.x && !ov.y, `Document overflow detected at ${vp.label}: ${JSON.stringify(ov)}`);
     }
 
-    // Verify public website (/) uses True OLED Black + Cobalt Blue and scrolls properly
+    // Verify public website (/) uses True OLED Black + Frosted Glass + Cobalt Blue + Pure Launcher copy
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'domcontentloaded', timeout: 25000 });
     await page.waitForSelector('.web-hero h1', { timeout: 15000 });
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(220);
     const webTheme = await page.evaluate(() => {
       const site = document.querySelector('.website');
       const siteStyle = site ? getComputedStyle(site) : null;
       const bodyStyle = getComputedStyle(document.body);
+      const header = document.querySelector('.web-header');
+      const headerStyle = header ? getComputedStyle(header) : null;
+      const feature = document.querySelector('.feature');
+      const featureStyle = feature ? getComputedStyle(feature) : null;
+      const panel = document.querySelector('.download-panel');
+      const panelStyle = panel ? getComputedStyle(panel) : null;
+      const logo = document.querySelector('.web-brand img');
       return {
         bodyBg: bodyStyle.backgroundColor,
         siteBg: siteStyle ? siteStyle.backgroundColor : '',
         accent: siteStyle ? siteStyle.getPropertyValue('--accent').trim().toLowerCase() : '',
+        headerPos: headerStyle ? headerStyle.position : '',
+        headerBlur: headerStyle ? headerStyle.backdropFilter || headerStyle.webkitBackdropFilter || '' : '',
+        featureBlur: featureStyle ? featureStyle.backdropFilter || featureStyle.webkitBackdropFilter || '' : '',
+        panelBlur: panelStyle ? panelStyle.backdropFilter || panelStyle.webkitBackdropFilter || '' : '',
+        logoLoaded: Boolean(logo && logo.complete && logo.naturalWidth > 0),
+        bodyText: document.body.innerText,
         scrollHeight: document.documentElement.scrollHeight,
         innerHeight: window.innerHeight,
       };
@@ -1296,8 +1315,19 @@ async function run() {
     assert.strictEqual(webTheme.bodyBg, 'rgb(0, 0, 0)', 'Website body background must be OLED #000000');
     assert.strictEqual(webTheme.siteBg, 'rgb(0, 0, 0)', 'Website .website background must be OLED #000000');
     assert.strictEqual(webTheme.accent, '#3b82f6', 'Website Cobalt Blue --accent must be #3b82f6');
+    assert.strictEqual(webTheme.headerPos, 'sticky', 'Website header must be sticky frosted bar');
+    assert(webTheme.headerBlur.includes('blur'), `Expected frosted blur on .web-header, got "${webTheme.headerBlur}"`);
+    assert(webTheme.featureBlur.includes('blur'), `Expected frosted blur on .feature card, got "${webTheme.featureBlur}"`);
+    assert(webTheme.panelBlur.includes('blur'), `Expected frosted blur on .download-panel, got "${webTheme.panelBlur}"`);
+    assert(webTheme.logoLoaded, 'Website header logo must load /logo.svg cleanly');
+    for (const forbidden of ['play.solaranetwork.in', 'Server Hosting', 'Solara ID']) {
+      assert(!webTheme.bodyText.includes(forbidden), `Website must not render ${forbidden}`);
+    }
     assert(webTheme.scrollHeight > webTheme.innerHeight + 500, `Website must scroll vertically (got scrollHeight=${webTheme.scrollHeight})`);
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-website.png') });
+    await page.locator('#features').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(180);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-website-features.png') });
 
     assert.strictEqual(desktopLegacyFetches.length, 0, `Desktop must never fetch legacy bootstrap/announcements: ${desktopLegacyFetches.join(', ')}`);
     assert.strictEqual(errors.length, 0, `Runtime errors encountered:\n${errors.join('\n')}`);

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.57 — Frosted OLED Glass & Cobalt Blue Polish across Settings, Onboarding, Search, Tasks, and Accounts.
+# Owner-approved preview candidate: V-0.0.58 — Website Frosted OLED Redesign, Colorful Feature Cards, and Refreshed Launcher Screenshots.
 on:
   workflow_dispatch:
   push:

@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.58 — 2026-11-15
+
+- **Website Frosted OLED Redesign & Refreshed Desktop Previews**:
+  - Redesigned `apps/website/website.css` and `apps/website/App.vue` around true OLED `#000000`, a sticky frosted glass navigation header, `backdrop-filter: blur(...)` surfaces across cards/panels/download archive, Cobalt Blue primary CTAs, colorful per-feature accent badges (`cobalt`, `emerald`, `purple`, `amber`, `sky`, `rose`), framed `/logo.svg`, and `reduced-motion` guards.
+  - Refreshed `public/screenshots/library.png` alongside `public/screenshots/dashboard.png` directly from the redesigned pure launcher via `scripts/verify-redesign-e2e.cjs`.
+  - Added `tests/website-redesign.test.mjs` and expanded Chromium website verification (`e2e-website.png`, `e2e-website-features.png`).
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.57 — 2026-11-15
 
 - **Frosted OLED Polish Across Secondary Views & Dialogs**:

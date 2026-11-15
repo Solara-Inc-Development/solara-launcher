@@ -1,31 +1,442 @@
 <script setup lang="ts">
-import {ref,onMounted,onUnmounted,computed} from 'vue';import {ArrowUpRight,ArrowRight,Download,Gamepad2,Layers3,Server,Monitor,ShieldCheck,Globe,Package,Plus,Minus,Check,ChevronRight,ExternalLink,Copy,Sparkles,GitBranch,Menu,X} from '../../packages/ui/icons';
-import {useInteractions} from '../../packages/ui/interactions';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Download,
+  Gamepad2,
+  Monitor,
+  ShieldCheck,
+  Package,
+  Plus,
+  Minus,
+  Check,
+  ChevronRight,
+  Copy,
+  Sparkles,
+  GitBranch,
+  Menu,
+  X,
+} from '../../packages/ui/icons';
+import { useInteractions } from '../../packages/ui/interactions';
 import '../../packages/ui/motion.css';
-import {features as featureFlags} from '../../packages/shared/features';
-import WorldArt from '../../packages/ui/WorldArt.vue';import {snapshot,refreshPublic,currentEvent,eventOptions,preferences,savePreferences,preview,latest,links} from '../../packages/shared/client';import {isDownloadable} from '../../packages/shared/domain.mjs';
+import { features as featureFlags } from '../../packages/shared/features';
+import WorldArt from '../../packages/ui/WorldArt.vue';
+import {
+  snapshot,
+  refreshPublic,
+  currentEvent,
+  eventOptions,
+  preferences,
+  savePreferences,
+  preview,
+  latest,
+  links,
+} from '../../packages/shared/client';
+import { isDownloadable } from '../../packages/shared/domain.mjs';
+
 useInteractions();
-const mobile=ref(false),faq=ref<number|null>(0),copied=ref('');let timer:ReturnType<typeof setInterval>|null=null;
-const releases=computed(()=>snapshot.value.data?.releases||[]);
-const active=computed(()=>preview.value?eventOptions.find(e=>e.id===preview.value)||currentEvent.value:currentEvent.value);
-const features=[{icon:Gamepad2,title:'Minecraft, your way.',copy:'Create isolated Minecraft Java instances with Vanilla, Fabric, Quilt, Forge, or NeoForge in their own clean folders.',tag:'MINECRAFT JAVA',wide:true},{icon:Package,title:'Curated mods & modpacks.',copy:'Browse Modrinth modpacks and mods right inside Solara with verified checksums and fast one-click installation.',tag:'DISCOVER'},{icon:Sparkles,title:'3D skin & cape studio.',copy:'Preview skins in real-time 3D, edit pixel-by-pixel with full body-part layers, and manage owned capes.',tag:'SKIN STUDIO'},{icon:Monitor,title:'Automatic Java management.',copy:'Solara detects and installs verified Azul Zulu or Adoptium Java runtimes automatically for every Minecraft version.',tag:'RUNTIMES'},{icon:ShieldCheck,title:'On-device Microsoft accounts.',copy:'Sign in directly with official Microsoft OAuth PKCE. Game tokens stay encrypted inside your OS vault.',tag:'SECURITY'},{icon:Download,title:'Signed auto-updates.',copy:'Updates download and verify Minisign signatures automatically when no game or task is active.',tag:'UPDATES'}];
-const questions=[['Do I need any extra account?','No. Only your licensed Microsoft Minecraft account is required to play, and public installer releases can be downloaded freely.'],['Where does my Microsoft account data go?','Microsoft/Minecraft authentication is handled directly on your device with official services. Microsoft passwords never enter a Solara form, and game tokens never leave your computer.'],['Is Minecraft included?','Solara is a launcher, not a game licence. A valid Minecraft: Java Edition entitlement on your Microsoft account is required for full play.'],['How does modpack and mod installation work?','Solara integrates with the Modrinth catalog, verifies file hashes, configures your chosen loader automatically, and isolates every profile cleanly.'],['How are updates verified?','The installer and executable are both named solaralauncher.exe. After installation, Solara downloads signed updates from GitHub Releases and verifies Minisign signatures before applying when idle.'],['Can I build the source myself?','Yes. The desktop application and website frontend are open-source in this repository.'],['Where can I get help?','Open an issue or browse documentation on the official GitHub repository linked in the footer.']];
-onMounted(()=>{void refreshPublic();timer=setInterval(()=>void refreshPublic(),60000)});onUnmounted(()=>{if(timer)clearInterval(timer)});
-function selectTheme(value:string){preview.value=value==='auto'?null:value;preferences.value.theme=value==='none'?'neutral':'auto';savePreferences()}
-async function copyChecksum(r:any){await navigator.clipboard.writeText(r.sha256);copied.value=r.buildId;setTimeout(()=>copied.value='',2500)}
+
+const mobile = ref(false);
+const faq = ref<number | null>(0);
+const copied = ref('');
+let timer: ReturnType<typeof setInterval> | null = null;
+
+const releases = computed(() => snapshot.value.data?.releases || []);
+const active = computed(() =>
+  preview.value ? eventOptions.find((e) => e.id === preview.value) || currentEvent.value : currentEvent.value,
+);
+
+const features: ReadonlyArray<{
+  icon: typeof Gamepad2;
+  tone: string;
+  title: string;
+  copy: string;
+  tag: string;
+  wide?: boolean;
+}> = [
+  {
+    icon: Gamepad2,
+    tone: 'cobalt',
+    title: 'Minecraft, your way.',
+    copy: 'Create isolated Minecraft Java instances with Vanilla, Fabric, Quilt, Forge, or NeoForge in their own clean folders.',
+    tag: 'MINECRAFT JAVA',
+    wide: true,
+  },
+  {
+    icon: Package,
+    tone: 'emerald',
+    title: 'Curated mods & modpacks.',
+    copy: 'Browse verified community modpacks and mods right inside Solara with verified checksums and fast one-click installation.',
+    tag: 'DISCOVER',
+  },
+  {
+    icon: Sparkles,
+    tone: 'purple',
+    title: '3D skin & cape studio.',
+    copy: 'Preview skins in real-time 3D, paint pixel-by-pixel across 6 body-part UV layers, and switch owned capes.',
+    tag: 'SKIN STUDIO',
+  },
+  {
+    icon: Monitor,
+    tone: 'amber',
+    title: 'Automatic Java management.',
+    copy: 'Solara detects and installs verified Azul Zulu or Adoptium Java runtimes automatically for every Minecraft version.',
+    tag: 'RUNTIMES',
+  },
+  {
+    icon: ShieldCheck,
+    tone: 'sky',
+    title: 'On-device Microsoft accounts.',
+    copy: 'Sign in directly with official Microsoft OAuth PKCE. Game tokens stay encrypted inside your OS vault.',
+    tag: 'SECURITY',
+  },
+  {
+    icon: Download,
+    tone: 'rose',
+    title: 'Signed auto-updates.',
+    copy: 'Updates download and verify Minisign signatures automatically when no game or background task is active.',
+    tag: 'UPDATES',
+  },
+];
+
+const questions = [
+  [
+    'Do I need any extra account?',
+    'No. Only your licensed Microsoft Minecraft account is required to play, and public installer releases can be downloaded freely.',
+  ],
+  [
+    'Where does my Microsoft account data go?',
+    'Microsoft and Minecraft authentication happens directly on your device with official services. Microsoft passwords never enter a Solara form, and game tokens never leave your computer.',
+  ],
+  [
+    'Is Minecraft included?',
+    'Solara is a launcher, not a game licence. A valid Minecraft: Java Edition entitlement on your Microsoft account is required for full play.',
+  ],
+  [
+    'How does modpack and mod installation work?',
+    'Solara integrates with the public modpack catalog, verifies file hashes, configures your chosen loader automatically, and isolates every profile cleanly.',
+  ],
+  [
+    'How are updates verified?',
+    'The installer and executable are both named solaralauncher.exe. After installation, Solara downloads signed updates from GitHub Releases and verifies Minisign signatures before applying when idle.',
+  ],
+  [
+    'Can I build the source myself?',
+    'Yes. The desktop application and website frontend are open-source in this repository.',
+  ],
+  [
+    'Where can I get help?',
+    'Open an issue or browse documentation on the official GitHub repository linked in the footer.',
+  ],
+] as const;
+
+onMounted(() => {
+  void refreshPublic();
+  timer = setInterval(() => void refreshPublic(), 60000);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
+
+function selectTheme(value: string) {
+  preview.value = value === 'auto' ? null : value;
+  preferences.value.theme = value === 'none' ? 'neutral' : 'auto';
+  savePreferences();
+}
+
+async function copyChecksum(r: { sha256: string; buildId: string }) {
+  await navigator.clipboard.writeText(r.sha256);
+  copied.value = r.buildId;
+  setTimeout(() => {
+    copied.value = '';
+  }, 2500);
+}
 </script>
+
 <template>
-<div class="website" :style="{'--accent':'#3b82f6'}" :data-reduced-motion="preferences.motion">
-  <a class="skip-link" href="#main">Skip to content</a><header class="web-header"><a class="web-brand" href="#"><img src="/logo.svg" alt="Solara"><span>solara<span class="brand-divider">/</span><small>launcher</small></span></a><nav :class="{expanded:mobile}" aria-label="Website navigation"><a href="#features" @click="mobile=false">Features</a><a href="#screenshots" @click="mobile=false">The app</a><a v-if="featureFlags.seasons" href="#seasons" @click="mobile=false">Seasons</a><a href="#downloads" @click="mobile=false">Downloads</a><a :href="links.docs" target="_blank" rel="noopener">Docs <ArrowUpRight/></a></nav><a class="header-download" href="#downloads"><Download/> Get Solara</a><button class="mobile-menu" aria-label="Toggle navigation" :aria-expanded="mobile" @click="mobile=!mobile"><X v-if="mobile"/><Menu v-else/></button></header>
-  <main id="main"><section class="web-hero web-container"><div class="hero-eyebrow"><span class="dot"></span> MINECRAFT. MODS. YOUR WORLD. <span class="coming-tag">PURE LAUNCHER</span></div><h1>Your next world<br>starts <span>here.</span></h1><p class="hero-description">Play Minecraft Java, browse Modrinth modpacks, and customize 3D skins in one sleek OLED launcher.</p><div class="hero-actions"><a href="#downloads" class="button primary"><Download/> {{latest?'Download for Windows':'Windows release coming soon'}} <ArrowRight/></a><a href="#screenshots" class="button secondary">Meet the launcher <ChevronRight/></a></div><div class="hero-fineprint"><span><Check/> Windows first</span><span><ShieldCheck/> Licensed Minecraft accounts</span><span><GitBranch/> Open source app</span></div><figure class="web-landscape"><WorldArt scene="coastal-hamlet" eager :decorative="false"/><figcaption><span>Room for your next adventure.</span><span>Original Solara artwork</span></figcaption></figure></section>
-  <div class="web-container"><div class="intro-strip"><span>LESS SWITCHING. MORE PLAY.<br><strong>Everything, together.</strong></span><p>Your instances, your mods, your 3D skins.<br>Ready when you are.</p><a href="#features" aria-label="Explore the features"><ArrowRight/></a></div></div>
-  <section id="screenshots" class="web-container web-section"><div class="web-section-heading"><div><span class="eyebrow">THIS IS SOLARA</span><h2>Your games.<br>A clear home.</h2></div><p>A clean home for your Minecraft profiles.<br>Built to stay out of your way.</p></div><div class="app-screenshot"><div class="screenshot-label"><span><span class="dot"></span> SOLARA LAUNCHER · DESKTOP INTERFACE</span><span>01 / DASHBOARD</span></div><img src="/screenshots/dashboard.png" alt="Solara desktop launcher interface: dashboard, instance library, modpack browser and live downloads" loading="lazy" width="1440" height="950"><div class="screenshot-caption"><span>Pure desktop Minecraft launcher with OLED obsidian dark UI.</span><a href="/desktop.html" target="_blank" rel="noopener">Explore UI preview <ArrowUpRight/></a></div></div></section>
-  <section id="features" class="web-container web-section"><div class="web-section-heading"><div><span class="eyebrow">ONE HOME. MORE POSSIBILITIES.</span><h2>More play.<br>Less getting ready.</h2></div><p>Designed around your desktop, your modpacks<br>and every Minecraft Java version.</p></div><div class="feature-grid"><article v-for="(f,i) in features" :key="f.title" :class="['feature',{'feature-wide':f.wide}]"><div v-if="f.wide" class="feature-world"><WorldArt scene="forest-valley"/></div><div class="feature-content"><span class="feature-num">0{{i+1}} <span>{{f.tag}}</span></span><component :is="f.icon" class="feature-icon"/><h3>{{f.title}}</h3><p>{{f.copy}}</p></div></article></div><p class="feature-note">Verified Windows releases are built, SHA-256 checked, and Minisign-signed before publication below.</p></section>
-  <section v-if="featureFlags.seasons" id="seasons" class="seasons-section"><div class="web-container seasons-inner"><div class="season-copy"><span class="eyebrow">A LITTLE CHANGE IN THE AIR</span><h2>Your space.<br>Your style.</h2><p>From monsoon mornings to Diwali evenings. Solara makes room for seasons, festivals and shared moments, with subtle colours and a familiar layout.</p><div class="season-control"><label for="event-preview">Try an appearance</label><select id="event-preview" :value="preview||'auto'" @change="selectTheme(($event.target as HTMLSelectElement).value)"><option value="auto">Automatic · current Solara theme</option><option v-for="e in eventOptions" :value="e.id" :key="e.id">{{e.name}}</option></select><small>{{preview?'Local preview only. Production schedules are unchanged.':'Active events follow verified main API schedules.'}}</small></div><label class="motion-choice"><input type="checkbox" v-model="preferences.motion" @change="savePreferences"> Prefer less motion</label></div><div class="season-visual" :style="{'--season-accent':active.accent}"><span class="season-topline"><Sparkles/> THE SEASONAL COLLECTION</span><div class="season-orb"><span class="season-orb-core"></span><span v-for="i in 9" :key="i" class="season-particle" :style="{'--i':i}"></span></div><div class="season-title"><span class="eyebrow">{{preview?'APPEARANCE PREVIEW':'CURRENT APPEARANCE'}}</span><h3>{{active.name}}</h3><p>{{active.banner.copy}}</p></div></div></div></section>
-  <section class="web-container privacy-section"><div class="privacy-symbol"><ShieldCheck/></div><div><span class="eyebrow">YOUR DEVICE. YOUR ACCOUNT.</span><h2>Your account.<br>Your device.</h2><p>Sign in to Minecraft directly on your own device via official Microsoft OAuth. Your Microsoft password and game tokens stay strictly local.</p><a :href="links.github" class="text-link" target="_blank" rel="noopener">Inspect open-source security <ArrowUpRight/></a></div><div class="privacy-points"><div><Check/><span>Official Microsoft authentication</span></div><div><Check/><span>Local worlds and game profiles</span></div><div><Check/><span>OS protected local credentials</span></div><div><Check/><span>Independent sign-in and sign-out</span></div><small>A valid Minecraft Java licence is required. Solara is not affiliated with Mojang or Microsoft.</small></div></section>
-  <section id="downloads" class="downloads-section web-container web-section"><div class="web-section-heading"><div><span class="eyebrow">YOUR NEXT WORLD IS WAITING</span><h2>Ready for your<br>next adventure?</h2></div><p>Windows is our first destination.<br>Install once. Get updates automatically.</p></div><div class="download-panel"><div class="download-platform"><Monitor/><div><h3>Solara for Windows</h3><p>{{latest?latest.publicVersion+' · x86_64':'First public build planned: V-0.0.01'}}</p><span class="pill">{{latest?'Verified public release':'NOT YET PUBLISHED'}}</span></div></div><div class="download-action"><a v-if="latest" :href="latest.url" download="solaralauncher.exe" class="button primary"><Download/> Download solaralauncher.exe</a><button v-else disabled class="primary"><Download/> Windows installer unavailable</button><small>{{latest?(latest.size/1048576).toFixed(1)+' MiB · '+new Date(latest.publishedAt).toLocaleDateString():'No verified installer has been published.'}}</small></div></div><p class="download-status"><span class="dot"></span> Release feed: {{snapshot.state}}<span v-if="snapshot.at"> · Last refresh {{new Date(snapshot.at).toLocaleString()}}</span>. Downloads always reflect real release metadata.</p><div class="getting-started"><div><span>01</span><h3>Make yourself at home.</h3><p>Download a published installer and run it on a supported Windows desktop.</p></div><div><span>02</span><h3>Bring your account.</h3><p>Add your licensed Microsoft Minecraft account locally in seconds.</p></div><div><span>03</span><h3>Find your next world.</h3><p>Create an instance, choose a loader and discover something worth playing.</p></div></div><div class="requirements-note"><strong>Build requirements</strong><p>Windows 10/11 x64 with Microsoft Edge WebView2 is required. Runtime Java versions are resolved automatically per Minecraft release.</p></div><div id="changelog" class="archive"><div class="section-title"><h3>Release archive & changelog</h3><span class="pill">Distinct versions. Preserved builds.</span></div><div v-if="!releases.length" class="archive-empty"><GitBranch/><p>No public releases are available yet. The first installer will appear here with its date, size, SHA-256 checksum and release notes.</p></div><article v-for="r in releases" :key="r.buildId" class="release-row"><div><h4>{{r.publicVersion}} <span class="pill">{{r.state}}</span></h4><p>{{r.notes}}</p><small>{{r.publishedAt?new Date(r.publishedAt).toLocaleDateString():'Unpublished'}} · {{(r.size/1048576).toFixed(1)}} MiB</small><code>{{r.sha256}}</code></div><div class="row"><button :disabled="!r.sha256" @click="copyChecksum(r)"><Check v-if="copied===r.buildId"/><Copy v-else/><span class="sr-only">Copy SHA-256</span></button><a v-if="isDownloadable(r)" :href="r.url" download="solaralauncher.exe" class="button"><Download/> {{r.publicVersion}}</a></div></article></div></section>
-  <section class="web-container web-section faq-section"><div><span class="eyebrow">A FEW GOOD QUESTIONS</span><h2>Good questions.<br>Easy answers.</h2><p>Still curious about something?</p><a :href="links.support" class="text-link" target="_blank" rel="noopener">Talk to Solara <ArrowUpRight/></a></div><div class="faq-list"><article v-for="(q,i) in questions" :key="q[0]"><button :aria-expanded="faq===i" :aria-controls="'faq-'+i" @click="faq=faq===i?null:i">{{q[0]}}<Minus v-if="faq===i"/><Plus v-else/></button><p :id="'faq-'+i" v-show="faq===i">{{q[1]}}</p></article></div></section>
-  <section class="closing-section web-container"><img src="/logo.svg" alt=""><span class="eyebrow">PART OF SOMETHING BIGGER</span><h2>Make it<br>your world.</h2><a href="#downloads" class="button primary">Find your Solara <ArrowRight/></a><p>Built for the worlds we create, and the people we share them with.</p></section>
-  </main><footer class="web-footer web-container"><div class="footer-top"><a class="web-brand" href="#"><img src="/logo.svg" alt="Solara"><span>solara<small>launcher</small></span></a><div class="footer-links"><a :href="links.home">Solara-Inc. <ArrowUpRight/></a><a :href="links.docs">Documentation <ArrowUpRight/></a><a :href="links.support">Support <ArrowUpRight/></a><a v-if="links.github" :href="links.github">GitHub <ArrowUpRight/></a><span v-else class="muted">Source repository pending</span></div></div><div class="footer-bottom"><span>© {{new Date().getFullYear()}} Solara. Made for your next world.</span><span><span class="dot"></span> API {{snapshot.state}}</span></div><p class="third-party">Independent launcher. Minecraft is a trademark of Mojang/Microsoft. Built with Solara's independent local launcher core (GPL-3.0-only); no warranty. Source and third-party notices are included with the application.</p></footer>
-</div>
+  <div class="website" :style="{ '--accent': '#3b82f6' }" :data-reduced-motion="preferences.motion">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="web-header">
+      <a class="web-brand" href="#">
+        <img src="/logo.svg" alt="Solara">
+        <span>solara<span class="brand-divider">/</span><small>launcher</small></span>
+      </a>
+      <nav :class="{ expanded: mobile }" aria-label="Website navigation">
+        <a href="#features" @click="mobile = false">Features</a>
+        <a href="#screenshots" @click="mobile = false">The app</a>
+        <a v-if="featureFlags.seasons" href="#seasons" @click="mobile = false">Seasons</a>
+        <a href="#downloads" @click="mobile = false">Downloads</a>
+        <a :href="links.docs" target="_blank" rel="noopener">Docs <ArrowUpRight /></a>
+      </nav>
+      <a class="header-download" href="#downloads"><Download /> Get Solara</a>
+      <button class="mobile-menu" aria-label="Toggle navigation" :aria-expanded="mobile" @click="mobile = !mobile">
+        <X v-if="mobile" /><Menu v-else />
+      </button>
+    </header>
+
+    <main id="main">
+      <section class="web-hero web-container">
+        <div class="hero-eyebrow">
+          <span class="dot"></span> MINECRAFT. MODS. YOUR WORLD. <span class="coming-tag">PURE LAUNCHER</span>
+        </div>
+        <h1>Your next world<br>starts <span>here.</span></h1>
+        <p class="hero-description">
+          Play Minecraft Java, browse curated modpacks, and customize 3D skins in one sleek OLED frosted-glass launcher.
+        </p>
+        <div class="hero-actions">
+          <a href="#downloads" class="button primary">
+            <Download /> {{ latest ? 'Download for Windows' : 'Windows release coming soon' }} <ArrowRight />
+          </a>
+          <a href="#screenshots" class="button secondary">Meet the launcher <ChevronRight /></a>
+        </div>
+        <div class="hero-fineprint">
+          <span><Check /> Windows first</span>
+          <span><ShieldCheck /> Licensed Minecraft accounts</span>
+          <span><GitBranch /> Open source app</span>
+        </div>
+        <figure class="web-landscape">
+          <WorldArt scene="coastal-hamlet" eager :decorative="false" />
+          <figcaption><span>Room for your next adventure.</span><span>Original Solara artwork</span></figcaption>
+        </figure>
+      </section>
+
+      <div class="web-container">
+        <div class="intro-strip">
+          <span>LESS SWITCHING. MORE PLAY.<br><strong>Everything, together.</strong></span>
+          <p>Your instances, your mods, your 3D skins.<br>Ready when you are.</p>
+          <a href="#features" aria-label="Explore the features"><ArrowRight /></a>
+        </div>
+      </div>
+
+      <section id="screenshots" class="web-container web-section">
+        <div class="web-section-heading">
+          <div>
+            <span class="eyebrow">THIS IS SOLARA</span>
+            <h2>Your games.<br>A clear home.</h2>
+          </div>
+          <p>A clean home for your Minecraft profiles.<br>Built to stay out of your way.</p>
+        </div>
+        <div class="app-screenshot">
+          <div class="screenshot-label">
+            <span><span class="dot"></span> SOLARA LAUNCHER · DESKTOP INTERFACE</span>
+            <span>01 / DASHBOARD</span>
+          </div>
+          <img
+            src="/screenshots/dashboard.png"
+            alt="Solara desktop launcher interface: dashboard, instance library, modpack browser and live downloads"
+            loading="lazy"
+            width="1440"
+            height="950"
+          >
+          <div class="screenshot-caption">
+            <span>Pure desktop Minecraft launcher with OLED obsidian dark glass UI.</span>
+            <a href="/desktop.html" target="_blank" rel="noopener">Explore UI preview <ArrowUpRight /></a>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="web-container web-section">
+        <div class="web-section-heading">
+          <div>
+            <span class="eyebrow">ONE HOME. MORE POSSIBILITIES.</span>
+            <h2>More play.<br>Less getting ready.</h2>
+          </div>
+          <p>Designed around your desktop, your modpacks<br>and every Minecraft Java version.</p>
+        </div>
+        <div class="feature-grid">
+          <article
+            v-for="(f, i) in features"
+            :key="f.title"
+            :class="['feature', `feature--${f.tone}`, { 'feature-wide': f.wide }]"
+          >
+            <div v-if="f.wide" class="feature-world"><WorldArt scene="forest-valley" /></div>
+            <div class="feature-content">
+              <span class="feature-num">0{{ i + 1 }} <span>{{ f.tag }}</span></span>
+              <span class="feature-icon-wrap"><component :is="f.icon" class="feature-icon" /></span>
+              <h3>{{ f.title }}</h3>
+              <p>{{ f.copy }}</p>
+            </div>
+          </article>
+        </div>
+        <p class="feature-note">Verified Windows releases are built, SHA-256 checked, and Minisign-signed before publication below.</p>
+      </section>
+
+      <section v-if="featureFlags.seasons" id="seasons" class="seasons-section">
+        <div class="web-container seasons-inner">
+          <div class="season-copy">
+            <span class="eyebrow">A LITTLE CHANGE IN THE AIR</span>
+            <h2>Your space.<br>Your style.</h2>
+            <p>
+              From monsoon mornings to Diwali evenings. Solara makes room for seasons, festivals and shared moments, with subtle colours and a familiar layout.
+            </p>
+            <div class="season-control">
+              <label for="event-preview">Try an appearance</label>
+              <select id="event-preview" :value="preview || 'auto'" @change="selectTheme(($event.target as HTMLSelectElement).value)">
+                <option value="auto">Automatic · current Solara theme</option>
+                <option v-for="e in eventOptions" :key="e.id" :value="e.id">{{ e.name }}</option>
+              </select>
+              <small>{{ preview ? 'Local preview only. Production schedules are unchanged.' : 'Active events follow verified main API schedules.' }}</small>
+            </div>
+            <label class="motion-choice">
+              <input v-model="preferences.motion" type="checkbox" @change="savePreferences"> Prefer less motion
+            </label>
+          </div>
+          <div class="season-visual" :style="{ '--season-accent': active.accent }">
+            <span class="season-topline"><Sparkles /> THE SEASONAL COLLECTION</span>
+            <div class="season-orb">
+              <span class="season-orb-core"></span>
+              <span v-for="i in 9" :key="i" class="season-particle" :style="{ '--i': i }"></span>
+            </div>
+            <div class="season-title">
+              <span class="eyebrow">{{ preview ? 'APPEARANCE PREVIEW' : 'CURRENT APPEARANCE' }}</span>
+              <h3>{{ active.name }}</h3>
+              <p>{{ active.banner.copy }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="web-container privacy-section">
+        <div class="privacy-symbol"><ShieldCheck /></div>
+        <div>
+          <span class="eyebrow">YOUR DEVICE. YOUR ACCOUNT.</span>
+          <h2>Your account.<br>Your device.</h2>
+          <p>
+            Sign in to Minecraft directly on your own device via official Microsoft OAuth. Your Microsoft password and game tokens stay strictly local.
+          </p>
+          <a :href="links.github" class="text-link" target="_blank" rel="noopener">Inspect open-source security <ArrowUpRight /></a>
+        </div>
+        <div class="privacy-points">
+          <div><Check /><span>Official Microsoft authentication</span></div>
+          <div><Check /><span>Local worlds and game profiles</span></div>
+          <div><Check /><span>OS protected local credentials</span></div>
+          <div><Check /><span>Independent sign-in and sign-out</span></div>
+          <small>A valid Minecraft Java licence is required. Solara is not affiliated with Mojang or Microsoft.</small>
+        </div>
+      </section>
+
+      <section id="downloads" class="downloads-section web-container web-section">
+        <div class="web-section-heading">
+          <div>
+            <span class="eyebrow">YOUR NEXT WORLD IS WAITING</span>
+            <h2>Ready for your<br>next adventure?</h2>
+          </div>
+          <p>Windows is our first destination.<br>Install once. Get updates automatically.</p>
+        </div>
+        <div class="download-panel">
+          <div class="download-platform">
+            <Monitor />
+            <div>
+              <h3>Solara for Windows</h3>
+              <p>{{ latest ? latest.publicVersion + ' · x86_64' : 'First public build planned: V-0.0.01' }}</p>
+              <span class="pill">{{ latest ? 'Verified public release' : 'NOT YET PUBLISHED' }}</span>
+            </div>
+          </div>
+          <div class="download-action">
+            <a v-if="latest" :href="latest.url" download="solaralauncher.exe" class="button primary">
+              <Download /> Download solaralauncher.exe
+            </a>
+            <button v-else disabled class="primary"><Download /> Windows installer unavailable</button>
+            <small>
+              {{ latest ? (latest.size / 1048576).toFixed(1) + ' MiB · ' + new Date(latest.publishedAt).toLocaleDateString() : 'No verified installer has been published.' }}
+            </small>
+          </div>
+        </div>
+        <p class="download-status">
+          <span class="dot"></span> Release feed: {{ snapshot.state }}
+          <span v-if="snapshot.at"> · Last refresh {{ new Date(snapshot.at).toLocaleString() }}</span>. Downloads always reflect real release metadata.
+        </p>
+
+        <div class="getting-started">
+          <div><span>01</span><h3>Make yourself at home.</h3><p>Download a published installer and run it on a supported Windows desktop.</p></div>
+          <div><span>02</span><h3>Bring your account.</h3><p>Add your licensed Microsoft Minecraft account locally in seconds.</p></div>
+          <div><span>03</span><h3>Find your next world.</h3><p>Create an instance, choose a loader and discover something worth playing.</p></div>
+        </div>
+
+        <div class="requirements-note">
+          <strong>Build requirements</strong>
+          <p>Windows 10/11 x64 with Microsoft Edge WebView2 is required. Runtime Java versions are resolved automatically per Minecraft release.</p>
+        </div>
+
+        <div id="changelog" class="archive">
+          <div class="section-title">
+            <h3>Release archive &amp; changelog</h3>
+            <span class="pill">Distinct versions. Preserved builds.</span>
+          </div>
+          <div v-if="!releases.length" class="archive-empty">
+            <GitBranch />
+            <p>No public releases are available yet. The first installer will appear here with its date, size, SHA-256 checksum and release notes.</p>
+          </div>
+          <article v-for="r in releases" :key="r.buildId" class="release-row">
+            <div>
+              <h4>{{ r.publicVersion }} <span class="pill">{{ r.state }}</span></h4>
+              <p>{{ r.notes }}</p>
+              <small>{{ r.publishedAt ? new Date(r.publishedAt).toLocaleDateString() : 'Unpublished' }} · {{ (r.size / 1048576).toFixed(1) }} MiB</small>
+              <code>{{ r.sha256 }}</code>
+            </div>
+            <div class="row">
+              <button :disabled="!r.sha256" @click="copyChecksum(r)">
+                <Check v-if="copied === r.buildId" /><Copy v-else />
+                <span class="sr-only">Copy SHA-256</span>
+              </button>
+              <a v-if="isDownloadable(r)" :href="r.url" download="solaralauncher.exe" class="button">
+                <Download /> {{ r.publicVersion }}
+              </a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="web-container web-section faq-section">
+        <div>
+          <span class="eyebrow">A FEW GOOD QUESTIONS</span>
+          <h2>Good questions.<br>Easy answers.</h2>
+          <p>Still curious about something?</p>
+          <a :href="links.support" class="text-link" target="_blank" rel="noopener">Talk to Solara <ArrowUpRight /></a>
+        </div>
+        <div class="faq-list">
+          <article v-for="(q, i) in questions" :key="q[0]">
+            <button :aria-expanded="faq === i" :aria-controls="'faq-' + i" @click="faq = faq === i ? null : i">
+              {{ q[0] }}<Minus v-if="faq === i" /><Plus v-else />
+            </button>
+            <p v-show="faq === i" :id="'faq-' + i">{{ q[1] }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="closing-section web-container">
+        <img src="/logo.svg" alt="">
+        <span class="eyebrow">PART OF SOMETHING BIGGER</span>
+        <h2>Make it<br>your world.</h2>
+        <a href="#downloads" class="button primary">Find your Solara <ArrowRight /></a>
+        <p>Built for the worlds we create, and the people we share them with.</p>
+      </section>
+    </main>
+
+    <footer class="web-footer web-container">
+      <div class="footer-top">
+        <a class="web-brand" href="#">
+          <img src="/logo.svg" alt="Solara">
+          <span>solara<small>launcher</small></span>
+        </a>
+        <div class="footer-links">
+          <a :href="links.home">Solara-Inc. <ArrowUpRight /></a>
+          <a :href="links.docs">Documentation <ArrowUpRight /></a>
+          <a :href="links.support">Support <ArrowUpRight /></a>
+          <a v-if="links.github" :href="links.github">GitHub <ArrowUpRight /></a>
+          <span v-else class="muted">Source repository pending</span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© {{ new Date().getFullYear() }} Solara. Made for your next world.</span>
+        <span><span class="dot"></span> API {{ snapshot.state }}</span>
+      </div>
+      <p class="third-party">
+        Independent launcher. Minecraft is a trademark of Mojang/Microsoft. Built with Solara's independent local launcher core (GPL-3.0-only); no warranty. Source and third-party notices are included with the application.
+      </p>
+    </footer>
+  </div>
 </template>
