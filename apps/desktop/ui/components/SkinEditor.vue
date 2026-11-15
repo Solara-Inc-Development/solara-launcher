@@ -12,9 +12,11 @@ import {
   Upload,
   Eye,
   EyeOff,
+  Grid,
 } from '../icons';
 import SolaraButton from './SolaraButton.vue';
 import { getUvRegionBox, SKIN_BODY_PARTS, SKIN_FACES } from '../skinUv.mjs';
+import { floodFillRegion, mirrorPixelX, normalizeHexColor, pushRecentColor } from '../skinTools.mjs';
 
 const props = defineProps<{
   modelValue: string;
@@ -32,7 +34,9 @@ type FaceKind = 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom';
 
 const tool = ref<ToolKind>('pencil');
 const color = ref('#3B82F6');
+const recentColors = ref<string[]>(['#3B82F6', '#F5F4F1', '#252B36']);
 const mirror = ref(false);
+const showGrid = ref(true);
 const layerMode = ref<'base' | 'overlay'>('base');
 const activePart = ref<PartKind>('head');
 const activeFace = ref<FaceKind>('front');
@@ -70,8 +74,31 @@ function getRegionBox(): { x: number; y: number; w: number; h: number } {
 }
 
 let loadGeneration = 0;
-onUnmounted(() => { loadGeneration++; });
-function loadFromDataUrl(url: string) {
+function onEditorKeydown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement | null)?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  } else if ((mod && e.key.toLowerCase() === 'y') || (mod && e.shiftKey && e.key.toLowerCase() === 'z')) {
+    e.preventDefault();
+    redo();
+  } else if (!mod && !e.altKey) {
+    const k = e.key.toLowerCase();
+    if (k === 'b') tool.value = 'pencil';
+    else if (k === 'e') tool.value = 'eraser';
+    else if (k === 'g') tool.value = 'bucket';
+    else if (k === 'i') tool.value = 'eyedropper';
+    else if (k === 'm') mirror.value = !mirror.value;
+  }
+}
+
+onUnmounted(() => {
+  loadGeneration++;
+  window.removeEventListener('keydown', onEditorKeydown);
+});
+function loadFromDataUrl(url: string, resetHistory = true) {
   const generation = ++loadGeneration;
   if (!url) {
     pctx.clearRect(0, 0, 64, 64);
@@ -83,8 +110,10 @@ function loadFromDataUrl(url: string) {
     if (generation !== loadGeneration) return;
     pctx.clearRect(0, 0, 64, 64);
     pctx.drawImage(img, 0, 0, 64, Math.min(64, img.height === 32 ? 32 : 64));
-    undoStack.value = [];
-    redoStack.value = [];
+    if (resetHistory) {
+      undoStack.value = [];
+      redoStack.value = [];
+    }
     renderView();
   };
   img.src = url;
@@ -99,9 +128,10 @@ watch(
   },
 );
 
-watch([activePart, activeFace, layerMode, showBaseGuide, zoom, () => props.variant], () => renderView());
+watch([activePart, activeFace, layerMode, showBaseGuide, showGrid, mirror, zoom, () => props.variant], () => renderView());
 
 onMounted(() => {
+  window.addEventListener('keydown', onEditorKeydown);
   if (props.modelValue) {
     loadFromDataUrl(props.modelValue);
   } else {
@@ -149,8 +179,8 @@ function renderView() {
   vctx.drawImage(pixelCanvas, box.x, box.y, box.w, box.h, 0, 0, vc.width, vc.height);
 
   // Subtle pixel grid
-  if (pxScale >= 8) {
-    vctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  if (showGrid.value && pxScale >= 6) {
+    vctx.strokeStyle = 'rgba(255,255,255,0.07)';
     vctx.lineWidth = 1;
     for (let x = 0; x <= box.w; x++) {
       vctx.beginPath();
@@ -164,6 +194,20 @@ function renderView() {
       vctx.lineTo(vc.width, y * pxScale + 0.5);
       vctx.stroke();
     }
+  }
+
+  // Horizontal mirror symmetry axis guide
+  if (mirror.value && activePart.value !== 'full') {
+    const midX = (box.w / 2) * pxScale;
+    vctx.save();
+    vctx.strokeStyle = 'rgba(59, 130, 246, 0.78)';
+    vctx.lineWidth = 1.5;
+    vctx.setLineDash([4, 3]);
+    vctx.beginPath();
+    vctx.moveTo(midX, 0);
+    vctx.lineTo(midX, vc.height);
+    vctx.stroke();
+    vctx.restore();
   }
 }
 
@@ -208,53 +252,37 @@ function eventToPixel(e: PointerEvent): { gx: number; gy: number; box: { x: numb
   return { gx: box.x + relX, gy: box.y + relY, box };
 }
 
+function rememberActiveColor() {
+  const norm = normalizeHexColor(color.value);
+  if (norm) {
+    color.value = norm;
+    recentColors.value = pushRecentColor(recentColors.value, norm, 8);
+  }
+}
+
 function paintAt(gx: number, gy: number, box: { x: number; y: number; w: number; h: number }) {
   if (tool.value === 'pencil') {
-    pctx.fillStyle = color.value;
+    const activeHex = normalizeHexColor(color.value) ?? '#3B82F6';
+    pctx.fillStyle = activeHex;
     pctx.fillRect(gx, gy, 1, 1);
     if (mirror.value) {
-      const mx = box.x + (box.w - 1 - (gx - box.x));
-      pctx.fillRect(mx, gy, 1, 1);
+      pctx.fillRect(mirrorPixelX(gx, box), gy, 1, 1);
     }
   } else if (tool.value === 'eraser') {
     pctx.clearRect(gx, gy, 1, 1);
     if (mirror.value) {
-      const mx = box.x + (box.w - 1 - (gx - box.x));
-      pctx.clearRect(mx, gy, 1, 1);
+      pctx.clearRect(mirrorPixelX(gx, box), gy, 1, 1);
     }
   }
 }
 
 function floodFill(startX: number, startY: number, box: { x: number; y: number; w: number; h: number }) {
   const img = pctx.getImageData(0, 0, 64, 64);
-  const data = img.data;
-  const idx = (x: number, y: number) => (y * 64 + x) * 4;
-  const s = idx(startX, startY);
-  const tr = data[s], tg = data[s + 1], tb = data[s + 2], ta = data[s + 3];
-
-  const hex = color.value.replace('#', '');
-  const nr = parseInt(hex.slice(0, 2), 16);
-  const ng = parseInt(hex.slice(2, 4), 16);
-  const nb = parseInt(hex.slice(4, 6), 16);
-  if (tr === nr && tg === ng && tb === nb && ta === 255) return;
-
-  const stack: [number, number][] = [[startX, startY]];
-  const visited = new Set<string>();
-  while (stack.length > 0) {
-    const [x, y] = stack.pop()!;
-    const key = `${x},${y}`;
-    if (visited.has(key)) continue;
-    visited.add(key);
-    if (x < box.x || y < box.y || x >= box.x + box.w || y >= box.y + box.h) continue;
-    const i = idx(x, y);
-    if (data[i] !== tr || data[i + 1] !== tg || data[i + 2] !== tb || data[i + 3] !== ta) continue;
-    data[i] = nr;
-    data[i + 1] = ng;
-    data[i + 2] = nb;
-    data[i + 3] = 255;
-    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+  const changed = floodFillRegion(img.data, 64, startX, startY, box, color.value);
+  if (changed > 0) {
+    pctx.putImageData(img, 0, 0);
+    rememberActiveColor();
   }
-  pctx.putImageData(img, 0, 0);
 }
 
 function onPointerDown(e: PointerEvent) {
@@ -267,7 +295,9 @@ function onPointerDown(e: PointerEvent) {
         '#' +
         [px[0], px[1], px[2]]
           .map((n) => n.toString(16).padStart(2, '0'))
-          .join('');
+          .join('')
+          .toUpperCase();
+      rememberActiveColor();
     }
     tool.value = 'pencil';
     return;
@@ -278,6 +308,7 @@ function onPointerDown(e: PointerEvent) {
     commitChange();
     return;
   }
+  if (tool.value === 'pencil') rememberActiveColor();
   painting = true;
   (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   paintAt(pt.gx, pt.gy, pt.box);
@@ -309,12 +340,17 @@ function onImportFile(e: Event) {
   if (!f) return;
   const r = new FileReader();
   r.onload = () => {
-    if (typeof r.result === 'string' && r.result.startsWith('data:image/')) {
+    const dataUrl = typeof r.result === 'string' ? r.result : '';
+    if (!dataUrl.startsWith('data:image/png')) return;
+    const probe = new Image();
+    probe.onload = () => {
+      if (probe.width !== 64 || (probe.height !== 64 && probe.height !== 32)) return;
       snapshotUndo();
-      loadFromDataUrl(r.result);
-      emit('update:modelValue', r.result);
+      loadFromDataUrl(dataUrl, false);
+      emit('update:modelValue', dataUrl);
       emit('dirty', true);
-    }
+    };
+    probe.src = dataUrl;
   };
   r.readAsDataURL(f);
 }
@@ -363,15 +399,24 @@ function onImportFile(e: Event) {
         <button
           type="button"
           :class="['sol-chip', { 'is-active': mirror }]"
-          title="Horizontal mirror"
+          title="Horizontal mirror (M)"
           @click="mirror = !mirror"
         >
           <FlipHorizontal :size="13" /> Mirror
         </button>
-        <button type="button" class="sol-icon-btn sol-icon-btn--xs" :disabled="undoStack.length === 0" title="Undo" @click="undo">
+        <button
+          type="button"
+          :class="['sol-chip', { 'is-active': showGrid }]"
+          title="Toggle pixel grid"
+          aria-label="Toggle pixel grid"
+          @click="showGrid = !showGrid"
+        >
+          <Grid :size="13" /> Grid
+        </button>
+        <button type="button" class="sol-icon-btn sol-icon-btn--xs" :disabled="undoStack.length === 0" title="Undo (Ctrl+Z)" aria-label="Undo" @click="undo">
           <Undo2 :size="13" />
         </button>
-        <button type="button" class="sol-icon-btn sol-icon-btn--xs" :disabled="redoStack.length === 0" title="Redo" @click="redo">
+        <button type="button" class="sol-icon-btn sol-icon-btn--xs" :disabled="redoStack.length === 0" title="Redo (Ctrl+Y)" aria-label="Redo" @click="redo">
           <Redo2 :size="13" />
         </button>
       </div>
@@ -471,22 +516,44 @@ function onImportFile(e: Event) {
           </div>
         </div>
 
-        <div class="sol-swatch-grid">
-          <button
-            v-for="sw in swatchPalette"
-            :key="sw"
-            type="button"
-            class="sol-swatch"
-            :style="{ background: sw }"
-            :title="sw"
-            @click="color = sw"
-          />
+        <div v-if="recentColors.length > 0" class="sol-field">
+          <label class="sol-label">Recent Colors</label>
+          <div class="sol-swatch-grid">
+            <button
+              v-for="rc in recentColors"
+              :key="`recent-${rc}`"
+              type="button"
+              :class="['sol-swatch', { 'is-active': color.toUpperCase() === rc.toUpperCase() }]"
+              :style="{ background: rc }"
+              :title="rc"
+              @click="color = rc"
+            />
+          </div>
+        </div>
+
+        <div class="sol-field">
+          <label class="sol-label">Studio Palette</label>
+          <div class="sol-swatch-grid">
+            <button
+              v-for="sw in swatchPalette"
+              :key="sw"
+              type="button"
+              :class="['sol-swatch', { 'is-active': color.toUpperCase() === sw.toUpperCase() }]"
+              :style="{ background: sw }"
+              :title="sw"
+              @click="color = sw"
+            />
+          </div>
         </div>
 
         <div class="sol-field">
           <label class="sol-label">Canvas Zoom ({{ zoom }}x)</label>
           <input v-model.number="zoom" type="range" min="10" max="28" step="2" class="sol-range" />
         </div>
+
+        <p class="sol-shortcut-hint" style="margin: 0">
+          Shortcuts: B Draw · E Erase · G Fill · I Pick · M Mirror · Ctrl+Z/Y Undo/Redo
+        </p>
       </div>
     </div>
   </div>

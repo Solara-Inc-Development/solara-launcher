@@ -1075,6 +1075,12 @@ async function run() {
     await page.waitForTimeout(100);
     await page.locator('.sol-editor-canvas').click({ position: { x: 18, y: 18 } });
     await page.getByText('Unsaved pixels', { exact: true }).waitFor();
+    await page.click('.sol-skin-editor button[aria-label="Undo"]');
+    await page.waitForTimeout(80);
+    await page.click('.sol-skin-editor button[aria-label="Redo"]');
+    await page.waitForTimeout(80);
+    await page.click('.sol-skin-editor button[aria-label="Toggle pixel grid"]');
+    await page.click('.sol-skin-editor button[aria-label="Toggle pixel grid"]');
     await page.getByRole('button', { name: 'Save to Library', exact: true }).click();
     await page.waitForFunction(() => window.__SOLARA_TEST_STATE__.invoked.some((c) => c.cmd === 'saved_skins_save' && c.args.pngDataUrl.startsWith('data:image/png;base64,')));
     await page.waitForSelector('text=Unsaved pixels', { state: 'detached' });

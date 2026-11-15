@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.54 — 6-Face UV Body-Part Skin Editor Part 1 (Head/Torso/Arms/Legs x 6 cube faces, Outer Layer base guide).
+# Owner-approved preview candidate: V-0.0.55 — Skin Editor Tools Part 2 (Grid toggle, Mirror guide, Recent Colors, Undo/Redo shortcuts, bounded flood-fill).
 on:
   workflow_dispatch:
   push:

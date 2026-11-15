@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.55 — 2026-11-15
+
+- **Skins Studio — Painting Tools & Shortcuts (Part 2)**:
+  - Extracted pure pixel editing helpers into `apps/desktop/ui/skinTools.mjs` (`floodFillRegion`, `mirrorPixelX`, `normalizeHexColor`, `parseHexRgb`, `pushRecentColor`).
+  - Upgraded `SkinEditor.vue` and `apps/desktop/launcher.css` with a **Pixel Grid** toggle, **Mirror symmetry axis guide**, **Recent Colors** strip, active color highlight ring, keyboard shortcuts (`B` Draw, `E` Erase, `G` Fill, `I` Pick, `M` Mirror, `Ctrl+Z`/`Ctrl+Y` Undo/Redo), and `64×64` / `64×32` PNG dimension guard on editor import without losing undo history.
+  - Added `tests/skin-editor-tools.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to exercise Undo/Redo and Pixel Grid toggling.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.54 — 2026-11-15
 
 - **Skins Studio — 6-Face UV Body-Part Editor (Part 1)**:
