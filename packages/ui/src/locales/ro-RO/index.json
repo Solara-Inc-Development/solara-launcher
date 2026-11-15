@@ -60,7 +60,7 @@
     "defaultMessage": "Niciun rezultat găsit pentru query-ul tău!"
   },
   "browse.offline": {
-    "defaultMessage": "Sunteți offline! Conectați-vă la internet ca să puteți căuta pe Modrinth!"
+    "defaultMessage": "Sunteți offline! Conectați-vă la internet ca să puteți căuta pe Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Caută {projectType}..."
@@ -198,7 +198,7 @@
     "defaultMessage": "Deschide în folder"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Deschide în Modrinth"
+    "defaultMessage": "Deschide în Catalog"
   },
   "button.play": {
     "defaultMessage": "Joacă"
@@ -480,13 +480,13 @@
     "defaultMessage": "{count} a fost eliminat (dezactivat)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Fișierele care nu sunt publicate în Modrinth nu sunt revizuite."
+    "defaultMessage": "Fișierele care nu sunt publicate în Catalog nu sunt revizuite."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Niște conținut in serverul tău nu poate fi analizat și poate fi afectat de această schimbare."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Această actualizare conține fișiere care nu sunt publicate pe Modrinth. Vă recomandăm cu tărie să instalați numai fișiere din surse de încredere."
+    "defaultMessage": "Această actualizare conține fișiere care nu sunt publicate pe Catalog. Vă recomandăm cu tărie să instalați numai fișiere din surse de încredere."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Avertisment privind fișierele necunoscute"
@@ -1707,16 +1707,16 @@
     "defaultMessage": "Mențineți fișierele actualizate atunci când serverul se modifică"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Descărcați aplicația Modrinth"
+    "defaultMessage": "Descărcați aplicația Solara"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Aplicația Modrinth se va deschide automat..."
+    "defaultMessage": "Aplicația Solara se va deschide automat..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Deschiderea aplicației Modrinth"
+    "defaultMessage": "Deschiderea aplicației Solara"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "De ce să folosiți aplicația Modrinth"
+    "defaultMessage": "De ce să folosiți aplicația Solara"
   },
   "notification.error.title": {
     "defaultMessage": "A avut loc o eroare"
@@ -1749,7 +1749,7 @@
     "defaultMessage": "Moderator"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Echipa Modrinth"
+    "defaultMessage": "Echipa Catalog"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "În așteptare"
@@ -2169,7 +2169,7 @@
     "defaultMessage": "{count} {countPlural, plural, one {recent jucat} other {recent jucate}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "{count} {countPlural, plural, one {recent jucat} other {recent jucate}} de la Modrinth în ultimele 2 săptămâni"
+    "defaultMessage": "{count} {countPlural, plural, one {recent jucat} other {recent jucate}} de la Catalog în ultimele 2 săptămâni"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Acest proiect folosește un pachet de resurse personalizat"
@@ -2334,7 +2334,7 @@
     "defaultMessage": "Proiectul tău are mai multe environment-uri"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Tocmai am revizuit sistemul Environments pe Modrinth și acum sunt disponibile noi opțiuni. Asigurați-vă că ați selectat opțiunea corectă mai jos și apoi faceți clic pe „Verificați” când ați terminat!"
+    "defaultMessage": "Tocmai am revizuit sistemul Environments pe Catalog și acum sunt disponibile noi opțiuni. Asigurați-vă că ați selectat opțiunea corectă mai jos și apoi faceți clic pe „Verificați” când ați terminat!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Vă rugăm să examinați opțiunile de mai jos"
@@ -3036,7 +3036,7 @@
     "defaultMessage": "Unde ți-ar plăcea ca serverul să fie localizat?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Regiunea nu este listată? <link>Spuneți-ne unde doriți să vedeți în continuare Modrinth Hosting!</link>"
+    "defaultMessage": "Regiunea nu este listată? <link>Spuneți-ne unde doriți să vedeți în continuare Catalog Hosting!</link>"
   },
   "settings.account.title": {
     "defaultMessage": "Cont și securitate"

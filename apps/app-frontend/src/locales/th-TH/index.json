@@ -78,7 +78,7 @@
     "message": "การตั้งค่า Minecraft ล้มเหลว"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "ไม่สามารถเข้าถึง Modrinth ได้"
+    "message": "ไม่สามารถเข้าถึง Catalog ได้"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "ไม่มีสิทธิ์เขียน"
@@ -135,7 +135,7 @@
     "message": "ยอมรับทั้งหมด"
   },
   "app.ads-consent.body": {
-    "message": "โฆษณาทำให้ Modrinth ดำเนินต่อไปได้และเป็นแหล่งเงินทุนสำหรับการจ่ายเงินให้ครีเอเตอร์ พาร์ทเนอร์ของเราอาจจัดเก็บหรือเข้าถึงคุกกี้ในแอปเพื่อปรับแต่งโฆษณาให้เหมาะกับแต่ละบุคคลและวัดประสิทธิภาพ."
+    "message": "โฆษณาทำให้ Catalog ดำเนินต่อไปได้และเป็นแหล่งเงินทุนสำหรับการจ่ายเงินให้ครีเอเตอร์ พาร์ทเนอร์ของเราอาจจัดเก็บหรือเข้าถึงคุกกี้ในแอปเพื่อปรับแต่งโฆษณาให้เหมาะกับแต่ละบุคคลและวัดประสิทธิภาพ."
   },
   "app.ads-consent.manage": {
     "message": "จัดการการตั้งค่า"
@@ -144,7 +144,7 @@
     "message": "ปฏิเสธทั้งหมด"
   },
   "app.ads-consent.title": {
-    "message": "ความเป็นส่วนตัวของคุณและวิธีที่โฆษณาช่วยสนับสนุน Modrinth"
+    "message": "ความเป็นส่วนตัวของคุณและวิธีที่โฆษณาช่วยสนับสนุน Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "แสดงชุดเซิร์ฟเวอร์ในไลบรารีในรูปแบบแถวที่กะทัดรัด"
@@ -165,7 +165,7 @@
     "message": "ซ่อนป้ายชื่อ"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "ย่อ Modrinth App เมื่อ Minecraft เริ่มทำงาน"
+    "message": "ย่อ Solara Launcher เมื่อ Minecraft เริ่มทำงาน"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "ย่อแอปให้เล็กสุด"
@@ -189,7 +189,7 @@
     "message": "ซ่อนแถบทางด้านขวา"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "แสดงคำเตือนด้านความปลอดภัยก่อนติดตั้ง Modrinth Pack (.mrpack) ที่ไม่ได้โฮสต์บน Modrinth."
+    "message": "แสดงคำเตือนด้านความปลอดภัยก่อนติดตั้ง Modpack (.mrpack) ที่ไม่ได้โฮสต์บน Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "เตือนฉันก่อนติดตั้งแพ็กม็อดที่ไม่รู้จัก"
@@ -207,7 +207,7 @@
     "message": "หน้าหลัก และ เนื้อหา"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "นำแอป Modrinth มาไว้เบื้องหน้าเมื่อ Minecraft ปิดตัวลง"
+    "message": "นำแอป Solara มาไว้เบื้องหน้าเมื่อ Minecraft ปิดตัวลง"
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "โฟกัสแอปอีกครั้งเมื่อ Minecraft ปิด"
@@ -219,7 +219,7 @@
     "message": "ใช้การตั้งค่าพฤติกรรมเหล่านี้ในทุกที่ที่คุณลงชื่อเข้าใช้ ปิดตัวเลือกนี้เพื่อคงการตั้งค่าแยกต่างหากบนอุปกรณ์นี้."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "ลงชื่อเข้าใช้บัญชี Modrinth เพื่อซิงค์การตั้งค่า."
+    "message": "ลงชื่อเข้าใช้บัญชี Catalog เพื่อซิงค์การตั้งค่า."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "พฤติกรรมการซิงค์ระหว่างอุปกรณ์"
@@ -462,7 +462,7 @@
     "message": "ใช้การตั้งค่าคุณสมบัตินี้ทุกที่ที่คุณเข้าสู่ระบบ ปิดสิ่งนี้เพื่อเก็บการตั้งค่าแยกต่างหากบนอุปกรณ์นี้"
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "ลงชื่อเข้าใช้บัญชี Modrinth เพื่อซิงค์การตั้งค่า"
+    "message": "ลงชื่อเข้าใช้บัญชี Catalog เพื่อซิงค์การตั้งค่า"
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "ซิงค์คุณสมบัติข้ามอุปกรณ์"
@@ -687,10 +687,10 @@
     "message": "ชุดเซิร์ฟเวอร์บางรายการไม่รองรับการตั้งค่านี้"
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "แสดงแอป Modrinth เป็นกิจกรรมปัจจุบันของคุณบน Discord การดำเนินการนี้จะไม่ส่งผลต่อสถานะ Rich Presence ที่เพิ่มโดยม็อดในชุดเซิร์ฟเวอร์ จำเป็นต้องรีสตาร์ทแอปพลิเคชัน"
+    "message": "แสดงแอป Solara เป็นกิจกรรมปัจจุบันของคุณบน Discord การดำเนินการนี้จะไม่ส่งผลต่อสถานะ Rich Presence ที่เพิ่มโดยม็อดในชุดเซิร์ฟเวอร์ จำเป็นต้องรีสตาร์ทแอปพลิเคชัน"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "ที่เก็บข้อมูลของ Modrinth App สำหรับชุดเซิร์ฟเวอร์และไฟล์อื่น ๆ การเปลี่ยนแปลงจะมีผลหลังจากรีสตาร์ทแอปพลิเคชัน"
+    "message": "ที่เก็บข้อมูลของ Solara Launcher สำหรับชุดเซิร์ฟเวอร์และไฟล์อื่น ๆ การเปลี่ยนแปลงจะมีผลหลังจากรีสตาร์ทแอปพลิเคชัน"
   },
   "app.settings.resource-management.store.description": {
     "message": "ประหยัดพื้นที่ด้วยการนำชุดติดตั้งเกม ม็อด และแพ็กที่เคยใช้แล้วมาใช้ซ้ำกับหลายๆ โลกม็อดแพ็คของคุณ"
@@ -711,7 +711,7 @@
     "message": "เพิ่มชุดเซิร์ฟเวอร์ก่อนแก้ไขข้อมูลที่ซิงก์แล้ว"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "การตั้งค่าที่มาจากม็อดจะปรากฏในส่วนนี้หลังจากที่ Modrinth ค้นพบมันจากชุดเซิร์ฟเวอร์ใดชุดหนึ่งของคุณ"
+    "message": "การตั้งค่าที่มาจากม็อดจะปรากฏในส่วนนี้หลังจากที่ Catalog ค้นพบมันจากชุดเซิร์ฟเวอร์ใดชุดหนึ่งของคุณ"
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "ใช้ตัวเลือกเกมเดียวกันกับทุกชุดเซิร์ฟเวอร์"
@@ -852,13 +852,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "คุณได้รับสกินเหล่านี้จากการร่วมบริจาคให้กับกิจกรรมระดมทุน Modrinth Pride ในช่วงเดือน Pride Month"
+    "message": "คุณได้รับสกินเหล่านี้จากการร่วมบริจาคให้กับกิจกรรมระดมทุน Solara Pride ในช่วงเดือน Pride Month"
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -909,13 +909,13 @@
     "message": "ชุดเซิร์ฟเวอร์นี้จะเก็บสำเนาของตัวเอง คุณต้องการให้เนื้อหานี้ถูกซิงค์ในชุดเซิร์ฟเวอร์อื่น หรือลบออกจากพวกมัน"
   },
   "app.update-popup.body.download-complete": {
-    "message": "ดาวน์โหลด Modrinth v{version} สำเร็จแล้ว เปิดโปรแกรมใหม่อีกครั้งเพื่ออัปเดตตอนนี้ หรือจะรออัปเดตอัตโนมัติ ซึ่งจะเกิดขึ้นเมื่อคุณกดปิดโปรแกรม Modrinth"
+    "message": "ดาวน์โหลด Solara v{version} สำเร็จแล้ว เปิดโปรแกรมใหม่อีกครั้งเพื่ออัปเดตตอนนี้ หรือจะรออัปเดตอัตโนมัติ ซึ่งจะเกิดขึ้นเมื่อคุณกดปิดโปรแกรม Solara"
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth v{version} พร้อมให้อัปเดตแล้ว โปรดไปที่การจัดการแพ็กเกจของคุณสำหรับการอัปเดตคุณสมบัติใหม่และการแก้ไขต่าง ๆ"
+    "message": "Solara v{version} พร้อมให้อัปเดตแล้ว โปรดไปที่การจัดการแพ็กเกจของคุณสำหรับการอัปเดตคุณสมบัติใหม่และการแก้ไขต่าง ๆ"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth v{version} พร้อมให้บริการแล้ว! แต่เนื่องจากคุณเปิดโหมดจำกัดปริมาณการใช้ข้อมูลเครือข่าย เราจึงไม่ได้อัปเดตเนื้อหาโดยอัตโนมัติ"
+    "message": "Solara v{version} พร้อมให้บริการแล้ว! แต่เนื่องจากคุณเปิดโหมดจำกัดปริมาณการใช้ข้อมูลเครือข่าย เราจึงไม่ได้อัปเดตเนื้อหาโดยอัตโนมัติ"
   },
   "app.update-popup.changelog": {
     "message": "บันทึกการเปลี่ยนแปลง"
@@ -966,10 +966,10 @@
     "message": "มันอาจแตกต่างจากชื่อในเกม Minecraft ของพวกเขา!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "กรอกชื่อผู้ใช้ Modrinth..."
+    "message": "กรอกชื่อผู้ใช้ Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "เพื่อนของคุณมีชื่อผู้ใช้ Modrinth ว่าอะไร?"
+    "message": "เพื่อนของคุณมีชื่อผู้ใช้ Catalog ว่าอะไร?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>เพิ่มเพื่อน</link> เพื่อเห็นว่าพวกเขากำลังเล่นอะไรอยู่!"
@@ -1011,7 +1011,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>ล็อกอินเข้าบัญชี Modrinth</link> เพื่อเพิ่มเพื่อนและเห็นว่าพวกเขากำลังเล่นอะไรอยู่!"
+    "message": "<link>ล็อกอินเข้าบัญชี Catalog</link> เพื่อเพิ่มเพื่อนและเห็นว่าพวกเขากำลังเล่นอะไรอยู่!"
   },
   "instance.add-server.add-and-play": {
     "message": "เพิ่มและเล่นทันที"

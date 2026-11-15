@@ -39,7 +39,7 @@ export function createFileDownload(
 			const saveId = await selectExternal(
 				file.filename,
 				file.type === 'mrpack'
-					? { name: 'Modrinth Modpack', extensions: ['mrpack'] }
+					? { name: 'Modpack', extensions: ['mrpack'] }
 					: file.type === 'server-backup' || file.type === 'server-world'
 						? { name: 'ZIP archive', extensions: ['zip'] }
 						: null,

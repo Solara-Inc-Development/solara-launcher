@@ -13,6 +13,7 @@
     "build": "vite build",
     "web:dev": "vite --host 127.0.0.1",
     "web:build": "vite build",
+    "build:verify": "vite build --outDir checks/website-build",
     "app:dev": "pnpm turbo run dev --filter=@modrinth/app",
     "app:build": "pnpm turbo run build --filter=@modrinth/app",
     "desktop": "pnpm --filter @modrinth/app tauri dev",
@@ -29,7 +30,8 @@
     "test:workflows": "node scripts/check-workflows.cjs",
     "test:redesign": "node scripts/check-redesign.cjs",
     "test:csp": "node scripts/check-csp.cjs",
-    "test:window-controls": "node scripts/check-window-controls.cjs"
+    "test:window-controls": "node scripts/check-window-controls.cjs",
+    "test:branding": "node scripts/verify-branding-e2e.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.10.0",

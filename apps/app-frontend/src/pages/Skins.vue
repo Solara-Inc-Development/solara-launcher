@@ -74,7 +74,7 @@ const EARS_NOTICE_PLACEHOLDER = '__EARS_MOD_NAME__'
 const messages = defineMessages({
 	modrinthSection: {
 		id: 'app.skins.section.modrinth',
-		defaultMessage: 'Modrinth',
+		defaultMessage: 'Solara',
 	},
 	defaultSkinsSection: {
 		id: 'app.skins.section.default-skins',

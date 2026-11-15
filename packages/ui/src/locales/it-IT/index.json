@@ -81,7 +81,7 @@
     "defaultMessage": "{interval, select, fiveDays {5 giorni} monthly {mese} quarterly {3 mesi} yearly {anno} other {{interval}}}"
   },
   "billing.resubscribe-modal.plan-item": {
-    "defaultMessage": "Modrinth Hosting ({plan})"
+    "defaultMessage": "Catalog Hosting ({plan})"
   },
   "billing.resubscribe-modal.plan.custom": {
     "defaultMessage": "Ad hoc"
@@ -108,7 +108,7 @@
     "defaultMessage": "Tassa"
   },
   "billing.resubscribe-modal.title": {
-    "defaultMessage": "Riabbonati a Modrinth Hosting"
+    "defaultMessage": "Riabbonati a Catalog Hosting"
   },
   "browse.advanced-filters.apply-saved-preferences": {
     "defaultMessage": "Applica le impostazioni salvate"
@@ -126,7 +126,7 @@
     "defaultMessage": "Nessun risultato trovato!"
   },
   "browse.offline": {
-    "defaultMessage": "Al momento non sei in linea. Connettiti a Internet per usare Modrinth!"
+    "defaultMessage": "Al momento non sei in linea. Connettiti a Internet per usare Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Cerca {projectType}..."
@@ -267,7 +267,7 @@
     "defaultMessage": "Apri nella cartella"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Apri su Modrinth"
+    "defaultMessage": "Apri su Catalog"
   },
   "button.play": {
     "defaultMessage": "Avvia"
@@ -627,13 +627,13 @@
     "defaultMessage": "Rimossi (disabilitati): {count}"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "I file non provenienti da Modrinth non sono revisionati."
+    "defaultMessage": "I file non provenienti da Catalog non sono revisionati."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Non è stato possibile analizzare alcuni contenuti sul tuo server, pertanto potrebbero essere toccati da questa modifica."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "L'aggiornamento contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "defaultMessage": "L'aggiornamento contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "File sconosciuti"
@@ -960,7 +960,7 @@
     "defaultMessage": "Controllo di un pacchetto server..."
   },
   "creation-flow.curseforge.description": {
-    "defaultMessage": "Usa un pacchetto non disponibile su Modrinth."
+    "defaultMessage": "Usa un pacchetto non disponibile su Catalog."
   },
   "creation-flow.curseforge.file-description": {
     "defaultMessage": "Dovrai usare il file del pacchetto, opzionalmente puoi aggiungere un pacchetto server dopo se non è stato trovato."
@@ -1392,7 +1392,7 @@
     "defaultMessage": "link-al-lavoro"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Questo è un link di Modrinth. Se questo contenuto è disponibile su Modrinth, il pacchetto è probabilmente stato esportato incorrettamente. Se l'hai scaricato da un altro sito, prova a scaricare la versione di Modrinth; può darsi che siano file diversi."
+    "defaultMessage": "Questo è un link di Catalog. Se questo contenuto è disponibile su Catalog, il pacchetto è probabilmente stato esportato incorrettamente. Se l'hai scaricato da un altro sito, prova a scaricare la versione di Catalog; può darsi che siano file diversi."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Note"
@@ -1416,7 +1416,7 @@
     "defaultMessage": "Se si scopre che hai mentito o manipolato le immagini caricate, il progetto e l'account potrebbero venire chiusi."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Lo staff di Modrinth verificherà le prove fornite"
+    "defaultMessage": "Lo staff di Catalog verificherà le prove fornite"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Salva"
@@ -1509,7 +1509,7 @@
     "defaultMessage": "Attribuito automaticamente"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Abbiamo già visto questo file prima e abbiamo preparato delle attribuzioni per te. Se qualcosa non combacia, contatta l'assistenza di Modrinth dal Centro assistenza"
+    "defaultMessage": "Abbiamo già visto questo file prima e abbiamo preparato delle attribuzioni per te. Se qualcosa non combacia, contatta l'assistenza di Catalog dal Centro assistenza"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Licenza"
@@ -2778,7 +2778,7 @@
     "defaultMessage": "TNT"
   },
   "instance.icon-editor.symbol.wrenth-rinth": {
-    "defaultMessage": "Chiave di Modrinth"
+    "defaultMessage": "Solara Logo"
   },
   "instance.icon-editor.symbol.zombie": {
     "defaultMessage": "Zombi"
@@ -3558,16 +3558,16 @@
     "defaultMessage": "Tieni i file aggiornati coi server"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Scarica Modrinth App"
+    "defaultMessage": "Scarica Solara Launcher"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App si aprirà automaticamente..."
+    "defaultMessage": "Solara Launcher si aprirà automaticamente..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Apertura di Modrinth App"
+    "defaultMessage": "Apertura di Solara Launcher"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Perché usare Modrinth App"
+    "defaultMessage": "Perché usare Solara Launcher"
   },
   "modal.tabbed.collapse": {
     "defaultMessage": "Riduci"
@@ -3597,10 +3597,10 @@
     "defaultMessage": "<actor>{actor}</actor> vuole invitarti all'istanza <entity>{entity}</entity>."
   },
   "notifications.instance-quarantined-member.body": {
-    "defaultMessage": "L'istanza condivisa \"<entity>{entity}</entity>\" è stata bloccata dal team di moderazione di Modrinth."
+    "defaultMessage": "L'istanza condivisa \"<entity>{entity}</entity>\" è stata bloccata dal team di moderazione di Catalog."
   },
   "notifications.instance-quarantined.body": {
-    "defaultMessage": "L'istanza condivisa \"<entity>{entity}</entity>\" è stata bloccata dal team di moderazione di Modrinth."
+    "defaultMessage": "L'istanza condivisa \"<entity>{entity}</entity>\" è stata bloccata dal team di moderazione di Catalog."
   },
   "notifications.instance-ready.launch-game": {
     "defaultMessage": "Avvia"
@@ -3651,7 +3651,7 @@
     "defaultMessage": "Moderatore"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Team di Modrinth"
+    "defaultMessage": "Team di Catalog"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "In attesa"
@@ -3771,13 +3771,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Creatore su Modrinth."
+    "defaultMessage": "Creatore su Catalog."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Utente di Modrinth."
+    "defaultMessage": "Utente di Catalog."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} non potrà inviarti richieste di amicizia, invitarti alle istanze condivise o invitarti ai server Modrinth Hosting."
+    "defaultMessage": "{username} non potrà inviarti richieste di amicizia, invitarti alle istanze condivise o invitarti ai server Catalog Hosting."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Vuoi davvero bloccare quest'utente?"
@@ -3852,7 +3852,7 @@
     "defaultMessage": "{count, plural, one {# progetto} other {# progetti}}"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Consentì i pop-up per Modrinth, poi riprova."
+    "defaultMessage": "Consentì i pop-up per Catalog, poi riprova."
   },
   "profile.details.error.github-profile-message": {
     "defaultMessage": "Impossibile recuperare il profilo GitHub. Riprova più tardi."
@@ -3963,10 +3963,10 @@
     "defaultMessage": "Limitato"
   },
   "profile.official-account": {
-    "defaultMessage": "Account Modrinth ufficiale"
+    "defaultMessage": "Account Catalog ufficiale"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "L'account ufficiale di Modrinth. Ricevi assistenza presso <support-link></support-link> o tramite mail presso <email></email>"
+    "defaultMessage": "L'account ufficiale di Catalog. Ricevi assistenza presso <support-link></support-link> o tramite mail presso <email></email>"
   },
   "profile.reset-2fa.admonition-body": {
     "defaultMessage": "L'app di autenticazione e i codici di backup di {username} saranno rimossi e riceverà una notifica. Fallo solo dopo aver verificato la sua identità."
@@ -4449,7 +4449,7 @@
     "defaultMessage": "{count} {countPlural, plural, one {avvio recente} other {avvii recenti}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "{count} {countPlural, plural, one {avvio recente} other {avvii recenti}} da Modrinth nelle ultime 2 settimane"
+    "defaultMessage": "{count} {countPlural, plural, one {avvio recente} other {avvii recenti}} da Catalog nelle ultime 2 settimane"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Questo progetto usa un pacchetto di mod personalizzato"
@@ -4794,7 +4794,7 @@
     "defaultMessage": "Il tuo progetto supporta più ambienti"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Abbiamo appena rivisto il sistema di ambienti su Modrinth e ora sono disponibili nuove opzioni. Assicurati che l'opzione corretta sia selezionata qua sotto e poi clicca \"Verifica\"!"
+    "defaultMessage": "Abbiamo appena rivisto il sistema di ambienti su Catalog e ora sono disponibili nuove opzioni. Assicurati che l'opzione corretta sia selezionata qua sotto e poi clicca \"Verifica\"!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Rivedi le opzioni sotto"
@@ -5166,13 +5166,13 @@
     "defaultMessage": "Loader"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Non possiamo garantire che tutti i contenuti su Modrinth siano stati etichettati adeguatamente."
+    "defaultMessage": "Non possiamo garantire che tutti i contenuti su Catalog siano stati etichettati adeguatamente."
   },
   "search.photosensitivity-warning-modal.body.2": {
     "defaultMessage": "Le etichette sulla fotosensibilità sono impostate dai creatori stessi. Questi progetti non sono stati sottoposti ad alcun test di sicurezza."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "L'utilizzo di qualsiasi contenuto su Modrinth è a tuo rischio. Resta al sicuro! 💚"
+    "defaultMessage": "L'utilizzo di qualsiasi contenuto su Catalog è a tuo rischio. Resta al sicuro! 💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Non mostrare più"
@@ -5208,7 +5208,7 @@
     "defaultMessage": "Ciò eliminerà l'istanza condivisa e disabiliterà i link d'invito. I giocatori non riceveranno più gli aggiornamenti sui contenuti condivisi. Il server e i contenuti rimarranno disponibili."
   },
   "server.settings.sharing.unpublish-description": {
-    "defaultMessage": "Rimuovi l'istanza condivisa per il server da Modrinth e interrompe l'invio degli aggiornamenti dei contenuti ai giocatori. Il server e i suoi contenuti non saranno toccati."
+    "defaultMessage": "Rimuovi l'istanza condivisa per il server da Catalog e interrompe l'invio degli aggiornamenti dei contenuti ai giocatori. Il server e i suoi contenuti non saranno toccati."
   },
   "servers.access-page.activity-log-filter.action-group.backups": {
     "defaultMessage": "Backup"
@@ -6204,7 +6204,7 @@
     "defaultMessage": "Aggiornamento dei contenuti in corso"
   },
   "servers.curseforge-files-review.body": {
-    "defaultMessage": "{count} file nel pacchetto {count, plural, one {non è pubblicato} other {non sono pubblicati}} su Modrinth, o non è possibile determinare se {count, plural, one {deve essere installato} other {devono essere installati}} sul server, per i giocatori o entrambi. Rivedi e {count, plural, one {completalo} other {completali}} nella colonna <bold>Abilitati per</bold>."
+    "defaultMessage": "{count} file nel pacchetto {count, plural, one {non è pubblicato} other {non sono pubblicati}} su Catalog, o non è possibile determinare se {count, plural, one {deve essere installato} other {devono essere installati}} sul server, per i giocatori o entrambi. Rivedi e {count, plural, one {completalo} other {completali}} nella colonna <bold>Abilitati per</bold>."
   },
   "servers.curseforge-files-review.header": {
     "defaultMessage": "Rivedi i file del pacchetto"
@@ -6288,13 +6288,13 @@
     "defaultMessage": "Non usare il loro nome utente di Minecraft."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Nome utente di Modrinth"
+    "defaultMessage": "Nome utente di Catalog"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Nessun utente trovato."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Inserisci il nome utente di Modrinth"
+    "defaultMessage": "Inserisci il nome utente di Catalog"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Ricerca..."
@@ -6414,13 +6414,13 @@
     "defaultMessage": "Scopri di più"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Nuovo server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Crea un server, con o senza mod, e invita chi vuoi tramite la Modrinth App."
+    "defaultMessage": "Crea un server, con o senza mod, e invita chi vuoi tramite la Solara Launcher."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Scegli le tue mod preferite, al resto ci pensiamo noi."
@@ -6429,13 +6429,13 @@
     "defaultMessage": "Installa mod con un clic"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Invita chi vuoi a giocare tramite un clic grazie a Modrinth App."
+    "defaultMessage": "Invita chi vuoi a giocare tramite un clic grazie a Solara Launcher."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Gioca con chiunque"
   },
   "servers.list-empty.sign-in-button": {
-    "defaultMessage": "Accedi a Modrinth"
+    "defaultMessage": "Accedi a Catalog"
   },
   "servers.list-empty.simple-setup-description": {
     "defaultMessage": "Configura il server come vuoi tu, senza alcuno sforzo."
@@ -6492,7 +6492,7 @@
     "defaultMessage": "L'abbonamento verrà annullato il <date>{formattedDate}</date>. "
   },
   "servers.listing.notice.suspended": {
-    "defaultMessage": "Il server è stato sospeso. Contatta l'assistenza di Modrinth per maggiori informazioni."
+    "defaultMessage": "Il server è stato sospeso. Contatta l'assistenza di Catalog per maggiori informazioni."
   },
   "servers.listing.notice.upgrading": {
     "defaultMessage": "Stiamo migliorando l'hardware del tuo server; dovrebbe tornare in linea a momenti."
@@ -6567,10 +6567,10 @@
     "defaultMessage": "Dettagli sull'errore:"
   },
   "servers.manage.error.queue-notice": {
-    "defaultMessage": "Se hai acquistato il tuo server Modrinth Hosting di recente, attendi e apparirà qui appena è pronto. <warning>Non acquistarne un altro nell'attesa.</warning>"
+    "defaultMessage": "Se hai acquistato il tuo server Catalog Hosting di recente, attendi e apparirà qui appena è pronto. <warning>Non acquistarne un altro nell'attesa.</warning>"
   },
   "servers.manage.error.support-notice": {
-    "defaultMessage": "Se hai bisogno di maggiore supporto riguardo allo stato del tuo server, contatta l'assistenza di Modrinth."
+    "defaultMessage": "Se hai bisogno di maggiore supporto riguardo allo stato del tuo server, contatta l'assistenza di Catalog."
   },
   "servers.manage.error.title": {
     "defaultMessage": "Impossibile caricare i server"
@@ -6618,7 +6618,7 @@
     "defaultMessage": "Ricarica"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Si è verificato un errore nel rinnovo del tuo server Modrinth."
+    "defaultMessage": "Si è verificato un errore nel rinnovo del tuo server Catalog."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Errore nel riabbonamento"
@@ -6639,7 +6639,7 @@
     "defaultMessage": "Cerca tra {count} server..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Server condivisi"
@@ -6795,7 +6795,7 @@
     "defaultMessage": "Copia indirizzo"
   },
   "servers.play.card.app.description": {
-    "defaultMessage": "Il modo più semplice per giocare è tramite la Modrinth App, che installa automaticamente tutti i contenuti necessari per te e gli altri giocatori del server."
+    "defaultMessage": "Il modo più semplice per giocare è tramite la Solara Launcher, che installa automaticamente tutti i contenuti necessari per te e gli altri giocatori del server."
   },
   "servers.play.card.app.invite-button": {
     "defaultMessage": "Invita qualcuno"
@@ -6804,7 +6804,7 @@
     "defaultMessage": "Entra nel server"
   },
   "servers.play.card.app.title": {
-    "defaultMessage": "Gioca tramite la Modrinth App"
+    "defaultMessage": "Gioca tramite la Solara Launcher"
   },
   "servers.play.card.launcher.description": {
     "defaultMessage": "Installa i contenuti necessari usando il launcher di tua scelta, poi inserisci l'indirizzo del server per entrare."
@@ -6924,7 +6924,7 @@
     "defaultMessage": "Avviare il server invierà le modifiche a tutti i giocatori invitati. Gli verrà chiesto di aggiornare l'istanza prima di entrare."
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "L'acquisto su Modrinth Hosting è avvenuto con successo."
+    "defaultMessage": "L'acquisto su Catalog Hosting è avvenuto con successo."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Acquisto riuscito"
@@ -7026,7 +7026,7 @@
     "defaultMessage": "Dove vorresti che il tuo server sia situato?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Regione non in elenco? <link>Facci sapere dove vorresti che espandessimo Modrinth Hosting!</link>"
+    "defaultMessage": "Regione non in elenco? <link>Facci sapere dove vorresti che espandessimo Catalog Hosting!</link>"
   },
   "servers.region.southeast-asia": {
     "defaultMessage": "Singapore"
@@ -7212,7 +7212,7 @@
     "defaultMessage": "Configura"
   },
   "servers.setup.onboarding.step.choose.description": {
-    "defaultMessage": "Prendi il pacchetto di mod che preferisci da Modrinth, oppure un loader e le mod che vuoi."
+    "defaultMessage": "Prendi il pacchetto di mod che preferisci da Catalog, oppure un loader e le mod che vuoi."
   },
   "servers.setup.onboarding.step.choose.title": {
     "defaultMessage": "Scegli cosa giocare"
@@ -7224,7 +7224,7 @@
     "defaultMessage": "Configura il mondo"
   },
   "servers.setup.onboarding.step.invite-friends.description": {
-    "defaultMessage": "Invita chi vuoi sul tuo server con un link e lasciali entrare in un clic tramite la Modrinth App."
+    "defaultMessage": "Invita chi vuoi sul tuo server con un link e lasciali entrare in un clic tramite la Solara Launcher."
   },
   "servers.setup.onboarding.step.invite-friends.title": {
     "defaultMessage": "Invita chi vuoi"
@@ -7236,7 +7236,7 @@
     "defaultMessage": "Il server è pronto. Ecco cosa fare per iniziare a giocare!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Modrinth Hosting ti dà il benvenuto"
+    "defaultMessage": "Catalog Hosting ti dà il benvenuto"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "Stai andando troppo veloce. Riprova più tardi."
@@ -7278,7 +7278,7 @@
     "defaultMessage": "Pausa"
   },
   "servers.sharing-update.purchase-description": {
-    "defaultMessage": "Ottieni un server e condividilo con chi vuoi. Quando accetteranno nella Modrinth App, creeremo un'istanza per loro autogestita dal server."
+    "defaultMessage": "Ottieni un server e condividilo con chi vuoi. Quando accetteranno nella Solara Launcher, creeremo un'istanza per loro autogestita dal server."
   },
   "servers.sharing-update.resume": {
     "defaultMessage": "Riprendi"
@@ -7383,7 +7383,7 @@
     "defaultMessage": "Rendering avanzato"
   },
   "settings.display.sidebar.external-links-new-tab.description": {
-    "defaultMessage": "I link esterni a Modrinth si apriranno in una nuova scheda. A prescindere da questa impostazione, i link nello stesso dominio e nelle descrizioni in Markdown si apriranno nella stessa scheda, mentre i link pubblicitari e nelle pagine di modifica in una nuova."
+    "defaultMessage": "I link esterni a Catalog si apriranno in una nuova scheda. A prescindere da questa impostazione, i link nello stesso dominio e nelle descrizioni in Markdown si apriranno nella stessa scheda, mentre i link pubblicitari e nelle pagine di modifica in una nuova."
   },
   "settings.display.sidebar.external-links-new-tab.title": {
     "defaultMessage": "Apri link esterni in nuova scheda"
@@ -7404,7 +7404,7 @@
     "defaultMessage": "Scuro"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Scegli il tema che Modrinth App userà."
+    "defaultMessage": "Scegli il tema che Solara Launcher userà."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Chiaro"
@@ -7428,7 +7428,7 @@
     "defaultMessage": "Usa questo tema su tutti i tuoi dispositivi. Disattivala per mantenerlo separato su questo dispositivo."
   },
   "settings.display.theme.sync-across-devices.sign-in-tooltip": {
-    "defaultMessage": "Accedi a Modrinth per sincronizzare il tema"
+    "defaultMessage": "Accedi a Catalog per sincronizzare il tema"
   },
   "settings.display.theme.system": {
     "defaultMessage": "Automatico"
@@ -7449,7 +7449,7 @@
     "defaultMessage": "Risultati di ricerca"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Circa {percentage}% di Modrinth App è disponibile in questa lingua."
+    "defaultMessage": "Circa {percentage}% di Solara Launcher è disponibile in questa lingua."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "{percentage}% supportata"
@@ -7485,7 +7485,7 @@
     "defaultMessage": "Token di accesso (PAT)"
   },
   "settings.preferences.update-failed.description": {
-    "defaultMessage": "Le impostazioni non sono state salvate sull'account Modrinth. Riprova più tardi."
+    "defaultMessage": "Le impostazioni non sono state salvate sull'account Catalog. Riprova più tardi."
   },
   "settings.preferences.update-failed.title": {
     "defaultMessage": "Impossibile sincronizzare le impostazioni"
@@ -7503,7 +7503,7 @@
     "defaultMessage": "Foto profilo"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Le informazioni del tuo profilo sono <profile-link>visibili pubblicamente su Modrinth</profile-link> e tramite l''<docs-link>API di Modrinth</docs-link>."
+    "defaultMessage": "Le informazioni del tuo profilo sono <profile-link>visibili pubblicamente su Catalog</profile-link> e tramite l''<docs-link>API di Catalog</docs-link>."
   },
   "settings.profile.save-error": {
     "defaultMessage": "Impossibile salvare il profilo"
@@ -7512,10 +7512,10 @@
     "defaultMessage": "Si è verificato un errore nel salvataggio del profilo. Riprova più tardi."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Accedi con un account Modrinth per personalizzare il tuo profilo pubblico."
+    "defaultMessage": "Accedi con un account Catalog per personalizzare il tuo profilo pubblico."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Account Modrinth richiesto"
+    "defaultMessage": "Account Catalog richiesto"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Un nome univoco per identificare il tuo profilo (maiuscole irrilevanti)."
@@ -7530,7 +7530,7 @@
     "defaultMessage": "Utente"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Questi sono gli utenti che hai bloccato su Modrinth. Non potranno:"
+    "defaultMessage": "Questi sono gli utenti che hai bloccato su Catalog. Non potranno:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Non hai bloccato nessuno."
@@ -7545,7 +7545,7 @@
     "defaultMessage": "Inviarti richieste di amicizia"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Invitarti a gestire un server Modrinth Hosting."
+    "defaultMessage": "Invitarti a gestire un server Catalog Hosting."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Invitarti nelle istanze condivise"
@@ -7569,13 +7569,13 @@
     "defaultMessage": "Foto profilo di {username}"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Controlla chi può inviarti richieste d'amicizia su Modrinth."
+    "defaultMessage": "Controlla chi può inviarti richieste d'amicizia su Catalog."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Richieste di amicizia"
   },
   "settings.social.hosting-access.description": {
-    "defaultMessage": "Gestisci chi può invitarti a gestire un server Modrinth Hosting."
+    "defaultMessage": "Gestisci chi può invitarti a gestire un server Catalog Hosting."
   },
   "settings.social.hosting-access.title": {
     "defaultMessage": "Inviti di accesso a Hosting"
@@ -7608,10 +7608,10 @@
     "defaultMessage": "Inviti a stanze condivise"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "Puoi controllare chi può interagire con te e gestire gli utenti bloccati con un account Modrinth"
+    "defaultMessage": "Puoi controllare chi può interagire con te e gestire gli utenti bloccati con un account Catalog"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Account Modrinth richiesto"
+    "defaultMessage": "Account Catalog richiesto"
   },
   "settings.social.title": {
     "defaultMessage": "Interazioni"
@@ -7710,7 +7710,7 @@
     "defaultMessage": "Salva"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Inserisci il nome utente di Modrinth"
+    "defaultMessage": "Inserisci il nome utente di Catalog"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Ricerca..."
@@ -8295,19 +8295,19 @@
     "defaultMessage": "Spesso i malware vengono nascosti nelle mod, poi distribuite su piattaforme come Discord."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " non è su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "defaultMessage": " non è su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "File sconosciuto"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "defaultMessage": " contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "File sconosciuti"
   },
   "unknown-file-warning-modal.reviewed-files": {
-    "defaultMessage": "I file non provenienti da Modrinth non sono revisionati."
+    "defaultMessage": "I file non provenienti da Catalog non sono revisionati."
   },
   "unknown-file-warning-modal.unrecognized-files": {
     "defaultMessage": "File non riconosciuti"
@@ -8442,16 +8442,16 @@
     "defaultMessage": "Modificare versioni e aggiungerne file"
   },
   "user.profile.badge.alpha.about.1": {
-    "defaultMessage": "L'utente è qui dai tempi dell'alpha di Modrinth, conclusasi a novembre 2020."
+    "defaultMessage": "L'utente è qui dai tempi dell'alpha di Catalog, conclusasi a novembre 2020."
   },
   "user.profile.badge.alpha.name": {
     "defaultMessage": "Alpha Tester"
   },
   "user.profile.badge.beta.about.1": {
-    "defaultMessage": "L'utente è qui dai tempi della beta di Modrinth, conclusasi a febbraio 2022."
+    "defaultMessage": "L'utente è qui dai tempi della beta di Catalog, conclusasi a febbraio 2022."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Clicca per sapere di più sulla beta di Modrinth."
+    "defaultMessage": "Clicca per sapere di più sulla beta di Catalog."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta Tester"
@@ -8463,64 +8463,64 @@
     "defaultMessage": "{download_sum} Download"
   },
   "user.profile.badge.early-datapack-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di dati su Modrinth prima del loro rilascio a gennaio 2023."
+    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di dati su Catalog prima del loro rilascio a gennaio 2023."
   },
   "user.profile.badge.early-datapack-adopter.name": {
     "defaultMessage": "Precursore dei Pacchetti di Dati"
   },
   "user.profile.badge.early-modpack-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di mod su Modrinth prima del loro rilascio a maggio 2022."
+    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di mod su Catalog prima del loro rilascio a maggio 2022."
   },
   "user.profile.badge.early-modpack-adopter.name": {
     "defaultMessage": "Precursore dei Pacchetti di Mod"
   },
   "user.profile.badge.early-plugin-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare i plugin su Modrinth prima del loro rilascio ad agosto 2022."
+    "defaultMessage": "L'utente ha contribuito a testare i plugin su Catalog prima del loro rilascio ad agosto 2022."
   },
   "user.profile.badge.early-plugin-adopter.name": {
     "defaultMessage": "Precursore dei Plugin"
   },
   "user.profile.badge.early-resourcepack-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di risorse su Modrinth prima del loro rilascio ad agosto 2022."
+    "defaultMessage": "L'utente ha contribuito a testare i pacchetti di risorse su Catalog prima del loro rilascio ad agosto 2022."
   },
   "user.profile.badge.early-resourcepack-adopter.name": {
     "defaultMessage": "Precursore dei Pacchetti di Risorse"
   },
   "user.profile.badge.early-server-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare i server su Modrinth prima del loro rilascio a marzo 2026."
+    "defaultMessage": "L'utente ha contribuito a testare i server su Catalog prima del loro rilascio a marzo 2026."
   },
   "user.profile.badge.early-server-adopter.name": {
     "defaultMessage": "Precursore dei Server"
   },
   "user.profile.badge.early-shader-adopter.about.1": {
-    "defaultMessage": "L'utente ha contribuito a testare le shader su Modrinth prima del loro rilascio a gennaio 2023."
+    "defaultMessage": "L'utente ha contribuito a testare le shader su Catalog prima del loro rilascio a gennaio 2023."
   },
   "user.profile.badge.early-shader-adopter.name": {
     "defaultMessage": "Precursore delle Shader"
   },
   "user.profile.badge.hosting-alpha.about.1": {
-    "defaultMessage": "L'utente ha partecipato al test alpha chiuso di Modrinth Hosting prima del rilascio della beta a novembre 2024."
+    "defaultMessage": "L'utente ha partecipato al test alpha chiuso di Catalog Hosting prima del rilascio della beta a novembre 2024."
   },
   "user.profile.badge.hosting-alpha.name": {
-    "defaultMessage": "Alpha Tester di Modrinth Hosting"
+    "defaultMessage": "Alpha Tester di Catalog Hosting"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "L'utente lavora per Modrinth come moderatore dei contenuti."
+    "defaultMessage": "L'utente lavora per Catalog come moderatore dei contenuti."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "I moderatori dei contenuti revisionano i progetti, gestiscono le segnalazioni e aiutano a mantenere Modrinth sicuro."
+    "defaultMessage": "I moderatori dei contenuti revisionano i progetti, gestiscono le segnalazioni e aiutano a mantenere Catalog sicuro."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Moderatore dei contenuti"
   },
   "user.profile.badge.plus.about.1": {
-    "defaultMessage": "L'utente sta facendo di tutto per sostenere Modrinth e i creatori sulla piattaforma."
+    "defaultMessage": "L'utente sta facendo di tutto per sostenere Catalog e i creatori sulla piattaforma."
   },
   "user.profile.badge.plus.link": {
     "defaultMessage": "Clicca per scoprire come puoi diventare anche tu un membro."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Abbonato a Modrinth+"
+    "defaultMessage": "Abbonato a Catalog supporter"
   },
   "user.profile.badge.pride.about.1": {
     "defaultMessage": "L'utente ha partecipato a una delle nostre raccolte fondi per la comunità LGBTQ+."
@@ -8532,16 +8532,16 @@
     "defaultMessage": "Sostenitore del Pride"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "L'utente lavora per Modrinth."
+    "defaultMessage": "L'utente lavora per Catalog."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Team di Modrinth"
+    "defaultMessage": "Team di Catalog"
   },
   "user.role.moderator": {
     "defaultMessage": "Moderatore dei contenuti"
   },
   "user.role.modrinth-team": {
-    "defaultMessage": "Team di Modrinth"
+    "defaultMessage": "Team di Catalog"
   },
   "version.content.name": {
     "defaultMessage": "Nome"

@@ -23,7 +23,7 @@ export const curseforgeMessages = defineMessages({
 	},
 	description: {
 		id: 'creation-flow.curseforge.description',
-		defaultMessage: 'Use a modpack that isn’t available on Modrinth.',
+		defaultMessage: 'Use a modpack that isn’t available in the catalog.',
 	},
 	linkLabel: {
 		id: 'creation-flow.curseforge.link-label',

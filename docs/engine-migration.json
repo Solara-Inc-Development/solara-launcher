@@ -1,7 +1,7 @@
 {
-  "status": "preview",
-  "direction": "Independently authored native Minecraft core; no inherited launcher engine.",
-  "inheritedEngineRemoved": true,
+  "status": "inherited-engine-retained",
+  "direction": "The current Solara product retains the Modrinth-derived Theseus engine. An independent majority rewrite has not been implemented.",
+  "inheritedEngineRemoved": false,
   "windowsAcceptance": false,
   "capabilities": [
     "vanilla-install",
@@ -55,5 +55,7 @@
     "sourceArchiveSha256": "87219cbb1740876b9b0cd423feaa5c6aadcf2d906a8d41689f1d582ebaaf7b46",
     "windowsDeviceAcceptance": false
   },
-  "distributionStatus": "testing-preview-live"
+  "distributionStatus": "testing-preview-live",
+  "sourceBrandingStatus": "unreleased-cyan-rebrand",
+  "previewAllowed": true
 }

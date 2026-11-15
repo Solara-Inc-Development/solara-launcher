@@ -78,7 +78,7 @@
     "message": "Configurazione di Minecraft non riuscita"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Modrinth non è raggiungibile"
+    "message": "Catalog non è raggiungibile"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Permessi di scrittura mancanti"
@@ -135,7 +135,7 @@
     "message": "Accetta tutto"
   },
   "app.ads-consent.body": {
-    "message": "Le pubblicità sostengono Modrinth e finanziano i creatori. I nostri partner potrebbero memorizzare o accedere ai cookie per personalizzare gli annunci e misurarne le prestazioni."
+    "message": "Le pubblicità sostengono Catalog e finanziano i creatori. I nostri partner potrebbero memorizzare o accedere ai cookie per personalizzare gli annunci e misurarne le prestazioni."
   },
   "app.ads-consent.manage": {
     "message": "Gestisci i consensi"
@@ -144,7 +144,7 @@
     "message": "Rifiuta tutto"
   },
   "app.ads-consent.title": {
-    "message": "Privacy e pubblicità su Modrinth"
+    "message": "Privacy e pubblicità su Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Mostra le istanze nella libreria in righe compatte."
@@ -189,7 +189,7 @@
     "message": "Barra laterale destra nascosta"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Mostra un avviso prima di installare un Modrinth Pack (.mrpack) non proveniente da Modrinth."
+    "message": "Mostra un avviso prima di installare un Modpack (.mrpack) non proveniente da Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Avvisami quando installo pacchetti sconosciuti"
@@ -207,7 +207,7 @@
     "message": "Home e contenuti"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "Le istanze che hai nascosto dalla libreria su questo dispositivo. Queste non sono sincronizzate con l'account Modrinth."
+    "message": "Le istanze che hai nascosto dalla libreria su questo dispositivo. Queste non sono sincronizzate con l'account Catalog."
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "Non hai ancora nascosto alcuna istanza."
@@ -222,7 +222,7 @@
     "message": "Istanze nascoste"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Riporta la finestra di Modrinth App quando chiudi Minecraft."
+    "message": "Riporta la finestra di Solara Launcher quando chiudi Minecraft."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Riapri l'app alla chiusura del gioco"
@@ -234,7 +234,7 @@
     "message": "Usa queste impostazioni su tutti i dispositivi. Se disattivata, le impostazioni su questo resteranno separate."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Accedi a Modrinth per sincronizzare le impostazioni."
+    "message": "Accedi a Catalog per sincronizzare le impostazioni."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Sincronizza tra i dispositivi"
@@ -489,7 +489,7 @@
     "message": "Usa queste impostazioni su tutti i dispositivi. Se disattivata, le impostazioni su questo resteranno separate."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Accedi a Modrinth per sincronizzare le impostazioni."
+    "message": "Accedi a Catalog per sincronizzare le impostazioni."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Sincronizza tra i dispositivi"
@@ -531,13 +531,13 @@
     "message": "Mostra istanza"
   },
   "app.hosting.update-required.description": {
-    "message": "È necessario aggiornare l'app per usare Modrinth Hosting"
+    "message": "È necessario aggiornare l'app per usare Solara Hosting"
   },
   "app.hosting.update-required.download": {
     "message": "Scarica per aggiornare"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Modrinth Bot emozionato"
+    "message": "Catalog Bot emozionato"
   },
   "app.hosting.update-required.title": {
     "message": "Aggiornamento richiesto"
@@ -648,7 +648,7 @@
     "message": "Modifiche non ancora condivise"
   },
   "app.instance.admonitions.shared-instance.owner-update-body": {
-    "message": "Hai inviato un aggiornamento a questa istanza condivisa su un'altra installazione di Modrinth App. Scarica le ultime modifiche per continuare a gestirle da qui."
+    "message": "Hai inviato un aggiornamento a questa istanza condivisa su un'altra installazione di Solara Launcher. Scarica le ultime modifiche per continuare a gestirle da qui."
   },
   "app.instance.admonitions.shared-instance.owner-update-button": {
     "message": "Scarica"
@@ -900,13 +900,13 @@
     "message": "Accedi come"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Effettua l'accesso a Modrinth"
+    "message": "Effettua l'accesso a Catalog"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "per ricevere gli aggiornamenti dell'istanza condivisa."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Stai usando l'account Modrinth sbagliato"
+    "message": "Stai usando l'account Catalog sbagliato"
   },
   "app.instance.shortcut.created": {
     "message": "Collegamento creato"
@@ -1371,7 +1371,7 @@
     "message": "Libreria"
   },
   "app.library.unpublish-and-leave-shared-instances.modal.admonition-body": {
-    "message": "{unpublishCount, plural, one {La tua istanza condivisa sarà eliminata dai server di Modrinth e gli utenti che la usavano} other {Le tue # istanze condivise saranno eliminate dai server di Modrinth e gli utenti che le usavano}} non riceveranno più aggiornamenti. {leaveCount, plural, one {Perderai l'accesso all'altra istanza condivisa e dovrai riottenere un invito per entrarci.} other {Perderai l'accesso alle altre # istanze condivise e dovrai riottenere un invito per entrarci.}} Tutte queste saranno rimosse dalla tua libreria."
+    "message": "{unpublishCount, plural, one {La tua istanza condivisa sarà eliminata dai server di Catalog e gli utenti che la usavano} other {Le tue # istanze condivise saranno eliminate dai server di Catalog e gli utenti che le usavano}} non riceveranno più aggiornamenti. {leaveCount, plural, one {Perderai l'accesso all'altra istanza condivisa e dovrai riottenere un invito per entrarci.} other {Perderai l'accesso alle altre # istanze condivise e dovrai riottenere un invito per entrarci.}} Tutte queste saranno rimosse dalla tua libreria."
   },
   "app.library.unpublish-and-leave-shared-instances.modal.admonition-header": {
     "message": "Ritirare e lasciare le istanze condivise"
@@ -1380,7 +1380,7 @@
     "message": "Ritira e lascia {count} istanze condivise"
   },
   "app.library.unpublish-shared-instance.modal.admonition-body": {
-    "message": "{count, plural, one {Ciò eliminerà l'istanza condivisa dai server di Modrinth. Gli utenti che la usavano non riceveranno più aggiornamenti e sarà rimossa dalla tua libreria.} other {Ciò eliminerà le istanze condivise dai server di Modrinth. Gli utenti che le usavano non riceveranno più aggiornamenti e saranno rimosse dalla tua libreria.}}"
+    "message": "{count, plural, one {Ciò eliminerà l'istanza condivisa dai server di Solara. Gli utenti che la usavano non riceveranno più aggiornamenti e sarà rimossa dalla tua libreria.} other {Ciò eliminerà le istanze condivise dai server di Solara. Gli utenti che le usavano non riceveranno più aggiornamenti e saranno rimosse dalla tua libreria.}}"
   },
   "app.library.unpublish-shared-instance.modal.admonition-header": {
     "message": "{count, plural, one {Ritirare l'istanza condivisa} other {Ritirare # istanze condivise}}"
@@ -1416,10 +1416,10 @@
     "message": "Installa"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Questo invito è stato creato da un utente, non da Modrinth. Accetta solo gli inviti da persone fidate."
+    "message": "Questo invito è stato creato da un utente, non da Catalog. Accetta solo gli inviti da persone fidate."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Questo invito è stato creato da <creator>{username}</creator>, non da Modrinth. Accetta solo gli inviti da persone fidate."
+    "message": "Questo invito è stato creato da <creator>{username}</creator>, non da Catalog. Accetta solo gli inviti da persone fidate."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "Contenuti del pacchetto"
@@ -1455,7 +1455,7 @@
     "message": "Per assistenza, contatta il nostro <support-link>team di assistenza</support-link>. Per segnalare bug, apri un <github-link>Issue su GitHub</github-link>."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "I file non provenienti da Modrinth non sono revisionati."
+    "message": "I file non provenienti da Catalog non sono revisionati."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Istanza condivisa"
@@ -1464,7 +1464,7 @@
     "message": "Contenuti dell'istanza condivisa"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "L'istanza condivisa contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "message": "L'istanza condivisa contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "La versione del pacchetto usata non può essere scaricata al momento. Potrebbe essere stata rimossa o essere sotto revisione. Riprova più tardi o contatta il proprietario del server."
@@ -1473,7 +1473,7 @@
     "message": "Il pacchetto del server non è disponibile"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "Il pacchetto contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "message": "Il pacchetto contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "File sconosciuti"
@@ -1494,7 +1494,7 @@
     "message": "Inviato da un'altra installazione"
   },
   "app.modal.update-to-play.owner-description": {
-    "message": "Queste modifiche sono state inviate da un'altra installazione di Modrinth App. Quelle non inviate da questa installazione saranno sostituite."
+    "message": "Queste modifiche sono state inviate da un'altra installazione di Solara Launcher. Quelle non inviate da questa installazione saranno sostituite."
   },
   "app.modal.update-to-play.owner-header": {
     "message": "Aggiornamento disponibile"
@@ -1503,7 +1503,7 @@
     "message": "Rimosso"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "L'aggiornamento di questo pacchetto contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "message": "L'aggiornamento di questo pacchetto contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "Aggiunto"
@@ -1512,7 +1512,7 @@
     "message": "Rimosso"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "L'aggiornamento di questa istanza condivisa contiene dei file che non sono su Modrinth. Consigliamo di installare file solo da fonti attendibili."
+    "message": "L'aggiornamento di questa istanza condivisa contiene dei file che non sono su Catalog. Consigliamo di installare file solo da fonti attendibili."
   },
   "app.modal.update-to-play.update-required": {
     "message": "Aggiornamento richiesto"
@@ -1533,10 +1533,10 @@
     "message": "Caricamento profilo..."
   },
   "app.nav.modrinth-account": {
-    "message": "Account Modrinth"
+    "message": "Account Catalog"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "Rimuovi account"
@@ -1545,13 +1545,13 @@
     "message": "Schermate"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Accedi a Modrinth"
+    "message": "Accedi a Catalog"
   },
   "app.nav.switch-account": {
     "message": "Cambia account"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Abbonati a Modrinth+"
+    "message": "Abbonati a Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "Mostra profilo"
@@ -1767,7 +1767,7 @@
     "message": "Esporta ZIP"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Schermate di Modrinth.zip"
+    "message": "Schermate di Catalog.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "Schermate di {instance}.zip"
@@ -1812,7 +1812,7 @@
     "message": "Condividi i server con chi vuoi"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Le variabili d'ambiente impostate all'avvio di un'istanza."
@@ -2079,7 +2079,7 @@
     "message": "Alcune istanze non possono usare questa impostazione"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "L'impostazione è gestita dalle impostazioni di lancio di Modrinth."
+    "message": "L'impostazione è gestita dalle impostazioni di lancio di Catalog."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "Inserisci un valore"
@@ -2913,16 +2913,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "Le pubblicità sostengono Modrinth e finanziano i creatori. I nostri partner potrebbero memorizzare o accedere ai cookie per personalizzare gli annunci e misurarne le prestazioni. Puoi negare il consenso o gestire le tue preferenze qui sotto."
+    "message": "Le pubblicità sostengono Catalog e finanziano i creatori. I nostri partner potrebbero memorizzare o accedere ai cookie per personalizzare gli annunci e misurarne le prestazioni. Puoi negare il consenso o gestire le tue preferenze qui sotto."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Mostra Modrinth App come attività su Discord. Questo non interferisce con le mod che interagiscono con Rich Presence. Richiede un riavvio dell'app."
+    "message": "Mostra Solara Launcher come attività su Discord. Questo non interferisce con le mod che interagiscono con Rich Presence. Richiede un riavvio dell'app."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Rich Presence su Discord"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth raccoglie dati anonimizzati di analisi e utilizzo per migliorare l'esperienza utente e personalizzarla. Disabilitando questa opzione neghi il consenso e i tuoi dati non saranno più raccolti."
+    "message": "Catalog raccoglie dati anonimizzati di analisi e utilizzo per migliorare l'esperienza utente e personalizzarla. Disabilitando questa opzione neghi il consenso e i tuoi dati non saranno più raccolti."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
@@ -2937,7 +2937,7 @@
     "message": "L'app potrebbe caricarsi più lentamente finché la cache non sarà ripristinata."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "Elimina la cache e riscarica tutto da Modrinth. L'app potrebbe caricarsi più lentamente finché la cache non sarà ripristinata."
+    "message": "Elimina la cache e riscarica tutto da Catalog. L'app potrebbe caricarsi più lentamente finché la cache non sarà ripristinata."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "Cache dell'app"
@@ -2952,13 +2952,13 @@
     "message": "Backup del database dell'app"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Dove Modrinth App memorizza le istanze e altri file. Le modifiche avranno effetto dopo un riavvio."
+    "message": "Dove Solara Launcher memorizza le istanze e altri file. Le modifiche avranno effetto dopo un riavvio."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "Cartella dell'app"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "Esporta i registri e i dati diagnostici dell'app in un file ZIP da condividere con l'assistenza di Modrinth."
+    "message": "Esporta i registri e i dati diagnostici dell'app in un file ZIP da condividere con l'assistenza di Catalog."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "Esporta info di debug"
@@ -3120,7 +3120,7 @@
     "message": "Le impostazioni sono cambiate altrove"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "Le impostazioni aggiunte da mod appariranno qui dopo che Modrinth le avrà rilevate tra le istanze."
+    "message": "Le impostazioni aggiunte da mod appariranno qui dopo che Catalog le avrà rilevate tra le istanze."
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "Usa le stesse impostazioni di gioco tra le istanze."
@@ -3462,10 +3462,10 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Pride Modrinth"
+    "message": "Pride Solara"
   },
   "app.skins.section.modrinth-pride.tooltip": {
     "message": "Hai ottenuto queste skin per aver donato alla raccolta fondi per il Pride durante il Pride Month."
@@ -3504,10 +3504,10 @@
     "message": "Attiva"
   },
   "app.survey.body": {
-    "message": "Ti dispiacerebbe rispondere ad alcune domande sulla tua esperienza con Modrinth App?"
+    "message": "Ti dispiacerebbe rispondere ad alcune domande sulla tua esperienza con Solara Launcher?"
   },
   "app.survey.footer": {
-    "message": "Le tue risposte andranno direttamente al team di Modrinth e aiuteranno a guidare gli aggiornamenti futuri!"
+    "message": "Le tue risposte andranno direttamente al team di Catalog e aiuteranno a guidare gli aggiornamenti futuri!"
   },
   "app.survey.no-thanks": {
     "message": "No, grazie"
@@ -3516,7 +3516,7 @@
     "message": "Vai al sondaggio"
   },
   "app.survey.title": {
-    "message": "Ciao, utente di Modrinth!"
+    "message": "Ciao, utente di Catalog!"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "Scegli da quale istanza copiare i pacchetti di dati. Saranno usati solo per la sincronizzazione iniziale, poi potrai modificarli in qualsiasi istanza."
@@ -3603,13 +3603,13 @@
     "message": "Pacchetti di risorse sincronizzati"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} è stata scaricata. Riavvia per aggiornare ora, o avverrà in automatico alla chiusura dell'app."
+    "message": "Solara Launcher v{version} è stata scaricata. Riavvia per aggiornare ora, o avverrà in automatico alla chiusura dell'app."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} è disponibile. Usa il tuo gestore di pacchetti per aggiornare e ricevere le novità più recenti!"
+    "message": "Solara Launcher v{version} è disponibile. Usa il tuo gestore di pacchetti per aggiornare e ricevere le novità più recenti!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} è ora disponibile! Poiché sei su una rete a consumo, non l'abbiamo scaricata automaticamente."
+    "message": "Solara Launcher v{version} è ora disponibile! Poiché sei su una rete a consumo, non l'abbiamo scaricata automaticamente."
   },
   "app.update-popup.changelog": {
     "message": "Novità"
@@ -3660,7 +3660,7 @@
     "message": "Salta"
   },
   "app.welcome-screen.title": {
-    "message": "Modrinth ti dà il benvenuto"
+    "message": "Solara ti dà il benvenuto"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -3729,10 +3729,10 @@
     "message": "Potrebbe essere diverso dal nome utente di Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Inserisci nome utente di Modrinth..."
+    "message": "Inserisci nome utente di Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Con quale utente di Modrinth vuoi stringere amicizia?"
+    "message": "Con quale utente di Catalog vuoi stringere amicizia?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Stringi un''amicizia</link> per sapere a cosa stanno giocando!"
@@ -3777,10 +3777,10 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Accedi a un account Modrinth</link> per stringere amicizie e sapere a cosa stanno giocando!"
+    "message": "<link>Accedi a un account Catalog</link> per stringere amicizie e sapere a cosa stanno giocando!"
   },
   "hosting.play.account-changed": {
-    "message": "L'account di Modrinth è cambiato. Premi Entra nel server di nuovo per continuare."
+    "message": "L'account di Catalog è cambiato. Premi Entra nel server di nuovo per continuare."
   },
   "hosting.play.no-address": {
     "message": "Il server non ha ancora un indirizzo di connessione."
@@ -3864,7 +3864,7 @@
     "message": "Scollegamento..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "Rimuovi l'istanza condivisa da Modrinth e non inviare più aggiornamenti a chi la usa. L'istanza locale non sarà toccata."
+    "message": "Rimuovi l'istanza condivisa da Catalog e non inviare più aggiornamenti a chi la usa. L'istanza locale non sarà toccata."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "Ciò influirà solo sull'istanza locale. I contenuti installati rimarranno sul dispositivo e l'istanza condivisa e gli utenti che la usano non saranno toccati."
@@ -3876,7 +3876,7 @@
     "message": "Scollega l'istanza condivisa"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Ciò eliminerà l'istanza condivisa dai server di Modrinth. Gli utenti che la usavano non riceveranno più aggiornamenti, ma l'istanza locale e i contenuti rimarranno su questo dispositivo."
+    "message": "Ciò eliminerà l'istanza condivisa dai server di Solara. Gli utenti che la usavano non riceveranno più aggiornamenti, ma l'istanza locale e i contenuti rimarranno su questo dispositivo."
   },
   "instance.action.create-shortcut": {
     "message": "Crea collegamento"
@@ -4308,7 +4308,7 @@
     "message": "Errore di connessione"
   },
   "instance.shared-instance.owner-behind.text": {
-    "message": "Una versione più recente è stata inviata da un'altra installazione di Modrinth App. Scaricala, poi riprova."
+    "message": "Una versione più recente è stata inviata da un'altra installazione di Solara Launcher. Scaricala, poi riprova."
   },
   "instance.shared-instance.owner-behind.title": {
     "message": "Impossibile inviare l'aggiornamento"
@@ -4479,7 +4479,7 @@
     "message": "Crea un account"
   },
   "modal.modrinth-account-required.description": {
-    "message": "Devi aver effettuato l'accesso a Modrinth per usare questa funzione."
+    "message": "Devi aver effettuato l'accesso a Catalog per usare questa funzione."
   },
   "modal.modrinth-account-required.header": {
     "message": "Account richiesto"
@@ -4488,10 +4488,10 @@
     "message": "Riapri il browser"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Accedi a Modrinth"
+    "message": "Accedi a Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Accedi a un account Modrinth"
+    "message": "Accedi a un account Catalog"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Accesso"
@@ -4509,7 +4509,7 @@
     "message": "Accedi a Minecraft"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Accedi a Modrinth"
+    "message": "Accedi a Catalog"
   },
   "onboarding-checklist.title": {
     "message": "Per iniziare"

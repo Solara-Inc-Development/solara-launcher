@@ -60,7 +60,7 @@
     "defaultMessage": "Nema rezultata za tvoju potragu!"
   },
   "browse.offline": {
-    "defaultMessage": "Upravo si oflajn. Poveži se na internet da pretražuješ Modrinth!"
+    "defaultMessage": "Upravo si oflajn. Poveži se na internet da pretražuješ Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Traži {projectType}..."
@@ -198,7 +198,7 @@
     "defaultMessage": "Ovtori u folderu"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Otvori u Modrinthu"
+    "defaultMessage": "Otvori u Catalogu"
   },
   "button.play": {
     "defaultMessage": "Igraj"
@@ -489,13 +489,13 @@
     "defaultMessage": "{count} sklonjen (ugašen)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Fajlovi koji nisu objavljeni na Modrinth nisu pregledani."
+    "defaultMessage": "Fajlovi koji nisu objavljeni na Catalog nisu pregledani."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Deo sadržaja na tvome serveru nije mogao biti analiziran i na njega može uticati ova promena."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Ovo ažuiranje sadrži datoteke koje nisu postavljene na Modrinth-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
+    "defaultMessage": "Ovo ažuiranje sadrži datoteke koje nisu postavljene na Catalog-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Upozorenje nepoznatih datoteka"
@@ -1131,7 +1131,7 @@
     "defaultMessage": "link na rad"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Izgleda da je ovo link ka Modrinthu. Ako je ovaj sadržaj dostupan na Modrinthu, tvoj pack je verovatno pogrešno izvezen. Ako si ga instalirao sa druge stranice, pokušaj da preuzmeš verziju za Modrinth; ponekad to nisu identične datoteke."
+    "defaultMessage": "Izgleda da je ovo link ka Catalogu. Ako je ovaj sadržaj dostupan na Catalogu, tvoj pack je verovatno pogrešno izvezen. Ako si ga instalirao sa druge stranice, pokušaj da preuzmeš verziju za Catalog; ponekad to nisu identične datoteke."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Napomene"
@@ -1155,7 +1155,7 @@
     "defaultMessage": "Ukoliko se utvrdi da si lagao ili manipulisao otpremljenim slikama, tvoj projekat i račun mogu biti ukinuti."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Osoblje platforme Modrinth može da proveri dostavljeni dokaz"
+    "defaultMessage": "Osoblje platforme Catalog može da proveri dostavljeni dokaz"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Sačuvaj pripisivanje"
@@ -1239,7 +1239,7 @@
     "defaultMessage": "Automatski pripisano"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Već smo videli ovu datoteku i pripremili smo vam navođenje izvora. Ako ti se čini da nešto nije u redu, kontaktiraj podršku Modrintha putem centra za pomoć"
+    "defaultMessage": "Već smo videli ovu datoteku i pripremili smo vam navođenje izvora. Ako ti se čini da nešto nije u redu, kontaktiraj podršku Cataloga putem centra za pomoć"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Licenca"
@@ -2883,16 +2883,16 @@
     "defaultMessage": "Ažuriraj datoteke kada se server promeni"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Instaliraj Modrinth aplikaciju"
+    "defaultMessage": "Instaliraj Solara aplikaciju"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth aplikacija će se automatski otvoriti..."
+    "defaultMessage": "Solara aplikacija će se automatski otvoriti..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Otvaranje Modrinth aplikacije"
+    "defaultMessage": "Otvaranje Solara aplikacije"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Zašto koristiti Modrinth aplikaciju"
+    "defaultMessage": "Zašto koristiti Solara aplikaciju"
   },
   "notification.error.title": {
     "defaultMessage": "Došlo je do greške"
@@ -2952,7 +2952,7 @@
     "defaultMessage": "Moderator"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth tim"
+    "defaultMessage": "Catalog tim"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Na čekanju"
@@ -3072,13 +3072,13 @@
     "defaultMessage": "Viza"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Modrinth kreator."
+    "defaultMessage": "Catalog kreator."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Modrinth korisnik."
+    "defaultMessage": "Catalog korisnik."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} nece moci da vam šalje zahteve za prijateljstvo, poziva vas u zajedničke instance niti da vas poziva na Modrinth Hosting servere."
+    "defaultMessage": "{username} nece moci da vam šalje zahteve za prijateljstvo, poziva vas u zajedničke instance niti da vas poziva na Catalog Hosting servere."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Da li ste sigurni da želite blokirati ovog korisnika?"
@@ -3198,10 +3198,10 @@
     "defaultMessage": "{count, plural,one {projekat} other {projekta}}"
   },
   "profile.official-account": {
-    "defaultMessage": "Zvanični Modrinth nalog"
+    "defaultMessage": "Zvanični Catalog nalog"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "Zvanični nalog Modrinth-a. Dobiji pomoć putem <support-link></support-link> ili preko E-Mail-a na <email></email>"
+    "defaultMessage": "Zvanični nalog Catalog-a. Dobiji pomoć putem <support-link></support-link> ili preko E-Mail-a na <email></email>"
   },
   "profile.unblock-user.error-description": {
     "defaultMessage": "Desila se greška tokom odblokiranja ovog korisnika. Molimo pokušajte ponovo."
@@ -3573,7 +3573,7 @@
     "defaultMessage": "{count} {countPlural, plural, one {nedavna igra} few {nedavne igre} other {nedavnih igara}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "{count} {countPlural, plural, one {nedavna igra} few {nedavne igre} other {nedavnih igara}} sa Modrintha u poslednje 2 nedelje"
+    "defaultMessage": "{count} {countPlural, plural, one {nedavna igra} few {nedavne igre} other {nedavnih igara}} sa Cataloga u poslednje 2 nedelje"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Ovaj projekat koristi prilagođeni modpack"
@@ -3903,7 +3903,7 @@
     "defaultMessage": "Tvoj projekat ima više okruženja"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Upravo smo redizajnirali sistem okruženja na Modrinthu i sada su dostupne nove opcije. Molimo te da se uveriš da je izabrana ispravna opcija ispod, a zatim klikni na „Verifikuj“ kada završiš!"
+    "defaultMessage": "Upravo smo redizajnirali sistem okruženja na Catalogu i sada su dostupne nove opcije. Molimo te da se uveriš da je izabrana ispravna opcija ispod, a zatim klikni na „Verifikuj“ kada završiš!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Molimo te da pregledaš opcije ispod"
@@ -4179,13 +4179,13 @@
     "defaultMessage": "Učitavač"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Ne možemo garantovati da je sav sadržaj na Modrinth-u označen na odgovarajući način."
+    "defaultMessage": "Ne možemo garantovati da je sav sadržaj na Catalog-u označen na odgovarajući način."
   },
   "search.photosensitivity-warning-modal.body.2": {
-    "defaultMessage": "Oznake sadržaja za okidače fotosenzitivnosti sami dodeljuju kreatori koji otpremaju svoj sadržaj na Modrinth. Ovi projekti nisu prošli nikakvo bezbednosno testiranje."
+    "defaultMessage": "Oznake sadržaja za okidače fotosenzitivnosti sami dodeljuju kreatori koji otpremaju svoj sadržaj na Catalog. Ovi projekti nisu prošli nikakvo bezbednosno testiranje."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "Korišćenje bilo kog sadržaja na Modrinth-u je na sopstveni rizik. Molimo vas da budete bezbedni! 💚"
+    "defaultMessage": "Korišćenje bilo kog sadržaja na Catalog-u je na sopstveni rizik. Molimo vas da budete bezbedni! 💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Ne prikazuj ovo ponovo"
@@ -4923,13 +4923,13 @@
     "defaultMessage": "Nekoristi njihovo/njeno Minecraft Ime."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Ime na Modrinthu"
+    "defaultMessage": "Ime na Catalogu"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Nisu pronađeni odgovarajući korisnici."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Ukucaj ime na Modrinthu"
+    "defaultMessage": "Ukucaj ime na Catalogu"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Traženje..."
@@ -4944,13 +4944,13 @@
     "defaultMessage": "Već imaš server?"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth hostiranje"
+    "defaultMessage": "Catalog hostiranje"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Novi server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Instaliraj modove, pozvi prijatelje, i igraj skupa ave u Modrinth aplikaciji."
+    "defaultMessage": "Instaliraj modove, pozvi prijatelje, i igraj skupa ave u Solara aplikaciji."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Izaberi svoje omiljene modove, a mi ćemo se pobrinuti za ostalo."
@@ -5016,7 +5016,7 @@
     "defaultMessage": "Tvoja pretplata će biti otkazana na<date>{formattedDate}</date>. "
   },
   "servers.listing.notice.suspended": {
-    "defaultMessage": "Tvoj server je suspendovan. Molimo te da kontaktiraš Modrinth podršku za dodatne informacije."
+    "defaultMessage": "Tvoj server je suspendovan. Molimo te da kontaktiraš Catalog podršku za dodatne informacije."
   },
   "servers.listing.notice.upgrading": {
     "defaultMessage": "Hardver tvojeg servera se trenutno unapređuje i uskoro će ponovo biti dostupan."
@@ -5049,7 +5049,7 @@
     "defaultMessage": "Postavljanje u toku"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Kontaktiraj Modrinth podršku"
+    "defaultMessage": "Kontaktiraj Catalog podršku"
   },
   "servers.manage.error.alert-notice": {
     "defaultMessage": "Naši sistemi automatski obaveštavaju naš tim kada dođe do problema. Već radimo na tome da ih ponovo stavimo u funkciju."
@@ -5061,10 +5061,10 @@
     "defaultMessage": "Detalji greške:"
   },
   "servers.manage.error.queue-notice": {
-    "defaultMessage": "Ako si nedavno kupio svoj Modrinth Hosting server, on se trenutno nalazi u redu za čekanje i pojaviće se ovde čim bude spreman. <warning>Ne pokušavaj da kupiš novi server.</warning>"
+    "defaultMessage": "Ako si nedavno kupio svoj Catalog Hosting server, on se trenutno nalazi u redu za čekanje i pojaviće se ovde čim bude spreman. <warning>Ne pokušavaj da kupiš novi server.</warning>"
   },
   "servers.manage.error.support-notice": {
-    "defaultMessage": "Ako ti je potrebna personalizovana podrška u vezi sa statusom vašeg servera, molimo te da kontaktiraš Modrinth podršku."
+    "defaultMessage": "Ako ti je potrebna personalizovana podrška u vezi sa statusom vašeg servera, molimo te da kontaktiraš Catalog podršku."
   },
   "servers.manage.error.title": {
     "defaultMessage": "Serveri nisu mogali biti učitani"
@@ -5094,7 +5094,7 @@
     "defaultMessage": "Ponovno učitaj"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Došlo je do greške prilikom ponovnog pretplaćivanja na tvoj Modrinth server."
+    "defaultMessage": "Došlo je do greške prilikom ponovnog pretplaćivanja na tvoj Catalog server."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Greška pri ponovnom pretplaćivanju"
@@ -5115,7 +5115,7 @@
     "defaultMessage": "Pretraži {count} {count, plural, one {server} other {servera}}..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth hostiranje"
+    "defaultMessage": "Catalog hostiranje"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Podeleni serveri"
@@ -5133,10 +5133,10 @@
     "defaultMessage": "Tvoj probni period za Medal server je istekao i server je suspendovan. Molimo te da izvršiš nadogradnju kako bi nastavio da koristiš svoj server."
   },
   "servers.medal-listing.notice.suspended": {
-    "defaultMessage": "Tvoj server je suspendovan. Molimo te da ažuriraš podatke za naplatu ili kontaktiraj Modrinth podršku za dodatne informacije."
+    "defaultMessage": "Tvoj server je suspendovan. Molimo te da ažuriraš podatke za naplatu ili kontaktiraj Catalog podršku za dodatne informacije."
   },
   "servers.medal-listing.notice.suspended-with-reason": {
-    "defaultMessage": "Tvoj server je suspendovan: {reason}. Molimo te da ažuriraš podatke za naplatu ili kontaktiraj Modrinth podršku za dodatne informacije."
+    "defaultMessage": "Tvoj server je suspendovan: {reason}. Molimo te da ažuriraš podatke za naplatu ili kontaktiraj Catalog podršku za dodatne informacije."
   },
   "servers.medal-listing.notice.upgrading": {
     "defaultMessage": "Hardver tvojeg servera se trenutno unapređuje i uskoro će ponovo biti dostupan."
@@ -5184,7 +5184,7 @@
     "defaultMessage": "Neodbacivo"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "Tvoja kupovina Modrinth hostiranja je uspešno završena."
+    "defaultMessage": "Tvoja kupovina Catalog hostiranja je uspešno završena."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Kupovina uspešna"
@@ -5256,7 +5256,7 @@
     "defaultMessage": "Gde bi želio da se nalazi tvoj server?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Region nije naveden? <link>Javi nam gde bi želio da vidiš Modrinth hostiranje u budućnosti!</link>"
+    "defaultMessage": "Region nije naveden? <link>Javi nam gde bi želio da vidiš Catalog hostiranje u budućnosti!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "Dodalo {time}"
@@ -5310,7 +5310,7 @@
     "defaultMessage": "Podesi server"
   },
   "servers.setup.onboarding.step.choose.description": {
-    "defaultMessage": "Izaberi svoj omiljeni modpak iz Modrintha ili izaberi program za učitavanje i dodaj modove koje želiš."
+    "defaultMessage": "Izaberi svoj omiljeni modpak iz Cataloga ili izaberi program za učitavanje i dodaj modove koje želiš."
   },
   "servers.setup.onboarding.step.choose.title": {
     "defaultMessage": "Izaberi što igrati"
@@ -5331,7 +5331,7 @@
     "defaultMessage": "Tvoj server je gotov! Evo šta treba da uradiš da bi počeo da igraš!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Dobrodošli na Modrinth hostiranje"
+    "defaultMessage": "Dobrodošli na Catalog hostiranje"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "Broj tvojih zahteva je ograničen. Molimo te da pokušaš ponovo kasnije."
@@ -5979,13 +5979,13 @@
     "defaultMessage": "Zlonamerni softver se često distribuira putem datoteka modova deljenjem na platformama poput Discord-a."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " nije postavljeno na Modrinth-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
+    "defaultMessage": " nije postavljeno na Catalog-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "Upozorenje nepoznatih datoteka"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " sadrži datoteke koje nisu postavljene na Modrinth-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
+    "defaultMessage": " sadrži datoteke koje nisu postavljene na Catalog-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "Upozorenje nepoznatih datoteka"
@@ -5994,16 +5994,16 @@
     "defaultMessage": "Nepoznate datoteke"
   },
   "user.profile.badge.alpha.about.1": {
-    "defaultMessage": "Ovaj koristnik je tu od Modrinth Alfa, koji je završio u novembru 2020."
+    "defaultMessage": "Ovaj koristnik je tu od Catalog Alfa, koji je završio u novembru 2020."
   },
   "user.profile.badge.alpha.name": {
     "defaultMessage": "Alfa tester"
   },
   "user.profile.badge.beta.about.1": {
-    "defaultMessage": "Ovaj koristnik je tu od Modrinth Beta, koji je završio u februaru 2022."
+    "defaultMessage": "Ovaj koristnik je tu od Catalog Beta, koji je završio u februaru 2022."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Klikni da pročitaš o pokretu Modrinth Bete."
+    "defaultMessage": "Klikni da pročitaš o pokretu Catalog Bete."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta tester"
@@ -6015,67 +6015,67 @@
     "defaultMessage": "{download_sum} preuzimanja"
   },
   "user.profile.badge.early-datapack-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem data packe na Modrinthu pre nego što smo ih lansirali u januaru 2023."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem data packe na Catalogu pre nego što smo ih lansirali u januaru 2023."
   },
   "user.profile.badge.early-datapack-adopter.name": {
     "defaultMessage": "Rani usvojitelj data packa"
   },
   "user.profile.badge.early-modpack-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem modpacka na Modrinthu pre nego što smo ih lansirali u maju 2022."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem modpacka na Catalogu pre nego što smo ih lansirali u maju 2022."
   },
   "user.profile.badge.early-modpack-adopter.name": {
     "defaultMessage": "Rani usvojitelj modpackova"
   },
   "user.profile.badge.early-plugin-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem projekate plugina na Modrinthu pre nego što smo ih lansirali u august 2022."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem projekate plugina na Catalogu pre nego što smo ih lansirali u august 2022."
   },
   "user.profile.badge.early-plugin-adopter.name": {
     "defaultMessage": "Rani usvojitelj plugina"
   },
   "user.profile.badge.early-resourcepack-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem resurs paketa na Modrinthu pre nego što smo ih lansirali u augustu 2022."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem resurs paketa na Catalogu pre nego što smo ih lansirali u augustu 2022."
   },
   "user.profile.badge.early-resourcepack-adopter.name": {
     "defaultMessage": "Rani usvojitelj resurs paketa"
   },
   "user.profile.badge.early-server-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem projekate servera na Modrinthu pre nego što smo ih lansirali u martu 2026."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem projekate servera na Catalogu pre nego što smo ih lansirali u martu 2026."
   },
   "user.profile.badge.early-server-adopter.name": {
     "defaultMessage": "Rani usvojitelj servera"
   },
   "user.profile.badge.early-shader-adopter.about.1": {
-    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem shader packe na Modrinthu pre nego što smo ih lansirali u januaru 2023."
+    "defaultMessage": "Ovaj koristnik nam je pomogao sa testiranjem shader packe na Catalogu pre nego što smo ih lansirali u januaru 2023."
   },
   "user.profile.badge.early-shader-adopter.name": {
     "defaultMessage": "Rani usvojitelj shader packova"
   },
   "user.profile.badge.hosting-alpha.about.1": {
-    "defaultMessage": "Ovaj korisnik je učestvovao u zatvorenom alfa testiranju Modrinth Hosting-a pre nego što smo pokrenuli Modrinth Hosting Beta u novembru 2024."
+    "defaultMessage": "Ovaj korisnik je učestvovao u zatvorenom alfa testiranju Catalog Hosting-a pre nego što smo pokrenuli Catalog Hosting Beta u novembru 2024."
   },
   "user.profile.badge.hosting-alpha.name": {
-    "defaultMessage": "Alfa tester hostinga Modrinth"
+    "defaultMessage": "Alfa tester hostinga Catalog"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Ovaj koristnik radi za Modrinth kao moderator sadržaja."
+    "defaultMessage": "Ovaj koristnik radi za Catalog kao moderator sadržaja."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "Moderatori sadržaja na Modrinthu pregledaju projekate, obrađuju izveštaje, i pomože u održavanju bezbednosti Modrintha."
+    "defaultMessage": "Moderatori sadržaja na Catalogu pregledaju projekate, obrađuju izveštaje, i pomože u održavanju bezbednosti Cataloga."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Moderator sadržaja"
   },
   "user.profile.badge.plus.about.1": {
-    "defaultMessage": "Ovaj korisnik se posebno trudi da podrži Modrinth i kreatore na platformi."
+    "defaultMessage": "Ovaj korisnik se posebno trudi da podrži Catalog i kreatore na platformi."
   },
   "user.profile.badge.plus.link": {
     "defaultMessage": "Klikni da saznaš kako možes postati član."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Član od Modrinth+"
+    "defaultMessage": "Član od Catalog supporter"
   },
   "user.profile.badge.pride.about.1": {
-    "defaultMessage": "Ovaj koristnik je učestvovao u barem jednoj od Modrinthovih akcija prikupljanja sredstava za LGBT+ zajednicu povodom ponosa."
+    "defaultMessage": "Ovaj koristnik je učestvovao u barem jednoj od Catalogovih akcija prikupljanja sredstava za LGBT+ zajednicu povodom ponosa."
   },
   "user.profile.badge.pride.link": {
     "defaultMessage": "Klikni da posjetiš našu najnoviju akciju prikupljanja sredstava za ponos."
@@ -6084,10 +6084,10 @@
     "defaultMessage": "Pristalica prikupljanja sredstava ponosa"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Ovaj korstnik radi za Modrinth."
+    "defaultMessage": "Ovaj korstnik radi za Catalog."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Modrinth tim"
+    "defaultMessage": "Catalog tim"
   },
   "version.content.name": {
     "defaultMessage": "Ime"

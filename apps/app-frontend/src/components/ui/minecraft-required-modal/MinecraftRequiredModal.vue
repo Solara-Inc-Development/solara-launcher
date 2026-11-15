@@ -21,7 +21,7 @@
 
 		<div class="flex flex-col gap-6 px-6 pb-6">
 			<div class="grid grid-cols-2 gap-2">
-				<ButtonLink href="https://support.modrinth.com" @click="modal?.hide()">
+				<ButtonLink href="https://github.com/Solara-Inc-Development/solara-launcher/issues" @click="modal?.hide()">
 					<MessagesSquareIcon />
 					{{ formatMessage(messages.getSupport) }}
 				</ButtonLink>

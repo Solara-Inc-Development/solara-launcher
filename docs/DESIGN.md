@@ -1,5 +1,7 @@
 # Current desktop implementation
 
+> Current source note: Current desktop source lives in `apps/app-frontend`, `apps/app` and `packages/app-lib`. The cyan rebrand preserves the layout and retains the inherited engine; see [BRANDING.md](BRANDING.md). The older implementation notes below describe the retired `apps/desktop` interface.
+
 The desktop uses the existing Vue components in `apps/desktop/ui/`, Tauri commands in `apps/desktop/src/shell.rs`, and the independent Rust core in `apps/desktop/src/game_core/`. Its active styles are `apps/desktop/tokens.css` and `apps/desktop/launcher.css`: OLED black, Dawn Gold `#E9B86D`, a permanent 68px icon rail, and a 44px header. Settings open in centered dialogs. Instance pages open on Content. Global Discover installs modpacks as new instances; the instance browser installs individual content, with datapacks scoped to a saved world.
 
 `node scripts/verify-redesign-e2e.cjs` checks the built frontend using explicitly mocked native/provider responses. It covers launch/window policy, crash states, content job completion/failure, bulk actions, settings, file-save conflicts, live logs, skin editing/rendering and lazy screenshots. These checks do not establish live Microsoft or Windows gameplay acceptance.

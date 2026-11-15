@@ -75,7 +75,7 @@
     "message": "Podešavanje Minecrafta nije uspelo"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Nije bilo moguće povezati se sa Modrinth-om"
+    "message": "Nije bilo moguće povezati se sa Catalog-om"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Nema dozvole za pisanje"
@@ -132,7 +132,7 @@
     "message": "Prihvati sve"
   },
   "app.ads-consent.body": {
-    "message": "Reklame omogućavaju da Modrinth radi i finansiraju isplate kreatorima. Naši partneri mogu da čuvaju i koriste kolačiće u aplikaciji da bi personalizovali reklame i merili performanse."
+    "message": "Reklame omogućavaju da Catalog radi i finansiraju isplate kreatorima. Naši partneri mogu da čuvaju i koriste kolačiće u aplikaciji da bi personalizovali reklame i merili performanse."
   },
   "app.ads-consent.manage": {
     "message": "Upravljaj podešavanjima"
@@ -141,7 +141,7 @@
     "message": "Odbij sve"
   },
   "app.ads-consent.title": {
-    "message": "Tvoja bezbednost i kako reklame pomažu Modrinth-u"
+    "message": "Tvoja bezbednost i kako reklame pomažu Catalog-u"
   },
   "app.appearance-settings.compact-mode.title": {
     "message": "Kompaktni mod"
@@ -159,7 +159,7 @@
     "message": "Sakrij ime"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Smanji Modrinth App kada se Minecraft pokrene."
+    "message": "Smanji Solara Launcher kada se Minecraft pokrene."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Smanji aplikaciju"
@@ -594,7 +594,7 @@
     "message": "Instaliraj"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Ovu pozivnicu je kreirao drugi korisnik Modrintha, a ne sam Modrinth. Prihvataj pozivnice samo od osoba kojima veruješ."
+    "message": "Ovu pozivnicu je kreirao drugi korisnik Cataloga, a ne sam Catalog. Prihvataj pozivnice samo od osoba kojima veruješ."
   },
   "app.modal.install-to-play.mod-count": {
     "message": "{count, plural, one {# mod} other {# modova}}"
@@ -603,7 +603,7 @@
     "message": "Deljena instanca"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "Ovaj modpack servera sadrži datoteke koje nisu postavljene na Modrinth-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
+    "message": "Ovaj modpack servera sadrži datoteke koje nisu postavljene na Catalog-u. Preporučujemo da instaliraš datoteke samo iz izvora kojima veruješ."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "Upozorenje nepoznatih datoteka"
@@ -768,13 +768,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Ponos"
+    "message": "Solara Ponos"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Dobio si ove skinove za donaciju za prikupljanje sredstava Modrinth Ponos tokom Meseca ponosa."
+    "message": "Dobio si ove skinove za donaciju za prikupljanje sredstava Solara Ponos tokom Meseca ponosa."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -798,13 +798,13 @@
     "message": "Selektor skina"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Preuzimanje Modrinth aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Modrinth aplikaciju."
+    "message": "Preuzimanje Solara aplikacije v{version} je završeno. Ponovo učitaj da bi ažurirao sada ili automatski kada zatvoriš Solara aplikaciju."
   },
   "app.update-popup.body.linux": {
-    "message": "Dostupna je Modrinth aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
+    "message": "Dostupna je Solara aplikacija v{version}. Koristi menadžer paketa da bi ažurirao za najnovije funkcije i ispravke!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
+    "message": "Solara aplikacija v{version} je sada dostupna! Pošto si na mreži sa ograničenjem interneta, nismo je automatski preuzeli."
   },
   "app.update-popup.changelog": {
     "message": "Spisak promena"
@@ -858,10 +858,10 @@
     "message": "Možda se razlikuje od njihovog korisničkog imena za Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Unesite korisničko ime za Modrinthu..."
+    "message": "Unesite korisničko ime za Catalogu..."
   },
   "friends.add-friend.username.title": {
-    "message": "Koje je korisničko ime tvog prijatelja u Modrinthu?"
+    "message": "Koje je korisničko ime tvog prijatelja u Catalogu?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Dodaj prijatelje</link> da vidiš šta igraju!"
@@ -903,7 +903,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Prijavi se na Modrinth račun</link> da bi dodao prijatelje i vidio šta igraju!"
+    "message": "<link>Prijavi se na Catalog račun</link> da bi dodao prijatelje i vidio šta igraju!"
   },
   "instance.add-server.add-and-play": {
     "message": "Dodaj i igraj"

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.63 — Full Modrinth App + Solara Microsoft OAuth & GitHub Releases Auto-Updater (slim source archive).
+# Solara cyan rebrand testing preview; genuine Windows bytes are signed privately.
 on:
   workflow_dispatch:
   push:
@@ -48,7 +48,7 @@ jobs:
             solara-windows-cargo-v1-${{ hashFiles('Cargo.lock') }}
       - name: Install locked frontend dependencies
         run: pnpm install --frozen-lockfile
-      - name: Check frontend and independent native core
+      - name: Check frontend and launcher core
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
           function Run-Check([string]$Command, [string[]]$Arguments) {
@@ -70,15 +70,6 @@ jobs:
           Run-Check -Command node -Arguments @('scripts/third-party.mjs')
           Run-Check -Command cargo -Arguments @('test', '-p', 'theseus', '--lib', '--locked')
           Run-Check -Command cargo -Arguments @('test', '-p', 'theseus_gui', '--bin', 'solaralauncher', '--locked')
-      - name: Clean up unreleased candidate reservation draft if rerunning
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: pwsh
-        run: |
-          try {
-            gh release delete solara-build-63 --yes --cleanup-tag 2>&1 | Out-Null
-          } catch {}
-          $global:LASTEXITCODE = 0
       - name: Reserve unique testing version
         env:
           GH_TOKEN: ${{ github.token }}
@@ -129,7 +120,7 @@ jobs:
           $env:GIT_CONFIG_KEY_0 = 'http.https://github.com/.extraheader'
           $auth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("x-access-token:$env:GH_TOKEN"))
           $env:GIT_CONFIG_VALUE_0 = "AUTHORIZATION: basic $auth"
-          git -C $output push --force "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
+          git -C $output push "https://github.com/${{ github.repository }}.git" "HEAD:refs/heads/$branch"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "Actual NSIS bytes and corresponding source preserved on $branch. Private signing/staging and Windows acceptance remain." >> $env:GITHUB_STEP_SUMMARY
       - name: Save compiler work even if later packaging needs a fix

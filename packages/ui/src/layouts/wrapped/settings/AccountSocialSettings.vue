@@ -140,7 +140,11 @@
 							<div class="flex min-w-0 items-center gap-3">
 								<Avatar
 									:src="row.avatar_url"
-									:alt="formatMessage(messages.userAvatarAlt, { username: row.username })"
+									:alt="
+										formatMessage(messages.userAvatarAlt, {
+											username: row.username,
+										})
+									"
 									:tint-by="row.username"
 									size="32px"
 									circle
@@ -448,7 +452,7 @@ const messages = defineMessages({
 	},
 	friendRequestsDescription: {
 		id: 'settings.social.friend-requests.description',
-		defaultMessage: 'Control who can send you friend requests on Modrinth.',
+		defaultMessage: 'Control who can send you friend requests in the catalog.',
 	},
 	sharedInstanceInvitesTitle: {
 		id: 'settings.social.shared-instance-invites.title',
@@ -464,7 +468,7 @@ const messages = defineMessages({
 	},
 	hostingAccessDescription: {
 		id: 'settings.social.hosting-access.description',
-		defaultMessage: 'Control who can invite you to manage a Modrinth Hosting server.',
+		defaultMessage: 'Control who can invite you to manage a Catalog Hosting server.',
 	},
 	everyone: {
 		id: 'settings.social.interaction-source.everyone',
@@ -500,7 +504,7 @@ const messages = defineMessages({
 	},
 	blockedUsersDescription: {
 		id: 'settings.social.blocked-users.description',
-		defaultMessage: 'These are the users you have blocked on Modrinth. They cannot:',
+		defaultMessage: 'These are the users you have blocked in the catalog. They cannot:',
 	},
 	friendRequestsRestriction: {
 		id: 'settings.social.blocked-users.restriction.friend-requests',
@@ -512,7 +516,7 @@ const messages = defineMessages({
 	},
 	hostingRestriction: {
 		id: 'settings.social.blocked-users.restriction.hosting',
-		defaultMessage: 'Invite you to manage a Modrinth Hosting server',
+		defaultMessage: 'Invite you to manage a Catalog Hosting server',
 	},
 	userColumn: {
 		id: 'settings.social.blocked-users.column.user',
@@ -540,12 +544,12 @@ const messages = defineMessages({
 	},
 	signInRequiredTitle: {
 		id: 'settings.social.sign-in-required.title',
-		defaultMessage: 'Modrinth account required',
+		defaultMessage: 'catalog account required',
 	},
 	signInRequiredDescription: {
 		id: 'settings.social.sign-in-required.description',
 		defaultMessage:
-			'You can control who can interact with you, and manage blocked users with a Modrinth Account',
+			'You can control who can interact with you, and manage blocked users with a catalog account',
 	},
 	loadError: {
 		id: 'settings.social.blocked-users.load-error',

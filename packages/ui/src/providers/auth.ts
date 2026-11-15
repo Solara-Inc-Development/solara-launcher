@@ -10,6 +10,8 @@ export type AuthRequestOptions = {
 }
 
 export interface AuthProvider {
+	/** False for clients that only expose public catalog browsing. */
+	supportsAccounts?: boolean
 	session_token: Ref<string | null>
 	user: Ref<AuthUser | null>
 	/** True once the initial auth check has completed (regardless of result). */

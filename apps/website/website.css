@@ -558,8 +558,8 @@ html {
   stroke-width: 1.65;
 }
 
-.feature--emerald .feature-num { color: #34d399; }
-.feature--emerald .feature-icon-wrap { border-color: rgba(52, 211, 153, 0.34); background: rgba(52, 211, 153, 0.13); color: #34d399; }
+.feature--emerald .feature-num { color: #22d3ee; }
+.feature--emerald .feature-icon-wrap { border-color: rgba(34, 211, 238, 0.34); background: rgba(34, 211, 238, 0.13); color: #22d3ee; }
 
 .feature--purple .feature-num { color: #a78bfa; }
 .feature--purple .feature-icon-wrap { border-color: rgba(167, 139, 250, 0.34); background: rgba(167, 139, 250, 0.13); color: #a78bfa; }

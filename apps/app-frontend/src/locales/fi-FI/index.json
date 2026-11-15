@@ -78,7 +78,7 @@
     "message": "Minecraftin asennus epäonnistui"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Modrinthiin yhdistäminen epäonnistui"
+    "message": "Catalogiin yhdistäminen epäonnistui"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Ei kirjoitusoikeutta"
@@ -135,7 +135,7 @@
     "message": "Hyväksy kaikki"
   },
   "app.ads-consent.body": {
-    "message": "Mainokset mahdollistavat Modrinthin toiminnan ja rahoittavat tekijöiden osuuksia. Meidän kumppanimme saattavat tallentaa tai hyödyntää ohjelman evästeitä henkilökohtaistaakseen mainoksia ja mitatakseen tuloksia."
+    "message": "Mainokset mahdollistavat Catalogin toiminnan ja rahoittavat tekijöiden osuuksia. Meidän kumppanimme saattavat tallentaa tai hyödyntää ohjelman evästeitä henkilökohtaistaakseen mainoksia ja mitatakseen tuloksia."
   },
   "app.ads-consent.manage": {
     "message": "Muuta asetuksia"
@@ -144,7 +144,7 @@
     "message": "Hylkää kaikki"
   },
   "app.ads-consent.title": {
-    "message": "Yksityisyytesi, ja miten mainokset tukevat Modrinthia"
+    "message": "Yksityisyytesi, ja miten mainokset tukevat Catalogia"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Näytä kirjaston instanssit pienemmässä rivijärjestyksessä."
@@ -165,7 +165,7 @@
     "message": "Piilota nimimerkki"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimisoi Modrinth -ohjelma, kun Minecraft käynnistyy."
+    "message": "Minimisoi Solara -ohjelma, kun Minecraft käynnistyy."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimisoi ohjelma"
@@ -189,7 +189,7 @@
     "message": "Piilota oikea sivupaneeli"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Näytä turvallisuusvaroitus ennen Modrinth Pack (.mrpack) -tiedoston asentamista, jota ei löydy Modrinthin tietokannasta."
+    "message": "Näytä turvallisuusvaroitus ennen Modpack (.mrpack) -tiedoston asentamista, jota ei löydy Catalogin tietokannasta."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Varoita minua ennen tuntemattomien modipakettien asentamista"
@@ -207,7 +207,7 @@
     "message": "Koti ja sisältö"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "Tällä laitteella kirjastosta piilotetut instanssit. Piilotetut instanssit eivät synkronoidu Modrinth-tilisi kanssa."
+    "message": "Tällä laitteella kirjastosta piilotetut instanssit. Piilotetut instanssit eivät synkronoidu Catalog-tilisi kanssa."
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "Et ole vielä piilottanut yhtään instanssia."
@@ -222,7 +222,7 @@
     "message": "Piilotetut instanssit"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Tuo Modrinth -ohjelma etualalle, kun Minecraft sulkeutuu."
+    "message": "Tuo Solara -ohjelma etualalle, kun Minecraft sulkeutuu."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Uudelleenkeskitä ohjelma, kun Minecraft sulkeutuu"
@@ -234,7 +234,7 @@
     "message": "Käytä näitä asetuksia kaikkialla, missä olet kirjautuneena. Laita tämä pois päältä pitääksesi erilliset asetukset tällä laitteella."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Kirjaudu Modrinth -tilillä synkronoidaksesi asetukset."
+    "message": "Kirjaudu Catalog -tilillä synkronoidaksesi asetukset."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Synkronoi asetukset laitteiden välillä"
@@ -477,7 +477,7 @@
     "message": "Käytä näitä asetuksia kaikkialla, missä olet kirjautuneena. Laita tämä pois päältä pitääksesi erilliset asetukset tällä laitteella."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Kirjaudu sisään Modrinth -tilillä synkronoidaksesi asetukset."
+    "message": "Kirjaudu sisään Catalog -tilillä synkronoidaksesi asetukset."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Synkronoi asetukset laitteiden välillä"
@@ -519,16 +519,16 @@
     "message": "Näytä instanssi"
   },
   "app.hosting.update-required.description": {
-    "message": "Modrinth -ohjelma tulee päivittää käyttääksesi Modrinth Hosting -palvelua"
+    "message": "Solara -ohjelma tulee päivittää käyttääksesi Solara Hosting -palvelua"
   },
   "app.hosting.update-required.download": {
     "message": "Päivitä"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Innokas Modrinth -botti"
+    "message": "Innokas Catalog -botti"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth -ohjelman päivitys vaaditaan"
+    "message": "Solara -ohjelman päivitys vaaditaan"
   },
   "app.install.phase.downloading_content": {
     "message": "Ladataan sisältöä"
@@ -1122,13 +1122,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Sait nämä skinit lahjoittamalla Modrinthin Pride-keräykseen Pride-kuukauden aikana."
+    "message": "Sait nämä skinit lahjoittamalla Solarain Pride-keräykseen Pride-kuukauden aikana."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Sekasorron ratsut"
@@ -1158,13 +1158,13 @@
     "message": "Ota käyttöön"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Modrinth Appin."
+    "message": "Solara Launcher versio {version} on ladattu. Voit käynnistää sovelluksen uudelleen päivittääksesi heti tai antaa päivityksen asentua automaattisesti, kun suljet Solara Launcherin."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App versio {version} on saatavilla. Käytä paketinhallintasi ja päivitä käyttääksesi uusimpia ominaisuuksia ja korjauksia!"
+    "message": "Solara Launcher versio {version} on saatavilla. Käytä paketinhallintasi ja päivitä käyttääksesi uusimpia ominaisuuksia ja korjauksia!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
+    "message": "Solara Launcher versio {version} on nyt saatavilla! Koska käytät käytön mukaan laskutettavaa verkkoa, emme ladannut sitä automaattisesti."
   },
   "app.update-popup.changelog": {
     "message": "Muutosloki"
@@ -1218,10 +1218,10 @@
     "message": "Se ei voi olla eri kuin heidän Minecraft-käyttäjänimi!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Syötä Modrinth-käyttäjätunnus..."
+    "message": "Syötä Catalog-käyttäjätunnus..."
   },
   "friends.add-friend.username.title": {
-    "message": "Mikä on ystäväsi Modrinth-käyttäjänimi?"
+    "message": "Mikä on ystäväsi Catalog-käyttäjänimi?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Lisää kavereita</link> nähdäksesi mitä he pelaavat!"
@@ -1263,7 +1263,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Kirjaudu Modrinth-tilille</link> lisätäksesi ystäviä ja nähdäksesi mitä he pelaavat!"
+    "message": "<link>Kirjaudu Catalog-tilille</link> lisätäksesi ystäviä ja nähdäksesi mitä he pelaavat!"
   },
   "instance.action.create-shortcut": {
     "message": "Luo pikakuvake"

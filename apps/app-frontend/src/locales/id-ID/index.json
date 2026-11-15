@@ -78,7 +78,7 @@
     "message": "Pemasangan Minecraft gagal"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Tidak dapat menjangkau Modrinth"
+    "message": "Tidak dapat menjangkau Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Tidak ada izin untuk menulis"
@@ -141,7 +141,7 @@
     "message": "Tolak semua"
   },
   "app.ads-consent.title": {
-    "message": "Privasi Anda dan bagaimana iklan mendukung Modrinth"
+    "message": "Privasi Anda dan bagaimana iklan mendukung Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Tampilkan instans pustaka dalam tata letak baris ringkas."
@@ -162,7 +162,7 @@
     "message": "Sembunyikan label nama"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimalkan aplikasi Modrinth saat Minecraft diluncurkan."
+    "message": "Minimalkan aplikasi Solara saat Minecraft diluncurkan."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimalkan aplikasi"
@@ -183,7 +183,7 @@
     "message": "Sembunyikan bilah sisi kanan"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Tampilkan peringatan sebelum memasang sebuah paket Modrinth (.mrpack) yang tidak dihoskan di Modrinth."
+    "message": "Tampilkan peringatan sebelum memasang sebuah paket Catalog (.mrpack) yang tidak dihoskan di Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Peringatkan saya sebelum memasang paket mod tidak dikenal"
@@ -201,7 +201,7 @@
     "message": "Beranda dan konten"
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Masuk ke akun Modrinth untuk menyinkronkan pengaturan."
+    "message": "Masuk ke akun Catalog untuk menyinkronkan pengaturan."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Sinkronkan perilaku antarperangkat"
@@ -345,7 +345,7 @@
     "message": "Lihat instans"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App membutuhkan pembaruan"
+    "message": "Solara Launcher membutuhkan pembaruan"
   },
   "app.install.phase.downloading_content": {
     "message": "Mengunduh konten"
@@ -657,13 +657,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Anda mendapat rupa ini karena telah berdonasi ke penggalangan dana Modrinth Pride saat Pride Month."
+    "message": "Anda mendapat rupa ini karena telah berdonasi ke penggalangan dana Solara Pride saat Pride Month."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -687,13 +687,13 @@
     "message": "Pemilih rupa"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} telah selesai mengunduh. Muat ulang untuk memperbarui sekarang, atau secara otomatis saat Anda menutup Modrinth App."
+    "message": "Solara Launcher v{version} telah selesai mengunduh. Muat ulang untuk memperbarui sekarang, atau secara otomatis saat Anda menutup Solara Launcher."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} tersedia. Gunakan pengelola paket Anda untuk memperbarui dan mendapatkan fitur-fitur dan perbaikan terbaru!"
+    "message": "Solara Launcher v{version} tersedia. Gunakan pengelola paket Anda untuk memperbarui dan mendapatkan fitur-fitur dan perbaikan terbaru!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} sudah tersedia! Karena Anda saat ini sedang berada dalam jaringan terukur, kami tidak mengunduhnya secara otomatis."
+    "message": "Solara Launcher v{version} sudah tersedia! Karena Anda saat ini sedang berada dalam jaringan terukur, kami tidak mengunduhnya secara otomatis."
   },
   "app.update-popup.changelog": {
     "message": "Catatan perubahan"
@@ -747,10 +747,10 @@
     "message": "Ia mungkin memiliki nama yang berbeda dari nama pengguna Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Masukkan nama pengguna Modrinth..."
+    "message": "Masukkan nama pengguna Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Apa nama pengguna Modrinth teman Anda?"
+    "message": "Apa nama pengguna Catalog teman Anda?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Tambah teman</link> untuk melihat apa yang mereka mainkan!"
@@ -792,7 +792,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Masuk ke akun Modrinth</link> untuk menambah teman dan melihat apa yang mereka mainkan!"
+    "message": "<link>Masuk ke akun Catalog</link> untuk menambah teman dan melihat apa yang mereka mainkan!"
   },
   "instance.add-server.add-and-play": {
     "message": "Tambah dan mainkan"

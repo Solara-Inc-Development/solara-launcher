@@ -49,7 +49,7 @@ const messages = defineMessages({
 	admonitionBody: {
 		id: 'app.settings.resource-management.app-directory.modal.admonition-body',
 		defaultMessage:
-			"You won't be able to use Modrinth App while we move your data. This may take a while.",
+			"You won't be able to use Solara Launcher while we move your data. This may take a while.",
 	},
 	currentLabel: {
 		id: 'app.settings.resource-management.app-directory.modal.current',

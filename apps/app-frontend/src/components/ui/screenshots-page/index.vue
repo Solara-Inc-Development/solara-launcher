@@ -298,7 +298,7 @@ const messages = defineMessages({
 	zipArchive: { id: 'app.screenshots.selection.zip-archive', defaultMessage: 'ZIP archive' },
 	globalExportFilename: {
 		id: 'app.screenshots.selection.global-export-filename',
-		defaultMessage: 'Modrinth screenshots.zip',
+		defaultMessage: 'Solara screenshots.zip',
 	},
 	instanceExportFilename: {
 		id: 'app.screenshots.selection.instance-export-filename',
@@ -1235,7 +1235,9 @@ async function exportSelected() {
 	const outputPath = await save({
 		defaultPath: isGlobal.value
 			? formatMessage(messages.globalExportFilename)
-			: formatMessage(messages.instanceExportFilename, { instance: instanceName }),
+			: formatMessage(messages.instanceExportFilename, {
+					instance: instanceName,
+				}),
 		filters: [{ name: formatMessage(messages.zipArchive), extensions: ['zip'] }],
 	})
 	if (!outputPath) return
@@ -1356,7 +1358,10 @@ async function handleDragEnd(event: DragEndEvent) {
 			const keys = activeDraggedScreenshots.value.map(getScreenshotKey)
 			const movableKeys = keys.filter((key) => key.instance_id !== target.instanceId)
 			if (movableKeys.length > 0) {
-				moveMutation.mutate({ keys: movableKeys, targetInstanceId: target.instanceId })
+				moveMutation.mutate({
+					keys: movableKeys,
+					targetInstanceId: target.instanceId,
+				})
 			}
 		}
 	}

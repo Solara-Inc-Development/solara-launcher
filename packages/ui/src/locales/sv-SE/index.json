@@ -54,7 +54,7 @@
     "defaultMessage": "Inga resultat hittades för din sökning!"
   },
   "browse.offline": {
-    "defaultMessage": "Du är för nuvarande offline. Koppla upp dig till internet för att bläddra bland Modrinth!"
+    "defaultMessage": "Du är för nuvarande offline. Koppla upp dig till internet för att bläddra bland Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Sök {projectType}..."
@@ -192,7 +192,7 @@
     "defaultMessage": "Öppna i mapp"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Öppna i Modrinth"
+    "defaultMessage": "Öppna i Catalog"
   },
   "button.play": {
     "defaultMessage": "Spela"
@@ -474,13 +474,13 @@
     "defaultMessage": "{count} borttagna"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Filer som inte publiceras på Modrinth granskas inte."
+    "defaultMessage": "Filer som inte publiceras på Catalog granskas inte."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Något innehåll på din server kunde inte analyseras och kommer kanske påverkas av denna ändring."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Denna uppdatering innehåller filer som inte är utgivna på Modrinth. Vi rekommenderar att endast installera filer från källor du litar på."
+    "defaultMessage": "Denna uppdatering innehåller filer som inte är utgivna på Catalog. Vi rekommenderar att endast installera filer från källor du litar på."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Okända filvarningar"
@@ -1086,7 +1086,7 @@
     "defaultMessage": "länk-till-arbete"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Det här verkar vara en Modrinth-länk. Om det här innehållet är tillgängligt på Modrinth, har ditt paket troligen exporterats inkorrekt. Om du har laddat ner det från en annan webbplats, försök att ladda ner Modrinth-versionen istället; ibland är de inte identiska filer."
+    "defaultMessage": "Det här verkar vara en Catalog-länk. Om det här innehållet är tillgängligt på Catalog, har ditt paket troligen exporterats inkorrekt. Om du har laddat ner det från en annan webbplats, försök att ladda ner Catalog-versionen istället; ibland är de inte identiska filer."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Anteckningar"
@@ -1110,7 +1110,7 @@
     "defaultMessage": "Om det visar sig att du har ljugit eller manipulerat de uppladdade bilderna, kan ditt projekt och konto termineras."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Modrinth-personal kan verifiera inskickat bevis"
+    "defaultMessage": "Catalog-personal kan verifiera inskickat bevis"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Spara tillskrivning"
@@ -1194,7 +1194,7 @@
     "defaultMessage": "Automatiskt tillskriven"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Vi har sett den här filen tidigare och har förberett en tillskrivning för dig. Om något verkar fel, vänligen kontakta Modrinth support genom hjälpcentret"
+    "defaultMessage": "Vi har sett den här filen tidigare och har förberett en tillskrivning för dig. Om något verkar fel, vänligen kontakta Solara Support genom hjälpcentret"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Licens"
@@ -2754,16 +2754,16 @@
     "defaultMessage": "Håll filer uppdaterade när servern ändras"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Skaffa Modrinth App"
+    "defaultMessage": "Skaffa Solara Launcher"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App kommer att öppnas automatiskt..."
+    "defaultMessage": "Solara Launcher kommer att öppnas automatiskt..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Öppnar Modrinth App"
+    "defaultMessage": "Öppnar Solara Launcher"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Varför använda Modrinth App"
+    "defaultMessage": "Varför använda Solara Launcher"
   },
   "notification.error.title": {
     "defaultMessage": "Ett fel inträffade"
@@ -2826,7 +2826,7 @@
     "defaultMessage": "Moderator"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth-teamet"
+    "defaultMessage": "Catalog-teamet"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Väntar"
@@ -2943,13 +2943,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "En Modrinth-skapare"
+    "defaultMessage": "En Catalog-skapare"
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "En Modrinth-användare."
+    "defaultMessage": "En Catalog-användare."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} kommer inte att kunna skicka vänförfrågningar eller bjuda in dig till delade instanser och Modrinth Hosting-servrar."
+    "defaultMessage": "{username} kommer inte att kunna skicka vänförfrågningar eller bjuda in dig till delade instanser och Catalog Hosting-servrar."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Är du säker på att du vill blocka den här användaren?"
@@ -3009,7 +3009,7 @@
     "defaultMessage": "{count} projekt"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Tillåt popup-fönster på Modrinth, försök sedan igen."
+    "defaultMessage": "Tillåt popup-fönster på Catalog, försök sedan igen."
   },
   "profile.details.error.github-profile-message": {
     "defaultMessage": "GitHub-profilen kunde inte hämtas. Vänligen försök igen."
@@ -3114,10 +3114,10 @@
     "defaultMessage": "{count} projekt"
   },
   "profile.official-account": {
-    "defaultMessage": "Officiellt Modrinth-konto"
+    "defaultMessage": "Officiellt Catalog-konto"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "Modrinths officiella användarkonto. Få hjälp på <support-link></support-link> eller via e-post hos <email></email>"
+    "defaultMessage": "Catalogs officiella användarkonto. Få hjälp på <support-link></support-link> eller via e-post hos <email></email>"
   },
   "profile.reset-2fa.admonition-body": {
     "defaultMessage": "{username}s autentiserare och reservkoder kommer tas bort och kommer att notifierats. Gör endast det här efter att ha verifierat deras identitet."
@@ -3564,7 +3564,7 @@
     "defaultMessage": "Spelades senast {count} {countPlural, plural, one {gång} other {gånger}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "Spelades på Modrinth {count} {countPlural, plural, one {gång} other {gånger}} i de 2 sista veckorna"
+    "defaultMessage": "Spelades på Catalog {count} {countPlural, plural, one {gång} other {gånger}} i de 2 sista veckorna"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Detta projektet använder ett modpaket"
@@ -3897,7 +3897,7 @@
     "defaultMessage": "Ditt projekt har flera miljöer"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Vi har just gjort om miljösystemet på Modrinth och nya alternativ finns nu tillgängliga. Vänligen kontrollera att rätt alternativ är valt nedan och klicka sedan på 'Verifiera' när du är klar!"
+    "defaultMessage": "Vi har just gjort om miljösystemet på Catalog och nya alternativ finns nu tillgängliga. Vänligen kontrollera att rätt alternativ är valt nedan och klicka sedan på 'Verifiera' när du är klar!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Vänligen granska alternativen nedan"
@@ -4242,13 +4242,13 @@
     "defaultMessage": "Shaderläsare"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Vi kan inte garantera att allt innehåll på Modrinth har lämpliga etiketter."
+    "defaultMessage": "Vi kan inte garantera att allt innehåll på Catalog har lämpliga etiketter."
   },
   "search.photosensitivity-warning-modal.body.2": {
-    "defaultMessage": "Innehållsetiketter för ljuskänslighetsutlösare är självtilldelade av skaparna som laddar upp deras innehåll på Modrinth. De här projekten har inte gått igenom någon säkerhetstest."
+    "defaultMessage": "Innehållsetiketter för ljuskänslighetsutlösare är självtilldelade av skaparna som laddar upp deras innehåll på Catalog. De här projekten har inte gått igenom någon säkerhetstest."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "Att använda innehåll på Modrinth görs på egen risk. Håll dig säker! 💚"
+    "defaultMessage": "Att använda innehåll på Catalog görs på egen risk. Håll dig säker! 💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Visa inte det här igen"
@@ -5004,13 +5004,13 @@
     "defaultMessage": "Använd inte deras Minecraft-användarnamn."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Modrinth-användarnamn"
+    "defaultMessage": "Catalog-användarnamn"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Inga matchande användare hittades."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Ange Modrinth-användarnamn"
+    "defaultMessage": "Ange Catalog-användarnamn"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Söker..."
@@ -5073,13 +5073,13 @@
     "defaultMessage": "Läs mer"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Ny server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Installera moddar, bjud in vänner och spela tillsammans, allt från Modrinth App."
+    "defaultMessage": "Installera moddar, bjud in vänner och spela tillsammans, allt från Solara Launcher."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Välj dina favorit moddar så hanterar vi resten."
@@ -5091,7 +5091,7 @@
     "defaultMessage": "Spela med vänner"
   },
   "servers.list-empty.sign-in-button": {
-    "defaultMessage": "Logga in på Modrinth"
+    "defaultMessage": "Logga in på Catalog"
   },
   "servers.list-empty.simple-setup-description": {
     "defaultMessage": "Ställ in din server precis som en enspelarvärld."
@@ -5196,7 +5196,7 @@
     "defaultMessage": "Uppladdning pågår"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Kontakta Modrinth-support"
+    "defaultMessage": "Kontakta Catalog-support"
   },
   "servers.manage.error.description": {
     "defaultMessage": "Vi kan ha tillfälliga problem med våra servrar."
@@ -5250,7 +5250,7 @@
     "defaultMessage": "Ladda om"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Ett fel inträffade när du återprenumererade till din Modrinth server."
+    "defaultMessage": "Ett fel inträffade när du återprenumererade till din Catalog server."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Fel vid återprenumerering"
@@ -5262,7 +5262,7 @@
     "defaultMessage": "Sök {count} {count, plural,one {server}other {servrar}}..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Delade servrar"
@@ -5337,7 +5337,7 @@
     "defaultMessage": "Kan ej avvisas"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "Ditt Modrinth Hosting-köp slutfördes."
+    "defaultMessage": "Ditt Catalog Hosting-köp slutfördes."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Lyckat köp"
@@ -5412,7 +5412,7 @@
     "defaultMessage": "Vart vill du att din server ska vara placerad?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Är området inte med i listan? <link>Berätta vart du vill se Modrinth Hosting härnäst!</link>"
+    "defaultMessage": "Är området inte med i listan? <link>Berätta vart du vill se Catalog Hosting härnäst!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "Tillagd {time}"
@@ -5475,7 +5475,7 @@
     "defaultMessage": "Ställ in server"
   },
   "servers.setup.onboarding.step.choose.description": {
-    "defaultMessage": "Välj ditt favoritmodpaket från Modrinth eller välj en moddläsare och lägg till moddarna du vill ha."
+    "defaultMessage": "Välj ditt favoritmodpaket från Catalog eller välj en moddläsare och lägg till moddarna du vill ha."
   },
   "servers.setup.onboarding.step.choose.title": {
     "defaultMessage": "Välj vad du vill spela"
@@ -5493,7 +5493,7 @@
     "defaultMessage": "Din server är redo. Här är vad du behöver göra för att börja spela!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Välkommen till Modrinth Hosting"
+    "defaultMessage": "Välkommen till Catalog Hosting"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "Du blir hastighetsbegränsad. Vänligen försök igen senare."
@@ -5571,7 +5571,7 @@
     "defaultMessage": "Mörkt"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Välj ditt föredragna färgtema på Modrinth."
+    "defaultMessage": "Välj ditt föredragna färgtema på Solara."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Ljust"
@@ -5592,7 +5592,7 @@
     "defaultMessage": "Synkronisera tema mellan enheter"
   },
   "settings.display.theme.sync-across-devices.sign-in-tooltip": {
-    "defaultMessage": "Logga in på Modrinth för att synkronisera tema"
+    "defaultMessage": "Logga in på Catalog för att synkronisera tema"
   },
   "settings.display.theme.system": {
     "defaultMessage": "Synka med system"
@@ -5610,7 +5610,7 @@
     "defaultMessage": "Sökresultat"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Runt {percentage} % av Modrinth App finns tillgängligt i det här språket."
+    "defaultMessage": "Runt {percentage} % av Solara Launcher finns tillgängligt i det här språket."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "{percentage} % stött"
@@ -5646,7 +5646,7 @@
     "defaultMessage": "Personliga åtkomstnycklar"
   },
   "settings.preferences.update-failed.description": {
-    "defaultMessage": "Dina inställningar kunde inte sparas till ditt Modrinth-konto. Vänligen försök igen."
+    "defaultMessage": "Dina inställningar kunde inte sparas till ditt Catalog-konto. Vänligen försök igen."
   },
   "settings.preferences.update-failed.title": {
     "defaultMessage": "Kunde inte synkronisera inställningar"
@@ -5664,7 +5664,7 @@
     "defaultMessage": "Profilbild"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Din profilinformation är offentligt <profile-link>synlig på Modrinth</profile-link> och genom <docs-link>Modrinth API</docs-link>:et."
+    "defaultMessage": "Din profilinformation är offentligt <profile-link>synlig på Catalog</profile-link> och genom <docs-link>Catalog API</docs-link>:et."
   },
   "settings.profile.save-error": {
     "defaultMessage": "Kunde inte att uppdatera profil"
@@ -5673,10 +5673,10 @@
     "defaultMessage": "Ett fel inträffade när din profil uppdaterades. Vänligen försök igen."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Logga in på ett Modrinth-konto för att anpassa din offentliga profil."
+    "defaultMessage": "Logga in på ett Catalog-konto för att anpassa din offentliga profil."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Modrinth-konto krävs"
+    "defaultMessage": "Catalog-konto krävs"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Ett unikt versalkänsligt namn för att identifiera din profil."
@@ -5691,7 +5691,7 @@
     "defaultMessage": "Användare"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Det här är användare du har blockat på Modrinth. De kan inte:"
+    "defaultMessage": "Det här är användare du har blockat på Catalog. De kan inte:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Du har inte blockerat någon."
@@ -5706,7 +5706,7 @@
     "defaultMessage": "Skicka vänförfrågan till dig"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Bjuda in dig till att hantera en Modrinth Hosting-server."
+    "defaultMessage": "Bjuda in dig till att hantera en Catalog Hosting-server."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Bjuda in dig till en delad instans"
@@ -5730,7 +5730,7 @@
     "defaultMessage": "{username}s avatar"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Bestäm vilka som kan skicka vänförfrågningar på Modrinth."
+    "defaultMessage": "Bestäm vilka som kan skicka vänförfrågningar på Catalog."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Vänförfrågningar"
@@ -5754,10 +5754,10 @@
     "defaultMessage": "Sparar dina preferenser…"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "Med ett Modrinth-konto kan du bestämma vilka som kan interagera med dig och hantera blockade användare"
+    "defaultMessage": "Med ett Catalog-konto kan du bestämma vilka som kan interagera med dig och hantera blockade användare"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Modrinth-konto krävs"
+    "defaultMessage": "Catalog-konto krävs"
   },
   "settings.social.title": {
     "defaultMessage": "Socialt"
@@ -5856,7 +5856,7 @@
     "defaultMessage": "Spara"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Ange Modrinth-användarnamn"
+    "defaultMessage": "Ange Catalog-användarnamn"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Söker..."
@@ -6420,19 +6420,19 @@
     "defaultMessage": "Skadeprogram distribueras ofta via moddfiler genom att dela dem på plattformar som Discord."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " är inte publiserad på Modrinth. Vi rekommenderar starkt att endast installera filer från källor du litar på."
+    "defaultMessage": " är inte publiserad på Catalog. Vi rekommenderar starkt att endast installera filer från källor du litar på."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "Okänd filvarning"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " innehåller filer som inte är utgivna på Modrinth. Vi rekommenderar starkt att endast installera filer från källor du litar på."
+    "defaultMessage": " innehåller filer som inte är utgivna på Catalog. Vi rekommenderar starkt att endast installera filer från källor du litar på."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "Okända filvarningar"
   },
   "unknown-file-warning-modal.reviewed-files": {
-    "defaultMessage": "Filer som inte publiceras på Modrinth granskas inte."
+    "defaultMessage": "Filer som inte publiceras på Catalog granskas inte."
   },
   "unknown-file-warning-modal.unrecognized-files": {
     "defaultMessage": "Okända filer"
@@ -6519,16 +6519,16 @@
     "defaultMessage": "Ladda upp nya versioner"
   },
   "user.profile.badge.alpha.about.1": {
-    "defaultMessage": "Den här användaren har varit med sedan Modrinth alfa, som avslutades i november 2020."
+    "defaultMessage": "Den här användaren har varit med sedan Catalog alfa, som avslutades i november 2020."
   },
   "user.profile.badge.alpha.name": {
     "defaultMessage": "Alfa-testare"
   },
   "user.profile.badge.beta.about.1": {
-    "defaultMessage": "Den här användaren har varit med sedan Modrinth beta, som avslutades i februari 2022."
+    "defaultMessage": "Den här användaren har varit med sedan Catalog beta, som avslutades i februari 2022."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Klicka för att läsa om lanseringen av Modrinth Beta."
+    "defaultMessage": "Klicka för att läsa om lanseringen av Catalog Beta."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Beta-testare"
@@ -6540,7 +6540,7 @@
     "defaultMessage": "{download_sum} nedladdningar"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Den här användaren arbetar för Modrinth som en innehållsmoderator."
+    "defaultMessage": "Den här användaren arbetar för Catalog som en innehållsmoderator."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Innehållsmoderator"
@@ -6549,10 +6549,10 @@
     "defaultMessage": "Klicka för att läsa mer om hur du kan bli en medlem."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Modrinth+ medlem"
+    "defaultMessage": "Catalog supporter medlem"
   },
   "user.profile.badge.pride.about.1": {
-    "defaultMessage": "Denna användare deltog i minst en av Modrinths Pride-insamlingar för HBTQ+-communityn."
+    "defaultMessage": "Denna användare deltog i minst en av Catalogs Pride-insamlingar för HBTQ+-communityn."
   },
   "user.profile.badge.pride.link": {
     "defaultMessage": "Klicka för att besöka vår senaste Pride-insamling."
@@ -6561,16 +6561,16 @@
     "defaultMessage": "Stödjer Pride-insamlingen"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Den här användaren arbetar för Modrinth."
+    "defaultMessage": "Den här användaren arbetar för Catalog."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Modrinth-team"
+    "defaultMessage": "Catalog-team"
   },
   "user.role.moderator": {
     "defaultMessage": "Innehållsmoderator"
   },
   "user.role.modrinth-team": {
-    "defaultMessage": "Modrinth-team"
+    "defaultMessage": "Catalog-team"
   },
   "version.content.name": {
     "defaultMessage": "Namn"

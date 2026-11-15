@@ -155,16 +155,16 @@ const messages = defineMessages({
 	modpackWarningBody: {
 		id: 'unknown-file-warning-modal.modpack-warning-body',
 		defaultMessage:
-			' contains files that aren’t published on Modrinth. We strongly recommend only installing files from sources you trust.',
+			' contains files that aren’t published in the catalog. We strongly recommend only installing files from sources you trust.',
 	},
 	modWarningBody: {
 		id: 'unknown-file-warning-modal.mod-warning-body',
 		defaultMessage:
-			' isn’t published on Modrinth. We strongly recommend only installing files from sources you trust.',
+			' isn’t published in the catalog. We strongly recommend only installing files from sources you trust.',
 	},
 	reviewedFiles: {
 		id: 'unknown-file-warning-modal.reviewed-files',
-		defaultMessage: "Files that aren't published to Modrinth aren't reviewed.",
+		defaultMessage: "Files that aren't published to the catalog aren't reviewed.",
 	},
 	unrecognizedFiles: {
 		id: 'unknown-file-warning-modal.unrecognized-files',

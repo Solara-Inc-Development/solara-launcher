@@ -8,7 +8,7 @@ import {
 } from '@modrinth/api-client'
 import { getVersion } from '@tauri-apps/api/app'
 
-import { config } from '@/config'
+import { config, launcherUserAgent } from '@/config'
 import { get as getCreds } from '@/helpers/mr_auth'
 import { createLocalFileUploader } from '@/platform/adapters/local-file-upload'
 
@@ -16,7 +16,7 @@ export function createAppClient(): TauriModrinthClient {
 	const appVersion = getVersion()
 
 	return new TauriModrinthClient({
-		userAgent: async () => `modrinth/theseus/${await appVersion} (support@modrinth.com)`,
+		userAgent: async () => launcherUserAgent(await appVersion),
 		labrinthBaseUrl: config.labrinthBaseUrl,
 		archonBaseUrl: config.archonBaseUrl,
 		sharedInstancesBaseUrl: config.sharedInstancesBaseUrl,

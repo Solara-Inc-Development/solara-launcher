@@ -60,7 +60,7 @@
     "defaultMessage": "Nenhum resultado encontrado para a tua procura!"
   },
   "browse.offline": {
-    "defaultMessage": "Estás offline. Conecta-te à internet para navegar o Modrinth!"
+    "defaultMessage": "Estás offline. Conecta-te à internet para navegar o Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Procurar {projectType}..."
@@ -198,7 +198,7 @@
     "defaultMessage": "Abrir pasta"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Abrir no Modrinth"
+    "defaultMessage": "Abrir no Catalog"
   },
   "button.play": {
     "defaultMessage": "Jogar"
@@ -1233,16 +1233,16 @@
     "defaultMessage": "Mantém ficheiros atualizados quando o servidor muda"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Obter a Modrinth App"
+    "defaultMessage": "Obter a Solara Launcher"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "A Modrinth App vai abrir automaticamente..."
+    "defaultMessage": "A Solara Launcher vai abrir automaticamente..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "A abrir a Modrinth App"
+    "defaultMessage": "A abrir a Solara Launcher"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Razões para usar a Modrinth App"
+    "defaultMessage": "Razões para usar a Solara Launcher"
   },
   "notification.error.title": {
     "defaultMessage": "Ocorreu um erro"
@@ -1272,7 +1272,7 @@
     "defaultMessage": "Moderador"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Equipa do Modrinth"
+    "defaultMessage": "Equipa do Catalog"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Pendente"
@@ -1386,10 +1386,10 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Um criador Modrinth."
+    "defaultMessage": "Um criador Catalog."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Um utilizador Modrinth."
+    "defaultMessage": "Um utilizador Catalog."
   },
   "profile.button.block": {
     "defaultMessage": "Bloquear"
@@ -1398,7 +1398,7 @@
     "defaultMessage": "Este utilizador não tem projetos!"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "A conta oficial do Modrinth. Obtenha assistência em <support-link></support-link> ou por e-mail em <email></email>"
+    "defaultMessage": "A conta oficial do Catalog. Obtenha assistência em <support-link></support-link> ou por e-mail em <email></email>"
   },
   "project-card.date.published.tooltip": {
     "defaultMessage": "Publicado a {date}"
@@ -1956,7 +1956,7 @@
     "defaultMessage": "O teu projeto tem múltiplos ambientes"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Reformulámos o sistema de Ambientes no Modrinth e estão agora disponíveis novas opções. Certifica-te de que a opção correta está selecionada abaixo e clica em \"Verificar\" quando terminares!"
+    "defaultMessage": "Reformulámos o sistema de Ambientes no Catalog e estão agora disponíveis novas opções. Certifica-te de que a opção correta está selecionada abaixo e clica em \"Verificar\" quando terminares!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Por favor, revê as opções abaixo"
@@ -2337,7 +2337,7 @@
     "defaultMessage": "Onde queres que o teu servidor esteja localizado?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Região não listada? <link>Deixa-nos saber onde gostarias de ver Modrinth Hosting a seguir!</link>"
+    "defaultMessage": "Região não listada? <link>Deixa-nos saber onde gostarias de ver Catalog Hosting a seguir!</link>"
   },
   "settings.account.title": {
     "defaultMessage": "Conta e segurança"
@@ -2364,7 +2364,7 @@
     "defaultMessage": "Escuro"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Escolha o seu tema de cores preferido no Modrinth."
+    "defaultMessage": "Escolha o seu tema de cores preferido no Solara."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Claro"
@@ -2436,7 +2436,7 @@
     "defaultMessage": "Foto de perfil"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Imagem de perfil: As informações do seu perfil estão publicamente <profile-link>visíveis no Modrinth</profile-link> e através da <docs-link>API do Modrinth</docs-link>."
+    "defaultMessage": "Imagem de perfil: As informações do seu perfil estão publicamente <profile-link>visíveis no Catalog</profile-link> e através da <docs-link>API do Catalog</docs-link>."
   },
   "settings.profile.username.description": {
     "defaultMessage": "Um nome único sem distinção de maiúsculas ou minúsculas para identificar o teu perfil."
@@ -2451,7 +2451,7 @@
     "defaultMessage": "Utilizador"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Estes são os utilizadores que bloqueaste no Modrinth. Eles não podem:"
+    "defaultMessage": "Estes são os utilizadores que bloqueaste no Catalog. Eles não podem:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Ainda não bloqueaste ninguém."
@@ -2460,16 +2460,16 @@
     "defaultMessage": "Enviar-lhe pedidos de amizade"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Convidá-lo para gerir um servidor da Modrinth Alojamento."
+    "defaultMessage": "Convidá-lo para gerir um servidor da Catalog Alojamento."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Convidá-lo para instâncias partilhadas"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Controla quem te pode enviar pedidos de amizade no Modrinth."
+    "defaultMessage": "Controla quem te pode enviar pedidos de amizade no Catalog."
   },
   "settings.social.hosting-access.description": {
-    "defaultMessage": "Controle quem pode convidá-lo para gerir um servidor da Modrinth Alojamento."
+    "defaultMessage": "Controle quem pode convidá-lo para gerir um servidor da Catalog Alojamento."
   },
   "settings.social.hosting-access.title": {
     "defaultMessage": "Convites para acesso ao alojamento"
@@ -2928,10 +2928,10 @@
     "defaultMessage": "Tens alterações por guardar."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " não está publicado no Modrinth. Recomendamos fortemente que apenas instales ficheiros de fontes que confies."
+    "defaultMessage": " não está publicado no Catalog. Recomendamos fortemente que apenas instales ficheiros de fontes que confies."
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " contém ficheiros que não foram publicados no Modrinth. Recomendamos fortemente que apenas instales ficheiros de fontes que confies."
+    "defaultMessage": " contém ficheiros que não foram publicados no Catalog. Recomendamos fortemente que apenas instales ficheiros de fontes que confies."
   },
   "version.content.name": {
     "defaultMessage": "Nome"

@@ -78,7 +78,7 @@
     "message": "Не удалось установить Minecraft"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Не удалось подключиться к Modrinth"
+    "message": "Не удалось подключиться к Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Нет разрешения на запись"
@@ -135,7 +135,7 @@
     "message": "Принять всё"
   },
   "app.ads-consent.body": {
-    "message": "Реклама обеспечивает работу Modrinth и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки."
+    "message": "Реклама обеспечивает работу Catalog и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки."
   },
   "app.ads-consent.manage": {
     "message": "Настроить"
@@ -144,7 +144,7 @@
     "message": "Отклонить всё"
   },
   "app.ads-consent.title": {
-    "message": "Конфиденциальность и реклама на Modrinth"
+    "message": "Конфиденциальность и реклама на Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Отображать сборки в библиотеке компактным списком."
@@ -165,7 +165,7 @@
     "message": "Без имени над скином"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Сворачивать Modrinth App при запуске Minecraft."
+    "message": "Сворачивать Solara App при запуске Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Сворачивание приложения"
@@ -189,7 +189,7 @@
     "message": "Скрытие панели справа"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Предупреждать о рисках перед установкой файлов .mrpack, не размещённых на Modrinth."
+    "message": "Предупреждать о рисках перед установкой файлов .mrpack, не размещённых на Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Предупреждение о сторонних сборках"
@@ -207,7 +207,7 @@
     "message": "Главная и контент"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "Сборки, которые вы скрыли из вашей библиотеки на этом устройстве. Скрытые экземпляры не синхронизируются с вашим аккаунтом Modrinth."
+    "message": "Сборки, которые вы скрыли из вашей библиотеки на этом устройстве. Скрытые экземпляры не синхронизируются с вашим аккаунтом Catalog."
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "Вы не скрыли ни одну сборку."
@@ -222,7 +222,7 @@
     "message": "Скрытые сборки"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Выводить Modrinth App на передний план при закрытии игры."
+    "message": "Выводить Solara App на передний план при закрытии игры."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Возврат фокуса при закрытии Minecraft"
@@ -234,7 +234,7 @@
     "message": "Применять текущие настройки везде, где вы вошли. Отключите, чтобы настроить это устройство отдельно."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Войдите в аккаунт Modrinth для синхронизации настроек."
+    "message": "Войдите в аккаунт Catalog для синхронизации настроек."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Синхронизация поведения между устройствами"
@@ -489,7 +489,7 @@
     "message": "Используйте эти настройки везде, где вы вошли в систему. Отключите эту опцию, чтобы сохранить отдельные настройки на этом устройстве."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Войдите в аккаунт Modrinth для синхронизации настроек."
+    "message": "Войдите в аккаунт Catalog для синхронизации настроек."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Синхронизировать настройки между устройствами"
@@ -531,16 +531,16 @@
     "message": "Посмотреть сборку"
   },
   "app.hosting.update-required.description": {
-    "message": "Обновитесь, чтобы использовать Modrinth Hosting через Modrinth App"
+    "message": "Обновитесь, чтобы использовать Solara Hosting через Solara Launcher"
   },
   "app.hosting.update-required.download": {
     "message": "Скачать и обновить"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Восторженный Modrinth Bot"
+    "message": "Восторженный Catalog Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Обновите Modrinth App"
+    "message": "Обновите Solara Launcher"
   },
   "app.install.phase.downloading_content": {
     "message": "Скачивание контента"
@@ -879,13 +879,13 @@
     "message": "Войдите как"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Необходимо войти в Modrinth"
+    "message": "Необходимо войти в Catalog"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "для получения обновлений совместной сборки."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Используется неверный аккаунт Modrinth"
+    "message": "Используется неверный аккаунт Catalog"
   },
   "app.instance.shortcut.created": {
     "message": "Ярлык создан"
@@ -1356,10 +1356,10 @@
     "message": "Установить"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Приглашение создано другим пользователем, а не Modrinth. Принимайте приглашения только от тех, кому доверяете."
+    "message": "Приглашение создано другим пользователем, а не Catalog. Принимайте приглашения только от тех, кому доверяете."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Приглашение создано <creator>{username}</creator>, а не Modrinth. Принимайте приглашения только от тех, кому доверяете."
+    "message": "Приглашение создано <creator>{username}</creator>, а не Catalog. Принимайте приглашения только от тех, кому доверяете."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "Контент сборки"
@@ -1392,7 +1392,7 @@
     "message": "За помощью обращайтесь в <support-link>поддержку</support-link>. О найденных ошибках пишите на <github-link>GitHub</github-link>."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "Файлы не c Modrinth не проверяются."
+    "message": "Файлы не c Catalog не проверяются."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Сборка"
@@ -1401,7 +1401,7 @@
     "message": "Контент совместной сборки"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "Совместная сборка содержит файлы не с Modrinth. Устанавливайте только проверенные файлы."
+    "message": "Совместная сборка содержит файлы не с Catalog. Устанавливайте только проверенные файлы."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "Версия сборки, который используется этим сервером, не может быть загружена в данный момент. Возможно, она не опубликована или находится на рассмотрении. Повторите попытку позже или обратитесь к владельцу сервера."
@@ -1410,7 +1410,7 @@
     "message": "Сборка сервера недоступна"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "Серверная сборка содержит файлы не с Modrinth. Устанавливайте только проверенные файлы."
+    "message": "Серверная сборка содержит файлы не с Catalog. Устанавливайте только проверенные файлы."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "Предупреждение о неизвестных файлах"
@@ -1434,7 +1434,7 @@
     "message": "Удалён"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "Обновление серверной сборки содержит файлы не с Modrinth. Устанавливайте только проверенные файлы."
+    "message": "Обновление серверной сборки содержит файлы не с Catalog. Устанавливайте только проверенные файлы."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "Добавлен"
@@ -1443,7 +1443,7 @@
     "message": "Удалён"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "Обновление совместной сборки содержит файлы не с Modrinth. Устанавливайте только проверенные файлы."
+    "message": "Обновление совместной сборки содержит файлы не с Catalog. Устанавливайте только проверенные файлы."
   },
   "app.modal.update-to-play.update-required": {
     "message": "Требуется обновление"
@@ -1464,10 +1464,10 @@
     "message": "Загрузка профиля..."
   },
   "app.nav.modrinth-account": {
-    "message": "Аккаунт Modrinth"
+    "message": "Аккаунт Catalog"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "Удалить аккаунт"
@@ -1476,13 +1476,13 @@
     "message": "Скриншоты"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Вход в Modrinth"
+    "message": "Вход в Catalog"
   },
   "app.nav.switch-account": {
     "message": "Сменить аккаунт"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Перейти на Modrinth+"
+    "message": "Перейти на Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "Посмотреть профиль"
@@ -1698,7 +1698,7 @@
     "message": "Сохранить архив"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Скриншоты Modrinth.zip"
+    "message": "Скриншоты Catalog.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "Скриншоты {instance}.zip"
@@ -1737,7 +1737,7 @@
     "message": "Поделиться серверами с друзьями"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Переменные среды при запуске игры."
@@ -2004,7 +2004,7 @@
     "message": "Некоторые из ваших сборок не могут использовать эту настройку"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "Данный параметр может быть изменен настройками запуска Modrinth."
+    "message": "Данный параметр может быть изменен настройками запуска Catalog."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "Введите значение"
@@ -2838,16 +2838,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "Реклама обеспечивает работу Modrinth и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки. Отказаться и настроить куки можно ниже."
+    "message": "Реклама обеспечивает работу Catalog и выплаты авторам. Для персонализации и анализа рекламы наши партнёры могут использовать куки. Отказаться и настроить куки можно ниже."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Показывать Modrinth App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
+    "message": "Показывать Solara App в текущей активности Discord. Не влияет на Rich Presence модов. Требуется перезапуск."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
+    "message": "Catalog собирает анонимные данные об использовании для персонализации и улучшения сервиса. Отключите этот параметр, чтобы отказаться от сбора данных."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Телеметрия"
@@ -2862,7 +2862,7 @@
     "message": "Приложение может замедлиться, пока кеш не восстановится."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "Удаляет кешированные данные и повторно скачивает их с Modrinth. Приложение может замедлиться, пока кеш не восстановится."
+    "message": "Удаляет кешированные данные и повторно скачивает их с Catalog. Приложение может замедлиться, пока кеш не восстановится."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "Кеш приложения"
@@ -2877,13 +2877,13 @@
     "message": "Резервные копии базы данных"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Здесь Modrinth App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
+    "message": "Здесь Solara App хранит сборки и другие файлы. Изменения вступят в силу после перезапуска."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "Каталог приложения"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "Экспортировать журналы приложения и диагностические данные в ZIP файл, чтобы поделиться ими с поддержкой Modrinth."
+    "message": "Экспортировать журналы приложения и диагностические данные в ZIP файл, чтобы поделиться ими с поддержкой Catalog."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "Экспорт отладочной информации"
@@ -3045,7 +3045,7 @@
     "message": "Настройки изменились где-то ещё"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "Настройки, добавленные модами, появятся здесь после того, как Modrinth найдёт их в одной из сборок."
+    "message": "Настройки, добавленные модами, появятся здесь после того, как Catalog найдёт их в одной из сборок."
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "Использовать одинаковые настройки игры в сборках."
@@ -3225,7 +3225,7 @@
     "message": "Скопировать рекламные данные"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "Заметили неприемлемую или оскорбительную рекламу? Скопируйте её данные, пока она показывается, и отправьте в <support>поддержку Modrinth</support>. Мы проверим и удалим её."
+    "message": "Заметили неприемлемую или оскорбительную рекламу? Скопируйте её данные, пока она показывается, и отправьте в <support>поддержку Catalog</support>. Мы проверим и удалим её."
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "Дождитесь загрузки рекламы и попробуйте снова."
@@ -3390,13 +3390,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Эти скины получены за участие в сборе средств Modrinth Pride в месяц гордости."
+    "message": "Эти скины получены за участие в сборе средств Solara Pride в месяц гордости."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -3432,10 +3432,10 @@
     "message": "Показать"
   },
   "app.survey.body": {
-    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Modrinth App?"
+    "message": "Не хотите ответить на несколько вопросов о вашем опыте с Solara Launcher?"
   },
   "app.survey.footer": {
-    "message": "Этот отзыв будет доставлен напрямую команде Modrinth и поможет разрабатывать будущие обновления!"
+    "message": "Этот отзыв будет доставлен напрямую команде Catalog и поможет разрабатывать будущие обновления!"
   },
   "app.survey.no-thanks": {
     "message": "Нет, спасибо"
@@ -3444,7 +3444,7 @@
     "message": "Пройти опрос"
   },
   "app.survey.title": {
-    "message": "Привет, пользователь Modrinth!"
+    "message": "Привет, пользователь Catalog!"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "Выберете, из какой сборки копировать наборы данных. Эти наборы нужны только для первоначальной синхронизации, после чего их можно изменить."
@@ -3531,13 +3531,13 @@
     "message": "Синхронизированные наборы ресурсов"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Скачивание версии Modrinth App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
+    "message": "Скачивание версии Solara App {version} завершено. Перезапустите приложение, чтобы обновить его, или оно обновится автоматически после закрытия."
   },
   "app.update-popup.body.linux": {
-    "message": "Доступна версия Modrinth App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
+    "message": "Доступна версия Solara App {version}. Обновите приложение через менеджер пакетов, чтобы получить последние улучшения и исправления!"
   },
   "app.update-popup.body.metered": {
-    "message": "Версия Modrinth App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
+    "message": "Версия Solara App {version} доступна для скачивания! Используется сеть с лимитным тарифным планом, поэтому скачивание не началось автоматически."
   },
   "app.update-popup.changelog": {
     "message": "Список изменений"
@@ -3588,7 +3588,7 @@
     "message": "Пропустить"
   },
   "app.welcome-screen.title": {
-    "message": "Добро пожаловать в Modrinth"
+    "message": "Добро пожаловать в Solara"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -3657,10 +3657,10 @@
     "message": "Оно может быть не таким, как в Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Введите имя с Modrinth..."
+    "message": "Введите имя с Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Какое имя у друга на Modrinth?"
+    "message": "Какое имя у друга на Catalog?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Добавьте друзей</link> и следите за ними!"
@@ -3705,10 +3705,10 @@
     "message": "{title} — {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Войдите в аккаунт Modrinth</link>, чтобы добавлять друзей и следить за ними!"
+    "message": "<link>Войдите в аккаунт Catalog</link>, чтобы добавлять друзей и следить за ними!"
   },
   "hosting.play.account-changed": {
-    "message": "Вы сменили аккаунт Modrinth. Нажмите Play server, чтобы продолжить"
+    "message": "Вы сменили аккаунт Catalog. Нажмите Play server, чтобы продолжить"
   },
   "hosting.play.no-address": {
     "message": "У этого сервера еще нет адреса подключения."
@@ -3759,7 +3759,7 @@
     "message": "Отвязка..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "Удаляет сборку с серверов Modrinth и прекращает отправку обновлений. Локальная сборка останется нетронутой."
+    "message": "Удаляет сборку с серверов Catalog и прекращает отправку обновлений. Локальная сборка останется нетронутой."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "Будет затронута только локальная сборка. Весь контент останется на устройстве, а совместная сборка у других участников не изменится."
@@ -3771,7 +3771,7 @@
     "message": "Отвязка совместной сборки"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Сборка будет удалена с серверов Modrinth. Локальная копия и её контент останутся на устройстве, а другие участники перестанут получать обновления."
+    "message": "Сборка будет удалена с серверов Solara. Локальная копия и её контент останутся на устройстве, а другие участники перестанут получать обновления."
   },
   "instance.action.create-shortcut": {
     "message": "Создать ярлык"
@@ -4359,7 +4359,7 @@
     "message": "Создать аккаунт"
   },
   "modal.modrinth-account-required.description": {
-    "message": "Войдите в аккаунт Modrinth, чтобы использовать эту функцию."
+    "message": "Войдите в аккаунт Catalog, чтобы использовать эту функцию."
   },
   "modal.modrinth-account-required.header": {
     "message": "Требуется аккаунт"
@@ -4368,10 +4368,10 @@
     "message": "Открыть браузер снова"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Войти в Modrinth"
+    "message": "Войти в Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Войдите в аккаунт Modrinth"
+    "message": "Войдите в аккаунт Catalog"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Вход"
@@ -4389,7 +4389,7 @@
     "message": "Войдите в Minecraft"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Войдите в Modrinth"
+    "message": "Войдите в Catalog"
   },
   "onboarding-checklist.title": {
     "message": "Начало работы"

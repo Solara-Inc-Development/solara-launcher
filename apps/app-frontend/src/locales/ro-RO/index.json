@@ -78,7 +78,7 @@
     "message": "Configurarea Minecraft a eșuat"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Modrinth nu a putut fi accesat"
+    "message": "Catalog nu a putut fi accesat"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Nu există permisiunea de scriere"
@@ -135,7 +135,7 @@
     "message": "Acceptă tot"
   },
   "app.ads-consent.body": {
-    "message": "Anunțurile fac posibil Modrinth și finanțează plățile creatorilor. Partenerii noștri pot stoca sau accesa cookie-uri în aplicație pentru a personaliza reclamele și a măsura performanța."
+    "message": "Anunțurile fac posibil Catalog și finanțează plățile creatorilor. Partenerii noștri pot stoca sau accesa cookie-uri în aplicație pentru a personaliza reclamele și a măsura performanța."
   },
   "app.ads-consent.manage": {
     "message": "Gestionează preferințele"
@@ -144,7 +144,7 @@
     "message": "Refuză tot"
   },
   "app.ads-consent.title": {
-    "message": "Confidențialitatea ta și modul în care anunțurile susțin Modrinth"
+    "message": "Confidențialitatea ta și modul în care anunțurile susțin Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Afișează instanțele bibliotecii într-un layout compact."
@@ -165,7 +165,7 @@
     "message": "Ascunde nametag-ul"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimizează aplicația Modrinth atunci când Minecraft pornește."
+    "message": "Minimizează aplicația Solara atunci când Minecraft pornește."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimizează aplicația"
@@ -189,7 +189,7 @@
     "message": "Ascundeți bara laterală dreapta"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Afișați un avertisment de siguranța înainte de a instala un Modrinth Pack (.mrpack) care nu este găzduit de Modrinth."
+    "message": "Afișați un avertisment de siguranța înainte de a instala un Modpack (.mrpack) care nu este găzduit de Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Avertizează-ma înainte de a instala modpackuri necunoscute"
@@ -207,10 +207,10 @@
     "message": "Acasă și conținut"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Afișează aplicația Modrinth în prim-plan la închiderea Minecraft."
+    "message": "Afișează aplicația Solara în prim-plan la închiderea Minecraft."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
-    "message": "Reactivează aplicația Modrinth la închiderea Minecraft"
+    "message": "Reactivează aplicația Catalog la închiderea Minecraft"
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "Pornire și navigare"
@@ -219,7 +219,7 @@
     "message": "Utilizați aceste setări de comportament pretutindeni unde sunteți conectat. Dezactivați această opțiune pentru a păstra setări separate pe acest dispozitiv."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Conectează-te la un cont Modrinth pentru a sincroniza setările."
+    "message": "Conectează-te la un cont Catalog pentru a sincroniza setările."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Sincronizați comportamentul între dispozitive"
@@ -462,7 +462,7 @@
     "message": "Utilizează aceste setări ale funcțiilor oriunde ești conectat. Dezactivează această opțiune pentru a păstra setări separate pe acest dispozitiv."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Conectează-te la un cont Modrinth pentru a sincroniza setările."
+    "message": "Conectează-te la un cont Catalog pentru a sincroniza setările."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Funcții de sincronizare între dispozitive"
@@ -495,13 +495,13 @@
     "message": "Vizualizează instanța"
   },
   "app.hosting.update-required.description": {
-    "message": "Trebuie să efectuați o actualizare pentru a putea utiliza serviciul Modrinth Hosting prin intermediul aplicației Modrinth"
+    "message": "Trebuie să efectuați o actualizare pentru a putea utiliza serviciul Solara Hosting prin intermediul aplicației Solara"
   },
   "app.hosting.update-required.download": {
     "message": "Descărcați pentru a actualiza"
   },
   "app.hosting.update-required.title": {
-    "message": "Este necesară actualizarea aplicației Modrinth"
+    "message": "Este necesară actualizarea aplicației Solara"
   },
   "app.install.phase.downloading_content": {
     "message": "Descărcarea conținutului"
@@ -804,13 +804,13 @@
     "message": "Confidențialitate"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Aplicația Modrinth v{version} a terminat descărcarea. Reîncărcați pentru a actualiza acum sau automat când închideți aplicația Modrinth."
+    "message": "Aplicația Solara v{version} a terminat descărcarea. Reîncărcați pentru a actualiza acum sau automat când închideți aplicația Solara."
   },
   "app.update-popup.body.linux": {
-    "message": "Aplicația Modrinth v{version} este disponibil. Utilizați managerul de pachete pentru a actualiza pentru cele mai recente funcții și remedieri!"
+    "message": "Aplicația Solara v{version} este disponibil. Utilizați managerul de pachete pentru a actualiza pentru cele mai recente funcții și remedieri!"
   },
   "app.update-popup.body.metered": {
-    "message": "Aplicația Modrinth v{version} este disponibil acum! Deoarece sunteți într-o rețea cu contorizare, nu am descărcat-o automat."
+    "message": "Aplicația Solara v{version} este disponibil acum! Deoarece sunteți într-o rețea cu contorizare, nu am descărcat-o automat."
   },
   "app.update-popup.changelog": {
     "message": "Jurnalul modificărilor"
@@ -849,10 +849,10 @@
     "message": "Poate fi diferit de numele lor de utilizator Minecraft!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Introduceți numele de utilizator Modrinth..."
+    "message": "Introduceți numele de utilizator Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Care este numele de utilizator Modrinth al prietenului tău?"
+    "message": "Care este numele de utilizator Catalog al prietenului tău?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Adaugă prieteni</link> pentru a vedea ce joacă!"
@@ -894,7 +894,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Conectează-te la un cont Modrinth</link> pentru a adăuga prieteni și a vedea ce joacă!"
+    "message": "<link>Conectează-te la un cont Catalog</link> pentru a adăuga prieteni și a vedea ce joacă!"
   },
   "instance.add-server.add-and-play": {
     "message": "Adaugă și joacă"

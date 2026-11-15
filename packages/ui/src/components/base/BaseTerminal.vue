@@ -89,7 +89,7 @@ const FROG = [
 const EMPTY_STATE_BUBBLES: Record<string, string[]> = {
 	server: [
 		'   __________________________________________________',
-		' /  Welcome to your \x1B[32mModrinth Server\x1B[37m!                  \\',
+		' /  Welcome to your \x1B[32mMinecraft Server\x1B[37m!                  \\',
 		'|   Press the green start button to start your server! |',
 		' \\____________________________________________________/',
 	],

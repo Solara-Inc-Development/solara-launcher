@@ -7,7 +7,7 @@ export const appearanceSettingsMessages = defineMessages({
 	},
 	colorThemeDescription: {
 		id: 'settings.display.theme.description',
-		defaultMessage: 'Select your preferred color theme across Modrinth.',
+		defaultMessage: 'Select your preferred color theme for Solara Launcher.',
 	},
 	syncAcrossDevicesTitle: {
 		id: 'settings.display.theme.sync-across-devices',
@@ -20,7 +20,7 @@ export const appearanceSettingsMessages = defineMessages({
 	},
 	syncAcrossDevicesSignedOutTooltip: {
 		id: 'settings.display.theme.sync-across-devices.sign-in-tooltip',
-		defaultMessage: 'Sign into Modrinth to sync theme',
+		defaultMessage: 'Sign into the catalog to sync theme',
 	},
 	projectListLayoutsTitle: {
 		id: 'settings.display.project-list-layouts.title',
@@ -78,7 +78,7 @@ export const appearanceSettingsMessages = defineMessages({
 	externalLinksNewTabDescription: {
 		id: 'settings.display.sidebar.external-links-new-tab.description',
 		defaultMessage:
-			'Make links which go outside of Modrinth open in a new tab. No matter this setting, links on the same domain and in Markdown descriptions will open in the same tab, and links on ads and edit pages will open in a new tab.',
+			'Make links which go outside of the catalog open in a new tab. No matter this setting, links on the same domain and in Markdown descriptions will open in the same tab, and links on ads and edit pages will open in a new tab.',
 	},
 	rightAlignedFiltersSidebarTitle: {
 		id: 'settings.display.sidebar.right-aligned-filters-sidebar.title',

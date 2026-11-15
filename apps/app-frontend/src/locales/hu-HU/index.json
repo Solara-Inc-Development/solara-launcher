@@ -78,7 +78,7 @@
     "message": "A Minecraft telepítése meghiúsult"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Nem sikerült elérni Modrinthot"
+    "message": "Nem sikerült elérni Catalogot"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Nincs írási jogosultság"
@@ -135,7 +135,7 @@
     "message": "Összes elfogadása"
   },
   "app.ads-consent.body": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából."
+    "message": "A hirdetések teszik lehetővé a Catalog működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából."
   },
   "app.ads-consent.manage": {
     "message": "Beállítások kezelése"
@@ -144,7 +144,7 @@
     "message": "Összes elutasítása"
   },
   "app.ads-consent.title": {
-    "message": "Adataid védelme és a hirdetések szerepe a Modrinth működésében"
+    "message": "Adataid védelme és a hirdetések szerepe a Catalog működésében"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "A könyvtári példányok megjelenítése egy összetett, soros elrendezésben."
@@ -165,7 +165,7 @@
     "message": "Névcímke eltüntetése"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "A Modrinth App bezáródik a Minecraft indításakor"
+    "message": "A Solara Launcher bezáródik a Minecraft indításakor"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Alkalmazás bezárása"
@@ -189,7 +189,7 @@
     "message": "Jobb oldalsáv elrejtése"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Biztonsági figyelmeztetést jelenít meg, mielőtt olyan Modrinth Csomagfájlt (.mrpack) telepítenél, amely nem a Modrinthról származik."
+    "message": "Biztonsági figyelmeztetést jelenít meg, mielőtt olyan Catalog Csomagfájlt (.mrpack) telepítenél, amely nem a Catalogról származik."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Figyelmeztetés ismeretlen modcsomagok telepítése előtt"
@@ -207,7 +207,7 @@
     "message": "Kezdőlap és tartalom"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Előtérbe hozza a Modrinth appot amikor a Minecraft bezáródik."
+    "message": "Előtérbe hozza a Solara appot amikor a Minecraft bezáródik."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Előtérbe hozás amikor a Minecraft bezáródik"
@@ -219,7 +219,7 @@
     "message": "Ezeket a működési beállításokat minden olyan eszközön alkalmazza, amelyen be vagy jelentkezve. Kapcsold ki ezt a beállítást, ha ezen az eszközön külön beállításokat szeretnél használni."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Jelentkezz be egy Modrinth-fiókba a beállítások szinkronizálásához."
+    "message": "Jelentkezz be egy Catalog-fiókba a beállítások szinkronizálásához."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Beállítások szinkronizálása az eszközök között"
@@ -462,7 +462,7 @@
     "message": "Használd ezeket a funkcióbeállításokat minden olyan helyen, ahol be vagy jelentkezve. Kapcsold ki ezt, ha külön beállításokat szeretnél használni ezen az eszközön."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Jelentkezz be egy Modrinth-fiókba a beállítások szinkronizálásához."
+    "message": "Jelentkezz be egy Catalog-fiókba a beállítások szinkronizálásához."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Funkciók szinkronizálása az eszközök között"
@@ -504,16 +504,16 @@
     "message": "Példány megtekintése"
   },
   "app.hosting.update-required.description": {
-    "message": "Frissítened kell, hogy használhasd a Modrinth Hostingot a Modrinth Appon keresztül"
+    "message": "Frissítened kell, hogy használhasd a Solara Hostingot a Solara Launcheron keresztül"
   },
   "app.hosting.update-required.download": {
     "message": "Letöltés a frissítéshez"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Izgatott Modrinth bot"
+    "message": "Izgatott Catalog bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Frissítés szükséges a Modrinth Apphoz"
+    "message": "Frissítés szükséges a Solara Launcherhoz"
   },
   "app.install.phase.downloading_content": {
     "message": "A tartalom letöltése..."
@@ -834,13 +834,13 @@
     "message": "Jelentkezz be mint"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Be kell jelentkezned a Modrinthba"
+    "message": "Be kell jelentkezned a Catalogba"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": ", hogy frissítéseket kapj ehhez a megosztott példányhoz."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Nem a megfelelő Modrinth-fiókot használod"
+    "message": "Nem a megfelelő Catalog-fiókot használod"
   },
   "app.instance.shortcut.created": {
     "message": "Parancsikon létrehozva"
@@ -1257,10 +1257,10 @@
     "message": "Telepítés"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Ezt a meghívót nem a Modrinth, hanem egy másik Modrinth-felhasználó hozta létre. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
+    "message": "Ezt a meghívót nem a Catalog, hanem egy másik Catalog-felhasználó hozta létre. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Ezt a meghívót <creator>{username}</creator> készítette, nem pedig a Modrinth. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
+    "message": "Ezt a meghívót <creator>{username}</creator> készítette, nem pedig a Catalog. Csak olyan személyektől fogadd el a meghívásokat, akikben megbízol."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "A modcsomag tartalma"
@@ -1293,7 +1293,7 @@
     "message": "Ha segítségre van szükséged, vedd fel a kapcsolatot a <support-link>támogatási csapatunkkal</support-link>. Hibajelentésekhez nyiss egy <github-link>GitHub-issue-t</github-link>."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "Azok a fájlok, amelyek nincsenek közzétéve a Modrinthon, nincsenek ellenőrizve."
+    "message": "Azok a fájlok, amelyek nincsenek közzétéve a Catalogon, nincsenek ellenőrizve."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Megosztott példány"
@@ -1302,7 +1302,7 @@
     "message": "Megosztott példány tartalma"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "Ez a megosztott példány olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Modrinth-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
+    "message": "Ez a megosztott példány olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Catalog-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "A szerver által használt modcsomag verzióját nem tudjuk letölteni most. Lehetséges hogy levették, vagy éppen felülvizsgálat alatt áll. Próbáld újra később, vagy vedd fel a kapcsolatot a szerver tulajdonosával."
@@ -1311,7 +1311,7 @@
     "message": "Ennek a szervernek a modcsomagja nem elérhető"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "Ez a szervermodcsomag olyan fájlokat tartalmaz, amelyeket nem tettek közzé a Modrinthen. Nyomatékosan javasoljuk, hogy csak megbízható forrásból származó fájlokat telepíts."
+    "message": "Ez a szervermodcsomag olyan fájlokat tartalmaz, amelyeket nem tettek közzé a Catalogen. Nyomatékosan javasoljuk, hogy csak megbízható forrásból származó fájlokat telepíts."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "Figyelmeztetés ismeretlen fájlokról"
@@ -1332,7 +1332,7 @@
     "message": "Eltávolítva"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "Ez a szervermodcsomag-frissítés olyan fájlokat tartalmaz, amelyek nem találhatók meg a Modrinthen. Erősen javasoljuk, hogy csak megbízható forrásokból telepíts fájlokat."
+    "message": "Ez a szervermodcsomag-frissítés olyan fájlokat tartalmaz, amelyek nem találhatók meg a Catalogen. Erősen javasoljuk, hogy csak megbízható forrásokból telepíts fájlokat."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "Hozzáadva"
@@ -1341,7 +1341,7 @@
     "message": "Eltávolítva"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "Ez a megosztott példányfrissítés olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Modrinth-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
+    "message": "Ez a megosztott példányfrissítés olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Catalog-on. Határozottan javasoljuk, hogy kizárólag olyan forrásokból telepíts fájlokat, amelyekben megbízol."
   },
   "app.modal.update-to-play.update-required": {
     "message": "Frissítés szükséges"
@@ -1362,10 +1362,10 @@
     "message": "Profil betöltése..."
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinth fiók"
+    "message": "Catalog fiók"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "Fiók eltávolítása"
@@ -1374,13 +1374,13 @@
     "message": "Képernyőképek"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Bejelentkezés a Modrinthba"
+    "message": "Bejelentkezés a Catalogba"
   },
   "app.nav.switch-account": {
     "message": "Fiókváltás"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Frissíts a Modrinth+-ra"
+    "message": "Frissíts a Catalog supporter-ra"
   },
   "app.nav.view-profile": {
     "message": "Profil megtekintése"
@@ -1596,7 +1596,7 @@
     "message": "ZIP fájl exportálása"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth képernyőképek.zip"
+    "message": "Catalog képernyőképek.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} képernyőképek.zip"
@@ -1626,7 +1626,7 @@
     "message": "Legrégibb"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "A példány indításakor beállított környezeti változók."
@@ -1893,7 +1893,7 @@
     "message": "Pár példányod nem tudja ezt a beállítást alkalmazni"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "Ezt a beállítást a Modrinth indítási beállításai kezelik."
+    "message": "Ezt a beállítást a Catalog indítási beállításai kezelik."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "Adj meg egy értéket"
@@ -2727,16 +2727,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "A hirdetések teszik lehetővé a Modrinth működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából. Alább leiratkozhatsz erről, illetve beállíthatod a preferenciáidat."
+    "message": "A hirdetések teszik lehetővé a Catalog működését, és biztosítják a tartalomkészítők juttatásait. Partnereink sütiket tárolhatnak vagy érhetnek el az alkalmazásban a hirdetések személyre szabása és a teljesítmény mérése céljából. Alább leiratkozhatsz erről, illetve beállíthatod a preferenciáidat."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "A Modrinth App megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
+    "message": "A Solara Launcher megjelenítése aktuális tevékenységként a Discordon. Ez nem érinti a modok által a példányokhoz hozzáadott Rich Presence-t. Az alkalmazás újraindítását igényli."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "A Modrinth névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
+    "message": "A Catalog névtelen használati és telemetriai adatokat gyűjt a felhasználói élmény javítása és személyre szabása érdekében. Ha kikapcsolod ezt a beállítást, leiratkozol erről, és a rendszer többé nem gyűjti az adataidat."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Telemetria"
@@ -2751,7 +2751,7 @@
     "message": "Az alkalmazás betöltése lassabb lehet, amíg a gyorsítótár újra nem települ."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "Letörli a gyorsítótárban tárolt adatokat, majd újra letölti azokat a Modrinthról. Az alkalmazás betöltése lassabb lehet, amíg a gyorsítótár újra nem települ."
+    "message": "Letörli a gyorsítótárban tárolt adatokat, majd újra letölti azokat a Catalogról. Az alkalmazás betöltése lassabb lehet, amíg a gyorsítótár újra nem települ."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "Az alkalmazás gyorsítótára"
@@ -2766,13 +2766,13 @@
     "message": "Alkalmazásadatbázis-biztonsági mentések"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "A Modrinth App ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
+    "message": "A Solara Launcher ebben a mappában tárolja a példányokat és az egyéb fájlokat. A módosítások az alkalmazás újraindítása után lépnek érvénybe."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "Alkalmazáskönyvtár"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "Exportáld az alkalmazás naplóit és diagnosztikai adatait egy ZIP-fájlba, hogy megoszthasd őket a Modrinth ügyfélszolgálatával."
+    "message": "Exportáld az alkalmazás naplóit és diagnosztikai adatait egy ZIP-fájlba, hogy megoszthasd őket a Catalog ügyfélszolgálatával."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "Hibakeresési adatok exportálása"
@@ -2934,7 +2934,7 @@
     "message": "Ezek a beállítások valahol máshol módosultak"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "A modok által regisztrált beállítások itt fognak megjelenni amint a Modrinth érzékeli őket az egyik példányodban."
+    "message": "A modok által regisztrált beállítások itt fognak megjelenni amint a Catalog érzékeli őket az egyik példányodban."
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "Használd ugyanazokat a játékbeállításokat az összes példányodban."
@@ -3114,7 +3114,7 @@
     "message": "Hírdetési részletek másolása"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "Nem megfelelő vagy sértő hirdetést láttál? Másold ki az adatait, amíg megjelenik, majd küldd el a <support>Modrinth ügyfélszolgálatának</support>. Ellenőrizzük, és eltávolítjuk."
+    "message": "Nem megfelelő vagy sértő hirdetést láttál? Másold ki az adatait, amíg megjelenik, majd küldd el a <support>Catalog ügyfélszolgálatának</support>. Ellenőrizzük, és eltávolítjuk."
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "Várd meg amíg a hirdetés betölt, és próbáld újra."
@@ -3267,13 +3267,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Ezeket a kinézeteket azért kaptad, mert a Pride-hónap során adományoztál a Modrinth Pride jótékonysági gyűjtéséhez."
+    "message": "Ezeket a kinézeteket azért kaptad, mert a Pride-hónap során adományoztál a Solara Pride jótékonysági gyűjtéséhez."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -3309,10 +3309,10 @@
     "message": "Bekapcsolás"
   },
   "app.survey.body": {
-    "message": "Megosztanád velünk a tapasztalataidat a Modrinth App használatáról néhány kérdés megválaszolásával?"
+    "message": "Megosztanád velünk a tapasztalataidat a Solara Launcher használatáról néhány kérdés megválaszolásával?"
   },
   "app.survey.footer": {
-    "message": "A visszajelzésed közvetlenül a Modrinth csapatához kerül, és segít a jövőbeli frissítések alakításában!"
+    "message": "A visszajelzésed közvetlenül a Catalog csapatához kerül, és segít a jövőbeli frissítések alakításában!"
   },
   "app.survey.no-thanks": {
     "message": "Nem, köszönöm"
@@ -3321,7 +3321,7 @@
     "message": "Kérdőív kitöltése"
   },
   "app.survey.title": {
-    "message": "Hali, Modrinth-felhasználó!"
+    "message": "Hali, Catalog-felhasználó!"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "Válaszd ki, hogy melyik példányból másolja át az adatcsomagjaidat. Ezeket a csomagokat csak a kezdeti szinkronizáláshoz használja, ezt követően bármelyik példányból szerkesztheted őket."
@@ -3408,13 +3408,13 @@
     "message": "Szinkronizált erőforráscsomagok"
   },
   "app.update-popup.body.download-complete": {
-    "message": "A Modrinth App v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
+    "message": "A Solara Launcher v{version} letöltése befejeződött. Válaszd a Frissítés lehetőséget a frissítéshez, vagy az alkalmazás bezárásakor automatikusan frissül."
   },
   "app.update-popup.body.linux": {
-    "message": "A Modrinth App v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
+    "message": "A Solara Launcher v{version} elérhető. A legújabb funkciókért és javításokért frissíts a csomagkezelőddel!"
   },
   "app.update-popup.body.metered": {
-    "message": "A Modrinth App v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
+    "message": "A Solara Launcher v{version} már elérhető! Mivel korlátozott adatforgalmú hálózaton vagy, nem töltöttük le automatikusan."
   },
   "app.update-popup.changelog": {
     "message": "Változásnapló"
@@ -3459,7 +3459,7 @@
     "message": "Nyomd meg az <shortcut>N</shortcut> billentyűt egy példány gyors létrehozásához"
   },
   "app.welcome-screen.title": {
-    "message": "Üdvözlünk a Modrinthon"
+    "message": "Üdvözlünk a Solaraon"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "pelda.modrinth.gg"
@@ -3528,10 +3528,10 @@
     "message": "Más is lehet, mint a Minecraft felhasználóneve!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Barát Modrinth felhasználóneve..."
+    "message": "Barát Catalog felhasználóneve..."
   },
   "friends.add-friend.username.title": {
-    "message": "Mi a barátod Modrinth felhasználóneve?"
+    "message": "Mi a barátod Catalog felhasználóneve?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Vegyél fel barátokat</link>, hogy lásd mivel játszanak!"
@@ -3576,7 +3576,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Lépj be Modrinth fiókodba</link>, hogy felvehess barátokat és lásd mivel játszanak!"
+    "message": "<link>Lépj be Catalog fiókodba</link>, hogy felvehess barátokat és lásd mivel játszanak!"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "Összekapcsolt megosztott példány"
@@ -3591,7 +3591,7 @@
     "message": "Leválasztás..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "Eltávolítja ezt a megosztott példányt a Modrinthból, és nem küld többé frissítéseket azoknak, akik használják. A helyi példányodat ez nem érinti."
+    "message": "Eltávolítja ezt a megosztott példányt a Catalogból, és nem küld többé frissítéseket azoknak, akik használják. A helyi példányodat ez nem érinti."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "Ez kizárólag a helyi példányodra vonatkozik. A telepített tartalmaid ezen az eszközön maradnak, és ez nem érinti a megosztott példányt, illetve az azt használó többi felhasználót."
@@ -3603,7 +3603,7 @@
     "message": "Megosztott példány leválasztása"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Ezzel a megosztott példány törlődik a Modrinth szervereiről. A Modrinth Appban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
+    "message": "Ezzel a megosztott példány törlődik a Solara szervereiről. A Solara Launcherban az ezt használók többé nem kapnak frissítéseket, de a helyipéldány és annak tartalma továbbra is ezen az eszközön marad."
   },
   "instance.action.create-shortcut": {
     "message": "Parancsikon létrehozása"
@@ -4179,7 +4179,7 @@
     "message": "Fiók létrehozása"
   },
   "modal.modrinth-account-required.description": {
-    "message": "Ahhoz, hogy ezt a funkciót használhas, be kell jelentkeznie a Modrinth-fiókjába."
+    "message": "Ahhoz, hogy ezt a funkciót használhas, be kell jelentkeznie a Catalog-fiókjába."
   },
   "modal.modrinth-account-required.header": {
     "message": "Fiók szükséges"
@@ -4188,10 +4188,10 @@
     "message": "Böngésző megnyitása újra"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Jelentkezz be a Modrinthbe"
+    "message": "Jelentkezz be a Catalogbe"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Jelentkezz be egy Modrinth-fiókba"
+    "message": "Jelentkezz be egy Catalog-fiókba"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Bejelentkezés"
@@ -4209,7 +4209,7 @@
     "message": "Bejelentkezés a Minecraftba"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Jelentkezz be a Modrinthba"
+    "message": "Jelentkezz be a Catalogba"
   },
   "onboarding-checklist.title": {
     "message": "Első lépések"

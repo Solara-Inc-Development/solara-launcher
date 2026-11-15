@@ -78,7 +78,7 @@
     "message": "فشل إعداد Minecraft"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "تعذّر الاتصال بـ Modrinth"
+    "message": "تعذّر الاتصال بـ Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "لا يوجد إذن للكتابة"
@@ -135,7 +135,7 @@
     "message": "قبول الكل"
   },
   "app.ads-consent.body": {
-    "message": "تُتيح الإعلانات استمرارية Modrinth وتُمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء."
+    "message": "تُتيح الإعلانات استمرارية Catalog وتُمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء."
   },
   "app.ads-consent.manage": {
     "message": "إدارة التفضيلات"
@@ -144,7 +144,7 @@
     "message": "رفض الكل"
   },
   "app.ads-consent.title": {
-    "message": "خصوصيتك وكيف تساهم الإعلانات في دعم Modrinth"
+    "message": "خصوصيتك وكيف تساهم الإعلانات في دعم Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "عرض مثيلات المكتبة بتنسيق صفّي مضغوط."
@@ -165,7 +165,7 @@
     "message": "إخفاء الاسم"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "تصغير تطبيق Modrinth عند تشغيل Minecraft."
+    "message": "تصغير تطبيق Solara عند تشغيل Minecraft."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "تصغير التطبيق"
@@ -189,7 +189,7 @@
     "message": "قم بإخفاء الشريط الجانبي الأيمن"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "إظهار تحذير أمان قبل تثبيت مودباك Modrinth (.mrpack) غير المستضاف على Modrinth."
+    "message": "إظهار تحذير أمان قبل تثبيت مودباك Catalog (.mrpack) غير المستضاف على Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "أخبرني قبل تثبيت المودباكات غير المعروفة"
@@ -207,7 +207,7 @@
     "message": "الصفحة الرئيسية والمحتوى"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "اظهر تطبيق Modrinth عند الخروج من ماينكرافت."
+    "message": "اظهر تطبيق Solara عند الخروج من ماينكرافت."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "اعد التركيز علي التطبيق عندما تغلق ماينكرافت"
@@ -462,7 +462,7 @@
     "message": "هذا الخِيار يزامن اعداداتك عبر جميع الأجهزة المسجل الدخول إليها. أطفئه لجعل اعداداتك محفوظة علي هذا الجهاز فقط."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "تسجيل الدخول إلى حساب Modrinth لمزامنة الإعدادات."
+    "message": "تسجيل الدخول إلى حساب Catalog لمزامنة الإعدادات."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "مزامنة الإعدادات عبر الأجهزة"
@@ -504,16 +504,16 @@
     "message": "عرض النسخة"
   },
   "app.hosting.update-required.description": {
-    "message": "يجب عليك التحديث لاستخدام Modrinth Hosting بواسطة تطبيق Modrinth"
+    "message": "يجب عليك التحديث لاستخدام Solara Hosting بواسطة تطبيق Solara"
   },
   "app.hosting.update-required.download": {
     "message": "نزّل للتحديث"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "بوت Modrinth المتحمّس"
+    "message": "بوت Catalog المتحمّس"
   },
   "app.hosting.update-required.title": {
-    "message": "يلزم تحديث تطبيق Modrinth"
+    "message": "يلزم تحديث تطبيق Solara"
   },
   "app.install.phase.downloading_content": {
     "message": "جارٍ تنزيل المحتوى"
@@ -837,7 +837,7 @@
     "message": "لتلقي التحديثات لهذه النسخة المشتركة."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "أنت تستخدم حساب Modrinth الخاطئ"
+    "message": "أنت تستخدم حساب Catalog الخاطئ"
   },
   "app.instance.shortcut.created": {
     "message": "تم إنشاء الاختصار"
@@ -1254,10 +1254,10 @@
     "message": "تثبيت"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "تم إنشاء هذه الدعوة بواسطة مستخدم Modrinth آخر، وليس Modrinth. لا تقبل الدعوات إلا من الأشخاص الذين تثق بهم فقط."
+    "message": "تم إنشاء هذه الدعوة بواسطة مستخدم Catalog آخر، وليس Catalog. لا تقبل الدعوات إلا من الأشخاص الذين تثق بهم فقط."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "تم إنشاء دعوة الانضمام هذه بواسطة <creator>{username}</creator>، وليس بواسطة Modrinth. لا تقبل الدعوات إلا من أشخاص تثق بهم."
+    "message": "تم إنشاء دعوة الانضمام هذه بواسطة <creator>{username}</creator>، وليس بواسطة Catalog. لا تقبل الدعوات إلا من أشخاص تثق بهم."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "محتوى المودباك"
@@ -1290,7 +1290,7 @@
     "message": "لطلبات الدعم، تواصل مع <support-link>فريق الدعم</support-link>. وللإبلاغ عن الأخطاء، أنشئ <github-link>بلاغًا على GitHub</github-link>."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "الملفات التي لم يتم نشرها على Modrinth لا يتم مراجعتها."
+    "message": "الملفات التي لم يتم نشرها على Catalog لا يتم مراجعتها."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "النماذج المشتركة"
@@ -1299,7 +1299,7 @@
     "message": "محتوى النسخة المشتركة"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "تحتوي هذه النسخة المُشاركة على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
+    "message": "تحتوي هذه النسخة المُشاركة على ملفات غير منشور على Catalog. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "المودباك المستخدم من قبل هذا الخادم لايمكن تنزيله الان. يمكن ان يكون غير موجود أو لم يتم نشره بعد أو تحت المراجعة يرجي المحاولة لاحقا أو تواصل مع مالك السيرفر."
@@ -1308,7 +1308,7 @@
     "message": "المودباك الخاص بالسيرفر غير موجود"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "تحتوي مودباك السيرفر هذا على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
+    "message": "تحتوي مودباك السيرفر هذا على ملفات غير منشور على Catalog. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "تحذير ملفات غير معروفة"
@@ -1329,7 +1329,7 @@
     "message": "تمت الإزالة"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "يحتوي تحديث مودباك السيرفر هذا على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
+    "message": "يحتوي تحديث مودباك السيرفر هذا على ملفات غير منشور على Catalog. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "تمت الإضافة"
@@ -1338,7 +1338,7 @@
     "message": "تمت الإزالة"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "يحتوي تحديث هذه النسخة المُشاركة على ملفات غير منشور على Modrinth. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
+    "message": "يحتوي تحديث هذه النسخة المُشاركة على ملفات غير منشور على Catalog. نوصي بشدة بعدم تثبيت الملفات إلا من مصادر تثق بها فقط."
   },
   "app.modal.update-to-play.update-required": {
     "message": "يلزم التحديث"
@@ -1359,10 +1359,10 @@
     "message": "جاري تحميل الملف الشخصي..."
   },
   "app.nav.modrinth-account": {
-    "message": "حساب Modrinth"
+    "message": "حساب Catalog"
   },
   "app.nav.modrinth-hosting": {
-    "message": "استضافة Modrinth"
+    "message": "استضافة Catalog"
   },
   "app.nav.remove-account": {
     "message": "إزالة الحساب"
@@ -1377,7 +1377,7 @@
     "message": "تبديل الحساب"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "الترقية إلى Modrinth+"
+    "message": "الترقية إلى Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "عرض الملف الشخصي"
@@ -1593,7 +1593,7 @@
     "message": "تصدير ZIP"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth screenshots.zip"
+    "message": "Solara screenshots.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} screenshots.zip"
@@ -1623,7 +1623,7 @@
     "message": "الاقدم"
   },
   "app.settings.app-version": {
-    "message": "تطبيق Modrinth {version}"
+    "message": "تطبيق Solara {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "متغيرات البيئة المحددة عند تشغيل النسخة."
@@ -2724,16 +2724,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "الإعلانات تجعل Modrinth ممكناً وتمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء. يمكنك إلغاء الاشتراك أو إدارة تفضيلاتك أدناه."
+    "message": "الإعلانات تجعل Catalog ممكناً وتمول مدفوعات المنشئين. قد يقوم شركاؤنا بتخزين أو الوصول إلى ملفات تعريف الارتباط (cookies) في التطبيق لتخصيص الإعلانات وقياس الأداء. يمكنك إلغاء الاشتراك أو إدارة تفضيلاتك أدناه."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "إظهار تطبيق Modrinth كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
+    "message": "إظهار تطبيق Solara كنشاطك الحالي على Discord. لا يؤثر هذا على الـ Rich Presence المُضاف للنسخ بواسطة المودات. يتطلب إعادة تشغيل التطبيق."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "يجمع Modrinth بيانات تحليلات واستخدام مجهولة الهوية لتحسين تجربة المستخدم وتخصيص تجربتك. عند تعطيل هذا الخيار، فإنك تلغي الاشتراك ولن يتم جمع بياناتك بعد الآن."
+    "message": "يجمع Catalog بيانات تحليلات واستخدام مجهولة الهوية لتحسين تجربة المستخدم وتخصيص تجربتك. عند تعطيل هذا الخيار، فإنك تلغي الاشتراك ولن يتم جمع بياناتك بعد الآن."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "بيانات قياس الاستخدام"
@@ -2748,7 +2748,7 @@
     "message": "قد يتم تحميل التطبيق بشكل أبطأ حتى يتم إعادة بناء التخزين المؤقت."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "مسح البيانات المخبأة (الذاكرة المؤقتة) وتنزيلها مرة أخرى من Modrinth. قد يتم تحميل التطبيق بشكل أبطأ حتى يتم إعادة بناء الذاكرة المؤقتة."
+    "message": "مسح البيانات المخبأة (الذاكرة المؤقتة) وتنزيلها مرة أخرى من Catalog. قد يتم تحميل التطبيق بشكل أبطأ حتى يتم إعادة بناء الذاكرة المؤقتة."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "ذاكرة التطبيق المؤقتة"
@@ -2763,13 +2763,13 @@
     "message": "النسخ الاحتياطية لقاعدة بيانات التطبيق"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "المكان الذي يخزن فيه تطبيق Modrinth النسخ والملفات الأخرى. تسري التغييرات بعد إعادة تشغيل التطبيق."
+    "message": "المكان الذي يخزن فيه تطبيق Solara النسخ والملفات الأخرى. تسري التغييرات بعد إعادة تشغيل التطبيق."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "مجلد التطبيق"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "تصدير سجلات التطبيق والبيانات التشخيصية إلى ملف ZIP لمشاركتها مع دعم Modrinth."
+    "message": "تصدير سجلات التطبيق والبيانات التشخيصية إلى ملف ZIP لمشاركتها مع دعم Catalog."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "تصدير معلومات التصحيح"
@@ -3264,13 +3264,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "فخر Modrinth"
+    "message": "فخر Solara"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "لقد حصلت على هذه أشكال الشخصيات مقابل تبرعك لحملة جمع التبرعات التي نظمتها Modrinth Pride خلال شهر الفخر."
+    "message": "لقد حصلت على هذه أشكال الشخصيات مقابل تبرعك لحملة جمع التبرعات التي نظمتها Solara Pride خلال شهر الفخر."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "جبال الفوضى"
@@ -3306,10 +3306,10 @@
     "message": "تشغيل"
   },
   "app.survey.body": {
-    "message": "هل تمانع في الإجابة على بضعة أسئلة حول تجربتك مع تطبيق Modrinth؟"
+    "message": "هل تمانع في الإجابة على بضعة أسئلة حول تجربتك مع تطبيق Solara؟"
   },
   "app.survey.footer": {
-    "message": "ستنتقل هذه الملاحظات مباشرة إلى فريق Modrinth وتساعد في توجيه التحديثات القادمة!أهلاً بك يا مستخدم Modrinth!"
+    "message": "ستنتقل هذه الملاحظات مباشرة إلى فريق Catalog وتساعد في توجيه التحديثات القادمة!أهلاً بك يا مستخدم Catalog!"
   },
   "app.survey.no-thanks": {
     "message": "لا شكراً"
@@ -3318,7 +3318,7 @@
     "message": "شارك في الاستطلاع"
   },
   "app.survey.title": {
-    "message": "أهلاً بك يا مستخدم Modrinth!"
+    "message": "أهلاً بك يا مستخدم Catalog!"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "اختر النسخة التي تود نسخ أشرطة أدوات الإبداع المحفوظة منها. تُستخدم هذه الأشرطة فقط للمزامنة الأولية، ويمكنك تعديلها من أي نسخة بعد ذلك."
@@ -3405,13 +3405,13 @@
     "message": "حزم الموارد المتزامنة"
   },
   "app.update-popup.body.download-complete": {
-    "message": "انتهى تنزيل تطبيق Modrinth v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Modrinth."
+    "message": "انتهى تنزيل تطبيق Solara v{version}. أعد التحميل للتحديث الآن، أو تلقائيًا عند إغلاق تطبيق Solara."
   },
   "app.update-popup.body.linux": {
-    "message": "يتوفر الآن Modrinth App v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
+    "message": "يتوفر الآن Solara Launcher v{version}. استخدم مدير الحزم لتحديث التطبيق والحصول على أحدث الميزات والإصلاحات!"
   },
   "app.update-popup.body.metered": {
-    "message": "تطبيق Modrinth v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
+    "message": "تطبيق Solara v{version} متاح الآن! وبما أنك متصل بشبكة مقيّدة، لم نقم بتنزيله تلقائيًا."
   },
   "app.update-popup.changelog": {
     "message": "سجل التغيير"
@@ -3525,10 +3525,10 @@
     "message": "قد يختلف عن اسم المستخدم الخاص بهم في ماينكرافت!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "أدخل اسم مستخدم Modrinth..."
+    "message": "أدخل اسم مستخدم Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "ما اسم مستخدم صديقك في Modrinth؟"
+    "message": "ما اسم مستخدم صديقك في Catalog؟"
   },
   "friends.add-friends-to-share": {
     "message": "<link>أضف أصدقاء</link> لمعرفة ما الذي يلعبونه!"
@@ -3573,7 +3573,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>سجّل الدخول إلى حساب Modrinth</link> لإضافة الأصدقاء ومعرفة ما الذي يلعبونه!"
+    "message": "<link>سجّل الدخول إلى حساب Catalog</link> لإضافة الأصدقاء ومعرفة ما الذي يلعبونه!"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "النسخة المشتركة المرتبطة"
@@ -3588,7 +3588,7 @@
     "message": "جاري إلغاء الربط..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "إزالة هذه النسخة المُشاركة من Modrinth والتوقف عن إرسال التحديثات لأي شخص يستخدمها. لن تتأثر نسختك المحلية."
+    "message": "إزالة هذه النسخة المُشاركة من Catalog والتوقف عن إرسال التحديثات لأي شخص يستخدمها. لن تتأثر نسختك المحلية."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "هذا يؤثر فقط على نسختك المحلية. سيبقى المحتوى المثبت على هذا الجهاز، ولن تتأثر النسخة المُشاركة أو الأشخاص الآخرون الذين يستخدمونها."
@@ -3600,7 +3600,7 @@
     "message": "إلغاء ربط النسخة المُشاركة"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "سيؤدي هذا إلى حذف النسخة المُشاركة من خوادم Modrinth. سيتوقف الأشخاص الذين يستخدمونها على تطبيق Modrinth عن تلقي التحديثات، ولكن ستظل نسختك المحلية ومحتواها على هذا الجهاز."
+    "message": "سيؤدي هذا إلى حذف النسخة المُشاركة من خوادم Solara. سيتوقف الأشخاص الذين يستخدمونها على تطبيق Solara عن تلقي التحديثات، ولكن ستظل نسختك المحلية ومحتواها على هذا الجهاز."
   },
   "instance.action.create-shortcut": {
     "message": "إنشاء اختصار"
@@ -4161,10 +4161,10 @@
     "message": "افتح المتصفح مرة أخرى"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "تسجيل الدخول إلى Modrinth"
+    "message": "تسجيل الدخول إلى Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "تسجيل الدخول إلى حساب Modrinth"
+    "message": "تسجيل الدخول إلى حساب Catalog"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "جار تسجيل الدخول"
@@ -4182,7 +4182,7 @@
     "message": "تسجيل الدخول إلى ماين كرافت"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "تسجيل الدخول إلى Modrinth"
+    "message": "تسجيل الدخول إلى Catalog"
   },
   "onboarding-checklist.title": {
     "message": "ابدأ ألان"

@@ -266,7 +266,7 @@
 					<template #markdown-link="{ children }">
 						<a
 							class="markdown-resource-link"
-							href="https://support.modrinth.com/en/articles/8801962-advanced-markdown-formatting"
+							href="https://github.com/Solara-Inc-Development/solara-launcher/issues"
 							target="_blank"
 						>
 							<component :is="() => children" />

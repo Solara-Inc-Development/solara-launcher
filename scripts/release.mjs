@@ -1,4 +1,5 @@
 import {releaseArtifactPath} from '../packages/shared/domain.mjs';
+import {allowsTestingPreview} from './preview-policy.mjs';
 import {readFile,writeFile,readdir,mkdir,rename} from 'node:fs/promises';import {execFileSync} from 'node:child_process';import {createHash} from 'node:crypto';import path from 'node:path';import {fileURLToPath} from 'node:url';import {reserveBuild,immutableCopy,verifyArtifact,verifyApplication,fetchWithTrustedRedirects,githubReleaseAssetUrl} from './release-lib.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),dir=path.join(root,'builds');
 const mode=process.argv[2];const run=(bin,args,opts={})=>execFileSync(bin,args,{cwd:root,stdio:'inherit',...opts});
@@ -15,8 +16,9 @@ if(mode==='reserve'){
 }else if(mode==='package'){
  if(process.platform!=='win32')throw Error('Windows packaging requires a Windows x64 runner with MSVC, WebView2 and NSIS prerequisites');
  const candidate=process.argv.includes('--candidate');
- const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.inheritedEngineRemoved!==true||(!candidate&&(migration.status!=='ready'||migration.windowsAcceptance!==true)))throw Error('Independent engine replacement and Windows acceptance are incomplete');
- if(candidate&&migration.status!=='preview')throw Error('Candidate packaging requires an explicitly declared preview');
+ const migration=await readJson(path.join(root,'docs/engine-migration.json'));
+ if(candidate&&!allowsTestingPreview(migration))throw Error('Candidate packaging requires an explicit, truthful testing-preview policy');
+ if(!candidate&&(migration.inheritedEngineRemoved!==true||migration.status!=='ready'||migration.windowsAcceptance!==true))throw Error('Stable packaging requires completed engine replacement and Windows acceptance');
  const review=await readJson(path.join(root,'docs/upstream-license-review.json'));if(review.status!=='cleared'||!review.evidence?.length)throw Error('Upstream dependency licence review is unresolved; see THIRD_PARTY_NOTICES.md');
  const key=process.env.SOLARA_UPDATER_PUBLIC_KEY||(await readFile(path.join(root,'apps/app/updater.pub'),'utf8')).trim();
  if(!key||(!candidate&&!process.env.TAURI_SIGNING_PRIVATE_KEY))throw Error('Updater signing identity is required');
@@ -32,7 +34,7 @@ if(mode==='reserve'){
  await immutableCopy(source,path.join(dir,artifactPath));await immutableCopy(source+'.sig',path.join(dir,artifactPath+'.sig'));
  const metadata={...r,...checked,...appChecked,artifactPath,platform:'windows',arch:'x86_64',publishedAt:null,verifiedAt:new Date().toISOString(),signature:sig,notes,url:githubReleaseAssetUrl(r.publicVersion,'solaralauncher.exe'),state:'staged'};await json(path.join(dir,r.publicVersion+'.json'),metadata);console.log(`${r.filename} staged, x64 application, checksum and updater signature verified.`);
 }else if(mode==='publish-preview-manifest'){
- const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(migration.status!=='preview'||migration.inheritedEngineRemoved!==true)throw Error('Testing publication requires the independent preview core');
+ const migration=await readJson(path.join(root,'docs/engine-migration.json'));if(!allowsTestingPreview(migration))throw Error('Testing publication requires an explicit, truthful preview policy');
  const version=process.argv[3];if(!version)throw Error('Pass the staged testing version');
  const r=await readJson(path.join(dir,version+'.json'));if(r.state!=='staged'||r.acceptance!==false)throw Error('Expected an explicitly unaccepted staged testing candidate');
  const key=(await readFile(path.join(root,'apps/app/updater.pub'),'utf8')).trim();

@@ -1,5 +1,7 @@
 # Authentication setup guide (Microsoft / Minecraft & Solara SSO)
 
+> Current source note: Current V-0.0.63-based desktop uses Microsoft system-browser authorization-code PKCE in `packages/app-lib/src/state/minecraft_auth.rs`. Catalog accounts and Solara SSO are not exposed in this desktop runtime. The device-code/custom-core and Solara SSO instructions below are historical backend/reference material, not the current app setup.
+
 Solara Launcher uses **two completely separate authentication flows**:
 
 1. **Minecraft Java account (`SOLARA_MICROSOFT_CLIENT_ID`)** — talks directly from the user's Windows PC to official Microsoft (`login.microsoftonline.com`), Xbox Live (`*.auth.xboxlive.com`), and Minecraft (`api.minecraftservices.com`) endpoints. Refresh tokens are stored only in Windows Credential Manager under `in.solara.launcher.minecraft.custom`. No Microsoft email, password, or token is ever sent to Solara.

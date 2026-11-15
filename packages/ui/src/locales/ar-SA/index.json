@@ -60,7 +60,7 @@
     "defaultMessage": "لم يتم العثور على نتائج لبحثك!"
   },
   "browse.offline": {
-    "defaultMessage": "أنت غير متصل حاليًا. اتصل بالإنترنت لتصفح Modrinth!"
+    "defaultMessage": "أنت غير متصل حاليًا. اتصل بالإنترنت لتصفح Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "البحث {projectType}..."
@@ -198,7 +198,7 @@
     "defaultMessage": "فتح في المجلد"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "فتح في Modrinth"
+    "defaultMessage": "فتح في Catalog"
   },
   "button.play": {
     "defaultMessage": "لعب"
@@ -489,13 +489,13 @@
     "defaultMessage": "تم إزالة {count} (معطل)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "لا تتم مراجعة الملفات التي لم يتم نشرها على منصة Modrinth."
+    "defaultMessage": "لا تتم مراجعة الملفات التي لم يتم نشرها على منصة Catalog."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "تعذّر تحليل بعض المحتوى الموجود على الخادم الخاص بك، وقد يتأثر هذا المحتوى بالتغيير."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "يحتوي هذا التحديث على ملفات غير منشورة على Modrinth. نوصي بشدة بعدم تثبيت ملفات إلا من مصادر تثق بها."
+    "defaultMessage": "يحتوي هذا التحديث على ملفات غير منشورة على Catalog. نوصي بشدة بعدم تثبيت ملفات إلا من مصادر تثق بها."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "تحذير ملف غير معلوم"
@@ -1071,7 +1071,7 @@
     "defaultMessage": "إزالة الصورة"
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "قد يتحقق فريق Modrinth من الإثبات المُقدَّم"
+    "defaultMessage": "قد يتحقق فريق Catalog من الإثبات المُقدَّم"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "حفظ الإسناد"
@@ -1155,7 +1155,7 @@
     "defaultMessage": "تم الإسناد تلقائيًا"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "لقد سبق أن رأينا هذا الملف، وأعددنا لك إسنادًا له. إذا كان هناك شيء غير صحيح، يُرجى التواصل مع دعم Modrinth عبر مركز المساعدة"
+    "defaultMessage": "لقد سبق أن رأينا هذا الملف، وأعددنا لك إسنادًا له. إذا كان هناك شيء غير صحيح، يُرجى التواصل مع دعم Catalog عبر مركز المساعدة"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "الترخيص"

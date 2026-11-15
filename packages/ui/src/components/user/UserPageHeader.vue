@@ -49,12 +49,20 @@
 				<PageHeaderMetadataNumberItem
 					:icon="BoxIcon"
 					:value="projectsCount"
-					:label="formatMessage(messages.profileProjectCountLabel, { count: projectsCount })"
+					:label="
+						formatMessage(messages.profileProjectCountLabel, {
+							count: projectsCount,
+						})
+					"
 				/>
 				<PageHeaderMetadataNumberItem
 					:icon="DownloadIcon"
 					:value="downloads"
-					:label="formatMessage(messages.profileDownloadCountLabel, { count: downloads })"
+					:label="
+						formatMessage(messages.profileDownloadCountLabel, {
+							count: downloads,
+						})
+					"
 					:tooltip="downloadsTooltip"
 				/>
 				<PageHeaderMetadataTimeItem
@@ -175,7 +183,7 @@ const messages = defineMessages({
 	},
 	officialAccount: {
 		id: 'profile.official-account',
-		defaultMessage: 'Official Modrinth account',
+		defaultMessage: 'Official catalog account',
 	},
 	profileJoinedLabel: {
 		id: 'profile.label.joined',
@@ -228,6 +236,7 @@ const props = withDefaults(
 		user: Labrinth.Users.v3.User
 		summary?: string | null
 		authUser?: AuthUser | null
+		allowAccountActions?: boolean
 		editProfileLink?: string | (() => void)
 		isModrinthUser?: boolean
 		isOfficialAccount?: boolean
@@ -242,6 +251,7 @@ const props = withDefaults(
 	{
 		summary: null,
 		authUser: null,
+		allowAccountActions: true,
 		editProfileLink: '/settings/profile',
 		isModrinthUser: false,
 		isOfficialAccount: false,
@@ -299,7 +309,7 @@ const moreActions = computed<ButtonMenuOption[]>(() => [
 		icon: ReportIcon,
 		action: () => emit('report'),
 		tone: 'red',
-		shown: props.authUser?.id !== props.user.id,
+		shown: props.allowAccountActions && props.authUser?.id !== props.user.id,
 	},
 	{
 		id: 'block',
@@ -307,7 +317,7 @@ const moreActions = computed<ButtonMenuOption[]>(() => [
 		icon: BanIcon,
 		action: () => emit('block'),
 		tone: 'red',
-		shown: props.authUser?.id !== props.user.id,
+		shown: props.allowAccountActions && props.authUser?.id !== props.user.id,
 	},
 	{
 		id: 'copy-id',

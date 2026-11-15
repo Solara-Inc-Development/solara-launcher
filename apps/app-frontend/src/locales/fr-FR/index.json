@@ -78,7 +78,7 @@
     "message": "Échec de l'installation de Minecraft"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Impossible d'accéder à Modrinth"
+    "message": "Impossible d'accéder à Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Autorisation d'écriture refusée"
@@ -135,7 +135,7 @@
     "message": "Tout accepter"
   },
   "app.ads-consent.body": {
-    "message": "Les publicités rendent Modrinth possible et rémunèrent les créateurs. Nos partenaires peuvent stocker des cookies ou y accéder au sein de l'application afin de personnaliser les publicités et de mesurer les performances."
+    "message": "Les publicités rendent Catalog possible et rémunèrent les créateurs. Nos partenaires peuvent stocker des cookies ou y accéder au sein de l'application afin de personnaliser les publicités et de mesurer les performances."
   },
   "app.ads-consent.manage": {
     "message": "Gérer les préférences"
@@ -144,7 +144,7 @@
     "message": "Tout refuser"
   },
   "app.ads-consent.title": {
-    "message": "Votre vie privée et comment les publicités soutiennent Modrinth"
+    "message": "Votre vie privée et comment les publicités soutiennent Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Afficher les instances de la bibliothèque dans une disposition compacte."
@@ -165,7 +165,7 @@
     "message": "Cacher le pseudo"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimiser Modrinth App quand Minecraft se lance."
+    "message": "Minimiser Solara Launcher quand Minecraft se lance."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimiser l'application"
@@ -189,7 +189,7 @@
     "message": "Cache la barre latérale droite"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Montre un avertissement de sécurité avant d'installer un Modrinth Pack (.mrpack) qui n'est pas sur Modrinth."
+    "message": "Montre un avertissement de sécurité avant d'installer un Modpack (.mrpack) qui n'est pas sur Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "M'avertir avant d'installer des modpacks inconnus"
@@ -207,7 +207,7 @@
     "message": "Accueil et contenu"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "Les instances que vous avez masquées de votre bibliothèque sur cet appareil. Les instances masquées ne sont pas synchronisées avec votre compte Modrinth."
+    "message": "Les instances que vous avez masquées de votre bibliothèque sur cet appareil. Les instances masquées ne sont pas synchronisées avec votre compte Catalog."
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "Vous n'avez encore masqué aucune instance."
@@ -222,7 +222,7 @@
     "message": "Instances masquées"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Mettre Modrinth App au premier plan lorsque Minecraft se ferme."
+    "message": "Mettre Solara Launcher au premier plan lorsque Minecraft se ferme."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Recentrer l'application à la fermeture de Minecraft"
@@ -234,7 +234,7 @@
     "message": "Utilisez ces paramètres de comportement partout où vous êtes connecté. Désactivez cette option pour conserver des paramètres séparés sur cet appareil."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Connectez-vous à un compte Modrinth pour synchroniser vos paramètres."
+    "message": "Connectez-vous à un compte Catalog pour synchroniser vos paramètres."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Synchroniser le comportement entre les appareils"
@@ -489,7 +489,7 @@
     "message": "Appliquer ces paramètres partout où vous êtes connecté. Désactivez cette option pour conserver des paramètres distincts sur cet appareil."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Connectez-vous à un compte Modrinth pour synchroniser les paramètres."
+    "message": "Connectez-vous à un compte Catalog pour synchroniser les paramètres."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Synchroniser les fonctionnalités entre les appareils"
@@ -531,16 +531,16 @@
     "message": "Voir l'instance"
   },
   "app.hosting.update-required.description": {
-    "message": "Vous avez besoin de mettre à jour pour utiliser Modrinth Hosting via Modrinth App"
+    "message": "Vous avez besoin de mettre à jour pour utiliser Solara Hosting via Solara Launcher"
   },
   "app.hosting.update-required.download": {
     "message": "Télécharger pour mettre à jour"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "Modrinth Bot excité"
+    "message": "Catalog Bot excité"
   },
   "app.hosting.update-required.title": {
-    "message": "Mise à jour de Modrinth App requise"
+    "message": "Mise à jour de Solara Launcher requise"
   },
   "app.install.phase.downloading_content": {
     "message": "Téléchargement du contenu"
@@ -648,7 +648,7 @@
     "message": "Vos modifications n’ont pas encore été partagées"
   },
   "app.instance.admonitions.shared-instance.owner-update-body": {
-    "message": "Vous avez déployé une mise à jour vers cette instance partagée à partir d'une autre installation de Modrinth App. Téléchargez les dernières modifications pour continuer à la gérer ici."
+    "message": "Vous avez déployé une mise à jour vers cette instance partagée à partir d'une autre installation de Solara Launcher. Téléchargez les dernières modifications pour continuer à la gérer ici."
   },
   "app.instance.admonitions.shared-instance.owner-update-button": {
     "message": "Télécharger la mise à jour"
@@ -900,13 +900,13 @@
     "message": "Se connecter en tant que"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Vous devez vous connecter à Modrinth"
+    "message": "Vous devez vous connecter à Catalog"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "pour recevoir des mises à jour pour cette instance partagée."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Vous utilisez le mauvais compte Modrinth"
+    "message": "Vous utilisez le mauvais compte Catalog"
   },
   "app.instance.shortcut.created": {
     "message": "Raccourci créé"
@@ -1395,10 +1395,10 @@
     "message": "Installer"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "Cette invitation a été crée par un autre utilisateur Modrinth, pas par Modrinth. N'acceptez seulement les invitations de personnes en qui vous avez confiance."
+    "message": "Cette invitation a été crée par un autre utilisateur Catalog, pas par Catalog. N'acceptez seulement les invitations de personnes en qui vous avez confiance."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "Cette invitation a été crée par <creator>{username}</creator>, pas par Modrinth. N'acceptez seulement les invitations de personnes en qui vous avez confiance."
+    "message": "Cette invitation a été crée par <creator>{username}</creator>, pas par Catalog. N'acceptez seulement les invitations de personnes en qui vous avez confiance."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "Contenu du modpack"
@@ -1431,7 +1431,7 @@
     "message": "Pour des demandes de support, contactez notre <support-link>équipe de support</support-link>. Pour signaler des bugs, ouvrez <github-link>une issue Github</github-link>."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "Les fichiers qui ne sont pas publiés sur Modrinth ne sont pas examinés."
+    "message": "Les fichiers qui ne sont pas publiés sur Catalog ne sont pas examinés."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "Instance partagée"
@@ -1440,7 +1440,7 @@
     "message": "Contenu de l'instance partagée"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "Cette instance partagée contient des fichiers qui ne sont pas publiés sur Modrinth. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
+    "message": "Cette instance partagée contient des fichiers qui ne sont pas publiés sur Catalog. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "La version du modpack que ce serveur utilise ne peux pas être téléchargée pour le moment. Elle peut être non publiée ou en vérification. Réessayez plus tard, ou contactez le propriétaire du serveur."
@@ -1449,7 +1449,7 @@
     "message": "Le modpack de ce serveur n'est pas disponible"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "Ce modpack de serveur contient des fichiers qui ne sont pas publiés sur Modrinth. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
+    "message": "Ce modpack de serveur contient des fichiers qui ne sont pas publiés sur Catalog. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "Avertissement de fichiers inconnus"
@@ -1473,7 +1473,7 @@
     "message": "Supprimé"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "Cette mise à jour du modpack de ce serveur contient des fichiers qui ne sont pas publiés sur Modrinth. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
+    "message": "Cette mise à jour du modpack de ce serveur contient des fichiers qui ne sont pas publiés sur Catalog. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "Ajouté"
@@ -1482,7 +1482,7 @@
     "message": "Supprimé"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "Cette mise à jour d'instance partagée contient des fichiers qui ne sont pas publiés sur Modrinth. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
+    "message": "Cette mise à jour d'instance partagée contient des fichiers qui ne sont pas publiés sur Catalog. Nous recommandons fortement de seulement installer des fichiers de sources en qui vous avez confiance."
   },
   "app.modal.update-to-play.update-required": {
     "message": "Mise à jour requise"
@@ -1503,10 +1503,10 @@
     "message": "Chargement du profil..."
   },
   "app.nav.modrinth-account": {
-    "message": "Compte Modrinth"
+    "message": "Compte Catalog"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "Retirer le compte"
@@ -1515,13 +1515,13 @@
     "message": "Captures d'écran"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Se connecter à Modrinth"
+    "message": "Se connecter à Catalog"
   },
   "app.nav.switch-account": {
     "message": "Changer de compte"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Passer à Modrinth+"
+    "message": "Passer à Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "Voir le profil"
@@ -1737,7 +1737,7 @@
     "message": "Exporter en ZIP"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Captures d'écran Modrinth.zip"
+    "message": "Captures d'écran Catalog.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "Captures d'écran {instance} .zip"
@@ -1773,7 +1773,7 @@
     "message": "Voir la mise à jour"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "Variables d'environnement définies lors du lancement d'une instance."
@@ -2040,7 +2040,7 @@
     "message": "Certaines de vos instances ne peuvent pas utiliser ce paramètre"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "Ce réglage est géré par les paramètres de lancement de Modrinth."
+    "message": "Ce réglage est géré par les paramètres de lancement de Catalog."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "Saisir une valeur"
@@ -2874,16 +2874,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "Les publicités rendent Modrinth possible et financent les rémunérations des créateurs. Nos partenaires peuvent stocker des cookies ou y accéder au sein de l'application afin de personnaliser les publicités et de mesurer les performances. Vous pouvez refuser ou gérer vos préférences ci-dessous."
+    "message": "Les publicités rendent Catalog possible et financent les rémunérations des créateurs. Nos partenaires peuvent stocker des cookies ou y accéder au sein de l'application afin de personnaliser les publicités et de mesurer les performances. Vous pouvez refuser ou gérer vos préférences ci-dessous."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Affiche Modrinth App en tant que votre activité actuelle sur Discord. Cela n'affecte pas Rich Presence ajouté à l'instance par les mods. Nécessite un redémarrage de l'application."
+    "message": "Affiche Solara Launcher en tant que votre activité actuelle sur Discord. Cela n'affecte pas Rich Presence ajouté à l'instance par les mods. Nécessite un redémarrage de l'application."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth collecte des données d'analyse et d'utilisation anonymes afin d'améliorer l'expérience utilisateur et de personnaliser votre expérience. En désactivant cette option, vous choisissez de ne plus participer et vos données ne seront plus collectées."
+    "message": "Catalog collecte des données d'analyse et d'utilisation anonymes afin d'améliorer l'expérience utilisateur et de personnaliser votre expérience. En désactivant cette option, vous choisissez de ne plus participer et vos données ne seront plus collectées."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "Télémétrie"
@@ -2898,7 +2898,7 @@
     "message": "L'application peut se charger plus lentement jusqu'à ce que le cache soit reconstruit."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "Nettoyer des données cachées et les télécharger de nouveau depuis Modrinth. L'application peut charger plus lentement jusqu'à ce que le cache soit de nouveau reconstitué."
+    "message": "Nettoyer des données cachées et les télécharger de nouveau depuis Catalog. L'application peut charger plus lentement jusqu'à ce que le cache soit de nouveau reconstitué."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "Cache de l'application"
@@ -2913,13 +2913,13 @@
     "message": "Sauvegardes de la base de données de l’application"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Où Modrinth App stocke les instances et les autres fichiers. Changer prend effet après avoir redémarré l'application."
+    "message": "Où Solara Launcher stocke les instances et les autres fichiers. Changer prend effet après avoir redémarré l'application."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "Répertoire de l'application"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "Exporter les journaux d'applications et les données de diagnostic vers un fichier ZIP pour le partager avec le support Modrinth."
+    "message": "Exporter les journaux d'applications et les données de diagnostic vers un fichier ZIP pour le partager avec le support Catalog."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "Exporter les infos de débogage"
@@ -3081,7 +3081,7 @@
     "message": "Ces paramètres ont été modifiés ailleurs"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "Les paramètres ajoutés par les mods apparaîtront ici une fois que Modrinth les trouvera dans l'une de vos instances."
+    "message": "Les paramètres ajoutés par les mods apparaîtront ici une fois que Catalog les trouvera dans l'une de vos instances."
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "Utilisez les mêmes options de jeu dans toutes vos instances."
@@ -3261,7 +3261,7 @@
     "message": "Copier les détails de la pub"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "Vous avez vu une pub inappropriée ou offensante ? Copiez ses détails quand elle est affichée et envoyez-les au <support>Support Modrinth</support>. Nous l'examinerons et la retirons."
+    "message": "Vous avez vu une pub inappropriée ou offensante ? Copiez ses détails quand elle est affichée et envoyez-les au <support>Support Catalog</support>. Nous l'examinerons et la retirons."
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "Attendez que la pub soit chargée, puis réessayez."
@@ -3414,13 +3414,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Vous avez reçu ces skins pour avoir fait un don à une collecte de fonds Modrinth Pride pendant le mois de la fierté."
+    "message": "Vous avez reçu ces skins pour avoir fait un don à une collecte de fonds Solara Pride pendant le mois de la fierté."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Montures en pagaille"
@@ -3456,10 +3456,10 @@
     "message": "Activer"
   },
   "app.survey.body": {
-    "message": "Cela vous dérangerait-il de répondre à quelques questions sur votre expérience avec l'application Modrinth ?"
+    "message": "Cela vous dérangerait-il de répondre à quelques questions sur votre expérience avec l'application Solara ?"
   },
   "app.survey.footer": {
-    "message": "Ces retours seront transmis directement à l'équipe de Modrinth et aideront à orienter les futures mises à jour !"
+    "message": "Ces retours seront transmis directement à l'équipe de Catalog et aideront à orienter les futures mises à jour !"
   },
   "app.survey.no-thanks": {
     "message": "Non merci"
@@ -3468,7 +3468,7 @@
     "message": "Répondre au sondage"
   },
   "app.survey.title": {
-    "message": "Salut, utilisateur de Modrinth !"
+    "message": "Salut, utilisateur de Catalog !"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "Choisissez de quelle instance copier vos packs de données. Ces packs ne sont utilisés que pour la synchronisation initiale, et vous pourrez les modifier depuis n'importe quelle instance par la suite."
@@ -3555,13 +3555,13 @@
     "message": "Packs de ressources synchronisés"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} a finie d'être téléchargée. Rechargez pour mettre à jour maintenant, ou automatiquement quand vous fermez Modrinth App."
+    "message": "Solara Launcher v{version} a finie d'être téléchargée. Rechargez pour mettre à jour maintenant, ou automatiquement quand vous fermez Solara Launcher."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} est disponible. Utilisez votre gestionnaire de paquets pour profiter des dernières fonctionnalités et corrections !"
+    "message": "Solara Launcher v{version} est disponible. Utilisez votre gestionnaire de paquets pour profiter des dernières fonctionnalités et corrections !"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} est disponible maintenant ! Puisque vous êtes sur un réseau métré, nous ne l'avons pas téléchargé automatiquement."
+    "message": "Solara Launcher v{version} est disponible maintenant ! Puisque vous êtes sur un réseau métré, nous ne l'avons pas téléchargé automatiquement."
   },
   "app.update-popup.changelog": {
     "message": "Journal des modifications"
@@ -3612,7 +3612,7 @@
     "message": "Passer"
   },
   "app.welcome-screen.title": {
-    "message": "Bienvenue sur Modrinth"
+    "message": "Bienvenue sur Solara"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "exemple.modrinth.gg"
@@ -3681,10 +3681,10 @@
     "message": "Peut être différent de leur pseudo Minecraft !"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Entrez un pseudo Modrinth..."
+    "message": "Entrez un pseudo Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Quel est le pseudo Modrinth de votre ami ?"
+    "message": "Quel est le pseudo Catalog de votre ami ?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Ajoutez des amis</link> pour voir à quoi ils jouent !"
@@ -3729,7 +3729,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Créer un compte Modrinth</link> pour ajouter des amis et voir à quoi ils jouent !"
+    "message": "<link>Créer un compte Catalog</link> pour ajouter des amis et voir à quoi ils jouent !"
   },
   "hosting.play.update-to-play": {
     "message": "Mettre à jour pour jouer"
@@ -3747,7 +3747,7 @@
     "message": "Dissociation..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "Supprime cette instance partagée de Modrinth et arrête d'envoyer des mises à jour à toute personne l'utilisant. Votre copie locale ne sera pas affectée."
+    "message": "Supprime cette instance partagée de Catalog et arrête d'envoyer des mises à jour à toute personne l'utilisant. Votre copie locale ne sera pas affectée."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "Cela affecte seulement votre instance locale. Votre contenu installé restera sur cet appareil, et l'instance partagée et les autres personnes l'utilisant ne seront pas affectés."
@@ -3759,7 +3759,7 @@
     "message": "Dissocier l'instance partagée"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Cela supprime l'instance partagée des serveurs de Modrinth. Les personnes l'utilisant dans Modrinth App vont cesser de recevoir des mises à jour, mais votre instance locale et son contenu resteront sur cet appareil."
+    "message": "Cela supprime l'instance partagée des serveurs de Solara. Les personnes l'utilisant dans Solara Launcher vont cesser de recevoir des mises à jour, mais votre instance locale et son contenu resteront sur cet appareil."
   },
   "instance.action.create-shortcut": {
     "message": "Créer un raccourci"
@@ -4341,7 +4341,7 @@
     "message": "Créer un compte"
   },
   "modal.modrinth-account-required.description": {
-    "message": "Vous aurez besoin de vous connecter à votre compte Modrinth avant de pouvoir utiliser cette fonctionnalité."
+    "message": "Vous aurez besoin de vous connecter à votre compte Catalog avant de pouvoir utiliser cette fonctionnalité."
   },
   "modal.modrinth-account-required.header": {
     "message": "Compte requis"
@@ -4350,10 +4350,10 @@
     "message": "Ouvrir de nouveau le navigateur"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Se connecter à Modrinth"
+    "message": "Se connecter à Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Se connecter à un compte Modrinth"
+    "message": "Se connecter à un compte Catalog"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Connexion"
@@ -4371,7 +4371,7 @@
     "message": "Se connecter à Minecraft"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Se connecter à Modrinth"
+    "message": "Se connecter à Catalog"
   },
   "onboarding-checklist.title": {
     "message": "Premiers pas"

@@ -34,7 +34,7 @@
 						<li>
 							<IntlFormatted :message-id="messages.supportAndBugReports">
 								<template #support-link="{ children }">
-									<AutoLink class="text-link hover:underline" to="https://support.modrinth.com">
+									<AutoLink class="text-link hover:underline" to="https://github.com/Solara-Inc-Development/solara-launcher/issues">
 										<component :is="() => children" />
 									</AutoLink>
 								</template>
@@ -544,12 +544,12 @@ const messages = defineMessages({
 	inviteWarning: {
 		id: 'app.modal.install-to-play.invite-warning',
 		defaultMessage:
-			'This invite was created by another Modrinth user, not Modrinth. Only accept invites from people you trust.',
+			'This invite was created by another Catalog user, not Catalog. Only accept invites from people you trust.',
 	},
 	inviteWarningWithCreator: {
 		id: 'app.modal.install-to-play.invite-warning-with-creator',
 		defaultMessage:
-			'This invite was created by <creator>{username}</creator>, not Modrinth. Only accept invites from people you trust.',
+			'This invite was created by <creator>{username}</creator>, not Catalog. Only accept invites from people you trust.',
 	},
 	reportDescription: {
 		id: 'app.modal.install-to-play.report-description',
@@ -609,7 +609,7 @@ const messages = defineMessages({
 	unknownFilesDescription: {
 		id: 'app.modal.install-to-play.shared-instance-unknown-files-description',
 		defaultMessage:
-			'This shared instance contains files that aren’t published on Modrinth. We strongly recommend only installing files from sources you trust.',
+			'This shared instance contains files that aren’t published in the catalog. We strongly recommend only installing files from sources you trust.',
 	},
 	unrecognizedFiles: {
 		id: 'app.modal.install-to-play.unrecognized-files',
@@ -617,7 +617,7 @@ const messages = defineMessages({
 	},
 	reviewedFiles: {
 		id: 'app.modal.install-to-play.reviewed-files',
-		defaultMessage: "Files that aren't published to Modrinth aren't reviewed.",
+		defaultMessage: "Files that aren't published to the catalog aren't reviewed.",
 	},
 	installAnyway: {
 		id: 'app.modal.install-to-play.install-anyway',

@@ -45,7 +45,7 @@ import tinyPotato from '@modrinth/assets/illustrations/instance-icons/tiny-potat
 import tire from '@modrinth/assets/illustrations/instance-icons/tire.png'
 import tnt from '@modrinth/assets/illustrations/instance-icons/tnt.png'
 import wrench from '@modrinth/assets/illustrations/instance-icons/wrench.png'
-import wrenchRinth from '@modrinth/assets/illustrations/instance-icons/wrench-rinth.png'
+import solaraMark from '@modrinth/assets/solara/logo.svg?url'
 import zombie from '@modrinth/assets/illustrations/instance-icons/zombie.png'
 
 import { defineMessages, type MessageDescriptor } from '#ui/composables/i18n'
@@ -198,7 +198,7 @@ const names = defineMessages({
 	wrench: { id: 'instance.icon-editor.symbol.create-wrench', defaultMessage: 'Wrench' },
 	wrenchRinth: {
 		id: 'instance.icon-editor.symbol.wrenth-rinth',
-		defaultMessage: 'Modrinth Wrench',
+		defaultMessage: 'Solara Logo',
 	},
 	zombie: { id: 'instance.icon-editor.symbol.zombie', defaultMessage: 'Zombie' },
 	fabric: { id: 'instance.icon-editor.symbol.fabric', defaultMessage: 'Fabric' },
@@ -440,7 +440,8 @@ export const symbolOptions = [
 	{ id: 'terminal', name: names.terminal, asset: terminal, category: 'modded' },
 
 	// Miscellaneous: Modrinth Wrench, Mr Pack
-	{ id: 'wrenth_rinth', name: names.wrenchRinth, asset: wrenchRinth, category: 'modded' },
+	// Retain the persisted symbol ID so existing generated instance icons still load.
+	{ id: 'wrenth_rinth', name: names.wrenchRinth, asset: solaraMark, category: 'modded' },
 	{ id: 'mr_pack', name: names.mrPack, asset: mrPack, category: 'modded' },
 
 	/////////////////////////

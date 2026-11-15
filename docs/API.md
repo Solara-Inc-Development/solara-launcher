@@ -1,5 +1,7 @@
 # Main API and identity contracts
 
+> Current source note: The current desktop uses public launcher release metadata, public content-provider APIs and direct Microsoft/Minecraft authentication. Solara SSO, hosted-server controls and subdomain assignments described below are not exposed in the current desktop UI; their private backend contracts are separate.
+
 All application/data calls use `https://api.solara-inc.in`. Existing SSO remains at `https://auth.solara-inc.in`; this is an identity service on the same VPS, not another application API. The separately maintained private PHP module is `/var/www/solara-launcher-private`.
 
 These launcher routes are implemented and deployed on this VPS via `/var/www/solara-launcher-private`. Key routes including `/v1/launcher/update/windows/x86_64`, `/native/authorize`, `/native/token`, and `/v1/launcher/me` are active, serving verified releases and central SSO tokens.

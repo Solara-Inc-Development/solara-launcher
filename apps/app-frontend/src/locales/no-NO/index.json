@@ -78,7 +78,7 @@
     "message": "Oppsett av Minecraft mislyktes"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Kunne ikke nå Modrinth"
+    "message": "Kunne ikke nå Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Ikke tillatelse til å skrive"
@@ -135,7 +135,7 @@
     "message": "Godta alt"
   },
   "app.ads-consent.body": {
-    "message": "Annonser gjør Modrinth mulig og finansierer betalinger til skapere. Partnerne våre kan lagre eller få tilgang til informasjonskapsler i appen for å tilpasse annonser og måle ytelse."
+    "message": "Annonser gjør Catalog mulig og finansierer betalinger til skapere. Partnerne våre kan lagre eller få tilgang til informasjonskapsler i appen for å tilpasse annonser og måle ytelse."
   },
   "app.ads-consent.manage": {
     "message": "Administrer preferanser"
@@ -144,7 +144,7 @@
     "message": "Avslå alle"
   },
   "app.ads-consent.title": {
-    "message": "Ditt personvern og hvordan annonser støtter Modrinth"
+    "message": "Ditt personvern og hvordan annonser støtter Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Vis instanser i biblioteket i et kompakt radoppsett."
@@ -165,7 +165,7 @@
     "message": "Gjøm navnelapp"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimer Modrinth App når Minecraft starter."
+    "message": "Minimer Solara Launcher når Minecraft starter."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimer app"
@@ -189,7 +189,7 @@
     "message": "Skjul høyre menylinje"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Vis en sikkerhetsvarsling før innstallering av en Modrinth Pack (.mrpack) som ikke hostes på Modrinth."
+    "message": "Vis en sikkerhetsvarsling før innstallering av en Modpack (.mrpack) som ikke hostes på Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Advar meg før jeg installerer ukjente modpakker"
@@ -207,7 +207,7 @@
     "message": "Hjem og innhold"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Vis Modrinth App i forgrunnen når Minecraft lukkes."
+    "message": "Vis Solara Launcher i forgrunnen når Minecraft lukkes."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Refokuser appen når Minecraft lukkes"
@@ -219,7 +219,7 @@
     "message": "Bruk disse oppførselsinnstillingene overalt hvor du er logget in. La denne være av for å beholde separate innstillinger på denne enheten."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Logg inn på en Modrinth-konto for å synkronisere innstillinger."
+    "message": "Logg inn på en Catalog-konto for å synkronisere innstillinger."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Synkroniser oppførsel på tvers av enheter"
@@ -429,7 +429,7 @@
     "message": "Bruk disse oppførselsinnstillingene overalt hvor du er logget in. La denne være av for å beholde separate innstillinger på denne enheten."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Logg inn på en Modrinth-konto for å synkronisere innstillinger."
+    "message": "Logg inn på en Catalog-konto for å synkronisere innstillinger."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "Synkroniser oppførsel på tvers av enheter"
@@ -588,10 +588,10 @@
     "message": "Det kan være annerledes enn Minecraft-brukernavnet deres!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Fyll ut Modrinth-brukernavn..."
+    "message": "Fyll ut Catalog-brukernavn..."
   },
   "friends.add-friend.username.title": {
-    "message": "Hva er Modrinth-brukernavnet til vennen din?"
+    "message": "Hva er Catalog-brukernavnet til vennen din?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Legg til venner</link> for å se hva de spiller!"
@@ -633,7 +633,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Logg inn til en Modrinth-bruker</link> for å legge til venner og se hva de spiller!"
+    "message": "<link>Logg inn til en Catalog-bruker</link> for å legge til venner og se hva de spiller!"
   },
   "instance.add-server.add-and-play": {
     "message": "Legg til og spill"

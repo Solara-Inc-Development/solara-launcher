@@ -93,7 +93,7 @@
     "defaultMessage": "Sorgunuz için sonuç bulunamadı!"
   },
   "browse.offline": {
-    "defaultMessage": "Şu anda çevrimdışısınız. Modrinth'de gezinmek için internet'e bağlanın!"
+    "defaultMessage": "Şu anda çevrimdışısınız. Catalog'de gezinmek için internet'e bağlanın!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "{projectType} araştır..."
@@ -231,7 +231,7 @@
     "defaultMessage": "Klasörde aç"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Modrinth'de aç"
+    "defaultMessage": "Catalog'de aç"
   },
   "button.play": {
     "defaultMessage": "Oyna"
@@ -519,13 +519,13 @@
     "defaultMessage": "{count} kaldırıldı (devre dışı)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Modrinth üzerinde yayınlanmayan dosyalar incelemez."
+    "defaultMessage": "Catalog üzerinde yayınlanmayan dosyalar incelemez."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Sunucundaki bazı içerikler analiz edilemedi ve bu değişiklikten etkilenebilir."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Bu güncelleme Modrinth'te yayınlanmamış doysalar barındırıyor. Yalnızca güvendiğiniz kaynaklardan dosya indirmenizi önemle tavsiye ederiz."
+    "defaultMessage": "Bu güncelleme Catalog'te yayınlanmamış doysalar barındırıyor. Yalnızca güvendiğiniz kaynaklardan dosya indirmenizi önemle tavsiye ederiz."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Bilinmeyen dosya uyarısı"
@@ -1164,7 +1164,7 @@
     "defaultMessage": "çalışma-linki"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Bu görünüşe göre bir Modrinth linkine benziyor. Eğer bu içerik Modrinth'te varsa, paketin muhtemelen hatalı aktarılmıştır. Eğer farklı bir siteden indirdiyseniz, Modrinth versiyonunu indirmeyi deneyin; bazen iki dosya aynı olmayabiliyor."
+    "defaultMessage": "Bu görünüşe göre bir Catalog linkine benziyor. Eğer bu içerik Catalog'te varsa, paketin muhtemelen hatalı aktarılmıştır. Eğer farklı bir siteden indirdiyseniz, Catalog versiyonunu indirmeyi deneyin; bazen iki dosya aynı olmayabiliyor."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Notlar"
@@ -1188,7 +1188,7 @@
     "defaultMessage": "Eğer ki yüklediğin fotoğraflarla yalan söylediğin veya manipüle edildiğin tespit edilirse, projen veya hesabın devre dışı bırakılabilir."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Modrinth çalışanları senin kanıtını doğrulayabilir"
+    "defaultMessage": "Catalog çalışanları senin kanıtını doğrulayabilir"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Kaynak gösterme bilgisini sakla"
@@ -1278,7 +1278,7 @@
     "defaultMessage": "Otomatik olarak kaynak gösterildi"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Bu dosyayı daha önce gördük ve sizin için bir kaynak gösterdik. Bir şey yanlış görünürse, lütfen Modrinth Desteğinden üzerinden Yardım Merkezine ulaşın"
+    "defaultMessage": "Bu dosyayı daha önce gördük ve sizin için bir kaynak gösterdik. Bir şey yanlış görünürse, lütfen Catalog Desteğinden üzerinden Yardım Merkezine ulaşın"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Lisans"
@@ -2925,16 +2925,16 @@
     "defaultMessage": "Sunucu değiştiğinde dosyaları güncel tut"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Modrinth Uygulaması Edin"
+    "defaultMessage": "Solara Uygulaması Edin"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App otomatik olarak açılacak..."
+    "defaultMessage": "Solara Launcher otomatik olarak açılacak..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Modrinth App açılıyor"
+    "defaultMessage": "Solara Launcher açılıyor"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Neden Modrinth App kullanmalısın"
+    "defaultMessage": "Neden Solara Launcher kullanmalısın"
   },
   "notification.error.title": {
     "defaultMessage": "Bir hata oluştu"
@@ -3000,7 +3000,7 @@
     "defaultMessage": "Moderatör"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth Ekibi"
+    "defaultMessage": "Catalog Ekibi"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Beklemede"
@@ -3120,13 +3120,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Bir Modrinth içerik üreticisi."
+    "defaultMessage": "Bir Catalog içerik üreticisi."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Bir Modrinth kullanıcısı."
+    "defaultMessage": "Bir Catalog kullanıcısı."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} size arkadaşlık isteği gönderemeyecek, sizi paylaşılan örneklere veya Modrinth Hosting sunucularına davet edemeyecek."
+    "defaultMessage": "{username} size arkadaşlık isteği gönderemeyecek, sizi paylaşılan örneklere veya Catalog Hosting sunucularına davet edemeyecek."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Bu kullanıcıyı engellemek istediğinize emin misiniz?"
@@ -3192,7 +3192,7 @@
     "defaultMessage": "{count, plural,one{# proje} other{# proje}}"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Modrinth için açılır pencerelere izin verin, ardından tekrar deneyin."
+    "defaultMessage": "Catalog için açılır pencerelere izin verin, ardından tekrar deneyin."
   },
   "profile.details.error.github-profile-message": {
     "defaultMessage": "GitHub profili alınamadı. Lütfen tekrar deneyin."
@@ -3300,7 +3300,7 @@
     "defaultMessage": "{count, plural, one {proje} other {proje}}"
   },
   "profile.official-account": {
-    "defaultMessage": "Resmi Modrinth hesabı"
+    "defaultMessage": "Resmi Catalog hesabı"
   },
   "profile.unblock-user.error-description": {
     "defaultMessage": "Bu kullanıcının engelini kaldırırken bir hata oluştu. Lütfen tekrar deneyin."
@@ -3675,7 +3675,7 @@
     "defaultMessage": "{count} oynama"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "Modrinth'den son 2 haftada {count} oynama"
+    "defaultMessage": "Catalog'den son 2 haftada {count} oynama"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Bu proje özel bir mod paketi kullanmaktadır"
@@ -4008,7 +4008,7 @@
     "defaultMessage": "Projenizin birden fazla ortamı var"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Daha yeni Modrinth'in Ortam sistemini tamamen yeniledik ve yeni ayarlar var. Lütfen aşağıda doğru ayarın şeçili olduğundan emin olun ve 'Doğrula' tuşuna basın!"
+    "defaultMessage": "Daha yeni Catalog'in Ortam sistemini tamamen yeniledik ve yeni ayarlar var. Lütfen aşağıda doğru ayarın şeçili olduğundan emin olun ve 'Doğrula' tuşuna basın!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Lütfen aşağıdaki ayarları inceleyin"
@@ -4380,13 +4380,13 @@
     "defaultMessage": "Yükleyici"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Modrinth üzerindeki tüm içeriklerin uygun şekilde etiketlendiğini garanti edemeyiz."
+    "defaultMessage": "Catalog üzerindeki tüm içeriklerin uygun şekilde etiketlendiğini garanti edemeyiz."
   },
   "search.photosensitivity-warning-modal.body.2": {
-    "defaultMessage": "Işığa duyarlılık tetikleyicileri için içerik etiketleri, içeriklerini Modrinth'e yükleyen oluşturucular tarafından kendilerince atanır. Bu projeler güvenlik testinden geçmemiştir."
+    "defaultMessage": "Işığa duyarlılık tetikleyicileri için içerik etiketleri, içeriklerini Catalog'e yükleyen oluşturucular tarafından kendilerince atanır. Bu projeler güvenlik testinden geçmemiştir."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "Modrinth üzerindeki herhangi bir içeriği kullanmak sizin sorumluluğunuzdadır. Lütfen güvende kalın! 💚"
+    "defaultMessage": "Catalog üzerindeki herhangi bir içeriği kullanmak sizin sorumluluğunuzdadır. Lütfen güvende kalın! 💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Bir daha gösterme"
@@ -5121,13 +5121,13 @@
     "defaultMessage": "Onların Minecraft kullanıcı adlarını kullanmayın."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Modrinth kullanıcı adı"
+    "defaultMessage": "Catalog kullanıcı adı"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Eşleşen kullanıcı bulunamadı."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Modrinth kullanıcı adınızı girin"
+    "defaultMessage": "Catalog kullanıcı adınızı girin"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Arama yapılıyor..."
@@ -5190,13 +5190,13 @@
     "defaultMessage": "Daha fazla bilgi edinin"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Yeni sunucu"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Mod kur, arkadaş davet et, birlikte oyna ve hepsini Modrinth App'ten yap."
+    "defaultMessage": "Mod kur, arkadaş davet et, birlikte oyna ve hepsini Solara Launcher'ten yap."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Beğendiğiniz modları seçin ve biz geri kalan işi hallederiz."
@@ -5205,13 +5205,13 @@
     "defaultMessage": "Tek-tıklamada mod kurma"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Arkadaşlarınızın sunucunuzda oynamak için tek tıkla Modrinth App'den davet edebilirsiniz."
+    "defaultMessage": "Arkadaşlarınızın sunucunuzda oynamak için tek tıkla Solara Launcher'den davet edebilirsiniz."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Arkadaşlarınızla oynayın"
   },
   "servers.list-empty.sign-in-button": {
-    "defaultMessage": "Modrinth'e giriş yap"
+    "defaultMessage": "Catalog'e giriş yap"
   },
   "servers.list-empty.simple-setup-description": {
     "defaultMessage": "Sunucunuzu tıpkı tek oyunculu bir dünya gibi kurun."
@@ -5262,7 +5262,7 @@
     "defaultMessage": "Aboneliğiniz <date>{formattedDate}</date> tarihinde iptal edilmek üzere ayarlanmıştır. "
   },
   "servers.listing.notice.suspended": {
-    "defaultMessage": "Sunucunuz askıya alındı. Daha fazla bilgi için lütfen Modrinth Destek ile iletişime geçin."
+    "defaultMessage": "Sunucunuz askıya alındı. Daha fazla bilgi için lütfen Catalog Destek ile iletişime geçin."
   },
   "servers.listing.notice.upgrading": {
     "defaultMessage": "Sunucunuzun donanımı şu anda yükseltilmektedir ve kısa süre içinde tekrar çevrimiçi olacaktır."
@@ -5295,7 +5295,7 @@
     "defaultMessage": "Yükleme devam etmekte"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Modrinth Destek ile İletişime Geçin"
+    "defaultMessage": "Catalog Destek ile İletişime Geçin"
   },
   "servers.manage.error.alert-notice": {
     "defaultMessage": "Sistemlerimiz bir sorun olduğunda ekibimizi otomatik olarak uyarır. Onları tekrar çevrimiçi hale getirmek için zaten çalışıyoruz."
@@ -5307,10 +5307,10 @@
     "defaultMessage": "Hata detayları:"
   },
   "servers.manage.error.queue-notice": {
-    "defaultMessage": "Modrinth Hosting sunucunuzu yakın zamanda satın aldıysanız, şu anda bir kuyruktadır ve hazır olur olmaz burada görünecektir. <warning>Yeni bir sunucu satın almaya çalışmayın</warning>"
+    "defaultMessage": "Catalog Hosting sunucunuzu yakın zamanda satın aldıysanız, şu anda bir kuyruktadır ve hazır olur olmaz burada görünecektir. <warning>Yeni bir sunucu satın almaya çalışmayın</warning>"
   },
   "servers.manage.error.support-notice": {
-    "defaultMessage": "Sunucunuzun durumu ile ilgili kişiselleştirilmiş desteğe ihtiyacınız varsa, lütfen Modrinth Destek ile iletişime geçin."
+    "defaultMessage": "Sunucunuzun durumu ile ilgili kişiselleştirilmiş desteğe ihtiyacınız varsa, lütfen Catalog Destek ile iletişime geçin."
   },
   "servers.manage.error.title": {
     "defaultMessage": "Sunucular yüklenemedi"
@@ -5343,7 +5343,7 @@
     "defaultMessage": "Yeniden başlat"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Modrinth sunucuna yeniden abone olurken hata oluştu."
+    "defaultMessage": "Catalog sunucuna yeniden abone olurken hata oluştu."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Yeniden abone olurken hata"
@@ -5364,7 +5364,7 @@
     "defaultMessage": "{count} {count, plural, one {server} other {servers}} sonuç bulundu..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Paylaşımlı sunucular"
@@ -5382,10 +5382,10 @@
     "defaultMessage": "Medal sunucu denemeniz sona erdi ve sunucunuz askıya alındı. Sunucunuzu kullanmaya devam etmek için lütfen yükseltin."
   },
   "servers.medal-listing.notice.suspended": {
-    "defaultMessage": "Sunucunuz askıya alındı. Lütfen fatura bilgilerinizi güncelleyin veya daha fazla bilgi için Modrinth Destek ile iletişime geçin."
+    "defaultMessage": "Sunucunuz askıya alındı. Lütfen fatura bilgilerinizi güncelleyin veya daha fazla bilgi için Catalog Destek ile iletişime geçin."
   },
   "servers.medal-listing.notice.suspended-with-reason": {
-    "defaultMessage": "Sunucunuz şu sebepten askıya alındı: {reason}. Lütfen fatura bilgilerinizi güncelleyin veya daha fazla bilgi için Modrinth Destek ile iletişime geçin."
+    "defaultMessage": "Sunucunuz şu sebepten askıya alındı: {reason}. Lütfen fatura bilgilerinizi güncelleyin veya daha fazla bilgi için Catalog Destek ile iletişime geçin."
   },
   "servers.medal-listing.notice.upgrading": {
     "defaultMessage": "Sunucunuzun donanımı şu anda yükseltilmektedir ve kısa süre içinde tekrar çevrimiçi olacaktır."
@@ -5433,7 +5433,7 @@
     "defaultMessage": "Görmezden gelinemez"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "Modrinth Hosting satın alma işleminiz başarıyla tamamlandı."
+    "defaultMessage": "Catalog Hosting satın alma işleminiz başarıyla tamamlandı."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Satın alım başarılı"
@@ -5508,7 +5508,7 @@
     "defaultMessage": "Sunucunun nerede bulunmasını istersin?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Bölgen listede yok mu? <link>Modrinth Hosting'i gelecekte nerede görmek istediğini bize söyle!</link>"
+    "defaultMessage": "Bölgen listede yok mu? <link>Catalog Hosting'i gelecekte nerede görmek istediğini bize söyle!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "{time} eklendi"
@@ -5583,7 +5583,7 @@
     "defaultMessage": "Sunucu kur"
   },
   "servers.setup.onboarding.step.choose.description": {
-    "defaultMessage": "Modrinth'ten favori mod paketinizi seçin veya bir yükleyici seçin ve istediğiniz modları ekleyin."
+    "defaultMessage": "Catalog'ten favori mod paketinizi seçin veya bir yükleyici seçin ve istediğiniz modları ekleyin."
   },
   "servers.setup.onboarding.step.choose.title": {
     "defaultMessage": "Ne oynayacağınızı seçin"
@@ -5604,7 +5604,7 @@
     "defaultMessage": "Sunucunuz hazır. İşte oynamaya başlamak için yapmanız gerekenler!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Modrinth Hosting'e Hoş Geldiniz"
+    "defaultMessage": "Catalog Hosting'e Hoş Geldiniz"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "Sınırlandırılıyorsunuz. Lütfen sonra tekrar deneyin."
@@ -5682,7 +5682,7 @@
     "defaultMessage": "Gelişmiş işleme"
   },
   "settings.display.sidebar.external-links-new-tab.description": {
-    "defaultMessage": "Modrinth dışına çıkan bağlantıların yeni bir sekmede açılmasını sağlayın. Bu ayardan bağımsız olarak, aynı alandaki ve Markdown açıklamalarındaki bağlantılar aynı sekmede; reklam ve düzenleme sayfalarındaki bağlantılar ise yeni sekmede açılır."
+    "defaultMessage": "Catalog dışına çıkan bağlantıların yeni bir sekmede açılmasını sağlayın. Bu ayardan bağımsız olarak, aynı alandaki ve Markdown açıklamalarındaki bağlantılar aynı sekmede; reklam ve düzenleme sayfalarındaki bağlantılar ise yeni sekmede açılır."
   },
   "settings.display.sidebar.external-links-new-tab.title": {
     "defaultMessage": "Dış bağlantıları yeni sekmede aç"
@@ -5703,7 +5703,7 @@
     "defaultMessage": "Karanlık"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Modrinth genelinde tercih ettiğiniz renk temasını seçin."
+    "defaultMessage": "Solara genelinde tercih ettiğiniz renk temasını seçin."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Aydınlık"
@@ -5727,7 +5727,7 @@
     "defaultMessage": "Oturum açtığınız her yerde bu temayı kullanın. Bu cihazda ayrı bir tema tutmak için bunu kapatın."
   },
   "settings.display.theme.sync-across-devices.sign-in-tooltip": {
-    "defaultMessage": "Temayı senkronize etmek için Modrinth'e giriş yapın"
+    "defaultMessage": "Temayı senkronize etmek için Catalog'e giriş yapın"
   },
   "settings.display.theme.system": {
     "defaultMessage": "Sistemle eşle"
@@ -5748,7 +5748,7 @@
     "defaultMessage": "Arama sonuçları"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Modrinth Uygulamasının yaklaşık %{percentage} kadarı bu dilde mevcuttur."
+    "defaultMessage": "Solara Uygulamasının yaklaşık %{percentage} kadarı bu dilde mevcuttur."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "{percentage}% destekleniyor"
@@ -5784,7 +5784,7 @@
     "defaultMessage": "Kişisel erişim tokenleri"
   },
   "settings.preferences.update-failed.description": {
-    "defaultMessage": "Ayarlarınız Modrinth hesabınıza kaydedilemedi. Lütfen tekrar deneyin."
+    "defaultMessage": "Ayarlarınız Catalog hesabınıza kaydedilemedi. Lütfen tekrar deneyin."
   },
   "settings.preferences.update-failed.title": {
     "defaultMessage": "Ayarlar senkronize edilemedi"
@@ -5802,7 +5802,7 @@
     "defaultMessage": "Profil resmi"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Profil bilgileriniz Modrinth üzerinde <profile-link>herkese açık olarak görüntülenebilir</profile-link> ve <docs-link>Modrinth API</docs-link> aracılığıyla erişilebilir."
+    "defaultMessage": "Profil bilgileriniz Catalog üzerinde <profile-link>herkese açık olarak görüntülenebilir</profile-link> ve <docs-link>Catalog API</docs-link> aracılığıyla erişilebilir."
   },
   "settings.profile.save-error": {
     "defaultMessage": "Profil güncellenemedi"
@@ -5811,10 +5811,10 @@
     "defaultMessage": "Profiliniz güncellenirken bir hata oluştu. Lütfen tekrar deneyin."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Modrinth hesabınızla giriş yaparak herekese açık profilinizi özelleştirebilirsiniz."
+    "defaultMessage": "Catalog hesabınızla giriş yaparak herekese açık profilinizi özelleştirebilirsiniz."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Modrinth hesabı gerekli"
+    "defaultMessage": "Catalog hesabı gerekli"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Profilinizi tanımlayan, büyük/küçük harfe duyarsız benzersiz bir isim."
@@ -5829,7 +5829,7 @@
     "defaultMessage": "Kullanıcı"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Bunlar Modrinth üzerinde engellediğiniz kullanıcılardır. Şunları yapamazlar:"
+    "defaultMessage": "Bunlar Catalog üzerinde engellediğiniz kullanıcılardır. Şunları yapamazlar:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Henüz kimseyi engellemediniz."
@@ -5844,7 +5844,7 @@
     "defaultMessage": "Arkadaşlık isteği"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Modrinth Hosting sunucusu yönetme daveti."
+    "defaultMessage": "Catalog Hosting sunucusu yönetme daveti."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Sizi paylaşılan örneklere davet etme"
@@ -5868,13 +5868,13 @@
     "defaultMessage": "{username}'in avatarı"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Modrinth'te kimlerin size arkadaşlık isteği gönderebileceğini kontrol edin."
+    "defaultMessage": "Catalog'te kimlerin size arkadaşlık isteği gönderebileceğini kontrol edin."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Arkadaş istekleri"
   },
   "settings.social.hosting-access.description": {
-    "defaultMessage": "Modrinth Hosting'de kimlerin size sunucu yönetme isteği gönderebileceğini kontrol edin."
+    "defaultMessage": "Catalog Hosting'de kimlerin size sunucu yönetme isteği gönderebileceğini kontrol edin."
   },
   "settings.social.hosting-access.title": {
     "defaultMessage": "Hosting erişim davetleri"
@@ -5907,10 +5907,10 @@
     "defaultMessage": "Paylaşılan örnek davetleri"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "Bir Modrinth Hesabı ile sizinle kimlerin etkileşime girebileceğini kontrol edebilir ve engellenen kullanıcıları yönetebilirsiniz"
+    "defaultMessage": "Bir Catalog Hesabı ile sizinle kimlerin etkileşime girebileceğini kontrol edebilir ve engellenen kullanıcıları yönetebilirsiniz"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Modrinth hesabı gerekli"
+    "defaultMessage": "Catalog hesabı gerekli"
   },
   "settings.social.title": {
     "defaultMessage": "Sosyal"
@@ -6009,7 +6009,7 @@
     "defaultMessage": "Kaydet"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Modrinth kullanıcı adı girin"
+    "defaultMessage": "Catalog kullanıcı adı girin"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Aranıyor..."
@@ -6591,34 +6591,34 @@
     "defaultMessage": "Kötü amaçlı yazılımlar, genellikle Discord gibi platformlarda paylaşılan mod dosyaları aracılığıyla yayılmaktadır."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " Modrinth'te paylaşılmamış. Yalnızca güvendiğiniz kaynaklardan gelen dosyaları yüklemenizi önemle tavsiye ederiz."
+    "defaultMessage": " Catalog'te paylaşılmamış. Yalnızca güvendiğiniz kaynaklardan gelen dosyaları yüklemenizi önemle tavsiye ederiz."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "Bilinmeyen dosya uyarısı"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " Modrinth'te yayınlanmamış doysalar barındırıyor. Yalnızca güvendiğiniz kaynaklardan dosya indirmenizi önemle tavsiye ederiz."
+    "defaultMessage": " Catalog'te yayınlanmamış doysalar barındırıyor. Yalnızca güvendiğiniz kaynaklardan dosya indirmenizi önemle tavsiye ederiz."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "Bilinmeyen dosya uyarısı"
   },
   "unknown-file-warning-modal.reviewed-files": {
-    "defaultMessage": "Modrinth üzerinde yayınlanmayan dosyalar incelenmez."
+    "defaultMessage": "Catalog üzerinde yayınlanmayan dosyalar incelenmez."
   },
   "unknown-file-warning-modal.unrecognized-files": {
     "defaultMessage": "Tanımlanamayan dosyalar"
   },
   "user.profile.badge.alpha.about.1": {
-    "defaultMessage": "Bu kullanıcı, Modrinth Alpha'nın başladığı tarihten beri aktif durumda; bu dönem Kasım 2020 itibarıyla sona ermiştir."
+    "defaultMessage": "Bu kullanıcı, Catalog Alpha'nın başladığı tarihten beri aktif durumda; bu dönem Kasım 2020 itibarıyla sona ermiştir."
   },
   "user.profile.badge.alpha.name": {
     "defaultMessage": "Alfa Test Kullanıcısı"
   },
   "user.profile.badge.beta.about.1": {
-    "defaultMessage": "Bu kullanıcı, Şubat 2022'de sona eren Modrinth Beta sürümünden beri aktif durumda."
+    "defaultMessage": "Bu kullanıcı, Şubat 2022'de sona eren Catalog Beta sürümünden beri aktif durumda."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Modrinth Beta'nın lansmanı hakkında bilgi edinmek için tıklayın."
+    "defaultMessage": "Catalog Beta'nın lansmanı hakkında bilgi edinmek için tıklayın."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Deneme Kullanıcısı"
@@ -6630,19 +6630,19 @@
     "defaultMessage": "{download_sum} İndirme"
   },
   "user.profile.badge.early-datapack-adopter.about.1": {
-    "defaultMessage": "Bu kullanıcı, Ocak 2023'te yayınlamadan önce Modrinth üzerinde Data Pack projelerini test etmemize yardımcı oldu."
+    "defaultMessage": "Bu kullanıcı, Ocak 2023'te yayınlamadan önce Catalog üzerinde Data Pack projelerini test etmemize yardımcı oldu."
   },
   "user.profile.badge.early-datapack-adopter.name": {
     "defaultMessage": "Erken Veri Paketı Kullanıcısı"
   },
   "user.profile.badge.early-modpack-adopter.about.1": {
-    "defaultMessage": "Bu kullanıcı, Mayıs 2022'de yayınlamadan önce Modrinth üzerinde Modpack projelerini test etmemize yardımcı oldu."
+    "defaultMessage": "Bu kullanıcı, Mayıs 2022'de yayınlamadan önce Catalog üzerinde Modpack projelerini test etmemize yardımcı oldu."
   },
   "user.profile.badge.early-modpack-adopter.name": {
     "defaultMessage": "Erken Mod Paket Kullanıcısı"
   },
   "user.profile.badge.early-plugin-adopter.about.1": {
-    "defaultMessage": "Bu kullanıcı, modları Ağustos 2022'de yayınlamadan önce Modrinth üzerinde Plugin projelerini test etmemize yardımcı oldu."
+    "defaultMessage": "Bu kullanıcı, modları Ağustos 2022'de yayınlamadan önce Catalog üzerinde Plugin projelerini test etmemize yardımcı oldu."
   },
   "user.profile.badge.early-plugin-adopter.name": {
     "defaultMessage": "Erken Dönemde Eklenti Kullanıcısı"
@@ -6654,43 +6654,43 @@
     "defaultMessage": ""
   },
   "user.profile.badge.early-server-adopter.about.1": {
-    "defaultMessage": "Bu kullanıcı, sunucu projelerini Mart 2026'da yayınlamadan önce Modrinth üzerinde test etmemize yardımcı oldu."
+    "defaultMessage": "Bu kullanıcı, sunucu projelerini Mart 2026'da yayınlamadan önce Catalog üzerinde test etmemize yardımcı oldu."
   },
   "user.profile.badge.early-server-adopter.name": {
     "defaultMessage": "Erken Sunucu Benimseyen"
   },
   "user.profile.badge.early-shader-adopter.about.1": {
-    "defaultMessage": "Bu kullanıcı, modları Ocak 2023'te yayınlamadan önce Shader projelerini Modrinth üzerinde test etmemize yardımcı oldu."
+    "defaultMessage": "Bu kullanıcı, modları Ocak 2023'te yayınlamadan önce Shader projelerini Catalog üzerinde test etmemize yardımcı oldu."
   },
   "user.profile.badge.early-shader-adopter.name": {
     "defaultMessage": "Erken Shader Kullanıcısı"
   },
   "user.profile.badge.hosting-alpha.about.1": {
-    "defaultMessage": "Bu kullanıcı, Modrinth Hosting'in Kasım 2024'te yayınlanacak beta sürümünü piyasaya sürmeden önce gerçekleştirdiğimiz kapalı alfa testine katılmıştır."
+    "defaultMessage": "Bu kullanıcı, Catalog Hosting'in Kasım 2024'te yayınlanacak beta sürümünü piyasaya sürmeden önce gerçekleştirdiğimiz kapalı alfa testine katılmıştır."
   },
   "user.profile.badge.hosting-alpha.name": {
-    "defaultMessage": "Modrinth Barındırma Alfa Testi"
+    "defaultMessage": "Catalog Barındırma Alfa Testi"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Bu kullanıcı, Modrinth için içerik moderatörü olarak çalışmaktadır."
+    "defaultMessage": "Bu kullanıcı, Catalog için içerik moderatörü olarak çalışmaktadır."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "Modrinth'daki içerik denetleyicileri, projeleri inceler, raporları işler ve Modrinth'in güvenliğini sağlamaya yardımcı olur."
+    "defaultMessage": "Catalog'daki içerik denetleyicileri, projeleri inceler, raporları işler ve Catalog'in güvenliğini sağlamaya yardımcı olur."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "İçerik Moderatörü"
   },
   "user.profile.badge.plus.about.1": {
-    "defaultMessage": "Bu kullanıcı, Modrinth ve platformdaki yaratıcıları desteklemek için elinden geleni yapmaktadır."
+    "defaultMessage": "Bu kullanıcı, Catalog ve platformdaki yaratıcıları desteklemek için elinden geleni yapmaktadır."
   },
   "user.profile.badge.plus.link": {
     "defaultMessage": "Üyeliğe nasıl katılabileceğiniz hakkında daha fazla bilgi edinmek için tıklayın."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Modrinth+ Üyesi"
+    "defaultMessage": "Catalog supporter Üyesi"
   },
   "user.profile.badge.pride.about.1": {
-    "defaultMessage": "Bu kullanıcı, Modrinth'in LGBTQ+ topluluğu için düzenlediği en az bir Pride bağış kampanyasına katılmıştır."
+    "defaultMessage": "Bu kullanıcı, Catalog'in LGBTQ+ topluluğu için düzenlediği en az bir Pride bağış kampanyasına katılmıştır."
   },
   "user.profile.badge.pride.link": {
     "defaultMessage": "En son Onur Ayı bağış kampanyamızı ziyaret etmek için tıklayın."
@@ -6699,16 +6699,16 @@
     "defaultMessage": "Onur Ayı Bağış Toplama Etkinliği Destekçisi"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Bu kullanıcı Modrinth'te çalışıyor."
+    "defaultMessage": "Bu kullanıcı Catalog'te çalışıyor."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Modrinth Ekibi"
+    "defaultMessage": "Catalog Ekibi"
   },
   "user.role.moderator": {
     "defaultMessage": "İçerik Moderatörü"
   },
   "user.role.modrinth-team": {
-    "defaultMessage": "Modrinth Ekibi"
+    "defaultMessage": "Catalog Ekibi"
   },
   "version.content.name": {
     "defaultMessage": "İsim"

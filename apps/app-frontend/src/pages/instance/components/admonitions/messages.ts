@@ -49,7 +49,7 @@ export const instanceAdmonitionsMessages = defineMessages({
 	sharedInstanceOwnerUpdateBody: {
 		id: 'app.instance.admonitions.shared-instance.owner-update-body',
 		defaultMessage:
-			'You pushed an update to this shared instance from another Modrinth App installation. Download the latest changes to keep managing it from here.',
+			'You pushed an update to this shared instance from another Solara Launcher installation. Download the latest changes to keep managing it from here.',
 	},
 	sharedInstanceOwnerUpdateButton: {
 		id: 'app.instance.admonitions.shared-instance.owner-update-button',
@@ -66,11 +66,11 @@ export const instanceAdmonitionsMessages = defineMessages({
 	},
 	sharedInstanceWrongAccountHeader: {
 		id: 'app.instance.shared-instance-wrong-account.warning-header',
-		defaultMessage: 'You are using the wrong Modrinth account',
+		defaultMessage: 'You are using the wrong catalog account',
 	},
 	sharedInstanceSignedOutHeader: {
 		id: 'app.instance.shared-instance-wrong-account.signed-out-header',
-		defaultMessage: 'You need to sign in to Modrinth',
+		defaultMessage: 'You need to sign in to the catalog',
 	},
 	sharedInstanceWrongAccountSignInAs: {
 		id: 'app.instance.shared-instance-wrong-account.sign-in-as-label',

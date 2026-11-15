@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { watch } from 'vue'
 
 import { newsArticlesQueryOptions } from './queries'
+import { product } from '@/config'
 
 const { formatMessage } = useVIntl()
 const messages = defineMessages({
@@ -39,7 +40,7 @@ watch(error, (error) => {
 				type="colored"
 				color="brand"
 				size="xl"
-				href="https://modrinth.com/news"
+				:href="`${product.source}/releases`"
 				target="_blank"
 				class="my-4"
 			>

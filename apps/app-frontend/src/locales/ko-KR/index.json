@@ -78,7 +78,7 @@
     "message": "Minecraft 설정에 실패했습니다"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Modrinth에 연결할 수 없습니다"
+    "message": "Catalog에 연결할 수 없습니다"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "쓰기 권한이 없습니다"
@@ -135,7 +135,7 @@
     "message": "모두 수락"
   },
   "app.ads-consent.body": {
-    "message": "광고는 Modrinth가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 저희의 파트너는 개인에 맞는 광고를 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다."
+    "message": "광고는 Catalog가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 저희의 파트너는 개인에 맞는 광고를 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다."
   },
   "app.ads-consent.manage": {
     "message": "환경설정 관리"
@@ -144,7 +144,7 @@
     "message": "모두 거절"
   },
   "app.ads-consent.title": {
-    "message": "개인정보 및 광고가 Modrinth를 지원하는 방식"
+    "message": "개인정보 및 광고가 Catalog를 지원하는 방식"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "라이브러리 인스턴스를 간결한 행 형태의 레이아웃으로 표시합니다."
@@ -165,7 +165,7 @@
     "message": "이름표 숨기기"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minecraft가 시작되면 Modrinth App을 최소화합니다."
+    "message": "Minecraft가 시작되면 Solara Launcher을 최소화합니다."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "앱 최소화"
@@ -189,7 +189,7 @@
     "message": "오른쪽 패널 숨기기"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Modrinth에 호스팅되지 않은 Modrinth Pack(.mrpack)을 설치하기 전에 안전 경고를 표시합니다."
+    "message": "Catalog에 호스팅되지 않은 Modpack(.mrpack)을 설치하기 전에 안전 경고를 표시합니다."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "출처를 알 수 없는 모드팩 설치 전 경고"
@@ -207,7 +207,7 @@
     "message": "홈 및 콘텐츠"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "이 기기의 라이브러리에서 숨긴 인스턴스입니다. 숨겨진 인스턴스는 Modrinth 계정과 동기화되지 않습니다."
+    "message": "이 기기의 라이브러리에서 숨긴 인스턴스입니다. 숨겨진 인스턴스는 Catalog 계정과 동기화되지 않습니다."
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "아직 숨긴 인스턴스가 없습니다."
@@ -222,7 +222,7 @@
     "message": "숨겨진 인스턴스"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Minecraft를 종료하면 Modrinth App을 앞으로 띄웁니다."
+    "message": "Minecraft를 종료하면 Solara Launcher을 앞으로 띄웁니다."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Minecraft를 닫을 때 앱 다시 띄우기"
@@ -234,7 +234,7 @@
     "message": "로그인한 모든 기기에서 이 설정을 사용합니다. 이 기기에서 별도의 설정을 사용하려면 이 옵션을 끄세요."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Modrinth 계정에 로그인하여 설정을 동기화하세요."
+    "message": "Catalog 계정에 로그인하여 설정을 동기화하세요."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "기기 간 동기화"
@@ -489,7 +489,7 @@
     "message": "로그인한 모든 곳에서 이 기능 설정을 사용합니다. 이를 끄면 이 기기에서 별도의 설정을 유지합니다."
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Modrinth 계정에 로그인하여 설정을 동기화합니다."
+    "message": "Catalog 계정에 로그인하여 설정을 동기화합니다."
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "기기 간 동기화"
@@ -531,16 +531,16 @@
     "message": "인스턴스 보기"
   },
   "app.hosting.update-required.description": {
-    "message": "업데이트해야 Modrinth App을 통해 Modrinth Hosting을 사용할 수 있습니다"
+    "message": "업데이트해야 Solara Launcher을 통해 Solara Hosting을 사용할 수 있습니다"
   },
   "app.hosting.update-required.download": {
     "message": "다운로드하여 업데이트"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "들뜬 Modrinth Bot"
+    "message": "들뜬 Catalog Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth App 업데이트 필요"
+    "message": "Solara Launcher 업데이트 필요"
   },
   "app.install.phase.downloading_content": {
     "message": "콘텐츠 다운로드 중"
@@ -648,7 +648,7 @@
     "message": "변경 사항이 아직 공유되지 않았습니다"
   },
   "app.instance.admonitions.shared-instance.owner-update-body": {
-    "message": "다른 Modrinth App 설치 환경에서 이 공유 인스턴스로 업데이트를 적용했습니다. 여기서 계속 관리하려면 최신 변경 사항을 다운로드하세요."
+    "message": "다른 Solara Launcher 설치 환경에서 이 공유 인스턴스로 업데이트를 적용했습니다. 여기서 계속 관리하려면 최신 변경 사항을 다운로드하세요."
   },
   "app.instance.admonitions.shared-instance.owner-update-button": {
     "message": "업데이트 다운로드"
@@ -900,13 +900,13 @@
     "message": "계정 로그인:"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Modrinth에 로그인해야 합니다"
+    "message": "Catalog에 로그인해야 합니다"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "이 공유 인스턴스의 업데이트를 받으려면 로그인하세요."
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "잘못된 Modrinth 계정을 사용하고 있습니다"
+    "message": "잘못된 Catalog 계정을 사용하고 있습니다"
   },
   "app.instance.shortcut.created": {
     "message": "바로가기 생성됨"
@@ -1371,7 +1371,7 @@
     "message": "라이브러리"
   },
   "app.library.unpublish-and-leave-shared-instances.modal.admonition-body": {
-    "message": "{unpublishCount, plural, one {본인이 소유한 #개의 공유 인스턴스는 Modrinth 서버에서 삭제되며,} other {본인이 소유한 #개의 공유 인스턴스는 Modrinth 서버에서 삭제되며,}} 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 됩니다. {leaveCount, plural, one {다른 공유 인스턴스에 대한 접근 권한이 사라지며, 다시 참여하려면 새로운 초대장이 필요합니다.} other {다른 공유 인스턴스에 대한 접근 권한이 사라지며, 다시 참여하려면 새로운 초대장이 필요합니다.}} 이 모든 항목이 라이브러리에서 삭제됩니다."
+    "message": "{unpublishCount, plural, one {본인이 소유한 #개의 공유 인스턴스는 Catalog 서버에서 삭제되며,} other {본인이 소유한 #개의 공유 인스턴스는 Catalog 서버에서 삭제되며,}} 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 됩니다. {leaveCount, plural, one {다른 공유 인스턴스에 대한 접근 권한이 사라지며, 다시 참여하려면 새로운 초대장이 필요합니다.} other {다른 공유 인스턴스에 대한 접근 권한이 사라지며, 다시 참여하려면 새로운 초대장이 필요합니다.}} 이 모든 항목이 라이브러리에서 삭제됩니다."
   },
   "app.library.unpublish-and-leave-shared-instances.modal.admonition-header": {
     "message": "게시 취소 및 공유 인스턴스 떠나기"
@@ -1380,7 +1380,7 @@
     "message": "게시 취소 및 {count}개의 공유 인스턴스 떠나기"
   },
   "app.library.unpublish-shared-instance.modal.admonition-body": {
-    "message": "{count, plural, one {이 작업을 수행하면 Modrinth 서버에서 공유 인스턴스가 삭제됩니다. Modrinth App에서 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 되며, 해당 인스턴스는 라이브러리에서 삭제됩니다.} other {이 작업을 수행하면 Modrinth 서버에서 공유 인스턴스가 삭제됩니다. Modrinth App에서 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 되며, 해당 인스턴스는 라이브러리에서 삭제됩니다.}}"
+    "message": "{count, plural, one {이 작업을 수행하면 Solara 서버에서 공유 인스턴스가 삭제됩니다. Solara Launcher에서 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 되며, 해당 인스턴스는 라이브러리에서 삭제됩니다.} other {이 작업을 수행하면 Solara 서버에서 공유 인스턴스가 삭제됩니다. Solara Launcher에서 이를 사용 중인 사용자들은 더 이상 업데이트를 받지 못하게 되며, 해당 인스턴스는 라이브러리에서 삭제됩니다.}}"
   },
   "app.library.unpublish-shared-instance.modal.admonition-header": {
     "message": "{count, plural, one {공유 인스턴스 게시 취소} other {#개의 공유 인스턴스 게시 취소}}"
@@ -1416,10 +1416,10 @@
     "message": "설치"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "이 초대는 Modrinth가 아니라 그 사용자 중 한 명이 생성했어요. 신뢰할 수 있는 사람의 초대만 수락하세요."
+    "message": "이 초대는 Catalog가 아니라 그 사용자 중 한 명이 생성했어요. 신뢰할 수 있는 사람의 초대만 수락하세요."
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "이 초대는 Modrinth가 아니라 <creator>{username}</creator> 사용자가 생성했어요. 신뢰할 수 있는 사람의 초대만 수락하세요."
+    "message": "이 초대는 Catalog가 아니라 <creator>{username}</creator> 사용자가 생성했어요. 신뢰할 수 있는 사람의 초대만 수락하세요."
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "모드팩 콘텐츠"
@@ -1455,7 +1455,7 @@
     "message": "지원 요청은 <support-link>지원 팀</support-link> 문의를 이용해 주세요. 버그 제보는 <github-link>GitHub 이슈</github-link>를 등록하세요."
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "Modrinth에 게시되지 않은 파일은 검증되지 않았습니다."
+    "message": "Catalog에 게시되지 않은 파일은 검증되지 않았습니다."
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "인스턴스 공유됨"
@@ -1464,7 +1464,7 @@
     "message": "공유 인스턴스 콘텐츠"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "이 공유 인스턴스에는 Modrinth에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
+    "message": "이 공유 인스턴스에는 Catalog에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "이 서버에서 사용하는 모드팩 버전을 현재 다운로드할 수 없습니다. 아직 게시되지 않았거나 검토 중일 수 있습니다. 나중에 다시 시도하거나 서버 관리자에게 문의하세요."
@@ -1473,7 +1473,7 @@
     "message": "이 서버의 모드팩을 사용할 수 없습니다"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "이 서버의 모드팩은 Modrinth에 게시되지 않은 파일을 포함하고 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
+    "message": "이 서버의 모드팩은 Catalog에 게시되지 않은 파일을 포함하고 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "출처를 알 수 없는 파일"
@@ -1494,7 +1494,7 @@
     "message": "다른 설치 환경에서 업로드됨"
   },
   "app.modal.update-to-play.owner-description": {
-    "message": "이 변경 사항은 다른 Modrinth App 설치 환경에서 업로드되었습니다. 이 설치 환경의 공유 콘텐츠에 대해 업로드되지 않은 변경 사항은 덮어쓰게 됩니다."
+    "message": "이 변경 사항은 다른 Solara Launcher 설치 환경에서 업로드되었습니다. 이 설치 환경의 공유 콘텐츠에 대해 업로드되지 않은 변경 사항은 덮어쓰게 됩니다."
   },
   "app.modal.update-to-play.owner-header": {
     "message": "업데이트 가능"
@@ -1503,7 +1503,7 @@
     "message": "제거됨"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "이 서버 모드팩 업데이트에는 Modrinth에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
+    "message": "이 서버 모드팩 업데이트에는 Catalog에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "추가됨"
@@ -1512,7 +1512,7 @@
     "message": "제거됨"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "이 공유 인스턴스 업데이트에는 Modrinth에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
+    "message": "이 공유 인스턴스 업데이트에는 Catalog에 게시되지 않은 파일이 포함되어 있습니다. 신뢰할 수 있는 출처의 파일만 설치하는 것을 강력히 권장합니다."
   },
   "app.modal.update-to-play.update-required": {
     "message": "업데이트 필요"
@@ -1533,10 +1533,10 @@
     "message": "프로필 불러오는 중..."
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinth 계정"
+    "message": "Catalog 계정"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "계정 제거"
@@ -1545,13 +1545,13 @@
     "message": "스크린샷들"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Modrinth에 로그인"
+    "message": "Catalog에 로그인"
   },
   "app.nav.switch-account": {
     "message": "계정 변경"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Modrinth+ 로 업그레이드"
+    "message": "Catalog supporter 로 업그레이드"
   },
   "app.nav.view-profile": {
     "message": "프로필 보기"
@@ -1767,7 +1767,7 @@
     "message": "ZIP 내보내기"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth 스크린샷.zip"
+    "message": "Catalog 스크린샷.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} 스크린샷.zip"
@@ -1812,7 +1812,7 @@
     "message": "친구에게 서버 공유"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "인스턴스를 실행할 때 설정되는 환경 변수입니다."
@@ -2079,7 +2079,7 @@
     "message": "인스턴스 중 하나가 이 설정을 사용할 수 없습니다"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "이 설정은 Modrinth의 실행 설정에 의해 관리됩니다."
+    "message": "이 설정은 Catalog의 실행 설정에 의해 관리됩니다."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "값 입력"
@@ -2913,16 +2913,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "광고는 Modrinth가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 우리의 파트너는 앱에서 광고를 개인 맞춤으로 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다. 아래에서 거부하거나 환경 설정을 관리할 수 있습니다."
+    "message": "광고는 Catalog가 운영될 수 있도록 하며, 크리에이터에게 지급되는 보상을 지원합니다. 우리의 파트너는 앱에서 광고를 개인 맞춤으로 제공하고 성과를 측정하기 위해 쿠키를 저장하거나 접근할 수 있습니다. 아래에서 거부하거나 환경 설정을 관리할 수 있습니다."
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discord의 현재 활동 상태에 Modrinth App을 표시합니다. 모드가 인스턴스에 추가한 Rich Presence에는 영향을 미치지 않습니다. 앱 재시작이 필요합니다."
+    "message": "Discord의 현재 활동 상태에 Solara Launcher을 표시합니다. 모드가 인스턴스에 추가한 Rich Presence에는 영향을 미치지 않습니다. 앱 재시작이 필요합니다."
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord 활동 상태"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth는 사용자 경험 향상 및 맞춤 설정을 위해 익명화된 분석 데이터와 사용 데이터를 수집합니다. 이 옵션을 비활성화하면 데이터 수집을 거부하게 되며, 더 이상 데이터가 수집되지 않습니다."
+    "message": "Catalog는 사용자 경험 향상 및 맞춤 설정을 위해 익명화된 분석 데이터와 사용 데이터를 수집합니다. 이 옵션을 비활성화하면 데이터 수집을 거부하게 되며, 더 이상 데이터가 수집되지 않습니다."
   },
   "app.settings.privacy.telemetry.title": {
     "message": "원격 분석"
@@ -2937,7 +2937,7 @@
     "message": "캐시가 재구축될 때까지 앱 불러오기가 느려질 수 있습니다."
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "캐시 데이터를 비우고 Modrinth에서 다시 다운로드합니다. 캐시가 재구축될 때까지 앱 불러오기가 느려질 수 있습니다."
+    "message": "캐시 데이터를 비우고 Catalog에서 다시 다운로드합니다. 캐시가 재구축될 때까지 앱 불러오기가 느려질 수 있습니다."
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "앱 캐시"
@@ -2952,13 +2952,13 @@
     "message": "앱 데이터베이스 백업"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App이 인스턴스 및 기타 파일을 저장하는 위치입니다. 변경 사항은 앱을 재시작한 후 적용됩니다."
+    "message": "Solara Launcher이 인스턴스 및 기타 파일을 저장하는 위치입니다. 변경 사항은 앱을 재시작한 후 적용됩니다."
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "앱 경로"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "앱 로그와 진단 데이터를 ZIP 파일로 내보내 Modrinth 지원팀에 공유할 수 있습니다."
+    "message": "앱 로그와 진단 데이터를 ZIP 파일로 내보내 Catalog 지원팀에 공유할 수 있습니다."
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "디버그 정보 내보내기"
@@ -3120,7 +3120,7 @@
     "message": "이 설정은 어딘가에서 변경되었습니다"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "Modrinth가 인스턴스 중에 모드가 추가한 설정을 발견하면 여기에 나타납니다."
+    "message": "Catalog가 인스턴스 중에 모드가 추가한 설정을 발견하면 여기에 나타납니다."
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "인스턴스 간에 동일한 게임 옵션을 사용합니다."
@@ -3300,7 +3300,7 @@
     "message": "광고 정보 복사"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "부적절하거나 불쾌감을 주는 광고를 발견하셨나요? 광고가 표시되는 동안 광고 정보를 복사하여 <support>Modrinth 지원팀</support>에 보내 주세요. 검토 후 해당 광고를 삭제하겠습니다."
+    "message": "부적절하거나 불쾌감을 주는 광고를 발견하셨나요? 광고가 표시되는 동안 광고 정보를 복사하여 <support>Catalog 지원팀</support>에 보내 주세요. 검토 후 해당 광고를 삭제하겠습니다."
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "광고를 불러올 때까지 기다린 후 다시 시도하세요."
@@ -3453,13 +3453,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth 프라이드"
+    "message": "Solara 프라이드"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "프라이드 월간 동안 Modrinth 프라이드 모금 행사에 기부하여 이 스킨들을 받았습니다."
+    "message": "프라이드 월간 동안 Solara 프라이드 모금 행사에 기부하여 이 스킨들을 받았습니다."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -3495,10 +3495,10 @@
     "message": "켜기"
   },
   "app.survey.body": {
-    "message": "Modrinth App 이용 경험에 대한 몇 가지 질문에 답변해 주시겠어요?"
+    "message": "Solara Launcher 이용 경험에 대한 몇 가지 질문에 답변해 주시겠어요?"
   },
   "app.survey.footer": {
-    "message": "이 피드백은 Modrinth 팀에 직접 전달되어 향후 업데이트에 반영됩니다!"
+    "message": "이 피드백은 Catalog 팀에 직접 전달되어 향후 업데이트에 반영됩니다!"
   },
   "app.survey.no-thanks": {
     "message": "괜찮습니다"
@@ -3507,7 +3507,7 @@
     "message": "설문 참여하기"
   },
   "app.survey.title": {
-    "message": "안녕하세요, Modrinth 사용자님!"
+    "message": "안녕하세요, Catalog 사용자님!"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "데이터 팩을 복사할 인스턴스를 선택합니다. 팩은 초기 동기화에만 사용되며, 이후에는 아무 인스턴스에서 편집할 수 있습니다."
@@ -3594,13 +3594,13 @@
     "message": "동기화된 리소스 팩"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} 다운로드를 마쳤습니다. 다시 불러와 바로 업데이트하거나 Modrinth App을 종료하면 자동으로 진행됩니다."
+    "message": "Solara Launcher v{version} 다운로드를 마쳤습니다. 다시 불러와 바로 업데이트하거나 Solara Launcher을 종료하면 자동으로 진행됩니다."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} 버전을 사용할 수 있습니다. 최신 기능과 오류 수정을 적용하려면 패키지 관리자를 통해 업데이트하세요!"
+    "message": "Solara Launcher v{version} 버전을 사용할 수 있습니다. 최신 기능과 오류 수정을 적용하려면 패키지 관리자를 통해 업데이트하세요!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} 버전을 지금 사용할 수 있습니다! 데이터 통신 연결을 사용 중이므로, 자동으로 다운로드하지 않았습니다."
+    "message": "Solara Launcher v{version} 버전을 지금 사용할 수 있습니다! 데이터 통신 연결을 사용 중이므로, 자동으로 다운로드하지 않았습니다."
   },
   "app.update-popup.changelog": {
     "message": "변경 내역"
@@ -3651,7 +3651,7 @@
     "message": "건너뛰기"
   },
   "app.welcome-screen.title": {
-    "message": "Modrinth에 오신 것을 환영합니다"
+    "message": "Solara에 오신 것을 환영합니다"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -3720,10 +3720,10 @@
     "message": "Minecraft 사용자명과 다를 수 있습니다!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Modrinth 사용자명 입력..."
+    "message": "Catalog 사용자명 입력..."
   },
   "friends.add-friend.username.title": {
-    "message": "친구의 Modrinth 사용자명이 무엇인가요?"
+    "message": "친구의 Catalog 사용자명이 무엇인가요?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>친구 추가</link>를 통해 친구들이 무엇을 하는지 확인해 보세요!"
@@ -3768,10 +3768,10 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Modrinth 계정으로 로그인</link>하여 친구를 초대하고 무엇을 플레이 중인지 확인하세요!"
+    "message": "<link>Catalog 계정으로 로그인</link>하여 친구를 초대하고 무엇을 플레이 중인지 확인하세요!"
   },
   "hosting.play.account-changed": {
-    "message": "Modrinth 계정이 변경되었습니다. 서버 플레이를 다시 눌러 계속합니다."
+    "message": "Catalog 계정이 변경되었습니다. 서버 플레이를 다시 눌러 계속합니다."
   },
   "hosting.play.no-address": {
     "message": "아직 서버에 연결 주소가 없습니다."
@@ -3801,7 +3801,7 @@
     "message": "연동 해제 중..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "Modrinth에서 이 공유 인스턴스를 삭제하고 이용자에게 업데이트 전송을 중단합니다. 자신의 로컬 인스턴스는 영향을 받지 않습니다."
+    "message": "Catalog에서 이 공유 인스턴스를 삭제하고 이용자에게 업데이트 전송을 중단합니다. 자신의 로컬 인스턴스는 영향을 받지 않습니다."
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "이 작업은 본인의 로컬 인스턴스에만 영향을 미칩니다. 설치된 콘텐츠는 이 기기에 유지되며, 공유 인스턴스 및 이를 이용하는 다른 사용자에게는 영향을 미치지 않습니다."
@@ -3813,7 +3813,7 @@
     "message": "공유 인스턴스 연동 해제"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "이 작업은 Modrinth 서버에서 공유 인스턴스를 삭제합니다. Modrinth App에서 이를 이용 중인 사용자는 더 이상 업데이트를 받지 않지만, 본인의 로컬 인스턴스 및 콘텐츠는 이 기기에 유지됩니다."
+    "message": "이 작업은 Solara 서버에서 공유 인스턴스를 삭제합니다. Solara Launcher에서 이를 이용 중인 사용자는 더 이상 업데이트를 받지 않지만, 본인의 로컬 인스턴스 및 콘텐츠는 이 기기에 유지됩니다."
   },
   "instance.action.create-shortcut": {
     "message": "바로가기 만들기"
@@ -4242,7 +4242,7 @@
     "message": "네트워크 오류"
   },
   "instance.shared-instance.owner-behind.text": {
-    "message": "다른 Modrinth App 설치 환경에서 최신 버전이 업로드되었습니다. 해당 버전을 다운로드한 후 다시 시도해 주세요."
+    "message": "다른 Solara Launcher 설치 환경에서 최신 버전이 업로드되었습니다. 해당 버전을 다운로드한 후 다시 시도해 주세요."
   },
   "instance.shared-instance.owner-behind.title": {
     "message": "업데이트를 업로드할 수 없음"
@@ -4407,7 +4407,7 @@
     "message": "계정 생성"
   },
   "modal.modrinth-account-required.description": {
-    "message": "이 기능을 사용하려면 Modrinth 계정에 로그인해야 합니다."
+    "message": "이 기능을 사용하려면 Catalog 계정에 로그인해야 합니다."
   },
   "modal.modrinth-account-required.header": {
     "message": "계정 필요"
@@ -4416,10 +4416,10 @@
     "message": "브라우저 다시 열기"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Modrinth 로그인"
+    "message": "Catalog 로그인"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Modrinth 계정 로그인"
+    "message": "Catalog 계정 로그인"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "로그인 중"
@@ -4437,7 +4437,7 @@
     "message": "Minecraft에 로그인"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Modrinth에 로그인"
+    "message": "Catalog에 로그인"
   },
   "onboarding-checklist.title": {
     "message": "시작하기"

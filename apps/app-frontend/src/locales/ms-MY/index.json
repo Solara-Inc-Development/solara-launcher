@@ -69,7 +69,7 @@
     "message": "Tidak dapat mengemas kini data tempatan"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Tidak dapat mencapai Modrinth"
+    "message": "Tidak dapat mencapai Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Tiada keizinan untuk menulis"
@@ -642,7 +642,7 @@
     "message": "Beberapa pemasangan anda tidak boleh menggunakan tetapan ini"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "Tetapan ini diuruskan oleh tetapan pelancaran Modrinth."
+    "message": "Tetapan ini diuruskan oleh tetapan pelancaran Catalog."
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "Masukkan nilai"
@@ -1560,13 +1560,13 @@
     "message": "Perlahanlah sikit!"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Anda menerima kekulit ini kerana menderma kepada acara pengumpulan dana Modrinth Pride semasa Pride Month."
+    "message": "Anda menerima kekulit ini kerana menderma kepada acara pengumpulan dana Solara Pride semasa Pride Month."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -1596,13 +1596,13 @@
     "message": "Kekalkan"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} sudah selesai dimuat turun! Muat semula untuk kemas kini sekarang, atau kemas kini secara automatik apabila anda menutup Modrinth App."
+    "message": "Solara Launcher v{version} sudah selesai dimuat turun! Muat semula untuk kemas kini sekarang, atau kemas kini secara automatik apabila anda menutup Solara Launcher."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} tersedia. Gunakan pengurus pakej anda untuk mengemas kini dan mendapatkan ciri-ciri dan pembetulan terkini!"
+    "message": "Solara Launcher v{version} tersedia. Gunakan pengurus pakej anda untuk mengemas kini dan mendapatkan ciri-ciri dan pembetulan terkini!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} kini tersedia! Memandangkan anda sedang menggunakan rangkaian bermeter, kami tidak memuat turunnya secara automatik."
+    "message": "Solara Launcher v{version} kini tersedia! Memandangkan anda sedang menggunakan rangkaian bermeter, kami tidak memuat turunnya secara automatik."
   },
   "app.update-popup.changelog": {
     "message": "Log perubahan"
@@ -1653,10 +1653,10 @@
     "message": "Ia mungkin berbeza daripada nama pengguna Minecraft mereka!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Masukkan nama pengguna Modrinth..."
+    "message": "Masukkan nama pengguna Catalog..."
   },
   "friends.add-friend.username.title": {
-    "message": "Apakah nama pengguna Modrinth rakan anda?"
+    "message": "Apakah nama pengguna Catalog rakan anda?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Tambah rakan</link> untuk melihat apa yang mereka mainkan!"
@@ -1698,7 +1698,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Log masuk ke akaun Modrinth</link> untuk menambah rakan dan melihat apa yang mereka mainkan!"
+    "message": "<link>Log masuk ke akaun Catalog</link> untuk menambah rakan dan melihat apa yang mereka mainkan!"
   },
   "instance.add-server.add-and-play": {
     "message": "Tambah dan main"

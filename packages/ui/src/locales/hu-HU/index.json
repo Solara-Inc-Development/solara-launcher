@@ -63,7 +63,7 @@
     "defaultMessage": "{interval, select, fiveDays {5 naponta} monthly {havonta} quarterly {3 havonta} yearly {évente} other {{interval}}}"
   },
   "billing.resubscribe-modal.plan-item": {
-    "defaultMessage": "Modrinth Hosting ({plan})"
+    "defaultMessage": "Catalog Hosting ({plan})"
   },
   "billing.resubscribe-modal.plan.custom": {
     "defaultMessage": "Egyéni"
@@ -90,7 +90,7 @@
     "defaultMessage": "Adó"
   },
   "billing.resubscribe-modal.title": {
-    "defaultMessage": "Feliratkozás újra a Modrinth Hostingra"
+    "defaultMessage": "Feliratkozás újra a Catalog Hostingra"
   },
   "browse.advanced-filters.apply-saved-preferences": {
     "defaultMessage": "Mentett beállítások alkalmazása"
@@ -108,7 +108,7 @@
     "defaultMessage": "A keresésre nem találtunk találatot!"
   },
   "browse.offline": {
-    "defaultMessage": "Jelenleg nincs internetkapcsolatod. Csatlakozz az internethez, hogy böngészhess a Modrinthon!"
+    "defaultMessage": "Jelenleg nincs internetkapcsolatod. Csatlakozz az internethez, hogy böngészhess a Catalogon!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Keresés..."
@@ -246,7 +246,7 @@
     "defaultMessage": "Megnyitás mappában"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Megnyitás Modrinthban"
+    "defaultMessage": "Megnyitás Catalogban"
   },
   "button.play": {
     "defaultMessage": "Játék"
@@ -543,13 +543,13 @@
     "defaultMessage": "{count} eltávolítva (letiltva)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Azok a fájlok, amelyek nincsenek közzétéve a Modrinthon, nincsenek ellenőrizve."
+    "defaultMessage": "Azok a fájlok, amelyek nincsenek közzétéve a Catalogon, nincsenek ellenőrizve."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "A szerverén található egyes tartalmakat nem sikerült elemezni, ezért előfordulhat, hogy ez a változás hatással lesz rájuk."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Ez a frissítés olyan fájlokat tartalmaz, amelyek nem szerepelnek a Modrinthon. Határozottan javasoljuk, hogy kizárólag olyan forrásokból származó fájlokat telepíts, amelyekben megbízol."
+    "defaultMessage": "Ez a frissítés olyan fájlokat tartalmaz, amelyek nem szerepelnek a Catalogon. Határozottan javasoljuk, hogy kizárólag olyan forrásokból származó fájlokat telepíts, amelyekben megbízol."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Ismeretlen fájlok"
@@ -1173,7 +1173,7 @@
     "defaultMessage": "Munkára mutató hivatkozás"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Ez egy Modrinth-hivatkozásnak tűnik. Ha ez a tartalom elérhető a Modrinthon, akkor valószínűleg helytelenül lett exportálva a csomagod. Ha egy másik webhelyről töltötted le, próbáld inkább a Modrinth-verziót letölteni; előfordulhat, hogy a fájlok nem teljesen azonosak."
+    "defaultMessage": "Ez egy Catalog-hivatkozásnak tűnik. Ha ez a tartalom elérhető a Catalogon, akkor valószínűleg helytelenül lett exportálva a csomagod. Ha egy másik webhelyről töltötted le, próbáld inkább a Catalog-verziót letölteni; előfordulhat, hogy a fájlok nem teljesen azonosak."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Jegyzetek"
@@ -1197,7 +1197,7 @@
     "defaultMessage": "Ha kiderül, hogy hazudtál vagy manipuláltad a feltöltött képeket, a projektedet és a fiókodat megszüntethetjük."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "A Modrinth munkatársai ellenőrizhetik a beküldött bizonyítékokat"
+    "defaultMessage": "A Catalog munkatársai ellenőrizhetik a beküldött bizonyítékokat"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Hossárendelés mentése"
@@ -1290,7 +1290,7 @@
     "defaultMessage": "Automatikusan hozzárendelve"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Ezt a fájlt már láttuk korábban, és elkészítettük hozzá a hozzárendelést. Ha valami nem tűnik helyesnek, vedd fel a kapcsolatot a Modrinth ügyfélszolgálatával a Súgóközponton keresztül"
+    "defaultMessage": "Ezt a fájlt már láttuk korábban, és elkészítettük hozzá a hozzárendelést. Ha valami nem tűnik helyesnek, vedd fel a kapcsolatot a Catalog ügyfélszolgálatával a Súgóközponton keresztül"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Licenc"
@@ -2478,7 +2478,7 @@
     "defaultMessage": "TNT"
   },
   "instance.icon-editor.symbol.wrenth-rinth": {
-    "defaultMessage": "Modrinth csavarkulcs"
+    "defaultMessage": "Solara Logo"
   },
   "instance.icon-editor.symbol.zombie": {
     "defaultMessage": "Zombi"
@@ -3159,16 +3159,16 @@
     "defaultMessage": "Tartsd naprakészen a fájlokat, amikor a szerver változik"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Szerezd meg a Modrinth Appot"
+    "defaultMessage": "Szerezd meg a Solara Launcherot"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "A Modrinth App automatikusan megnyílik..."
+    "defaultMessage": "A Solara Launcher automatikusan megnyílik..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "A Modrinth App megnyitása"
+    "defaultMessage": "A Solara Launcher megnyitása"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Miért használd a Modrinth Appot?"
+    "defaultMessage": "Miért használd a Solara Launcherot?"
   },
   "notification.error.title": {
     "defaultMessage": "Hiba történt"
@@ -3234,7 +3234,7 @@
     "defaultMessage": "Moderátor"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth Csapat"
+    "defaultMessage": "Catalog Csapat"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Függőben"
@@ -3354,13 +3354,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Egy Modrinth fejlesztő."
+    "defaultMessage": "Egy Catalog fejlesztő."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Egy Modrinth felhasználó."
+    "defaultMessage": "Egy Catalog felhasználó."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} nem fog tudni neked barátkérelmet küldeni, meghívni téged megosztott példányokba, illetve meghívni téged a Modrinth Hosting szervereire."
+    "defaultMessage": "{username} nem fog tudni neked barátkérelmet küldeni, meghívni téged megosztott példányokba, illetve meghívni téged a Catalog Hosting szervereire."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Biztosan le szeretnéd tiltani ezt a felhasználót?"
@@ -3435,7 +3435,7 @@
     "defaultMessage": "{count} projekt"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Engedélyezd a felugró ablakokat a Modrinth számára, majd próbáld újra."
+    "defaultMessage": "Engedélyezd a felugró ablakokat a Catalog számára, majd próbáld újra."
   },
   "profile.details.error.github-profile-message": {
     "defaultMessage": "Nem sikerült lekérni a GitHub-profilt. Próbáld újra."
@@ -3546,10 +3546,10 @@
     "defaultMessage": "Korlátozva"
   },
   "profile.official-account": {
-    "defaultMessage": "Hivatalos Modrinth-fiók"
+    "defaultMessage": "Hivatalos Catalog-fiók"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "A Modrinth hivatalos felhasználói fiókja. Támogatás a <support-link></support-link> oldalon kaphatsz vagy e-mailben a <email></email> címen."
+    "defaultMessage": "A Catalog hivatalos felhasználói fiókja. Támogatás a <support-link></support-link> oldalon kaphatsz vagy e-mailben a <email></email> címen."
   },
   "profile.reset-2fa.admonition-body": {
     "defaultMessage": "{username} hitelesítője és biztonsági kódjai eltávolításra kerülnek, és értesítést is kap róla. Ezt csak a személyazonosságának ellenőrzése után hajtsd végre."
@@ -4032,7 +4032,7 @@
     "defaultMessage": "{count} {countPlural, plural,one {jelenleg játszott} other {jelenleg játszottak}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "{count} játékalkalom a Modrinthról az elmúlt 2 hétben"
+    "defaultMessage": "{count} játékalkalom a Catalogról az elmúlt 2 hétben"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Ez a projekt egy egyedi modcsomagot használ"
@@ -4377,7 +4377,7 @@
     "defaultMessage": "A projektednek több környezete van"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Nemrégiben átalakítottuk a Modrinth környezetrendszerét, és mostantól új beállítási lehetőségek állnak rendelkezésre. Kérjük, győződj meg arról, hogy az alábbiak közül a megfelelő opciót választottad ki, majd ha kész vagy, kattints az „Ellenőrzés” gombra!"
+    "defaultMessage": "Nemrégiben átalakítottuk a Catalog környezetrendszerét, és mostantól új beállítási lehetőségek állnak rendelkezésre. Kérjük, győződj meg arról, hogy az alábbiak közül a megfelelő opciót választottad ki, majd ha kész vagy, kattints az „Ellenőrzés” gombra!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Kérjük, tekintsd át az alábbi lehetőségeket"
@@ -4749,13 +4749,13 @@
     "defaultMessage": "Betöltő"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Nem tudjuk garantálni, hogy a Modrinth összes tartalma megfelelően van címkézve."
+    "defaultMessage": "Nem tudjuk garantálni, hogy a Catalog összes tartalma megfelelően van címkézve."
   },
   "search.photosensitivity-warning-modal.body.2": {
-    "defaultMessage": "A fényérzékenységet kiváltó tartalmakra vonatkozó címkéket a Modrinthra feltöltő készítők saját maguk adják meg. Ezeket a projekteket nem vetették alá biztonsági tesztelésnek."
+    "defaultMessage": "A fényérzékenységet kiváltó tartalmakra vonatkozó címkéket a Catalogra feltöltő készítők saját maguk adják meg. Ezeket a projekteket nem vetették alá biztonsági tesztelésnek."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "A Modrinthon található tartalmak használata saját felelősségre történik. Kérjük, ügyelj a biztonságodra!💚"
+    "defaultMessage": "A Catalogon található tartalmak használata saját felelősségre történik. Kérjük, ügyelj a biztonságodra!💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Ne jelenjen meg újra"
@@ -5703,13 +5703,13 @@
     "defaultMessage": "Ne használd a Minecraft felhasználó nevűket."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Modrinth felhasználónév"
+    "defaultMessage": "Catalog felhasználónév"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Nem található a keresésnek megfelelő felhasználó."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Modrinth felhasználónév megadása"
+    "defaultMessage": "Catalog felhasználónév megadása"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Keresés..."
@@ -5772,13 +5772,13 @@
     "defaultMessage": "További információk"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Új szerver"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Telepíts modokat, hívd meg a barátaidat, és játsszatok együtt, mindezt a Modrinth Appban."
+    "defaultMessage": "Telepíts modokat, hívd meg a barátaidat, és játsszatok együtt, mindezt a Solara Launcherban."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Válaszd ki a kedvenc modjaidat, a többit bízd ránk!"
@@ -5787,13 +5787,13 @@
     "defaultMessage": "Modok telepítése egy kattintással"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Hívd meg barátaidat játszani a szerveredre a Modrinth Appból, egyetlen kattintással."
+    "defaultMessage": "Hívd meg barátaidat játszani a szerveredre a Solara Launcherból, egyetlen kattintással."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Játssz a barátaiddal"
   },
   "servers.list-empty.sign-in-button": {
-    "defaultMessage": "Bejelentkezés a Modrinthba"
+    "defaultMessage": "Bejelentkezés a Catalogba"
   },
   "servers.list-empty.simple-setup-description": {
     "defaultMessage": "Állítsd be a szerveredet úgy, mint egy egyjátékos világot."
@@ -5850,7 +5850,7 @@
     "defaultMessage": "Az előfizetésed lemondása erre a dátumra van beállítva: <date>{formattedDate}</date>. "
   },
   "servers.listing.notice.suspended": {
-    "defaultMessage": "A szerveredet felfüggesztettük. További információért vedd fel a kapcsolatot a Modrinth ügyfélszolgálatával."
+    "defaultMessage": "A szerveredet felfüggesztettük. További információért vedd fel a kapcsolatot a Catalog ügyfélszolgálatával."
   },
   "servers.listing.notice.upgrading": {
     "defaultMessage": "A szervered hardverét jelenleg fejlesztjük, és hamarosan újra elérhető lesz."
@@ -5913,7 +5913,7 @@
     "defaultMessage": "Feltöltés folyamatban"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Kapcsolatfelvétel a Modrinth ügyfélszolgálatával"
+    "defaultMessage": "Kapcsolatfelvétel a Catalog ügyfélszolgálatával"
   },
   "servers.manage.error.alert-notice": {
     "defaultMessage": "Rendszereink automatikusan értesítik a csapatunkat, ha probléma merül fel. Már dolgozunk a szerverek helyreállításán."
@@ -5925,10 +5925,10 @@
     "defaultMessage": "A hiba részletei:"
   },
   "servers.manage.error.queue-notice": {
-    "defaultMessage": "Ha nemrég vásároltál Modrinth Hosting szervert, az jelenleg a várólistán van, és amint készen áll, itt fog megjelenni. <warning>Ne próbálj új szervert vásárolni.</warning>"
+    "defaultMessage": "Ha nemrég vásároltál Catalog Hosting szervert, az jelenleg a várólistán van, és amint készen áll, itt fog megjelenni. <warning>Ne próbálj új szervert vásárolni.</warning>"
   },
   "servers.manage.error.support-notice": {
-    "defaultMessage": "Ha személyre szabott segítségre van szükséged a szervered állapotával kapcsolatban, kérlek, vedd fel a kapcsolatot a Modrinth ügyfélszolgálatával."
+    "defaultMessage": "Ha személyre szabott segítségre van szükséged a szervered állapotával kapcsolatban, kérlek, vedd fel a kapcsolatot a Catalog ügyfélszolgálatával."
   },
   "servers.manage.error.title": {
     "defaultMessage": "A szerverek betöltése nem sikerült"
@@ -5976,7 +5976,7 @@
     "defaultMessage": "Újra"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Hiba történt a Modrinth-szerveredre való újbóli feliratkozás közben."
+    "defaultMessage": "Hiba történt a Catalog-szerveredre való újbóli feliratkozás közben."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Hiba az újboli előfizetéskor"
@@ -5997,7 +5997,7 @@
     "defaultMessage": "Keresés {count} szerver között..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Megosztott szerverek"
@@ -6030,10 +6030,10 @@
     "defaultMessage": "A Medal szerver próbaidőszaka lejárt, és a szerveredet felfüggesztettük. Kérlek, frissítsd a szolgáltatást, ha továbbra is használni szeretnéd a szervert."
   },
   "servers.medal-listing.notice.suspended": {
-    "defaultMessage": "A szerveredet felfüggesztettük. Kérlek, frissítsd a számlázási adataidat, vagy további információkért vedd fel a kapcsolatot a Modrinth ügyfélszolgálatával."
+    "defaultMessage": "A szerveredet felfüggesztettük. Kérlek, frissítsd a számlázási adataidat, vagy további információkért vedd fel a kapcsolatot a Catalog ügyfélszolgálatával."
   },
   "servers.medal-listing.notice.suspended-with-reason": {
-    "defaultMessage": "A szerveredet felfüggesztettük: {reason}. Kérlek, frissítsd a számlázási adataidat, vagy további információkért vedd fel a kapcsolatot a Modrinth ügyfélszolgálatával."
+    "defaultMessage": "A szerveredet felfüggesztettük: {reason}. Kérlek, frissítsd a számlázási adataidat, vagy további információkért vedd fel a kapcsolatot a Catalog ügyfélszolgálatával."
   },
   "servers.medal-listing.notice.upgrading": {
     "defaultMessage": "A szervered hardverét jelenleg fejlesztjük, és hamarosan újra elérhető lesz."
@@ -6081,7 +6081,7 @@
     "defaultMessage": "Elutasíthatatlan"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "A Modrinth Hosting szolgáltatás megvásárlása sikeresen lezárult."
+    "defaultMessage": "A Catalog Hosting szolgáltatás megvásárlása sikeresen lezárult."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "A vásárlás sikeresen lezárult"
@@ -6156,7 +6156,7 @@
     "defaultMessage": "Hol szeretnéd elhelyezni a szerveredet?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Nincs a listán a régiód? <link>Jelezd nekünk, hogy hol szeretnéd látni legközelebb a Modrinth Hostingot!</link>"
+    "defaultMessage": "Nincs a listán a régiód? <link>Jelezd nekünk, hogy hol szeretnéd látni legközelebb a Catalog Hostingot!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "Hozzáadva {time}"
@@ -6276,7 +6276,7 @@
     "defaultMessage": "A szerver beállítása"
   },
   "servers.setup.onboarding.step.choose.description": {
-    "defaultMessage": "Válaszd ki a kedvenc modcsomagodat a Modrinthról, vagy válassz egy betöltőt, és add hozzá a kívánt modokat."
+    "defaultMessage": "Válaszd ki a kedvenc modcsomagodat a Catalogról, vagy válassz egy betöltőt, és add hozzá a kívánt modokat."
   },
   "servers.setup.onboarding.step.choose.title": {
     "defaultMessage": "Válaszd ki, mit szeretnél játszani"
@@ -6297,7 +6297,7 @@
     "defaultMessage": "A szervered készen áll. Íme, mit kell tenned a játék elkezdéséhez!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Üdvözlünk a Modrinth Hostingnál"
+    "defaultMessage": "Üdvözlünk a Catalog Hostingnál"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "A rendszer korlátozza a lekérdezések számát. Kérlek próbáld újra később."
@@ -6375,7 +6375,7 @@
     "defaultMessage": "Fejlett megjelenítés"
   },
   "settings.display.sidebar.external-links-new-tab.description": {
-    "defaultMessage": "A Modrinthon kívülre vezető hivatkozások új lapon nyíljanak meg. Ettől a beállítástól függetlenül az azonos domainre mutató hivatkozások és a Markdown-leírásokban található hivatkozások ugyanazon a lapon nyílnak meg, míg a hirdetésekben és a szerkesztési oldalakon található hivatkozások új lapon nyílnak meg."
+    "defaultMessage": "A Catalogon kívülre vezető hivatkozások új lapon nyíljanak meg. Ettől a beállítástól függetlenül az azonos domainre mutató hivatkozások és a Markdown-leírásokban található hivatkozások ugyanazon a lapon nyílnak meg, míg a hirdetésekben és a szerkesztési oldalakon található hivatkozások új lapon nyílnak meg."
   },
   "settings.display.sidebar.external-links-new-tab.title": {
     "defaultMessage": "Külső hivatkozások megnyitása új lapon"
@@ -6396,7 +6396,7 @@
     "defaultMessage": "Sötét"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Válaszd ki a Modrinth kívánt színtémáját."
+    "defaultMessage": "Válaszd ki a Solara kívánt színtémáját."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Világos"
@@ -6420,7 +6420,7 @@
     "defaultMessage": "Ezt a témát használd minden olyan eszközön, amelyen be vagy jelentkezve. Kapcsold ki, ha ezen az eszközön külön témát szeretnél használni."
   },
   "settings.display.theme.sync-across-devices.sign-in-tooltip": {
-    "defaultMessage": "Jelentkezz be a Modrinthba a téma szinkronizálásához"
+    "defaultMessage": "Jelentkezz be a Catalogba a téma szinkronizálásához"
   },
   "settings.display.theme.system": {
     "defaultMessage": "Rendszerbeállítások használata"
@@ -6441,7 +6441,7 @@
     "defaultMessage": "Keresési eredmények"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "A Modrinth App körülbelül {percentage}%-a érhető el ezen a nyelven."
+    "defaultMessage": "A Solara Launcher körülbelül {percentage}%-a érhető el ezen a nyelven."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "{percentage}% támogatott"
@@ -6477,7 +6477,7 @@
     "defaultMessage": "Személyes hozzáférési tokenek"
   },
   "settings.preferences.update-failed.description": {
-    "defaultMessage": "A beállításaidat nem sikerült menteni a Modrinth-fiókodba. Próbáld újra."
+    "defaultMessage": "A beállításaidat nem sikerült menteni a Catalog-fiókodba. Próbáld újra."
   },
   "settings.preferences.update-failed.title": {
     "defaultMessage": "A beállítások szinkronizálása sikertelen"
@@ -6495,7 +6495,7 @@
     "defaultMessage": "Profilkép"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "A profiladataid nyilvánosan <profile-link>megtekinthetők a Modrinthon</profile-link> és a <docs-link>Modrinth API</docs-link>-n keresztül."
+    "defaultMessage": "A profiladataid nyilvánosan <profile-link>megtekinthetők a Catalogon</profile-link> és a <docs-link>Catalog API</docs-link>-n keresztül."
   },
   "settings.profile.save-error": {
     "defaultMessage": "A profil frissítése nem sikerült"
@@ -6504,10 +6504,10 @@
     "defaultMessage": "Hiba történt a profilod frissítése közben. Kérlek, próbáld meg újra."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Jelentkezz be egy Modrinth-fiókkal, hogy személyre szabhasd a nyilvános profilodat."
+    "defaultMessage": "Jelentkezz be egy Catalog-fiókkal, hogy személyre szabhasd a nyilvános profilodat."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Modrinth-fiók szükséges"
+    "defaultMessage": "Catalog-fiók szükséges"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Egyedi, kis- és nagybetűktől független név a profilod azonosításához."
@@ -6522,7 +6522,7 @@
     "defaultMessage": "Felhasználó"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Ezek azok a felhasználók, akiket a Modrinthon letiltottál. Ők nem tudnak:"
+    "defaultMessage": "Ezek azok a felhasználók, akiket a Catalogon letiltottál. Ők nem tudnak:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Nem tiltottál le senkit."
@@ -6537,7 +6537,7 @@
     "defaultMessage": "Barátkérelmeket küldeni neked"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Meghívni téged, hogy kezelj egy Modrinth Hosting szervert."
+    "defaultMessage": "Meghívni téged, hogy kezelj egy Catalog Hosting szervert."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Meghívni téged megosztott példányokba"
@@ -6561,13 +6561,13 @@
     "defaultMessage": "{username} avatárja"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Állítsd be, hogy ki küldhet neked barátkérelmeket a Modrinthon."
+    "defaultMessage": "Állítsd be, hogy ki küldhet neked barátkérelmeket a Catalogon."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Barátkérelmek"
   },
   "settings.social.hosting-access.description": {
-    "defaultMessage": "Szabályozd, hogy ki hívhat meg egy Modrinth Hosting-szerver kezelésére."
+    "defaultMessage": "Szabályozd, hogy ki hívhat meg egy Catalog Hosting-szerver kezelésére."
   },
   "settings.social.hosting-access.title": {
     "defaultMessage": "Hosting-hozzáférési meghívók"
@@ -6600,10 +6600,10 @@
     "defaultMessage": "Megosztott példányok meghívói"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "A Modrinth-fiókod segítségével beállíthatod, hogy kik léphetnek veled kapcsolatba, és kezelheted a letiltott felhasználókat"
+    "defaultMessage": "A Catalog-fiókod segítségével beállíthatod, hogy kik léphetnek veled kapcsolatba, és kezelheted a letiltott felhasználókat"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Modrinth-fiók szükséges"
+    "defaultMessage": "Catalog-fiók szükséges"
   },
   "settings.social.title": {
     "defaultMessage": "Közösségi"
@@ -6702,7 +6702,7 @@
     "defaultMessage": "Mentés"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Modrinth felhasználónév megadása"
+    "defaultMessage": "Catalog felhasználónév megadása"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Keresés..."
@@ -7287,19 +7287,19 @@
     "defaultMessage": "A rosszindulatú programokat gyakran modfájlokon keresztül terjesztik, például a Discordhoz hasonló platformokon történő megosztás révén."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " nincs közzétéve a Modrinthon. Erősen javasoljuk, hogy csak olyan forrásból telepíts fájlokat, amelyben megbízol."
+    "defaultMessage": " nincs közzétéve a Catalogon. Erősen javasoljuk, hogy csak olyan forrásból telepíts fájlokat, amelyben megbízol."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "Ismeretlen fájl"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Modrinthon. Erősen javasoljuk, hogy csak olyan forrásból telepíts fájlokat, amelyben megbízol."
+    "defaultMessage": " olyan fájlokat tartalmaz, amelyek nincsenek közzétéve a Catalogon. Erősen javasoljuk, hogy csak olyan forrásból telepíts fájlokat, amelyben megbízol."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "Ismeretlen fájlok"
   },
   "unknown-file-warning-modal.reviewed-files": {
-    "defaultMessage": "A Modrinthra fel nem töltött fájlokat nem ellenőrizzük."
+    "defaultMessage": "A Catalogra fel nem töltött fájlokat nem ellenőrizzük."
   },
   "unknown-file-warning-modal.unrecognized-files": {
     "defaultMessage": "Fel nem ismert fájlok"
@@ -7434,16 +7434,16 @@
     "defaultMessage": "Szerkessz verziókat és adj hozzájuk fájlokat"
   },
   "user.profile.badge.alpha.about.1": {
-    "defaultMessage": "Ez a felhasználó már a Modrinth Alpha óta aktív, amely 2020 novemberében ért véget."
+    "defaultMessage": "Ez a felhasználó már a Catalog Alpha óta aktív, amely 2020 novemberében ért véget."
   },
   "user.profile.badge.alpha.name": {
     "defaultMessage": "Alfa-tesztelő"
   },
   "user.profile.badge.beta.about.1": {
-    "defaultMessage": "Ez a felhasználó már a Modrinth Beta óta aktív, amely 2022 februárjában ért véget."
+    "defaultMessage": "Ez a felhasználó már a Catalog Beta óta aktív, amely 2022 februárjában ért véget."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Kattints ide, hogy elolvasd a Modrinth Beta elindításáról szóló hírt."
+    "defaultMessage": "Kattints ide, hogy elolvasd a Catalog Beta elindításáról szóló hírt."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Béta-tesztelő"
@@ -7455,67 +7455,67 @@
     "defaultMessage": "{download_sum} letöltés"
   },
   "user.profile.badge.early-datapack-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk az adatcsomag-projektek tesztelésében a Modrinthon, mielőtt azokat 2023 januárjában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk az adatcsomag-projektek tesztelésében a Catalogon, mielőtt azokat 2023 januárjában elindítottuk."
   },
   "user.profile.badge.early-datapack-adopter.name": {
     "defaultMessage": "Az adatcsomagok korai tesztelője"
   },
   "user.profile.badge.early-modpack-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk a modcsomag-projektek tesztelésében a Modrinthon, mielőtt azokat 2022 májusában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk a modcsomag-projektek tesztelésében a Catalogon, mielőtt azokat 2022 májusában elindítottuk."
   },
   "user.profile.badge.early-modpack-adopter.name": {
     "defaultMessage": "A modcsomagok korai tesztelője"
   },
   "user.profile.badge.early-plugin-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk a bővítményprojektek tesztelésében a Modrinthon, mielőtt azokat 2022 augusztusában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk a bővítményprojektek tesztelésében a Catalogon, mielőtt azokat 2022 augusztusában elindítottuk."
   },
   "user.profile.badge.early-plugin-adopter.name": {
     "defaultMessage": "A bővítmények korai tesztelője"
   },
   "user.profile.badge.early-resourcepack-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk a forráscsomag-projektek tesztelésében a Modrinthon, mielőtt azokat 2022 augusztusában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk a forráscsomag-projektek tesztelésében a Catalogon, mielőtt azokat 2022 augusztusában elindítottuk."
   },
   "user.profile.badge.early-resourcepack-adopter.name": {
     "defaultMessage": "A forráscsomagok korai tesztelője"
   },
   "user.profile.badge.early-server-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk a szerverprojektek tesztelésében a Modrinthon, mielőtt azokat 2026 márciusában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk a szerverprojektek tesztelésében a Catalogon, mielőtt azokat 2026 márciusában elindítottuk."
   },
   "user.profile.badge.early-server-adopter.name": {
     "defaultMessage": "A szerverek korai tesztelője"
   },
   "user.profile.badge.early-shader-adopter.about.1": {
-    "defaultMessage": "Ez a felhasználó segített nekünk a shaderprojektek tesztelésében a Modrinthon, mielőtt azokat 2023 januárjában elindítottuk."
+    "defaultMessage": "Ez a felhasználó segített nekünk a shaderprojektek tesztelésében a Catalogon, mielőtt azokat 2023 januárjában elindítottuk."
   },
   "user.profile.badge.early-shader-adopter.name": {
     "defaultMessage": "A shaderek korai tesztelője"
   },
   "user.profile.badge.hosting-alpha.about.1": {
-    "defaultMessage": "Ez a felhasználó részt vett a Modrinth Hosting zárt alfa-tesztjén, mielőtt 2024 novemberében elindítottuk a Modrinth Hosting bétaverzióját."
+    "defaultMessage": "Ez a felhasználó részt vett a Catalog Hosting zárt alfa-tesztjén, mielőtt 2024 novemberében elindítottuk a Catalog Hosting bétaverzióját."
   },
   "user.profile.badge.hosting-alpha.name": {
-    "defaultMessage": "Modrinth Hosting alfa-tesztelő"
+    "defaultMessage": "Catalog Hosting alfa-tesztelő"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Ez a felhasználó a Modrinthnál tartalommoderátorként dolgozik."
+    "defaultMessage": "Ez a felhasználó a Catalognál tartalommoderátorként dolgozik."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "A Modrinth tartalommoderátorai áttekintik a projekteket, feldolgozzák a bejelentéseket, és hozzájárulnak a Modrinth biztonságának fenntartásához."
+    "defaultMessage": "A Catalog tartalommoderátorai áttekintik a projekteket, feldolgozzák a bejelentéseket, és hozzájárulnak a Catalog biztonságának fenntartásához."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Tartalommoderátor"
   },
   "user.profile.badge.plus.about.1": {
-    "defaultMessage": "Ez a felhasználó minden tőle telhetőt megtesz, hogy támogassa a Modrinthot és a platformon tevékenykedő alkotókat."
+    "defaultMessage": "Ez a felhasználó minden tőle telhetőt megtesz, hogy támogassa a Catalogot és a platformon tevékenykedő alkotókat."
   },
   "user.profile.badge.plus.link": {
     "defaultMessage": "Kattints ide, ha többet szeretnél megtudni arról, hogy hogyan válhatsz taggá."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Modrinth+ tag"
+    "defaultMessage": "Catalog supporter tag"
   },
   "user.profile.badge.pride.about.1": {
-    "defaultMessage": "Ez a felhasználó részt vett a Modrinth’s Pride legalább egy, az LGBTQ+ közösség javára szervezett adománygyűjtő akciójában."
+    "defaultMessage": "Ez a felhasználó részt vett a Catalog’s Pride legalább egy, az LGBTQ+ közösség javára szervezett adománygyűjtő akciójában."
   },
   "user.profile.badge.pride.link": {
     "defaultMessage": "Kattints ide, hogy megtekintsd legújabb Pride-jótékonysági akciónkat."
@@ -7524,16 +7524,16 @@
     "defaultMessage": "A Pride jótékonysági akció támogatója"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Ez a felhasználó a Modrinthnál dolgozik."
+    "defaultMessage": "Ez a felhasználó a Catalognál dolgozik."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "A Modrinth-csapat"
+    "defaultMessage": "A Catalog-csapat"
   },
   "user.role.moderator": {
     "defaultMessage": "Tartalommoderátor"
   },
   "user.role.modrinth-team": {
-    "defaultMessage": "Modrinth Csapattag"
+    "defaultMessage": "Catalog Csapattag"
   },
   "version.content.name": {
     "defaultMessage": "Név"

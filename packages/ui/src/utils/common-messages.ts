@@ -234,7 +234,7 @@ export const commonMessages = defineMessages({
 	},
 	openInModrinthButton: {
 		id: 'button.open-in-modrinth',
-		defaultMessage: 'Open in Modrinth',
+		defaultMessage: 'Open in Catalog',
 	},
 	orLabel: {
 		id: 'label.or',
@@ -706,7 +706,7 @@ export const commonMessages = defineMessages({
 	projectRecentPlaysTooltip: {
 		id: 'project.recent-plays.tooltip',
 		defaultMessage:
-			'{count} {countPlural, plural, one {recent play} other {recent plays}} from Modrinth in the past 2 weeks',
+			'{count} {countPlural, plural, one {recent play} other {recent plays}} from the catalog in the past 2 weeks',
 	},
 })
 

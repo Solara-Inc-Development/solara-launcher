@@ -19,7 +19,7 @@ const messages = defineMessages({
 	description: {
 		id: 'app.behavior-settings.hidden-instances.description',
 		defaultMessage:
-			"Instances you've hidden from your library on this device. Hidden instances aren't synced with your Modrinth account.",
+			"Instances you've hidden from your library on this device. Hidden instances aren't synced with your catalog account.",
 	},
 	empty: {
 		id: 'app.behavior-settings.hidden-instances.empty',

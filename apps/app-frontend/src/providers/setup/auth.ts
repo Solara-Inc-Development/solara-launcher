@@ -8,6 +8,8 @@ import {
 } from '@modrinth/ui'
 import { computed, type Ref, ref, watch, watchEffect } from 'vue'
 
+import { catalogFeatures } from '@/config'
+
 type AppCredentials = {
 	session?: string | null
 	user?: Labrinth.Users.v2.User | null
@@ -26,6 +28,7 @@ export function setupAuthProvider(
 	const isReady = computed(() => credentials.value !== undefined)
 
 	const authProvider: AuthProvider = {
+		supportsAccounts: catalogFeatures.accounts,
 		session_token: sessionToken,
 		user,
 		isReady,

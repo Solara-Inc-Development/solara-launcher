@@ -14,7 +14,7 @@
 				:values="{ platform }"
 			>
 				<template #~crowdin-link="{ children }">
-					<AutoLink to="https://translate.modrinth.com" class="text-link">
+					<AutoLink to="https://github.com/Solara-Inc-Development/solara-launcher/issues" class="text-link">
 						<component :is="() => children" />
 					</AutoLink>
 				</template>

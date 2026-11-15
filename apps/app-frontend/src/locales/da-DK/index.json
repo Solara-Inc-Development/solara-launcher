@@ -78,7 +78,7 @@
     "message": "Opsætning af Minecraft fejlede"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Kunne ikke få forbindelse til Modrinth"
+    "message": "Kunne ikke få forbindelse til Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "Ingen tilladelse til at skrive"
@@ -135,7 +135,7 @@
     "message": "Accepter alle"
   },
   "app.ads-consent.body": {
-    "message": "Reklamer gør Modrinth muligt og finansiere skaber udbetalinger. Vores partnere må gemme og tilgå cookies i appen for at personliggøre reklamer og måle effektivitet."
+    "message": "Reklamer gør Catalog muligt og finansiere skaber udbetalinger. Vores partnere må gemme og tilgå cookies i appen for at personliggøre reklamer og måle effektivitet."
   },
   "app.ads-consent.manage": {
     "message": "Administrer præferencer"
@@ -144,7 +144,7 @@
     "message": "Afvis alle"
   },
   "app.ads-consent.title": {
-    "message": "Dit privatliv og hvordan reklamer hjælper Modrinth"
+    "message": "Dit privatliv og hvordan reklamer hjælper Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "Vis biblioteksinstanser i et kompakt række-layout."
@@ -165,7 +165,7 @@
     "message": "Gem nametag"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minimér Modrinth App når Minecraft starter."
+    "message": "Minimér Solara Launcher når Minecraft starter."
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "Minimer app"
@@ -189,7 +189,7 @@
     "message": "Skjul højre sidebar"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Vis en sikkerhedsadvarsel, før du installerer en Modrinth Pack (.mrpack), der ikke er hostet på Modrinth."
+    "message": "Vis en sikkerhedsadvarsel, før du installerer en Modpack (.mrpack), der ikke er hostet på Catalog."
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "Advar mig før jeg installere en ukendt modpacks"
@@ -207,7 +207,7 @@
     "message": "Hjem og indhold"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Vis Modrinth-appen i forgrunden, når Minecraft afsluttes."
+    "message": "Vis Solara-appen i forgrunden, når Minecraft afsluttes."
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Omfokusere appen når Minecraft lukkes"
@@ -219,7 +219,7 @@
     "message": "Brug disse adfærdsindstillinger overalt du er logget på. Slå dette fra for at holde separate indstillinger på denne enhed."
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "Log ind på en Modrinth-konto for at synkronisere indstillinger."
+    "message": "Log ind på en Catalog-konto for at synkronisere indstillinger."
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "Synkroniser adfærd på tværs af enheder"
@@ -759,13 +759,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth Pride"
+    "message": "Solara Pride"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "Du modtog disse skins for at donere til en Modrinth Pride indsamling imens der er Pride Month."
+    "message": "Du modtog disse skins for at donere til en Solara Pride indsamling imens der er Pride Month."
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "Mounts of Mayhem"
@@ -795,13 +795,13 @@
     "message": "Slå til"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} er færdig med at download. Genindlæs for at opdatere nu, eller automatisk når du lukker Modrinth App."
+    "message": "Solara Launcher v{version} er færdig med at download. Genindlæs for at opdatere nu, eller automatisk når du lukker Solara Launcher."
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} er nu tilgængelig. Brug din pakke-manager til at opdatere for de nyeste features og fejlrettelser!"
+    "message": "Solara Launcher v{version} er nu tilgængelig. Brug din pakke-manager til at opdatere for de nyeste features og fejlrettelser!"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} er nu tilgængelig! Siden du er på et begrænset netværk, vi downloadede den ikke automatisk."
+    "message": "Solara Launcher v{version} er nu tilgængelig! Siden du er på et begrænset netværk, vi downloadede den ikke automatisk."
   },
   "app.update-popup.changelog": {
     "message": "Ændringslog"
@@ -858,10 +858,10 @@
     "message": "Det er muligvis anderledes end deres Minecraft brugernavn!"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Indskriv Modrinth brugernavn..."
+    "message": "Indskriv Catalog brugernavn..."
   },
   "friends.add-friend.username.title": {
-    "message": "Hvad er din vens Modrinth brugernavn?"
+    "message": "Hvad er din vens Catalog brugernavn?"
   },
   "friends.add-friends-to-share": {
     "message": "<link>Tilføj venner</link> for at se hvad de spiller!"
@@ -903,7 +903,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Log ind på en Modrinth konto</link> for at tilføje venner og se hvad de spiller!"
+    "message": "<link>Log ind på en Catalog konto</link> for at tilføje venner og se hvad de spiller!"
   },
   "instance.action.create-shortcut": {
     "message": "Opret genvej"
@@ -1206,10 +1206,10 @@
     "message": "Åbn browser igen"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Log ind på Modrinth"
+    "message": "Log ind på Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Log ind med en Modrinth konto"
+    "message": "Log ind med en Catalog konto"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "Logger ind"

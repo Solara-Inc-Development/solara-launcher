@@ -55,7 +55,7 @@ const messages = defineMessages({
 	},
 	appCoverageTooltip: {
 		id: 'settings.language.coverage.app-tooltip',
-		defaultMessage: 'About {percentage}% of the Modrinth App is available in this language.',
+		defaultMessage: 'About {percentage}% of the Solara Launcher is available in this language.',
 	},
 	websiteCoverageTooltip: {
 		id: 'settings.language.coverage.website-tooltip',
@@ -187,7 +187,9 @@ function onItemClick(e: MouseEvent, loc: LocaleInfo) {
 }
 
 function showTranslatedName(loc: LocaleInfo): boolean {
-	return loc.translatedName.localeCompare(loc.displayName, undefined, { sensitivity: 'base' }) !== 0
+	return (
+		loc.translatedName.localeCompare(loc.displayName, undefined, { sensitivity: 'base' }) !== 0
+	)
 }
 
 function getItemLabel(loc: LocaleInfo) {

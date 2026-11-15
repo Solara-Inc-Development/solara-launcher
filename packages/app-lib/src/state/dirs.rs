@@ -51,7 +51,7 @@ impl DirectoryInfo {
         fs::create_dir_all(&settings_dir)
             .await
             .context(ErrorKind::FSError(
-                "error creating Theseus config directory".to_string(),
+                "error creating Solara configuration directory".to_string(),
             ))?;
 
         let config_dir =

@@ -1,11 +1,13 @@
 # Builds, installation and release archive
 
+**Website verification on this VPS:** Nginx serves root `dist/` directly. Use `npm run build:verify` for isolated output under `checks/website-build/`. Running the normal website build here replaces live files and requires deployment authorization.
+
 Public display mapping: internal `0.0.1` → `V-0.0.01` → `builds/V-0.0.01/solaralauncher.exe`. Increment numerically; `09` → `10` → `13` → `15` → `17` → `18` → `21` → `22` → `23` → `24` → `25` → `26` → `27` → `28` → `29` → `30` → `31` → `32` → `33` → `34` → `35` → `36` → `37` → `38` → `39` → `40` → `41` → `42` → `43` → `44` → `45` → `46` → `47` → `48` → `49` → `50` → `51` → `52` → `53` → `54` → `55` → `56` → `57` → `58` → `59` → `60` → `61` → `62` → `63`. Old executables are immutable. The latest genuine testing installer is **V-0.0.63** (`solaralauncher.exe`, SHA-256: `267b6a5c...`), privately updater-signed with Minisign and published on GitHub Releases (`latest.json` + installer assets) alongside a transition manifest on `api.solara-inc.in`. Real Windows physical device acceptance testing remains pending. Updater signatures are separate from Windows Authenticode publisher signing.
 
 ## Before a public build
 
-1. The inherited engine and its blocked dependencies have been removed. Generate notices with `node scripts/third-party.mjs` after the frontend build. Preserve exact corresponding source and both lockfiles alongside every executable. Do not remove remaining library/font licences.
-2. Supply a Windows x64 build machine/Actions repository with Rust stable, MSVC/Windows SDK, Node 22. `.github/workflows/windows.yml` is explicit workflow_dispatch and serializes build allocation.
+1. The current desktop retains the Modrinth-derived Theseus engine. Preserve its provenance and resolve any documented licence packaging gaps; this rebrand does not claim independent replacement. Generate notices with `node scripts/third-party.mjs` after the frontend build. Preserve exact corresponding source and both lockfiles alongside every executable. Do not remove remaining library/font licences.
+2. Supply a Windows x64 build machine/Actions repository with Rust stable, MSVC/Windows SDK, Node 24.15+ and pnpm 12.11.2. `.github/workflows/windows.yml` is explicit workflow_dispatch and serializes build allocation.
 3. Register an approved Solara PKCE public client and Microsoft Entra public-client device-code app (see [Authentication setup guide](AUTH-SETUP.md)). Configure public native IDs `SOLARA_CLIENT_ID`, `SOLARA_MICROSOFT_CLIENT_ID`; Microsoft's app must have the necessary Xbox/Minecraft permissions and public-client device flow enabled. No upstream ID is reused and no secret is embedded.
 4. Configure trusted `SOLARA_UPDATER_PUBLIC_KEY`; keep `TAURI_SIGNING_PRIVATE_KEY` and optional password only in private CI secret storage. Generate keys using Tauri CLI in a private environment; never put keys into source/artifact logs. Updater signatures are distinct from Authenticode: Windows publisher signing is a separate optional configuration and must not be claimed unless supplied/verified.
 5. Run shared tests, Vue type checks, native checks, local-server tests and real Windows acceptance checks. Verify licensed launch, OS-vault persistence, independent logout, process shutdown, NSIS install/uninstall and signed update/install before public release.
@@ -51,7 +53,9 @@ Solara-specific preferences/local-server files: platform local app-data director
 
 Tauri updater public-key verification is mandatory. Missing keys produce a useful unconfigured state. No public update is available when the archive is empty. Discord activity and Rich Presence are completely purged from the application.
 
-## Custom-core verification and preview limits
+## Historical custom-core verification and preview limits
+
+The commands and paths in this historical section describe the retired pre-V-0.0.63 implementation. Current checks are `cargo test -p theseus --lib --locked` and `cargo test -p theseus_gui --bin solaralauncher --locked`; current UI verification is documented in [BRANDING.md](BRANDING.md).
 
 `cargo test -p solara-launcher -p solara-local-server --lib --locked` covers official metadata/path checks, verified cache integrity, world-preserving instance records, native ZIP traversal rejection, platform rules, real queue states, credential-free account schema, Java version parsing, managed Temurin Java origin/checksum/extraction safety, instance file save/conflict/Trash/restore, local JAR mod metadata reading and validated `.jar` import, isolated world/config backup creation/restore/tamper rejection, Fabric and Quilt profile/Maven coordinate validation, and Modrinth dual-hash content/`.mrpack` modpack verification. `cargo check -p solara-launcher --all-targets --locked` also compiles the actual shell.
 

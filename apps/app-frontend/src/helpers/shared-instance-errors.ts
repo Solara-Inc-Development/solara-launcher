@@ -78,7 +78,7 @@ export const sharedInstanceErrorMessages = defineMessages({
 	ownerBehindText: {
 		id: 'instance.shared-instance.owner-behind.text',
 		defaultMessage:
-			'A newer version was pushed from another Modrinth App installation. Download it, then try again.',
+			'A newer version was pushed from another Solara Launcher installation. Download it, then try again.',
 	},
 	fileNotAllowedTitle: {
 		id: 'instance.shared-instance.file-not-allowed.title',

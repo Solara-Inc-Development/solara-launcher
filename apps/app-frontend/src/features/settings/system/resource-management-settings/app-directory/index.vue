@@ -38,11 +38,11 @@ const messages = defineMessages({
 	},
 	description: {
 		id: 'app.settings.resource-management.app-directory.description',
-		defaultMessage: 'Where Modrinth App stores instances and other files.',
+		defaultMessage: 'Where Solara Launcher stores instances and other files.',
 	},
 	pending: {
 		id: 'app.settings.resource-management.app-directory.pending',
-		defaultMessage: 'Your app directory will move to {path} the next time Modrinth App opens.',
+		defaultMessage: 'Your app directory will move to {path} the next time Solara Launcher opens.',
 	},
 	cancelMove: {
 		id: 'app.settings.resource-management.app-directory.cancel-move',

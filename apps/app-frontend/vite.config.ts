@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
 import tauriConf from '../app/tauri.conf.json'
+import { developmentCsp } from '../../packages/shared/csp'
 
 const projectRootDir = resolve(__dirname)
 const appLibEnvDir = resolve(projectRootDir, '../../packages/app-lib')
@@ -77,19 +78,7 @@ export default defineConfig({
 		port: 1420,
 		strictPort: true,
 		headers: {
-			'content-security-policy': Object.entries(tauriConf.app.security.csp)
-				.map(([directive, sources]) => {
-					// An additional websocket connect-src is required for Vite dev tools to work
-					if (directive === 'connect-src') {
-						sources = Array.isArray(sources) ? sources : [sources]
-						sources.push('ws://localhost:1420')
-					}
-
-					return Array.isArray(sources)
-						? `${directive} ${sources.join(' ')}`
-						: `${directive} ${sources}`
-				})
-				.join('; '),
+			'content-security-policy': developmentCsp(tauriConf.app.security.csp, 'ws://localhost:1420'),
 		},
 	},
 	// to make use of `TAURI_ENV_DEBUG` and other env variables

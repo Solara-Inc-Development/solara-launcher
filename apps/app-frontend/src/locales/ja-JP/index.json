@@ -78,7 +78,7 @@
     "message": "Minecraftのセットアップに失敗しました"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "Modrinthに接続できませんでした"
+    "message": "Catalogに接続できませんでした"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "書き込み権限がありません"
@@ -135,7 +135,7 @@
     "message": "すべて受け入れる"
   },
   "app.ads-consent.body": {
-    "message": "Modrinthは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。"
+    "message": "Catalogは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。"
   },
   "app.ads-consent.manage": {
     "message": "設定の管理"
@@ -144,7 +144,7 @@
     "message": "すべて拒否する"
   },
   "app.ads-consent.title": {
-    "message": "プライバシーと広告がModrinthを支える仕組み"
+    "message": "プライバシーと広告がCatalogを支える仕組み"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "ライブラリをコンパクトに表示します。"
@@ -165,7 +165,7 @@
     "message": "ネームタグを非表示にする"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "Minecraftを起動したときにModrinth Appを最小化します。"
+    "message": "Minecraftを起動したときにSolara Launcherを最小化します。"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "ランチャーを最小化"
@@ -189,7 +189,7 @@
     "message": "右のサイドバーを隠す"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "Modrinth以外でホストされているModrinthパック（.mrpack）をインストールする前に、安全警告を表示します。"
+    "message": "Catalog以外でホストされているCatalogパック（.mrpack）をインストールする前に、安全警告を表示します。"
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "不明なModパックのインストール前に警告する"
@@ -207,7 +207,7 @@
     "message": "ホームとコンテンツ"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "このデバイス上のライブラリから非表示にしたインスタンス。非表示のインスタンスは、Modrinthアカウントと同期されません。"
+    "message": "このデバイス上のライブラリから非表示にしたインスタンス。非表示のインスタンスは、Catalogアカウントと同期されません。"
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "まだどのインスタンスも非表示にしていません"
@@ -222,7 +222,7 @@
     "message": "非表示にしたインスタンス"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "Minecraftが終了したときに、Modrinth Appを前面に表示します。"
+    "message": "Minecraftが終了したときに、Solara Launcherを前面に表示します。"
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Minecraftが閉じられたときにアプリをフォーカスする"
@@ -234,7 +234,7 @@
     "message": "ログイン中のすべての端末で同じ設定を使用します。オフにすると、端末ごとに個別の設定を使用できます。"
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "設定を同期するには、Modrinthアカウントにログインしてください。"
+    "message": "設定を同期するには、Catalogアカウントにログインしてください。"
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "端末間での設定の同期"
@@ -489,7 +489,7 @@
     "message": "サインインされているすべてのデバイスでこれらの機能はすべて共有されます。デバイスごとに設定した場合はこの機能をオフにしてください。"
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "設定を同期するには、Modrinthアカウントにログインしてください。"
+    "message": "設定を同期するには、Catalogアカウントにログインしてください。"
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "デバイス間での同期機能を同期する"
@@ -531,16 +531,16 @@
     "message": "インスタンスを表示"
   },
   "app.hosting.update-required.description": {
-    "message": "Modrinth Hostingを利用するには、Modrinth Appを更新してください"
+    "message": "Solara Hostingを利用するには、Solara Launcherを更新してください"
   },
   "app.hosting.update-required.download": {
     "message": "ダウンロードして更新"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "ワクワクしているModrinth Bot"
+    "message": "ワクワクしているCatalog Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "Modrinth Appの更新が必要です"
+    "message": "Solara Launcherの更新が必要です"
   },
   "app.install.phase.downloading_content": {
     "message": "コンテンツをダウンロード中"
@@ -882,13 +882,13 @@
     "message": "このアカウントでサインインすることで"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "Modrinthへのサインインが必要です"
+    "message": "Catalogへのサインインが必要です"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "インスタンスのアップデートを受け取ることができます。"
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "Modrinthのアカウントが間違っています"
+    "message": "Catalogのアカウントが間違っています"
   },
   "app.instance.shortcut.created": {
     "message": "ショートカットを作成しました"
@@ -1374,10 +1374,10 @@
     "message": "インストール"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "この招待は他のModrinthユーザーによって作成されたものであり、Modrinth公式のものではありません。信頼できる人からの招待のみ承諾してください。"
+    "message": "この招待は他のCatalogユーザーによって作成されたものであり、Catalog公式のものではありません。信頼できる人からの招待のみ承諾してください。"
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "この招待はModrinthではなく<creator>{username}</creator>によって作成されました。信頼できる人物からの招待のみ受諾してください。"
+    "message": "この招待はCatalogではなく<creator>{username}</creator>によって作成されました。信頼できる人物からの招待のみ受諾してください。"
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "Modパックのコンテンツ"
@@ -1410,7 +1410,7 @@
     "message": "サポートに関するお問い合わせは、<support-link>サポートチーム</support-link>までご連絡ください。バグの報告は、<github-link>GitHubのIssue</github-link>を作成してください。"
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "追加するファイルはModrinthの認証を受けていません。"
+    "message": "追加するファイルはCatalogの認証を受けていません。"
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "共有インスタンス"
@@ -1419,7 +1419,7 @@
     "message": "共有インスタンスの内容"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "この共有インスタンスには、Modrinthで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
+    "message": "この共有インスタンスには、Catalogで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "このサーバーで使用されているModPackのバージョンは、現在ダウンロードできません。公開が停止されているか、審査中の可能性があります。後ほど再度お試しいただくか、サーバーの管理者にお問い合わせください。"
@@ -1428,7 +1428,7 @@
     "message": "このサーバーのmodpackは利用できません"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "このサーバーModパックには、Modrinthに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
+    "message": "このサーバーModパックには、Catalogに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "不明なファイルの警告"
@@ -1452,7 +1452,7 @@
     "message": "削除されました"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "このサーバーModパックのアップデートには、Modrinthに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
+    "message": "このサーバーModパックのアップデートには、Catalogに公開されていないファイルが含まれています。信頼できるソースからのファイルのみをインストールすることを強く推奨します。"
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "追加済み"
@@ -1461,7 +1461,7 @@
     "message": "削除済み"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "この共有インスタンスのアップデートには、Modrinthで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
+    "message": "この共有インスタンスのアップデートには、Catalogで公開されていないファイルが含まれています。信頼できる提供元からのファイルのみをインストールすることを強くお勧めします。"
   },
   "app.modal.update-to-play.update-required": {
     "message": "更新が必要です"
@@ -1482,10 +1482,10 @@
     "message": "プロフィールを読み込み中…"
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinthアカウント"
+    "message": "Catalogアカウント"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "アカウントを削除"
@@ -1494,13 +1494,13 @@
     "message": "スクリーンショット"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "Modrinthへサインイン"
+    "message": "Catalogへサインイン"
   },
   "app.nav.switch-account": {
     "message": "アカウントの切り替え"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "Modrinth+にアップグレード"
+    "message": "Catalog supporterにアップグレード"
   },
   "app.nav.view-profile": {
     "message": "プロフィールを表示"
@@ -1716,7 +1716,7 @@
     "message": "ZIPをエクスポート"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth screenshots.zip"
+    "message": "Solara screenshots.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} screenshots.zip"
@@ -1752,7 +1752,7 @@
     "message": "アップデートを表示"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "インスタンス起動時に設定される環境変数"
@@ -2007,7 +2007,7 @@
     "message": "離席中"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "この設定はModrinthの起動設定によって管理されます。"
+    "message": "この設定はCatalogの起動設定によって管理されます。"
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "値を入力"
@@ -2463,16 +2463,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "Modrinthは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。この機能は下のボタンから個別に拒否や許可または変更することができます。"
+    "message": "Catalogは広告収益によって運営され、クリエイターへの報酬もその収益から支払われています。当社のパートナーは、広告のパーソナライズや効果測定のために、アプリ内でCookieを保存・利用する場合があります。この機能は下のボタンから個別に拒否や許可または変更することができます。"
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "Discordの現在のプレイ中に Modrinth App を表示します。これはModによってインスタンスに追加されるRich Presenceには影響しません。適用にはアプリの再起動が必要です。"
+    "message": "Discordの現在のプレイ中に Solara Launcher を表示します。これはModによってインスタンスに追加されるRich Presenceには影響しません。適用にはアプリの再起動が必要です。"
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinthはユーザー体験の向上および最適化のために、匿名化されたアナリティクスと利用データを収集しています。このオプションをオフにすることで無効化（オプトアウト）され、以降データの収集は行われません。"
+    "message": "Catalogはユーザー体験の向上および最適化のために、匿名化されたアナリティクスと利用データを収集しています。このオプションをオフにすることで無効化（オプトアウト）され、以降データの収集は行われません。"
   },
   "app.settings.privacy.telemetry.title": {
     "message": "テレメトリ"
@@ -2487,7 +2487,7 @@
     "message": "キャッシュが再構築されるまで、アプリの読み込みが遅くなる場合があります。"
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "キャッシュデータを消去し、Modrinthから再ダウンロードします。キャッシュが再構築されるまで、アプリの読み込みが遅くなる場合があります。"
+    "message": "キャッシュデータを消去し、Catalogから再ダウンロードします。キャッシュが再構築されるまで、アプリの読み込みが遅くなる場合があります。"
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "アプリのキャッシュ"
@@ -2502,7 +2502,7 @@
     "message": "アプリデータベースのバックアップ"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth Appがインスタンスやその他のファイルを保存する場所です。変更はアプリの再起動後に反映されます。"
+    "message": "Solara Launcherがインスタンスやその他のファイルを保存する場所です。変更はアプリの再起動後に反映されます。"
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "アプリのディレクトリ"
@@ -2748,13 +2748,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth プライド"
+    "message": "Solara プライド"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "これらのスキンは、プライド月間中にModrinthのプライド募金活動に寄付したことで獲得したものです。"
+    "message": "これらのスキンは、プライド月間中にSolaraのプライド募金活動に寄付したことで獲得したものです。"
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "マウント・オブ・メイヘム"
@@ -2790,10 +2790,10 @@
     "message": "オンに切り替え"
   },
   "app.survey.body": {
-    "message": "Modrinth App の使用感についての簡単なアンケートにご協力いただけますか？"
+    "message": "Solara Launcher の使用感についての簡単なアンケートにご協力いただけますか？"
   },
   "app.survey.footer": {
-    "message": "このフィードバックはModrinthチームに直接届けられ、今後のアップデートの改善に役立てられます！"
+    "message": "このフィードバックはCatalogチームに直接届けられ、今後のアップデートの改善に役立てられます！"
   },
   "app.survey.no-thanks": {
     "message": "結構です"
@@ -2802,16 +2802,16 @@
     "message": "アンケートに回答"
   },
   "app.survey.title": {
-    "message": "Modrinthユーザーのみなさん、こんにちは！"
+    "message": "Catalogユーザーのみなさん、こんにちは！"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} のダウンロードが完了しました。今すぐ更新するには再読み込みするか、Modrinth Appを閉じる際に自動更新されます。"
+    "message": "Solara Launcher v{version} のダウンロードが完了しました。今すぐ更新するには再読み込みするか、Solara Launcherを閉じる際に自動更新されます。"
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} が利用可能です。最新の機能と修正プログラムを入手するには、パッケージマネージャーを使用して更新してください！"
+    "message": "Solara Launcher v{version} が利用可能です。最新の機能と修正プログラムを入手するには、パッケージマネージャーを使用して更新してください！"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} が利用可能になりました！お使いのネットワークが従量制のため、自動ダウンロードは行っておりません。"
+    "message": "Solara Launcher v{version} が利用可能になりました！お使いのネットワークが従量制のため、自動ダウンロードは行っておりません。"
   },
   "app.update-popup.changelog": {
     "message": "更新履歴"
@@ -2856,7 +2856,7 @@
     "message": "<shortcut>N</shortcut>を押してインスタンスをクイック作成"
   },
   "app.welcome-screen.title": {
-    "message": "Modrinthへようこそ"
+    "message": "Solaraへようこそ"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -2925,10 +2925,10 @@
     "message": "これはMinecraftのユーザー名とは異なる可能性があります！"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "Modrinthユーザー名を入力…"
+    "message": "Catalogユーザー名を入力…"
   },
   "friends.add-friend.username.title": {
-    "message": "あなたのフレンドのModrinthユーザー名は何ですか？"
+    "message": "あなたのフレンドのCatalogユーザー名は何ですか？"
   },
   "friends.add-friends-to-share": {
     "message": "<link>友達を追加</link>して、彼らが何をしているか見てみよう！"
@@ -2973,7 +2973,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>Modrinthアカウントにサインイン</link>して友達を追加し、彼らがプレイしているゲームをチェックしよう！"
+    "message": "<link>Catalogアカウントにサインイン</link>して友達を追加し、彼らがプレイしているゲームをチェックしよう！"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "リンク済の共有インスタンス"
@@ -2988,7 +2988,7 @@
     "message": "共有を解除中…"
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "この共有インスタンスをModrinthから削除し、使用者へのアップデート送信を停止します。ローカルのインスタンスには影響しません。"
+    "message": "この共有インスタンスをCatalogから削除し、使用者へのアップデート送信を停止します。ローカルのインスタンスには影響しません。"
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "これはローカルインスタンスにのみ影響します。インストール済みのコンテンツはこのデバイスに残り、共有インスタンスやそれを使用している他のユーザーには影響しません。"
@@ -3000,7 +3000,7 @@
     "message": "共有インスタンスのリンクを解除"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "Modrinthのサーバーからこの共有インスタンスを削除します。Modrinthアプリでこれを使用しているユーザーへのアップデート配信は停止しますが、ローカルのインスタンスとそのコンテンツはこのデバイスに残ります。"
+    "message": "Solaraのサーバーからこの共有インスタンスを削除します。Solaraアプリでこれを使用しているユーザーへのアップデート配信は停止しますが、ローカルのインスタンスとそのコンテンツはこのデバイスに残ります。"
   },
   "instance.action.create-shortcut": {
     "message": "ショートカットを作成"
@@ -3510,7 +3510,7 @@
     "message": "アカウントを作成"
   },
   "modal.modrinth-account-required.description": {
-    "message": "この機能を利用するには、Modrinthアカウントにログインする必要があります。"
+    "message": "この機能を利用するには、Catalogアカウントにログインする必要があります。"
   },
   "modal.modrinth-account-required.header": {
     "message": "アカウントが必要です"
@@ -3519,10 +3519,10 @@
     "message": "もう一度ブラウザを開く"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "Modrinthへサインイン"
+    "message": "Catalogへサインイン"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "Modrinthアカウントにサインインしてください"
+    "message": "Catalogアカウントにサインインしてください"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "サインイン"
@@ -3540,7 +3540,7 @@
     "message": "Minecraftにサインイン"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "Modrinthへサインイン"
+    "message": "Catalogへサインイン"
   },
   "onboarding-checklist.title": {
     "message": "はじめる"

@@ -5,11 +5,11 @@ export interface MinecraftAuthError {
 
 const networkError: MinecraftAuthError = {
 	whatHappened:
-		'Modrinth App could not connect to a Microsoft, Xbox, or Minecraft service needed for sign-in. This is usually caused by a local network, DNS, proxy, firewall, hosts file, VPN, or antivirus issue.',
+		'Solara Launcher could not connect to a Microsoft, Xbox, or Minecraft service needed for sign-in. This is usually caused by a local network, DNS, proxy, firewall, hosts file, VPN, or antivirus issue.',
 	stepsToFix: [
-		'Restart Modrinth App and try signing in again',
+		'Restart Solara Launcher and try signing in again',
 		'Check that your internet connection is working',
-		'Allow Modrinth App through your firewall, antivirus, proxy, VPN, and hosts file rules',
+		'Allow Solara Launcher through your firewall, antivirus, proxy, VPN, and hosts file rules',
 		'Try a different network or temporarily disable VPN/proxy software if you use one',
 		'If routing or DNS is the issue, a service like Cloudflare WARP can sometimes help',
 	],
@@ -18,9 +18,9 @@ const networkError: MinecraftAuthError = {
 export const minecraftAuthErrors: Record<string, MinecraftAuthError> = {
 	minecraft_auth_token_expired: {
 		whatHappened:
-			'Your saved Microsoft sign-in token has expired or was revoked, so Modrinth App cannot refresh your Minecraft session.',
+			'Your saved Microsoft sign-in token has expired or was revoked, so Solara Launcher cannot refresh your Minecraft session.',
 		stepsToFix: [
-			'Sign out of the affected Minecraft account in Modrinth App',
+			'Sign out of the affected Minecraft account in Solara Launcher',
 			'Sign in to the account again',
 			'Once the new sign-in finishes, try launching Minecraft again',
 		],
@@ -32,7 +32,7 @@ export const minecraftAuthErrors: Record<string, MinecraftAuthError> = {
 			'Open your system date and time settings',
 			'Turn on automatic time zone and automatic time, if available',
 			'Use the sync option in your system settings to synchronize the clock',
-			'Restart Modrinth App',
+			'Restart Solara Launcher',
 			'Try signing in again',
 		],
 	},
@@ -41,14 +41,14 @@ export const minecraftAuthErrors: Record<string, MinecraftAuthError> = {
 			'Microsoft or Minecraft temporarily blocked the sign-in request because there were too many recent attempts.',
 		stepsToFix: [
 			'Wait about an hour before trying again',
-			'Restart Modrinth App after waiting',
+			'Restart Solara Launcher after waiting',
 			'Try signing in once more',
 			'If the same message appears, wait longer before retrying so the temporary limit can clear',
 		],
 	},
 	minecraft_auth_service_unavailable: {
 		whatHappened:
-			"Minecraft's authentication service is returning a server error, so Modrinth App cannot finish signing you in right now.",
+			"Minecraft's authentication service is returning a server error, so Solara Launcher cannot finish signing you in right now.",
 		stepsToFix: [
 			'Wait a few minutes and try signing in again',
 			'Check <a href="https://support.xbox.com/xbox-live-status">Xbox Status</a> for current service issues',
@@ -63,8 +63,8 @@ export const minecraftAuthErrors: Record<string, MinecraftAuthError> = {
 			'Sign in with the <a href="https://www.minecraft.net/en-us/download">official Minecraft Launcher</a>',
 			'Launch Minecraft: Java Edition once from the official launcher',
 			'Wait up to an hour if the purchase or profile setup was recent',
-			'Make sure you are using the Microsoft account that owns Minecraft. See <a href="https://support.modrinth.com/en/articles/9409136-finding-the-right-xbox-account">Finding the right Xbox account</a> for help',
-			'Try signing in to Modrinth App again',
+			'Make sure you are using the Microsoft account that owns Minecraft. See <a href="https://github.com/Solara-Inc-Development/solara-launcher/issues">Finding the right Xbox account</a> for help',
+			'Try signing in to Solara Launcher again',
 		],
 	},
 	minecraft_auth_network: networkError,
@@ -136,11 +136,11 @@ export const minecraftAuthErrors: Record<string, MinecraftAuthError> = {
 	},
 	minecraft_auth_xsts_rejected: {
 		whatHappened:
-			'Xbox services rejected the request to authorize this account for Minecraft services, but did not return a specific account restriction that Modrinth App recognizes.',
+			'Xbox services rejected the request to authorize this account for Minecraft services, but did not return a specific account restriction that Solara Launcher recognizes.',
 		stepsToFix: [
 			'Sign in with the <a href="https://www.minecraft.net/en-us/download">official Minecraft Launcher</a>',
 			'Complete any prompts shown by Microsoft, Xbox, or Minecraft',
-			'Try signing in to Modrinth App again',
+			'Try signing in to Solara Launcher again',
 			'If the official launcher also fails, follow the error shown there or contact Xbox Support',
 		],
 	},

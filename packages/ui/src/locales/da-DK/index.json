@@ -141,7 +141,7 @@
     "defaultMessage": "Åbn mappe"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Åbn i Modrinth"
+    "defaultMessage": "Åbn i Catalog"
   },
   "button.play": {
     "defaultMessage": "Spil"
@@ -1107,7 +1107,7 @@
     "defaultMessage": "Moderator"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth Team"
+    "defaultMessage": "Catalog Team"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Afventer"
@@ -1608,7 +1608,7 @@
     "defaultMessage": "Dit projekt har flere miløjer"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Vi har ændret miljø systemet på Modrinth og nye muligheder er nu tilgængelige. Venligst sikre den korrekte mulighed er valgt nedenunder og så klik \"Bekræft\" og så du færdig!"
+    "defaultMessage": "Vi har ændret miljø systemet på Catalog og nye muligheder er nu tilgængelige. Venligst sikre den korrekte mulighed er valgt nedenunder og så klik \"Bekræft\" og så du færdig!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Venligst gennemse mulighederne nedenunder"
@@ -1884,13 +1884,13 @@
     "defaultMessage": "Har du allerede en server?"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Ny server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Installer mods, inviter venner og spil alle sammen fra Modrinth Appen."
+    "defaultMessage": "Installer mods, inviter venner og spil alle sammen fra Solara Launcheren."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Vælg dine favorit mods og vi håndtere resten."
@@ -1917,7 +1917,7 @@
     "defaultMessage": "Advarsel"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "Dit Modrinth Hosting køb blev gennemført."
+    "defaultMessage": "Dit Catalog Hosting køb blev gennemført."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Køb gennemført"

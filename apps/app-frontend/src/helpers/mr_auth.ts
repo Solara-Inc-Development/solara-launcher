@@ -11,7 +11,7 @@ export async function login(
 	_flow: ModrinthAuthFlow = 'sign-in',
 	_addAccount = false,
 ): Promise<ModrinthCredentials> {
-	throw new Error('Modrinth account login is disabled in Solara Launcher.')
+	throw new Error('Catalog account login is unavailable in Solara Launcher.')
 }
 
 export async function logout(): Promise<void> {}

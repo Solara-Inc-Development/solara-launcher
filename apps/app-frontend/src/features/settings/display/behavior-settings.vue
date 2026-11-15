@@ -12,6 +12,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { onBeforeUnmount, onMounted } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { catalogFeatures } from '@/config'
 import { injectAppSettingsModal } from '@/features/settings/app-settings-modal/context'
 import HiddenInstancesSettings from '@/features/settings/display/hidden-instances-settings/index.vue'
 import {
@@ -42,7 +43,7 @@ const messages = defineMessages({
 	},
 	syncAcrossDevicesSignedOutTooltip: {
 		id: 'app.behavior-settings.sync-across-devices.signed-out-tooltip',
-		defaultMessage: 'Sign into a Modrinth account to sync settings.',
+		defaultMessage: 'Sign into a catalog account to sync settings.',
 	},
 	startupAndNavigationTitle: {
 		id: 'app.behavior-settings.startup-and-navigation.title',
@@ -62,7 +63,7 @@ const messages = defineMessages({
 	},
 	minimizeLauncherDescription: {
 		id: 'app.appearance-settings.minimize-launcher.description',
-		defaultMessage: 'Minimize Modrinth App when Minecraft starts.',
+		defaultMessage: 'Minimize Solara Launcher when Minecraft starts.',
 	},
 	refocusOnGameCloseTitle: {
 		id: 'app.behavior-settings.refocus-on-game-close.title',
@@ -70,7 +71,7 @@ const messages = defineMessages({
 	},
 	refocusOnGameCloseDescription: {
 		id: 'app.behavior-settings.refocus-on-game-close.description',
-		defaultMessage: 'Bring Modrinth App to the foreground when Minecraft exits.',
+		defaultMessage: 'Bring Solara Launcher to the foreground when Minecraft exits.',
 	},
 	defaultLandingPageHome: {
 		id: 'app.appearance-settings.default-landing-page.home',
@@ -119,7 +120,7 @@ const messages = defineMessages({
 	unknownPackWarningDescription: {
 		id: 'app.appearance-settings.unknown-pack-warning.description',
 		defaultMessage:
-			"Show a safety warning before installing a Modrinth Pack (.mrpack) that isn't hosted on Modrinth.",
+			"Show a safety warning before installing a Modpack (.mrpack) that isn't hosted in the catalog.",
 	},
 	skipNonEssentialWarningsTitle: {
 		id: 'app.appearance-settings.skip-non-essential-warnings.title',
@@ -239,7 +240,9 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-	<section class="border-0 border-b border-solid border-divider pb-6">
+	<section
+		v-if="catalogFeatures.cloudSettings"
+		class="border-0 border-b border-solid border-divider pb-6">
 		<div class="flex items-center justify-between gap-4">
 			<div>
 				<h2 id="sync-behavior-across-devices-label" class="m-0 text-lg font-semibold text-contrast">

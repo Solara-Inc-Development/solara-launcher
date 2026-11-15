@@ -1,6 +1,8 @@
 import { prepareThemeColorTransition } from '@modrinth/ui'
 import { computed, reactive, ref, watch } from 'vue'
 
+import { readThemePreference, themePreferenceKeys } from '@/helpers/theme-preferences'
+
 export const THEME_OPTIONS = ['dark', 'light', 'oled', 'retro', 'system'] as const
 export const DARK_THEMES = ['dark', 'oled', 'retro'] as const
 
@@ -9,8 +11,8 @@ export type DarkTheme = (typeof DARK_THEMES)[number]
 type Theme = Exclude<ColorTheme, 'system'>
 type NativeTheme = 'light' | 'dark'
 
-const PREFERRED_THEME_KEY = 'modrinth-theme'
-const PREFERRED_DARK_THEME_KEY = 'modrinth-preferred-dark-theme'
+const PREFERRED_THEME_KEY = themePreferenceKeys.theme
+const PREFERRED_DARK_THEME_KEY = themePreferenceKeys.darkTheme
 
 export function isDarkTheme(theme: string): theme is DarkTheme {
 	return (DARK_THEMES as readonly string[]).includes(theme)
@@ -18,10 +20,13 @@ export function isDarkTheme(theme: string): theme is DarkTheme {
 
 function loadPreferredTheme(): ColorTheme {
 	try {
-		const stored = window.localStorage.getItem(PREFERRED_THEME_KEY)
-		if (stored && (THEME_OPTIONS as readonly string[]).includes(stored)) {
-			return stored as ColorTheme
-		}
+		const stored = readThemePreference(
+			window.localStorage,
+			PREFERRED_THEME_KEY,
+			'modrinth-theme',
+			THEME_OPTIONS,
+		)
+		if (stored) return stored
 	} catch {
 		// storage blocked or full
 	}
@@ -37,10 +42,13 @@ function loadPreferredTheme(): ColorTheme {
 
 function loadPreferredDarkTheme(): DarkTheme {
 	try {
-		const stored = window.localStorage.getItem(PREFERRED_DARK_THEME_KEY)
-		if (stored && isDarkTheme(stored)) {
-			return stored
-		}
+		const stored = readThemePreference(
+			window.localStorage,
+			PREFERRED_DARK_THEME_KEY,
+			'modrinth-preferred-dark-theme',
+			DARK_THEMES,
+		)
+		if (stored) return stored
 	} catch {
 		// storage blocked or full
 	}

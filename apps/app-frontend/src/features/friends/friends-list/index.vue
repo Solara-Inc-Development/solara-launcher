@@ -156,7 +156,7 @@ const messages = defineMessages({
 	},
 	usernameTitle: {
 		id: 'friends.add-friend.username.title',
-		defaultMessage: "What's your friend's Modrinth username?",
+		defaultMessage: "What's your friend's catalog username?",
 	},
 	usernameDescription: {
 		id: 'friends.add-friend.username.description',
@@ -164,7 +164,7 @@ const messages = defineMessages({
 	},
 	usernamePlaceholder: {
 		id: 'friends.add-friend.username.placeholder',
-		defaultMessage: 'Enter Modrinth username...',
+		defaultMessage: 'Enter catalog username...',
 	},
 	sendFriendRequest: {
 		id: 'friends.add-friend.submit',
@@ -205,7 +205,7 @@ const messages = defineMessages({
 	signInToAddFriends: {
 		id: 'friends.sign-in-to-add-friends',
 		defaultMessage:
-			"<link>Sign in to a Modrinth account</link> to add friends and see what they're playing!",
+			"<link>Sign in to a catalog account</link> to add friends and see what they're playing!",
 	},
 	addFriendsToShare: {
 		id: 'friends.add-friends-to-share',
@@ -312,9 +312,17 @@ const messages = defineMessages({
 		</h3>
 		<IconButton
 			v-if="incomingRequests.length > 0"
-			v-tooltip="formatMessage(messages.viewFriendRequests, { count: incomingRequests.length })"
+			v-tooltip="
+				formatMessage(messages.viewFriendRequests, {
+					count: incomingRequests.length,
+				})
+			"
 			type="quiet"
-			:label="formatMessage(messages.viewFriendRequests, { count: incomingRequests.length })"
+			:label="
+				formatMessage(messages.viewFriendRequests, {
+					count: incomingRequests.length,
+				})
+			"
 			class="relative"
 			@click="friendInvitesModal.show"
 		>

@@ -87,7 +87,7 @@ const messages = defineMessages({
 	unpublishBody: {
 		id: 'app.library.unpublish-shared-instance.modal.admonition-body',
 		defaultMessage:
-			"{count, plural, one {This deletes the shared instance from Modrinth's servers. People using it in the Modrinth App will stop receiving updates, and it will be removed from your library.} other {This deletes these shared instances from Modrinth's servers. People using them in the Modrinth App will stop receiving updates, and they will be removed from your library.}}",
+			"{count, plural, one {This deletes the shared instance from the catalog's servers. People using it in the Solara Launcher will stop receiving updates, and it will be removed from your library.} other {This deletes these shared instances from the catalog's servers. People using them in the Solara Launcher will stop receiving updates, and they will be removed from your library.}}",
 	},
 	leaveHeader: {
 		id: 'app.library.leave-shared-instance.modal.header',
@@ -114,7 +114,7 @@ const messages = defineMessages({
 	unpublishAndLeaveBody: {
 		id: 'app.library.unpublish-and-leave-shared-instances.modal.admonition-body',
 		defaultMessage:
-			"{unpublishCount, plural, one {The # shared instance you own will be deleted from Modrinth's servers, and people using it} other {The # shared instances you own will be deleted from Modrinth's servers, and people using them}} will stop receiving updates. {leaveCount, plural, one {You'll lose access to the other shared instance and need a new invite to rejoin it.} other {You'll lose access to the other # shared instances and need a new invite to rejoin them.}} All of them will be removed from your library.",
+			"{unpublishCount, plural, one {The # shared instance you own will be deleted from the catalog's servers, and people using it} other {The # shared instances you own will be deleted from the catalog's servers, and people using them}} will stop receiving updates. {leaveCount, plural, one {You'll lose access to the other shared instance and need a new invite to rejoin it.} other {You'll lose access to the other # shared instances and need a new invite to rejoin them.}} All of them will be removed from your library.",
 	},
 })
 

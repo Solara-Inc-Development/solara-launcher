@@ -48,7 +48,7 @@
     "defaultMessage": "Nebyl zvolen žádný způsob platby"
   },
   "billing.resubscribe-modal.plan-item": {
-    "defaultMessage": "Modrinth Hosting ({plan})"
+    "defaultMessage": "Catalog Hosting ({plan})"
   },
   "billing.resubscribe-modal.plan.custom": {
     "defaultMessage": "Vlastní"
@@ -72,7 +72,7 @@
     "defaultMessage": "Daň"
   },
   "billing.resubscribe-modal.title": {
-    "defaultMessage": "Obnovit odebírání Modrinth Hosting"
+    "defaultMessage": "Obnovit odebírání Catalog Hosting"
   },
   "browse.advanced-filters.apply-saved-preferences": {
     "defaultMessage": "Používat uložené preference"
@@ -84,7 +84,7 @@
     "defaultMessage": "Pro váš dotaz nebyly nalezeny žádné výsledky!"
   },
   "browse.offline": {
-    "defaultMessage": "Právě nejste připojeni k internetu. Připojte se k internetu a prohlížejte si Modrinth!"
+    "defaultMessage": "Právě nejste připojeni k internetu. Připojte se k internetu a prohlížejte si Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Najít {projectType}..."
@@ -222,7 +222,7 @@
     "defaultMessage": "Otevřít ve složce"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Otevřít v Modrinth"
+    "defaultMessage": "Otevřít v Catalog"
   },
   "button.play": {
     "defaultMessage": "Hrát"
@@ -519,13 +519,13 @@
     "defaultMessage": "{count} odebráno (vypnuto)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Soubory, které nejsou publikovány do Modrinthu, nejsou zkontrolovány."
+    "defaultMessage": "Soubory, které nejsou publikovány do Catalogu, nejsou zkontrolovány."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Některý obsah na vašem serveru nebylo možné analyzovat a tato změna se ho může týkat."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Tato aktualizace obsahuje soubory, které nejsou publikované na Modrinthu. Silně doporučujeme nainstalovat pouze soubory ze zdroje, kterému důveřujete."
+    "defaultMessage": "Tato aktualizace obsahuje soubory, které nejsou publikované na Catalogu. Silně doporučujeme nainstalovat pouze soubory ze zdroje, kterému důveřujete."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Upozornění na neznámý soubor"
@@ -1155,7 +1155,7 @@
     "defaultMessage": "odkaz-k-dilu"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Toto vypadá jako odkaz na Modrinth. Pokud je tento obsah dostupný na Modrinthu, váš pack byl pravděpodobně exportován nesprávně. Pokud jste ho stáhli z jiného webu, zkuste místo toho stáhnout verzi z Modrinthu; někdy nejde o totožné soubory."
+    "defaultMessage": "Toto vypadá jako odkaz na Catalog. Pokud je tento obsah dostupný na Catalogu, váš pack byl pravděpodobně exportován nesprávně. Pokud jste ho stáhli z jiného webu, zkuste místo toho stáhnout verzi z Catalogu; někdy nejde o totožné soubory."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Poznámky"
@@ -1179,7 +1179,7 @@
     "defaultMessage": "Pokud se zjistí, že jste měnily nebo manipulovaly obrázky, váš projekt a účet mohou být vymazány."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Modrinth pracovníci mohou ověřit předložené důkazy"
+    "defaultMessage": "Catalog pracovníci mohou ověřit předložené důkazy"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Uložit uvedení autora"
@@ -2694,16 +2694,16 @@
     "defaultMessage": "Přidávání platební metody"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Získat Modrinth App"
+    "defaultMessage": "Získat Solara Launcher"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App se otevře automaticky..."
+    "defaultMessage": "Solara Launcher se otevře automaticky..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Otevírání Modrinth App"
+    "defaultMessage": "Otevírání Solara Launcher"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Proč používat Modrinth App"
+    "defaultMessage": "Proč používat Solara Launcher"
   },
   "notification.error.title": {
     "defaultMessage": "Došlo k chybě"
@@ -2766,7 +2766,7 @@
     "defaultMessage": "Moderátor"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth tým"
+    "defaultMessage": "Catalog tým"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Čekající"
@@ -2886,10 +2886,10 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Modrinth tvůrce."
+    "defaultMessage": "Catalog tvůrce."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Modrinth uživatel."
+    "defaultMessage": "Catalog uživatel."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Opravdu si přeješ zablokovat tohoto uživatele?"
@@ -2928,7 +2928,7 @@
     "defaultMessage": "{count, plural, one {# projekt} few {# projekty} other {# projektů}}"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Povolte vyskakovací okna pro Modrinth, pak to zkuste znovu."
+    "defaultMessage": "Povolte vyskakovací okna pro Catalog, pak to zkuste znovu."
   },
   "profile.details.label.email-verified": {
     "defaultMessage": "Email ověřen"
@@ -2982,7 +2982,7 @@
     "defaultMessage": "{count, plural, one {projekt} few {projekty} other {projektů}}"
   },
   "profile.official-account": {
-    "defaultMessage": "Oficiální Modrinth účet"
+    "defaultMessage": "Oficiální Catalog účet"
   },
   "profile.unblock-user.error-title": {
     "defaultMessage": "Odblokování uživatele selhalo"
@@ -4314,13 +4314,13 @@
     "defaultMessage": "Už máte server?"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Nový server"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Instalujte mody, zvěte přátele a hrajte společně, to vše z Modrinth App."
+    "defaultMessage": "Instalujte mody, zvěte přátele a hrajte společně, to vše z Solara Launcher."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Vyberte si své oblíbené mody a o zbytek se postaráme."
@@ -4365,7 +4365,7 @@
     "defaultMessage": "Probíhá nahrávání"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Kontaktovat Modrinth Podporu"
+    "defaultMessage": "Kontaktovat Catalog Podporu"
   },
   "servers.manage.error.details": {
     "defaultMessage": "Podrobnosti chyby:"
@@ -4392,7 +4392,7 @@
     "defaultMessage": "Úspěch"
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Sdílené servery"
@@ -4506,7 +4506,7 @@
     "defaultMessage": "Kde byste chtěl/a mít umístěný svůj server?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Chybí vaše oblast? <link>Dejte nám vědět, kde byste chtěl/a vidět Modrinth Hosting příště!</link>"
+    "defaultMessage": "Chybí vaše oblast? <link>Dejte nám vědět, kde byste chtěl/a vidět Catalog Hosting příště!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "Přidán/a {time}"
@@ -4551,7 +4551,7 @@
     "defaultMessage": "Nastavte si svůj server (~2min)"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Vítejte v Modrinth Hostingu"
+    "defaultMessage": "Vítejte v Catalog Hostingu"
   },
   "servers.setup.uploading-modpack.header": {
     "defaultMessage": "Nahrávání modpacku"
@@ -4602,7 +4602,7 @@
     "defaultMessage": "Výsledky vyhledávání"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Přibližně {percentage}% aplikace Modrinthu je k dispozici v tomto jazyce."
+    "defaultMessage": "Přibližně {percentage}% aplikace Solarau je k dispozici v tomto jazyce."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "{percentage}% podporováno"
@@ -5007,25 +5007,25 @@
     "defaultMessage": "{download_sum} Stažení"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Tento uživatel pracuje jako moderátor obsahu pro Modrinth."
+    "defaultMessage": "Tento uživatel pracuje jako moderátor obsahu pro Catalog."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "Moderátoři obsahu na Modrinthu kontrolují projekty, řeší nahlášení a pomáhají udržovat Modrinth bezpečný."
+    "defaultMessage": "Moderátoři obsahu na Catalogu kontrolují projekty, řeší nahlášení a pomáhají udržovat Catalog bezpečný."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Moderátor obsahu"
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Člen Modrinth+"
+    "defaultMessage": "Člen Catalog supporter"
   },
   "user.profile.badge.pride.name": {
     "defaultMessage": "Podporovatel Pride sbírky"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Tento uživatel pracuje pro Modrinth."
+    "defaultMessage": "Tento uživatel pracuje pro Catalog."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Modrinth tým"
+    "defaultMessage": "Catalog tým"
   },
   "version.content.name": {
     "defaultMessage": "Název"

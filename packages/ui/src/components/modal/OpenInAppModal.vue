@@ -126,11 +126,11 @@ const { formatMessage } = useVIntl()
 const messages = defineMessages({
 	openingApp: {
 		id: 'modal.open-in-app.title',
-		defaultMessage: 'Opening Modrinth App',
+		defaultMessage: 'Opening Solara Launcher',
 	},
 	whyUseApp: {
 		id: 'modal.open-in-app.why-use',
-		defaultMessage: 'Why use the Modrinth App',
+		defaultMessage: 'Why use the Solara Launcher',
 	},
 	benefitLaunch: {
 		id: 'modal.open-in-app.benefit.launch',
@@ -146,11 +146,11 @@ const messages = defineMessages({
 	},
 	openingAutomatically: {
 		id: 'modal.open-in-app.opening-automatically',
-		defaultMessage: 'The Modrinth App will open automatically...',
+		defaultMessage: 'The Solara Launcher will open automatically...',
 	},
 	getApp: {
 		id: 'modal.open-in-app.get-app',
-		defaultMessage: 'Get Modrinth App',
+		defaultMessage: 'Get Solara Launcher',
 	},
 })
 

@@ -60,7 +60,7 @@
     "defaultMessage": "Không tìm được thứ bạn đang tìm kiếm!"
   },
   "browse.offline": {
-    "defaultMessage": "Bạn đã Mất kết nối. Hãy kết nối mạng để tìm kiếm Modrinth!"
+    "defaultMessage": "Bạn đã Mất kết nối. Hãy kết nối mạng để tìm kiếm Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Tìm kiếm {projectType}..."
@@ -489,13 +489,13 @@
     "defaultMessage": "Đã gỡ {count} (đã tắt)"
   },
   "content.diff-modal.reviewed-files": {
-    "defaultMessage": "Các tệp chưa được xuất bản trên Modrinth sẽ không được kiểm duyệt."
+    "defaultMessage": "Các tệp chưa được xuất bản trên Catalog sẽ không được kiểm duyệt."
   },
   "content.diff-modal.unknown-content-body": {
     "defaultMessage": "Một số nội dung trên máy chủ của bạn không thể phân tích được và có thể bị ảnh hưởng bởi thay đổi này."
   },
   "content.diff-modal.unknown-files-description": {
-    "defaultMessage": "Bản cập nhật này chứa các tệp chưa được xuất bản trên Modrinth. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
+    "defaultMessage": "Bản cập nhật này chứa các tệp chưa được xuất bản trên Catalog. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
   },
   "content.diff-modal.unknown-files-warning": {
     "defaultMessage": "Cảnh báo tệp không xác định"
@@ -1134,7 +1134,7 @@
     "defaultMessage": "liên-kết-đến-tác-phẩm"
   },
   "external-files.permissions-card.editor.modrinth-link-to-work": {
-    "defaultMessage": "Đây có vẻ là liên kết Modrinth. Nếu nội dung này có trên Modrinth thì gói của bạn có thể đã được xuất không đúng cách. Nếu bạn tải nội dung từ trang khác, hãy thử tải phiên bản trên Modrinth thay thế; đôi khi chúng không phải là cùng một tệp."
+    "defaultMessage": "Đây có vẻ là liên kết Catalog. Nếu nội dung này có trên Catalog thì gói của bạn có thể đã được xuất không đúng cách. Nếu bạn tải nội dung từ trang khác, hãy thử tải phiên bản trên Catalog thay thế; đôi khi chúng không phải là cùng một tệp."
   },
   "external-files.permissions-card.editor.notes-label": {
     "defaultMessage": "Ghi chú"
@@ -1158,7 +1158,7 @@
     "defaultMessage": "Nếu bị phát hiện nói dối hoặc chỉnh sửa gian lận các ảnh đã tải lên, dự án và tài khoản của bạn có thể bị chấm dứt."
   },
   "external-files.permissions-card.editor.proof-warning.title": {
-    "defaultMessage": "Nhân viên Modrinth có thể xác minh bằng chứng đã gửi"
+    "defaultMessage": "Nhân viên Catalog có thể xác minh bằng chứng đã gửi"
   },
   "external-files.permissions-card.editor.save": {
     "defaultMessage": "Lưu ghi công"
@@ -1248,7 +1248,7 @@
     "defaultMessage": "Tự động ghi công"
   },
   "external-files.permissions-card.reason.globally-allowed.description": {
-    "defaultMessage": "Chúng tôi đã gặp tệp này trước đây và đã chuẩn bị thông tin ghi công cho bạn. Nếu có gì không đúng, vui lòng liên hệ Hỗ trợ Modrinth qua Trung tâm trợ giúp"
+    "defaultMessage": "Chúng tôi đã gặp tệp này trước đây và đã chuẩn bị thông tin ghi công cho bạn. Nếu có gì không đúng, vui lòng liên hệ Hỗ trợ Catalog qua Trung tâm trợ giúp"
   },
   "external-files.permissions-card.reason.license": {
     "defaultMessage": "Giấy phép"
@@ -2901,16 +2901,16 @@
     "defaultMessage": "Luôn cập nhật các file khi server thay đổi"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Tải Modrinth App"
+    "defaultMessage": "Tải Solara Launcher"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App sẽ được tự động mở..."
+    "defaultMessage": "Solara Launcher sẽ được tự động mở..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Mở Modrinth App"
+    "defaultMessage": "Mở Solara Launcher"
   },
   "modal.open-in-app.why-use": {
-    "defaultMessage": "Tại sao nên sử dụng Modrinth App"
+    "defaultMessage": "Tại sao nên sử dụng Solara Launcher"
   },
   "notification.error.title": {
     "defaultMessage": "Đã xảy ra lỗi"
@@ -2976,7 +2976,7 @@
     "defaultMessage": "Kiểm duyệt viên"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Đội Ngũ Modrinth"
+    "defaultMessage": "Đội Ngũ Catalog"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Đang chờ"
@@ -3096,13 +3096,13 @@
     "defaultMessage": "Visa"
   },
   "profile.bio.fallback.creator": {
-    "defaultMessage": "Một nhà sáng tạo trên Modrinth."
+    "defaultMessage": "Một nhà sáng tạo trên Catalog."
   },
   "profile.bio.fallback.user": {
-    "defaultMessage": "Một người dùng Modrinth."
+    "defaultMessage": "Một người dùng Catalog."
   },
   "profile.block-user.admonition-body": {
-    "defaultMessage": "{username} sẽ không thể gửi lời mời kết bạn, mời bạn vào bản cài đặt được chia sẻ hoặc mời bạn vào máy chủ Modrinth Hosting."
+    "defaultMessage": "{username} sẽ không thể gửi lời mời kết bạn, mời bạn vào bản cài đặt được chia sẻ hoặc mời bạn vào máy chủ Catalog Hosting."
   },
   "profile.block-user.admonition-title": {
     "defaultMessage": "Bạn có chắc muốn chặn người dùng này không?"
@@ -3168,7 +3168,7 @@
     "defaultMessage": "{count, plural, one {# dự án} other {# dự án}}"
   },
   "profile.details.error.github-popup-blocked": {
-    "defaultMessage": "Hãy cho phép cửa sổ bật lên cho Modrinth rồi thử lại."
+    "defaultMessage": "Hãy cho phép cửa sổ bật lên cho Catalog rồi thử lại."
   },
   "profile.details.error.github-profile-message": {
     "defaultMessage": "Không thể lấy hồ sơ GitHub. Vui lòng thử lại."
@@ -3276,10 +3276,10 @@
     "defaultMessage": "{count, plural, one {dự án} other {dự án}}"
   },
   "profile.official-account": {
-    "defaultMessage": "Tài khoản Modrinth chính thức"
+    "defaultMessage": "Tài khoản Catalog chính thức"
   },
   "profile.official-account.bio": {
-    "defaultMessage": "Tài khoản người dùng chính thức của Modrinth. Nhận hỗ trợ tại <support-link></support-link> hoặc qua email tại <email></email>"
+    "defaultMessage": "Tài khoản người dùng chính thức của Catalog. Nhận hỗ trợ tại <support-link></support-link> hoặc qua email tại <email></email>"
   },
   "profile.reset-2fa.admonition-body": {
     "defaultMessage": "Ứng dụng xác thực và các mã dự phòng của {username} sẽ bị xóa và họ sẽ được thông báo. Chỉ thực hiện việc này sau khi đã xác minh danh tính của họ."
@@ -3714,7 +3714,7 @@
     "defaultMessage": "{count} {countPlural, plural, one {lượt chơi gần đây} other {lượt chơi gần đây}}"
   },
   "project.recent-plays.tooltip": {
-    "defaultMessage": "{count} {countPlural, plural, one {lượt chơi gần đây} other {lượt chơi gần đây}} từ Modrinth trong 2 tuần vừa qua"
+    "defaultMessage": "{count} {countPlural, plural, one {lượt chơi gần đây} other {lượt chơi gần đây}} từ Catalog trong 2 tuần vừa qua"
   },
   "project.server.customModpackTooltip": {
     "defaultMessage": "Dự án này có sử dụng modpack tuỳ chỉnh"
@@ -4047,7 +4047,7 @@
     "defaultMessage": "Project của bạn có nhiều biến môi trường"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Chúng tôi vừa nâng cấp hệ thống Môi trường trên Modrinth và hiện đã có thêm các tùy chọn mới. Vui lòng đảm bảo bạn đã chọn đúng tùy chọn bên dưới và sau đó nhấp vào 'Xác nhận' khi hoàn tất!"
+    "defaultMessage": "Chúng tôi vừa nâng cấp hệ thống Môi trường trên Catalog và hiện đã có thêm các tùy chọn mới. Vui lòng đảm bảo bạn đã chọn đúng tùy chọn bên dưới và sau đó nhấp vào 'Xác nhận' khi hoàn tất!"
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Xin hãy xem lại các lựa chọn bên dưới"
@@ -4200,7 +4200,7 @@
     "defaultMessage": "Không công khai"
   },
   "project.visibility.unlisted-by-staff": {
-    "defaultMessage": "Đã bị ẩn bởi đội ngũ Modrinth"
+    "defaultMessage": "Đã bị ẩn bởi đội ngũ Catalog"
   },
   "report.item-type.content": {
     "defaultMessage": "nội dung"
@@ -4419,13 +4419,13 @@
     "defaultMessage": "Trình nạp"
   },
   "search.photosensitivity-warning-modal.body.1": {
-    "defaultMessage": "Chúng tôi không thể đảm bảo mọi nội dung trên Modrinth đều đã được gắn nhãn phù hợp."
+    "defaultMessage": "Chúng tôi không thể đảm bảo mọi nội dung trên Catalog đều đã được gắn nhãn phù hợp."
   },
   "search.photosensitivity-warning-modal.body.2": {
-    "defaultMessage": "Nhãn nội dung về yếu tố kích hoạt nhạy cảm ánh sáng do chính người sáng tạo tự khai báo khi tải nội dung lên Modrinth. Các dự án này chưa trải qua kiểm tra an toàn."
+    "defaultMessage": "Nhãn nội dung về yếu tố kích hoạt nhạy cảm ánh sáng do chính người sáng tạo tự khai báo khi tải nội dung lên Catalog. Các dự án này chưa trải qua kiểm tra an toàn."
   },
   "search.photosensitivity-warning-modal.body.3": {
-    "defaultMessage": "Bạn tự chịu rủi ro khi sử dụng bất kỳ nội dung nào trên Modrinth. Hãy giữ an toàn! 💚"
+    "defaultMessage": "Bạn tự chịu rủi ro khi sử dụng bất kỳ nội dung nào trên Catalog. Hãy giữ an toàn! 💚"
   },
   "search.photosensitivity-warning-modal.dont-show-again": {
     "defaultMessage": "Không hiển thị lại"
@@ -5172,13 +5172,13 @@
     "defaultMessage": "Không dùng tên người chơi Minecraft của họ."
   },
   "servers.grant-access-modal.target.label": {
-    "defaultMessage": "Tên người dùng Modrinth"
+    "defaultMessage": "Tên người dùng Catalog"
   },
   "servers.grant-access-modal.target.no-suggestions": {
     "defaultMessage": "Không tìm thấy người dùng phù hợp."
   },
   "servers.grant-access-modal.target.placeholder": {
-    "defaultMessage": "Nhập tên người dùng Modrinth"
+    "defaultMessage": "Nhập tên người dùng Catalog"
   },
   "servers.grant-access-modal.target.searching": {
     "defaultMessage": "Đang tìm kiếm..."
@@ -5241,13 +5241,13 @@
     "defaultMessage": "Tìm hiểu thêm"
   },
   "servers.list-empty.modrinth-hosting-label": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.list-empty.new-server-button": {
     "defaultMessage": "Máy chủ mới"
   },
   "servers.list-empty.no-servers-description": {
-    "defaultMessage": "Cài mod, mời bạn bè, và chơi cùng nhau mà chỉ cần Ứng dụng Modrinth."
+    "defaultMessage": "Cài mod, mời bạn bè, và chơi cùng nhau mà chỉ cần Ứng dụng Solara."
   },
   "servers.list-empty.one-click-mod-installs-description": {
     "defaultMessage": "Chọn bản mod mà bạn yêu thích và chúng tôi sẽ làm tất cả phần còn lại."
@@ -5256,13 +5256,13 @@
     "defaultMessage": "Cài mod với một cú nhấp"
   },
   "servers.list-empty.play-with-friends-description": {
-    "defaultMessage": "Mời bạn bè chơi trên máy chủ của bạn với tính năng vào chơi chỉ bằng một cú nhấp từ Ứng dụng Modrinth."
+    "defaultMessage": "Mời bạn bè chơi trên máy chủ của bạn với tính năng vào chơi chỉ bằng một cú nhấp từ Ứng dụng Solara."
   },
   "servers.list-empty.play-with-friends-title": {
     "defaultMessage": "Chơi với bạn bè"
   },
   "servers.list-empty.sign-in-button": {
-    "defaultMessage": "Đăng nhập vào Modrinth"
+    "defaultMessage": "Đăng nhập vào Catalog"
   },
   "servers.list-empty.simple-setup-description": {
     "defaultMessage": "Thiết lập máy chủ giống như thế giới chơi đơn."
@@ -5319,7 +5319,7 @@
     "defaultMessage": "Gói đăng ký của bạn được thiết lập để hủy vào <date>{formattedDate}</date>. "
   },
   "servers.listing.notice.suspended": {
-    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ, liên hệ bên hỗ trợ Modrinth để biết thêm thông tin."
+    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ, liên hệ bên hỗ trợ Catalog để biết thêm thông tin."
   },
   "servers.listing.notice.upgrading": {
     "defaultMessage": "Phần cứng máy chủ của bạn hiện đang được nâng cấp và sẽ hoạt động trở lại trong thời gian ngắn."
@@ -5382,7 +5382,7 @@
     "defaultMessage": "Đang tải lên"
   },
   "servers.manage.contact-support-button": {
-    "defaultMessage": "Liên hệ bên hỗ trợ Modrinth"
+    "defaultMessage": "Liên hệ bên hỗ trợ Catalog"
   },
   "servers.manage.error.alert-notice": {
     "defaultMessage": "Hệ thống của chúng tôi tự động báo cáo với đội ngũ khi có vấn đề. Chúng tôi đã cố gắng đưa nó trực tuyến."
@@ -5394,10 +5394,10 @@
     "defaultMessage": "Chi tiết lỗi:"
   },
   "servers.manage.error.queue-notice": {
-    "defaultMessage": "Nếu bạn đã từng mua máy chủ Modrinth Hosting, nó đang trong hàng chờ và sẽ xuất hiện ở đây khi đã sẵn sàng. <warning>Tuyệt đối không được mua lại máy chủ mới.</warning>"
+    "defaultMessage": "Nếu bạn đã từng mua máy chủ Catalog Hosting, nó đang trong hàng chờ và sẽ xuất hiện ở đây khi đã sẵn sàng. <warning>Tuyệt đối không được mua lại máy chủ mới.</warning>"
   },
   "servers.manage.error.support-notice": {
-    "defaultMessage": "Nếu bạn cần trợ giúp cá nhân liên quan đến trạng thái máy chủ, vui lòng liên hệ bên hỗ trợ Modrinth."
+    "defaultMessage": "Nếu bạn cần trợ giúp cá nhân liên quan đến trạng thái máy chủ, vui lòng liên hệ bên hỗ trợ Catalog."
   },
   "servers.manage.error.title": {
     "defaultMessage": "Không tải được máy chủ"
@@ -5445,7 +5445,7 @@
     "defaultMessage": "Làm mới"
   },
   "servers.manage.resubscribe-error.text": {
-    "defaultMessage": "Có lỗi xảy ra trong khi đăng ký lại cho máy chủ Modrinth."
+    "defaultMessage": "Có lỗi xảy ra trong khi đăng ký lại cho máy chủ Catalog."
   },
   "servers.manage.resubscribe-error.title": {
     "defaultMessage": "Lỗi khi đăng ký lại"
@@ -5466,7 +5466,7 @@
     "defaultMessage": "Tìm kiếm trong {count} {count, plural, other {máy chủ}}..."
   },
   "servers.manage.servers-title": {
-    "defaultMessage": "Modrinth Hosting"
+    "defaultMessage": "Catalog Hosting"
   },
   "servers.manage.shared-servers-title": {
     "defaultMessage": "Máy chủ được chia sẻ"
@@ -5499,10 +5499,10 @@
     "defaultMessage": "Thời gian dùng thử máy chủ Medal của bạn đã kết thúc và máy chủ của bạn đã bị đình chỉ. Vui lòng nâng cấp để tiếp tục sử dụng máy chủ."
   },
   "servers.medal-listing.notice.suspended": {
-    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ. Vui lòng cập nhật thông tin thanh toán hoặc liên hệ với bên hỗ trợ của Modrinth để biết thêm thông tin."
+    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ. Vui lòng cập nhật thông tin thanh toán hoặc liên hệ với bên hỗ trợ của Catalog để biết thêm thông tin."
   },
   "servers.medal-listing.notice.suspended-with-reason": {
-    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ do: {reason}. Vui lòng cập nhật thông tin thanh toán hoặc liên hệ với bên hỗ trợ của Modrinth để biết thêm thông tin."
+    "defaultMessage": "Máy chủ của bạn đã bị đình chỉ do: {reason}. Vui lòng cập nhật thông tin thanh toán hoặc liên hệ với bên hỗ trợ của Catalog để biết thêm thông tin."
   },
   "servers.medal-listing.notice.upgrading": {
     "defaultMessage": "Phần cứng máy chủ của bạn hiện đang được nâng cấp và sẽ hoạt động trở lại trong thời gian ngắn."
@@ -5550,7 +5550,7 @@
     "defaultMessage": "Không thể bỏ qua"
   },
   "servers.purchase.notification.success.text": {
-    "defaultMessage": "Đã thành toán thành công cho Modrinth Hosting."
+    "defaultMessage": "Đã thành toán thành công cho Catalog Hosting."
   },
   "servers.purchase.notification.success.title": {
     "defaultMessage": "Thanh toán thành công"
@@ -5625,7 +5625,7 @@
     "defaultMessage": "Bạn muốn khu vực máy chủ của bạn được nằm ở đâu?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Khu vực không được liệt kê? <link>Hãy cho chúng tôi biết nơi mà bạn muốn Modrinth Hosting sẽ có trong tương lai!</link>"
+    "defaultMessage": "Khu vực không được liệt kê? <link>Hãy cho chúng tôi biết nơi mà bạn muốn Catalog Hosting sẽ có trong tương lai!</link>"
   },
   "servers.remove-access-modal.added-label": {
     "defaultMessage": "Đã thêm {time}"
@@ -5742,7 +5742,7 @@
     "defaultMessage": "Máy chủ của bạn đã sẵn sàng. Bạn sẽ cần làm những điều này để bắt đầu chơi!"
   },
   "servers.setup.onboarding.welcome.title": {
-    "defaultMessage": "Chào mừng đến Modrinth Hosting"
+    "defaultMessage": "Chào mừng đến Catalog Hosting"
   },
   "servers.setup.rate-limit.text": {
     "defaultMessage": "Bạn đang bị giới hạn lượt truy cập. Vui lòng thử lại sau."
@@ -5820,7 +5820,7 @@
     "defaultMessage": "Hiển thị nâng cao"
   },
   "settings.display.sidebar.external-links-new-tab.description": {
-    "defaultMessage": "Mở các liên kết dẫn ra ngoài Modrinth trong tab mới. Bất kể cài đặt này, liên kết cùng tên miền và liên kết trong mô tả Markdown sẽ mở trong cùng tab, còn liên kết trong quảng cáo và trang chỉnh sửa sẽ mở trong tab mới."
+    "defaultMessage": "Mở các liên kết dẫn ra ngoài Catalog trong tab mới. Bất kể cài đặt này, liên kết cùng tên miền và liên kết trong mô tả Markdown sẽ mở trong cùng tab, còn liên kết trong quảng cáo và trang chỉnh sửa sẽ mở trong tab mới."
   },
   "settings.display.sidebar.external-links-new-tab.title": {
     "defaultMessage": "Mở liên kết bên ngoài trong tab mới"
@@ -5841,7 +5841,7 @@
     "defaultMessage": "Tối"
   },
   "settings.display.theme.description": {
-    "defaultMessage": "Chọn giao diện màu bạn muốn dùng trên Modrinth."
+    "defaultMessage": "Chọn giao diện màu bạn muốn dùng trên Solara."
   },
   "settings.display.theme.light": {
     "defaultMessage": "Sáng"
@@ -5865,7 +5865,7 @@
     "defaultMessage": "Dùng giao diện này ở mọi nơi bạn đăng nhập. Tắt tùy chọn này để dùng giao diện riêng trên thiết bị này."
   },
   "settings.display.theme.sync-across-devices.sign-in-tooltip": {
-    "defaultMessage": "Đăng nhập vào Modrinth để đồng bộ giao diện"
+    "defaultMessage": "Đăng nhập vào Catalog để đồng bộ giao diện"
   },
   "settings.display.theme.system": {
     "defaultMessage": "Đồng bộ với hệ thống"
@@ -5886,7 +5886,7 @@
     "defaultMessage": "Kết quả tìm kiếm"
   },
   "settings.language.coverage.app-tooltip": {
-    "defaultMessage": "Khoảng {percentage}% Ứng dụng Modrinth đã có sẵn bằng ngôn ngữ này."
+    "defaultMessage": "Khoảng {percentage}% Ứng dụng Solara đã có sẵn bằng ngôn ngữ này."
   },
   "settings.language.coverage.label": {
     "defaultMessage": "Hỗ trợ {percentage}%"
@@ -5922,7 +5922,7 @@
     "defaultMessage": "Khóa truy cập cá nhân"
   },
   "settings.preferences.update-failed.description": {
-    "defaultMessage": "Không thể lưu cài đặt vào tài khoản Modrinth của bạn. Vui lòng thử lại."
+    "defaultMessage": "Không thể lưu cài đặt vào tài khoản Catalog của bạn. Vui lòng thử lại."
   },
   "settings.preferences.update-failed.title": {
     "defaultMessage": "Không thể đồng bộ cài đặt"
@@ -5940,7 +5940,7 @@
     "defaultMessage": "Ảnh hồ sơ"
   },
   "settings.profile.public-information.description": {
-    "defaultMessage": "Thông tin hồ sơ của bạn được công khai và có thể <profile-link>xem trên Modrinth</profile-link> cũng như qua <docs-link>Modrinth API</docs-link>."
+    "defaultMessage": "Thông tin hồ sơ của bạn được công khai và có thể <profile-link>xem trên Catalog</profile-link> cũng như qua <docs-link>Catalog API</docs-link>."
   },
   "settings.profile.save-error": {
     "defaultMessage": "Không thể cập nhật hồ sơ"
@@ -5949,10 +5949,10 @@
     "defaultMessage": "Đã xảy ra lỗi khi cập nhật hồ sơ. Vui lòng thử lại."
   },
   "settings.profile.sign-in-required.description": {
-    "defaultMessage": "Đăng nhập bằng tài khoản Modrinth để tùy chỉnh hồ sơ công khai."
+    "defaultMessage": "Đăng nhập bằng tài khoản Catalog để tùy chỉnh hồ sơ công khai."
   },
   "settings.profile.sign-in-required.title": {
-    "defaultMessage": "Yêu cầu tài khoản Modrinth"
+    "defaultMessage": "Yêu cầu tài khoản Catalog"
   },
   "settings.profile.username.description": {
     "defaultMessage": "Tên duy nhất, không phân biệt chữ hoa chữ thường, dùng để nhận diện hồ sơ của bạn."
@@ -5967,7 +5967,7 @@
     "defaultMessage": "Người dùng"
   },
   "settings.social.blocked-users.description": {
-    "defaultMessage": "Đây là những người dùng bạn đã chặn trên Modrinth. Họ không thể:"
+    "defaultMessage": "Đây là những người dùng bạn đã chặn trên Catalog. Họ không thể:"
   },
   "settings.social.blocked-users.empty": {
     "defaultMessage": "Bạn chưa chặn ai."
@@ -5982,7 +5982,7 @@
     "defaultMessage": "Gửi lời mời kết bạn cho bạn"
   },
   "settings.social.blocked-users.restriction.hosting": {
-    "defaultMessage": "Mời bạn quản lý máy chủ Modrinth Hosting."
+    "defaultMessage": "Mời bạn quản lý máy chủ Catalog Hosting."
   },
   "settings.social.blocked-users.restriction.shared-instances": {
     "defaultMessage": "Mời bạn vào các bản cài đặt được chia sẻ"
@@ -6006,13 +6006,13 @@
     "defaultMessage": "Ảnh đại diện của {username}"
   },
   "settings.social.friend-requests.description": {
-    "defaultMessage": "Kiểm soát ai có thể gửi lời mời kết bạn cho bạn trên Modrinth."
+    "defaultMessage": "Kiểm soát ai có thể gửi lời mời kết bạn cho bạn trên Catalog."
   },
   "settings.social.friend-requests.title": {
     "defaultMessage": "Lời mời kết bạn"
   },
   "settings.social.hosting-access.description": {
-    "defaultMessage": "Kiểm soát ai có thể mời bạn quản lý máy chủ Modrinth Hosting."
+    "defaultMessage": "Kiểm soát ai có thể mời bạn quản lý máy chủ Catalog Hosting."
   },
   "settings.social.hosting-access.title": {
     "defaultMessage": "Lời mời truy cập Hosting"
@@ -6045,10 +6045,10 @@
     "defaultMessage": "Lời mời vào bản cài đặt được chia sẻ"
   },
   "settings.social.sign-in-required.description": {
-    "defaultMessage": "Với tài khoản Modrinth, bạn có thể kiểm soát ai được tương tác với mình và quản lý người dùng bị chặn"
+    "defaultMessage": "Với tài khoản Catalog, bạn có thể kiểm soát ai được tương tác với mình và quản lý người dùng bị chặn"
   },
   "settings.social.sign-in-required.title": {
-    "defaultMessage": "Yêu cầu tài khoản Modrinth"
+    "defaultMessage": "Yêu cầu tài khoản Catalog"
   },
   "settings.social.title": {
     "defaultMessage": "Xã hội"
@@ -6147,7 +6147,7 @@
     "defaultMessage": "Lưu"
   },
   "sharing.invite-players-modal.search-placeholder": {
-    "defaultMessage": "Nhập tên người dùng Modrinth"
+    "defaultMessage": "Nhập tên người dùng Catalog"
   },
   "sharing.invite-players-modal.searching": {
     "defaultMessage": "Đang tìm kiếm..."
@@ -6732,19 +6732,19 @@
     "defaultMessage": "Phần mềm độc hại thường được phát tán qua các tệp mod bằng cách chia sẻ trên những nền tảng như Discord."
   },
   "unknown-file-warning-modal.mod-warning-body": {
-    "defaultMessage": " chưa được xuất bản trên Modrinth. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
+    "defaultMessage": " chưa được xuất bản trên Catalog. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
   },
   "unknown-file-warning-modal.mod-warning-title": {
     "defaultMessage": "Cảnh báo tệp không xác định"
   },
   "unknown-file-warning-modal.modpack-warning-body": {
-    "defaultMessage": " chứa các tệp chưa được xuất bản trên Modrinth. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
+    "defaultMessage": " chứa các tệp chưa được xuất bản trên Catalog. Chúng tôi đặc biệt khuyên bạn chỉ cài đặt tệp từ những nguồn mà bạn tin tưởng."
   },
   "unknown-file-warning-modal.modpack-warning-title": {
     "defaultMessage": "Cảnh báo tệp không xác định"
   },
   "unknown-file-warning-modal.reviewed-files": {
-    "defaultMessage": "Các tệp chưa được xuất bản trên Modrinth sẽ không được kiểm duyệt."
+    "defaultMessage": "Các tệp chưa được xuất bản trên Catalog sẽ không được kiểm duyệt."
   },
   "unknown-file-warning-modal.unrecognized-files": {
     "defaultMessage": "Tệp không được nhận dạng"
@@ -6831,7 +6831,7 @@
     "defaultMessage": "Người dùng nãy đã có mặt từ thời Beta, kết thúc vào tháng hai năm 2022."
   },
   "user.profile.badge.beta.link": {
-    "defaultMessage": "Nhấp để tìm hiểu thêm vào sự ra mắt phiên bản Beta của Modrinth."
+    "defaultMessage": "Nhấp để tìm hiểu thêm vào sự ra mắt phiên bản Beta của Catalog."
   },
   "user.profile.badge.beta.name": {
     "defaultMessage": "Người thử nghiệm Beta"
@@ -6843,67 +6843,67 @@
     "defaultMessage": "{download_sum} Lượt tải xuống"
   },
   "user.profile.badge.early-datapack-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án gói dữ liệu trên Modrinth trước khi chúng tôi phát hành chúng vào tháng giêng 2023."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án gói dữ liệu trên Catalog trước khi chúng tôi phát hành chúng vào tháng giêng 2023."
   },
   "user.profile.badge.early-datapack-adopter.name": {
     "defaultMessage": "Người dùng gói dữ liệu sớm"
   },
   "user.profile.badge.early-modpack-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Modpack trên Modrinth trước khi chúng tôi phát hành chúng vào tháng năm, 2022."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Modpack trên Catalog trước khi chúng tôi phát hành chúng vào tháng năm, 2022."
   },
   "user.profile.badge.early-modpack-adopter.name": {
     "defaultMessage": "Người dùng Modpack sớm"
   },
   "user.profile.badge.early-plugin-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Plugin trên Modrinth trước khi chúng tôi phát hành chúng vào tháng tám 2022."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Plugin trên Catalog trước khi chúng tôi phát hành chúng vào tháng tám 2022."
   },
   "user.profile.badge.early-plugin-adopter.name": {
     "defaultMessage": "Người dùng Plugin sớm"
   },
   "user.profile.badge.early-resourcepack-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án gói tài nguyên trên Modrinth trước khi chúng tôi phát hành chúng vào tháng tám 2022."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án gói tài nguyên trên Catalog trước khi chúng tôi phát hành chúng vào tháng tám 2022."
   },
   "user.profile.badge.early-resourcepack-adopter.name": {
     "defaultMessage": "Người dùng gói tài nguyên sớm"
   },
   "user.profile.badge.early-server-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án máy chủ trên Modrinth trước khi chúng tôi phát hành chúng vào tháng ba 2026."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án máy chủ trên Catalog trước khi chúng tôi phát hành chúng vào tháng ba 2026."
   },
   "user.profile.badge.early-server-adopter.name": {
     "defaultMessage": "Người dùng Máy chủ sớm"
   },
   "user.profile.badge.early-shader-adopter.about.1": {
-    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Shader trên Modrinth trước khi chúng tôi phát hành chúng vào tháng giêng 2023."
+    "defaultMessage": "Người dùng này đã giúp chúng tôi thử nghiệm với các dự án Shader trên Catalog trước khi chúng tôi phát hành chúng vào tháng giêng 2023."
   },
   "user.profile.badge.early-shader-adopter.name": {
     "defaultMessage": "Người dùng Shader sớm"
   },
   "user.profile.badge.hosting-alpha.about.1": {
-    "defaultMessage": "Người này đã tham gia vào việc thử nghiệm alpha kín của Modrinth Hosting trước khi chúng tôi phát hành Modrinth Hosting Beta vào tháng mười một 2024."
+    "defaultMessage": "Người này đã tham gia vào việc thử nghiệm alpha kín của Catalog Hosting trước khi chúng tôi phát hành Catalog Hosting Beta vào tháng mười một 2024."
   },
   "user.profile.badge.hosting-alpha.name": {
-    "defaultMessage": "Người thử nghiệm Modrinth Hosting"
+    "defaultMessage": "Người thử nghiệm Catalog Hosting"
   },
   "user.profile.badge.moderator.about.1": {
-    "defaultMessage": "Người dùng này làm cho bên kiểm duyệt nội dung Modrinth."
+    "defaultMessage": "Người dùng này làm cho bên kiểm duyệt nội dung Catalog."
   },
   "user.profile.badge.moderator.about.2": {
-    "defaultMessage": "Những người kiểm duyệt nội dung trên Modrinth xem xét các dự án, xử lý báo cáo và giúp giữ cho Modrinth an toàn."
+    "defaultMessage": "Những người kiểm duyệt nội dung trên Catalog xem xét các dự án, xử lý báo cáo và giúp giữ cho Catalog an toàn."
   },
   "user.profile.badge.moderator.name": {
     "defaultMessage": "Thành viên bên kiểm duyệt nội dung"
   },
   "user.profile.badge.plus.about.1": {
-    "defaultMessage": "Người dùng này đang đóng góp và hỗ trợ cho Modrinth và Nhà sáng tạo trên nên tảng."
+    "defaultMessage": "Người dùng này đang đóng góp và hỗ trợ cho Catalog và Nhà sáng tạo trên nên tảng."
   },
   "user.profile.badge.plus.link": {
     "defaultMessage": "Nhấp vào để xem cách làm thành viên."
   },
   "user.profile.badge.plus.name": {
-    "defaultMessage": "Thành viên Modrinth+"
+    "defaultMessage": "Thành viên Catalog supporter"
   },
   "user.profile.badge.pride.about.1": {
-    "defaultMessage": "Người dùng này đã tham gia ít nhất một trong các hoạt động gây quỹ của Modrinth dành cho cộng đồng LGBTQ+."
+    "defaultMessage": "Người dùng này đã tham gia ít nhất một trong các hoạt động gây quỹ của Catalog dành cho cộng đồng LGBTQ+."
   },
   "user.profile.badge.pride.link": {
     "defaultMessage": "Nhấp vào để ghé qua quỹ LGBT của chúng tôi."
@@ -6912,16 +6912,16 @@
     "defaultMessage": "Người ủng hộ quỹ LGBT"
   },
   "user.profile.badge.staff.about.1": {
-    "defaultMessage": "Người dùng này là cộng tác viên Modrinth."
+    "defaultMessage": "Người dùng này là cộng tác viên Catalog."
   },
   "user.profile.badge.staff.name": {
-    "defaultMessage": "Đội ngũ Modrinth"
+    "defaultMessage": "Đội ngũ Catalog"
   },
   "user.role.moderator": {
     "defaultMessage": "Kiểm duyệt viên nội dung"
   },
   "user.role.modrinth-team": {
-    "defaultMessage": "Đội ngũ Modrinth"
+    "defaultMessage": "Đội ngũ Catalog"
   },
   "version.content.name": {
     "defaultMessage": "Tên"

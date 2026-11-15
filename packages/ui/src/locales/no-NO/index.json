@@ -54,7 +54,7 @@
     "defaultMessage": "Ingen resultater funnet for ditt søk!"
   },
   "browse.offline": {
-    "defaultMessage": "Du er offline akkurat nå. Koble til internett for å surfe på Modrinth!"
+    "defaultMessage": "Du er offline akkurat nå. Koble til internett for å surfe på Catalog!"
   },
   "browse.search.placeholder": {
     "defaultMessage": "Søk etter {projectType}..."
@@ -174,7 +174,7 @@
     "defaultMessage": "Åpn i mappe"
   },
   "button.open-in-modrinth": {
-    "defaultMessage": "Åpne i Modrinth"
+    "defaultMessage": "Åpne i Catalog"
   },
   "button.play": {
     "defaultMessage": "Spill"
@@ -1134,13 +1134,13 @@
     "defaultMessage": "Hold filer oppdatert når serveren endres"
   },
   "modal.open-in-app.get-app": {
-    "defaultMessage": "Skaff Modrinth App-en"
+    "defaultMessage": "Skaff Solara Launcher-en"
   },
   "modal.open-in-app.opening-automatically": {
-    "defaultMessage": "Modrinth App-en kommer til å åpne seg automatisk..."
+    "defaultMessage": "Solara Launcher-en kommer til å åpne seg automatisk..."
   },
   "modal.open-in-app.title": {
-    "defaultMessage": "Åpner Modrinth App-en"
+    "defaultMessage": "Åpner Solara Launcher-en"
   },
   "modal.open-in-app.why-use": {
     "defaultMessage": "Hvorfor bruke modrinth App-en"
@@ -1173,7 +1173,7 @@
     "defaultMessage": "Moderator"
   },
   "omorphia.component.badge.label.modrinth-team": {
-    "defaultMessage": "Modrinth Team"
+    "defaultMessage": "Catalog Team"
   },
   "omorphia.component.badge.label.pending": {
     "defaultMessage": "Venter"
@@ -1746,7 +1746,7 @@
     "defaultMessage": "Prosjektet ditt har flere miljøer"
   },
   "project.settings.environment.notice.review-options.description": {
-    "defaultMessage": "Vi har nettopp oppdatert miljøsystemet på Modrinth, og nye valg er nå tilgjengelige. Pass på at riktig alternativ er valgt nedenfor, og klikk deretter «Verifiser» når du er ferdig."
+    "defaultMessage": "Vi har nettopp oppdatert miljøsystemet på Catalog, og nye valg er nå tilgjengelige. Pass på at riktig alternativ er valgt nedenfor, og klikk deretter «Verifiser» når du er ferdig."
   },
   "project.settings.environment.notice.review-options.title": {
     "defaultMessage": "Gå gjennom valgene nedenfor"
@@ -2295,7 +2295,7 @@
     "defaultMessage": "Hvor vil du at serveren din skal være plassert?"
   },
   "servers.region.region-unsupported": {
-    "defaultMessage": "Region ikke oppført? <link>Gi oss beskjed om hvor du ønsker å se Modrinth Hosting neste gang!</link>"
+    "defaultMessage": "Region ikke oppført? <link>Gi oss beskjed om hvor du ønsker å se Catalog Hosting neste gang!</link>"
   },
   "settings.account.title": {
     "defaultMessage": "Konto og sikkerhet"

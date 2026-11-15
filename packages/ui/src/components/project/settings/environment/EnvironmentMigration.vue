@@ -166,7 +166,7 @@ const messages = defineMessages({
 	reviewOptionsDescription: {
 		id: 'project.settings.environment.notice.review-options.description',
 		defaultMessage:
-			"We've just overhauled the Environments system on Modrinth and new options are now available. Please ensure the correct option is selected below and then click 'Verify' when you're done!",
+			"We've just overhauled the Environments system in the catalog and new options are now available. Please ensure the correct option is selected below and then click 'Verify' when you're done!",
 	},
 })
 </script>

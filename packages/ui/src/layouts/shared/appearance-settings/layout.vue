@@ -8,6 +8,10 @@ import ProjectLayoutSelector from './components/ProjectLayoutSelector.vue'
 import { appearanceSettingsMessages as messages } from './messages'
 import { injectAppearanceSettings } from './providers'
 
+withDefaults(defineProps<{ showAccountSync?: boolean }>(), {
+	showAccountSync: true,
+})
+
 const appearance = injectAppearanceSettings()
 const { formatMessage } = useVIntl()
 
@@ -52,6 +56,7 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 			/>
 
 			<AppearanceSettingRow
+				v-if="showAccountSync"
 				class="mt-6"
 				control-id="sync-theme-across-devices"
 				:heading-level="3"

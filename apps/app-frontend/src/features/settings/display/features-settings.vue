@@ -13,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { onBeforeUnmount, onMounted } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
+import { catalogFeatures } from '@/config'
 import {
 	QUICK_INSTANCE_LIMIT_MAX,
 	useQuickInstanceLimit,
@@ -50,7 +51,7 @@ const messages = defineMessages({
 	},
 	syncAcrossDevicesSignedOutTooltip: {
 		id: 'app.features-settings.sync-across-devices.signed-out-tooltip',
-		defaultMessage: 'Sign into a Modrinth account to sync settings.',
+		defaultMessage: 'Sign into a catalog account to sync settings.',
 	},
 	instancePagesTitle: {
 		id: 'app.features-settings.instance-pages.title',
@@ -249,7 +250,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<section class="border-0 border-b border-solid border-surface-4 pb-6">
+	<section
+		v-if="catalogFeatures.cloudSettings"
+		class="border-0 border-b border-solid border-surface-4 pb-6">
 		<div class="flex items-center justify-between gap-4">
 			<div>
 				<h2 id="sync-features-across-devices-label" class="m-0 text-lg font-semibold text-contrast">

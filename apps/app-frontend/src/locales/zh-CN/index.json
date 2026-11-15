@@ -78,7 +78,7 @@
     "message": "Minecraft 配置失败"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "无法连接 Modrinth"
+    "message": "无法连接 Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "没有写入权限"
@@ -135,7 +135,7 @@
     "message": "全部接受"
   },
   "app.ads-consent.body": {
-    "message": "​广告维持着 Modrinth 的持续运营，并为创作者收益提供资金支持。我们的合作伙伴可能会在应用中存储或读取 Cookie，以提供个性化广告并评估广告效果。"
+    "message": "​广告维持着 Catalog 的持续运营，并为创作者收益提供资金支持。我们的合作伙伴可能会在应用中存储或读取 Cookie，以提供个性化广告并评估广告效果。"
   },
   "app.ads-consent.manage": {
     "message": "管理偏好设置"
@@ -144,7 +144,7 @@
     "message": "全部拒绝"
   },
   "app.ads-consent.title": {
-    "message": "您的隐私以及广告如何支持 Modrinth"
+    "message": "您的隐私以及广告如何支持 Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "用紧凑行式布局显示库实例。"
@@ -165,7 +165,7 @@
     "message": "隐藏名牌"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "当 Minecraft 进程启动时，将 Modrinth App 最小化。"
+    "message": "当 Minecraft 进程启动时，将 Solara Launcher 最小化。"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "最小化 App"
@@ -189,7 +189,7 @@
     "message": "隐藏右侧边栏"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "在安装非 Modrinth 托管的 Modrinth 整合包文件（.mrpack）前显示安全警告。"
+    "message": "在安装非 Catalog 托管的 Catalog 整合包文件（.mrpack）前显示安全警告。"
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "安装未知整合包前提醒我"
@@ -207,7 +207,7 @@
     "message": "主页与内容"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "在此设备上隐藏的实例。实例隐藏与否并不会同步到你的 Modrinth 账号。"
+    "message": "在此设备上隐藏的实例。实例隐藏与否并不会同步到你的 Catalog 账号。"
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "你尚未隐藏任何实例。"
@@ -222,10 +222,10 @@
     "message": "隐藏实例"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "当 Minecraft 退出时，将Modrinth App调至前台。"
+    "message": "当 Minecraft 退出时，将Solara Launcher调至前台。"
   },
   "app.behavior-settings.refocus-on-game-close.title": {
-    "message": "当《我的世界》关闭时，重新聚焦于Modrinth App"
+    "message": "当《我的世界》关闭时，重新聚焦于Solara Launcher"
   },
   "app.behavior-settings.startup-and-navigation.title": {
     "message": "启动与导航"
@@ -234,7 +234,7 @@
     "message": "在你登录的所有设备上使用这些行为设置。关闭它后可以在设备上单独设置。"
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登录 Modrinth 账户以同步设置。"
+    "message": "登录 Catalog 账户以同步设置。"
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "跨设备同步行为"
@@ -489,7 +489,7 @@
     "message": "在你登录的所有设备上使用这些行为设置。关闭它后可以在设备上单独设置。"
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登录到一个Modrinth账号以同步设置。"
+    "message": "登录到一个Catalog账号以同步设置。"
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "跨设备同步功能"
@@ -531,16 +531,16 @@
     "message": "查看实例"
   },
   "app.hosting.update-required.description": {
-    "message": "你需要更新才能通过 Modrinth App 使用 Modrinth Hosting"
+    "message": "你需要更新才能通过 Solara Launcher 使用 Solara Hosting"
   },
   "app.hosting.update-required.download": {
     "message": "更新升级"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "兴奋的 Modrinth Bot"
+    "message": "兴奋的 Catalog Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "需要更新 Modrinth App"
+    "message": "需要更新 Solara Launcher"
   },
   "app.install.phase.downloading_content": {
     "message": "正在下载内容"
@@ -648,7 +648,7 @@
     "message": "本地更改尚未发布分享"
   },
   "app.instance.admonitions.shared-instance.owner-update-body": {
-    "message": "您从其它的 Modrinth 应用程序安装向这个共享实例推送了一个更新。下载最新的更改以便从这里管理它。"
+    "message": "您从其它的 Solara 应用程序安装向这个共享实例推送了一个更新。下载最新的更改以便从这里管理它。"
   },
   "app.instance.admonitions.shared-instance.owner-update-button": {
     "message": "下载更新"
@@ -891,13 +891,13 @@
     "message": "登录账户"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "你需要登录 Modrinth"
+    "message": "你需要登录 Catalog"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "才能接收此共享实例的更新。"
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "你当前使用的 Modrinth 账户不正确"
+    "message": "你当前使用的 Catalog 账户不正确"
   },
   "app.instance.shortcut.created": {
     "message": "已创建快捷方式"
@@ -1359,10 +1359,10 @@
     "message": "安装"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "这个邀请是由另一位 Modrinth 用户创建的，而不是 Modrinth 官方。只接受你信任的人的邀请。"
+    "message": "这个邀请是由另一位 Catalog 用户创建的，而不是 Catalog 官方。只接受你信任的人的邀请。"
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "此邀请由 <creator>{username}</creator> 创建，而非 Modrinth。只接受您信任的人发出的邀请。"
+    "message": "此邀请由 <creator>{username}</creator> 创建，而非 Catalog。只接受您信任的人发出的邀请。"
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "整合包内容"
@@ -1395,7 +1395,7 @@
     "message": "为了寻求支持，请咨询我们的<support-link>支持团队</support-link>为了发漏洞请进开启我们的一个<github-link>github-漏洞报告</github-link>。"
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "未发布到 Modrinth 的文件未经过审核。"
+    "message": "未发布到 Catalog 的文件未经过审核。"
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "共享实例"
@@ -1413,7 +1413,7 @@
     "message": "服务器整合包不可用"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "这个整合包包含一些未在 Modrinth 发布的文件。我们强烈建议只从你信任的来源安装文件。"
+    "message": "这个整合包包含一些未在 Catalog 发布的文件。我们强烈建议只从你信任的来源安装文件。"
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "未知文件警告"
@@ -1467,10 +1467,10 @@
     "message": "个人主页加载中……"
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinth账户"
+    "message": "Catalog账户"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "移除账户"
@@ -1479,13 +1479,13 @@
     "message": "截图"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "登录到 Modrinth"
+    "message": "登录到 Catalog"
   },
   "app.nav.switch-account": {
     "message": "切换账户"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "升级至Modrinth+"
+    "message": "升级至Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "查看个人主页"
@@ -1701,7 +1701,7 @@
     "message": "导出为 ZIP"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth 截图.zip"
+    "message": "Catalog 截图.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} 截图.zip"
@@ -1737,7 +1737,7 @@
     "message": "与好友共享服务器"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "启动实例时设置的环境变量。"
@@ -2004,7 +2004,7 @@
     "message": "您的一些实例无法使用此设置"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "此设置由 Modrinth 的启动设置管理。"
+    "message": "此设置由 Catalog 的启动设置管理。"
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "输入一个值"
@@ -2838,16 +2838,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "广告使 Modrinth 得以运营，并为创作者报酬提供资金支持。我们的合作伙伴可能会在应用中存储或访问 Cookie，以便实现广告个性化和效果衡量。您可以在下方选择退出或管理您的偏好设置。"
+    "message": "广告使 Catalog 得以运营，并为创作者报酬提供资金支持。我们的合作伙伴可能会在应用中存储或访问 Cookie，以便实现广告个性化和效果衡量。您可以在下方选择退出或管理您的偏好设置。"
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "在 Discord 上将 Modrinth App 显示为您当前的活动。这不会影响模组为游戏实例添加的 Rich Presence。需要重启应用生效。"
+    "message": "在 Discord 上将 Solara Launcher 显示为您当前的活动。这不会影响模组为游戏实例添加的 Rich Presence。需要重启应用生效。"
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord Rich Presence"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth 收集匿名分析和使用数据，以提升用户体验并为您提供个性化服务。若禁用此选项，即表示您选择退出，您的数据将不再被收集。"
+    "message": "Catalog 收集匿名分析和使用数据，以提升用户体验并为您提供个性化服务。若禁用此选项，即表示您选择退出，您的数据将不再被收集。"
   },
   "app.settings.privacy.telemetry.title": {
     "message": "遥测"
@@ -2862,7 +2862,7 @@
     "message": "在缓存重建之前，应用加载可能会更慢。"
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "清除缓存数据，然后从Modrinth重新下载。在缓存重建之前，应用加载可能会更慢。"
+    "message": "清除缓存数据，然后从Catalog重新下载。在缓存重建之前，应用加载可能会更慢。"
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "App缓存"
@@ -2877,13 +2877,13 @@
     "message": "应用数据库备份"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App存储实例和其他文件的位置。更改会在重启程序后生效。"
+    "message": "Solara Launcher存储实例和其他文件的位置。更改会在重启程序后生效。"
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "应用目录"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "导出应用日志和诊断数据到 ZIP 文件用于与 Modrinth 支持共享。"
+    "message": "导出应用日志和诊断数据到 ZIP 文件用于与 Catalog 支持共享。"
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "导出调试信息"
@@ -3045,7 +3045,7 @@
     "message": "这些设置已在别处修改"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "当 Modrinth 在你的某个实例中找到模组添加的设置后，它们就会显示在这里。"
+    "message": "当 Catalog 在你的某个实例中找到模组添加的设置后，它们就会显示在这里。"
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "在不同的实例之间同步游戏设置。"
@@ -3225,7 +3225,7 @@
     "message": "复制广告详情"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "看到了不当或冒犯性广告？请在广告显示时复制它的详情，并将其发送到<support>Modrinth支持</support>。我们会审核并移除它。"
+    "message": "看到了不当或冒犯性广告？请在广告显示时复制它的详情，并将其发送到<support>Catalog支持</support>。我们会审核并移除它。"
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "请等待广告加载后再试。"
@@ -3378,13 +3378,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth 精选"
+    "message": "Solara 精选"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "你在骄傲月期间为 Modrinth 的骄傲月筹款活动捐款，因此获得了这些皮肤。"
+    "message": "你在骄傲月期间为 Solara 的骄傲月筹款活动捐款，因此获得了这些皮肤。"
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "群骑纷争"
@@ -3420,10 +3420,10 @@
     "message": "切换至开"
   },
   "app.survey.body": {
-    "message": "您是否介意回答一些关于使用 Modrinth App 的问题？"
+    "message": "您是否介意回答一些关于使用 Solara Launcher 的问题？"
   },
   "app.survey.footer": {
-    "message": "此反馈将直接发送给Modrinth团队，为今后的更新提供指导！"
+    "message": "此反馈将直接发送给Catalog团队，为今后的更新提供指导！"
   },
   "app.survey.no-thanks": {
     "message": "不，谢谢"
@@ -3432,7 +3432,7 @@
     "message": "参与调研"
   },
   "app.survey.title": {
-    "message": "嗨，Modrinth用户！"
+    "message": "嗨，Catalog用户！"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "选择要从哪个实例复制你的数据包。 此数据包仅用于初始同步，您可以在其后从任何实例编辑它。"
@@ -3519,13 +3519,13 @@
     "message": "同步的资源包"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} 更新已下载完成！立即重启更新，或退出时自动安装。"
+    "message": "Solara Launcher v{version} 更新已下载完成！立即重启更新，或退出时自动安装。"
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} 现已发布。请使用你的软件包管理器进行更新，获取最新功能与修复！"
+    "message": "Solara Launcher v{version} 现已发布。请使用你的软件包管理器进行更新，获取最新功能与修复！"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} 现已发布！由于你正在使用按流量计费的网络，该更新未自动下载。"
+    "message": "Solara Launcher v{version} 现已发布！由于你正在使用按流量计费的网络，该更新未自动下载。"
   },
   "app.update-popup.changelog": {
     "message": "更新日志"
@@ -3576,7 +3576,7 @@
     "message": "跳过"
   },
   "app.welcome-screen.title": {
-    "message": "欢迎使用 Modrinth"
+    "message": "欢迎使用 Solara"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -3645,10 +3645,10 @@
     "message": "这可能与对方的 Minecraft 用户名不同！"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "输入 Modrinth 用户名……"
+    "message": "输入 Catalog 用户名……"
   },
   "friends.add-friend.username.title": {
-    "message": "你好友的 Modrinth 用户名是什么？"
+    "message": "你好友的 Catalog 用户名是什么？"
   },
   "friends.add-friends-to-share": {
     "message": "<link>添加好友</link> 来看看他们都在玩什么！"
@@ -3693,7 +3693,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "登录你的 <link>Modrinth 账号</link>，添加好友，看看他们在玩什么！"
+    "message": "登录你的 <link>Catalog 账号</link>，添加好友，看看他们在玩什么！"
   },
   "installation-settings.shared-instance.linked-title": {
     "message": "已关联的共享实例"
@@ -3708,7 +3708,7 @@
     "message": "正在解除关联……"
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "从Modrinth移除这个分享实例，同时停止发送新的更新到正在使用它的人，你的本地实例不会被影响。"
+    "message": "从Catalog移除这个分享实例，同时停止发送新的更新到正在使用它的人，你的本地实例不会被影响。"
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "这只会影响到你的本地实例，你安装过的内容依然会在你的设备上保留，被其他人使用的分享实例也不会被影响。"
@@ -3720,7 +3720,7 @@
     "message": "解除共享实例关联"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "这将从 Modrinth 服务器上删除该共享实例。在 Modrinth App 中使用它的用户将停止接收更新，但你的本地实例及其内容仍会保留在此设备上。"
+    "message": "这将从 Solara 服务器上删除该共享实例。在 Solara Launcher 中使用它的用户将停止接收更新，但你的本地实例及其内容仍会保留在此设备上。"
   },
   "instance.action.create-shortcut": {
     "message": "创建快捷方式"
@@ -4290,7 +4290,7 @@
     "message": "登录 Microsoft 账户"
   },
   "modal.modrinth-account-required.browser-description": {
-    "message": "一个新的标签页已打开，你需要在那里完成登录，然后回到Modrinth app。"
+    "message": "一个新的标签页已打开，你需要在那里完成登录，然后回到Solara Launcher。"
   },
   "modal.modrinth-account-required.continue-in-browser-heading": {
     "message": "请在你的浏览器中继续"
@@ -4299,7 +4299,7 @@
     "message": "新建账户"
   },
   "modal.modrinth-account-required.description": {
-    "message": "在使用这个功能之前，你需要登入你的Modrinth账户。"
+    "message": "在使用这个功能之前，你需要登入你的Catalog账户。"
   },
   "modal.modrinth-account-required.header": {
     "message": "需要账户"
@@ -4308,10 +4308,10 @@
     "message": "再次开启浏览器"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "登录 Modrinth"
+    "message": "登录 Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "登录 Modrinth 账号"
+    "message": "登录 Catalog 账号"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "正在登录"
@@ -4329,7 +4329,7 @@
     "message": "登录 Minecraft 账号"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "登录 Modrinth 账号"
+    "message": "登录 Catalog 账号"
   },
   "onboarding-checklist.title": {
     "message": "新手引导"

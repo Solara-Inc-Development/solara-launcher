@@ -78,7 +78,7 @@
     "message": "無法設定 Minecraft"
   },
   "app.action-bar.install.summary.modrinth-unreachable": {
-    "message": "無法連線到 Modrinth"
+    "message": "無法連線到 Catalog"
   },
   "app.action-bar.install.summary.no-write-permission": {
     "message": "沒有寫入權限"
@@ -135,7 +135,7 @@
     "message": "全部接受"
   },
   "app.ads-consent.body": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。"
+    "message": "廣告使 Catalog 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。"
   },
   "app.ads-consent.manage": {
     "message": "管理偏好設定"
@@ -144,7 +144,7 @@
     "message": "全部拒絕"
   },
   "app.ads-consent.title": {
-    "message": "關於你的隱私，以及廣告如何幫助 Modrinth"
+    "message": "關於你的隱私，以及廣告如何幫助 Catalog"
   },
   "app.appearance-settings.compact-mode.description": {
     "message": "以密集的橫列版面顯示遊戲庫實例。"
@@ -165,7 +165,7 @@
     "message": "隱藏名牌"
   },
   "app.appearance-settings.minimize-launcher.description": {
-    "message": "當 Minecraft 啟動時將 Modrinth App 最小化。"
+    "message": "當 Minecraft 啟動時將 Solara Launcher 最小化。"
   },
   "app.appearance-settings.minimize-launcher.title": {
     "message": "最小化應用程式"
@@ -189,7 +189,7 @@
     "message": "隱藏右側邊欄"
   },
   "app.appearance-settings.unknown-pack-warning.description": {
-    "message": "在安裝非託管於 Modrinth 的 Modrinth Pack（.mrpack）之前，顯示安全警告。"
+    "message": "在安裝非託管於 Catalog 的 Modpack（.mrpack）之前，顯示安全警告。"
   },
   "app.appearance-settings.unknown-pack-warning.title": {
     "message": "在安裝未知模組包前發出警告"
@@ -207,7 +207,7 @@
     "message": "首頁與內容"
   },
   "app.behavior-settings.hidden-instances.description": {
-    "message": "你這部裝置的遊戲庫中隱藏的實例。隱藏的實例不會與你的 Modrinth 帳號同步。"
+    "message": "你這部裝置的遊戲庫中隱藏的實例。隱藏的實例不會與你的 Catalog 帳號同步。"
   },
   "app.behavior-settings.hidden-instances.empty": {
     "message": "你沒有隱藏任何實例。"
@@ -222,7 +222,7 @@
     "message": "隱藏的實例"
   },
   "app.behavior-settings.refocus-on-game-close.description": {
-    "message": "當 Minecraft 關閉時，將 Modrinth App 切換至前景。"
+    "message": "當 Minecraft 關閉時，將 Solara Launcher 切換至前景。"
   },
   "app.behavior-settings.refocus-on-game-close.title": {
     "message": "Minecraft 關閉後開啟應用程式"
@@ -234,7 +234,7 @@
     "message": "在你登入的所有裝置套用這些行為設定。如果要在這個裝置上單獨設定，請關閉這個選項。"
   },
   "app.behavior-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登入 Modrinth 帳號即可同步設定。"
+    "message": "登入 Catalog 帳號即可同步設定。"
   },
   "app.behavior-settings.sync-across-devices.title": {
     "message": "同步所有裝置的行為"
@@ -489,7 +489,7 @@
     "message": "在你登入的所有裝置套用這些功能設定。如果要在這個裝置上單獨設定，請關閉這個選項。"
   },
   "app.features-settings.sync-across-devices.signed-out-tooltip": {
-    "message": "登入 Modrinth 帳號即可同步設定。"
+    "message": "登入 Catalog 帳號即可同步設定。"
   },
   "app.features-settings.sync-across-devices.title": {
     "message": "同步所有裝置的功能"
@@ -531,16 +531,16 @@
     "message": "查看實例"
   },
   "app.hosting.update-required.description": {
-    "message": "你需要更新才能透過 Modrinth App 使用 Modrinth Hosting"
+    "message": "你需要更新才能透過 Solara Launcher 使用 Solara Hosting"
   },
   "app.hosting.update-required.download": {
     "message": "下載即可更新"
   },
   "app.hosting.update-required.rinthbot-alt": {
-    "message": "興奮的 Modrinth Bot"
+    "message": "興奮的 Catalog Bot"
   },
   "app.hosting.update-required.title": {
-    "message": "需要更新 Modrinth App"
+    "message": "需要更新 Solara Launcher"
   },
   "app.install.phase.downloading_content": {
     "message": "正在下載內容"
@@ -885,13 +885,13 @@
     "message": "你需要以"
   },
   "app.instance.shared-instance-wrong-account.signed-out-header": {
-    "message": "你需要登入 Modrinth"
+    "message": "你需要登入 Catalog"
   },
   "app.instance.shared-instance-wrong-account.user-admonition-body-v2": {
     "message": "登入才能收到這個共用實例的更新。"
   },
   "app.instance.shared-instance-wrong-account.warning-header": {
-    "message": "你目前使用的 Modrinth 帳號不正確"
+    "message": "你目前使用的 Catalog 帳號不正確"
   },
   "app.instance.shortcut.created": {
     "message": "已建立捷徑"
@@ -1350,7 +1350,7 @@
     "message": "取消發布並離開 {count} 個共用實例"
   },
   "app.library.unpublish-shared-instance.modal.admonition-body": {
-    "message": "{count, plural, =1 {這將從 Modrinth 的伺服器中刪除這個共用實例。在 Modrinth App 中使用這個實例的使用者將不再收到更新，實例也會從你的遊戲庫中移除。} other {這將從 Modrinth 的伺服器中刪除這些共用實例。在 Modrinth App 中使用這些實例的使用者將不再收到更新，實例也會從你的遊戲庫中移除。}}"
+    "message": "{count, plural, =1 {這將從 Solara 的伺服器中刪除這個共用實例。在 Solara Launcher 中使用這個實例的使用者將不再收到更新，實例也會從你的遊戲庫中移除。} other {這將從 Solara 的伺服器中刪除這些共用實例。在 Solara Launcher 中使用這些實例的使用者將不再收到更新，實例也會從你的遊戲庫中移除。}}"
   },
   "app.library.unpublish-shared-instance.modal.admonition-header": {
     "message": "{count, plural, =1 {取消發布共用實例} other {取消發布 # 個共用實例}}"
@@ -1386,10 +1386,10 @@
     "message": "安裝"
   },
   "app.modal.install-to-play.invite-warning": {
-    "message": "這份邀請是由另一位 Modrinth 使用者建立，並非由 Modrinth 官方建立。請僅接受來自你信任的人的邀請。"
+    "message": "這份邀請是由另一位 Catalog 使用者建立，並非由 Catalog 官方建立。請僅接受來自你信任的人的邀請。"
   },
   "app.modal.install-to-play.invite-warning-with-creator": {
-    "message": "這份邀請是由 <creator>{username}</creator> 建立，並非由 Modrinth 官方建立。請僅接受來自你信任的人的邀請。"
+    "message": "這份邀請是由 <creator>{username}</creator> 建立，並非由 Catalog 官方建立。請僅接受來自你信任的人的邀請。"
   },
   "app.modal.install-to-play.managed-content.modpack-header": {
     "message": "模組包內容"
@@ -1422,7 +1422,7 @@
     "message": "如需客服支援，請聯絡我們的<support-link>客服團隊</support-link>。如需回報錯誤，請<github-link>在 GitHub 上提交 issue</github-link>。"
   },
   "app.modal.install-to-play.reviewed-files": {
-    "message": "未在 Modrinth 上發布的檔案未經過審查。"
+    "message": "未在 Catalog 上發布的檔案未經過審查。"
   },
   "app.modal.install-to-play.shared-instance": {
     "message": "共用實例"
@@ -1431,7 +1431,7 @@
     "message": "共用實例的內容"
   },
   "app.modal.install-to-play.shared-instance-unknown-files-description": {
-    "message": "這個共用實例包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
+    "message": "這個共用實例包含未在 Catalog 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
   "app.modal.install-to-play.unavailable-description": {
     "message": "這個伺服器所使用的模組包版本目前無法下載。該模組包可能已下架或正在審查中。請稍後再試，或聯絡伺服器擁有者。"
@@ -1440,7 +1440,7 @@
     "message": "這個伺服器的模組包無法使用"
   },
   "app.modal.install-to-play.unknown-files-description": {
-    "message": "這個伺服器模組包中包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
+    "message": "這個伺服器模組包中包含未在 Catalog 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
   "app.modal.install-to-play.unknown-files-warning": {
     "message": "未知檔案警告"
@@ -1461,7 +1461,7 @@
     "message": "已從另一部裝置推送"
   },
   "app.modal.update-to-play.owner-description": {
-    "message": "這些變更是從另一部裝置的 Modrinth App 推送的。這裡尚未推送的共用內容變更將會被取代。"
+    "message": "這些變更是從另一部裝置的 Solara Launcher 推送的。這裡尚未推送的共用內容變更將會被取代。"
   },
   "app.modal.update-to-play.owner-header": {
     "message": "有可用的更新"
@@ -1470,7 +1470,7 @@
     "message": "已移除"
   },
   "app.modal.update-to-play.server-modpack-unknown-files-description": {
-    "message": "這個伺服器模組包更新包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
+    "message": "這個伺服器模組包更新包含未在 Catalog 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
   "app.modal.update-to-play.shared-instance-added-label": {
     "message": "已新增"
@@ -1479,7 +1479,7 @@
     "message": "已移除"
   },
   "app.modal.update-to-play.shared-instance-unknown-files-description": {
-    "message": "這個共用實例更新包含未在 Modrinth 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
+    "message": "這個共用實例更新包含未在 Catalog 上發布的檔案。強烈建議你僅安裝來自信任來源的檔案。"
   },
   "app.modal.update-to-play.update-required": {
     "message": "需要更新"
@@ -1500,10 +1500,10 @@
     "message": "正在載入個人檔案..."
   },
   "app.nav.modrinth-account": {
-    "message": "Modrinth 帳號"
+    "message": "Catalog 帳號"
   },
   "app.nav.modrinth-hosting": {
-    "message": "Modrinth Hosting"
+    "message": "Catalog Hosting"
   },
   "app.nav.remove-account": {
     "message": "移除帳號"
@@ -1512,13 +1512,13 @@
     "message": "螢幕擷取畫面"
   },
   "app.nav.sign-in-to-modrinth-account": {
-    "message": "登入 Modrinth"
+    "message": "登入 Catalog"
   },
   "app.nav.switch-account": {
     "message": "切換帳號"
   },
   "app.nav.upgrade-to-modrinth-plus": {
-    "message": "升級至 Modrinth+"
+    "message": "升級至 Catalog supporter"
   },
   "app.nav.view-profile": {
     "message": "查看個人檔案"
@@ -1734,7 +1734,7 @@
     "message": "匯出 ZIP"
   },
   "app.screenshots.selection.global-export-filename": {
-    "message": "Modrinth screenshots.zip"
+    "message": "Solara screenshots.zip"
   },
   "app.screenshots.selection.instance-export-filename": {
     "message": "{instance} screenshots.zip"
@@ -1776,7 +1776,7 @@
     "message": "與好友共遊伺服器"
   },
   "app.settings.app-version": {
-    "message": "Modrinth App {version}"
+    "message": "Solara Launcher {version}"
   },
   "app.settings.default-instance-options.environment-variables.description": {
     "message": "啟動實例時設定的環境變數。"
@@ -2043,7 +2043,7 @@
     "message": "你的部分實例無法使用這項設定"
   },
   "app.settings.game-options.compatibility.reason.launcher-controlled": {
-    "message": "這項設定由 Modrinth 的啟動設定管理。"
+    "message": "這項設定由 Catalog 的啟動設定管理。"
   },
   "app.settings.game-options.custom-value.placeholder": {
     "message": "輸入一個值"
@@ -2877,16 +2877,16 @@
     "message": "macOS"
   },
   "app.settings.privacy.ads-consent.intro": {
-    "message": "廣告使 Modrinth 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。你可以在下方選擇退出或管理偏好設定。"
+    "message": "廣告使 Catalog 得以營運，並為創作者提供收益。我們的合作夥伴可能會在應用程式中儲存或存取 Cookie，以實現個人化廣告並衡量廣告成效。你可以在下方選擇退出或管理偏好設定。"
   },
   "app.settings.privacy.discord-rich-presence.description": {
-    "message": "在 Discord 上將 Modrinth App 顯示為目前活動。這不會影響模組為實例新增的豐富狀態。需要重新啟動應用程式。"
+    "message": "在 Discord 上將 Solara Launcher 顯示為目前活動。這不會影響模組為實例新增的豐富狀態。需要重新啟動應用程式。"
   },
   "app.settings.privacy.discord-rich-presence.title": {
     "message": "Discord 豐富狀態"
   },
   "app.settings.privacy.telemetry.description": {
-    "message": "Modrinth 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
+    "message": "Catalog 會收集匿名化的分析與使用資料，以提升使用者體驗並提供客製化服務。若停用此選項，即表示你選擇退出，你的資料將不再被收集。"
   },
   "app.settings.privacy.telemetry.title": {
     "message": "遙測"
@@ -2901,7 +2901,7 @@
     "message": "在快取完成重建前，應用程式的載入速度可能會比較慢。"
   },
   "app.settings.resource-management.app-cache.description": {
-    "message": "清除快取資料，並從 Modrinth 重新下載。在快取完成重建前，應用程式的載入速度可能會比較慢。"
+    "message": "清除快取資料，並從 Catalog 重新下載。在快取完成重建前，應用程式的載入速度可能會比較慢。"
   },
   "app.settings.resource-management.app-cache.title": {
     "message": "應用程式快取"
@@ -2916,13 +2916,13 @@
     "message": "應用程式資料庫備份"
   },
   "app.settings.resource-management.app-directory.description": {
-    "message": "Modrinth App 儲存實例及其他檔案的位置。變更將於重新啟動應用程式後生效。"
+    "message": "Solara Launcher 儲存實例及其他檔案的位置。變更將於重新啟動應用程式後生效。"
   },
   "app.settings.resource-management.app-directory.title": {
     "message": "應用程式資料夾"
   },
   "app.settings.resource-management.debug-info.description": {
-    "message": "將應用程式紀錄與診斷資料匯出為 ZIP 檔案，以便與 Modrinth 客服團隊分享。"
+    "message": "將應用程式紀錄與診斷資料匯出為 ZIP 檔案，以便與 Catalog 客服團隊分享。"
   },
   "app.settings.resource-management.debug-info.export": {
     "message": "匯出除錯資訊"
@@ -3084,7 +3084,7 @@
     "message": "這些設定已在其他地方變更"
   },
   "app.settings.synced-options.game-settings.custom-empty": {
-    "message": "當 Modrinth 在你的實例中找到模組新增的設定後，便會顯示在這裡。"
+    "message": "當 Catalog 在你的實例中找到模組新增的設定後，便會顯示在這裡。"
   },
   "app.settings.synced-options.game-settings.description": {
     "message": "在所有實例中使用相同的遊戲選項。"
@@ -3264,7 +3264,7 @@
     "message": "複製廣告詳細資訊"
   },
   "app.settings.troubleshooting.report-ad.description": {
-    "message": "看到內容不當或冒犯性的廣告嗎？請在廣告出現時複製它的詳細資訊，然後傳送給 <support>Modrinth 客服</support>。我們將進行審查並將其移除。"
+    "message": "看到內容不當或冒犯性的廣告嗎？請在廣告出現時複製它的詳細資訊，然後傳送給 <support>Catalog 客服</support>。我們將進行審查並將其移除。"
   },
   "app.settings.troubleshooting.report-ad.no-ad.text": {
     "message": "請等待廣告載入完畢，然後再試一次。"
@@ -3429,13 +3429,13 @@
     "message": "MINECON Earth 2017"
   },
   "app.skins.section.modrinth": {
-    "message": "Modrinth"
+    "message": "Solara"
   },
   "app.skins.section.modrinth-pride": {
-    "message": "Modrinth 驕傲"
+    "message": "Solara 驕傲"
   },
   "app.skins.section.modrinth-pride.tooltip": {
-    "message": "這些外觀是你在驕傲月期間捐款給 Modrinth 驕傲月籌款活動所獲得的。"
+    "message": "這些外觀是你在驕傲月期間捐款給 Solara 驕傲月籌款活動所獲得的。"
   },
   "app.skins.section.mounts-of-mayhem": {
     "message": "群騎紛爭"
@@ -3471,10 +3471,10 @@
     "message": "開啟"
   },
   "app.survey.body": {
-    "message": "你方便回答幾個關於 Modrinth App 使用體驗的問題嗎？"
+    "message": "你方便回答幾個關於 Solara Launcher 使用體驗的問題嗎？"
   },
   "app.survey.footer": {
-    "message": "你的回覆將直接傳送給 Modrinth 團隊，作為未來更新方向的指引！"
+    "message": "你的回覆將直接傳送給 Catalog 團隊，作為未來更新方向的指引！"
   },
   "app.survey.no-thanks": {
     "message": "不用了，謝謝"
@@ -3483,7 +3483,7 @@
     "message": "填寫問卷調查"
   },
   "app.survey.title": {
-    "message": "你好啊，Modrinth 使用者！"
+    "message": "你好啊，Catalog 使用者！"
   },
   "app.sync-instances-update.choose-source.data-packs": {
     "message": "選擇要從哪個實例複製資料包。這些資料包僅用於初始同步，你之後可以從任何實例中進行編輯。"
@@ -3570,13 +3570,13 @@
     "message": "已同步資源包"
   },
   "app.update-popup.body.download-complete": {
-    "message": "Modrinth App v{version} 已完成下載！立即重新載入以更新，或在關閉 Modrinth App 時自動更新。"
+    "message": "Solara Launcher v{version} 已完成下載！立即重新載入以更新，或在關閉 Solara Launcher 時自動更新。"
   },
   "app.update-popup.body.linux": {
-    "message": "Modrinth App v{version} 現已推出。請使用軟體包管理員進行更新，以取得最新的功能與修正！"
+    "message": "Solara Launcher v{version} 現已推出。請使用軟體包管理員進行更新，以取得最新的功能與修正！"
   },
   "app.update-popup.body.metered": {
-    "message": "Modrinth App v{version} 現已推出！由於你目前使用的是計量付費網路，我們並未自動下載更新。"
+    "message": "Solara Launcher v{version} 現已推出！由於你目前使用的是計量付費網路，我們並未自動下載更新。"
   },
   "app.update-popup.changelog": {
     "message": "更新日誌"
@@ -3627,7 +3627,7 @@
     "message": "跳過"
   },
   "app.welcome-screen.title": {
-    "message": "歡迎使用 Modrinth"
+    "message": "歡迎使用 Solara"
   },
   "app.world.server-modal.placeholder-address": {
     "message": "example.modrinth.gg"
@@ -3696,10 +3696,10 @@
     "message": "這可能與對方的 Minecraft 使用者名稱不同！"
   },
   "friends.add-friend.username.placeholder": {
-    "message": "輸入 Modrinth 使用者名稱..."
+    "message": "輸入 Catalog 使用者名稱..."
   },
   "friends.add-friend.username.title": {
-    "message": "你好友的 Modrinth 使用者名稱是什麼？"
+    "message": "你好友的 Catalog 使用者名稱是什麼？"
   },
   "friends.add-friends-to-share": {
     "message": "<link>新增好友</link>即可查看他們正在玩什麼！"
@@ -3744,7 +3744,7 @@
     "message": "{title} - {count}"
   },
   "friends.sign-in-to-add-friends": {
-    "message": "<link>登入 Modrinth 帳號</link>即可新增好友並查看他們正在玩什麼！"
+    "message": "<link>登入 Catalog 帳號</link>即可新增好友並查看他們正在玩什麼！"
   },
   "hosting.play.update-to-play": {
     "message": "更新以遊玩"
@@ -3789,7 +3789,7 @@
     "message": "正在取消連結..."
   },
   "installation-settings.shared-instance.unpublish-description": {
-    "message": "在 Modrinth 上移除這個共用實例，並停止向任何使用者推送更新。你的本機實例不會受到影響。"
+    "message": "在 Catalog 上移除這個共用實例，並停止向任何使用者推送更新。你的本機實例不會受到影響。"
   },
   "installation-settings.unlink-shared-instance.modal.admonition-body": {
     "message": "這只會影響你的本機實例。你已安裝的內容仍會保留在此裝置上，共用實例及其他使用者都不會受到影響。"
@@ -3801,7 +3801,7 @@
     "message": "取消連結共用實例"
   },
   "installation-settings.unpublish-shared-instance.modal.admonition-body": {
-    "message": "這將從 Modrinth 的伺服器刪除共用實例。在 Modrinth App 使用該實例的使用者將不再收到更新，但本機實例及其內容仍會保留在此裝置上。"
+    "message": "這將從 Solara 的伺服器刪除共用實例。在 Solara Launcher 使用該實例的使用者將不再收到更新，但本機實例及其內容仍會保留在此裝置上。"
   },
   "instance.action.create-shortcut": {
     "message": "建立捷徑"
@@ -4227,7 +4227,7 @@
     "message": "網路錯誤"
   },
   "instance.shared-instance.owner-behind.text": {
-    "message": "另一部裝置的 Modrinth App 已推送較新版本。請先下載該版本，然後再試一次。"
+    "message": "另一部裝置的 Solara Launcher 已推送較新版本。請先下載該版本，然後再試一次。"
   },
   "instance.shared-instance.owner-behind.title": {
     "message": "無法推送更新"
@@ -4389,7 +4389,7 @@
     "message": "建立帳號"
   },
   "modal.modrinth-account-required.description": {
-    "message": "你必須登入 Modrinth 帳號才能使用這個功能。"
+    "message": "你必須登入 Catalog 帳號才能使用這個功能。"
   },
   "modal.modrinth-account-required.header": {
     "message": "需要帳號"
@@ -4398,10 +4398,10 @@
     "message": "再次開啟瀏覽器"
   },
   "modal.modrinth-account-required.sign-in-button": {
-    "message": "登入 Modrinth"
+    "message": "登入 Catalog"
   },
   "modal.modrinth-account-required.sign-in-heading": {
-    "message": "登入 Modrinth 帳號"
+    "message": "登入 Catalog 帳號"
   },
   "modal.modrinth-account-required.signing-in-header": {
     "message": "登入"
@@ -4419,7 +4419,7 @@
     "message": "登入 Minecraft"
   },
   "onboarding-checklist.login-modrinth": {
-    "message": "登入 Modrinth"
+    "message": "登入 Catalog"
   },
   "onboarding-checklist.title": {
     "message": "開始使用"

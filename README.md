@@ -1,4 +1,6 @@
-## New look Comming Soon ;)
+## Solara Launcher
+
+The cyan rebrand is an unreleased source update. Existing V-0.0.63 installers predate these changes. The desktop retains its upstream-derived engine; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
 <p align="center">
   <img src="assets/readme/hero.svg" alt="Solara Launcher — your worlds, your services" width="100%" />
@@ -36,7 +38,7 @@ A bright, welcoming desktop, an accessible navigation rail and your account righ
   <img src="public/screenshots/dashboard.png" alt="Solara redesigned browser guest dashboard with a slim icon rail and account sidebar" width="100%" />
 </p>
 
-<p align="center"><sub>Actual browser guest preview of the redesigned interface, with the service catalogue unavailable. It does not demonstrate live sign-in or game launch.</sub></p>
+<p align="center"><sub>Browser preview of the current desktop source with native calls mocked. It does not demonstrate live sign-in, installation or game launch.</sub></p>
 
 <table>
 <tr>
@@ -51,7 +53,7 @@ Give each Minecraft setup its own space. Search instances by name or version, an
 
 ### Your services
 
-Explore Solara projects and supported server tools in the same window. Public browsing works as a guest; protected actions use your Solara account.
+Browse the community catalog without an extra account. Keep Minecraft versions, mods, Java and instance settings together.
 
 </td>
 <td width="33%" valign="top">
@@ -97,14 +99,14 @@ Solara connects your services and hosting. Minecraft sign-in happens directly wi
 <td width="50%" valign="top">
 
 **Local server starter**<br />
-Run a local Java server on your own machine with EULA checks, memory/port settings and a live console view.
+Manage local worlds, screenshots and game logs inside your instances. Standalone local-server hosting is outside the current desktop runtime.
 
 </td>
 </tr>
 </table>
 
 > [!NOTE]
-> **Still being built:** the local Minecraft engine is independently written. Current source supports Vanilla, Fabric, Quilt, Forge, and NeoForge setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified community content/modpack installs. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
+> **Current foundation:** the desktop retains the Modrinth-derived frontend and Theseus engine. The Solara identity and cyan changes do not constitute an independent engine rewrite. Current source supports Vanilla, Fabric, Quilt, Forge, and NeoForge setups, automatic Java downloads, per-instance file/mod/backup management (including local `.jar` mod imports and world/config snapshots) and verified community content/modpack installs. Real sign-in, game launch and automatic Windows updates still need acceptance testing. Screenshots show working interface code, not proof that every integration is ready.
 
 ---
 
@@ -143,21 +145,22 @@ Found something that feels off? Tell us what happened, even the small stuff help
 ### 1. Preview the interface in your browser
 
 ```sh
-npm ci
-npm run dev
+pnpm install --frozen-lockfile
+npm run web:dev
 ```
 
 | Target | Local address | Notes |
 | :--- | :--- | :--- |
 | **Launcher website** | `http://127.0.0.1:1420/` | Marketing, release archive & status views |
-| **Desktop interface** | `http://127.0.0.1:1420/desktop.html` | UI preview only — does not simulate Minecraft accounts or native processes |
+| **Desktop interface** | `http://127.0.0.1:1420/` with `pnpm --filter @modrinth/app-frontend dev --host 127.0.0.1` | Separate dev server; native calls require Tauri or the labelled browser fixtures. Run one dev server on this port at a time. |
 
 ### 2. Run checks and build the frontend
 
 ```sh
 npm test
 npm run check
-npm run build
+npm run build:verify
+pnpm --filter @modrinth/app-frontend build
 ```
 
 For full Rust/Tauri desktop compilation, signing and packaging instructions, read the **[Build & release guide](docs/BUILD-RELEASE.md)**. Authentication registration and setup steps are in the **[Authentication setup guide](docs/AUTH-SETUP.md)**, public API routes and schemas are documented in the **[API guide](docs/API.md)**, and visual/interaction notes live in **[Design notes](docs/DESIGN.md)**.
@@ -170,18 +173,16 @@ For full Rust/Tauri desktop compilation, signing and packaging instructions, rea
 With the UI development server running and Playwright Chromium installed:
 
 ```sh
-npm run test:ui
-npm run test:motion
-npm run test:workflows
-npm run test:csp
+npm run test:branding
 ```
 
 Browser workflow tests use clearly labelled provider/native fixtures. They do not install Minecraft, provision DNS or prove live authentication.
 
-To run the Rust unit suites for the independent game core and local server manager:
+To run the retained launcher core and desktop/updater unit suites:
 
 ```sh
-cargo test -p solara-launcher -p solara-local-server --lib --locked
+cargo test -p theseus --lib --locked
+cargo test -p theseus_gui --bin solaralauncher --locked
 ```
 
 </details>
@@ -203,9 +204,9 @@ cargo test -p solara-launcher -p solara-local-server --lib --locked
 <td width="50%" valign="top">
 
 ### Uses Solara (`api.solara-inc.in`)
-- Public project and service directory (works in guest mode)
-- Signed launcher release and update metadata
-- Optional Solara account for your hosted servers, tools and subdomain assignments
+- Public launcher release metadata and release notes
+- Website bootstrap and download availability
+- Catalog-account and hosted-service sign-in are not exposed in this desktop build
 
 </td>
 </tr>

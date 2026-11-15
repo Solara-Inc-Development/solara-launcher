@@ -142,7 +142,7 @@ const messages = defineMessages({
 	ownerUpdateDescription: {
 		id: 'app.modal.update-to-play.owner-description',
 		defaultMessage:
-			'These changes were pushed from another Modrinth App installation. Unpushed changes to shared content on this installation will be replaced.',
+			'These changes were pushed from another Solara Launcher installation. Unpushed changes to shared content on this installation will be replaced.',
 	},
 	addedLabel: {
 		id: 'app.modal.update-to-play.shared-instance-added-label',
@@ -155,7 +155,7 @@ const messages = defineMessages({
 	externalWarningDescription: {
 		id: 'app.modal.update-to-play.shared-instance-unknown-files-description',
 		defaultMessage:
-			'This shared instance update contains files that aren’t published on Modrinth. We strongly recommend only installing files from sources you trust.',
+			'This shared instance update contains files that aren’t published in the catalog. We strongly recommend only installing files from sources you trust.',
 	},
 })
 
