@@ -81,6 +81,7 @@ function pickPage(id: (typeof pageEntries)[number]['id']) {
         placeholder="Jump to an instance, page, or action..."
         autocomplete="off"
       />
+      <kbd class="sol-kbd">Esc</kbd>
     </div>
 
     <div class="sol-palette-section">

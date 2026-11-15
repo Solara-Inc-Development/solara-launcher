@@ -198,7 +198,7 @@ watch(
   <SolaraModal
     :open="store.showSettingsModal"
     title="Launcher Settings"
-    subtitle="Solara Obsidian Blue Edition"
+    subtitle="OLED Obsidian · Launcher Preferences"
     width="xl"
     :closable="!saving"
     @close="handleClose"

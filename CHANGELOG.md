@@ -1,5 +1,15 @@
 # Changelog
 
+## Testing Preview V-0.0.57 — 2026-11-15
+
+- **Frosted OLED Polish Across Secondary Views & Dialogs**:
+  - Replaced remaining solid gray surface overrides in `apps/desktop/launcher.css` with true OLED `#000000` frosted glass (`--glass-surface`, `--glass-surface-strong`, `--glass-btn`, `--glass-blur`) across Settings (`GlobalSettingsModal.vue`, `SettingsView.vue`, `InstanceSettingsModal.vue`), Onboarding (`OnboardingView.vue`), Quick Jump (`GlobalSearchModal.vue`), Tasks (`TasksView.vue`, `TasksPopover.vue`), and Accounts (`AccountView.vue`).
+  - Added colorful Cobalt, Emerald, and Purple highlight icons in `OnboardingView.vue`, per-status colored borders on `.sol-task-card`, a Cobalt focus ring + `Esc` keyboard hint in `GlobalSearchModal.vue`, and reduced-motion transform guards for all newly animated cards/chips.
+  - Added `tests/settings-onboarding-glass.test.mjs` and expanded Chromium E2E captures (`e2e-account.png`, `e2e-search.png`, `e2e-tasks.png`, `e2e-settings.png`).
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.56 — 2026-11-15
 
 - **Skins Studio — Clean Cape Studio Overhaul**:

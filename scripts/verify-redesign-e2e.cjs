@@ -1100,6 +1100,16 @@ async function run() {
     await page.waitForSelector('text=Minecraft Accounts', { timeout: 5000 });
     assert.strictEqual(await page.locator('text=Sign in with Solara ID').count(), 0, 'Solara ID promo must be removed from AccountView');
     assert.strictEqual(await page.locator('text=auth.solara-inc.in').count(), 0, 'auth.solara-inc.in must not appear in AccountView');
+    await page.waitForTimeout(180);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-account.png') });
+
+    // Quick Jump modal -> Esc hint and frosted input wrap
+    await page.click('.sol-search-trigger');
+    await page.waitForSelector('.sol-search-input-wrap kbd.sol-kbd', { timeout: 3000 });
+    await page.waitForTimeout(180);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-search.png') });
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.sol-search-input-wrap', { state: 'detached', timeout: 3000 });
 
     // Centered Global Settings Modal -> Check Behaviour & Privacy tabs & Save Bar
     await page.click('button[data-tooltip="Settings"]');
@@ -1147,6 +1157,7 @@ async function run() {
     await page.waitForSelector('text=Local Redacted Diagnostics Only', { timeout: 3000 });
     const navFitsWithoutClip = await page.locator('.sol-settings-dialog-nav').evaluate((el) => el.scrollHeight <= el.clientHeight + 2);
     assert(navFitsWithoutClip, 'Settings navigation list must fit without vertical clipping at 1440x900');
+    await page.waitForTimeout(180);
     await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-settings.png') });
     await page.getByRole('switch', { name: 'Local diagnostics', exact: true }).click();
     await page.click('button[aria-label="Close dialog"]');
@@ -1172,6 +1183,8 @@ async function run() {
     await page.getByRole('heading', { name: 'Downloads & Tasks', exact: true }).waitFor();
     assert((await page.locator('.sol-task-card').filter({ hasText: 'Fabric Loader 0.16.10' }).innerText()).includes('100 B / 100 B'));
     assert(await page.getByRole('button', { name: 'Open Instance', exact: true }).first().isVisible());
+    await page.waitForTimeout(180);
+    await page.screenshot({ path: path.join(SHOT_DIR, 'e2e-tasks.png') });
 
 
     // Verify Solara Blue theme token & non-automatic startup update check + modal + topbar "Restart to Update" flow

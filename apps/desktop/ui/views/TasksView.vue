@@ -84,7 +84,11 @@ async function clearFinished() {
       </SolaraEmptyState>
 
       <div v-else class="sol-stack">
-        <article v-for="job in filteredJobs" :key="job.id" class="sol-card sol-task-card">
+        <article
+          v-for="job in filteredJobs"
+          :key="job.id"
+          :class="['sol-card', 'sol-task-card', `sol-task-card--${job.status}`]"
+        >
           <div class="sol-task-top">
             <div>
               <div class="sol-row-gap">

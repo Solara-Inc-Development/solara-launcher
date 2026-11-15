@@ -162,21 +162,21 @@ async function completeOnboarding(launchNow = false) {
 
         <div class="sol-onboarding-highlights">
           <div class="sol-mini-feature">
-            <Shield :size="16" class="sol-accent" />
+            <span class="sol-mini-feature-icon sol-mini-feature-icon--cobalt"><Shield :size="16" /></span>
             <div>
               <div class="sol-mini-feature-title">Direct Microsoft Auth</div>
               <div class="sol-mini-feature-desc">Credentials stay on your device via your system browser and Windows Credential Vault.</div>
             </div>
           </div>
           <div class="sol-mini-feature">
-            <Cpu :size="16" class="sol-accent" />
+            <span class="sol-mini-feature-icon sol-mini-feature-icon--emerald"><Cpu :size="16" /></span>
             <div>
               <div class="sol-mini-feature-title">Automatic Java & Loaders</div>
               <div class="sol-mini-feature-desc">First-class Vanilla, Fabric, Quilt, Forge, and NeoForge runtime management.</div>
             </div>
           </div>
           <div class="sol-mini-feature">
-            <Sparkles :size="16" class="sol-accent" />
+            <span class="sol-mini-feature-icon sol-mini-feature-icon--purple"><Sparkles :size="16" /></span>
             <div>
               <div class="sol-mini-feature-title">Content, Worlds, Skins & Logs</div>
               <div class="sol-mini-feature-desc">Browse Modrinth content, inspect worlds, edit files, and customize 3D skins.</div>

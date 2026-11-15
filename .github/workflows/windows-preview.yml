@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.56 — Clean Cape Studio Overhaul (status strip, 6 preview capes, 64x32 preview PNG import, auto 3D back-turn).
+# Owner-approved preview candidate: V-0.0.57 — Frosted OLED Glass & Cobalt Blue Polish across Settings, Onboarding, Search, Tasks, and Accounts.
 on:
   workflow_dispatch:
   push:

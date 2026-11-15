@@ -1324,22 +1324,26 @@
   top: calc(100% + 8px);
   right: 0;
   z-index: 50;
-  width: 340px;
-  max-height: 420px;
+  width: 344px;
+  max-height: 430px;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-card);
-  background: var(--bg-modal);
-  box-shadow: var(--shadow-popover);
+  border: 1px solid var(--glass-border-strong);
+  background: var(--glass-surface-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), var(--shadow-popover);
   overflow: hidden;
+  animation: sol-modal-in 160ms var(--ease-ui) both;
 }
 
 .sol-popover-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .sol-popover-title {
@@ -1363,13 +1367,20 @@
 }
 
 .sol-task-mini {
-  padding: 9px 10px;
+  padding: 9px 11px;
   border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 5px;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.sol-task-mini:hover {
+  border-color: var(--glass-border-strong);
+  background: rgba(20, 24, 34, 0.72);
 }
 
 .sol-task-mini-top,
@@ -1506,14 +1517,18 @@
 
 .sol-onboarding-card {
   width: 100%;
-  max-width: 680px;
+  max-width: 700px;
   border-radius: var(--radius-modal);
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  padding: 24px;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--glass-surface-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), 0 28px 64px rgba(0, 0, 0, 0.78);
+  padding: 26px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  animation: sol-modal-in 200ms var(--ease-ui) both;
 }
 
 .sol-stepper {
@@ -1526,24 +1541,27 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 10px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
 }
 
 .sol-step.is-active {
-  border-color: var(--accent);
+  border-color: var(--accent-border);
   background: var(--accent-selected-bg);
-  color: var(--accent);
+  color: var(--accent-hover);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.16);
 }
 
 .sol-step.is-done {
   color: var(--success);
-  border-color: rgba(35, 201, 135, 0.35);
+  border-color: rgba(35, 201, 135, 0.38);
+  background: rgba(35, 201, 135, 0.08);
 }
 
 .sol-step-num {
@@ -1598,11 +1616,84 @@
 .sol-mini-feature {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
-  padding: 11px 13px;
+  gap: 12px;
+  padding: 12px 14px;
   border-radius: var(--radius-control);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms var(--ease-ui);
+}
+
+.sol-mini-feature:hover {
+  border-color: var(--glass-border-strong);
+  background: rgba(20, 24, 34, 0.72);
+  transform: translateY(-1px);
+}
+
+.sol-mini-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sol-mini-feature-icon--cobalt {
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.36);
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.sol-mini-feature-icon--emerald {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.34);
+  background: rgba(52, 211, 153, 0.13);
+}
+
+.sol-mini-feature-icon--purple {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.34);
+  background: rgba(167, 139, 250, 0.13);
+}
+
+.sol-signin-box,
+.sol-ready-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
+}
+
+.sol-signin-box {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sol-signin-copy { flex: 1; min-width: 0; }
+.sol-signin-heading { font-size: 13.5px; font-weight: 600; }
+.sol-signin-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+.sol-ready-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
 }
 
 .sol-mini-feature-title {
@@ -1620,8 +1711,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  border-top: 1px solid var(--glass-border);
 }
 
 .sol-home-layout {
@@ -2070,10 +2161,13 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 9px 11px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   font-size: 12px;
 }
 
@@ -2552,8 +2646,10 @@
   width: 210px;
   flex-shrink: 0;
   padding: 18px 12px;
-  border-right: 1px solid var(--border-subtle);
-  background: var(--bg-sidebar);
+  border-right: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -2563,6 +2659,8 @@
   padding: 0 10px 8px;
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
@@ -2581,24 +2679,26 @@
 .sol-settings-nav-item {
   width: 100%;
   text-align: left;
-  padding: 8px 11px;
-  border: none;
+  padding: 8.5px 11px;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
 .sol-settings-nav-item:hover {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
 }
 
 .sol-settings-nav-item.is-active {
   background: var(--accent-selected-bg);
-  color: var(--accent);
+  border-color: var(--accent-border);
+  color: var(--accent-hover);
 }
 
 .sol-settings-content {
@@ -2616,8 +2716,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
 }
 
 .sol-setting-label {
@@ -2630,30 +2730,61 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 11px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
 }
 
 .sol-danger-card {
-  border-color: rgba(240, 100, 113, 0.3);
+  border-color: rgba(240, 100, 113, 0.34);
 }
 
 .sol-account-inner { max-width: 780px; }
-.sol-account-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.sol-account-row.is-selected { border-color: var(--accent-border); }
+.sol-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms var(--ease-ui), box-shadow 140ms ease;
+}
+.sol-account-row:hover {
+  border-color: var(--glass-border-strong);
+  transform: translateY(-1px);
+}
+.sol-account-row.is-selected {
+  border-color: var(--accent-border);
+  background: rgba(37, 99, 235, 0.11);
+  box-shadow: var(--glass-highlight), 0 0 24px rgba(59, 130, 246, 0.16);
+}
 
 /* Palette & Confirm */
 .sol-search-input-wrap {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 9px 12px;
+  padding: 10px 13px;
   border-radius: var(--radius-control);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
   margin-bottom: 12px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.sol-search-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-focus);
 }
 
 .sol-search-raw {
@@ -2665,21 +2796,27 @@
 }
 
 .sol-search-raw:focus { outline: none; }
-.sol-palette-section { margin-top: 10px; }
-.sol-palette-heading { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+.sol-palette-section { margin-top: 12px; }
+.sol-palette-heading { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
 .sol-palette-row {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
   text-align: left;
-  padding: 8px 10px;
-  border: none;
+  padding: 8px 11px;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
+  color: var(--text-primary);
   cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 120ms var(--ease-ui);
 }
-.sol-palette-row:hover { background: var(--bg-hover); }
+.sol-palette-row:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.28);
+  transform: translateX(2px);
+}
 .sol-palette-info { flex: 1; min-width: 0; }
 .sol-palette-title { font-size: 13px; font-weight: 600; }
 .sol-palette-sub { font-size: 11.5px; color: var(--text-secondary); }
@@ -4127,8 +4264,11 @@
 .sol-seg-group {
   display: inline-flex;
   border-radius: 10px;
-  border: 1px solid #272730;
-  background: #0f0f14;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
   padding: 3px;
   gap: 3px;
 }
@@ -4136,20 +4276,27 @@
 .sol-seg-btn {
   height: 32px;
   padding: 0 12px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 7px;
   background: transparent;
-  color: #a6a6b0;
+  color: var(--text-secondary);
   font-size: 13px;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
+.sol-seg-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .sol-seg-btn.is-active {
-  background: #0f2142;
-  color: #3b82f6;
+  background: var(--accent-selected-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-hover);
 }
 
 .sol-chip-row {
@@ -4163,23 +4310,30 @@
   height: 34px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid #272730;
-  background: #101014;
-  color: #a6a6b0;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-btn);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 120ms var(--ease-ui), box-shadow 140ms ease;
 }
 
 .sol-chip:hover {
-  border-color: #3a3a45;
-  color: #f7f7f8;
+  border-color: var(--glass-border-strong);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .sol-chip.is-active {
-  border-color: #3b82f6;
-  background: #0f2142;
-  color: #60a5fa;
+  border-color: var(--accent-border);
+  background: var(--accent-selected-bg);
+  color: var(--accent-hover);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.2);
 }
 
 /* Library Grid & List */
@@ -4627,8 +4781,9 @@
   gap: 13px;
   padding: 11px 14px;
   border-radius: 11px;
-  border: 1px solid #23232b;
-  background: #0c0c10;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  box-shadow: var(--glass-highlight);
 }
 
 .sol-browser-icon {
@@ -4643,8 +4798,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1c1c23;
-  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-hover);
   font-weight: 700;
   font-size: 13px;
 }
@@ -4657,8 +4813,9 @@
 .sol-browser-version-box {
   padding: 14px;
   border-radius: 12px;
-  border: 1px solid #292932;
-  background: #141419;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  box-shadow: var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -4678,7 +4835,7 @@
   flex-direction: column;
   gap: 4px;
   padding-right: 14px;
-  border-right: 1px solid #24242c;
+  border-right: 1px solid var(--glass-border);
   overflow-y: auto;
 }
 
@@ -4687,25 +4844,28 @@
   align-items: center;
   gap: 10px;
   padding: 8.5px 12px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
-  color: #a6a6b0;
+  color: var(--text-secondary);
   font-size: 13.5px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 120ms var(--ease-ui);
 }
 
 .sol-settings-nav-btn:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #f7f7f8;
+  color: var(--text-primary);
 }
 
 .sol-settings-nav-btn.is-active {
-  background: #0f2142;
-  color: #60a5fa;
+  background: var(--accent-selected-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-hover);
   font-weight: 600;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.16);
 }
 
 .sol-settings-dialog-body {
@@ -4717,9 +4877,11 @@
   flex: 1;
   position: static;
   margin: 0;
-  box-shadow: none;
-  border: 1px solid rgba(59, 130, 246, 0.36);
-  background: #0c172b;
+  box-shadow: var(--glass-highlight);
+  border: 1px solid var(--accent-border);
+  background: rgba(15, 29, 58, 0.72);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
 }
 
 .sol-about-hero {
@@ -4728,8 +4890,11 @@
   gap: 16px;
   padding: 16px;
   border-radius: 13px;
-  border: 1px solid #272730;
-  background: #141419;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  box-shadow: var(--glass-highlight);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
 }
 
 .sol-about-title {
@@ -4753,7 +4918,7 @@
 .sol-banner-warn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
   padding: 12px 15px;
   border-radius: 11px;
@@ -5293,6 +5458,43 @@
   transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 120ms var(--ease-ui);
 }
 
+/* Tasks View Cards */
+.sol-task-card {
+  border-left: 3px solid var(--glass-border-strong);
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms var(--ease-ui);
+}
+
+.sol-task-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--glass-border-strong);
+}
+
+.sol-task-card--running,
+.sol-task-card--queued {
+  border-left-color: #3b82f6;
+}
+
+.sol-task-card--completed {
+  border-left-color: #22c55e;
+}
+
+.sol-task-card--failed,
+.sol-task-card--cancelled {
+  border-left-color: #ef4444;
+}
+
+.sol-task-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sol-task-name {
+  font-size: 13.5px;
+}
+
 :root[data-reduced-motion='true'] *,
 :root[data-reduced-motion='true'] *::before,
 :root[data-reduced-motion='true'] *::after {
@@ -5309,7 +5511,12 @@
 :root[data-reduced-motion='true'] .sol-inst-card:hover .sol-inst-icon,
 :root[data-reduced-motion='true'] .sol-jump-item:hover,
 :root[data-reduced-motion='true'] .sol-jump-item:hover .sol-inst-icon,
-:root[data-reduced-motion='true'] .sol-sheet-action-tile:hover {
+:root[data-reduced-motion='true'] .sol-sheet-action-tile:hover,
+:root[data-reduced-motion='true'] .sol-chip:hover,
+:root[data-reduced-motion='true'] .sol-palette-row:hover,
+:root[data-reduced-motion='true'] .sol-mini-feature:hover,
+:root[data-reduced-motion='true'] .sol-account-row:hover,
+:root[data-reduced-motion='true'] .sol-task-card:hover {
   transform: none !important;
 }
 
@@ -5330,7 +5537,12 @@
   .sol-inst-card:hover .sol-inst-icon,
   .sol-jump-item:hover,
   .sol-jump-item:hover .sol-inst-icon,
-  .sol-sheet-action-tile:hover {
+  .sol-sheet-action-tile:hover,
+  .sol-chip:hover,
+  .sol-palette-row:hover,
+  .sol-mini-feature:hover,
+  .sol-account-row:hover,
+  .sol-task-card:hover {
     transform: none !important;
   }
 }
