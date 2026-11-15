@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.63 — Full Modrinth App + Solara Microsoft OAuth & GitHub Releases Auto-Updater.
+# Owner-approved preview candidate: V-0.0.63 — Full Modrinth App + Solara Microsoft OAuth & GitHub Releases Auto-Updater (with tracked app-lib .env).
 on:
   workflow_dispatch:
   push:

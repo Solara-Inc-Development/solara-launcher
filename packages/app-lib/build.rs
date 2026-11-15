@@ -16,6 +16,23 @@ fn main() {
 }
 
 fn set_env() {
+    let defaults = [
+        ("MODRINTH_URL", "https://modrinth.com/"),
+        ("MODRINTH_API_BASE_URL", "https://api.modrinth.com/"),
+        ("SHARED_INSTANCES_API_BASE_URL", "https://disabled.invalid/"),
+        ("MODRINTH_ARCHON_BASE_URL", "https://disabled.invalid/"),
+        ("MODRINTH_API_URL", "https://api.modrinth.com/v2/"),
+        ("MODRINTH_API_URL_V3", "https://api.modrinth.com/v3/"),
+        ("MODRINTH_SOCKET_URL", "wss://disabled.invalid/"),
+        (
+            "MODRINTH_LAUNCHER_META_URL",
+            "https://launcher-meta.modrinth.com/",
+        ),
+    ];
+    for (k, v) in defaults {
+        println!("cargo::rustc-env={k}={v}");
+    }
+
     for (var_name, var_value) in
         dotenvy::dotenv_iter().into_iter().flatten().flatten()
     {

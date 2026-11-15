@@ -9,6 +9,8 @@ release-assets/
 .env
 .env.*
 !.env.example
+!packages/app-lib/.env
+!packages/app-lib/.env.prod
 *.key
 *.pem
 *.db
