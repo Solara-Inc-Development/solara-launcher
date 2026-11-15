@@ -1,12 +1,12 @@
 # Changelog
 
-## Unreleased — Solara identity and cyan accents
+## V-0.0.65 — Solara identity and cyan accents (2026-11-15)
 
 - Rebrand built-in desktop copy, translations, welcome artwork, file dialogs and support links for Solara Launcher.
 - Use cyan accents across light, dark, OLED and retro themes while retaining the existing layout and controls.
 - Remove unavailable catalog sign-in and cloud-sync prompts. Public content browsing and local installs need no catalog account; Microsoft/Minecraft sign-in remains required for licensed play.
 - Preserve existing theme choices, provider protocols, local-data compatibility, and required third-party licences and attribution. This update retains the inherited launcher engine.
-- Source changes only. Windows installer, gameplay and update/relaunch acceptance remain pending.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
 
 ## Testing Preview V-0.0.63 — 2026-11-15
 
