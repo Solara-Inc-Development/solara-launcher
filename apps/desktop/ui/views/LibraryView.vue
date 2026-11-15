@@ -3,10 +3,12 @@ import { computed, ref } from 'vue';
 import InstanceIcon from '../components/InstanceIcon.vue';
 import SolaraButton from '../components/SolaraButton.vue';
 import SolaraEmptyState from '../components/SolaraEmptyState.vue';
+import SolaraModal from '../components/SolaraModal.vue';
 import {
   Copy,
   FolderOpen,
   Grid,
+  Info,
   Library,
   List,
   MoreVertical,
@@ -18,6 +20,7 @@ import {
   Sliders,
   Square,
   Star,
+  Terminal,
   Trash2,
   X,
 } from '../icons';
@@ -46,6 +49,17 @@ const viewMode = ref<'grid' | 'list'>('grid');
 const openMenuId = ref<string | null>(null);
 const deleteConfirm = ref<InstanceRecord | null>(null);
 const deleting = ref(false);
+const quickSheetId = ref<string | null>(null);
+
+const quickSheetInst = computed<InstanceRecord | null>(
+  () => store.instances.find((i) => i.id === quickSheetId.value) ?? null,
+);
+
+function openQuickSheet(inst: InstanceRecord): void {
+  closeMenus();
+  selectInstance(inst.id);
+  quickSheetId.value = inst.id;
+}
 
 // Inline New Group creator
 const showNewGroupInput = ref(false);
@@ -311,7 +325,7 @@ async function confirmDelete(): Promise<void> {
             <div class="sol-inst-card-titlewrap">
               <div class="sol-inst-card-name sol-truncate">{{ inst.name }}</div>
               <div class="sol-muted sol-text-xs sol-inline-flex">
-                <span :class="['sol-loader-dot', `is-${inst.loader}`]" />
+                <span :class="['sol-loader-dot', `sol-loader-dot--${inst.loader}`]" />
                 <span>{{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}</span>
               </div>
             </div>
@@ -326,6 +340,9 @@ async function confirmDelete(): Promise<void> {
                 <MoreVertical :size="14" />
               </button>
               <div v-if="openMenuId === inst.id" class="sol-menu-dropdown">
+                <button type="button" @click="openQuickSheet(inst)">
+                  <Info :size="13" /> Quick Info
+                </button>
                 <button type="button" @click="closeMenus(); openInstanceSettings(inst.id)">
                   <Sliders :size="13" /> Instance Settings
                 </button>
@@ -354,6 +371,15 @@ async function confirmDelete(): Promise<void> {
             </span>
 
             <div class="sol-row-gap" @click.stop>
+              <button
+                type="button"
+                class="sol-icon-btn sol-icon-btn--xs sol-card-hover-act"
+                :title="`Quick info for ${inst.name}`"
+                :aria-label="`Quick info for ${inst.name}`"
+                @click="openQuickSheet(inst)"
+              >
+                <Info :size="13" />
+              </button>
               <button
                 type="button"
                 class="sol-icon-btn sol-icon-btn--xs sol-card-hover-act"
@@ -399,8 +425,9 @@ async function confirmDelete(): Promise<void> {
             />
             <div class="sol-row-item-text">
               <div class="sol-row-item-title">{{ inst.name }}</div>
-              <div class="sol-muted sol-text-xs">
-                {{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}
+              <div class="sol-muted sol-text-xs sol-inline-flex">
+                <span :class="['sol-loader-dot', `sol-loader-dot--${inst.loader}`]" />
+                <span>{{ LOADER_LABEL[inst.loader] ?? inst.loader }} {{ inst.gameVersion }}</span>
                 <template v-if="inst.group"> · {{ inst.group }}</template>
                 · {{ formatDuration(inst.playtimeSeconds) }}
               </div>
@@ -408,6 +435,9 @@ async function confirmDelete(): Promise<void> {
           </div>
 
           <div class="sol-row-item-actions" @click.stop>
+            <SolaraButton variant="ghost" size="sm" @click="openQuickSheet(inst)">
+              <Info :size="14" /> Quick Info
+            </SolaraButton>
             <SolaraButton variant="ghost" size="sm" @click="openInstanceSettings(inst.id)">
               <Sliders :size="14" /> Settings
             </SolaraButton>
@@ -436,6 +466,9 @@ async function confirmDelete(): Promise<void> {
           <Play v-else :size="13" />
           {{ contextMenu.inst.running ? 'Stop Minecraft' : 'Play Instance' }}
         </button>
+        <button type="button" @click="openQuickSheet(contextMenu.inst)">
+          <Info :size="13" /> Quick Info
+        </button>
         <button type="button" @click="openInstance(contextMenu.inst); closeMenus()">
           <Package :size="13" /> Manage Content
         </button>
@@ -460,19 +493,128 @@ async function confirmDelete(): Promise<void> {
         </button>
       </div>
 
-      <!-- Delete Confirmation Modal -->
-      <div v-if="deleteConfirm" class="sol-overlay" @click.self="deleteConfirm = null">
-        <div class="sol-dialog-box" style="max-width: 420px">
-          <h3 class="sol-modal-title">Delete "{{ deleteConfirm.name }}"?</h3>
-          <p class="sol-muted sol-text-sm" style="margin: 10px 0 18px">
-            This permanently removes its worlds, mods, saves, and configs inside this instance folder.
-          </p>
-          <div class="sol-row-gap" style="justify-content: flex-end">
-            <SolaraButton variant="ghost" :disabled="deleting" @click="deleteConfirm = null">Cancel</SolaraButton>
-            <SolaraButton variant="danger" :loading="deleting" @click="confirmDelete">Delete Instance</SolaraButton>
+      <!-- In-Place Instance Quick Profile Sheet -->
+      <SolaraModal
+        :open="Boolean(quickSheetInst)"
+        variant="sheet"
+        width="md"
+        :title="quickSheetInst?.name ?? 'Instance Overview'"
+        :subtitle="quickSheetInst ? `${LOADER_LABEL[quickSheetInst.loader] ?? quickSheetInst.loader} ${quickSheetInst.gameVersion}` : ''"
+        @close="quickSheetId = null"
+      >
+        <template v-if="quickSheetInst">
+          <div class="sol-stack">
+            <div class="sol-row-between">
+              <div class="sol-row-gap">
+                <InstanceIcon
+                  :name="quickSheetInst.name"
+                  :loader="quickSheetInst.loader"
+                  :icon="quickSheetInst.icon"
+                  :custom-icon="quickSheetInst.customIcon"
+                  :size="54"
+                  :rounded="13"
+                />
+                <div>
+                  <div class="sol-row-gap">
+                    <span :class="['sol-badge', `sol-badge--${quickSheetInst.loader}`]">
+                      {{ LOADER_LABEL[quickSheetInst.loader] ?? quickSheetInst.loader }}
+                    </span>
+                    <span class="sol-badge">MC {{ quickSheetInst.gameVersion }}</span>
+                    <span v-if="quickSheetInst.group" class="sol-badge">{{ quickSheetInst.group }}</span>
+                  </div>
+                  <p v-if="quickSheetInst.notes" class="sol-muted sol-text-xs" style="margin: 6px 0 0">
+                    {{ quickSheetInst.notes }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="sol-sheet-stats">
+              <div class="sol-sheet-stat">
+                <span class="sol-sheet-stat-label">Playtime</span>
+                <span class="sol-sheet-stat-val">{{ formatDuration(quickSheetInst.playtimeSeconds) }}</span>
+              </div>
+              <div class="sol-sheet-stat">
+                <span class="sol-sheet-stat-label">Last Played</span>
+                <span class="sol-sheet-stat-val">{{ formatRelativeTime(quickSheetInst.lastPlayed) }}</span>
+              </div>
+              <div class="sol-sheet-stat">
+                <span class="sol-sheet-stat-label">Sidebar</span>
+                <span class="sol-sheet-stat-val">{{ quickSheetInst.pinned ? 'Pinned' : 'Unpinned' }}</span>
+              </div>
+            </div>
+
+            <div class="sol-sheet-action-grid">
+              <button type="button" class="sol-sheet-action-tile" @click="openInstance(quickSheetInst); quickSheetId = null">
+                <span class="sol-sheet-action-icon"><Package :size="16" /></span>
+                <span>
+                  <strong>Manage Content</strong>
+                  <span>Mods, resource packs &amp; shaders</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                class="sol-sheet-action-tile"
+                @click="selectInstance(quickSheetInst.id); navigate('instance', { instanceId: quickSheetInst.id, tab: 'logs' }); quickSheetId = null"
+              >
+                <span class="sol-sheet-action-icon"><Terminal :size="16" /></span>
+                <span>
+                  <strong>Logs &amp; Console</strong>
+                  <span>Live output &amp; crash assistant</span>
+                </span>
+              </button>
+              <button type="button" class="sol-sheet-action-tile" @click="openInstanceSettings(quickSheetInst.id); quickSheetId = null">
+                <span class="sol-sheet-action-icon"><Sliders :size="16" /></span>
+                <span>
+                  <strong>Instance Settings</strong>
+                  <span>Memory, Java, JVM &amp; window</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                class="sol-sheet-action-tile"
+                @click="native('open_instance_folder', { id: quickSheetInst.id }).catch(() => {})"
+              >
+                <span class="sol-sheet-action-icon"><FolderOpen :size="16" /></span>
+                <span>
+                  <strong>Open Folder</strong>
+                  <span>Saves, configs &amp; screenshots</span>
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+
+        <template #footer>
+          <SolaraButton variant="ghost" @click="quickSheetId = null">Close</SolaraButton>
+          <SolaraButton
+            v-if="quickSheetInst"
+            :variant="quickSheetInst.running ? 'danger' : 'primary'"
+            @click="launchOrStopInstance(quickSheetInst); quickSheetId = null"
+          >
+            <Square v-if="quickSheetInst.running" :size="14" />
+            <Play v-else :size="14" />
+            {{ quickSheetInst.running ? 'Stop Minecraft' : 'Play Instance' }}
+          </SolaraButton>
+        </template>
+      </SolaraModal>
+
+      <!-- Delete Confirmation Modal -->
+      <SolaraModal
+        :open="Boolean(deleteConfirm)"
+        :title="deleteConfirm ? `Delete &quot;${deleteConfirm.name}&quot;?` : 'Delete Instance'"
+        width="sm"
+        :closable="!deleting"
+        @close="deleteConfirm = null"
+      >
+        <p class="sol-muted sol-text-sm" style="margin: 0">
+          This permanently removes its worlds, mods, saves, and configs inside this instance folder.
+        </p>
+        <template #footer>
+          <SolaraButton variant="ghost" :disabled="deleting" @click="deleteConfirm = null">Cancel</SolaraButton>
+          <SolaraButton variant="danger" :loading="deleting" @click="confirmDelete">Delete Instance</SolaraButton>
+        </template>
+      </SolaraModal>
     </div>
   </div>
 </template>

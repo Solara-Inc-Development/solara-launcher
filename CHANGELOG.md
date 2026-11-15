@@ -1,5 +1,16 @@
 # Changelog
 
+## Testing Preview V-0.0.51 — 2026-11-15
+
+- **In-Place Modal/Sheet Ergonomics (Part 2) & Frosted Library / Instance Detail UI**:
+  - Added an in-place **Instance Quick Profile Sheet** (`variant="sheet"`) to `LibraryView.vue` (via card hover button, list row button, and right-click context menu), fixed `.sol-loader-dot--${inst.loader}` indicators across Grid and List views, and replaced the legacy delete overlay with a focus-trapped `<SolaraModal>` dialog.
+  - Upgraded `InstanceDetailView.vue` with a frosted OLED glass `.sol-inst-header` with per-loader left accent strips (`fabric`, `forge`, `neoforge`, `quilt`, `vanilla`), color-matched loader badges, and a focus-trapped `<SolaraModal>` screenshot lightbox with Escape dismissal.
+  - Upgraded `.sol-menu-dropdown`, `.sol-context-fixed`, `.sol-row-item`, and `.sol-content-row` in `apps/desktop/launcher.css` to frosted glass surfaces.
+  - Added `tests/library-instance-ui.test.mjs` and expanded `scripts/verify-redesign-e2e.cjs` to exercise the Library quick-info sheet.
+
+This is a Windows testing preview. Updater signature verification is required. Physical Windows installation, licensed account/gameplay and automatic upgrade/relaunch acceptance remain pending.
+
+
 ## Testing Preview V-0.0.50 — 2026-11-15
 
 - **Welcoming Home Redesign & In-Place Modal/Sheet UIs (Part 1)**:

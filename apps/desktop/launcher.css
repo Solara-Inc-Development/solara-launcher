@@ -4050,13 +4050,15 @@
   top: 100%;
   right: 0;
   z-index: 40;
-  min-width: 190px;
+  min-width: 196px;
   margin-top: 4px;
   padding: 6px;
-  border-radius: 11px;
-  border: 1px solid #2c2c36;
-  background: #121217;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--glass-surface-strong);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.78), var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -4098,14 +4100,18 @@
   gap: 14px;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid #222229;
-  background: #0c0c10;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-highlight);
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms var(--ease-ui);
 }
 
 .sol-row-item:hover,
 .sol-content-row:hover {
-  border-color: #32323d;
-  background: #131319;
+  border-color: var(--glass-border-strong);
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .sol-row-item.is-selected {
@@ -4156,9 +4162,21 @@
   justify-content: space-between;
   gap: 18px;
   flex-wrap: wrap;
-  padding-bottom: 18px;
-  border-bottom: 1px solid #1e1e26;
+  padding: 18px 22px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border-strong);
+  border-left: 4px solid #3b82f6;
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), 0 12px 32px rgba(0, 0, 0, 0.45);
 }
+
+.sol-inst-header--fabric { border-left-color: var(--loader-fabric); }
+.sol-inst-header--forge { border-left-color: var(--loader-forge); }
+.sol-inst-header--neoforge { border-left-color: var(--loader-neoforge); }
+.sol-inst-header--quilt { border-left-color: var(--loader-quilt); }
+.sol-inst-header--vanilla { border-left-color: var(--loader-vanilla); }
 
 .sol-inst-header-left {
   display: flex;
@@ -4703,11 +4721,13 @@
   z-index: 150;
   width: 196px;
   min-width: 176px;
-  padding: 5px;
-  border-radius: 10px;
-  border: 1px solid #28282d;
-  background: #151518;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--glass-surface-strong);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.78), var(--glass-highlight);
   display: flex;
   flex-direction: column;
   gap: 2px;

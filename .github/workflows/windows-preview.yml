@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Owner-approved preview candidate: V-0.0.50 — Welcoming Home Redesign & In-Place Modal/Sheet UIs Part 1 (SolaraModal sheet variant, Home Quick Profile Sheet, Discover tabbed sheet).
+# Owner-approved preview candidate: V-0.0.51 — In-Place Modal/Sheet UIs Part 2 & Frosted Library / InstanceDetail Ergonomics (Quick Profile Sheet, SolaraModal lightbox/delete, loader headers).
 on:
   workflow_dispatch:
   push:

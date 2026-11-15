@@ -861,6 +861,13 @@ async function run() {
     await page.keyboard.press('Escape').catch(() => {});
     await page.click('body', { position: { x: 10, y: 100 } });
 
+    // Open Library In-Place Quick Info sheet & dismiss via Escape
+    await page.locator('.sol-inst-card >> nth=0').hover();
+    await page.locator('.sol-inst-card >> nth=0 >> button[aria-label^="Quick info"]').click();
+    await page.waitForSelector('.sol-modal--sheet .sol-sheet-action-grid', { timeout: 4000 });
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.sol-modal--sheet', { state: 'detached', timeout: 4000 });
+
     // Open Create Instance Modal briefly
     await page.click('button:has-text("New Instance")');
     await page.waitForSelector('.sol-modal-title', { timeout: 3000 });
@@ -999,7 +1006,7 @@ async function run() {
     await page.locator('.sol-shot-card').nth(79).click();
     await page.locator('.sol-lightbox-img').waitFor();
     assert(await page.getByRole('button', { name: 'Copy file path', exact: true }).isVisible());
-    await page.locator('.sol-dialog-box').getByRole('button', { name: 'Close', exact: true }).click();
+    await page.locator('.sol-modal').getByRole('button', { name: 'Close', exact: true }).click();
 
     // Discover Page -> Modpacks ONLY (and verify rail hover tooltip opens + dismisses on click)
     await page.hover('button[data-tooltip="Discover Modpacks"]');

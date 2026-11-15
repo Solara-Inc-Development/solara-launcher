@@ -803,8 +803,8 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
     </div>
 
     <div v-else class="sol-view-wrap">
-      <!-- Compact Modrinth-style Instance Header -->
-      <header class="sol-inst-header">
+      <!-- Frosted Glass Instance Header -->
+      <header :class="['sol-inst-header', `sol-inst-header--${instance.loader}`]">
         <div class="sol-inst-header-left">
           <InstanceIcon
             :name="instance.name"
@@ -817,7 +817,7 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
           <div class="sol-inst-header-meta">
             <div class="sol-row-gap">
               <h1 class="sol-inst-title">{{ instance.name }}</h1>
-              <span class="sol-badge sol-badge--gold">
+              <span :class="['sol-badge', `sol-badge--${instance.loader}`]">
                 {{ LOADER_LABEL[instance.loader] ?? instance.loader }} {{ instance.gameVersion }}
               </span>
               <span v-if="instance.running" class="sol-badge sol-badge--success">Running</span>
@@ -1369,16 +1369,30 @@ onUnmounted(() => { unregisterFileGuard(); if (logPollTimer) clearInterval(logPo
       @updated="loadAllContent"
     />
 
-    <!-- Screenshot Lightbox -->
-    <div v-if="lightboxShot" class="sol-overlay" @click.self="lightboxShot = null">
-      <div class="sol-dialog-box" style="max-width: 900px">
-        <div class="sol-row-between" style="margin-bottom: 10px">
-          <strong>{{ lightboxShot.entry.fileName }}</strong>
-          <SolaraButton variant="secondary" size="xs" @click="copyScreenshotPath(lightboxShot.entry)">Copy file path</SolaraButton>
-          <SolaraButton variant="ghost" size="xs" @click="lightboxShot = null">Close</SolaraButton>
-        </div>
-        <img v-if="lightboxShot.src" :src="lightboxShot.src" :alt="lightboxShot.entry.fileName" class="sol-lightbox-img" />
-      </div>
-    </div>
+    <!-- Screenshot Lightbox Modal -->
+    <SolaraModal
+      :open="Boolean(lightboxShot)"
+      :title="lightboxShot?.entry.fileName ?? 'Screenshot'"
+      width="xl"
+      @close="lightboxShot = null"
+    >
+      <img
+        v-if="lightboxShot?.src"
+        :src="lightboxShot.src"
+        :alt="lightboxShot.entry.fileName"
+        class="sol-lightbox-img"
+      />
+      <template #footer>
+        <SolaraButton
+          v-if="lightboxShot"
+          variant="secondary"
+          size="sm"
+          @click="copyScreenshotPath(lightboxShot.entry)"
+        >
+          Copy file path
+        </SolaraButton>
+        <SolaraButton variant="ghost" size="sm" @click="lightboxShot = null">Close</SolaraButton>
+      </template>
+    </SolaraModal>
   </div>
 </template>
