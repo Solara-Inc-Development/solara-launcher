@@ -94,6 +94,7 @@ import { maxMemoryQueryOptions } from '@/features/java/queries'
 import SharedInstanceLockNotice from '@/features/library/shared-instances/shared-instance-lock-notice.vue'
 import SharedInstanceModals from '@/features/library/shared-instances/shared-instance-modals.vue'
 import { provideMinecraftAccounts } from '@/features/minecraft-accounts/context'
+import { useMinecraftAccounts } from '@/features/minecraft-accounts/use-minecraft-accounts'
 import AppSettingsModal from '@/features/settings/app-settings-modal/index.vue'
 import { provideSettingsActions } from '@/features/settings/settings-actions'
 import NewUpdateModal from '@/features/updates/new-update-modal/index.vue'
@@ -237,7 +238,7 @@ const forceSidebar = computed(
 		route.path.startsWith('/project') ||
 		route.path.startsWith('/user'),
 )
-const sidebarVisible = computed(() => sidebarToggled.value || forceSidebar.value)
+const sidebarVisible = computed(() => false)
 
 const notificationManager = new AppNotificationManager()
 provideNotificationManager(notificationManager)
@@ -1293,7 +1294,16 @@ onMounted(() => {
 })
 
 const sidebar = ref(null)
-provideMinecraftAccounts(computed(() => sidebar.value?.minecraftAccounts ?? null))
+const mcAccounts = useMinecraftAccounts()
+provideMinecraftAccounts(
+	computed(() => ({
+		loginDisabled: mcAccounts.loginDisabled.value,
+		refreshValues: mcAccounts.refreshValues,
+		setEquippedSkin: mcAccounts.setEquippedSkin,
+		setLoginDisabled: mcAccounts.setLoginDisabled,
+		login: mcAccounts.login,
+	})),
+)
 
 useAppEvent('command', handleCommand, appEvents)
 useAppEvent('notification', handleLiveNotification, appEvents)
@@ -1624,36 +1634,53 @@ function applySolaraUpdateStatus(status) {
 		appUpdateDownload.progress.value = Math.max(0, Math.min(1, status.progressPercent / 100))
 	}
 
-	if (status.availableVersion) {
+	const availableVer = status.availableVersion ?? status.publicVersion ?? status.version
+	const isAvailable =
+		(status.state === 'available' ||
+			status.stage === 'available' ||
+			status.available === true) &&
+		!!availableVer
+
+	if (isAvailable && availableVer) {
 		availableUpdate.value = {
 			rid: 1,
-			version: status.availableVersion,
+			version: availableVer,
 			currentVersion: status.currentVersion,
 		}
 		metered.value = false
 		finishedDownloading.value = status.state !== 'downloading'
-		markAppUpdateActionable(status.availableVersion, 'downloaded')
+		markAppUpdateActionable(availableVer, 'downloaded')
 
-		if (!shownStartupUpdateModalForVersion.has(status.availableVersion)) {
-			shownStartupUpdateModalForVersion.add(status.availableVersion)
+		if (!shownStartupUpdateModalForVersion.has(availableVer)) {
+			shownStartupUpdateModalForVersion.add(availableVer)
 			nextTick(() => {
 				newUpdateModal.value?.show({
-					version: status.availableVersion,
+					version: availableVer,
 					currentVersion: status.currentVersion,
-					notes: status.releaseNotes ?? null,
+					notes: status.releaseNotes ?? status.notes ?? null,
 					publishedAt: status.publishedAt ?? null,
 				})
 			})
 		}
-	} else if (status.state === 'upToDate') {
+	} else if (
+		status.state === 'upToDate' ||
+		status.state === 'up-to-date' ||
+		status.stage === 'up-to-date' ||
+		status.available === false
+	) {
 		availableUpdate.value = null
 		finishedDownloading.value = false
 		downloading.value = false
+		appUpdateState.justCheckedUpToDate.value = true
+		setTimeout(() => {
+			appUpdateState.justCheckedUpToDate.value = false
+		}, 3500)
 	}
 }
 
-async function checkUpdates() {
+async function checkUpdates(manual = false) {
 	try {
+		appUpdateState.isCheckingUpdates.value = true
 		if (!unlistenUpdateDownload) {
 			unlistenUpdateDownload = await listen('app-update-status', (event) => {
 				applySolaraUpdateStatus(event.payload)
@@ -1661,8 +1688,16 @@ async function checkUpdates() {
 		}
 		const status = await invoke('check_app_update')
 		applySolaraUpdateStatus(status)
+		if (manual && availableUpdate.value) {
+			newUpdateModal.value?.show({
+				version: availableUpdate.value.version,
+				currentVersion: availableUpdate.value.currentVersion,
+			})
+		}
 	} catch (e) {
 		console.warn('Update check failed:', e)
+	} finally {
+		appUpdateState.isCheckingUpdates.value = false
 	}
 
 	clearDelayedUpdatePopup()
@@ -1671,6 +1706,16 @@ async function checkUpdates() {
 			void checkUpdates()
 		},
 		5 /* min */ * 60 /* sec */ * 1000 /* ms */,
+	)
+}
+
+appUpdateState.manualCheckTrigger.value = () => checkUpdates(true)
+appUpdateState.showUpdateModalTrigger.value = (details) => {
+	newUpdateModal.value?.show(
+		details ?? {
+			version: availableUpdate.value?.version,
+			currentVersion: availableUpdate.value?.currentVersion,
+		},
 	)
 }
 
@@ -1859,7 +1904,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				<PlayIcon class="ml-0.5" />
 			</NavButton>
 			<NavButton
-				v-tooltip.right="formatMessage(commonMessages.discoverContentLabel)"
+				v-tooltip.right="'ModPackInstaller'"
 				to="/browse/modpack"
 				:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
 				:is-subpage="
@@ -1903,8 +1948,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<AppTitleBar
 			:can-navigate-back="canNavigateBack"
 			:can-navigate-forward="canNavigateForward"
-			:show-sidebar-toggle="!forceSidebar && appSettings.toggleSidebar"
-			:sidebar-toggled="sidebarToggled"
+			:show-sidebar-toggle="false"
+			:sidebar-toggled="false"
 			@toggle-sidebar="sidebarToggled = !sidebarToggled"
 		/>
 	</div>
@@ -1968,14 +2013,15 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			</RouterView>
 		</div>
 		<AppSidebar
+			v-if="false"
 			ref="sidebar"
-			:visible="sidebarVisible"
+			:visible="false"
 			@create-instance="installationModal?.show()"
 		/>
 	</div>
 	<I18nDebugPanel />
-	<NotificationPanel :has-sidebar="sidebarVisible" />
-	<PopupNotificationPanel :has-sidebar="sidebarVisible" />
+	<NotificationPanel :has-sidebar="false" />
+	<PopupNotificationPanel :has-sidebar="false" />
 	<ErrorModal ref="errorModal" />
 	<MinecraftAuthErrorModal ref="minecraftAuthErrorModal" />
 	<MinecraftRequiredModal ref="minecraftRequiredModal" />
@@ -2035,7 +2081,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 .app-contents {
 	--top-bar-height: 3rem;
 	--left-bar-width: 4rem;
-	--right-bar-width: 300px;
+	--right-bar-width: 0px;
 }
 
 .app-grid-layout {
@@ -2076,11 +2122,10 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	border-top-left-radius: var(--radius-xl);
 
 	display: grid;
-	grid-template-columns: 1fr 0px;
-	// transition: grid-template-columns 0.4s ease-in-out;
+	grid-template-columns: 1fr;
 
 	&.sidebar-enabled {
-		grid-template-columns: 1fr 300px;
+		grid-template-columns: 1fr;
 	}
 }
 

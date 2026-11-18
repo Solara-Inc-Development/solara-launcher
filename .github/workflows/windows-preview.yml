@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara cyan preview with dependency licence payload verification; signing stays private.
+# Solara UI differentiation: ModPackInstaller, check for updates & home dashboard redesign; signing stays private.
 on:
   workflow_dispatch:
   push:

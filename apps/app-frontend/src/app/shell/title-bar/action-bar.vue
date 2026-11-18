@@ -114,8 +114,24 @@
 				</button>
 			</template>
 			<template v-else>
-				<span class="size-2 rounded-full bg-secondary" />
-				<span class="text-secondary"> {{ formatMessage(messages.noInstancesRunning) }} </span>
+				<button
+					type="button"
+					class="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-sm font-medium text-secondary hover:text-contrast transition-colors p-0 select-none"
+					:disabled="isCheckingUpdates"
+					@click="handleCheckForUpdates"
+				>
+					<RefreshCwIcon
+						class="size-3.5 text-brand"
+						:class="{ 'animate-spin': isCheckingUpdates }"
+					/>
+					<span v-if="isCheckingUpdates" class="text-contrast">Checking for updates...</span>
+					<span v-else-if="hasAvailableUpdate" class="text-brand font-semibold flex items-center gap-1.5">
+						<span class="size-2 rounded-full bg-brand animate-pulse" />
+						Update Available
+					</span>
+					<span v-else-if="justCheckedUpToDate" class="text-brand font-medium">Up to date</span>
+					<span v-else>Check for updates</span>
+				</button>
 			</template>
 		</div>
 	</div>
@@ -126,6 +142,7 @@ import {
 	DownloadIcon,
 	DropdownIcon,
 	OnlineIndicatorIcon,
+	RefreshCwIcon,
 	StarIcon,
 	StopCircleIcon,
 	TerminalSquareIcon,
@@ -154,6 +171,31 @@ import { get_all as getRunningProcesses, kill as killProcess } from '@/helpers/p
 import type { LoadingBar } from '@/helpers/state'
 import { progress_bars_list } from '@/helpers/state'
 import type { GameInstance } from '@/helpers/types'
+import { appUpdateState } from '@/providers/app-update'
+
+const {
+	isCheckingUpdates,
+	justCheckedUpToDate,
+	availableUpdate,
+	manualCheckTrigger,
+	showUpdateModalTrigger,
+} = appUpdateState
+
+const hasAvailableUpdate = computed(() => !!availableUpdate.value)
+
+async function handleCheckForUpdates() {
+	if (isCheckingUpdates.value) return
+	if (hasAvailableUpdate.value) {
+		showUpdateModalTrigger.value?.()
+		return
+	}
+	if (manualCheckTrigger.value) {
+		await manualCheckTrigger.value()
+		if (hasAvailableUpdate.value) {
+			showUpdateModalTrigger.value?.()
+		}
+	}
+}
 
 const { handleError } = injectNotificationManager()
 const popupNotificationManager = injectPopupNotificationManager()

@@ -100,91 +100,42 @@ import {
 	Button,
 	defineMessages,
 	IconButton,
-	injectNotificationManager,
 	useVIntl,
 } from '@modrinth/ui'
-import type { Ref } from 'vue'
-import { computed, onUnmounted, ref } from 'vue'
 
-import { useAppEvent } from '@/composables/use-app-event'
-import { handleSevereError } from '@/composables/use-error.js'
-import { trackEvent } from '@/helpers/analytics'
-import {
-	get_default_user,
-	login as login_flow,
-	remove_user,
-	set_default_user,
-	users,
-} from '@/helpers/auth'
-import { getPlayerHeadUrl } from '@/helpers/rendering/player-head'
-import type { Skin } from '@/helpers/skins'
-import { get_available_skins } from '@/helpers/skins'
+import { useMinecraftAccounts } from './use-minecraft-accounts'
 
 const { formatMessage } = useVIntl()
-const { handleError } = injectNotificationManager()
 
 const emit = defineEmits<{
 	change: []
 }>()
 
-type MinecraftCredential = {
-	profile: {
-		id: string
-		name: string
-	}
+const mc = useMinecraftAccounts()
+const {
+	accounts,
+	loginDisabled,
+	selectedAccount,
+	avatarUrl,
+	getAccountAvatarUrl,
+	refreshValues,
+	setEquippedSkin,
+	setLoginDisabled,
+} = mc
+
+async function setAccount(account: any) {
+	await mc.setAccount(account)
+	emit('change')
 }
 
-const accounts: Ref<MinecraftCredential[]> = ref([])
-const loginDisabled = ref(false)
-const defaultUser = ref<string | undefined>()
-const equippedSkin = ref<Skin | null>(null)
-const equippedHeadUrl = ref<string>()
-let headRequest = 0
-
-async function updateHeadUrl(skin: Skin | null) {
-	const request = ++headRequest
-	if (equippedHeadUrl.value) URL.revokeObjectURL(equippedHeadUrl.value)
-	equippedHeadUrl.value = undefined
-	if (!skin) return
-	const url = await getPlayerHeadUrl(skin)
-	if (request !== headRequest) URL.revokeObjectURL(url)
-	else equippedHeadUrl.value = url
+async function login() {
+	await mc.login()
+	emit('change')
 }
 
-onUnmounted(() => {
-	headRequest++
-	if (equippedHeadUrl.value) URL.revokeObjectURL(equippedHeadUrl.value)
-})
-
-async function refreshValues() {
-	defaultUser.value = await get_default_user().catch(handleError)
-	const userList = await users().catch(handleError)
-	accounts.value = Array.isArray(userList) ? [...userList] : []
-	accounts.value.sort((a, b) => (a.profile?.name ?? '').localeCompare(b.profile?.name ?? ''))
-
-	try {
-		const skins = await get_available_skins()
-		equippedSkin.value = skins.find((skin) => skin.is_equipped) ?? null
-
-		await updateHeadUrl(equippedSkin.value)
-	} catch {
-		equippedSkin.value = null
-		void updateHeadUrl(null)
-	}
-}
-
-async function setEquippedSkin(skin: Skin) {
-	equippedSkin.value = skin
-
-	try {
-		await updateHeadUrl(skin)
-	} catch (error) {
-		console.warn('Failed to get head render for equipped skin:', error)
-	}
-}
-
-function setLoginDisabled(value: boolean) {
-	loginDisabled.value = value
+async function logout(id: string) {
+	await mc.logout(id)
+	emit('change')
 }
 
 defineExpose({
@@ -193,75 +144,6 @@ defineExpose({
 	setLoginDisabled,
 	login,
 	loginDisabled,
-})
-
-await refreshValues()
-
-const selectedAccount = computed(() =>
-	accounts.value.find((account) => account.profile.id === defaultUser.value),
-)
-
-const avatarUrl = computed(() => {
-	if (equippedSkin.value?.texture_key) {
-		const cachedUrl = equippedHeadUrl.value
-		if (cachedUrl) {
-			return cachedUrl
-		}
-		return `https://mc-heads.net/avatar/${equippedSkin.value.texture_key}/128`
-	}
-	if (selectedAccount.value?.profile?.id) {
-		return `https://mc-heads.net/avatar/${selectedAccount.value.profile.id}/128`
-	}
-	return 'https://launcher-files.modrinth.com/assets/steve_head.png'
-})
-
-function getAccountAvatarUrl(account: MinecraftCredential) {
-	if (
-		account.profile.id === selectedAccount.value?.profile?.id &&
-		equippedSkin.value?.texture_key
-	) {
-		const cachedUrl = equippedHeadUrl.value
-		if (cachedUrl) {
-			return cachedUrl
-		}
-	}
-	return `https://mc-heads.net/avatar/${account.profile.id}/128`
-}
-
-async function setAccount(account: MinecraftCredential) {
-	defaultUser.value = account.profile.id
-	await set_default_user(account.profile.id).catch(handleError)
-	await refreshValues()
-	emit('change')
-}
-
-async function login() {
-	loginDisabled.value = true
-	const loggedIn = await login_flow().catch(handleSevereError)
-
-	if (loggedIn) {
-		await setAccount(loggedIn)
-	}
-
-	trackEvent('AccountLogIn')
-	loginDisabled.value = false
-}
-
-async function logout(id: string) {
-	await remove_user(id).catch(handleError)
-	await refreshValues()
-	if (!selectedAccount.value && accounts.value.length > 0) {
-		await setAccount(accounts.value[0])
-	} else {
-		emit('change')
-	}
-	trackEvent('AccountLogOut')
-}
-
-useAppEvent('process', async (e) => {
-	if (e.event === 'launched') {
-		await refreshValues()
-	}
 })
 
 const messages = defineMessages({

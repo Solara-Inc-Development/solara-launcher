@@ -108,6 +108,9 @@ const breadcrumbLabel = computed(() => {
 	if (browseRoute.query.from === 'worlds' || browseRoute.params.projectType === 'server') {
 		return formatMessage(breadcrumbMessages.discoverServers)
 	}
+	if (!browseRoute.query.i && !isServerContext.value) {
+		return 'ModPackInstaller'
+	}
 
 	return formatMessage(breadcrumbMessages.discoverProjectType, {
 		projectType: formatProjectTypeSentence(
@@ -287,6 +290,11 @@ const tags: Ref<Tags> = computed(() => ({
 if (isFromWorlds.value && route.params.projectType !== 'server') {
 	router.replace({
 		path: '/browse/server',
+		query: route.query,
+	})
+} else if (!route.query.i && !isServerContext.value && route.params.projectType !== 'modpack') {
+	router.replace({
+		path: '/browse/modpack',
 		query: route.query,
 	})
 }
@@ -753,6 +761,16 @@ const selectableProjectTypes = computed(() => {
 			mods = true
 		}
 	} else {
+		if (!route.query.i && !isServerContext.value) {
+			const params: LocationQuery = {}
+			if (route.query.ai) params.ai = route.query.ai
+			if (route.query.from) params.from = route.query.from
+			const queryString = new URLSearchParams(params as Record<string, string>).toString()
+			const suffix = queryString ? `?${queryString}` : ''
+			return [
+				{ label: formatMessage(messages.modpacksProjectType), href: `/browse/modpack${suffix}` },
+			]
+		}
 		dataPacks = true
 		mods = true
 		modpacks = true
@@ -1426,7 +1444,7 @@ provideBrowseManager({
 		query: getProjectBrowseQuery(),
 	}),
 	selectableProjectTypes,
-	showProjectTypeTabs: computed(() => true),
+	showProjectTypeTabs: computed(() => (route.query.i || isServerContext.value ? true : false)),
 	variant: 'app',
 	getCardActions,
 	installContext,

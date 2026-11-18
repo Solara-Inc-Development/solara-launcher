@@ -34,6 +34,10 @@ const restarting = ref(false)
 const availableUpdate = ref<AppUpdate | null>(null)
 const updateSize = ref<number | null>(null)
 const updatesEnabled = ref(true)
+const isCheckingUpdates = ref(false)
+const justCheckedUpToDate = ref(false)
+const manualCheckTrigger = ref<(() => Promise<void>) | null>(null)
+const showUpdateModalTrigger = ref<((details?: any) => void) | null>(null)
 
 let actions: AppUpdateActions = {}
 
@@ -50,6 +54,10 @@ export const appUpdateState = {
 	availableUpdate,
 	updateSize,
 	updatesEnabled,
+	isCheckingUpdates,
+	justCheckedUpToDate,
+	manualCheckTrigger,
+	showUpdateModalTrigger,
 	downloadProgress: computed(() => progress.value),
 	downloadPercent: computed(() => Math.trunc(progress.value * 100)),
 	isVisible: computed(() => !!availableUpdate.value && !restarting.value && updatesEnabled.value),
