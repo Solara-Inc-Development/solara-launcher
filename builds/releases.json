@@ -2164,6 +2164,49 @@
       "notes": "Solara Launcher cyan rebrand\n\n- Solara product names, logos, dialogs and built-in translations.\n- Cyan highlights across light, dark, OLED and retro themes, preserving the layout.\n- Public catalog browsing and local installs without an extra catalog-account sign-in.\n- Microsoft/Minecraft sign-in and licensed-account checks remain in place.\n- Existing theme choices are preserved. Solara release notes replace upstream promotional news.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.65/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "ba1481a7-0d5a-4dc3-b616-108751735596",
+      "publicVersion": "V-0.0.66",
+      "internalVersion": "0.0.66",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.66/solaralauncher.exe",
+      "commit": "dbb7002159af1c79c0aca755b559bd639b46cecd",
+      "allocatedAt": "2026-11-18T18:13:34.366Z",
+      "state": "published",
+      "applicationSha256": "9e5785ddd7aec9f2947911b1b294a0c7fd531026d9d1ed9b3b7a1e77dd8bf22a",
+      "applicationSize": 41552384,
+      "sourceTree": "a76e5b28747be7165832346a1de0943436adca74",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21463229,
+          "sha256": "f1b6d64561d9c43ab054867425f319b8405b9850895a9b0b3eee250a2a8484ad"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41552384,
+          "sha256": "9e5785ddd7aec9f2947911b1b294a0c7fd531026d9d1ed9b3b7a1e77dd8bf22a"
+        },
+        "source.zip": {
+          "size": 34010379,
+          "sha256": "b7f3b9350fe55d024333e90ecd86faff30a2a4ae446057dedc3cc1c3e6d20427"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21463229,
+      "sha256": "f1b6d64561d9c43ab054867425f319b8405b9850895a9b0b3eee250a2a8484ad",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-18T18:37:52.598Z",
+      "verifiedAt": "2026-11-18T18:36:51.952Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDQvWVh3R2hxNzhxaElhbWZ1SXhLUVJlbklzdVNUNU9KNks2MjJrR3ppdEtjbjFYZU94T2VMVXdEMGwrRm1OOEozbGwyMmFncmNkN2pJYWZnekh1blFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDI3MDEwCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjY2Cm1VMWhZL0tvUWdCdWlYRlBCcmZsYmNpQ0ZTVVZEdnF6Z0E4aHdkWmRHNTZuUVV2dzNSaWpTbGdTL3IxcHNKdytONXVKWkc4dWNzdnFiZ2VmYmp1cEFBPT0K",
+      "notes": "Solara Launcher Home Dashboard Redesign & ModPackInstaller\n\n- Redesigned Home Dashboard: Single scrollable screen with personalized welcome greeting (\"Welcome Back, [Username]\" / \"Good To See You back :]\"), prominent \"Playing as\" Minecraft account card, quick-play instances grid, Solara News, and Version History.\n- ModPackInstaller: Renamed sidebar Discover content button to ModPackInstaller and restricted global browse mode strictly to community modpacks.\n- Floating Update UI: Replaced top-bar \"No instances running\" with an active \"Check for updates\" button (auto-checks on start and manual click) triggering a clean floating Update Available modal with structured changelogs (Features Added, Issues Fixed, Future Updates) free of emojis.\n- Full-Width Layout: Removed 300px right sidebar and title-bar sidebar toggle to provide an expansive, clean desktop workspace.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.66/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

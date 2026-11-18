@@ -1,5 +1,14 @@
 # Changelog
 
+## V-0.0.66 — Home Dashboard Redesign, ModPackInstaller & Clean Update Flow (2026-11-18)
+
+- Redesigned Home Dashboard: Single scrollable screen with personalized welcome greeting ("Welcome Back, [Username]" / "Good To See You back :]"), integrated "Playing as" Minecraft account card with 3D skin head avatar, quick-play instances grid, Solara News, and structured Version History.
+- ModPackInstaller: Renamed sidebar Discover content button to ModPackInstaller and restricted global browse mode strictly to community modpacks (hiding other tabs and redirecting non-modpack global routes).
+- Floating Update Modal: Replaced top-bar "No instances running" with an active "Check for updates" button (auto-checks on start and manual click) triggering a clean floating Update Available modal with structured changelogs (Features Added, Issues Fixed, Future Updates) free of emojis.
+- Full-Width Layout: Removed 300px right sidebar and title-bar sidebar toggle to provide an expansive, clean desktop workspace.
+- Shared Minecraft Account State: Decoupled account management into a shared reactive composable across components.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.65 — Solara identity and cyan accents (2026-11-15)
 
 - Rebrand built-in desktop copy, translations, welcome artwork, file dialogs and support links for Solara Launcher.

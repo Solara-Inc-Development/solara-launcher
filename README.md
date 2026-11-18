@@ -1,6 +1,6 @@
 ## Solara Launcher
 
-The cyan rebrand is an unreleased source update. Existing V-0.0.63 installers predate these changes. The desktop retains its upstream-derived engine; see [third-party notices](THIRD_PARTY_NOTICES.md).
+The current release brings home dashboard redesign, ModPackInstaller, and in-app update checks. The desktop retains its upstream-derived engine; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
 <p align="center">
   <img src="assets/readme/hero.svg" alt="Solara Launcher — your worlds, your services" width="100%" />
@@ -112,22 +112,22 @@ Manage local worlds, screenshots and game logs inside your instances. Standalone
 
 ## Download
 
-**Testing preview V-0.0.65 available.** Solara cyan identity, guest catalog browsing and bundled dependency licenses with Solara Microsoft OAuth 2.0 PKCE login and GitHub Releases CDN auto-updater
+**Testing preview V-0.0.66 available.** Home dashboard redesign, ModPackInstaller, and floating update dialog with Solara Microsoft OAuth 2.0 PKCE login and GitHub Releases CDN auto-updater
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check GitHub Releases CDN on startup and prompt before downloading/installing when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.65 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (20.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.65/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.65/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.65/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.65/source.zip)
-- **SHA-256**: `b47cc5b157b7fa6a0d78e6010d107b3638c8a170c36d1f20dd7dfb7f2dfa4b36`
+- **GitHub Release**: [Solara Launcher V-0.0.66 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (20.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.66/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.66/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.66/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.66/source.zip)
+- **SHA-256**: `f1b6d64561d9c43ab054867425f319b8405b9850895a9b0b3eee250a2a8484ad`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.65 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.66 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | GitHub Releases CDN | Live via `latest.json` on GitHub Releases CDN (Minisign-verified) |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |
