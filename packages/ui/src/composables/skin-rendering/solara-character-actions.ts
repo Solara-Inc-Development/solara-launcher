@@ -192,11 +192,19 @@ export class SolaraCharacterActionController {
 		return this.activeAction !== null
 	}
 
-	play(action: SolaraActionName, onComplete?: () => void) {
+	start(action: SolaraActionName, onComplete?: () => void): boolean {
+		if (!this.bones.orbit && !this.bones.rightArm && !this.bones.body) {
+			return false
+		}
 		this.stop()
 		this.activeAction = action
 		this.elapsed = 0
 		this.onComplete = onComplete ?? null
+		return true
+	}
+
+	play(action: SolaraActionName, onComplete?: () => void): boolean {
+		return this.start(action, onComplete)
 	}
 
 	stop() {

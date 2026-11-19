@@ -340,47 +340,41 @@ function formatDate(iso?: string | null) {
 			<div
 				class="relative z-30 flex-1 w-full flex flex-col lg:flex-row items-center justify-center my-auto gap-8"
 			>
-				<!-- LEFT SIDE: Simple Animated Solara Logo -->
+				<!-- DEAD-CENTER Beautified Welcome Block with Floating Solara Logo Above -->
 				<div
-					class="solara-brand-dock relative lg:absolute lg:left-5 xl:left-12 lg:top-1/2 lg:-translate-y-1/2 z-10 flex items-center justify-center select-none"
+					class="solara-welcome-center relative z-20 flex flex-col items-center text-center justify-center gap-5 mx-auto w-full max-w-[30rem] xl:max-w-[34rem]"
 				>
-					<div
-						class="solara-logo-stage relative size-[7.5rem] xl:size-[8.75rem] flex items-center justify-center"
-					>
-						<div class="solara-logo-aura pointer-events-none absolute inset-0 rounded-full" />
-						<div
-							class="solara-logo-float relative z-10 size-[5.75rem] xl:size-[6.75rem] rounded-[1.45rem] flex items-center justify-center"
-						>
-							<SolaraIcon class="solara-logo-svg size-full block" />
+					<!-- Animated Solara Logo directly above Welcome -->
+					<div class="solara-hero-logo-stage relative size-[5.5rem] xl:size-[6.25rem] flex items-center justify-center select-none">
+						<div class="solara-logo-aura pointer-events-none absolute -inset-3 rounded-full" />
+						<div class="solara-logo-float relative z-10 size-[4.5rem] xl:size-[5.25rem] flex items-center justify-center">
+							<SolaraIcon class="size-full block" />
 						</div>
 					</div>
-				</div>
 
-				<!-- DEAD-CENTER Welcome Block + Sign In / Account Pill -->
-				<div
-					class="solara-welcome-center relative z-20 flex flex-col items-center text-center justify-center gap-6 mx-auto w-full max-w-[27rem] xl:max-w-[30rem]"
-				>
 					<div
-						class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] bg-surface-2/80 text-brand border border-solid border-brand/25 backdrop-blur-sm"
+						class="solara-eyebrow inline-flex items-center gap-2 px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] bg-surface-2/85 text-brand backdrop-blur-md"
 					>
-						<span class="size-1.5 rounded-full bg-brand" />
+						<span class="size-1.5 rounded-full bg-brand animate-pulse" />
 						<span>Solara Launcher</span>
 					</div>
 
-					<div class="flex flex-col items-center gap-2.5 w-full">
+					<div class="flex flex-col items-center gap-2 w-full">
 						<h1
-							class="text-4xl sm:text-5xl xl:text-6xl font-black text-contrast tracking-tight leading-[1.06] m-0"
+							class="text-4xl sm:text-5xl xl:text-[3.65rem] font-black text-contrast tracking-tight leading-[1.06] m-0"
 						>
-							<span class="block">Welcome Back,</span>
+							<span class="solara-welcome-lead block">Welcome Back,</span>
 							<span
-								class="solara-username-text block mt-1.5 max-w-full truncate px-2"
+								class="solara-username-text block mt-1.5 max-w-full truncate px-2 pb-1"
 							>
 								{{ username || 'Player' }}
 							</span>
 						</h1>
 
+						<span class="solara-welcome-divider block h-[2.5px] w-16 rounded-full my-1" />
+
 						<p
-							class="text-base sm:text-lg xl:text-xl text-secondary font-medium tracking-tight m-0 mt-1"
+							class="solara-greeting-text text-base sm:text-lg xl:text-xl text-secondary font-medium tracking-wide m-0"
 						>
 							Good To See You Back :]
 						</p>
@@ -891,14 +885,10 @@ function formatDate(iso?: string | null) {
 .solara-hero-ambient {
 	background:
 		radial-gradient(
-			26% 44% at 11% 50%,
-			color-mix(in srgb, var(--color-brand) 10%, transparent) 0%,
-			transparent 70%
-		),
-		radial-gradient(
-			42% 45% at 50% 42%,
-			color-mix(in srgb, var(--color-brand) 9%, transparent) 0%,
-			transparent 72%
+			46% 48% at 50% 38%,
+			color-mix(in srgb, var(--color-brand) 12%, transparent) 0%,
+			rgba(255, 181, 90, 0.04) 44%,
+			transparent 74%
 		),
 		radial-gradient(
 			28% 48% at 90% 50%,
@@ -907,30 +897,48 @@ function formatDate(iso?: string | null) {
 		);
 }
 
+.solara-eyebrow {
+	border: 1px solid color-mix(in srgb, var(--color-brand) 32%, transparent);
+	box-shadow: 0 4px 20px -8px color-mix(in srgb, var(--color-brand) 45%, transparent);
+}
+
+.solara-welcome-lead {
+	letter-spacing: -0.025em;
+}
+
+.solara-welcome-divider {
+	background: linear-gradient(90deg, transparent 0%, #3dd6f5 32%, #ffb55a 68%, transparent 100%);
+	opacity: 0.9;
+}
+
+.solara-greeting-text {
+	color: color-mix(in srgb, var(--color-contrast) 72%, var(--color-secondary));
+}
+
 .solara-logo-aura {
 	background: radial-gradient(
 		circle at center,
-		rgba(61, 214, 245, 0.22) 0%,
-		rgba(255, 181, 90, 0.12) 48%,
+		rgba(61, 214, 245, 0.28) 0%,
+		rgba(255, 181, 90, 0.14) 48%,
 		transparent 74%
 	);
 	filter: blur(20px);
-	animation: solara-aura-pulse 4.6s ease-in-out infinite;
+	animation: solara-aura-pulse 4.4s ease-in-out infinite;
 }
 
 .solara-logo-float {
-	animation: solara-logo-bob 4.2s ease-in-out infinite;
-	filter: drop-shadow(0 12px 26px rgba(61, 214, 245, 0.24))
-		drop-shadow(0 4px 12px rgba(255, 181, 90, 0.14));
+	animation: solara-logo-bob 4s ease-in-out infinite;
+	filter: drop-shadow(0 12px 26px rgba(61, 214, 245, 0.28))
+		drop-shadow(0 4px 12px rgba(255, 181, 90, 0.16));
 }
 
 @keyframes solara-logo-bob {
 	0%,
 	100% {
-		transform: translateY(0px) rotate(0deg) scale(1);
+		transform: translateY(0px) scale(1);
 	}
 	50% {
-		transform: translateY(-7px) rotate(2deg) scale(1.03);
+		transform: translateY(-6px) scale(1.03);
 	}
 }
 
@@ -938,7 +946,7 @@ function formatDate(iso?: string | null) {
 	0%,
 	100% {
 		opacity: 0.72;
-		transform: scale(0.95);
+		transform: scale(0.94);
 	}
 	50% {
 		opacity: 1;
@@ -956,14 +964,16 @@ function formatDate(iso?: string | null) {
 .solara-username-text {
 	color: var(--color-brand);
 	background: linear-gradient(
-		135deg,
-		color-mix(in srgb, var(--color-brand) 82%, #ffffff) 0%,
-		var(--color-brand) 55%,
-		color-mix(in srgb, var(--color-brand) 78%, #38bdf8) 100%
+		120deg,
+		#7be8ff 0%,
+		#3dd6f5 42%,
+		#67e8f9 68%,
+		#ffb55a 100%
 	);
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
+	filter: drop-shadow(0 6px 24px rgba(61, 214, 245, 0.22));
 }
 
 .solara-skin-glow {

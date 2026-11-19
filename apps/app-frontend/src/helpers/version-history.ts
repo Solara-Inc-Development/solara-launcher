@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.75',
+		title: 'Beautified Home Welcome Hero with Floating Logo & Original Solara Skin Customizer',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Moved the animated Solara logo cleanly above the Home screen Welcome message and upgraded the Welcome typography with a cyan-to-gold gradient username, divider accent, and refined ambient glow.',
+			'Redesigned the Customize Skin modal into an original Solara Studio Customizer featuring Classic/Slim model cards, drag-and-drop texture replacement, borderless cape selector, and a live right-side 3D preview stage with pose preview pills.',
+			'Optimized Windows CI caching with Rust target prefix fallback and 4 parallel build jobs for faster releases.',
+		],
+		issuesFixed: [
+			'Fixed player 3D emotes not playing after the pose-only refactor by restoring SolaraCharacterActionController.start() and verifying all 6 poses (Wave, Sit, Jump, Stretch, Look, Salute) trigger smoothly.',
+			'Replaced hardcoded Steve skin fallback path in the skin customizer with the bundled asset import.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.74',
 		title: 'Clean Animated Home Logo, New Solara-Inc Splash Screen, Sit-Stand Fix & Auto-Download Updates',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Simplified the Home screen left emblem to a clean floating animated Solara logo without spinning rings or extra label clutter.',
 			'Redesigned the startup loading screen with an animated Solara logo, Solara-Inc title, smooth gradient progress bar, and live startup stage messages.',

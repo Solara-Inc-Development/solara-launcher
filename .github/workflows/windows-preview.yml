@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.74: clean animated Home logo, redesigned Solara-Inc splash screen with staged progress, fixed 3D sit-stand legs, and background auto-download + startup auto-install updates; signing stays private.
+# Solara V-0.0.75: Solara logo above beautified Home welcome hero, original Solara Skin Customizer modal, fixed 3D player emotes + sit-stand, and fast Rust cache prefix fallback; signing stays private.
 on:
   workflow_dispatch:
   push:
@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 60
     env:
       CARGO_INCREMENTAL: '0'
-      CARGO_BUILD_JOBS: '2'
+      CARGO_BUILD_JOBS: '4'
       CARGO_PROFILE_TEST_DEBUG: '0'
       SOLARA_MICROSOFT_CLIENT_ID: ${{ vars.SOLARA_MICROSOFT_CLIENT_ID }}
       SOLARA_CLIENT_ID: ${{ vars.SOLARA_CLIENT_ID }}
@@ -43,9 +43,10 @@ jobs:
           path: |
             ~/.cargo/registry
             target
-          key: solara-windows-cargo-v2-${{ hashFiles('Cargo.lock') }}
+          key: solara-windows-cargo-v3-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            solara-windows-cargo-v1-${{ hashFiles('Cargo.lock') }}
+            solara-windows-cargo-v3-
+            solara-windows-cargo-v2-
       - name: Install locked frontend dependencies
         run: pnpm install --frozen-lockfile
       - name: Check frontend and launcher core
