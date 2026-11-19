@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 60
     env:
       CARGO_INCREMENTAL: '0'
-      CARGO_BUILD_JOBS: '2'
+      CARGO_BUILD_JOBS: '4'
       CARGO_PROFILE_TEST_DEBUG: '0'
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +47,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: solara-windows-check
+          cache-on-failure: true
       - name: Install locked frontend dependencies
         run: pnpm install --frozen-lockfile
       - name: Check the direct Node Tauri CLI used by packaging

@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.76',
+		title: 'ModPack Navigation Fix, Original Solara Downloads UI & Fast Windows CI Builds',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Redesigned the top Download Manager into an original Solara Downloads capsule and drawer featuring segmented Active / History tabs, cyan-to-gold gradient progress bars, status pills, live speed chip, and borderless task cards in both OLED and White themes.',
+			'Rendered project compatibility, links, tags, creators, and details inline in a clean responsive two-column layout on ModPackInstaller project pages.',
+			'Switched release builds to thin LTO and upgraded Windows CI checks and builds to Swatinem/rust-cache@v2 for dramatically faster build times.',
+		],
+		issuesFixed: [
+			'Fixed the ModPackInstaller navigation freeze bug where opening a modpack detail page stopped Home, Back, Versions, Gallery, Library, and Skin Studio buttons from updating the UI due to a missing #sidebar-teleport-target mount.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.75',
 		title: 'Beautified Home Welcome Hero with Floating Logo & Original Solara Skin Customizer',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Moved the animated Solara logo cleanly above the Home screen Welcome message and upgraded the Welcome typography with a cyan-to-gold gradient username, divider accent, and refined ambient glow.',
 			'Redesigned the Customize Skin modal into an original Solara Studio Customizer featuring Classic/Slim model cards, drag-and-drop texture replacement, borderless cape selector, and a live right-side 3D preview stage with pose preview pills.',

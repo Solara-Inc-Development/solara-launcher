@@ -1,50 +1,5 @@
 <template>
 	<div v-if="data">
-		<Teleport to="#sidebar-teleport-target">
-			<ProjectSidebarCompatibility
-				v-if="!isServerProject"
-				:project="data"
-				:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
-				:project-v3="projectV3"
-				class="project-sidebar-section"
-			/>
-			<ProjectSidebarServerInfo
-				v-if="isServerProject"
-				:project-v3="projectV3"
-				:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
-				:required-content="serverRequiredContent"
-				:recommended-version="serverRecommendedVersion"
-				:supported-versions="serverSupportedVersions"
-				:loaders="serverModpackLoaders"
-				:ping="serverPing"
-				:status-online="serverStatusOnline"
-				class="project-sidebar-section"
-			/>
-			<ProjectSidebarLinks
-				link-target="_blank"
-				:project="data"
-				:project-v3="projectV3"
-				class="project-sidebar-section"
-			/>
-			<ProjectSidebarTags :project="data" class="project-sidebar-section" />
-			<ProjectSidebarCreators
-				:organization="organization"
-				:members="members"
-				:org-link="(slug) => `https://modrinth.com/organization/${slug}`"
-				:user-link="(username) => `/user/${encodeURIComponent(username)}`"
-				link-target="_blank"
-				:user-link-target="null"
-				class="project-sidebar-section"
-			/>
-			<ProjectSidebarDetails
-				:project="data"
-				:has-versions="versions.length > 0"
-				:link-target="`_blank`"
-				:hide-license="isServerProject"
-				:show-followers="isServerProject"
-				class="project-sidebar-section"
-			/>
-		</Teleport>
 		<div class="flex flex-col gap-4 p-6">
 			<div
 				v-if="projectInstallContext"
@@ -60,152 +15,203 @@
 				>
 					<ProjectBackgroundGradient :project="data" />
 				</Teleport>
-				<ProjectPageHeader
-					v-else
-					:project="data"
-					:project-v3="projectV3"
-					:show-status-badge="data.status !== 'approved'"
-					@contextmenu.prevent.stop="handleRightClick"
-					@category="(category) => router.push(`${projectSearchUrl}?f=categories:${category}`)"
-				>
-					<template #actions>
-						<template v-if="isServerProject">
-							<Button
-								v-if="serverPlaying"
-								type="colored"
-								color="red"
-								size="xl"
-								native-type="button"
-								@click="handleStopServer"
-							>
-								<StopCircleIcon />
-								{{ formatMessage(commonMessages.stopButton) }}
-							</Button>
-							<Button
-								v-else
-								type="colored"
-								color="brand"
-								size="xl"
-								native-type="button"
-								:disabled="serverInstallLoading"
-								@click="handleClickPlay"
-							>
-								<PlayIcon />
-								{{
-									serverInstallLoading
-										? formatMessage(commonMessages.installingLabel)
-										: formatMessage(commonMessages.playButton)
-								}}
-							</Button>
-							<IconButton
-								v-tooltip="formatMessage(commonMessages.addServerToInstanceButton)"
-								size="xl"
-								:label="formatMessage(commonMessages.addServerToInstanceButton)"
-								native-type="button"
-								@click="handleAddServerToInstance"
-							>
-								<PlusIcon />
-							</IconButton>
-							<TeleportOverflowMenu
-								type="quiet"
-								size="xl"
-								:label="formatMessage(messages.moreOptions)"
-								:options="serverProjectHeaderMoreActions"
-							>
-								<MoreVerticalIcon />
-							</TeleportOverflowMenu>
-						</template>
-						<template v-else>
-							<Button
-								v-if="showSwitchVersion && onVersionsPage"
-								v-tooltip="formatMessage(messages.alreadyInstalled)"
-								size="xl"
-								native-type="button"
-								disabled
-							>
-								<CheckIcon />
-								{{ formatMessage(commonMessages.installedLabel) }}
-							</Button>
-							<Button
-								v-else-if="showSwitchVersion"
-								size="xl"
-								native-type="button"
-								@click="goToVersions"
-							>
-								<SwapIcon />
-								{{ formatMessage(messages.switchVersion) }}
-							</Button>
-							<Button
-								v-else
-								v-tooltip="
-									installButtonInstalled ? formatMessage(messages.alreadyInstalled) : undefined
-								"
-								type="colored"
-								color="brand"
-								size="xl"
-								native-type="button"
-								:disabled="installButtonDisabled"
-								@click="install(null)"
-							>
-								<component :is="installButtonIcon" :class="installButtonIconClass" />
-								{{
-									installButtonInstalled
-										? formatMessage(commonMessages.installedLabel)
-										: installButtonValidating
-											? formatMessage(commonMessages.validatingLabel)
-											: installButtonLoading
+				<div class="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_18.5rem]">
+					<div class="flex min-w-0 flex-col gap-4">
+						<ProjectPageHeader
+							v-if="!appSettings.featureFlags.project_background"
+							:project="data"
+							:project-v3="projectV3"
+							:show-status-badge="data.status !== 'approved'"
+							@contextmenu.prevent.stop="handleRightClick"
+							@category="(category) => router.push(`${projectSearchUrl}?f=categories:${category}`)"
+						>
+							<template #actions>
+								<template v-if="isServerProject">
+									<Button
+										v-if="serverPlaying"
+										type="colored"
+										color="red"
+										size="xl"
+										native-type="button"
+										@click="handleStopServer"
+									>
+										<StopCircleIcon />
+										{{ formatMessage(commonMessages.stopButton) }}
+									</Button>
+									<Button
+										v-else
+										type="colored"
+										color="brand"
+										size="xl"
+										native-type="button"
+										:disabled="serverInstallLoading"
+										@click="handleClickPlay"
+									>
+										<PlayIcon />
+										{{
+											serverInstallLoading
 												? formatMessage(commonMessages.installingLabel)
-												: serverProjectSelected
-													? formatMessage(commonMessages.selectedLabel)
-													: formatMessage(commonMessages.installButton)
-								}}
-							</Button>
-							<TeleportOverflowMenu
-								type="quiet"
-								size="xl"
-								:label="formatMessage(messages.moreOptions)"
-								:options="projectHeaderMoreActions"
-							>
-								<MoreVerticalIcon />
-							</TeleportOverflowMenu>
-						</template>
-					</template>
-				</ProjectPageHeader>
-				<NavTabs
-					:links="[
-						{
-							label: formatMessage(messages.descriptionTab),
-							href: projectDescriptionHref,
-						},
-						{
-							label: formatMessage(messages.versionsTab),
-							href: versionsHref,
-							subpages: ['version'],
-							shown: projectV3?.minecraft_server == null,
-						},
-						{
-							label: formatMessage(messages.galleryTab),
-							href: projectGalleryHref,
-							shown: data.gallery.length > 0,
-						},
-					]"
-				/>
-				<RouterView
-					:route="displayedProjectRoute"
-					:project="data"
-					:versions="versions"
-					:members="members"
-					:instance="instance"
-					:install="install"
-					:installed="installed"
-					:installing="installing"
-					:installed-version="installedVersion"
-					:server-install-context="serverProjectInstallContext"
-					:server-installed="serverProjectInstalled"
-					:server-selected-version-id="serverSelectedVersionId"
-					:loader-tags="allLoaders ?? []"
-					:game-version-tags="allGameVersions ?? []"
-				/>
+												: formatMessage(commonMessages.playButton)
+										}}
+									</Button>
+									<IconButton
+										v-tooltip="formatMessage(commonMessages.addServerToInstanceButton)"
+										size="xl"
+										:label="formatMessage(commonMessages.addServerToInstanceButton)"
+										native-type="button"
+										@click="handleAddServerToInstance"
+									>
+										<PlusIcon />
+									</IconButton>
+									<TeleportOverflowMenu
+										type="quiet"
+										size="xl"
+										:label="formatMessage(messages.moreOptions)"
+										:options="serverProjectHeaderMoreActions"
+									>
+										<MoreVerticalIcon />
+									</TeleportOverflowMenu>
+								</template>
+								<template v-else>
+									<Button
+										v-if="showSwitchVersion && onVersionsPage"
+										v-tooltip="formatMessage(messages.alreadyInstalled)"
+										size="xl"
+										native-type="button"
+										disabled
+									>
+										<CheckIcon />
+										{{ formatMessage(commonMessages.installedLabel) }}
+									</Button>
+									<Button
+										v-else-if="showSwitchVersion"
+										size="xl"
+										native-type="button"
+										@click="goToVersions"
+									>
+										<SwapIcon />
+										{{ formatMessage(messages.switchVersion) }}
+									</Button>
+									<Button
+										v-else
+										v-tooltip="
+											installButtonInstalled ? formatMessage(messages.alreadyInstalled) : undefined
+										"
+										type="colored"
+										color="brand"
+										size="xl"
+										native-type="button"
+										:disabled="installButtonDisabled"
+										@click="install(null)"
+									>
+										<component :is="installButtonIcon" :class="installButtonIconClass" />
+										{{
+											installButtonInstalled
+												? formatMessage(commonMessages.installedLabel)
+												: installButtonValidating
+													? formatMessage(commonMessages.validatingLabel)
+													: installButtonLoading
+														? formatMessage(commonMessages.installingLabel)
+														: serverProjectSelected
+															? formatMessage(commonMessages.selectedLabel)
+															: formatMessage(commonMessages.installButton)
+										}}
+									</Button>
+									<TeleportOverflowMenu
+										type="quiet"
+										size="xl"
+										:label="formatMessage(messages.moreOptions)"
+										:options="projectHeaderMoreActions"
+									>
+										<MoreVerticalIcon />
+									</TeleportOverflowMenu>
+								</template>
+							</template>
+						</ProjectPageHeader>
+						<NavTabs
+							:links="[
+								{
+									label: formatMessage(messages.descriptionTab),
+									href: projectDescriptionHref,
+								},
+								{
+									label: formatMessage(messages.versionsTab),
+									href: versionsHref,
+									subpages: ['version'],
+									shown: projectV3?.minecraft_server == null,
+								},
+								{
+									label: formatMessage(messages.galleryTab),
+									href: projectGalleryHref,
+									shown: data.gallery.length > 0,
+								},
+							]"
+						/>
+						<RouterView
+							:route="displayedProjectRoute"
+							:project="data"
+							:versions="versions"
+							:members="members"
+							:instance="instance"
+							:install="install"
+							:installed="installed"
+							:installing="installing"
+							:installed-version="installedVersion"
+							:server-install-context="serverProjectInstallContext"
+							:server-installed="serverProjectInstalled"
+							:server-selected-version-id="serverSelectedVersionId"
+							:loader-tags="allLoaders ?? []"
+							:game-version-tags="allGameVersions ?? []"
+						/>
+					</div>
+					<aside
+						class="project-inline-sidebar flex flex-col rounded-2xl overflow-hidden"
+					>
+						<ProjectSidebarCompatibility
+							v-if="!isServerProject"
+							:project="data"
+							:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
+							:project-v3="projectV3"
+							class="project-sidebar-section"
+						/>
+						<ProjectSidebarServerInfo
+							v-if="isServerProject"
+							:project-v3="projectV3"
+							:tags="{ loaders: allLoaders, gameVersions: allGameVersions }"
+							:required-content="serverRequiredContent"
+							:recommended-version="serverRecommendedVersion"
+							:supported-versions="serverSupportedVersions"
+							:loaders="serverModpackLoaders"
+							:ping="serverPing"
+							:status-online="serverStatusOnline"
+							class="project-sidebar-section"
+						/>
+						<ProjectSidebarLinks
+							link-target="_blank"
+							:project="data"
+							:project-v3="projectV3"
+							class="project-sidebar-section"
+						/>
+						<ProjectSidebarTags :project="data" class="project-sidebar-section" />
+						<ProjectSidebarCreators
+							:organization="organization"
+							:members="members"
+							:org-link="(slug) => `https://modrinth.com/organization/${slug}`"
+							:user-link="(username) => `/user/${encodeURIComponent(username)}`"
+							link-target="_blank"
+							:user-link-target="null"
+							class="project-sidebar-section"
+						/>
+						<ProjectSidebarDetails
+							:project="data"
+							:has-versions="versions.length > 0"
+							:link-target="`_blank`"
+							:hide-license="isServerProject"
+							:show-followers="isServerProject"
+							class="project-sidebar-section"
+						/>
+					</aside>
+				</div>
 			</template>
 			<template v-else>{{ formatMessage(messages.loadError) }}</template>
 		</div>
@@ -1153,7 +1159,20 @@ const copyProjectLink = (project) => navigator.clipboard.writeText(getProjectLin
 	}
 }
 
+.project-inline-sidebar {
+	background: color-mix(in srgb, var(--surface-3) 82%, transparent);
+}
+
 .project-sidebar-section {
-	@apply p-4 flex flex-col gap-2 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	border: 0;
+	border-bottom: 1px solid color-mix(in srgb, var(--surface-5) 55%, transparent);
+
+	&:last-child {
+		border-bottom: 0;
+	}
 }
 </style>

@@ -1995,6 +1995,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 					width: 'calc(100% - var(--right-bar-width))',
 				}"
 			></div>
+			<div id="sidebar-teleport-target" class="hidden" aria-hidden="true"></div>
 			<Admonition
 				v-if="criticalErrorMessage"
 				type="critical"

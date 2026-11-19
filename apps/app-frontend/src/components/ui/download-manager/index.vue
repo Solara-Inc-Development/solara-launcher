@@ -70,7 +70,7 @@ function close() {
 		ref="menu"
 		bare
 		:arrow="false"
-		:distance="4"
+		:distance="8"
 		placement="bottom-end"
 		panel-class="download-manager-popper"
 		@open="onOpen"
