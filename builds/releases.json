@@ -2465,6 +2465,49 @@
       "notes": "Updater-signed Windows testing preview V-0.0.73 (internal SemVer 0.0.73). Physical Windows device acceptance remains pending.\n\n- Removed hand-held tool/item prop animations (Sword, Pickaxe, Torch, Golden Apple) and kept 6 clean, smooth pose-only 3D character animations: **Wave**, **Sit & Stand**, **Victory Jump**, **Stretch**, **Look Around**, and **Salute**.\n- Removed excessive and nested borders across Skin Studio cards, pills, action buttons, header, Cape Vault, and pedestal for a cleaner wardrobe gallery in both **OLED** and **White** themes.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.73/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "ed2adaea-47d3-4ecd-98d0-2d5ce8d2e077",
+      "publicVersion": "V-0.0.74",
+      "internalVersion": "0.0.74",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.74/solaralauncher.exe",
+      "commit": "2dca39f9fd21668458bc8f86566e49cde7d3b7d6",
+      "allocatedAt": "2026-11-19T17:45:48.809Z",
+      "state": "published",
+      "applicationSha256": "dcd9a491b66ef694bda59d41b49da56feb0ba4e41a17d5d89a49078033dda12e",
+      "applicationSize": 40989696,
+      "sourceTree": "6934ec33d2876aa36a6cb1dcb8d7e3f9ce4caee1",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 20882896,
+          "sha256": "54887794d689fd97cf285fbd8d8019c0603e5b0771feab7060477f9bc3490781"
+        },
+        "application/solaralauncher.exe": {
+          "size": 40989696,
+          "sha256": "dcd9a491b66ef694bda59d41b49da56feb0ba4e41a17d5d89a49078033dda12e"
+        },
+        "source.zip": {
+          "size": 34043223,
+          "sha256": "01a1fe8dfe3f5e06d2718be68613db9ded9b31b2b8a5817a3e91b3a03cf3377a"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 20882896,
+      "sha256": "54887794d689fd97cf285fbd8d8019c0603e5b0771feab7060477f9bc3490781",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T18:08:42.128Z",
+      "verifiedAt": "2026-11-19T18:08:37.841Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDRRczRpUkZUNlI4QmI4aFJzcldLUlNKbWVtajVxWXRyaVc0c0wyTS9Gd1RINW03YmZYdjRtRzRwNnltd3hEN3hnUlVKUzBDak5GdWpya1BCNGlYYlFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTExNzE2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjc0CjE2OWs2MlR3Ny9mY1FybnJKeDJrWnhiRUVyam11NytYL0VjNkRkUjZYK3hLT1ZNWnVHMldmQXNNbldJeEdHWnBYL2habitMVTZ1U3kxenRFd2lCRUNBPT0K",
+      "notes": "Updater-signed Windows testing preview V-0.0.74 (internal SemVer 0.0.74). Physical Windows device acceptance remains pending.\n\n- Simplified the Home screen left emblem to a clean floating animated Solara logo without spinning rings or label clutter.\n- Redesigned the startup loading screen with an animated Solara logo, `Solara-Inc` title, smooth cyan-amber progress bar, and live startup stage messages.\n- Fixed the 3D character Sit & Stand pose bug where legs remained stuck bent in mid-air after standing back up.\n- Added automatic background update downloading with Minisign verification so clicking **Update Now** installs immediately, and already-downloaded verified updates auto-install on next launcher startup.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.74/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.74 — Clean Animated Home Logo, New Solara-Inc Splash Screen, Sit-Stand Fix & Auto-Download Updates (2026-11-19)
+
+- Clean Animated Home Logo: Simplified the Home screen left emblem to a clean floating animated Solara logo without spinning rings or label clutter.
+- Redesigned Solara-Inc Splash Screen: New OLED/White-ready startup screen featuring an animated Solara logo, `Solara-Inc` title, smooth gradient progress bar, and live startup stage messages.
+- 3D Sit & Stand Fix: Fixed the character pose bug where legs remained stuck bent in mid-air after rising from Sit until the next animation played.
+- Background Auto-Download & Startup Auto-Install Updates: New signed updates automatically download and Minisign-verify in the background so clicking Update Now installs immediately, and already-downloaded verified updates auto-install on next launcher startup.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.73 — Pose-Only 3D Character Animations & Borderless Skin Studio Cards (2026-11-19)
 
 - Pose-Only 3D Character Animations: Removed hand-held tool and item prop animations (Sword, Pickaxe, Torch, Golden Apple) and kept 6 clean, smooth pose animations across Home and Skin Studio: Wave, Sit & Stand, Victory Jump, Stretch, Look Around, and Salute.
