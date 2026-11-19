@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.69',
+		title: 'Premium Centered Home Hero & Edge-Docked 3D Player Skin',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Centered the Welcome Back header, gradient player name, greeting, and Sign In / Account pill right in the heart of the Home screen.',
+			'Docked the live 3D animated player skin cleanly to the far right side, angled subtly toward the welcome hero.',
+			'Added refined ambient radial lighting, hover elevation on cards and buttons, and centered account dropdown styling.',
+		],
+		issuesFixed: [
+			'Improved hero spacing so long Minecraft usernames and the right-docked 3D skin remain cleanly separated at all window sizes.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.68',
 		title: 'Home Screen Redesign with 3D Animated Skin & Instant Update Checks',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Redesigned full-screen Home hero featuring personalized Welcome Back header, Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase.',
 			'Added below-the-fold "All News from Solara" 5-card strip with Read more modals and "See all news" viewer (capped to last 30 items).',

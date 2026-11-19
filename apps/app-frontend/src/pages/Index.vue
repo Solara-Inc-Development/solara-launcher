@@ -316,46 +316,60 @@ function formatDate(iso?: string | null) {
 </script>
 
 <template>
-	<div class="solara-home-root w-full max-w-6xl mx-auto px-6 md:px-10 pb-16 flex flex-col">
+	<div class="solara-home-root w-full flex flex-col pb-16">
 		<!-- ============================================================
 		     1. ABOVE-THE-FOLD HERO (Full Initial Screen)
-		     Matches owner sketch:
-		     Left: Welcome Back, [Player Name] / Good To See You Back :] + Sign In / Account Dropdown Pill
-		     Right: 3D Animated Player Skin (like Skin Editor)
+		     Centered premium Welcome + Sign In / Account Pill
+		     3D Animated Player Skin pinned all the way to the right side
 		     ============================================================ -->
 		<section
-			class="solara-hero relative min-h-[calc(100vh-5.25rem)] flex flex-col justify-between py-8 md:py-10"
+			class="solara-hero relative w-full min-h-[calc(100vh-4.75rem)] flex flex-col justify-between overflow-x-clip px-6 md:px-10 py-8 md:py-10"
 		>
+			<!-- Subtle ambient premium backdrop glow -->
+			<div class="solara-hero-ambient pointer-events-none absolute inset-0" />
+
+			<!-- Main Hero Stage -->
 			<div
-				class="flex-1 grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-6 my-auto"
+				class="relative z-30 flex-1 w-full flex flex-col lg:flex-row items-center justify-center my-auto gap-8"
 			>
-				<!-- Left Column: Greeting + Account Pill -->
-				<div class="lg:col-span-7 flex flex-col items-start justify-center gap-7">
-					<div class="flex flex-col gap-3 w-full">
+				<!-- DEAD-CENTER Welcome Block + Sign In / Account Pill -->
+				<div
+					class="solara-welcome-center relative z-20 flex flex-col items-center text-center justify-center gap-6 mx-auto w-full max-w-[30rem] xl:max-w-[36rem]"
+				>
+					<div
+						class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] bg-surface-2/80 text-brand border border-solid border-brand/25 backdrop-blur-sm"
+					>
+						<span class="size-1.5 rounded-full bg-brand" />
+						<span>Solara Launcher</span>
+					</div>
+
+					<div class="flex flex-col items-center gap-2.5 w-full">
 						<h1
-							class="text-4xl sm:text-5xl md:text-6xl font-black text-contrast tracking-tight leading-[1.08] m-0"
+							class="text-4xl sm:text-5xl xl:text-6xl font-black text-contrast tracking-tight leading-[1.06] m-0"
 						>
 							<span class="block">Welcome Back,</span>
-							<span class="block pl-6 sm:pl-12 md:pl-16 mt-1 text-brand truncate">
+							<span
+								class="solara-username-text block mt-1.5 max-w-full truncate px-2"
+							>
 								{{ username || 'Player' }}
 							</span>
 						</h1>
 
 						<p
-							class="text-lg sm:text-xl md:text-2xl text-secondary font-medium tracking-tight m-0 mt-1"
+							class="text-base sm:text-lg xl:text-xl text-secondary font-medium tracking-tight m-0 mt-1"
 						>
 							Good To See You Back :]
 						</p>
 					</div>
 
-					<!-- Sign In Pill (logged out) OR Player Name + Dropdown Pill (logged in) -->
-					<div ref="accountMenuRef" class="relative mt-2 pl-2 sm:pl-8">
+					<!-- Centered Sign In Pill (logged out) OR Player Name + Dropdown Pill (logged in) -->
+					<div ref="accountMenuRef" class="relative mt-2 flex flex-col items-center">
 						<!-- Not Logged In -->
 						<button
 							v-if="!selectedAccount"
 							type="button"
 							:disabled="loginDisabled"
-							class="solara-signin-pill inline-flex items-center justify-center gap-3 px-9 py-3.5 rounded-full text-base font-bold bg-surface-2 hover:bg-surface-3 text-contrast border-2 border-solid border-brand/60 hover:border-brand cursor-pointer transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+							class="solara-signin-pill inline-flex items-center justify-center gap-3 px-10 py-3.5 rounded-full text-base font-bold bg-surface-2/90 hover:bg-surface-3 text-contrast cursor-pointer backdrop-blur-md disabled:opacity-60 disabled:cursor-not-allowed"
 							@click="login()"
 						>
 							<SpinnerIcon v-if="loginDisabled" class="size-5 animate-spin text-brand" />
@@ -363,11 +377,11 @@ function formatDate(iso?: string | null) {
 							<span>{{ loginDisabled ? 'Signing In...' : 'Sign In' }}</span>
 						</button>
 
-						<!-- Logged In: Player Name Pill + Dropdown for Switch / Logout / Add More Accounts -->
-						<div v-else class="relative">
+						<!-- Logged In: Player Name Pill + Centered Dropdown -->
+						<div v-else class="relative flex flex-col items-center">
 							<button
 								type="button"
-								class="solara-account-pill inline-flex items-center gap-3 pl-3 pr-5 py-2.5 rounded-full text-base font-bold bg-surface-2 hover:bg-surface-3 text-contrast border-2 border-solid border-brand/50 hover:border-brand cursor-pointer transition-all shadow-sm"
+								class="solara-account-pill inline-flex items-center gap-3 pl-3 pr-5 py-2.5 rounded-full text-base font-bold bg-surface-2/90 hover:bg-surface-3 text-contrast cursor-pointer backdrop-blur-md"
 								@click="accountMenuOpen = !accountMenuOpen"
 							>
 								<div class="relative shrink-0">
@@ -387,7 +401,7 @@ function formatDate(iso?: string | null) {
 								/>
 							</button>
 
-							<!-- Account Dropdown Menu -->
+							<!-- Account Dropdown Menu (centered cleanly below pill) -->
 							<Transition
 								enter-active-class="transition duration-150 ease-out"
 								enter-from-class="opacity-0 -translate-y-1 scale-95"
@@ -398,7 +412,7 @@ function formatDate(iso?: string | null) {
 							>
 								<div
 									v-if="accountMenuOpen"
-									class="absolute left-0 top-[calc(100%+0.6rem)] z-30 w-72 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-2.5 shadow-xl flex flex-col gap-2"
+									class="absolute left-1/2 -translate-x-1/2 top-[calc(100%+0.65rem)] z-50 w-72 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-2.5 shadow-2xl flex flex-col gap-2 text-left"
 								>
 									<div class="px-2 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-wider text-secondary">
 										Minecraft Accounts ({{ accounts.length }})
@@ -471,12 +485,14 @@ function formatDate(iso?: string | null) {
 					</div>
 				</div>
 
-				<!-- Right Column: 3D Animated Player Skin Showcase -->
-				<div class="lg:col-span-5 flex flex-col items-center justify-center relative">
+				<!-- FAR-RIGHT SIDE: 3D Animated Player Skin pinned cleanly to the right edge -->
+				<div
+					class="solara-skin-dock relative lg:absolute lg:right-0 xl:right-2 lg:top-1/2 lg:-translate-y-1/2 z-10 flex flex-col items-center justify-center"
+				>
 					<div
-						class="solara-skin-stage relative w-full max-w-[21rem] h-[25rem] md:h-[29rem] flex items-center justify-center"
+						class="solara-skin-stage relative w-[15.5rem] xl:w-[18.5rem] h-[24rem] xl:h-[29rem] flex items-center justify-center"
 					>
-						<div class="solara-skin-glow pointer-events-none absolute inset-6 rounded-full" />
+						<div class="solara-skin-glow pointer-events-none absolute inset-4 rounded-full" />
 
 						<SkinPreviewRenderer
 							v-if="webglSupported"
@@ -486,7 +502,7 @@ function formatDate(iso?: string | null) {
 							:variant="heroSkinVariant"
 							:nametag="username || undefined"
 							framing="modal"
-							:initial-rotation="Math.PI / 9"
+							:initial-rotation="-Math.PI / 9"
 							:animation-config="heroAnimationConfig"
 							class="h-full w-full relative z-10"
 						/>
@@ -503,10 +519,10 @@ function formatDate(iso?: string | null) {
 			</div>
 
 			<!-- Scroll Cue at bottom of first screen -->
-			<div class="flex justify-center pt-2">
+			<div class="relative z-10 flex justify-center pt-2">
 				<button
 					type="button"
-					class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-transparent hover:bg-surface-2 border border-solid border-transparent hover:border-surface-5 text-xs font-semibold text-secondary hover:text-contrast cursor-pointer transition-all"
+					class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-2/50 hover:bg-surface-2 border border-solid border-surface-5/60 hover:border-brand/40 text-xs font-semibold text-secondary hover:text-contrast cursor-pointer transition-all"
 					@click="scrollToBelowFold"
 				>
 					<span>Scroll down for News &amp; Updates</span>
@@ -520,7 +536,7 @@ function formatDate(iso?: string | null) {
 		     ============================================================ -->
 		<div
 			id="solara-below-fold"
-			class="flex flex-col gap-12 pt-10 border-0 border-t border-solid border-surface-5"
+			class="w-full max-w-6xl mx-auto px-6 md:px-10 flex flex-col gap-12 pt-10 border-0 border-t border-solid border-surface-5"
 		>
 			<!-- Section A: All News from Solara (5 vertical cards + See all news -> last 30 only) -->
 			<section class="flex flex-col gap-4">
@@ -848,18 +864,46 @@ function formatDate(iso?: string | null) {
 </template>
 
 <style scoped lang="scss">
+.solara-hero-ambient {
+	background:
+		radial-gradient(
+			42% 45% at 50% 42%,
+			color-mix(in srgb, var(--color-brand) 9%, transparent) 0%,
+			transparent 72%
+		),
+		radial-gradient(
+			28% 48% at 90% 50%,
+			color-mix(in srgb, var(--color-brand) 12%, transparent) 0%,
+			transparent 70%
+		);
+}
+
+.solara-username-text {
+	color: var(--color-brand);
+	background: linear-gradient(
+		135deg,
+		color-mix(in srgb, var(--color-brand) 82%, #ffffff) 0%,
+		var(--color-brand) 55%,
+		color-mix(in srgb, var(--color-brand) 78%, #38bdf8) 100%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
 .solara-skin-glow {
 	background: radial-gradient(
 		circle at center,
 		color-mix(in srgb, var(--color-brand) 22%, transparent) 0%,
-		transparent 70%
+		transparent 68%
 	);
-	filter: blur(22px);
+	filter: blur(26px);
 }
 
 .solara-signin-pill,
 .solara-account-pill {
 	border: 2px solid color-mix(in srgb, var(--color-brand) 65%, transparent);
+	box-shadow: 0 8px 28px -12px color-mix(in srgb, var(--color-brand) 42%, transparent);
 	transition:
 		border-color 0.2s ease,
 		background-color 0.2s ease,
@@ -870,7 +914,21 @@ function formatDate(iso?: string | null) {
 .solara-signin-pill:hover,
 .solara-account-pill:hover {
 	border-color: var(--color-brand);
-	box-shadow: 0 0 26px -6px color-mix(in srgb, var(--color-brand) 50%, transparent);
+	transform: translateY(-1px);
+	box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--color-brand) 58%, transparent);
+}
+
+.solara-news-card {
+	transition:
+		transform 0.18s ease,
+		border-color 0.18s ease,
+		background-color 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+.solara-news-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--color-brand) 38%, transparent);
 }
 
 .solara-updates-strip {
