@@ -11,7 +11,12 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { catalogFeatures } from '@/config'
-import { type ColorTheme, isDarkTheme, useTheme } from '@/composables/use-theme.ts'
+import {
+	type ColorTheme,
+	isDarkTheme,
+	normalizeSolaraTheme,
+	useTheme,
+} from '@/composables/use-theme.ts'
 import { injectAppSettingsModal } from '@/features/settings/app-settings-modal/context'
 import { type AppSettings, get, set } from '@/helpers/settings.ts'
 
@@ -31,7 +36,7 @@ type AppearanceSettingsState = {
 
 function getAppearanceSettingsState(): AppearanceSettingsState {
 	return {
-		theme: theme.preferred,
+		theme: normalizeSolaraTheme(theme.preferred),
 		syncAcrossDevices: theme.syncAcrossDevices,
 		advancedRendering: theme.advancedRendering,
 		nativeDecorations: appSettings.nativeDecorations,
@@ -71,18 +76,12 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 	},
 )
 
-const themeOptions = computed(() =>
-	theme.options.filter(
-		(option) => option !== 'retro' || appSettings.devMode || current.value.theme === 'retro',
-	),
-)
+const themeOptions = computed<ColorTheme[]>(() => ['oled', 'light'])
 
-const preferredDarkTheme = computed(() =>
-	isDarkTheme(current.value.theme) ? current.value.theme : theme.preferredDark,
-)
+const preferredDarkTheme = computed(() => 'oled' as const)
 
 function setTheme(value: ColorTheme): void {
-	current.value.theme = value
+	current.value.theme = normalizeSolaraTheme(value)
 }
 
 function setSyncAcrossDevices(enabled: boolean): void {

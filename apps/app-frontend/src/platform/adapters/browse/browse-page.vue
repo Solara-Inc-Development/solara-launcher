@@ -2,9 +2,9 @@
 import type { Labrinth } from '@modrinth/api-client'
 import {
 	CheckIcon,
-	CompassIcon,
 	ExternalIcon,
 	GlobeIcon,
+	PackageIcon,
 	PlusIcon,
 	ServerStackIcon,
 	SpinnerIcon,
@@ -244,7 +244,7 @@ const breadcrumbDefinition = {
 		)}`,
 	label: breadcrumbLabel,
 	to: () => displayedBrowseRoute.value.fullPath,
-	visual: { type: 'icon', component: CompassIcon },
+	visual: { type: 'icon', component: PackageIcon },
 } satisfies BreadcrumbDefinition
 
 function syncBreadcrumbs() {

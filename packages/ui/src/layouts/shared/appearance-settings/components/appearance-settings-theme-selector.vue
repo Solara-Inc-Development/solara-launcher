@@ -24,7 +24,7 @@ const themeLabels = defineMessages({
 	},
 	light: {
 		id: 'settings.display.theme.light',
-		defaultMessage: 'Light',
+		defaultMessage: 'White',
 	},
 	dark: {
 		id: 'settings.display.theme.dark',

@@ -22,6 +22,7 @@ import {
 	type InstallJobSnapshot,
 } from '@/helpers/install'
 import { get_many as getInstances } from '@/helpers/instance'
+import { type LoadingBar, progress_bars_list } from '@/helpers/state'
 import { injectAppEvents } from '@/providers/app-events'
 
 import { debugInfoExports, type DebugInfoExportTask } from './debug-info-export'
@@ -41,7 +42,7 @@ import { useInstallJobDisplay } from './use-install-job-display'
 
 export interface DownloadManagerJob {
 	id: string
-	kind?: 'external-file' | 'debug-export' | 'shared-instance-publish'
+	kind?: 'external-file' | 'debug-export' | 'shared-instance-publish' | 'loading-bar'
 	serverId?: string
 	createdAt?: string
 	instanceId: string | null
@@ -113,6 +114,20 @@ export function useDownloadManager() {
 	const { formatMessage } = useVIntl()
 	const formatBytes = useFormatBytes()
 	const jobs = ref(new Map<string, InstallJobSnapshot>())
+	interface TrackedLoadingTask {
+		id: string
+		title: string
+		text: string
+		taskType?: string
+		iconUrl: string | null
+		instanceId: string | null
+		status: 'running' | 'succeeded'
+		progress: number
+		waiting: boolean
+		createdAt: string
+		finishedAt?: string
+	}
+	const loadingTasks = ref(new Map<string, TrackedLoadingTask>())
 	const initialized = ref(false)
 	const instances = ref(new Map<string, { name: string; icon: string | null }>())
 	const busyJobs = ref(new Set<string>())
@@ -189,8 +204,41 @@ export function useDownloadManager() {
 	const publishRows = computed(() =>
 		[...sharedInstancePublishes.value.values()].map(buildPublishRow),
 	)
+	const loadingBarRows = computed(() =>
+		[...loadingTasks.value.values()].map(
+			(task): DownloadManagerJob => ({
+				id: task.id,
+				kind: 'loading-bar',
+				createdAt: task.createdAt,
+				instanceId: task.instanceId,
+				status: task.status,
+				paused: false,
+				canceling: false,
+				canPause: false,
+				canCancel: false,
+				title: task.title,
+				iconUrl: task.iconUrl,
+				text: task.text,
+				taskType: task.taskType,
+				finishedAt: task.finishedAt,
+				progress: task.progress,
+				overallProgress: task.status === 'succeeded' ? 1 : task.progress,
+				progressLabel:
+					task.status === 'running' && !task.waiting
+						? `${Math.round(task.progress * 100)}%`
+						: '',
+				waiting: task.status === 'running' && task.waiting,
+				eta: '',
+				canRetry: false,
+				canCopyDetails: false,
+				copied: false,
+				busy: false,
+			}),
+		),
+	)
 	const allRows = computed(() => [
 		...rows.value,
+		...loadingBarRows.value,
 		...fileRows.value,
 		...debugExportRows.value,
 		...publishRows.value,
@@ -515,6 +563,14 @@ export function useDownloadManager() {
 			if (publish.status !== 'running') sharedInstancePublishes.value.delete(id)
 			return
 		}
+		const loadingTask = loadingTasks.value.get(id)
+		if (loadingTask) {
+			if (loadingTask.status !== 'running') {
+				dismissedJobs.add(id)
+				loadingTasks.value.delete(id)
+			}
+			return
+		}
 		const job = jobs.value.get(id)
 		if (!job || job.status === 'queued' || job.status === 'running') return
 		await runAction(id, async () => {
@@ -568,16 +624,156 @@ export function useDownloadManager() {
 		{ immediate: true },
 	)
 
+	function getLoadingBarMeta(bar: LoadingBar): {
+		title: string
+		text: string
+		taskType?: string
+		iconUrl: string | null
+		instanceId: string | null
+	} {
+		const barType = bar.bar_type
+		if (barType?.type === 'java_download') {
+			return {
+				title: `Java ${barType.version}`,
+				text: bar.message || `Downloading Java ${barType.version}…`,
+				taskType: 'Java Runtime',
+				iconUrl: null,
+				instanceId: null,
+			}
+		}
+		if (barType?.type === 'pack_import') {
+			return {
+				title: barType.pack_name || bar.title || 'Modpack Import',
+				text: bar.message || 'Importing modpack…',
+				taskType: 'Modpack',
+				iconUrl: null,
+				instanceId: null,
+			}
+		}
+		if (barType?.type === 'pack_export') {
+			return {
+				title: barType.instance_name || bar.title || 'Modpack Export',
+				text: bar.message || 'Exporting modpack…',
+				taskType: 'Export',
+				iconUrl: null,
+				instanceId: barType.instance_id ?? null,
+			}
+		}
+		if (barType?.type === 'zip_extract') {
+			return {
+				title: barType.instance_name || bar.title || 'Extracting files',
+				text: bar.message || 'Extracting archive…',
+				iconUrl: null,
+				instanceId: barType.instance_id ?? null,
+			}
+		}
+		if (barType?.type === 'directory_move') {
+			return {
+				title: bar.title || 'Moving app directory',
+				text: bar.message || 'Moving files…',
+				iconUrl: null,
+				instanceId: null,
+			}
+		}
+		const instanceId =
+			barType && 'instance_id' in barType ? (barType.instance_id ?? null) : null
+		const icon = barType && 'icon' in barType ? getIconUrl(barType.icon) : null
+		const title =
+			(barType && 'pack_name' in barType && barType.pack_name) ||
+			(barType && 'instance_name' in barType && barType.instance_name) ||
+			bar.title ||
+			'Download'
+		return {
+			title,
+			text: bar.message || 'Downloading…',
+			iconUrl: icon,
+			instanceId,
+		}
+	}
+
+	async function refreshLoadingTasks() {
+		try {
+			const bars: Record<string, LoadingBar> = (await progress_bars_list()) ?? {}
+			if (disposed) return
+
+			const activeInstallInstanceIds = new Set<string>()
+			let hasActiveJavaInstallJob = false
+			for (const job of jobs.value.values()) {
+				if (job.status !== 'queued' && job.status !== 'running') continue
+				const instId = installJobInstanceId(job)
+				if (instId) activeInstallInstanceIds.add(instId)
+				if (job.phase === 'preparing_java') hasActiveJavaInstallJob = true
+			}
+
+			const seenIds = new Set<string>()
+			const nextMap = new Map(loadingTasks.value)
+
+			for (const bar of Object.values(bars)) {
+				const barType = bar?.bar_type?.type
+				if (!bar || barType === 'launcher_update') continue
+				if (barType === 'java_download' && hasActiveJavaInstallJob) continue
+
+				const meta = getLoadingBarMeta(bar)
+				if (meta.instanceId && activeInstallInstanceIds.has(meta.instanceId)) continue
+
+				const id = `loading-bar:${bar.loading_bar_uuid ?? bar.id}`
+				if (dismissedJobs.has(id)) continue
+				seenIds.add(id)
+
+				const total = bar.total ?? 0
+				const current = bar.current ?? 0
+				const progress = total > 0 ? Math.max(0, Math.min(1, current / total)) : 0
+				const existing = nextMap.get(id)
+
+				nextMap.set(id, {
+					id,
+					title: meta.title,
+					text: meta.text,
+					taskType: meta.taskType,
+					iconUrl: meta.iconUrl,
+					instanceId: meta.instanceId,
+					status: 'running',
+					progress,
+					waiting: total <= 0,
+					createdAt: existing?.createdAt ?? new Date().toISOString(),
+				})
+			}
+
+			// Transition finished loading bars into completed history
+			for (const [id, task] of nextMap.entries()) {
+				if (task.status === 'running' && !seenIds.has(id)) {
+					nextMap.set(id, {
+						...task,
+						status: 'succeeded',
+						progress: 1,
+						waiting: false,
+						text: 'Completed',
+						finishedAt: new Date().toISOString(),
+					})
+				}
+			}
+
+			loadingTasks.value = nextMap
+		} catch {
+			// Non-fatal in preview/non-Tauri contexts
+		}
+	}
+
 	const unlisten = events.on('install_job', applyJobUpdate)
+	const unlistenLoading = events.on('loading', () => {
+		void refreshLoadingTasks()
+	})
 	const unlistenInstance = events.on('instance', () => {
 		void refreshMetadata()
 	})
 	onMounted(() => {
 		void refresh()
+		void refreshLoadingTasks()
 	})
 	onScopeDispose(() => {
 		disposed = true
 		unlisten()
+		unlistenLoading()
 		unlistenInstance()
 		if (clock) clearInterval(clock)
 		for (const timeout of copiedTimeouts.values()) clearTimeout(timeout)

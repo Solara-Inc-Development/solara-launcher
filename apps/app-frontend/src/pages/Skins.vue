@@ -7,6 +7,7 @@ import {
 	InfoIcon,
 	LayersIcon,
 	LogInIcon,
+	PaletteIcon,
 	RotateCounterClockwiseIcon,
 	ShirtIcon,
 	SparklesIcon,
@@ -69,7 +70,7 @@ useRootBreadcrumb({
 	id: 'skins',
 	label: 'Skin Studio',
 	to: '/skins',
-	visual: { type: 'icon', component: ShirtIcon },
+	visual: { type: 'icon', component: PaletteIcon },
 })
 
 type UnlistenFn = () => void

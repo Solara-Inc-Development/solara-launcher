@@ -38,14 +38,6 @@ const progress = computed(() =>
 			activeJobs.value.length
 		: 0,
 )
-const visible = computed(
-	() =>
-		shown.value ||
-		!!selectedJob.value ||
-		activeJobs.value.length ||
-		attentionJobs.value.length ||
-		completedJobs.value.length,
-)
 let animationFrame = 0
 
 watch(
@@ -75,7 +67,6 @@ function close() {
 
 <template>
 	<FloatingMenu
-		v-if="visible"
 		ref="menu"
 		bare
 		:arrow="false"

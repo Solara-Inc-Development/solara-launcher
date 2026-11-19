@@ -7419,7 +7419,7 @@
     "defaultMessage": "Select your preferred color theme for Solara Launcher."
   },
   "settings.display.theme.light": {
-    "defaultMessage": "Light"
+    "defaultMessage": "White"
   },
   "settings.display.theme.oled": {
     "defaultMessage": "OLED"

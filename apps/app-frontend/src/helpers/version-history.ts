@@ -11,11 +11,32 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.72',
+		title: 'Animated Solara-Inc Hero Logo, Library Tab, 2-Theme Mode & Top Download Manager',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Added a balanced animated Solara logo with orbital glow and Solara-Inc signature on the Home screen opposite the 3D animated character.',
+			'Added a dedicated Library page in the sidebar (replacing Screenshots) to search, filter, launch, and manage all Minecraft instances.',
+			'Updated sidebar navigation icons with distinct icons for ModPackInstaller, Skin Studio, and Library.',
+			'Placed an always-visible Modrinth-style Download Manager right next to Check for updates showing active Java/instance/modpack downloads and completed history.',
+			'Simplified Appearance settings to two clean themes: OLED and White.',
+		],
+		issuesFixed: [
+			'Bridged standalone Java runtime and archive progress bars into the top Download Manager so live and completed tasks stay visible in one place.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.71',
 		title: 'Custom 3D Character Animations & Interactive Minecraft Props',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Added 7 custom Solara procedural 3D character animations that play automatically on both Home and Skin Studio: Eating a Golden Apple (with golden crumb particles), Diamond Sword flourish, Diamond Pickaxe mining swings, Glowing Torch cave look-around (with rising embers), friendly Waving, Sitting & Standing back up, and Victory Jump.',
 			'Added one-click Action / Emote pills on the Solara Skin Studio pedestal (Wave, Golden Apple, Sword, Pickaxe, Torch, Sit, Jump) and click-to-animate character interactions.',

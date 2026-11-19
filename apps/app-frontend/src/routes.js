@@ -14,6 +14,14 @@ export default new createRouter({
 			},
 		},
 		{
+			path: '/library',
+			name: 'Library',
+			component: () => import('@/pages/Library.vue'),
+			meta: {
+				saveScroll: true,
+			},
+		},
+		{
 			path: '/browse/:projectType',
 			name: 'Discover content',
 			component: () => import('@/platform/adapters/browse/browse-page.vue'),

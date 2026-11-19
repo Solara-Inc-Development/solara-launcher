@@ -18,6 +18,10 @@ export function isDarkTheme(theme: string): theme is DarkTheme {
 	return (DARK_THEMES as readonly string[]).includes(theme)
 }
 
+export function normalizeSolaraTheme(theme: string | null | undefined): 'oled' | 'light' {
+	return theme === 'light' ? 'light' : 'oled'
+}
+
 function loadPreferredTheme(): ColorTheme {
 	try {
 		const stored = readThemePreference(
@@ -26,18 +30,16 @@ function loadPreferredTheme(): ColorTheme {
 			'modrinth-theme',
 			THEME_OPTIONS,
 		)
-		if (stored) return stored
+		if (stored) return normalizeSolaraTheme(stored)
 	} catch {
 		// storage blocked or full
 	}
 
-	for (const option of THEME_OPTIONS) {
-		if (option !== 'system' && document.documentElement.classList.contains(`${option}-mode`)) {
-			return option
-		}
+	if (document.documentElement.classList.contains('light-mode')) {
+		return 'light'
 	}
 
-	return 'dark'
+	return 'oled'
 }
 
 function loadPreferredDarkTheme(): DarkTheme {
@@ -48,12 +50,12 @@ function loadPreferredDarkTheme(): DarkTheme {
 			'modrinth-preferred-dark-theme',
 			DARK_THEMES,
 		)
-		if (stored) return stored
+		if (stored) return 'oled'
 	} catch {
 		// storage blocked or full
 	}
 
-	return 'dark'
+	return 'oled'
 }
 
 const preferred = ref<ColorTheme>(loadPreferredTheme())
@@ -65,11 +67,7 @@ const nativeThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const native = ref<NativeTheme>(nativeThemeQuery.matches ? 'dark' : 'light')
 const active = computed<Theme>(() => {
 	const selectedTheme = preview.value ?? preferred.value
-	if (selectedTheme !== 'system') {
-		return selectedTheme
-	}
-
-	return native.value === 'light' ? 'light' : preferredDark.value
+	return normalizeSolaraTheme(selectedTheme)
 })
 
 nativeThemeQuery.addEventListener('change', (event) => {
@@ -120,18 +118,8 @@ watch(
 )
 
 function applyAccountAppearance(appearance: { auto: boolean; theme: string }): void {
-	if (isDarkTheme(appearance.theme)) {
-		preferredDark.value = appearance.theme
-	}
-
-	if (appearance.auto) {
-		preferred.value = 'system'
-		return
-	}
-
-	if ((THEME_OPTIONS as readonly string[]).includes(appearance.theme)) {
-		preferred.value = appearance.theme as ColorTheme
-	}
+	preferredDark.value = 'oled'
+	preferred.value = normalizeSolaraTheme(appearance.theme)
 }
 
 const theme = reactive({

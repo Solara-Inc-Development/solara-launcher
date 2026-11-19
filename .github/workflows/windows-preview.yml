@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.71: custom 3D character animations (Golden Apple eating, Diamond Sword, Pickaxe, Torch, Wave, Sit & Stand, Jump); signing stays private.
+# Solara V-0.0.72: animated Solara-Inc hero logo, Library sidebar page, updated sidebar icons, 2-theme mode (OLED + White), and always-visible Download Manager; signing stays private.
 on:
   workflow_dispatch:
   push:

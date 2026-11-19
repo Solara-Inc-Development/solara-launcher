@@ -9,6 +9,7 @@ import {
 	HomeIcon,
 	LogInIcon,
 	LogOutIcon,
+	SolaraIcon,
 	SpinnerIcon,
 	TrashIcon,
 	UserPlusIcon,
@@ -31,7 +32,7 @@ import { VERIFIED_VERSION_HISTORY, type VersionChangelog } from '@/helpers/versi
 import { useRootBreadcrumb } from '@/shared/breadcrumbs'
 
 defineOptions({
-	name: 'LibraryPage',
+	name: 'HomePage',
 })
 
 useRootBreadcrumb({
@@ -340,9 +341,37 @@ function formatDate(iso?: string | null) {
 			<div
 				class="relative z-30 flex-1 w-full flex flex-col lg:flex-row items-center justify-center my-auto gap-8"
 			>
+				<!-- LEFT SIDE: Animated Solara Emblem + Solara-Inc Brand Signature -->
+				<div
+					class="solara-brand-dock relative lg:absolute lg:left-3 xl:left-10 lg:top-1/2 lg:-translate-y-1/2 z-10 flex flex-col items-center justify-center gap-3.5 select-none"
+				>
+					<div
+						class="solara-logo-stage relative size-[8.25rem] xl:size-[9.5rem] flex items-center justify-center"
+					>
+						<div class="solara-logo-aura pointer-events-none absolute inset-1 rounded-full" />
+						<div class="solara-logo-orbit pointer-events-none absolute inset-0 rounded-full">
+							<span class="solara-logo-spark" />
+						</div>
+						<div class="solara-logo-orbit-inner pointer-events-none absolute inset-3 rounded-full" />
+						<div
+							class="solara-logo-float relative z-10 size-[5.25rem] xl:size-[6rem] rounded-[1.35rem] flex items-center justify-center"
+						>
+							<SolaraIcon class="solara-logo-svg size-full block" />
+						</div>
+					</div>
+					<div class="flex flex-col items-center gap-1.5">
+						<span
+							class="solara-brand-wordmark text-base xl:text-lg font-extrabold tracking-[0.12em] text-contrast"
+						>
+							Solara-Inc
+						</span>
+						<span class="solara-brand-accent block h-[2px] w-11 rounded-full" />
+					</div>
+				</div>
+
 				<!-- DEAD-CENTER Welcome Block + Sign In / Account Pill -->
 				<div
-					class="solara-welcome-center relative z-20 flex flex-col items-center text-center justify-center gap-6 mx-auto w-full max-w-[30rem] xl:max-w-[36rem]"
+					class="solara-welcome-center relative z-20 flex flex-col items-center text-center justify-center gap-6 mx-auto w-full max-w-[27rem] xl:max-w-[30rem]"
 				>
 					<div
 						class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] bg-surface-2/80 text-brand border border-solid border-brand/25 backdrop-blur-sm"
@@ -875,6 +904,11 @@ function formatDate(iso?: string | null) {
 .solara-hero-ambient {
 	background:
 		radial-gradient(
+			26% 44% at 11% 50%,
+			color-mix(in srgb, var(--color-brand) 10%, transparent) 0%,
+			transparent 70%
+		),
+		radial-gradient(
 			42% 45% at 50% 42%,
 			color-mix(in srgb, var(--color-brand) 9%, transparent) 0%,
 			transparent 72%
@@ -884,6 +918,106 @@ function formatDate(iso?: string | null) {
 			color-mix(in srgb, var(--color-brand) 12%, transparent) 0%,
 			transparent 70%
 		);
+}
+
+.solara-logo-aura {
+	background: radial-gradient(
+		circle at center,
+		rgba(61, 214, 245, 0.24) 0%,
+		rgba(255, 181, 90, 0.14) 46%,
+		transparent 72%
+	);
+	filter: blur(18px);
+	animation: solara-aura-pulse 4.8s ease-in-out infinite;
+}
+
+.solara-logo-orbit {
+	border: 1px dashed color-mix(in srgb, var(--color-brand) 36%, transparent);
+	animation: solara-orbit-spin 18s linear infinite;
+}
+
+.solara-logo-orbit-inner {
+	border: 1px solid rgba(255, 181, 90, 0.2);
+	animation: solara-orbit-spin-reverse 24s linear infinite;
+}
+
+.solara-logo-spark {
+	position: absolute;
+	top: -3px;
+	left: 50%;
+	width: 7px;
+	height: 7px;
+	margin-left: -3.5px;
+	border-radius: 9999px;
+	background: linear-gradient(135deg, #3dd6f5, #ffb55a);
+	box-shadow:
+		0 0 10px rgba(61, 214, 245, 0.9),
+		0 0 18px rgba(255, 181, 90, 0.55);
+}
+
+.solara-logo-float {
+	animation: solara-logo-bob 4.4s ease-in-out infinite;
+	filter: drop-shadow(0 12px 24px rgba(61, 214, 245, 0.24))
+		drop-shadow(0 4px 12px rgba(255, 181, 90, 0.16));
+}
+
+.solara-brand-wordmark {
+	letter-spacing: 0.12em;
+	text-shadow: 0 2px 14px color-mix(in srgb, var(--color-brand) 25%, transparent);
+}
+
+.solara-brand-accent {
+	background: linear-gradient(90deg, #3dd6f5 0%, #ffb55a 100%);
+	opacity: 0.85;
+}
+
+@keyframes solara-logo-bob {
+	0%,
+	100% {
+		transform: translateY(0px) rotate(0deg) scale(1);
+	}
+	50% {
+		transform: translateY(-6px) rotate(2.5deg) scale(1.035);
+	}
+}
+
+@keyframes solara-orbit-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes solara-orbit-spin-reverse {
+	from {
+		transform: rotate(360deg);
+	}
+	to {
+		transform: rotate(0deg);
+	}
+}
+
+@keyframes solara-aura-pulse {
+	0%,
+	100% {
+		opacity: 0.72;
+		transform: scale(0.95);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.08);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.solara-logo-aura,
+	.solara-logo-orbit,
+	.solara-logo-orbit-inner,
+	.solara-logo-float {
+		animation: none;
+	}
 }
 
 .solara-username-text {

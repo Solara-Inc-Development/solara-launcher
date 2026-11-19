@@ -3,17 +3,17 @@ import { ModrinthApiError } from '@modrinth/api-client'
 import {
 	ArrowBigUpDashIcon,
 	ArrowLeftRightIcon,
-	CompassIcon,
 	HomeIcon,
-	ImageIcon,
+	LibraryIcon,
 	LogInIcon,
 	LogOutIcon,
+	PackageIcon,
+	PaletteIcon,
 	PlayIcon,
 	PlusIcon,
 	RefreshCwIcon,
 	ServerStackIcon,
 	SettingsIcon,
-	ShirtIcon,
 	SpinnerIcon,
 	ToggleRightIcon,
 	UserIcon,
@@ -682,7 +682,7 @@ async function setupApp() {
 		)
 	}
 
-	appTheme.preferred = theme
+	appTheme.preferred = theme === 'light' ? 'light' : 'oled'
 	appTheme.advancedRendering = advanced_rendering
 	appTheme.syncAcrossDevices = sync_theme_across_devices
 	appSettings.syncBehaviorAcrossDevices = sync_behavior_across_devices
@@ -1912,21 +1912,22 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 					(route) => route.path.startsWith('/project') && !route.query.i && !route.query.sid
 				"
 			>
-				<CompassIcon />
+				<PackageIcon />
 			</NavButton>
 			<NavButton
 				v-if="appSettings.showSkinSelectorInSidebar"
 				v-tooltip.right="'Skin Studio'"
 				to="/skins"
 			>
-				<ShirtIcon />
+				<PaletteIcon />
 			</NavButton>
 			<NavButton
-				v-if="globalSyncedOptionsQuery.data.value?.screenshots"
-				v-tooltip.right="formatMessage(messages.screenshots)"
-				to="/screenshots"
+				v-tooltip.right="'Library'"
+				to="/library"
+				:is-primary="(r) => r.path === '/library'"
+				:is-subpage="(r) => r.path.startsWith('/instance/')"
 			>
-				<ImageIcon />
+				<LibraryIcon />
 			</NavButton>
 			<suspense>
 				<QuickInstanceSwitcher>
