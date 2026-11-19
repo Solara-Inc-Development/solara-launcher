@@ -109,8 +109,16 @@ const heroSkinVariant = computed<'CLASSIC' | 'SLIM' | 'UNKNOWN'>(
 const heroCapeTexture = computed(() => equippedCapeTexture.value)
 const heroAnimationConfig = {
 	baseAnimation: 'idle',
-	randomAnimations: ['idle_sub_1', 'idle_sub_2', 'idle_sub_3'],
-	randomAnimationInterval: 7000,
+	randomAnimations: [
+		'solara_eat_golden_apple',
+		'solara_hold_sword',
+		'solara_hold_pickaxe',
+		'solara_hold_torch',
+		'solara_wave',
+		'solara_sit_stand',
+		'solara_cheer_jump',
+	],
+	randomAnimationInterval: 5000,
 	transitionDuration: 0.25,
 }
 

@@ -11,11 +11,29 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.71',
+		title: 'Custom 3D Character Animations & Interactive Minecraft Props',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Added 7 custom Solara procedural 3D character animations that play automatically on both Home and Skin Studio: Eating a Golden Apple (with golden crumb particles), Diamond Sword flourish, Diamond Pickaxe mining swings, Glowing Torch cave look-around (with rising embers), friendly Waving, Sitting & Standing back up, and Victory Jump.',
+			'Added one-click Action / Emote pills on the Solara Skin Studio pedestal (Wave, Golden Apple, Sword, Pickaxe, Torch, Sit, Jump) and click-to-animate character interactions.',
+		],
+		issuesFixed: [
+			'Protected custom 3D prop meshes from skin texture overrides and camera auto-fit bounding shifts.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.70',
 		title: 'Original Solara Skin Studio & Sidebar Home Icon',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Redesigned the Skins page into an original Solara Skin Studio with a top Wardrobe & Cape Editor command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop .PNG banner, and dedicated Cape Vault.',
 			'Moved the 3D animated character viewer into a sticky elevated right-side pedestal card with Classic/Slim quick switcher, nametag toggle, and live Apply/Reset/Customize dock.',

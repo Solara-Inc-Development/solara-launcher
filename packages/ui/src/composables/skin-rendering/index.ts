@@ -1,3 +1,4 @@
+export * from './solara-character-actions'
 export * from './types'
 export * from './use-skin-preview-animation'
 export * from './use-skin-preview-controls'

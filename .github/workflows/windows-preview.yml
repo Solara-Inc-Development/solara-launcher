@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.70: original Solara Skin Studio (Wardrobe & Cape Editor + right 3D pedestal) and sidebar HomeIcon; signing stays private.
+# Solara V-0.0.71: custom 3D character animations (Golden Apple eating, Diamond Sword, Pickaxe, Torch, Wave, Sit & Stand, Jump); signing stays private.
 on:
   workflow_dispatch:
   push:

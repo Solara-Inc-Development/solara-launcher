@@ -117,6 +117,7 @@ function getVisibleMeshBox(
 
 function isPlayerMesh(mesh: THREE.Mesh) {
 	if (isEarsModFeature(mesh)) return false
+	if (mesh.userData?.isSolaraProp) return false
 
 	const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 	return materials.some((material) => material.name !== 'cape')

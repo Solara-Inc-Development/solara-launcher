@@ -3,6 +3,11 @@ import * as THREE from 'three'
 import { computed, type ComputedRef, type Ref, ref, watch } from 'vue'
 
 import { useDebugLogger } from '../debug-logger'
+import {
+	isSolaraActionName,
+	SOLARA_ACTION_NAMES,
+	SolaraCharacterActionController,
+} from './solara-character-actions'
 import type { SkinPreviewAnimationConfig } from './types'
 
 const debug = useDebugLogger('SkinPreviewAnimation')
@@ -39,6 +44,7 @@ export function useSkinPreviewAnimation(
 ) {
 	const mixer = ref<THREE.AnimationMixer | null>(null)
 	const actions = ref<Record<string, THREE.AnimationAction>>({})
+	const solaraController = new SolaraCharacterActionController()
 	const clock = new THREE.Clock()
 	const currentAnimation = ref<string>('')
 	const randomAnimationTimer = ref<number | null>(null)
@@ -67,6 +73,7 @@ export function useSkinPreviewAnimation(
 		}
 
 		mixer.value = new THREE.AnimationMixer(loadedScene)
+		solaraController.attach(loadedScene)
 		clock.start()
 		actions.value = {}
 
@@ -97,11 +104,50 @@ export function useSkinPreviewAnimation(
 		}
 	}
 
+	function ensureBaseIdleRunning() {
+		if (!baseAnimation.value || !actions.value[baseAnimation.value]) return
+		const baseAction = actions.value[baseAnimation.value]
+		Object.entries(actions.value).forEach(([actionName, actionInstance]) => {
+			if (actionName !== baseAnimation.value && actionInstance.isRunning()) {
+				actionInstance.fadeOut(transitionDuration.value)
+			}
+		})
+		if (!baseAction.isRunning()) {
+			baseAction.reset()
+			baseAction.setLoop(THREE.LoopRepeat, Infinity)
+			baseAction.fadeIn(transitionDuration.value)
+			baseAction.play()
+		}
+	}
+
+	function playSolaraProceduralAction(name: string, rescheduleLoop = true) {
+		if (!isSolaraActionName(name)) return false
+		ensureBaseIdleRunning()
+		const started = solaraController.start(name, () => {
+			if (currentAnimation.value === name) {
+				currentAnimation.value = baseAnimation.value
+			}
+			if (rescheduleLoop) {
+				setupRandomAnimationLoop()
+			}
+		})
+		if (started) {
+			currentAnimation.value = name
+		}
+		return started
+	}
+
 	function playAnimation(name: string, immediate = false) {
+		if (isSolaraActionName(name)) {
+			return playSolaraProceduralAction(name, true)
+		}
+
 		if (!mixer.value || !actions.value[name]) {
 			console.warn(`Animation "${name}" not found!`)
 			return false
 		}
+
+		solaraController.stop()
 
 		const action = actions.value[name]
 
@@ -177,9 +223,14 @@ export function useSkinPreviewAnimation(
 					const randomIndex = Math.floor(Math.random() * animationsToChooseFrom.length)
 					const randomAnimationName = animationsToChooseFrom[randomIndex]
 
-					if (actions.value[randomAnimationName]) {
+					if (isSolaraActionName(randomAnimationName)) {
+						lastRandomAnimation.value = randomAnimationName
+						playSolaraProceduralAction(randomAnimationName, true)
+					} else if (actions.value[randomAnimationName]) {
 						lastRandomAnimation.value = randomAnimationName
 						playRandomAnimation(randomAnimationName)
+					} else {
+						scheduleNextAnimation()
 					}
 				} else {
 					scheduleNextAnimation()
@@ -191,10 +242,15 @@ export function useSkinPreviewAnimation(
 	}
 
 	function playRandomAnimation(name: string) {
+		if (isSolaraActionName(name)) {
+			playSolaraProceduralAction(name, true)
+			return
+		}
 		if (!mixer.value || !actions.value[name]) {
 			console.warn(`Animation "${name}" not found!`)
 			return
 		}
+		solaraController.stop()
 
 		const action = actions.value[name]
 
@@ -240,7 +296,10 @@ export function useSkinPreviewAnimation(
 	}
 
 	function playInteractAnimation() {
-		if (actions.value[INTERACT_ANIMATION_NAME]) {
+		const pool = SOLARA_ACTION_NAMES.filter((name) => name !== lastRandomAnimation.value)
+		const pick = pool[Math.floor(Math.random() * pool.length)] ?? SOLARA_ACTION_NAMES[0]
+		lastRandomAnimation.value = pick
+		if (!playSolaraProceduralAction(pick, true) && actions.value[INTERACT_ANIMATION_NAME]) {
 			playRandomAnimation(INTERACT_ANIMATION_NAME)
 		}
 	}
@@ -306,6 +365,7 @@ export function useSkinPreviewAnimation(
 	}
 
 	function stopAnimations() {
+		solaraController.stop()
 		if (mixer.value) {
 			mixer.value.stopAllAction()
 		}
@@ -313,7 +373,7 @@ export function useSkinPreviewAnimation(
 	}
 
 	function getAvailableAnimations(): string[] {
-		return Object.keys(actions.value)
+		return [...Object.keys(actions.value), ...SOLARA_ACTION_NAMES]
 	}
 
 	function clearRandomAnimationTimer() {
@@ -349,6 +409,7 @@ export function useSkinPreviewAnimation(
 
 	function cleanupAnimationState(root: THREE.Object3D | null) {
 		clearRandomAnimationTimer()
+		solaraController.cleanup()
 
 		const currentMixer = mixer.value
 		if (currentMixer) {
@@ -390,6 +451,7 @@ export function useSkinPreviewAnimation(
 			mixer.value.update(delta)
 		}
 
+		solaraController.update(delta)
 		updateClickImpulse(delta)
 		updateDamageFlash(delta)
 	})

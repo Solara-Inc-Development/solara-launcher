@@ -123,6 +123,7 @@ import type {
 	SkinPreviewTuple,
 } from '#ui/composables/skin-rendering'
 import {
+	SOLARA_ACTION_NAMES,
 	useSkinPreviewAnimation,
 	useSkinPreviewControls,
 	useSkinPreviewFit,
@@ -151,6 +152,7 @@ const props = withDefaults(
 		fov?: number
 		initialRotation?: number
 		animationConfig?: SkinPreviewAnimationConfig
+		actionTrigger?: { name: string; seq: number }
 		earsEnabled?: boolean
 	}>(),
 	{
@@ -164,11 +166,12 @@ const props = withDefaults(
 		framing: 'page',
 		fitZoom: 1,
 		earsEnabled: true,
+		actionTrigger: undefined,
 		animationConfig: () => ({
 			baseAnimation: 'idle',
-			randomAnimations: ['idle_sub_1', 'idle_sub_2', 'idle_sub_3'],
-			randomAnimationInterval: 8000,
-			transitionDuration: 0.2,
+			randomAnimations: [...SOLARA_ACTION_NAMES],
+			randomAnimationInterval: 5500,
+			transitionDuration: 0.25,
 		}),
 	},
 )
@@ -342,6 +345,15 @@ watch(
 )
 watch(scene, syncDamageFlashShaderMaterials, { immediate: true })
 watch(damageFlashIntensity, syncDamageFlashShaderMaterials)
+watch(
+	() => props.actionTrigger,
+	(trigger) => {
+		if (trigger?.name) {
+			playAnimation(trigger.name)
+		}
+	},
+	{ deep: true },
+)
 
 onUnmounted(() => {
 	subtitleResizeObserver?.disconnect()

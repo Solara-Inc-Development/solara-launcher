@@ -216,6 +216,22 @@ const studioDropzoneEl = ref<HTMLElement | null>(null)
 const studioTab = ref<StudioTab>('my-skins')
 const selectedPresetSection = ref<string>('all')
 const showNametagOverride = ref<boolean>(true)
+const studioActionTrigger = ref<{ name: string; seq: number } | undefined>(undefined)
+let studioActionSeq = 0
+
+const studioActionPresets = [
+	{ id: 'solara_wave', label: 'Wave' },
+	{ id: 'solara_eat_golden_apple', label: 'Golden Apple' },
+	{ id: 'solara_hold_sword', label: 'Sword' },
+	{ id: 'solara_hold_pickaxe', label: 'Pickaxe' },
+	{ id: 'solara_hold_torch', label: 'Torch' },
+	{ id: 'solara_sit_stand', label: 'Sit' },
+	{ id: 'solara_cheer_jump', label: 'Jump' },
+] as const
+
+function triggerStudioAction(actionId: string) {
+	studioActionTrigger.value = { name: actionId, seq: ++studioActionSeq }
+}
 
 const { formatMessage } = useVIntl()
 const notifications = injectNotificationManager()
@@ -1567,7 +1583,7 @@ await loadSkins()
 					</div>
 
 					<!-- 3D Animated Character Viewport -->
-					<div class="relative z-10 w-full h-[24rem] xl:h-[27rem] flex items-center justify-center">
+					<div class="relative z-10 w-full h-[22.5rem] xl:h-[25.5rem] flex items-center justify-center">
 						<SkinPreviewRenderer
 							:cape-src="capeTexture"
 							:texture-src="activeStudioTexture"
@@ -1576,10 +1592,29 @@ await loadSkins()
 							:nametag="skinNametag"
 							framing="modal"
 							:initial-rotation="-Math.PI / 10"
+							:action-trigger="studioActionTrigger"
 							:ears-enabled="earsFeaturesEnabled"
 							class="h-full w-full"
 							@ears-features-detected="selectedSkinHasEarsFeatures = $event"
 						/>
+					</div>
+
+					<!-- Solara Character Action / Emote Quick-Trigger Strip -->
+					<div class="relative z-10 flex flex-wrap items-center justify-center gap-1.5">
+						<button
+							v-for="act in studioActionPresets"
+							:key="act.id"
+							type="button"
+							class="px-2.5 py-1 rounded-full text-[11px] font-bold border border-solid transition-all cursor-pointer"
+							:class="
+								studioActionTrigger?.name === act.id
+									? 'bg-brand/15 text-brand border-brand/50'
+									: 'bg-surface-3/80 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+							"
+							@click="triggerStudioAction(act.id)"
+						>
+							{{ act.label }}
+						</button>
 					</div>
 
 					<!-- Ears Mod Notice (if detected) -->
