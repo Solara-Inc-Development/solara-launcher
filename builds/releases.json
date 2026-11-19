@@ -2551,6 +2551,49 @@
       "notes": "Updater-signed Windows testing preview V-0.0.75 (internal SemVer 0.0.75). Physical Windows device acceptance remains pending.\n\n- Moved the floating animated Solara logo right above the Home screen Welcome message and beautified the hero typography with a cyan-to-gold gradient username and glowing accent divider.\n- Redesigned the Skin Customizer modal into an original **Solara Studio Customizer** with drag-drop `.PNG` texture replacement, Classic/Slim cards, borderless cape picker, and a right-side 3D Live Preview stage with quick pose triggers.\n- Fixed 3D player emotes not playing by restoring `SolaraCharacterActionController.start()` so all 6 poses (**Wave**, **Sit**, **Jump**, **Stretch**, **Look**, **Salute**) trigger smoothly and stand cleanly back up.\n- Sped up Windows CI builds with Rust cache prefix fallback and 4 parallel build jobs.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.75/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "21d41cb4-dc4c-4145-9347-c0480f88a149",
+      "publicVersion": "V-0.0.76",
+      "internalVersion": "0.0.76",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.76/solaralauncher.exe",
+      "commit": "2ede2ea6830aa576061e8920db1b4e5503b93534",
+      "allocatedAt": "2026-11-19T19:27:22.303Z",
+      "state": "published",
+      "applicationSha256": "65b3f6f526cf40d2494bbc413e45a53e9003cc302c21e9c9ea883388d72af58a",
+      "applicationSize": 47555584,
+      "sourceTree": "29c7a7d7f246d9e8f57cb0bd2b7eb39c9fef8280",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21416367,
+          "sha256": "f6b6355ae70c1849cd80cd25560dc7afb67627d2a25339a1d86ffc94df5c00ae"
+        },
+        "application/solaralauncher.exe": {
+          "size": 47555584,
+          "sha256": "65b3f6f526cf40d2494bbc413e45a53e9003cc302c21e9c9ea883388d72af58a"
+        },
+        "source.zip": {
+          "size": 34048006,
+          "sha256": "eca4af3d6d984bef30e3912a1b25fb5afd96b414db1b510e351eea074006fd17"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21416367,
+      "sha256": "f6b6355ae70c1849cd80cd25560dc7afb67627d2a25339a1d86ffc94df5c00ae",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T19:45:42.375Z",
+      "verifiedAt": "2026-11-19T19:45:38.410Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDNQenVoMnpQZ2Q4emVucXlvZU42U2c5czF6bFdidW11dHc4M0dkNnNPYjJLNUF5UjlZU09lcEtvM3E2TjA3aFZmTndmWDhXQlNhWHNPWDVWbjZ5M0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTE3NDkwCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjc2CmpyQXJrUTdpOG1kcEpYbForUTBnYVltN29MNHgxeGt4OEM3ZGV2OTNjQlVoUlpLZitnT0pXTUp5Q2E2bnlJZGtiQWQxNXBRNTNZc25PT0J0RWlrMkNRPT0K",
+      "notes": "Solara Launcher V-0.0.76 (Testing Preview)\n\n- Fixed the ModPackInstaller navigation freeze bug where clicking Home, Back, Versions, Gallery, Library, or Skin Studio stopped updating the UI after opening a modpack detail page.\n- Added a clean inline two-column project metadata sidebar on ModPackInstaller project pages.\n- Redesigned the top Download Manager into an original Solara Downloads capsule and drawer with segmented Active / History tabs, cyan-to-gold gradient progress bars, status pills, live speed chip, and borderless task cards in OLED and White themes.\n- Switched release builds to thin LTO and upgraded Windows CI workflows to Swatinem/rust-cache@v2 for faster future builds.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.76/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## V-0.0.76 — ModPack Navigation Fix, Original Solara Downloads UI & Fast Windows CI (2026-11-20)
+
+- ModPackInstaller Navigation Fix: Added permanent `#sidebar-teleport-target` fallback mount in `App.vue` and refactored `/project/:id` metadata cards into a responsive inline two-column sidebar, fixing the bug where Home, Back, Versions, Gallery, Library, and Skin Studio clicks stopped updating the UI after browsing a modpack.
+- Original Solara Downloads UI: Redesigned the top Download Manager trigger capsule and dropdown drawer with segmented Active / History tabs, cyan-to-gold gradient progress bars, status pills, live transfer speed chip, and borderless task cards across OLED and White themes.
+- Faster Windows CI Builds & Checks: Switched `[profile.release]` to `lto = "thin"` and upgraded Windows CI workflows to `Swatinem/rust-cache@v2` + `CARGO_BUILD_JOBS=4`.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.75 — Beautified Home Hero with Floating Logo, Solara Skin Customizer & Fixed 3D Emotes (2026-11-19)
 
 - Beautified Home Welcome Hero: Moved the floating animated Solara logo cleanly above the Welcome message with a luminous cyan-to-gold gradient username, glowing accent divider, and refined typography.
