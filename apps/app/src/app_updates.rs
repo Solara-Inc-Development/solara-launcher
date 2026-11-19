@@ -4,10 +4,12 @@ use base64::Engine as _;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use minisign_verify::{PublicKey, Signature};
 use serde_json::{Value, json};
+use std::net::{IpAddr, Ipv4Addr};
 use std::sync::{
-    Mutex,
+    Mutex, OnceLock,
     atomic::{AtomicBool, Ordering},
 };
+use std::time::Duration;
 use tauri::{Emitter, Manager};
 use tokio::sync::RwLock;
 
@@ -190,21 +192,83 @@ pub fn verify_minisign_signature(
     Ok(())
 }
 
-async fn fetch_latest_manifest() -> anyhow::Result<Value> {
-    let client = reqwest::Client::builder()
+static MANIFEST_CLIENT_IPV4: OnceLock<reqwest::Client> = OnceLock::new();
+static MANIFEST_CLIENT_DEFAULT: OnceLock<reqwest::Client> = OnceLock::new();
+
+fn build_manifest_client(force_ipv4: bool) -> reqwest::Client {
+    let mut builder = reqwest::Client::builder()
         .user_agent(theseus::launcher_user_agent())
-        .timeout(std::time::Duration::from_secs(60))
-        .build()?;
+        .connect_timeout(Duration::from_secs(3))
+        .timeout(Duration::from_secs(8))
+        .tcp_nodelay(true)
+        .pool_max_idle_per_host(4)
+        .pool_idle_timeout(Duration::from_secs(90));
+    if force_ipv4 {
+        builder = builder.local_address(Some(IpAddr::V4(Ipv4Addr::UNSPECIFIED)));
+    }
+    builder.build().unwrap_or_else(|_| reqwest::Client::new())
+}
+
+fn manifest_client_ipv4() -> &'static reqwest::Client {
+    MANIFEST_CLIENT_IPV4.get_or_init(|| build_manifest_client(true))
+}
+
+fn manifest_client_default() -> &'static reqwest::Client {
+    MANIFEST_CLIENT_DEFAULT.get_or_init(|| build_manifest_client(false))
+}
+
+async fn fetch_manifest_from(
+    client: &reqwest::Client,
+    url: &'static str,
+) -> anyhow::Result<Value> {
     let resp = client
-        .get(update_policy::GITHUB_LATEST_MANIFEST_URL)
+        .get(url)
         .header("Accept", "application/json")
         .send()
         .await?
         .error_for_status()?;
     let manifest: Value = resp.json().await?;
     update_policy::validate_latest_manifest(&manifest)
-        .map_err(|e| anyhow!("Invalid update manifest: {e}"))?;
+        .map_err(|e| anyhow!("Invalid update manifest from {url}: {e}"))?;
     Ok(manifest)
+}
+
+async fn fetch_latest_manifest() -> anyhow::Result<Value> {
+    // Race pooled IPv4-first and dual-stack clients across GitHub Releases CDN and Solara API
+    // so broken Windows IPv6 SYN stalls (21s+) never delay update checks. Every candidate
+    // response still passes strict `validate_latest_manifest` checks (trusted URL + signature).
+    let (tx, mut rx) = tokio::sync::mpsc::channel::<anyhow::Result<Value>>(3);
+    let attempts: [(&'static reqwest::Client, &'static str); 3] = [
+        (manifest_client_ipv4(), update_policy::GITHUB_LATEST_MANIFEST_URL),
+        (manifest_client_default(), update_policy::GITHUB_LATEST_MANIFEST_URL),
+        (manifest_client_ipv4(), update_policy::SOLARA_API_UPDATE_MANIFEST_URL),
+    ];
+
+    let mut handles = Vec::with_capacity(attempts.len());
+    for (client, url) in attempts {
+        let tx = tx.clone();
+        handles.push(tokio::spawn(async move {
+            let res = fetch_manifest_from(client, url).await;
+            let _ = tx.send(res).await;
+        }));
+    }
+    drop(tx);
+
+    let mut last_err = anyhow!("Failed to fetch update manifest");
+    while let Some(result) = rx.recv().await {
+        match result {
+            Ok(manifest) => {
+                for handle in handles {
+                    handle.abort();
+                }
+                return Ok(manifest);
+            }
+            Err(err) => {
+                last_err = err;
+            }
+        }
+    }
+    Err(last_err)
 }
 
 /// Checks for an available signed update without downloading or applying it automatically.
@@ -505,6 +569,9 @@ pub fn start(app: tauri::AppHandle) {
             set_status(Some(&app), "development", None, None, 0, None, None);
             return;
         }
+        // Frontend triggers an immediate check on mount; wait before starting periodic polling
+        // so startup does not fire duplicate concurrent network checks.
+        tokio::time::sleep(Duration::from_secs(15)).await;
         loop {
             if READY.load(Ordering::SeqCst) {
                 let before_check = snapshot();
@@ -599,5 +666,14 @@ mod tests {
         );
         let pubkey = configured_pubkey().expect("updater.pub present");
         assert!(!pubkey.is_empty());
+
+        let api_url = reqwest::Url::parse(
+            update_policy::SOLARA_API_UPDATE_MANIFEST_URL,
+        )
+        .expect("valid api manifest url");
+        assert_eq!(api_url.scheme(), "https");
+        assert_eq!(api_url.host_str(), Some("api.solara-inc.in"));
+        let _ = manifest_client_ipv4();
+        let _ = manifest_client_default();
     }
 }

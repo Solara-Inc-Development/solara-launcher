@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara startup fix (V-0.0.67): resolve black screen on launch by passing appEvents and guarding early startup; signing stays private.
+# Solara V-0.0.68: redesigned Home hero with 3D animated skin, Solara news/updates rows, and fast parallel update checks; signing stays private.
 on:
   workflow_dispatch:
   push:

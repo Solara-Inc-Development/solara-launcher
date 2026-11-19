@@ -3,6 +3,9 @@ use serde_json::Value;
 pub const GITHUB_LATEST_MANIFEST_URL: &str =
     "https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/latest.json";
 
+pub const SOLARA_API_UPDATE_MANIFEST_URL: &str =
+    "https://api.solara-inc.in/v1/launcher/update/windows/x86_64";
+
 #[allow(dead_code)]
 pub fn is_trusted_update_asset_url(url: &str) -> bool {
     let Ok(parsed) = reqwest::Url::parse(url) else {

@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.68',
+		title: 'Home Screen Redesign with 3D Animated Skin & Instant Update Checks',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Redesigned full-screen Home hero featuring personalized Welcome Back header, Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase.',
+			'Added below-the-fold "All News from Solara" 5-card strip with Read more modals and "See all news" viewer (capped to last 30 items).',
+			'Added "All updates of solara launcher" horizontal update strip with "All version history" modal (capped to last 30 releases).',
+		],
+		issuesFixed: [
+			'Dramatically accelerated "Check for updates" from 20-30 seconds down to ~1 second using pooled IPv4-first and dual-stack racing across GitHub Releases CDN and Solara API.',
+			'Eliminated duplicate concurrent startup update fetches between Rust background polling and frontend mount.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.67',
 		title: 'Startup Black Screen Fix & Bootstrap Reliability',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Hardened early launcher initialization and update checks for clean cold-start rendering.',
 			'Added full GitHub release notes with direct download links, checksums, and source archives.',

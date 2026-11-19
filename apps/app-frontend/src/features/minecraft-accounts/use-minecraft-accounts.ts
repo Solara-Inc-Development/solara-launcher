@@ -10,8 +10,12 @@ import {
 	users,
 } from '@/helpers/auth'
 import { getPlayerHeadUrl } from '@/helpers/rendering/player-head'
-import type { Skin } from '@/helpers/skins'
-import { get_available_skins } from '@/helpers/skins'
+import type { Cape, Skin } from '@/helpers/skins'
+import {
+	get_available_capes,
+	get_available_skins,
+	get_normalized_skin_texture,
+} from '@/helpers/skins'
 import { type AppEvents, injectAppEvents } from '@/providers/app-events'
 
 export type MinecraftCredential = {
@@ -25,9 +29,40 @@ const accounts = ref<MinecraftCredential[]>([])
 const loginDisabled = ref(false)
 const defaultUser = ref<string | undefined>()
 const equippedSkin = ref<Skin | null>(null)
+const equippedSkinTexture = ref<string>('')
+const equippedCapeTexture = ref<string | undefined>(undefined)
+const availableCapes = ref<Cape[]>([])
 const equippedHeadUrl = ref<string | undefined>()
 let headRequest = 0
+let skinTextureRequest = 0
 let initialized = false
+
+async function updateSkinPreviewTexture(skin: Skin | null) {
+	const request = ++skinTextureRequest
+	if (!skin?.texture) {
+		equippedSkinTexture.value = ''
+		return
+	}
+	try {
+		const normalized = await get_normalized_skin_texture(skin)
+		if (request === skinTextureRequest) {
+			equippedSkinTexture.value = normalized || skin.texture
+		}
+	} catch {
+		if (request === skinTextureRequest) {
+			equippedSkinTexture.value = skin.texture.startsWith('data:image/') ? skin.texture : ''
+		}
+	}
+}
+
+function resolveEquippedCapeTexture(skin: Skin | null, capes: Cape[]): string | undefined {
+	if (skin?.cape_id) {
+		const matched = capes.find((c) => c.id === skin.cape_id)
+		if (matched?.texture) return matched.texture
+	}
+	const equipped = capes.find((c) => c.is_equipped)
+	return equipped?.texture
+}
 
 async function updateHeadUrl(skin: Skin | null) {
 	const request = ++headRequest
@@ -53,9 +88,19 @@ async function refreshValues() {
 		accounts.value = Array.isArray(userList) ? [...userList] : []
 		accounts.value.sort((a, b) => (a.profile?.name ?? '').localeCompare(b.profile?.name ?? ''))
 
-		const skins = await get_available_skins().catch(() => [])
-		equippedSkin.value = skins.find((skin) => skin.is_equipped) ?? null
-		await updateHeadUrl(equippedSkin.value)
+		const [skins, capes] = await Promise.all([
+			get_available_skins().catch(() => [] as Skin[]),
+			get_available_capes().catch(() => [] as Cape[]),
+		])
+		const skinList = Array.isArray(skins) ? skins : []
+		const capeList = Array.isArray(capes) ? capes : []
+		availableCapes.value = capeList
+		equippedSkin.value = skinList.find((skin) => skin.is_equipped) ?? skinList[0] ?? null
+		equippedCapeTexture.value = resolveEquippedCapeTexture(equippedSkin.value, capeList)
+		await Promise.all([
+			updateHeadUrl(equippedSkin.value),
+			updateSkinPreviewTexture(equippedSkin.value),
+		])
 	} catch (error) {
 		console.warn('Failed to refresh Minecraft account values:', error)
 	}
@@ -63,7 +108,8 @@ async function refreshValues() {
 
 async function setEquippedSkin(skin: Skin) {
 	equippedSkin.value = skin
-	await updateHeadUrl(skin)
+	equippedCapeTexture.value = resolveEquippedCapeTexture(skin, availableCapes.value)
+	await Promise.all([updateHeadUrl(skin), updateSkinPreviewTexture(skin)])
 }
 
 function setLoginDisabled(value: boolean) {
@@ -149,6 +195,8 @@ export function useMinecraftAccounts(customEvents?: AppEvents | null) {
 		username,
 		loginDisabled,
 		equippedSkin,
+		equippedSkinTexture,
+		equippedCapeTexture,
 		equippedHeadUrl,
 		avatarUrl,
 		getAccountAvatarUrl,
