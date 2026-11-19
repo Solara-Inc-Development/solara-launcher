@@ -81,7 +81,39 @@ export async function prepare(version,output){
   await mkdir(output,{recursive:true});
   for(const [name,bytes] of Object.entries(assets))await writeFile(path.join(output,name),bytes);
   await writeFile(path.join(output,'latest.json'),JSON.stringify(latestManifest,null,2)+'\n');
-  await writeFile(path.join(output,'release_notes.md'),`# Solara Launcher ${version}\n\n${release.notes}\n\nUpdater-signed Windows testing preview. Physical Windows install, game and update acceptance remain pending.\n`);
+  const exeSizeMb = (release.size / (1024 * 1024)).toFixed(2);
+  const srcSizeMb = release.artifacts?.['source.zip'] ? (release.artifacts['source.zip'].size / (1024 * 1024)).toFixed(2) : null;
+  const srcSha = release.artifacts?.['source.zip']?.sha256 || '';
+  const notesBody = [
+    `# Solara Launcher ${version}`,
+    '',
+    release.notes ? release.notes.trim() : '',
+    '',
+    '---',
+    '',
+    '### Downloads & Distributables',
+    '',
+    '| Asset | File | Size | SHA-256 Checksum |',
+    '| :--- | :--- | :--- | :--- |',
+    `| **Windows Installer** | [\`solaralauncher.exe\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/solaralauncher.exe) | ${exeSizeMb} MB | \`${release.sha256}\` |`,
+    `| **Signature (Minisign)** | [\`solaralauncher.exe.sig\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/solaralauncher.exe.sig) | 424 B | Minisign signature |`,
+    ...(srcSizeMb ? [`| **Exact Source Archive** | [\`source.zip\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/source.zip) | ${srcSizeMb} MB | \`${srcSha}\` |`] : []),
+    `| **Auto-Updater Manifest** | [\`latest.json\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/latest.json) | JSON | Schema v2 manifest |`,
+    '',
+    '### Source Code',
+    `- [**Source code (zip)**](https://github.com/Solara-Inc-Development/solara-launcher/archive/refs/tags/${version}.zip)`,
+    `- [**Source code (tar.gz)**](https://github.com/Solara-Inc-Development/solara-launcher/archive/refs/tags/${version}.tar.gz)`,
+    '',
+    '### Mirror Downloads',
+    `- [Portal Mirror (\`solaralauncher.exe\`)](https://app.solara-inc.in/builds/${version}/solaralauncher.exe)`,
+    `- [Portal Mirror (\`solaralauncher.exe.sig\`)](https://app.solara-inc.in/builds/${version}/solaralauncher.exe.sig)`,
+    `- [Portal Mirror (\`source.zip\`)](https://app.solara-inc.in/builds/${version}/source.zip)`,
+    '',
+    '---',
+    'Updater-signed Windows testing preview. Physical Windows install, game and update acceptance remain pending.',
+    ''
+  ].join('\n');
+  await writeFile(path.join(output,'release_notes.md'),notesBody);
   console.log(`Verified ${version}: installer signature/version, SHA-256, latest.json manifest and exact CI source archive.`);
 }
 
