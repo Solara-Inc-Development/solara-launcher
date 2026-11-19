@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.68 — Home Screen Redesign with 3D Animated Skin & Instant Update Checks (2026-11-19)
+
+- Redesigned Home Screen Hero: Full-viewport Welcome Back screen with indented player name, "Good To See You Back :]", rounded Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase matching the Skin Editor.
+- All News from Solara: Added a 5-card portrait news strip below the fold with "... Read more" modals and a "See all news" viewer capped to the latest 30 updates.
+- All Updates of Solara Launcher: Added a framed horizontal update strip with "... Read more" structured changelog modals and an "All version history" viewer capped to the latest 30 releases.
+- Fast Check for Updates: Replaced the unpooled 60s updater client with pooled IPv4-first and dual-stack clients racing GitHub Releases CDN and Solara API in parallel (eliminating 20-30s Windows IPv6 SYN stalls) and removed duplicate startup checks.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.67 — Startup Black Screen Fix & Bootstrap Reliability (2026-11-19)
 
 - Startup Fix: Resolved the blank black screen on launch caused by calling `useMinecraftAccounts()` inside root `App.vue` without passing `appEvents`.

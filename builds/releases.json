@@ -2250,6 +2250,49 @@
       "notes": "Solara Launcher Startup Black Screen Fix & Bootstrap Reliability\n\n- Startup Fix: Resolved the blank black screen on launch caused by calling useMinecraftAccounts() inside root App.vue without passing appEvents.\n- Update Check Ordering: Moved initial checkUpdates() to the post-mount lifecycle hook so update state variables and modals are initialized before startup update checks run.\n- Early Error Safety: Guarded useError() severe error reporting when an error occurs before ErrorModal mounts.\n- GitHub Release Assets & Notes: Release notes now include direct download links, SHA-256 checksums, and corresponding source code archives (.zip and .tar.gz).\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.67/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "ff7ab069-6c20-40cf-b3c4-75a79fec01f8",
+      "publicVersion": "V-0.0.68",
+      "internalVersion": "0.0.68",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.68/solaralauncher.exe",
+      "commit": "e54b67eeb30f36ca8884a65a88b330054d592082",
+      "allocatedAt": "2026-11-19T10:00:01.925Z",
+      "state": "published",
+      "applicationSha256": "d12b67fa7ee2598b97e9630363afe0623c07d6a2bfe1136e4bb6abc0940443f9",
+      "applicationSize": 41615872,
+      "sourceTree": "950c0535557b08b1ec93ed85d84f7405d46a27c3",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21512282,
+          "sha256": "a9f4a35ea1d97d36f9ba1d1742995b7a75f6ce34dc8e8cb9022c6b44c28fb55f"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41615872,
+          "sha256": "d12b67fa7ee2598b97e9630363afe0623c07d6a2bfe1136e4bb6abc0940443f9"
+        },
+        "source.zip": {
+          "size": 34020571,
+          "sha256": "7e4c10f735467a939c7bd400b1ec3d655ac32c1b7c452d4f88775f325c4a8c83"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21512282,
+      "sha256": "a9f4a35ea1d97d36f9ba1d1742995b7a75f6ce34dc8e8cb9022c6b44c28fb55f",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T10:53:09.331Z",
+      "verifiedAt": "2026-11-19T10:52:37.877Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDJ1eU9TTWpnUkg1V01FRCtnOE1aNzVxazQ4VVRYUUMraTVJWHpiTU9ycElxVThqTW1IRk1ad1phZUUxY2dIcHozd1RNOUxtSXRwRjlpTlFXRFJvTHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDg1NTU2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjY4CmRFRkJpeWY3Z2FUNHUxYXl5NmthdXl0cVZ1WjJ6MmdubWlHanI4UEl0MzZOWnJoTWVBMEhTck51RG1HNm9ZajJxVHBQOUlUWnI4NkdKZ1MvbWNCT0NRPT0K",
+      "notes": "Solara Launcher Home Screen Redesign with 3D Animated Skin & Instant Update Checks\n\n- Redesigned Home Screen Hero: Full-viewport Welcome Back screen with indented player name, \"Good To See You Back :]\", rounded Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase matching the Skin Editor.\n- All News from Solara: Added a 5-card portrait news strip below the fold with \"... Read more\" modals and a \"See all news\" viewer capped to the latest 30 updates.\n- All Updates of Solara Launcher: Added a framed horizontal update strip with \"... Read more\" structured changelog modals and an \"All version history\" viewer capped to the latest 30 releases.\n- Fast Check for Updates: Replaced the unpooled 60s updater client with pooled IPv4-first and dual-stack clients racing GitHub Releases CDN and Solara API in parallel (eliminating 20-30s Windows IPv6 SYN stalls) and removed duplicate startup checks.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.68/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
