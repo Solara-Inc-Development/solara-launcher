@@ -6,9 +6,9 @@ import {
 	ChevronRightIcon,
 	DropdownIcon,
 	ExternalIcon,
+	HomeIcon,
 	LogInIcon,
 	LogOutIcon,
-	PlayIcon,
 	SpinnerIcon,
 	TrashIcon,
 	UserPlusIcon,
@@ -39,7 +39,7 @@ useRootBreadcrumb({
 	id: 'home',
 	label: 'Home',
 	to: '/',
-	visual: { type: 'icon', component: PlayIcon },
+	visual: { type: 'icon', component: HomeIcon },
 })
 
 const mc = useMinecraftAccounts()

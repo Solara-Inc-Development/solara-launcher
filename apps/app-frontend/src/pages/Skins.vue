@@ -3,14 +3,22 @@ import {
 	CheckIcon,
 	EditIcon,
 	EyeIcon,
+	EyeOffIcon,
 	InfoIcon,
+	LayersIcon,
+	LogInIcon,
 	RotateCounterClockwiseIcon,
 	ShirtIcon,
+	SparklesIcon,
 	SpinnerIcon,
+	TrashIcon,
+	UploadIcon,
 	WindowsIcon,
+	XIcon,
 } from '@modrinth/assets'
 import {
 	Button,
+	CapeButton,
 	commonMessages,
 	ConfirmModal,
 	defineMessages,
@@ -27,8 +35,9 @@ import { computedAsync } from '@vueuse/core'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import EarsModIcon from '@/assets/skins/ears-mod.png'
+import defaultSteveSkin from '@/assets/skins/steve.png'
+import BakedSkinButton from '@/components/ui/skin/BakedSkinButton.vue'
 import EditSkinModal from '@/components/ui/skin/EditSkinModal.vue'
-import VirtualSkinSectionList from '@/components/ui/skin/VirtualSkinSectionList.vue'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { handleSevereError } from '@/composables/use-error.js'
 import { injectMinecraftAccounts } from '@/features/minecraft-accounts/context'
@@ -58,15 +67,13 @@ import { appMessages } from '@/utils/app-messages'
 useRootBreadcrumb({
 	slot: 'root',
 	id: 'skins',
-	label: 'Skin selector',
+	label: 'Skin Studio',
 	to: '/skins',
 	visual: { type: 'icon', component: ShirtIcon },
 })
 
 type UnlistenFn = () => void
-type VirtualSkinSectionListExpose = {
-	getAddSkinButtonElement: () => HTMLElement | null | undefined
-}
+type StudioTab = 'my-skins' | 'presets' | 'capes'
 
 const PENDING_SKIN_REFRESH_DELAY_MS = 11_000
 const DEFAULT_SKIN_SECTION_SORT_ORDER = ['Default skins']
@@ -205,7 +212,10 @@ const messages = defineMessages({
 
 const editSkinModal = useTemplateRef('editSkinModal')
 const addSkinFileInput = useTemplateRef<HTMLInputElement>('addSkinFileInput')
-const skinSectionList = useTemplateRef<VirtualSkinSectionListExpose>('skinSectionList')
+const studioDropzoneEl = ref<HTMLElement | null>(null)
+const studioTab = ref<StudioTab>('my-skins')
+const selectedPresetSection = ref<string>('all')
+const showNametagOverride = ref<boolean>(true)
 
 const { formatMessage } = useVIntl()
 const notifications = injectNotificationManager()
@@ -321,8 +331,38 @@ const skinTexture = computedAsync(async () => {
 	}
 })
 const capeTexture = computed(() => currentCape.value?.texture)
-const skinVariant = computed(() => selectedSkin.value?.variant)
-const skinNametag = computed(() => (appSettings.hideNametagSkinsPage ? undefined : username.value))
+const skinVariant = computed(() => selectedSkin.value?.variant ?? 'CLASSIC')
+const skinNametag = computed(() =>
+	!showNametagOverride.value || appSettings.hideNametagSkinsPage ? undefined : username.value,
+)
+const activeStudioTexture = computed(() => skinTexture.value || defaultSteveSkin)
+const filteredPresetSections = computed(() => {
+	if (selectedPresetSection.value === 'all') {
+		return defaultSkinSections.value
+	}
+	return defaultSkinSections.value.filter(
+		(section) => section.section === selectedPresetSection.value,
+	)
+})
+const canQuickToggleVariant = computed(
+	() => Boolean(selectedSkin.value) && selectedSkin.value?.source !== 'default',
+)
+
+function selectCapeForCurrentSkin(cape?: Cape) {
+	if (!selectedSkin.value || isSkinManagementReadOnly.value) return
+	selectedSkin.value = {
+		...selectedSkin.value,
+		cape_id: cape?.id,
+	}
+}
+
+function setQuickArmVariant(variant: 'CLASSIC' | 'SLIM') {
+	if (!selectedSkin.value || !canQuickToggleVariant.value || isSkinManagementReadOnly.value) return
+	selectedSkin.value = {
+		...selectedSkin.value,
+		variant,
+	}
+}
 const isSkinManagementReadOnly = computed(
 	() =>
 		!!currentUser.value &&
@@ -857,10 +897,10 @@ function isSkinFileDrag(event: DragEvent) {
 }
 
 function isPositionOverAddSkinButton(position: { x: number; y: number }) {
-	const element = skinSectionList.value?.getAddSkinButtonElement()
+	const element = studioDropzoneEl.value
 
 	if (!element) {
-		return false
+		return true
 	}
 
 	const { x, y } = position
@@ -1076,196 +1116,558 @@ await loadSkins()
 		@proceed="deleteSkin"
 	/>
 
-	<div class="skin-layout box-border grow p-4" :class="{ 'pb-40': !currentUser }">
-		<div class="sticky top-6 self-start p-2 pt-0">
-			<h1 class="m-0 text-2xl font-bold flex items-center gap-2">
-				{{ formatMessage(appMessages.skinSelectorLabel) }}
-			</h1>
-			<div
-				class="ml-5 mt-4 flex h-[calc(80vh-1rem)] items-center justify-center max-[700px]:h-[calc(50vh-1rem)]"
-			>
-				<SkinPreviewRenderer
-					:cape-src="capeTexture"
-					:texture-src="skinTexture || ''"
-					:ears-texture-src="selectedSkin?.texture"
-					:variant="skinVariant"
-					:nametag="skinNametag"
-					:initial-rotation="Math.PI / 8"
-					:ears-enabled="earsFeaturesEnabled"
-					@ears-features-detected="selectedSkinHasEarsFeatures = $event"
-				>
-					<template v-if="hasPendingSkinChange" #nametag-badge>
-						<div
-							class="flex items-center justify-center gap-1.5 rounded-full border border-solid border-brand-blue bg-bg-blue px-3 py-1 text-base font-semibold leading-6 text-brand-blue"
-						>
-							<EyeIcon class="size-5 shrink-0" />
-							{{ formatMessage(messages.previewingBadge) }}
-						</div>
-					</template>
-					<template #subtitle>
-						<div
-							class="skin-preview-subtitle flex w-full flex-col items-center gap-6"
-							:class="{ 'has-ears-features': selectedSkinHasEarsFeatures }"
-						>
-							<div
-								v-if="hasPendingSkinChange"
-								class="skin-preview-actions flex w-full items-center justify-center gap-1.5"
-								:class="selectedSkinHasEarsFeatures ? 'flex-nowrap' : 'flex-wrap'"
-							>
-								<Button
-									v-tooltip="
-										selectedSkinHasEarsFeatures
-											? formatMessage(commonMessages.resetButton)
-											: undefined
-									"
-									type="base"
-									size="lg"
-									class="skin-preview-action-button"
-									:disabled="isApplyingSkin || isSkinManagementReadOnly"
-									:aria-label="formatMessage(commonMessages.resetButton)"
-									@click="resetSelectedSkin"
-								>
-									<RotateCounterClockwiseIcon />
-									<span class="skin-preview-action-label">
-										{{ formatMessage(commonMessages.resetButton) }}
-									</span>
-								</Button>
-								<Button
-									v-tooltip="
-										!currentUser
-											? formatMessage(messages.demoApplyTooltip)
-											: selectedSkinHasEarsFeatures
-												? formatMessage(messages.applyButton)
-												: undefined
-									"
-									type="colored"
-									color="brand"
-									size="lg"
-									class="skin-preview-action-button"
-									:disabled="!currentUser || isApplyingSkin || isSkinManagementReadOnly"
-									:aria-label="formatMessage(messages.applyButton)"
-									@click="applySelectedSkin"
-								>
-									<SpinnerIcon v-if="isApplyingSkin" class="animate-spin" />
-									<CheckIcon v-else />
-									<span class="skin-preview-action-label">
-										{{ formatMessage(messages.applyButton) }}
-									</span>
-								</Button>
-							</div>
-							<Button
-								v-else
-								type="base"
-								size="lg"
-								:disabled="!selectedSkin || isSkinManagementReadOnly"
-								@click="(e: MouseEvent) => selectedSkin && editSkinModal?.show(e, selectedSkin)"
-							>
-								<EditIcon />
-								{{ formatMessage(messages.editSkinButton) }}
-							</Button>
+	<div class="solara-skin-studio w-full max-w-[1440px] mx-auto px-6 md:px-8 py-6 flex flex-col gap-6" :class="{ 'pb-28': !currentUser }">
+		<!-- ============================================================
+		     TOP SOLARA STUDIO COMMAND BAR
+		     ============================================================ -->
+		<header class="solara-studio-header rounded-2xl border border-solid border-surface-5 bg-surface-2/85 backdrop-blur-md px-5 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+			<div class="flex flex-col gap-1">
+				<div class="flex items-center gap-2.5 flex-wrap">
+					<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-[0.16em] bg-brand/12 text-brand border border-solid border-brand/25">
+						<SparklesIcon class="size-3" />
+						<span>Solara Skin Studio</span>
+					</span>
+					<span
+						v-if="username"
+						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-contrast border border-solid border-surface-5"
+					>
+						<span class="size-1.5 rounded-full bg-emerald-500" />
+						<span>{{ username }}</span>
+					</span>
+					<span
+						v-else
+						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-secondary border border-solid border-surface-5"
+					>
+						<span>Guest Preview</span>
+					</span>
+				</div>
+				<h1 class="m-0 text-2xl md:text-3xl font-black text-contrast tracking-tight">
+					Wardrobe &amp; Cape Editor
+				</h1>
+			</div>
 
-							<div
-								v-if="selectedSkinHasEarsFeatures"
-								class="ears-feature-notice box-border flex w-full max-w-[340px] items-center justify-center gap-1.5 px-2"
-							>
-								<div class="ears-feature-copy flex min-w-0 flex-1 items-center gap-1.5">
-									<img
-										:src="EarsModIcon"
-										alt=""
-										class="size-10 shrink-0 rounded-[7px] border border-solid border-surface-5 object-cover"
-									/>
-									<p
-										class="ears-feature-description m-0 min-w-0 flex-1 text-sm font-medium leading-5 text-primary"
-									>
-										{{ earsFeatureNoticeParts.before
-										}}<router-link
-											v-if="earsFeatureNoticeParts.hasEarsLink"
-											to="/project/mfzaZK3Z"
-											class="text-inherit underline"
-											>Ears</router-link
-										>{{ earsFeatureNoticeParts.after }}
-									</p>
-									<router-link
-										to="/project/mfzaZK3Z"
-										class="ears-feature-compact-label hidden min-w-0 flex-1 text-sm font-medium leading-5 text-primary underline"
-										>Ears</router-link
-									>
-								</div>
-								<Button
-									type="outlined"
-									size="lg"
-									class="ears-feature-toggle-button shadow-md"
-									:aria-pressed="earsFeaturesEnabled"
-									:aria-label="
-										formatMessage(
-											earsFeaturesEnabled
-												? messages.toggleEarsFeaturesOff
-												: messages.toggleEarsFeaturesOn,
-										)
-									"
-									@click="earsFeaturesEnabled = !earsFeaturesEnabled"
+			<div class="flex flex-wrap items-center gap-3">
+				<!-- Segmented Studio Tabs -->
+				<div class="inline-flex items-center gap-1 p-1 rounded-xl bg-surface-3 border border-solid border-surface-5">
+					<button
+						type="button"
+						class="solara-studio-tab px-3.5 py-1.5 rounded-lg text-xs font-bold border-0 cursor-pointer transition-all flex items-center gap-1.5"
+						:class="
+							studioTab === 'my-skins'
+								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="studioTab = 'my-skins'"
+					>
+						<ShirtIcon class="size-3.5" />
+						<span>My Skins</span>
+						<span class="opacity-80">({{ savedSkins.length }})</span>
+					</button>
+					<button
+						type="button"
+						class="solara-studio-tab px-3.5 py-1.5 rounded-lg text-xs font-bold border-0 cursor-pointer transition-all flex items-center gap-1.5"
+						:class="
+							studioTab === 'presets'
+								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="studioTab = 'presets'"
+					>
+						<LayersIcon class="size-3.5" />
+						<span>Presets</span>
+						<span class="opacity-80">({{ defaultSkins.length }})</span>
+					</button>
+					<button
+						type="button"
+						class="solara-studio-tab px-3.5 py-1.5 rounded-lg text-xs font-bold border-0 cursor-pointer transition-all flex items-center gap-1.5"
+						:class="
+							studioTab === 'capes'
+								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="studioTab = 'capes'"
+					>
+						<SparklesIcon class="size-3.5" />
+						<span>Capes</span>
+						<span class="opacity-80">({{ capes.length }})</span>
+					</button>
+				</div>
+
+				<Button
+					type="colored"
+					color="brand"
+					size="md"
+					:disabled="isSkinManagementReadOnly"
+					@click="openAddSkinFileBrowser"
+				>
+					<UploadIcon class="size-4" />
+					<span>Upload .PNG</span>
+				</Button>
+			</div>
+		</header>
+
+		<!-- ============================================================
+		     MAIN 2-PANEL STUDIO WORKSPACE
+		     Left (~62%): Wardrobe / Presets / Cape Vault
+		     Right (~38%): Sticky Elevated 3D Character Pedestal Card
+		     ============================================================ -->
+		<div class="solara-studio-grid">
+			<!-- LEFT PANEL: WARDROBE & CAPE DECK -->
+			<section class="flex flex-col gap-5 min-w-0">
+				<!-- TAB 1: MY SKINS -->
+				<template v-if="studioTab === 'my-skins'">
+					<!-- Interactive Drag & Drop Upload Banner -->
+					<div
+						ref="studioDropzoneEl"
+						class="solara-dropzone rounded-2xl border-2 border-dashed p-5 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer transition-all"
+						:class="
+							isAddSkinButtonDragActive
+								? 'border-brand bg-brand/10 shadow-lg'
+								: 'border-surface-5 bg-surface-2/60 hover:border-brand/50 hover:bg-surface-2'
+						"
+						@click="openAddSkinFileBrowser"
+						@dragenter.prevent="onAddSkinDragOver"
+						@dragover.prevent="onAddSkinDragOver"
+						@dragleave.prevent="onAddSkinDragLeave"
+						@drop.prevent="onAddSkinDrop"
+					>
+						<div class="flex items-center gap-4">
+							<div class="size-12 rounded-2xl bg-brand/15 border border-solid border-brand/30 flex items-center justify-center text-brand shrink-0">
+								<UploadIcon class="size-6" />
+							</div>
+							<div class="flex flex-col gap-0.5 text-center sm:text-left">
+								<span class="text-sm font-bold text-contrast">
+									{{ isAddSkinButtonDragActive ? 'Drop your Minecraft skin .PNG now' : 'Import a Custom Skin (.PNG)' }}
+								</span>
+								<span class="text-xs text-secondary">
+									Click to browse or drag and drop a 64x64 / 64x32 Minecraft skin file directly here.
+								</span>
+							</div>
+						</div>
+						<Button type="outlined" size="sm" :disabled="isSkinManagementReadOnly" @click.stop="openAddSkinFileBrowser">
+							Choose File
+						</Button>
+					</div>
+
+					<!-- Saved Skins Grid -->
+					<div v-if="savedSkins.length > 0" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+						<div
+							v-for="skin in savedSkins"
+							:key="skin.texture_key"
+							class="solara-skin-card group relative rounded-2xl border border-solid p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
+							:class="
+								isSkinSelected(skin)
+									? 'border-brand bg-brand/8 shadow-md'
+									: 'border-surface-5 bg-surface-2 hover:border-brand/45 hover:bg-surface-3/70'
+							"
+							@click="changeSkin(skin)"
+						>
+							<div class="flex items-center justify-between gap-1 px-1">
+								<span
+									v-if="isSkinActive(skin)"
+									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-solid border-emerald-500/30"
 								>
-									{{
-										formatMessage(
-											earsFeaturesEnabled
-												? messages.toggleEarsFeaturesOff
-												: messages.toggleEarsFeaturesOn,
-										)
-									}}
-								</Button>
-								<Toggle
-									v-model="earsFeaturesEnabled"
-									v-tooltip="
-										formatMessage(
-											earsFeaturesEnabled
-												? messages.toggleEarsFeaturesOff
-												: messages.toggleEarsFeaturesOn,
-										)
-									"
-									small
-									class="ears-feature-toggle-switch"
+									<span class="size-1.5 rounded-full bg-emerald-400" />
+									Active
+								</span>
+								<span
+									v-else-if="isSkinSelected(skin)"
+									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand border border-solid border-brand/30"
+								>
+									Preview
+								</span>
+								<span v-else class="text-[10px] font-semibold uppercase tracking-wider text-secondary">
+									{{ skin.variant === 'SLIM' ? 'Slim' : 'Classic' }}
+								</span>
+
+								<div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+									<button
+										type="button"
+										title="Customize skin"
+										:disabled="isSkinManagementReadOnly"
+										class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/50 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors"
+										@click.stop="(e: MouseEvent) => editSkinModal?.show(e, skin)"
+									>
+										<EditIcon class="size-3.5" />
+									</button>
+									<button
+										v-if="skin.source === 'custom'"
+										type="button"
+										title="Delete skin"
+										:disabled="isSkinManagementReadOnly"
+										class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-red/50 hover:text-red text-secondary flex items-center justify-center cursor-pointer transition-colors"
+										@click.stop="confirmDeleteSkin(skin)"
+									>
+										<TrashIcon class="size-3.5" />
+									</button>
+								</div>
+							</div>
+
+							<div class="solara-skin-card-thumb rounded-xl overflow-hidden bg-surface-3/60">
+								<BakedSkinButton
+									:skin="skin"
+									:capes="capes"
+									:selected="isSkinSelected(skin)"
+									class="w-full"
+									@select="changeSkin(skin)"
 								/>
 							</div>
 						</div>
-					</template>
-				</SkinPreviewRenderer>
-			</div>
-		</div>
+					</div>
 
-		<div class="pt-2">
-			<VirtualSkinSectionList
-				ref="skinSectionList"
-				:saved-skins="savedSkins"
-				:default-skin-sections="defaultSkinSections"
-				:capes="capes"
-				:is-skin-selected="isSkinSelected"
-				:is-skin-active="isSkinActive"
-				:is-add-skin-button-drag-active="isAddSkinButtonDragActive"
-				:read-only="isSkinManagementReadOnly"
-				@select="changeSkin"
-				@edit="(skin, event) => editSkinModal?.show(event, skin)"
-				@delete="confirmDeleteSkin"
-				@reorder-saved-skins="reorderSavedSkins"
-				@add-skin="openAddSkinFileBrowser"
-				@add-skin-dragenter="onAddSkinDragOver"
-				@add-skin-dragover="onAddSkinDragOver"
-				@add-skin-dragleave="onAddSkinDragLeave"
-				@add-skin-drop="onAddSkinDrop"
-			/>
+					<!-- Friendly Empty Wardrobe State -->
+					<div
+						v-else
+						class="rounded-2xl border border-solid border-surface-5 bg-surface-2/70 p-8 text-center flex flex-col items-center gap-3"
+					>
+						<div class="size-12 rounded-2xl bg-surface-3 border border-solid border-surface-5 flex items-center justify-center text-secondary">
+							<ShirtIcon class="size-6" />
+						</div>
+						<div class="flex flex-col gap-1 max-w-md">
+							<h3 class="m-0 text-base font-bold text-contrast">Your Custom Wardrobe Is Empty</h3>
+							<p class="m-0 text-xs text-secondary leading-relaxed">
+								Upload a custom Minecraft .PNG skin above, or browse built-in presets to get started right away.
+							</p>
+						</div>
+						<div class="flex items-center gap-2.5 mt-1">
+							<Button type="colored" color="brand" size="sm" :disabled="isSkinManagementReadOnly" @click="openAddSkinFileBrowser">
+								<UploadIcon class="size-4" />
+								Upload Skin
+							</Button>
+							<Button type="outlined" size="sm" @click="studioTab = 'presets'">
+								Browse Presets
+							</Button>
+						</div>
+					</div>
+				</template>
+
+				<!-- TAB 2: BUILT-IN PRESETS -->
+				<template v-else-if="studioTab === 'presets'">
+					<!-- Section Filter Pills -->
+					<div class="flex items-center gap-2 flex-wrap">
+						<button
+							type="button"
+							class="px-3 py-1.5 rounded-full text-xs font-bold border border-solid cursor-pointer transition-all"
+							:class="
+								selectedPresetSection === 'all'
+									? 'bg-brand text-[var(--color-accent-contrast)] border-brand'
+									: 'bg-surface-2 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+							"
+							@click="selectedPresetSection = 'all'"
+						>
+							All Presets
+						</button>
+						<button
+							v-for="section in defaultSkinSections"
+							:key="section.section"
+							type="button"
+							class="px-3 py-1.5 rounded-full text-xs font-bold border border-solid cursor-pointer transition-all"
+							:class="
+								selectedPresetSection === section.section
+									? 'bg-brand text-[var(--color-accent-contrast)] border-brand'
+									: 'bg-surface-2 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+							"
+							@click="selectedPresetSection = section.section"
+						>
+							{{ section.title }} ({{ section.skins.length }})
+						</button>
+					</div>
+
+					<div class="flex flex-col gap-6">
+						<div
+							v-for="section in filteredPresetSections"
+							:key="section.section"
+							class="flex flex-col gap-3"
+						>
+							<div class="flex items-center justify-between">
+								<h2 class="m-0 text-sm font-extrabold uppercase tracking-wider text-secondary">
+									{{ section.title }}
+								</h2>
+								<span class="text-xs text-secondary">{{ section.skins.length }} skins</span>
+							</div>
+
+							<div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
+								<div
+									v-for="skin in section.skins"
+									:key="skin.texture_key"
+									class="solara-skin-card group relative rounded-2xl border border-solid p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
+									:class="
+										isSkinSelected(skin)
+											? 'border-brand bg-brand/8 shadow-md'
+											: 'border-surface-5 bg-surface-2 hover:border-brand/45 hover:bg-surface-3/70'
+									"
+									@click="changeSkin(skin)"
+								>
+									<div class="flex items-center justify-between gap-1 px-1">
+										<span
+											v-if="isSkinActive(skin)"
+											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-solid border-emerald-500/30"
+										>
+											Active
+										</span>
+										<span
+											v-else-if="isSkinSelected(skin)"
+											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand border border-solid border-brand/30"
+										>
+											Preview
+										</span>
+										<span v-else class="text-[10px] font-semibold uppercase tracking-wider text-secondary">
+											{{ skin.variant === 'SLIM' ? 'Slim' : 'Classic' }}
+										</span>
+
+										<button
+											type="button"
+											title="Customize with cape"
+											:disabled="isSkinManagementReadOnly"
+											class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/50 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors opacity-80 group-hover:opacity-100"
+											@click.stop="(e: MouseEvent) => editSkinModal?.show(e, skin)"
+										>
+											<EditIcon class="size-3.5" />
+										</button>
+									</div>
+
+									<div class="solara-skin-card-thumb rounded-xl overflow-hidden bg-surface-3/60">
+										<BakedSkinButton
+											:skin="skin"
+											:capes="capes"
+											:selected="isSkinSelected(skin)"
+											class="w-full"
+											@select="changeSkin(skin)"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</template>
+
+				<!-- TAB 3: CAPE VAULT -->
+				<template v-else>
+					<div class="rounded-2xl border border-solid border-surface-5 bg-surface-2/80 p-5 flex flex-col gap-4">
+						<div class="flex items-center justify-between gap-2">
+							<div class="flex flex-col gap-0.5">
+								<h2 class="m-0 text-base font-extrabold text-contrast">Cape Vault</h2>
+								<p class="m-0 text-xs text-secondary">
+									Click any unlocked cape to preview it live on your 3D character, then hit Apply Skin.
+								</p>
+							</div>
+							<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-3 text-contrast border border-solid border-surface-5">
+								{{ capes.length }} Available
+							</span>
+						</div>
+
+						<div class="flex flex-wrap gap-3">
+							<!-- No Cape Option -->
+							<button
+								type="button"
+								class="solara-cape-none-card w-[5.75rem] h-[7.25rem] rounded-xl border-2 border-solid flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
+								:class="
+									!currentCape
+										? 'border-brand bg-brand/10 text-brand'
+										: 'border-surface-5 bg-surface-3 text-secondary hover:border-brand/40 hover:text-contrast'
+								"
+								@click="selectCapeForCurrentSkin(undefined)"
+							>
+								<XIcon class="size-5" />
+								<span class="text-xs font-bold">No Cape</span>
+							</button>
+
+							<CapeButton
+								v-for="cape in capes"
+								:id="cape.id"
+								:key="cape.id"
+								:texture="cape.texture"
+								:name="cape.name || 'Cape'"
+								:selected="currentCape?.id === cape.id"
+								@select="selectCapeForCurrentSkin(cape)"
+							/>
+						</div>
+
+						<div
+							v-if="capes.length === 0"
+							class="rounded-xl border border-solid border-surface-5 bg-surface-3/60 p-4 text-xs text-secondary"
+						>
+							{{ currentUser ? 'No Minecraft capes found on this account yet.' : 'Sign in with your Microsoft account to view and equip your unlocked Minecraft capes.' }}
+						</div>
+					</div>
+				</template>
+			</section>
+
+			<!-- RIGHT PANEL: STICKY ELEVATED 3D CHARACTER PEDESTAL -->
+			<aside class="solara-pedestal-col lg:sticky lg:top-6 self-start">
+				<div class="solara-pedestal-card relative rounded-3xl border border-solid border-surface-5 bg-surface-2/90 p-5 flex flex-col gap-4 shadow-xl overflow-hidden">
+					<div class="solara-pedestal-ambient pointer-events-none absolute inset-0" />
+
+					<!-- Pedestal Top Bar: Status + Arm Toggle + Nametag Toggle -->
+					<div class="relative z-10 flex items-center justify-between gap-2 flex-wrap">
+						<span
+							v-if="hasPendingSkinChange"
+							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/15 text-brand border border-solid border-brand/35"
+						>
+							<EyeIcon class="size-3.5" />
+							<span>{{ formatMessage(messages.previewingBadge) }}</span>
+						</span>
+						<span
+							v-else
+							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/12 text-emerald-400 border border-solid border-emerald-500/30"
+						>
+							<span class="size-2 rounded-full bg-emerald-400" />
+							<span>{{ currentUser ? 'Equipped' : 'Preview' }}</span>
+						</span>
+
+						<div class="flex items-center gap-1.5">
+							<!-- Quick Classic / Slim Switcher -->
+							<div
+								v-if="canQuickToggleVariant"
+								class="inline-flex p-0.5 rounded-lg bg-surface-3 border border-solid border-surface-5"
+							>
+								<button
+									type="button"
+									class="px-2 py-1 rounded-md text-[11px] font-bold border-0 cursor-pointer transition-colors"
+									:class="
+										skinVariant !== 'SLIM'
+											? 'bg-brand text-[var(--color-accent-contrast)]'
+											: 'bg-transparent text-secondary hover:text-contrast'
+									"
+									@click="setQuickArmVariant('CLASSIC')"
+								>
+									Classic
+								</button>
+								<button
+									type="button"
+									class="px-2 py-1 rounded-md text-[11px] font-bold border-0 cursor-pointer transition-colors"
+									:class="
+										skinVariant === 'SLIM'
+											? 'bg-brand text-[var(--color-accent-contrast)]'
+											: 'bg-transparent text-secondary hover:text-contrast'
+									"
+									@click="setQuickArmVariant('SLIM')"
+								>
+									Slim
+								</button>
+							</div>
+							<span
+								v-else
+								class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-3 text-secondary border border-solid border-surface-5"
+							>
+								{{ skinVariant === 'SLIM' ? 'Slim' : 'Classic' }}
+							</span>
+
+							<!-- Nametag Toggle -->
+							<button
+								type="button"
+								:title="showNametagOverride ? 'Hide nametag' : 'Show nametag'"
+								class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/45 text-secondary hover:text-contrast flex items-center justify-center cursor-pointer transition-colors"
+								@click="showNametagOverride = !showNametagOverride"
+							>
+								<EyeIcon v-if="showNametagOverride" class="size-3.5" />
+								<EyeOffIcon v-else class="size-3.5" />
+							</button>
+						</div>
+					</div>
+
+					<!-- 3D Animated Character Viewport -->
+					<div class="relative z-10 w-full h-[24rem] xl:h-[27rem] flex items-center justify-center">
+						<SkinPreviewRenderer
+							:cape-src="capeTexture"
+							:texture-src="activeStudioTexture"
+							:ears-texture-src="selectedSkin?.texture"
+							:variant="skinVariant"
+							:nametag="skinNametag"
+							framing="modal"
+							:initial-rotation="-Math.PI / 10"
+							:ears-enabled="earsFeaturesEnabled"
+							class="h-full w-full"
+							@ears-features-detected="selectedSkinHasEarsFeatures = $event"
+						/>
+					</div>
+
+					<!-- Ears Mod Notice (if detected) -->
+					<div
+						v-if="selectedSkinHasEarsFeatures"
+						class="relative z-10 rounded-xl border border-solid border-surface-5 bg-surface-3/80 px-3 py-2.5 flex items-center justify-between gap-2.5"
+					>
+						<div class="flex items-center gap-2 min-w-0">
+							<img
+								:src="EarsModIcon"
+								alt=""
+								class="size-8 shrink-0 rounded-md border border-solid border-surface-5 object-cover"
+							/>
+							<span class="text-xs font-semibold text-primary truncate">Ears mod features</span>
+						</div>
+						<Toggle v-model="earsFeaturesEnabled" small />
+					</div>
+
+					<!-- Pedestal Bottom Action Dock -->
+					<div class="relative z-10 pt-3 border-0 border-t border-solid border-surface-5 flex items-center gap-2.5">
+						<template v-if="hasPendingSkinChange">
+							<Button
+								type="outlined"
+								size="md"
+								class="flex-1 justify-center"
+								:disabled="isApplyingSkin || isSkinManagementReadOnly"
+								@click="resetSelectedSkin"
+							>
+								<RotateCounterClockwiseIcon class="size-4" />
+								<span>{{ formatMessage(commonMessages.resetButton) }}</span>
+							</Button>
+							<Button
+								v-tooltip="!currentUser ? formatMessage(messages.demoApplyTooltip) : undefined"
+								type="colored"
+								color="brand"
+								size="md"
+								class="flex-1 justify-center"
+								:disabled="!currentUser || isApplyingSkin || isSkinManagementReadOnly"
+								@click="applySelectedSkin"
+							>
+								<SpinnerIcon v-if="isApplyingSkin" class="size-4 animate-spin" />
+								<CheckIcon v-else class="size-4" />
+								<span>{{ formatMessage(messages.applyButton) }}</span>
+							</Button>
+						</template>
+						<template v-else>
+							<Button
+								type="outlined"
+								size="md"
+								class="flex-1 justify-center"
+								:disabled="!selectedSkin || isSkinManagementReadOnly"
+								@click="(e: MouseEvent) => selectedSkin && editSkinModal?.show(e, selectedSkin)"
+							>
+								<EditIcon class="size-4" />
+								<span>Customize</span>
+							</Button>
+							<Button
+								type="colored"
+								color="brand"
+								size="md"
+								class="flex-1 justify-center"
+								:disabled="isSkinManagementReadOnly"
+								@click="openAddSkinFileBrowser"
+							>
+								<UploadIcon class="size-4" />
+								<span>Upload</span>
+							</Button>
+						</template>
+					</div>
+				</div>
+			</aside>
 		</div>
 	</div>
 
-	<div v-if="!currentUser" class="sticky w-full bottom-0 z-20 p-4 pt-0">
+	<!-- Guest Sign-In Strip (when not signed in) -->
+	<div v-if="!currentUser" class="sticky w-full bottom-0 z-20 px-6 pb-4">
 		<div
-			class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 rounded-[20px] border border-solid border-surface-5 bg-surface-3 p-4"
+			class="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 rounded-2xl border border-solid border-brand/35 bg-surface-2/95 backdrop-blur-xl px-5 py-3.5 shadow-xl"
 		>
-			<div class="flex min-w-0 grow items-start gap-3">
-				<InfoIcon class="size-6 shrink-0 text-blue" />
-				<div class="flex min-w-0 flex-col gap-1">
-					<p class="m-0 text-lg font-semibold leading-6 text-contrast">
+			<div class="flex min-w-0 items-center gap-3">
+				<div class="size-9 rounded-xl bg-brand/15 text-brand flex items-center justify-center shrink-0">
+					<InfoIcon class="size-5" />
+				</div>
+				<div class="flex min-w-0 flex-col">
+					<p class="m-0 text-sm font-bold text-contrast">
 						{{ formatMessage(messages.demoTitle) }}
 					</p>
-					<p class="m-0 text-base leading-6 text-primary">
+					<p class="m-0 text-xs text-secondary">
 						{{ formatMessage(messages.demoDescription) }}
 					</p>
 				</div>
@@ -1274,70 +1676,54 @@ await loadSkins()
 				v-show="minecraftAccounts"
 				type="colored"
 				color="brand"
+				size="md"
 				:disabled="minecraftAccounts?.loginDisabled"
 				@click="login"
 			>
-				<SpinnerIcon v-if="minecraftAccounts?.loginDisabled" class="animate-spin" />
-				<WindowsIcon v-else />
-				{{ formatMessage(messages.signInButton) }}
+				<SpinnerIcon v-if="minecraftAccounts?.loginDisabled" class="size-4 animate-spin" />
+				<LogInIcon v-else class="size-4" />
+				<span>Sign In</span>
 			</Button>
 		</div>
 	</div>
 </template>
 
 <style lang="scss" scoped>
-.skin-preview-subtitle {
-	container-type: inline-size;
-}
-
-.ears-feature-toggle-switch {
-	display: none;
-}
-
-@container (max-width: 300px) {
-	.skin-preview-subtitle {
-		gap: 0.75rem;
-	}
-
-	.has-ears-features .skin-preview-action-button {
-		padding-left: 0 !important;
-		padding-right: 0 !important;
-		width: 2.5rem;
-	}
-
-	.has-ears-features .skin-preview-action-label {
-		display: none;
-	}
-
-	.ears-feature-toggle-button {
-		display: none !important;
-	}
-
-	.ears-feature-notice {
-		padding-left: 0;
-		padding-right: 0;
-	}
-
-	.ears-feature-description {
-		display: none;
-	}
-
-	.ears-feature-compact-label {
-		display: block;
-	}
-
-	.ears-feature-toggle-switch {
-		display: inline-flex;
-	}
-}
-
-.skin-layout {
+.solara-studio-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
-	gap: 2.5rem;
+	grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 1fr);
+	gap: 1.75rem;
+	align-items: start;
 
-	@media (max-width: 700px) {
+	@media (max-width: 980px) {
 		grid-template-columns: 1fr;
 	}
+}
+
+.solara-pedestal-ambient {
+	background: radial-gradient(
+		65% 55% at 50% 45%,
+		color-mix(in srgb, var(--color-brand) 14%, transparent) 0%,
+		transparent 72%
+	);
+}
+
+.solara-skin-card {
+	transition:
+		transform 0.16s ease,
+		border-color 0.16s ease,
+		background-color 0.16s ease,
+		box-shadow 0.16s ease;
+}
+
+.solara-skin-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--color-brand) 40%, transparent);
+}
+
+.solara-skin-card-thumb :deep(button) {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
 }
 </style>

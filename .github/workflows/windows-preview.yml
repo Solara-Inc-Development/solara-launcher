@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.69: premium centered Home hero with far-right edge-docked 3D animated player skin; signing stays private.
+# Solara V-0.0.70: original Solara Skin Studio (Wardrobe & Cape Editor + right 3D pedestal) and sidebar HomeIcon; signing stays private.
 on:
   workflow_dispatch:
   push:

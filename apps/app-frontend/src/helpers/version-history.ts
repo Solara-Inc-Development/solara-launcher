@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.70',
+		title: 'Original Solara Skin Studio & Sidebar Home Icon',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Redesigned the Skins page into an original Solara Skin Studio with a top Wardrobe & Cape Editor command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop .PNG banner, and dedicated Cape Vault.',
+			'Moved the 3D animated character viewer into a sticky elevated right-side pedestal card with Classic/Slim quick switcher, nametag toggle, and live Apply/Reset/Customize dock.',
+			'Changed the sidebar Home navigation button and top breadcrumb icon to a clean Home icon.',
+			'Includes the centered premium Home hero with edge-docked 3D animated player skin.',
+		],
+		issuesFixed: [
+			'Resolved dropdown stacking overlap on the centered Home hero and streamlined skin/cape preview switching.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.69',
 		title: 'Premium Centered Home Hero & Edge-Docked 3D Player Skin',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Centered the Welcome Back header, gradient player name, greeting, and Sign In / Account pill right in the heart of the Home screen.',
 			'Docked the live 3D animated player skin cleanly to the far right side, angled subtly toward the welcome hero.',

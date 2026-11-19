@@ -4,6 +4,7 @@ import {
 	ArrowBigUpDashIcon,
 	ArrowLeftRightIcon,
 	CompassIcon,
+	HomeIcon,
 	ImageIcon,
 	LogInIcon,
 	LogOutIcon,
@@ -1901,7 +1902,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 						(route.path.startsWith('/browse') || route.path.startsWith('/project')) && route.query.i
 				"
 			>
-				<PlayIcon class="ml-0.5" />
+				<HomeIcon />
 			</NavButton>
 			<NavButton
 				v-tooltip.right="'ModPackInstaller'"
@@ -1915,7 +1916,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			</NavButton>
 			<NavButton
 				v-if="appSettings.showSkinSelectorInSidebar"
-				v-tooltip.right="formatMessage(appMessages.skinSelectorLabel)"
+				v-tooltip.right="'Skin Studio'"
 				to="/skins"
 			>
 				<ShirtIcon />
