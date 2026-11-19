@@ -2293,6 +2293,49 @@
       "notes": "Solara Launcher Home Screen Redesign with 3D Animated Skin & Instant Update Checks\n\n- Redesigned Home Screen Hero: Full-viewport Welcome Back screen with indented player name, \"Good To See You Back :]\", rounded Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase matching the Skin Editor.\n- All News from Solara: Added a 5-card portrait news strip below the fold with \"... Read more\" modals and a \"See all news\" viewer capped to the latest 30 updates.\n- All Updates of Solara Launcher: Added a framed horizontal update strip with \"... Read more\" structured changelog modals and an \"All version history\" viewer capped to the latest 30 releases.\n- Fast Check for Updates: Replaced the unpooled 60s updater client with pooled IPv4-first and dual-stack clients racing GitHub Releases CDN and Solara API in parallel (eliminating 20-30s Windows IPv6 SYN stalls) and removed duplicate startup checks.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.68/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "7ff6b591-63bc-47fb-a5a4-8d8afe8549f3",
+      "publicVersion": "V-0.0.70",
+      "internalVersion": "0.0.70",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.70/solaralauncher.exe",
+      "commit": "2c25af9ff8f4be173009c48417a468d92a144bfb",
+      "allocatedAt": "2026-11-19T13:08:19.405Z",
+      "state": "published",
+      "applicationSha256": "1ac65284cf912bab462fa74552edbfa645ddd3828be084353ef5bf17772a7645",
+      "applicationSize": 41515520,
+      "sourceTree": "4c27a7c8b4c572df25fc351201d249fa5894b49b",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21453374,
+          "sha256": "7e7726ce1e897580fe36db6bcadad4b92f59d3460ea4d0b5ad45bac7364ada08"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41515520,
+          "sha256": "1ac65284cf912bab462fa74552edbfa645ddd3828be084353ef5bf17772a7645"
+        },
+        "source.zip": {
+          "size": 34026087,
+          "sha256": "44140c75421d38f60df1ad29cd421441928436e3728a54a9f2f3ee8f8429c577"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21453374,
+      "sha256": "7e7726ce1e897580fe36db6bcadad4b92f59d3460ea4d0b5ad45bac7364ada08",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T13:24:41.646Z",
+      "verifiedAt": "2026-11-19T13:24:16.580Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDAzejNnVTZTdndBTUdvdVFjc3hmRW5RcnNvckdkRVlMZFIraGlNbFBmREhCUC9maGhLZWNNbkFQaG5FNUEzOTlsYStZM3AySFpiR2ZnWTNlVHdQRkFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDk0NjU1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjcwCmRNMDlEMTZKRFRYYVhNeXNldFZWbUcxd2ZyWUd6cDB3L2dyRE56S20wcnBuVEJtT2IyczRyT3BXWElUUDFwWHFnYjhQOWEreDUxNWlJTFFyVDVnTEFnPT0K",
+      "notes": "Solara Launcher Original Skin Studio, Centered Home Hero & Sidebar Home Icon\n\n- Original Solara Skin Studio: Completely redesigned Wardrobe & Cape Editor with a top command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop .PNG import banner, dedicated Cape Vault, and an elevated right-side 3D animated character pedestal with Classic/Slim quick switcher and nametag toggle.\n- Sidebar Home Icon: Replaced the sidebar Home navigation button and top breadcrumb icon with a clean Home icon, and renamed the Skins tooltip to Skin Studio.\n- Premium Centered Home Hero: Centered the Welcome Back header, cyan gradient player name, greeting, and Sign In / Account dropdown pill right in the center of the Home screen with the 3D animated player skin cleanly docked to the far right edge.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.70/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

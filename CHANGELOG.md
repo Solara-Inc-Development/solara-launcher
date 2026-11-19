@@ -1,5 +1,12 @@
 # Changelog
 
+## V-0.0.70 — Original Solara Skin Studio, Centered Home Hero & Sidebar Home Icon (2026-11-19)
+
+- Original Solara Skin Studio: Completely redesigned Wardrobe & Cape Editor with a top command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop `.PNG` upload banner, dedicated Cape Vault, and a sticky elevated right-side 3D animated character pedestal with Classic/Slim quick switcher and nametag toggle.
+- Sidebar Home Icon: Replaced the left sidebar Home button and top breadcrumb icon with a clean Home icon, and renamed the Skins tooltip to Skin Studio.
+- Premium Centered Home Hero: Centered the Welcome Back header, cyan gradient player name, "Good To See You Back :]", and Sign In / Account dropdown pill right in the center of the Home screen with the live 3D animated player skin cleanly docked to the far right edge.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.68 — Home Screen Redesign with 3D Animated Skin & Instant Update Checks (2026-11-19)
 
 - Redesigned Home Screen Hero: Full-viewport Welcome Back screen with indented player name, "Good To See You Back :]", rounded Sign In / Account dropdown pill (switch accounts, add more accounts, logout), and live 3D animated player skin showcase matching the Skin Editor.
