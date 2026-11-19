@@ -112,22 +112,22 @@ Manage local worlds, screenshots and game logs inside your instances. Standalone
 
 ## Download
 
-**Testing preview V-0.0.71 available.** Custom 3D character animations (Golden Apple eating, Diamond Sword, Pickaxe, Torch, Wave, Sit & Stand, Jump), original Solara Skin Studio, centered Home hero, sidebar Home icon, and fast parallel update checks with Solara Microsoft OAuth 2.0 PKCE login and GitHub Releases CDN auto-updater
+**Testing preview V-0.0.72 available.** Animated Solara-Inc Home hero emblem, dedicated Library page replacing Screenshots, refreshed sidebar icons, OLED & White theme mode, always-visible Modrinth-style Download Manager beside Check for updates, custom 3D character animations, and Solara Microsoft OAuth 2.0 PKCE login with GitHub Releases CDN auto-updater
 
 The download and installed app are named **`solaralauncher.exe`**. Install once; cryptographically signed updates check GitHub Releases CDN on startup and prompt before downloading/installing when games, local servers and downloads are idle.
 
 Download the testing build directly:
-- **GitHub Release**: [Solara Launcher V-0.0.71 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (20.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.71/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.71/solaralauncher.exe)
-- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.71/solaralauncher.exe.sig)
-- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.71/source.zip)
-- **SHA-256**: `48c6d6c0ddc340eb37d0f0f06355a7f6de4d621bbab6bf907f4cca152ab20691`
+- **GitHub Release**: [Solara Launcher V-0.0.72 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (20.5 MB)**: [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.72/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.72/solaralauncher.exe)
+- **Signature (Minisign)**: [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.72/solaralauncher.exe.sig)
+- **Source Code**: [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.72/source.zip)
+- **SHA-256**: `560ea4c1a25e36a8a51b650fcefdae42e2ae5a972a89b27ff6e73e2199457905`
 
 | Area | Current status | Details |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Single installer & app name — no version clutter in the filename |
 | **First platform** | Windows 10 / 11 (x64) | Native compile & unit checks pass; final device testing pending |
-| **Testing installer** | V-0.0.71 live | Clean native Win32 calls, signed with persistent Minisign key |
+| **Testing installer** | V-0.0.72 live | Clean native Win32 calls, signed with persistent Minisign key |
 | **Minecraft core** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifest, Maven & package hashes verified; full loader support |
 | **App updates** | GitHub Releases CDN | Live via `latest.json` on GitHub Releases CDN (Minisign-verified) |
 | **Official website** | [app.solara-inc.in](https://app.solara-inc.in) | Live responsive website with Let's Encrypt certificates |

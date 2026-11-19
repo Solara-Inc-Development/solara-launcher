@@ -2379,6 +2379,49 @@
       "notes": "Solara Launcher Custom 3D Character Animations & Interactive Minecraft Props\n\n- 7 Custom Procedural Character Actions: Replaced Modrinth's generic idle sub-clips with rich Solara procedural animations that play automatically across both the Home screen and Skin Studio:\n  - Eating a Golden Apple (3D voxel Golden Apple in hand, biting motion, head nod, and bursting golden crumb particles)\n  - Holding & Flourishing a Diamond Sword (3D voxel Diamond Sword with heroic ready stance and slash flourish)\n  - Holding & Swinging a Diamond Pickaxe (3D voxel Diamond Pickaxe with realistic mining swings)\n  - Holding a Glowing Torch (3D voxel Torch with rising embers and curious cave look-around)\n  - Friendly Wave (high cheerful side-to-side wave with warm head tilt)\n  - Sitting & Standing (smooth seated pose with swinging legs, relaxed arms, look-around, and smooth stand-up)\n  - Victory Jump (anticipation crouch, joyful leap with raised arms, and soft landing)\n- Skin Studio Action Bar & Click Interactions: Added one-click Action pills (Wave, Golden Apple, Sword, Pickaxe, Torch, Sit, Jump) on the Solara Skin Studio pedestal, plus clicking the 3D character triggers random actions directly.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.71/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "8a4a7fd0-9a4c-4f26-846e-c83a1189a019",
+      "publicVersion": "V-0.0.72",
+      "internalVersion": "0.0.72",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.72/solaralauncher.exe",
+      "commit": "2e0ec7c34e3ea19056bef4331db22cdbe3f64917",
+      "allocatedAt": "2026-11-19T15:10:12.745Z",
+      "state": "published",
+      "applicationSha256": "23bfca27110d49fa696d9709c1a61022c591687c35e521981fa92f39f6baf97d",
+      "applicationSize": 41559040,
+      "sourceTree": "7e379f03be9d0e73bf1190d8dcc7545f56f8e345",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21446067,
+          "sha256": "560ea4c1a25e36a8a51b650fcefdae42e2ae5a972a89b27ff6e73e2199457905"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41559040,
+          "sha256": "23bfca27110d49fa696d9709c1a61022c591687c35e521981fa92f39f6baf97d"
+        },
+        "source.zip": {
+          "size": 34039570,
+          "sha256": "a152fd82c517ede1163943ecc3de7ccb8459c70b52c2b0ad9cf29ebc7db681ec"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21446067,
+      "sha256": "560ea4c1a25e36a8a51b650fcefdae42e2ae5a972a89b27ff6e73e2199457905",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T15:36:50.520Z",
+      "verifiedAt": "2026-11-19T15:36:46.658Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDM1VXFUSjd1K3QyblpBMWZkTSthMG1TRlpocUFpRm9ZZDV5TStJd1lsZFNyNnhGdEZBWTRyZW5jNkUraDdieW15YkdNVTVjRzFpQ0FCNkVHSmZoTUFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTAyNjA1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjcyClhWaUlWQUVJeENPRGE1aFNiYkZhemZKRFo3RGkycGcvd2hMd1R6b2dUeGd4ZENwa1NTNlUrUiszYlhkVjNoTzFKaGgzT2JURHdkWDg4TVptYTVaRkFRPT0K",
+      "notes": "Updater-signed Windows testing preview V-0.0.72 (internal SemVer 0.0.72). Physical Windows device acceptance remains pending.\n\n- Added an animated Solara logo with orbital glow and `Solara-Inc` signature on the Home screen opposite the 3D animated character.\n- Replaced Screenshots in the left sidebar with a dedicated **Library** page (`/library`) to search, filter, launch, and manage Minecraft instances.\n- Updated sidebar navigation icons for **ModPackInstaller**, **Skin Studio**, and **Library**.\n- Restricted Settings → Appearance to two themes: **OLED** (default) and **White**.\n- Made the Modrinth-style **Download Manager** always visible right next to **Check for updates**, showing live Java runtime / instance / modpack downloads and completed history.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.72/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

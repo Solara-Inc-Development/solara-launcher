@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.72 — Animated Solara-Inc Hero Emblem, Library Page, 2-Theme Mode & Top Download Manager (2026-11-19)
+
+- Animated Solara-Inc Hero Emblem: Added a balanced floating Solara logo with cyan-amber aura, dual orbital rings, orbiting spark dot, and `Solara-Inc` signature on the Home screen opposite the 3D animated character.
+- Dedicated Library Page & Refreshed Sidebar Icons: Replaced Screenshots in the left sidebar with a dedicated Library page (`/library`) featuring search, loader filter pills, sorting, and quick instance launch/management, and updated sidebar icons for ModPackInstaller, Skin Studio, and Library.
+- Two Clean Themes Only: Simplified Settings → Appearance to **OLED** (default) and **White**.
+- Always-Visible Top Download Manager: Placed the Modrinth-style Download Manager permanently right next to Check for updates, showing live Java runtime, instance, and modpack downloads alongside completed history with Clear all.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.71 — Custom 3D Character Animations & Interactive Minecraft Props (2026-11-19)
 
 - 7 Custom Procedural Character Actions: Replaced default idle sub-clips with original Solara procedural animations playing automatically on both Home and Skin Studio: Eating a Golden Apple (with 3D voxel apple & golden crumbs), Diamond Sword flourish, Diamond Pickaxe mining swings, Glowing Torch cave look-around (with rising embers), friendly Waving, Sitting & Standing, and Victory Jump.
