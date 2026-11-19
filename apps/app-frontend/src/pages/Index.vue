@@ -340,31 +340,19 @@ function formatDate(iso?: string | null) {
 			<div
 				class="relative z-30 flex-1 w-full flex flex-col lg:flex-row items-center justify-center my-auto gap-8"
 			>
-				<!-- LEFT SIDE: Animated Solara Emblem + Solara-Inc Brand Signature -->
+				<!-- LEFT SIDE: Simple Animated Solara Logo -->
 				<div
-					class="solara-brand-dock relative lg:absolute lg:left-3 xl:left-10 lg:top-1/2 lg:-translate-y-1/2 z-10 flex flex-col items-center justify-center gap-3.5 select-none"
+					class="solara-brand-dock relative lg:absolute lg:left-5 xl:left-12 lg:top-1/2 lg:-translate-y-1/2 z-10 flex items-center justify-center select-none"
 				>
 					<div
-						class="solara-logo-stage relative size-[8.25rem] xl:size-[9.5rem] flex items-center justify-center"
+						class="solara-logo-stage relative size-[7.5rem] xl:size-[8.75rem] flex items-center justify-center"
 					>
-						<div class="solara-logo-aura pointer-events-none absolute inset-1 rounded-full" />
-						<div class="solara-logo-orbit pointer-events-none absolute inset-0 rounded-full">
-							<span class="solara-logo-spark" />
-						</div>
-						<div class="solara-logo-orbit-inner pointer-events-none absolute inset-3 rounded-full" />
+						<div class="solara-logo-aura pointer-events-none absolute inset-0 rounded-full" />
 						<div
-							class="solara-logo-float relative z-10 size-[5.25rem] xl:size-[6rem] rounded-[1.35rem] flex items-center justify-center"
+							class="solara-logo-float relative z-10 size-[5.75rem] xl:size-[6.75rem] rounded-[1.45rem] flex items-center justify-center"
 						>
 							<SolaraIcon class="solara-logo-svg size-full block" />
 						</div>
-					</div>
-					<div class="flex flex-col items-center gap-1.5">
-						<span
-							class="solara-brand-wordmark text-base xl:text-lg font-extrabold tracking-[0.12em] text-contrast"
-						>
-							Solara-Inc
-						</span>
-						<span class="solara-brand-accent block h-[2px] w-11 rounded-full" />
 					</div>
 				</div>
 
@@ -922,52 +910,18 @@ function formatDate(iso?: string | null) {
 .solara-logo-aura {
 	background: radial-gradient(
 		circle at center,
-		rgba(61, 214, 245, 0.24) 0%,
-		rgba(255, 181, 90, 0.14) 46%,
-		transparent 72%
+		rgba(61, 214, 245, 0.22) 0%,
+		rgba(255, 181, 90, 0.12) 48%,
+		transparent 74%
 	);
-	filter: blur(18px);
-	animation: solara-aura-pulse 4.8s ease-in-out infinite;
-}
-
-.solara-logo-orbit {
-	border: 1px dashed color-mix(in srgb, var(--color-brand) 36%, transparent);
-	animation: solara-orbit-spin 18s linear infinite;
-}
-
-.solara-logo-orbit-inner {
-	border: 1px solid rgba(255, 181, 90, 0.2);
-	animation: solara-orbit-spin-reverse 24s linear infinite;
-}
-
-.solara-logo-spark {
-	position: absolute;
-	top: -3px;
-	left: 50%;
-	width: 7px;
-	height: 7px;
-	margin-left: -3.5px;
-	border-radius: 9999px;
-	background: linear-gradient(135deg, #3dd6f5, #ffb55a);
-	box-shadow:
-		0 0 10px rgba(61, 214, 245, 0.9),
-		0 0 18px rgba(255, 181, 90, 0.55);
+	filter: blur(20px);
+	animation: solara-aura-pulse 4.6s ease-in-out infinite;
 }
 
 .solara-logo-float {
-	animation: solara-logo-bob 4.4s ease-in-out infinite;
-	filter: drop-shadow(0 12px 24px rgba(61, 214, 245, 0.24))
-		drop-shadow(0 4px 12px rgba(255, 181, 90, 0.16));
-}
-
-.solara-brand-wordmark {
-	letter-spacing: 0.12em;
-	text-shadow: 0 2px 14px color-mix(in srgb, var(--color-brand) 25%, transparent);
-}
-
-.solara-brand-accent {
-	background: linear-gradient(90deg, #3dd6f5 0%, #ffb55a 100%);
-	opacity: 0.85;
+	animation: solara-logo-bob 4.2s ease-in-out infinite;
+	filter: drop-shadow(0 12px 26px rgba(61, 214, 245, 0.24))
+		drop-shadow(0 4px 12px rgba(255, 181, 90, 0.14));
 }
 
 @keyframes solara-logo-bob {
@@ -976,25 +930,7 @@ function formatDate(iso?: string | null) {
 		transform: translateY(0px) rotate(0deg) scale(1);
 	}
 	50% {
-		transform: translateY(-6px) rotate(2.5deg) scale(1.035);
-	}
-}
-
-@keyframes solara-orbit-spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-@keyframes solara-orbit-spin-reverse {
-	from {
-		transform: rotate(360deg);
-	}
-	to {
-		transform: rotate(0deg);
+		transform: translateY(-7px) rotate(2deg) scale(1.03);
 	}
 }
 
@@ -1012,8 +948,6 @@ function formatDate(iso?: string | null) {
 
 @media (prefers-reduced-motion: reduce) {
 	.solara-logo-aura,
-	.solara-logo-orbit,
-	.solara-logo-orbit-inner,
 	.solara-logo-float {
 		animation: none;
 	}

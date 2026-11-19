@@ -71,9 +71,12 @@ const changelogData = computed(() => {
 	}
 })
 
-const isInstalling = computed(
-	() => appUpdateState.downloading.value || appUpdateState.restarting.value,
-)
+const isDownloading = computed(() => appUpdateState.downloading.value)
+const isDownloadedReady = computed(() => appUpdateState.finishedDownloading.value)
+const isRestarting = computed(() => appUpdateState.restarting.value)
+const isInstallQueued = computed(() => appUpdateState.installQueued.value)
+const downloadPercent = computed(() => appUpdateState.downloadPercent.value)
+const isBusy = computed(() => isRestarting.value || isInstallQueued.value)
 
 function show(details?: SolaraUpdateNotification) {
 	if (details) {
@@ -92,7 +95,9 @@ async function notifyForVersion(_version?: string, _pendingVersion?: string | nu
 
 async function handleUpdateNow() {
 	await installAvailableAppUpdate()
-	hide()
+	if (!appUpdateState.downloading.value) {
+		hide()
+	}
 }
 
 defineExpose({ show, hide, notifyForVersion })
@@ -106,7 +111,30 @@ defineExpose({ show, hide, notifyForVersion })
 					<span class="size-2.5 rounded-full bg-brand animate-pulse" />
 					Update Available
 				</h3>
-				<span class="text-base text-brand font-semibold">{{ displayVersion }} available</span>
+				<div class="flex flex-wrap items-center gap-2">
+					<span class="text-base text-brand font-semibold">{{ displayVersion }} available</span>
+					<span
+						v-if="isDownloadedReady"
+						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400"
+					>
+						Downloaded &amp; ready to install
+					</span>
+					<span
+						v-else-if="isDownloading"
+						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand/15 text-brand tabular-nums"
+					>
+						Downloading in background... {{ downloadPercent }}%
+					</span>
+				</div>
+				<div
+					v-if="isDownloading"
+					class="w-full h-1.5 rounded-full bg-surface-4 overflow-hidden mt-1.5"
+				>
+					<div
+						class="h-full rounded-full bg-brand transition-all duration-150"
+						:style="{ width: `${Math.max(4, downloadPercent)}%` }"
+					/>
+				</div>
 			</div>
 
 			<div class="flex flex-col gap-3 max-h-[20rem] overflow-y-auto pr-1">
@@ -139,14 +167,16 @@ defineExpose({ show, hide, notifyForVersion })
 			</div>
 
 			<div class="flex items-center justify-end gap-2 pt-2 border-0 border-t border-solid border-surface-5">
-				<Button type="outlined" :disabled="isInstalling" @click="hide">
+				<Button type="outlined" :disabled="isRestarting" @click="hide">
 					<XIcon />
 					I'll do it later
 				</Button>
-				<Button color="brand" :disabled="isInstalling" @click="handleUpdateNow">
-					<RefreshCwIcon v-if="isInstalling" class="animate-spin" />
+				<Button color="brand" :disabled="isBusy" @click="handleUpdateNow">
+					<RefreshCwIcon v-if="isBusy" class="animate-spin" />
 					<DownloadIcon v-else />
-					Update Now
+					<span v-if="isRestarting">Installing...</span>
+					<span v-else-if="isInstallQueued">Installing after download ({{ downloadPercent }}%)...</span>
+					<span v-else>Update Now</span>
 				</Button>
 			</div>
 		</div>

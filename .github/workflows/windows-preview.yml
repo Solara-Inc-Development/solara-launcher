@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.73: pose-only 3D character animations (removed hand-held prop animations) and cleaner borderless Skin Studio cards; signing stays private.
+# Solara V-0.0.74: clean animated Home logo, redesigned Solara-Inc splash screen with staged progress, fixed 3D sit-stand legs, and background auto-download + startup auto-install updates; signing stays private.
 on:
   workflow_dispatch:
   push:

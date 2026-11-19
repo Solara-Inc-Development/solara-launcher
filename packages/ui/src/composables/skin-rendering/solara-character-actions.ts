@@ -23,11 +23,17 @@ interface ActionDefinition {
 
 export const SOLARA_ACTION_DEFS: Record<SolaraActionName, ActionDefinition> = {
 	solara_wave: { duration: 3.8, fadeIn: 0.32, fadeOut: 0.38 },
-	solara_sit_stand: { duration: 6.2, fadeIn: 0.55, fadeOut: 0.55 },
+	solara_sit_stand: { duration: 6.2, fadeIn: 0.6, fadeOut: 0.72 },
 	solara_cheer_jump: { duration: 3.2, fadeIn: 0.25, fadeOut: 0.35 },
 	solara_stretch: { duration: 4.4, fadeIn: 0.45, fadeOut: 0.45 },
 	solara_look_around: { duration: 4.6, fadeIn: 0.38, fadeOut: 0.4 },
 	solara_salute: { duration: 3.4, fadeIn: 0.3, fadeOut: 0.38 },
+}
+
+interface BoneRestPose {
+	x: number
+	y: number
+	z: number
 }
 
 interface RigBones {
@@ -39,6 +45,28 @@ interface RigBones {
 	rightLeg: THREE.Object3D | null
 	leftLeg: THREE.Object3D | null
 	orbitBaseY: number
+	rest: {
+		body: BoneRestPose
+		head: BoneRestPose
+		rightArm: BoneRestPose
+		leftArm: BoneRestPose
+		rightLeg: BoneRestPose
+		leftLeg: BoneRestPose
+	}
+}
+
+const ZERO_POSE: BoneRestPose = { x: 0, y: 0, z: 0 }
+
+function captureRestPose(bone: THREE.Object3D | null): BoneRestPose {
+	if (!bone) return { ...ZERO_POSE }
+	return { x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z }
+}
+
+function applyRestPose(bone: THREE.Object3D | null, pose: BoneRestPose) {
+	if (!bone) return
+	bone.rotation.x = pose.x
+	bone.rotation.y = pose.y
+	bone.rotation.z = pose.z
 }
 
 function clamp01(v: number): number {
@@ -67,6 +95,26 @@ function blendBoneRotation(
 	bone.rotation.z = blendAngle(bone.rotation.z, rz, weight)
 }
 
+/**
+ * Blends directly from the bone's neutral standing rest rotation instead of the
+ * previous frame's mutated rotation. Essential for bones (like legs) that the
+ * base GLTF `idle` clip does not overwrite every frame, preventing stuck poses
+ * when standing up after sitting.
+ */
+function blendBoneFromRest(
+	bone: THREE.Object3D | null,
+	rest: BoneRestPose,
+	rx: number,
+	ry: number,
+	rz: number,
+	weight: number,
+) {
+	if (!bone) return
+	bone.rotation.x = blendAngle(rest.x, rx, weight)
+	bone.rotation.y = blendAngle(rest.y, ry, weight)
+	bone.rotation.z = blendAngle(rest.z, rz, weight)
+}
+
 export class SolaraCharacterActionController {
 	private bones: RigBones = {
 		orbit: null,
@@ -77,6 +125,14 @@ export class SolaraCharacterActionController {
 		rightLeg: null,
 		leftLeg: null,
 		orbitBaseY: 0.75,
+		rest: {
+			body: { ...ZERO_POSE },
+			head: { ...ZERO_POSE },
+			rightArm: { ...ZERO_POSE },
+			leftArm: { ...ZERO_POSE },
+			rightLeg: { ...ZERO_POSE },
+			leftLeg: { ...ZERO_POSE },
+		},
 	}
 
 	private activeAction: SolaraActionName | null = null
@@ -103,7 +159,29 @@ export class SolaraCharacterActionController {
 			rightLeg,
 			leftLeg,
 			orbitBaseY: orbit ? orbit.position.y : 0.75,
+			rest: {
+				body: captureRestPose(body),
+				head: captureRestPose(head),
+				rightArm: captureRestPose(rightArm),
+				leftArm: captureRestPose(leftArm),
+				rightLeg: captureRestPose(rightLeg),
+				leftLeg: captureRestPose(leftLeg),
+			},
 		}
+	}
+
+	private restoreNeutralStandingPose() {
+		const { orbit, body, head, rightArm, leftArm, rightLeg, leftLeg, orbitBaseY, rest } =
+			this.bones
+		if (orbit) {
+			orbit.position.y = orbitBaseY
+		}
+		applyRestPose(rightLeg, rest.rightLeg)
+		applyRestPose(leftLeg, rest.leftLeg)
+		applyRestPose(body, rest.body)
+		applyRestPose(head, rest.head)
+		applyRestPose(rightArm, rest.rightArm)
+		applyRestPose(leftArm, rest.leftArm)
 	}
 
 	get currentAction(): SolaraActionName | null {
@@ -122,9 +200,7 @@ export class SolaraCharacterActionController {
 	}
 
 	stop() {
-		if (this.bones.orbit) {
-			this.bones.orbit.position.y = this.bones.orbitBaseY
-		}
+		this.restoreNeutralStandingPose()
 		this.activeAction = null
 		this.elapsed = 0
 		this.onComplete = null
@@ -153,7 +229,8 @@ export class SolaraCharacterActionController {
 		const fadeOut = 1 - smoothstep(def.duration - def.fadeOut, def.duration, t)
 		const w = clamp01(Math.min(fadeIn, fadeOut))
 
-		const { orbit, body, head, rightArm, leftArm, rightLeg, leftLeg, orbitBaseY } = this.bones
+		const { orbit, body, head, rightArm, leftArm, rightLeg, leftLeg, orbitBaseY, rest } =
+			this.bones
 
 		// Ensure Orbit Y stays grounded on standing poses (e.g., if interrupting Sit or Jump)
 		if (orbit && action !== 'solara_sit_stand' && action !== 'solara_cheer_jump') {
@@ -167,24 +244,27 @@ export class SolaraCharacterActionController {
 				blendBoneRotation(leftArm, 0.1, 0, -0.14, w)
 				blendBoneRotation(head, 0.06, -0.12, -0.14 + waveOsc * 0.12, w)
 				blendBoneRotation(body, 0, -0.08, -0.04 * Math.sin(t * 5.25), w)
-				blendBoneRotation(rightLeg, 0, 0, 0, w)
-				blendBoneRotation(leftLeg, 0, 0, 0, w)
+				blendBoneFromRest(rightLeg, rest.rightLeg, rest.rightLeg.x, rest.rightLeg.y, rest.rightLeg.z, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, rest.leftLeg.x, rest.leftLeg.y, rest.leftLeg.z, w)
 				break
 			}
 
 			case 'solara_sit_stand': {
-				const legSwing = Math.sin(t * 3.1) * 0.1
+				// Smooth sit down -> dangle legs & look around -> smoothly unbend legs & stand back up!
+				const legSwing = Math.sin(t * 3.1) * 0.1 * w
 				const lookAround = Math.sin((t - 0.8) * 1.35) * 0.32
 
 				if (orbit) {
 					const sitDrop = 0.44 * w
 					orbit.position.y = orbitBaseY - sitDrop
 				}
-				blendBoneRotation(rightLeg, 1.32 + legSwing, 0, 0.14, w)
-				blendBoneRotation(leftLeg, 1.32 - legSwing, 0, -0.14, w)
-				blendBoneRotation(rightArm, 0.56, 0, 0.14, w)
-				blendBoneRotation(leftArm, 0.56, 0, -0.14, w)
-				blendBoneRotation(body, 0.08, lookAround * 0.18, 0, w)
+				// Blend legs directly from neutral standing rest -> seated angle so fadeOut smoothly
+				// straightens both legs back to standing instead of staying stuck in mid-air!
+				blendBoneFromRest(rightLeg, rest.rightLeg, 1.32 + legSwing, 0, 0.14, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, 1.32 - legSwing, 0, -0.14, w)
+				blendBoneFromRest(rightArm, rest.rightArm, 0.56, 0, 0.14, w)
+				blendBoneFromRest(leftArm, rest.leftArm, 0.56, 0, -0.14, w)
+				blendBoneFromRest(body, rest.body, 0.08, lookAround * 0.18, 0, w)
 				blendBoneRotation(head, 0.05, lookAround, 0.04 * Math.sin(t * 1.5), w)
 				break
 			}
@@ -218,48 +298,45 @@ export class SolaraCharacterActionController {
 				}
 				blendBoneRotation(rightArm, Math.max(0, armLift), 0, 0.32 * clamp01(armLift / 2.2), w)
 				blendBoneRotation(leftArm, Math.max(0, armLift), 0, -0.32 * clamp01(armLift / 2.2), w)
-				blendBoneRotation(rightLeg, legKick, 0, 0.12 * legKick, w)
-				blendBoneRotation(leftLeg, -legKick * 0.85, 0, -0.12 * legKick, w)
-				blendBoneRotation(body, crouchLean, 0, 0, w)
+				blendBoneFromRest(rightLeg, rest.rightLeg, legKick, 0, 0.12 * legKick, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, -legKick * 0.85, 0, -0.12 * legKick, w)
+				blendBoneFromRest(body, rest.body, crouchLean, 0, 0, w)
 				blendBoneRotation(head, 0.12 * clamp01(jumpY * 2.5), 0, 0, w)
 				break
 			}
 
 			case 'solara_stretch': {
-				// Relaxed arms-up stretch with gentle sway & proud exhale
 				const stretchPeak = Math.sin(clamp01(t / def.duration) * Math.PI)
 				const sway = Math.sin(t * 2.6) * 0.08
 				blendBoneRotation(rightArm, 2.75 * stretchPeak, 0, 0.28 + sway, w)
 				blendBoneRotation(leftArm, 2.75 * stretchPeak, 0, -0.28 + sway, w)
-				blendBoneRotation(body, 0.12 * stretchPeak, sway * 0.4, sway * 0.3, w)
+				blendBoneFromRest(body, rest.body, 0.12 * stretchPeak, sway * 0.4, sway * 0.3, w)
 				blendBoneRotation(head, 0.18 * stretchPeak, 0, sway * 0.4, w)
-				blendBoneRotation(rightLeg, -0.05 * stretchPeak, 0, 0.05, w)
-				blendBoneRotation(leftLeg, 0.05 * stretchPeak, 0, -0.05, w)
+				blendBoneFromRest(rightLeg, rest.rightLeg, -0.05 * stretchPeak, 0, 0.05, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, 0.05 * stretchPeak, 0, -0.05, w)
 				break
 			}
 
 			case 'solara_look_around': {
-				// Curious explorer look left -> look right with relaxed balanced stance
 				const lookSweep = Math.sin((t - 0.35) * 1.65) * 0.52
 				const tilt = Math.sin(t * 1.65) * 0.07
 				blendBoneRotation(head, 0.05 * Math.sin(t * 2.2), lookSweep, tilt, w)
-				blendBoneRotation(body, -0.03, lookSweep * 0.28, 0, w)
+				blendBoneFromRest(body, rest.body, -0.03, lookSweep * 0.28, 0, w)
 				blendBoneRotation(rightArm, 0.18 + lookSweep * 0.12, 0, 0.14, w)
 				blendBoneRotation(leftArm, 0.18 - lookSweep * 0.12, 0, -0.14, w)
-				blendBoneRotation(rightLeg, -0.06, 0, 0.06, w)
-				blendBoneRotation(leftLeg, 0.06, 0, -0.06, w)
+				blendBoneFromRest(rightLeg, rest.rightLeg, -0.06, 0, 0.06, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, 0.06, 0, -0.06, w)
 				break
 			}
 
 			case 'solara_salute': {
-				// Crisp friendly salute with subtle confident nod
 				const nod = t > 1.0 && t < 2.2 ? Math.sin(((t - 1.0) / 1.2) * Math.PI) * -0.14 : 0
 				blendBoneRotation(rightArm, 2.15, 0.35, -0.45, w)
 				blendBoneRotation(leftArm, -0.08, 0, -0.12, w)
 				blendBoneRotation(head, nod, -0.08, 0.04, w)
-				blendBoneRotation(body, 0.03, -0.05, 0, w)
-				blendBoneRotation(rightLeg, 0, 0, 0.04, w)
-				blendBoneRotation(leftLeg, 0, 0, -0.04, w)
+				blendBoneFromRest(body, rest.body, 0.03, -0.05, 0, w)
+				blendBoneFromRest(rightLeg, rest.rightLeg, 0, 0, 0.04, w)
+				blendBoneFromRest(leftLeg, rest.leftLeg, 0, 0, -0.04, w)
 				break
 			}
 		}
@@ -276,6 +353,14 @@ export class SolaraCharacterActionController {
 			rightLeg: null,
 			leftLeg: null,
 			orbitBaseY: 0.75,
+			rest: {
+				body: { ...ZERO_POSE },
+				head: { ...ZERO_POSE },
+				rightArm: { ...ZERO_POSE },
+				leftArm: { ...ZERO_POSE },
+				rightLeg: { ...ZERO_POSE },
+				leftLeg: { ...ZERO_POSE },
+			},
 		}
 	}
 }

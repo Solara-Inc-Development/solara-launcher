@@ -31,6 +31,7 @@ const metered = ref(true)
 const finishedDownloading = ref(false)
 const downloading = ref(false)
 const restarting = ref(false)
+const installQueued = ref(false)
 const availableUpdate = ref<AppUpdate | null>(null)
 const updateSize = ref<number | null>(null)
 const updatesEnabled = ref(true)
@@ -51,6 +52,7 @@ export const appUpdateState = {
 	finishedDownloading,
 	downloading,
 	restarting,
+	installQueued,
 	availableUpdate,
 	updateSize,
 	updatesEnabled,

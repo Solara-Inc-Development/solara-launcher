@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.74',
+		title: 'Clean Animated Home Logo, New Solara-Inc Splash Screen, Sit-Stand Fix & Auto-Download Updates',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Simplified the Home screen left emblem to a clean floating animated Solara logo without spinning rings or extra label clutter.',
+			'Redesigned the startup loading screen with an animated Solara logo, Solara-Inc title, smooth gradient progress bar, and live startup stage messages.',
+			'Added automatic background update downloading with Minisign verification so clicking Update Now installs immediately, and already-downloaded updates auto-install on next launch.',
+		],
+		issuesFixed: [
+			'Fixed the 3D character Sit & Stand pose bug where legs stayed stuck bent in mid-air after rising until the next animation played.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.73',
 		title: 'Clean Pose-Only 3D Character Animations & Borderless Skin Studio Cards',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Removed hand-held tool/item prop animations and focused the 3D character rig on 6 smooth pose-only animations: Wave, Sit & Stand, Victory Jump, Stretch, Look Around, and Salute.',
 			'Redesigned Skin Studio cards, pills, and containers to eliminate excessive nested borders for a cleaner, more spacious wardrobe gallery in both OLED and White themes.',

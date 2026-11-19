@@ -1623,22 +1623,29 @@ const shownStartupUpdateModalForVersion = new Set()
 function applySolaraUpdateStatus(status) {
 	if (!status || typeof status !== 'object') return
 
-	if (status.state === 'unsupported') {
+	const stage = status.stage ?? status.state ?? ''
+
+	if (stage === 'unsupported') {
 		updatesEnabled.value = false
 		return
 	}
 
 	updatesEnabled.value = true
-	downloading.value = status.state === 'downloading'
-	restarting.value = status.state === 'installing'
+	downloading.value = stage === 'downloading'
+	restarting.value = stage === 'installing'
+	appUpdateState.installQueued.value = Boolean(status.installQueued)
+
 	if (typeof status.progressPercent === 'number') {
 		appUpdateDownload.progress.value = Math.max(0, Math.min(1, status.progressPercent / 100))
+	} else if (typeof status.downloaded === 'number' && typeof status.total === 'number' && status.total > 0) {
+		appUpdateDownload.progress.value = Math.max(0, Math.min(1, status.downloaded / status.total))
+	} else if (stage === 'ready' || stage === 'installing') {
+		appUpdateDownload.progress.value = 1
 	}
 
 	const availableVer = status.availableVersion ?? status.publicVersion ?? status.version
 	const isAvailable =
-		(status.state === 'available' ||
-			status.stage === 'available' ||
+		(['available', 'downloading', 'ready', 'installing', 'waiting-for-idle'].includes(stage) ||
 			status.available === true) &&
 		!!availableVer
 
@@ -1649,10 +1656,10 @@ function applySolaraUpdateStatus(status) {
 			currentVersion: status.currentVersion,
 		}
 		metered.value = false
-		finishedDownloading.value = status.state !== 'downloading'
-		markAppUpdateActionable(availableVer, 'downloaded')
+		finishedDownloading.value = stage === 'ready' || stage === 'installing' || stage === 'waiting-for-idle'
+		markAppUpdateActionable(availableVer, finishedDownloading.value ? 'downloaded' : 'available')
 
-		if (!shownStartupUpdateModalForVersion.has(availableVer)) {
+		if (!shownStartupUpdateModalForVersion.has(availableVer) && stage !== 'installing') {
 			shownStartupUpdateModalForVersion.add(availableVer)
 			nextTick(() => {
 				newUpdateModal.value?.show({
@@ -1664,14 +1671,14 @@ function applySolaraUpdateStatus(status) {
 			})
 		}
 	} else if (
-		status.state === 'upToDate' ||
-		status.state === 'up-to-date' ||
-		status.stage === 'up-to-date' ||
+		stage === 'upToDate' ||
+		stage === 'up-to-date' ||
 		status.available === false
 	) {
 		availableUpdate.value = null
 		finishedDownloading.value = false
 		downloading.value = false
+		appUpdateState.installQueued.value = false
 		appUpdateState.justCheckedUpToDate.value = true
 		setTimeout(() => {
 			appUpdateState.justCheckedUpToDate.value = false
@@ -1725,7 +1732,7 @@ async function downloadAvailableUpdate() {
 }
 
 async function installUpdate() {
-	if (downloading.value || restarting.value) {
+	if (restarting.value) {
 		return
 	}
 	try {
@@ -1734,6 +1741,7 @@ async function installUpdate() {
 	} catch (e) {
 		downloading.value = false
 		restarting.value = false
+		appUpdateState.installQueued.value = false
 		handleError(e)
 	}
 }
