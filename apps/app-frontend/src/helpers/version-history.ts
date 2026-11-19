@@ -11,11 +11,29 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.73',
+		title: 'Clean Pose-Only 3D Character Animations & Borderless Skin Studio Cards',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Removed hand-held tool/item prop animations and focused the 3D character rig on 6 smooth pose-only animations: Wave, Sit & Stand, Victory Jump, Stretch, Look Around, and Salute.',
+			'Redesigned Skin Studio cards, pills, and containers to eliminate excessive nested borders for a cleaner, more spacious wardrobe gallery in both OLED and White themes.',
+		],
+		issuesFixed: [
+			'Eliminated inner SkinButton borders that previously nested inside Solara Skin Studio cards.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.72',
 		title: 'Animated Solara-Inc Hero Logo, Library Tab, 2-Theme Mode & Top Download Manager',
 		date: 'November 19, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Added a balanced animated Solara logo with orbital glow and Solara-Inc signature on the Home screen opposite the 3D animated character.',
 			'Added a dedicated Library page in the sidebar (replacing Screenshots) to search, filter, launch, and manage all Minecraft instances.',

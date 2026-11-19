@@ -111,13 +111,12 @@ const heroCapeTexture = computed(() => equippedCapeTexture.value)
 const heroAnimationConfig = {
 	baseAnimation: 'idle',
 	randomAnimations: [
-		'solara_eat_golden_apple',
-		'solara_hold_sword',
-		'solara_hold_pickaxe',
-		'solara_hold_torch',
 		'solara_wave',
 		'solara_sit_stand',
 		'solara_cheer_jump',
+		'solara_stretch',
+		'solara_look_around',
+		'solara_salute',
 	],
 	randomAnimationInterval: 5000,
 	transitionDuration: 0.25,

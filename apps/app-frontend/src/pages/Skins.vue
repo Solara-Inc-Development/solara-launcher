@@ -222,12 +222,11 @@ let studioActionSeq = 0
 
 const studioActionPresets = [
 	{ id: 'solara_wave', label: 'Wave' },
-	{ id: 'solara_eat_golden_apple', label: 'Golden Apple' },
-	{ id: 'solara_hold_sword', label: 'Sword' },
-	{ id: 'solara_hold_pickaxe', label: 'Pickaxe' },
-	{ id: 'solara_hold_torch', label: 'Torch' },
 	{ id: 'solara_sit_stand', label: 'Sit' },
 	{ id: 'solara_cheer_jump', label: 'Jump' },
+	{ id: 'solara_stretch', label: 'Stretch' },
+	{ id: 'solara_look_around', label: 'Look' },
+	{ id: 'solara_salute', label: 'Salute' },
 ] as const
 
 function triggerStudioAction(actionId: string) {
@@ -1137,23 +1136,23 @@ await loadSkins()
 		<!-- ============================================================
 		     TOP SOLARA STUDIO COMMAND BAR
 		     ============================================================ -->
-		<header class="solara-studio-header rounded-2xl border border-solid border-surface-5 bg-surface-2/85 backdrop-blur-md px-5 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
+		<header class="solara-studio-header rounded-2xl bg-surface-2/85 backdrop-blur-md px-5 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 			<div class="flex flex-col gap-1">
 				<div class="flex items-center gap-2.5 flex-wrap">
-					<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-[0.16em] bg-brand/12 text-brand border border-solid border-brand/25">
+					<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-[0.16em] bg-brand/12 text-brand">
 						<SparklesIcon class="size-3" />
 						<span>Solara Skin Studio</span>
 					</span>
 					<span
 						v-if="username"
-						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-contrast border border-solid border-surface-5"
+						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-contrast"
 					>
 						<span class="size-1.5 rounded-full bg-emerald-500" />
 						<span>{{ username }}</span>
 					</span>
 					<span
 						v-else
-						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-secondary border border-solid border-surface-5"
+						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-secondary"
 					>
 						<span>Guest Preview</span>
 					</span>
@@ -1165,7 +1164,7 @@ await loadSkins()
 
 			<div class="flex flex-wrap items-center gap-3">
 				<!-- Segmented Studio Tabs -->
-				<div class="inline-flex items-center gap-1 p-1 rounded-xl bg-surface-3 border border-solid border-surface-5">
+				<div class="inline-flex items-center gap-1 p-1 rounded-xl bg-surface-3/90">
 					<button
 						type="button"
 						class="solara-studio-tab px-3.5 py-1.5 rounded-lg text-xs font-bold border-0 cursor-pointer transition-all flex items-center gap-1.5"
@@ -1236,11 +1235,11 @@ await loadSkins()
 					<!-- Interactive Drag & Drop Upload Banner -->
 					<div
 						ref="studioDropzoneEl"
-						class="solara-dropzone rounded-2xl border-2 border-dashed p-5 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer transition-all"
+						class="solara-dropzone rounded-2xl border border-dashed p-5 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer transition-all"
 						:class="
 							isAddSkinButtonDragActive
 								? 'border-brand bg-brand/10 shadow-lg'
-								: 'border-surface-5 bg-surface-2/60 hover:border-brand/50 hover:bg-surface-2'
+								: 'border-surface-5/60 bg-surface-2/75 hover:border-brand/50 hover:bg-surface-3/60'
 						"
 						@click="openAddSkinFileBrowser"
 						@dragenter.prevent="onAddSkinDragOver"
@@ -1249,7 +1248,7 @@ await loadSkins()
 						@drop.prevent="onAddSkinDrop"
 					>
 						<div class="flex items-center gap-4">
-							<div class="size-12 rounded-2xl bg-brand/15 border border-solid border-brand/30 flex items-center justify-center text-brand shrink-0">
+							<div class="size-12 rounded-2xl bg-brand/15 flex items-center justify-center text-brand shrink-0">
 								<UploadIcon class="size-6" />
 							</div>
 							<div class="flex flex-col gap-0.5 text-center sm:text-left">
@@ -1271,25 +1270,25 @@ await loadSkins()
 						<div
 							v-for="skin in savedSkins"
 							:key="skin.texture_key"
-							class="solara-skin-card group relative rounded-2xl border border-solid p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
+							class="solara-skin-card group relative rounded-2xl p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
 							:class="
 								isSkinSelected(skin)
-									? 'border-brand bg-brand/8 shadow-md'
-									: 'border-surface-5 bg-surface-2 hover:border-brand/45 hover:bg-surface-3/70'
+									? 'solara-skin-card--selected bg-brand/10'
+									: 'bg-surface-3/55 hover:bg-surface-3/90'
 							"
 							@click="changeSkin(skin)"
 						>
 							<div class="flex items-center justify-between gap-1 px-1">
 								<span
 									v-if="isSkinActive(skin)"
-									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-solid border-emerald-500/30"
+									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400"
 								>
 									<span class="size-1.5 rounded-full bg-emerald-400" />
 									Active
 								</span>
 								<span
 									v-else-if="isSkinSelected(skin)"
-									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand border border-solid border-brand/30"
+									class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand"
 								>
 									Preview
 								</span>
@@ -1297,12 +1296,12 @@ await loadSkins()
 									{{ skin.variant === 'SLIM' ? 'Slim' : 'Classic' }}
 								</span>
 
-								<div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+								<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
 									<button
 										type="button"
 										title="Customize skin"
 										:disabled="isSkinManagementReadOnly"
-										class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/50 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors"
+										class="size-7 rounded-lg border-0 bg-surface-3/90 hover:bg-surface-4 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors"
 										@click.stop="(e: MouseEvent) => editSkinModal?.show(e, skin)"
 									>
 										<EditIcon class="size-3.5" />
@@ -1312,7 +1311,7 @@ await loadSkins()
 										type="button"
 										title="Delete skin"
 										:disabled="isSkinManagementReadOnly"
-										class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-red/50 hover:text-red text-secondary flex items-center justify-center cursor-pointer transition-colors"
+										class="size-7 rounded-lg border-0 bg-surface-3/90 hover:bg-red/15 hover:text-red text-secondary flex items-center justify-center cursor-pointer transition-colors"
 										@click.stop="confirmDeleteSkin(skin)"
 									>
 										<TrashIcon class="size-3.5" />
@@ -1320,7 +1319,7 @@ await loadSkins()
 								</div>
 							</div>
 
-							<div class="solara-skin-card-thumb rounded-xl overflow-hidden bg-surface-3/60">
+							<div class="solara-skin-card-thumb rounded-xl overflow-hidden">
 								<BakedSkinButton
 									:skin="skin"
 									:capes="capes"
@@ -1335,9 +1334,9 @@ await loadSkins()
 					<!-- Friendly Empty Wardrobe State -->
 					<div
 						v-else
-						class="rounded-2xl border border-solid border-surface-5 bg-surface-2/70 p-8 text-center flex flex-col items-center gap-3"
+						class="rounded-2xl bg-surface-2/80 p-8 text-center flex flex-col items-center gap-3"
 					>
-						<div class="size-12 rounded-2xl bg-surface-3 border border-solid border-surface-5 flex items-center justify-center text-secondary">
+						<div class="size-12 rounded-2xl bg-surface-3 flex items-center justify-center text-secondary">
 							<ShirtIcon class="size-6" />
 						</div>
 						<div class="flex flex-col gap-1 max-w-md">
@@ -1364,11 +1363,11 @@ await loadSkins()
 					<div class="flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="px-3 py-1.5 rounded-full text-xs font-bold border border-solid cursor-pointer transition-all"
+							class="px-3.5 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer transition-all"
 							:class="
 								selectedPresetSection === 'all'
-									? 'bg-brand text-[var(--color-accent-contrast)] border-brand'
-									: 'bg-surface-2 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+									? 'bg-brand text-[var(--color-accent-contrast)]'
+									: 'bg-surface-2/90 text-secondary hover:text-contrast hover:bg-surface-3'
 							"
 							@click="selectedPresetSection = 'all'"
 						>
@@ -1378,11 +1377,11 @@ await loadSkins()
 							v-for="section in defaultSkinSections"
 							:key="section.section"
 							type="button"
-							class="px-3 py-1.5 rounded-full text-xs font-bold border border-solid cursor-pointer transition-all"
+							class="px-3.5 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer transition-all"
 							:class="
 								selectedPresetSection === section.section
-									? 'bg-brand text-[var(--color-accent-contrast)] border-brand'
-									: 'bg-surface-2 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+									? 'bg-brand text-[var(--color-accent-contrast)]'
+									: 'bg-surface-2/90 text-secondary hover:text-contrast hover:bg-surface-3'
 							"
 							@click="selectedPresetSection = section.section"
 						>
@@ -1407,24 +1406,24 @@ await loadSkins()
 								<div
 									v-for="skin in section.skins"
 									:key="skin.texture_key"
-									class="solara-skin-card group relative rounded-2xl border border-solid p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
+									class="solara-skin-card group relative rounded-2xl p-2.5 flex flex-col gap-2 transition-all cursor-pointer"
 									:class="
 										isSkinSelected(skin)
-											? 'border-brand bg-brand/8 shadow-md'
-											: 'border-surface-5 bg-surface-2 hover:border-brand/45 hover:bg-surface-3/70'
+											? 'solara-skin-card--selected bg-brand/10'
+											: 'bg-surface-2/85 hover:bg-surface-3/85'
 									"
 									@click="changeSkin(skin)"
 								>
 									<div class="flex items-center justify-between gap-1 px-1">
 										<span
 											v-if="isSkinActive(skin)"
-											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-solid border-emerald-500/30"
+											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400"
 										>
 											Active
 										</span>
 										<span
 											v-else-if="isSkinSelected(skin)"
-											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand border border-solid border-brand/30"
+											class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand/15 text-brand"
 										>
 											Preview
 										</span>
@@ -1436,14 +1435,14 @@ await loadSkins()
 											type="button"
 											title="Customize with cape"
 											:disabled="isSkinManagementReadOnly"
-											class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/50 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors opacity-80 group-hover:opacity-100"
+											class="size-7 rounded-lg border-0 bg-surface-3/90 hover:bg-surface-4 hover:text-brand text-secondary flex items-center justify-center cursor-pointer transition-colors opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
 											@click.stop="(e: MouseEvent) => editSkinModal?.show(e, skin)"
 										>
 											<EditIcon class="size-3.5" />
 										</button>
 									</div>
 
-									<div class="solara-skin-card-thumb rounded-xl overflow-hidden bg-surface-3/60">
+									<div class="solara-skin-card-thumb rounded-xl overflow-hidden">
 										<BakedSkinButton
 											:skin="skin"
 											:capes="capes"
@@ -1460,7 +1459,7 @@ await loadSkins()
 
 				<!-- TAB 3: CAPE VAULT -->
 				<template v-else>
-					<div class="rounded-2xl border border-solid border-surface-5 bg-surface-2/80 p-5 flex flex-col gap-4">
+					<div class="rounded-2xl bg-surface-2/80 p-5 flex flex-col gap-4">
 						<div class="flex items-center justify-between gap-2">
 							<div class="flex flex-col gap-0.5">
 								<h2 class="m-0 text-base font-extrabold text-contrast">Cape Vault</h2>
@@ -1468,7 +1467,7 @@ await loadSkins()
 									Click any unlocked cape to preview it live on your 3D character, then hit Apply Skin.
 								</p>
 							</div>
-							<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-3 text-contrast border border-solid border-surface-5">
+							<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-3 text-contrast">
 								{{ capes.length }} Available
 							</span>
 						</div>
@@ -1477,11 +1476,11 @@ await loadSkins()
 							<!-- No Cape Option -->
 							<button
 								type="button"
-								class="solara-cape-none-card w-[5.75rem] h-[7.25rem] rounded-xl border-2 border-solid flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
+								class="solara-cape-none-card w-[5.75rem] h-[7.25rem] rounded-xl border-0 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
 								:class="
 									!currentCape
-										? 'border-brand bg-brand/10 text-brand'
-										: 'border-surface-5 bg-surface-3 text-secondary hover:border-brand/40 hover:text-contrast'
+										? 'solara-skin-card--selected bg-brand/10 text-brand'
+										: 'bg-surface-3/85 text-secondary hover:bg-surface-4 hover:text-contrast'
 								"
 								@click="selectCapeForCurrentSkin(undefined)"
 							>
@@ -1502,7 +1501,7 @@ await loadSkins()
 
 						<div
 							v-if="capes.length === 0"
-							class="rounded-xl border border-solid border-surface-5 bg-surface-3/60 p-4 text-xs text-secondary"
+							class="rounded-xl bg-surface-3/60 p-4 text-xs text-secondary"
 						>
 							{{ currentUser ? 'No Minecraft capes found on this account yet.' : 'Sign in with your Microsoft account to view and equip your unlocked Minecraft capes.' }}
 						</div>
@@ -1512,21 +1511,21 @@ await loadSkins()
 
 			<!-- RIGHT PANEL: STICKY ELEVATED 3D CHARACTER PEDESTAL -->
 			<aside class="solara-pedestal-col lg:sticky lg:top-6 self-start">
-				<div class="solara-pedestal-card relative rounded-3xl border border-solid border-surface-5 bg-surface-2/90 p-5 flex flex-col gap-4 shadow-xl overflow-hidden">
+				<div class="solara-pedestal-card relative rounded-3xl bg-surface-2/85 p-5 flex flex-col gap-4 shadow-xl overflow-hidden">
 					<div class="solara-pedestal-ambient pointer-events-none absolute inset-0" />
 
 					<!-- Pedestal Top Bar: Status + Arm Toggle + Nametag Toggle -->
 					<div class="relative z-10 flex items-center justify-between gap-2 flex-wrap">
 						<span
 							v-if="hasPendingSkinChange"
-							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/15 text-brand border border-solid border-brand/35"
+							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/15 text-brand"
 						>
 							<EyeIcon class="size-3.5" />
 							<span>{{ formatMessage(messages.previewingBadge) }}</span>
 						</span>
 						<span
 							v-else
-							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/12 text-emerald-400 border border-solid border-emerald-500/30"
+							class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/12 text-emerald-400"
 						>
 							<span class="size-2 rounded-full bg-emerald-400" />
 							<span>{{ currentUser ? 'Equipped' : 'Preview' }}</span>
@@ -1536,7 +1535,7 @@ await loadSkins()
 							<!-- Quick Classic / Slim Switcher -->
 							<div
 								v-if="canQuickToggleVariant"
-								class="inline-flex p-0.5 rounded-lg bg-surface-3 border border-solid border-surface-5"
+								class="inline-flex p-0.5 rounded-lg bg-surface-3/90"
 							>
 								<button
 									type="button"
@@ -1565,7 +1564,7 @@ await loadSkins()
 							</div>
 							<span
 								v-else
-								class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-3 text-secondary border border-solid border-surface-5"
+								class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-3/90 text-secondary"
 							>
 								{{ skinVariant === 'SLIM' ? 'Slim' : 'Classic' }}
 							</span>
@@ -1574,7 +1573,7 @@ await loadSkins()
 							<button
 								type="button"
 								:title="showNametagOverride ? 'Hide nametag' : 'Show nametag'"
-								class="size-7 rounded-lg border border-solid border-surface-5 bg-surface-3 hover:border-brand/45 text-secondary hover:text-contrast flex items-center justify-center cursor-pointer transition-colors"
+								class="size-7 rounded-lg border-0 bg-surface-3/90 hover:bg-surface-4 text-secondary hover:text-contrast flex items-center justify-center cursor-pointer transition-colors"
 								@click="showNametagOverride = !showNametagOverride"
 							>
 								<EyeIcon v-if="showNametagOverride" class="size-3.5" />
@@ -1600,17 +1599,17 @@ await loadSkins()
 						/>
 					</div>
 
-					<!-- Solara Character Action / Emote Quick-Trigger Strip -->
+					<!-- Solara Character Pose Quick-Trigger Strip -->
 					<div class="relative z-10 flex flex-wrap items-center justify-center gap-1.5">
 						<button
 							v-for="act in studioActionPresets"
 							:key="act.id"
 							type="button"
-							class="px-2.5 py-1 rounded-full text-[11px] font-bold border border-solid transition-all cursor-pointer"
+							class="px-3 py-1 rounded-full text-[11px] font-bold border-0 transition-all cursor-pointer"
 							:class="
 								studioActionTrigger?.name === act.id
-									? 'bg-brand/15 text-brand border-brand/50'
-									: 'bg-surface-3/80 text-secondary border-surface-5 hover:text-contrast hover:border-brand/40'
+									? 'bg-brand text-[var(--color-accent-contrast)]'
+									: 'bg-surface-3/85 text-secondary hover:text-contrast hover:bg-surface-4'
 							"
 							@click="triggerStudioAction(act.id)"
 						>
@@ -1621,13 +1620,13 @@ await loadSkins()
 					<!-- Ears Mod Notice (if detected) -->
 					<div
 						v-if="selectedSkinHasEarsFeatures"
-						class="relative z-10 rounded-xl border border-solid border-surface-5 bg-surface-3/80 px-3 py-2.5 flex items-center justify-between gap-2.5"
+						class="relative z-10 rounded-xl bg-surface-3/80 px-3 py-2.5 flex items-center justify-between gap-2.5"
 					>
 						<div class="flex items-center gap-2 min-w-0">
 							<img
 								:src="EarsModIcon"
 								alt=""
-								class="size-8 shrink-0 rounded-md border border-solid border-surface-5 object-cover"
+								class="size-8 shrink-0 rounded-md object-cover"
 							/>
 							<span class="text-xs font-semibold text-primary truncate">Ears mod features</span>
 						</div>
@@ -1635,7 +1634,7 @@ await loadSkins()
 					</div>
 
 					<!-- Pedestal Bottom Action Dock -->
-					<div class="relative z-10 pt-3 border-0 border-t border-solid border-surface-5 flex items-center gap-2.5">
+					<div class="relative z-10 pt-3 border-0 border-t border-solid border-surface-5/40 flex items-center gap-2.5">
 						<template v-if="hasPendingSkinChange">
 							<Button
 								type="outlined"
@@ -1693,7 +1692,7 @@ await loadSkins()
 	<!-- Guest Sign-In Strip (when not signed in) -->
 	<div v-if="!currentUser" class="sticky w-full bottom-0 z-20 px-6 pb-4">
 		<div
-			class="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 rounded-2xl border border-solid border-brand/35 bg-surface-2/95 backdrop-blur-xl px-5 py-3.5 shadow-xl"
+			class="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 rounded-2xl bg-surface-3/95 backdrop-blur-xl px-5 py-3.5 shadow-2xl"
 		>
 			<div class="flex min-w-0 items-center gap-3">
 				<div class="size-9 rounded-xl bg-brand/15 text-brand flex items-center justify-center shrink-0">
@@ -1745,21 +1744,33 @@ await loadSkins()
 }
 
 .solara-skin-card {
+	border: none;
+	box-shadow: none;
 	transition:
 		transform 0.16s ease,
-		border-color 0.16s ease,
 		background-color 0.16s ease,
 		box-shadow 0.16s ease;
 }
 
 .solara-skin-card:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--color-brand) 40%, transparent);
+	box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--color-brand) 32%, transparent);
 }
 
+.solara-skin-card--selected,
+.solara-skin-card--selected:hover {
+	box-shadow:
+		inset 0 0 0 2px var(--color-brand),
+		0 12px 26px -14px color-mix(in srgb, var(--color-brand) 48%, transparent);
+}
+
+.solara-skin-card-thumb :deep(.skin-button),
+.solara-skin-card-thumb :deep(.skin-button--selected),
+.solara-skin-card-thumb :deep(.skin-button--active),
 .solara-skin-card-thumb :deep(button) {
 	background: transparent !important;
 	border: none !important;
+	outline: none !important;
 	box-shadow: none !important;
 }
 </style>
