@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.75 — Beautified Home Hero with Floating Logo, Solara Skin Customizer & Fixed 3D Emotes (2026-11-19)
+
+- Beautified Home Welcome Hero: Moved the floating animated Solara logo cleanly above the Welcome message with a luminous cyan-to-gold gradient username, glowing accent divider, and refined typography.
+- Original Solara Studio Skin Customizer: Replaced the stock editing skin modal with a bespoke Solara Customizer featuring drag-drop `.PNG` upload, selectable Classic/Slim cards, borderless cape picker, and a live 3D preview stage with quick pose triggers.
+- Fixed 3D Player Emotes: Restored `SolaraCharacterActionController.start()` so all 6 character poses (Wave, Sit, Jump, Stretch, Look, Salute) animate smoothly and Sit stands cleanly back up.
+- Windows CI Cache Speedup: Added Rust cache prefix fallback and 4 parallel build jobs.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.74 — Clean Animated Home Logo, New Solara-Inc Splash Screen, Sit-Stand Fix & Auto-Download Updates (2026-11-19)
 
 - Clean Animated Home Logo: Simplified the Home screen left emblem to a clean floating animated Solara logo without spinning rings or label clutter.
