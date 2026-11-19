@@ -1,5 +1,11 @@
 # Changelog
 
+## V-0.0.73 — Pose-Only 3D Character Animations & Borderless Skin Studio Cards (2026-11-19)
+
+- Pose-Only 3D Character Animations: Removed hand-held tool and item prop animations (Sword, Pickaxe, Torch, Golden Apple) and kept 6 clean, smooth pose animations across Home and Skin Studio: Wave, Sit & Stand, Victory Jump, Stretch, Look Around, and Salute.
+- Borderless Skin Studio Cards: Removed excessive and nested borders across Skin Studio skin cards, pills, action buttons, header, Cape Vault, and pedestal for a cleaner wardrobe gallery in both OLED and White themes.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.72 — Animated Solara-Inc Hero Emblem, Library Page, 2-Theme Mode & Top Download Manager (2026-11-19)
 
 - Animated Solara-Inc Hero Emblem: Added a balanced floating Solara logo with cyan-amber aura, dual orbital rings, orbiting spark dot, and `Solara-Inc` signature on the Home screen opposite the 3D animated character.

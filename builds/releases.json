@@ -2422,6 +2422,49 @@
       "notes": "Updater-signed Windows testing preview V-0.0.72 (internal SemVer 0.0.72). Physical Windows device acceptance remains pending.\n\n- Added an animated Solara logo with orbital glow and `Solara-Inc` signature on the Home screen opposite the 3D animated character.\n- Replaced Screenshots in the left sidebar with a dedicated **Library** page (`/library`) to search, filter, launch, and manage Minecraft instances.\n- Updated sidebar navigation icons for **ModPackInstaller**, **Skin Studio**, and **Library**.\n- Restricted Settings → Appearance to two themes: **OLED** (default) and **White**.\n- Made the Modrinth-style **Download Manager** always visible right next to **Check for updates**, showing live Java runtime / instance / modpack downloads and completed history.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.72/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "994e8515-641f-44c7-a4b1-43f7cf6360ba",
+      "publicVersion": "V-0.0.73",
+      "internalVersion": "0.0.73",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.73/solaralauncher.exe",
+      "commit": "59777ba0eec19d2cf254a2899d6a1908e18f839c",
+      "allocatedAt": "2026-11-19T16:05:18.005Z",
+      "state": "published",
+      "applicationSha256": "2db2b1cfb7a698e780504ca5fe27ba85ff9240dfe79b22dd535e97a8b856410e",
+      "applicationSize": 41559040,
+      "sourceTree": "8a2c36fc753ad1b4f174daf80610667713de5e90",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21435921,
+          "sha256": "02b65fcd12851046401771f163dfa2bbe14402b8f985c0eba35fdd684eee0963"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41559040,
+          "sha256": "2db2b1cfb7a698e780504ca5fe27ba85ff9240dfe79b22dd535e97a8b856410e"
+        },
+        "source.zip": {
+          "size": 34037667,
+          "sha256": "0c64f8fb4f58665c474869896c2027182824474413aed143938f7885861181b8"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21435921,
+      "sha256": "02b65fcd12851046401771f163dfa2bbe14402b8f985c0eba35fdd684eee0963",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T16:27:05.520Z",
+      "verifiedAt": "2026-11-19T16:27:02.452Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaC91am9kNStJUisvdkxpZjRySG42Sm9CeVBzdlZ3QUhBSVZ2NHpDeTFWM1Y5QjNZMXBRTU94ZmdhdG5NeHhvT3RBd0tHUVIwRWJ2NU1jVjBwMWozZmdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTA1NjIxCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjczCmxWSmk3OFpLOWxFekZZc3RBZGZZU05ZVzg2RlNuK2g3V3ZNaDE3OWZMRTE4SThFdk9oWWxJa052WnlZVUxHSHg1S1YvY2FGZ3l4T0NNSTIzQS83MUJnPT0K",
+      "notes": "Updater-signed Windows testing preview V-0.0.73 (internal SemVer 0.0.73). Physical Windows device acceptance remains pending.\n\n- Removed hand-held tool/item prop animations (Sword, Pickaxe, Torch, Golden Apple) and kept 6 clean, smooth pose-only 3D character animations: **Wave**, **Sit & Stand**, **Victory Jump**, **Stretch**, **Look Around**, and **Salute**.\n- Removed excessive and nested borders across Skin Studio cards, pills, action buttons, header, Cape Vault, and pedestal for a cleaner wardrobe gallery in both **OLED** and **White** themes.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.73/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
