@@ -1,5 +1,11 @@
 # Changelog
 
+## V-0.0.71 — Custom 3D Character Animations & Interactive Minecraft Props (2026-11-19)
+
+- 7 Custom Procedural Character Actions: Replaced default idle sub-clips with original Solara procedural animations playing automatically on both Home and Skin Studio: Eating a Golden Apple (with 3D voxel apple & golden crumbs), Diamond Sword flourish, Diamond Pickaxe mining swings, Glowing Torch cave look-around (with rising embers), friendly Waving, Sitting & Standing, and Victory Jump.
+- Skin Studio Action Bar: Added one-click Action pills (`Wave`, `Golden Apple`, `Sword`, `Pickaxe`, `Torch`, `Sit`, `Jump`) on the right-side 3D pedestal and click-to-animate character interactions.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.70 — Original Solara Skin Studio, Centered Home Hero & Sidebar Home Icon (2026-11-19)
 
 - Original Solara Skin Studio: Completely redesigned Wardrobe & Cape Editor with a top command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop `.PNG` upload banner, dedicated Cape Vault, and a sticky elevated right-side 3D animated character pedestal with Classic/Slim quick switcher and nametag toggle.

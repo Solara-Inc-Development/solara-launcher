@@ -2336,6 +2336,49 @@
       "notes": "Solara Launcher Original Skin Studio, Centered Home Hero & Sidebar Home Icon\n\n- Original Solara Skin Studio: Completely redesigned Wardrobe & Cape Editor with a top command bar, segmented My Skins / Presets / Capes tabs, drag-and-drop .PNG import banner, dedicated Cape Vault, and an elevated right-side 3D animated character pedestal with Classic/Slim quick switcher and nametag toggle.\n- Sidebar Home Icon: Replaced the sidebar Home navigation button and top breadcrumb icon with a clean Home icon, and renamed the Skins tooltip to Skin Studio.\n- Premium Centered Home Hero: Centered the Welcome Back header, cyan gradient player name, greeting, and Sign In / Account dropdown pill right in the center of the Home screen with the 3D animated player skin cleanly docked to the far right edge.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.70/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "8e6510e7-9950-4c16-a90a-3172ef9c7762",
+      "publicVersion": "V-0.0.71",
+      "internalVersion": "0.0.71",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.71/solaralauncher.exe",
+      "commit": "39bfb7dc3276c0f935e18a87a949c1c1291f6c9f",
+      "allocatedAt": "2026-11-19T14:04:56.322Z",
+      "state": "published",
+      "applicationSha256": "ea0f3b1a1595258549304f47477df27ad2f8674d17f10607e266748c6139418d",
+      "applicationSize": 41520128,
+      "sourceTree": "2596f105ec1b092131c659069f6f643f89298e4a",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21464557,
+          "sha256": "48c6d6c0ddc340eb37d0f0f06355a7f6de4d621bbab6bf907f4cca152ab20691"
+        },
+        "application/solaralauncher.exe": {
+          "size": 41520128,
+          "sha256": "ea0f3b1a1595258549304f47477df27ad2f8674d17f10607e266748c6139418d"
+        },
+        "source.zip": {
+          "size": 34034413,
+          "sha256": "2e6972f3fb74921048515ec98b4986f15baa430d040673151bfb2d64e25eb984"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21464557,
+      "sha256": "48c6d6c0ddc340eb37d0f0f06355a7f6de4d621bbab6bf907f4cca152ab20691",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-19T14:30:43.784Z",
+      "verifiedAt": "2026-11-19T14:30:03.629Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDE3SWJBSGJDcnRvWVQ3Yms1Z0lhbjFueG5hdkdELzNiSHlDek13YW9NKzczM0kyWUlEdkJCK2l0TDdSazZQVVNuRTk5cXVmVytNMGNRQ09xU2VUUkFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDk4NjAyCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjcxClNKUDRDRHVjcTZHUnNvMi90bWFldFNlbWJXbjdlblJpNTBndnRWMHVZQVpmTmZYS1dKSkhxVTVlMFo5elYzWms2ZHdhVWM3ZG5CRkpmWlFrSUxzc0JBPT0K",
+      "notes": "Solara Launcher Custom 3D Character Animations & Interactive Minecraft Props\n\n- 7 Custom Procedural Character Actions: Replaced Modrinth's generic idle sub-clips with rich Solara procedural animations that play automatically across both the Home screen and Skin Studio:\n  - Eating a Golden Apple (3D voxel Golden Apple in hand, biting motion, head nod, and bursting golden crumb particles)\n  - Holding & Flourishing a Diamond Sword (3D voxel Diamond Sword with heroic ready stance and slash flourish)\n  - Holding & Swinging a Diamond Pickaxe (3D voxel Diamond Pickaxe with realistic mining swings)\n  - Holding a Glowing Torch (3D voxel Torch with rising embers and curious cave look-around)\n  - Friendly Wave (high cheerful side-to-side wave with warm head tilt)\n  - Sitting & Standing (smooth seated pose with swinging legs, relaxed arms, look-around, and smooth stand-up)\n  - Victory Jump (anticipation crouch, joyful leap with raised arms, and soft landing)\n- Skin Studio Action Bar & Click Interactions: Added one-click Action pills (Wave, Golden Apple, Sword, Pickaxe, Torch, Sit, Jump) on the Solara Skin Studio pedestal, plus clicking the 3D character triggers random actions directly.\n- Retained third-party engine code remains attributed under its existing licences.\n\nUpdater-signed Windows testing preview. Physical Windows installation, licensed gameplay and update/relaunch acceptance remain pending. Windows Authenticode publisher signing is not claimed.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.71/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
