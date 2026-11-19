@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara UI differentiation: ModPackInstaller, check for updates & home dashboard redesign; signing stays private.
+# Solara startup fix (V-0.0.67): resolve black screen on launch by passing appEvents and guarding early startup; signing stays private.
 on:
   workflow_dispatch:
   push:

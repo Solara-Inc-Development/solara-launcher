@@ -1,6 +1,5 @@
 import { computed, onUnmounted, ref } from 'vue'
 
-import { useAppEvent } from '@/composables/use-app-event'
 import { handleSevereError } from '@/composables/use-error.js'
 import { trackEvent } from '@/helpers/analytics'
 import {
@@ -13,6 +12,7 @@ import {
 import { getPlayerHeadUrl } from '@/helpers/rendering/player-head'
 import type { Skin } from '@/helpers/skins'
 import { get_available_skins } from '@/helpers/skins'
+import { type AppEvents, injectAppEvents } from '@/providers/app-events'
 
 export type MinecraftCredential = {
 	profile: {
@@ -127,16 +127,19 @@ function getAccountAvatarUrl(account: MinecraftCredential) {
 	return `https://mc-heads.net/avatar/${account.profile.id}/128`
 }
 
-export function useMinecraftAccounts() {
+export function useMinecraftAccounts(customEvents?: AppEvents | null) {
 	if (!initialized) {
 		initialized = true
 		void refreshValues()
 
-		useAppEvent('process', async (e) => {
-			if (e.event === 'launched') {
-				await refreshValues()
-			}
-		})
+		const events = customEvents ?? injectAppEvents(null)
+		if (events) {
+			events.on('process', async (e) => {
+				if (e.event === 'launched') {
+					await refreshValues()
+				}
+			})
+		}
 	}
 
 	return {

@@ -11,11 +11,51 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.67',
+		title: 'Startup Black Screen Fix & Bootstrap Reliability',
+		date: 'November 19, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Hardened early launcher initialization and update checks for clean cold-start rendering.',
+			'Added full GitHub release notes with direct download links, checksums, and source archives.',
+		],
+		issuesFixed: [
+			'Fixed black screen on launch caused by calling useMinecraftAccounts inside root App.vue without passing appEvents.',
+			'Fixed early checkUpdates temporal dead zone error before update state listeners initialized.',
+			'Guarded early severe error reporting so startup errors cannot crash before the error modal mounts.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
+		version: 'V-0.0.66',
+		title: 'Home Dashboard Redesign, ModPackInstaller & Clean Update Modal',
+		date: 'November 18, 2026',
+		channel: 'Testing Preview',
+		featuresAdded: [
+			'Redesigned single-screen Home dashboard with personalized welcome message, Minecraft profile switcher, News, and Version History.',
+			'Renamed sidebar catalog entry to ModPackInstaller and focused browsing strictly on modpacks.',
+			'Replaced top-bar idle indicator with a Check for Updates button and floating Update Available modal without emojis.',
+			'Removed the 300px right sidebar for a wider workspace.',
+		],
+		issuesFixed: [
+			'Decoupled Minecraft account state into a shared composable accessible from the Home dashboard.',
+			'Streamlined update checking on startup and manual top-bar click.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+		],
+	},
+	{
 		version: 'V-0.0.65',
 		title: 'Solara Cyan Identity & Bundled Dependency Licenses',
 		date: 'November 15, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Applied signature Solara cyan branding across Dark, Light, OLED, and Retro themes.',
 			'Enabled Guest exploration and installation of community modpacks without third-party account requirements.',

@@ -449,8 +449,6 @@ onMounted(async () => {
 	document.querySelector('body').addEventListener('auxclick', handleAuxClick)
 	document.querySelector('body').addEventListener('contextmenu', handleContextMenu)
 	document.addEventListener('fullscreenchange', handleFullscreenChange)
-
-	checkUpdates()
 })
 
 onUnmounted(async () => {
@@ -1291,10 +1289,12 @@ onMounted(() => {
 	setServerAddServerToInstanceModal(addServerToInstanceModal.value)
 	setServerInstallToPlayModal(installToPlayModal.value)
 	setServerUpdateToPlayModal(updateToPlayModal.value)
+
+	void checkUpdates()
 })
 
 const sidebar = ref(null)
-const mcAccounts = useMinecraftAccounts()
+const mcAccounts = useMinecraftAccounts(appEvents)
 provideMinecraftAccounts(
 	computed(() => ({
 		loginDisabled: mcAccounts.loginDisabled.value,

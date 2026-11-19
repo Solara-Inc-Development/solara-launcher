@@ -22,7 +22,11 @@ const errorState = reactive({
 			this.minecraftAuthErrorModal.show(error)
 			return
 		}
-		this.errorModal.show(error, context, closable, source)
+		if (this.errorModal) {
+			this.errorModal.show(error, context, closable, source)
+		} else {
+			console.error('Unhandled severe error before errorModal was ready:', error)
+		}
 	},
 })
 
