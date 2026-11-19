@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.67 — Startup Black Screen Fix & Bootstrap Reliability (2026-11-19)
+
+- Startup Fix: Resolved the blank black screen on launch caused by calling `useMinecraftAccounts()` inside root `App.vue` without passing `appEvents`.
+- Update Check Ordering: Moved initial `checkUpdates()` to the post-mount lifecycle hook so update listeners, state variables, and modals are initialized before startup update checks run.
+- Early Error Safety: Guarded `useError()` severe error reporting when an error occurs before `ErrorModal` mounts.
+- GitHub Release Notes: Included direct download links (`solaralauncher.exe`, `.sig`, `latest.json`, `source.zip`, and GitHub source `.zip`/`.tar.gz` archives) and SHA-256 checksums in release descriptions.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.66 — Home Dashboard Redesign, ModPackInstaller & Clean Update Flow (2026-11-18)
 
 - Redesigned Home Dashboard: Single scrollable screen with personalized welcome greeting ("Welcome Back, [Username]" / "Good To See You back :]"), integrated "Playing as" Minecraft account card with 3D skin head avatar, quick-play instances grid, Solara News, and structured Version History.
