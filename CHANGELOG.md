@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.78 — Custom Solara Theme Previews, Renamed Theme Tab & Locked Feature / Behavior Defaults (2026-11-20)
+
+- Renamed Settings → Appearance to **Theme** and replaced the stock theme preview boxes with bespoke mini Solara Launcher window previews for both **OLED (True Black)** and **White (Clean Daylight)**.
+- Removed the **Features** and **Behavior** tabs from Settings so Display focuses cleanly on **Theme**.
+- Locked clean launcher defaults across both frontend and Rust backend: Instance Worlds OFF, Instance Files OFF, Instance Screenshots ON, Sidebar Screenshots OFF, Skin Studio ON, Quick Instances max 20, Play Page Jump In OFF, and all 8 Behavior toggles (Minimize app, Refocus on close, Hide right sidebar, Compact mode, Show play time, Hide nametag, Warn on unknown modpacks, Skip non-essential warnings) permanently OFF.
+- Refreshed GitHub `README.md` with custom animated SVGs (`hero.svg`, `features-showcase.svg`, `divider.svg`, `footer.svg`) and natural, human-written documentation.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.77 — Streamlined Settings Menu & Locked-Off Advanced Rendering / System Window Frame (2026-11-20)
 
 - Removed Language Tab: Removed the unused Language tab from the Settings menu for a cleaner Display section.

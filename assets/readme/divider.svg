@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 24" width="1200" height="24" role="presentation">
+  <defs>
+    <linearGradient id="lineBase" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="25%" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#fbbf24" stop-opacity="0.35"/>
+      <stop offset="75%" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="pulseBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.95"/>
+      <stop offset="65%" stop-color="#fbbf24" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="11" width="1200" height="2" rx="1" fill="url(#lineBase)"/>
+  <rect x="-240" y="10.5" width="240" height="3" rx="1.5" fill="url(#pulseBeam)">
+    <animate attributeName="x" values="-240;1200" dur="3.4s" repeatCount="indefinite"/>
+  </rect>
+</svg>

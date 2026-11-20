@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" width="1200" height="120" role="presentation">
+  <defs>
+    <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#60a5fa" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.32"/>
+    </linearGradient>
+    <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.16"/>
+    </linearGradient>
+    <clipPath id="footerClip">
+      <rect width="1200" height="120" rx="18"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#footerClip)">
+    <rect width="1200" height="120" fill="#04070d"/>
+    <path d="M0 70 Q300 28 600 70 T1200 70 T1800 70 T2400 70 V120 H0 Z" fill="url(#wave1)">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-1200 0" dur="9s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 84 Q300 116 600 84 T1200 84 T1800 84 T2400 84 V120 H0 Z" fill="url(#wave2)">
+      <animateTransform attributeName="transform" type="translate" values="-1200 0;0 0" dur="12s" repeatCount="indefinite"/>
+    </path>
+    <text x="600" y="54" text-anchor="middle" fill="#f8fafc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">
+      Make it your world.
+    </text>
+    <text x="600" y="79" text-anchor="middle" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+      Built for Minecraft Java on Windows · Crafted with care by Solara-Inc
+    </text>
+    <rect x="0.75" y="0.75" width="1198.5" height="118.5" rx="17.25" fill="none" stroke="#38bdf8" stroke-opacity="0.18" stroke-width="1.5"/>
+  </g>
+</svg>

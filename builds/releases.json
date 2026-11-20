@@ -2637,6 +2637,49 @@
       "notes": "Solara Launcher V-0.0.77 (Testing Preview)\n\n- Removed the unused Language tab from the Settings menu.\n- Removed Advanced rendering and System window frame from Settings -> Appearance and locked both permanently OFF across frontend and Rust backend (legacy saved values are automatically reset to OFF).\n- Streamlined Windows preview packaging workflow for faster builds (~13 min even on Rust changes).\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.77/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "848cf756-19e0-44a7-9ace-4b3ab351d194",
+      "publicVersion": "V-0.0.78",
+      "internalVersion": "0.0.78",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.78/solaralauncher.exe",
+      "commit": "80aac342906353cd65acc024b082f6f346cd2499",
+      "allocatedAt": "2026-11-20T05:15:41.290Z",
+      "state": "published",
+      "applicationSha256": "85ec72604559c528a00c6c077de33551377a3ae574ff54a2e503a3b9e690cea4",
+      "applicationSize": 47533568,
+      "sourceTree": "133d8b737c1f400b953d0fdfb22d57f0d0d4e3d2",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21395336,
+          "sha256": "568839218ccc8f6dcf0eb947889fbd2c771fad42ad4892e7426ced0a2b59f23b"
+        },
+        "application/solaralauncher.exe": {
+          "size": 47533568,
+          "sha256": "85ec72604559c528a00c6c077de33551377a3ae574ff54a2e503a3b9e690cea4"
+        },
+        "source.zip": {
+          "size": 34051584,
+          "sha256": "0bde185c9c1cb6d905b47ece64712a20e48e6bb7b52f09a301daceb8366786ce"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21395336,
+      "sha256": "568839218ccc8f6dcf0eb947889fbd2c771fad42ad4892e7426ced0a2b59f23b",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-20T05:29:36.077Z",
+      "verifiedAt": "2026-11-20T05:29:32.150Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaCtZNkRiNXRCanZqa0IxYUlwaW1vM0N3eFVOalhTSkY3bkFONVFvSnNaL1VaY0hZbVlKRGhPV3RXdmxLVUlTSnFjMXpHN0VMZGlWUjc2eldvemhROEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTUyNTE1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjc4CldzTXB1cmNrWEYyRVhEQWx0OCtvQUtoUENJVTNnSklmTzBCZFFtMmxsTkl5MEdPM0tKaC9CWE9rWmYyc3JQZk16SWp3V3E4d0FraXRqZDh4UWJTbEFnPT0K",
+      "notes": "Solara Launcher V-0.0.78 (Testing Preview)\n\n- Renamed Settings -> Appearance to Theme and replaced the generic preview boxes with custom mini Solara Launcher window previews for OLED (True Black) and White (Clean Daylight).\n- Removed the Features and Behavior tabs from Settings and locked clean defaults across frontend and Rust backend:\n  - Instances: Worlds OFF, Files OFF, Screenshots ON\n  - Sidebar: Show all screenshots OFF, Skin selector ON, Quick instances max 20\n  - Play page: Show Jump in OFF\n  - Behavior: Minimize app, Refocus on close, Hide right sidebar, Compact mode, Show play time, Hide nametag, Unknown modpack warning, and Skip non-essential warnings all locked OFF\n- Refreshed GitHub README with bespoke animated SVGs and clear, human-friendly docs.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.78/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
