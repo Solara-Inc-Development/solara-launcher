@@ -48,7 +48,7 @@ import { getOS } from '@/helpers/utils.js'
 
 const appSettings = useAppSettings()
 
-const nativeDecorations = ref(true)
+const nativeDecorations = ref(false)
 const isMaximized = ref(false)
 const os = ref('')
 const controlsEl = ref(null)
@@ -84,11 +84,11 @@ watch(controlsEl, (el) => {
 onMounted(async () => {
 	os.value = await getOS()
 
-	const settings = await getSettings()
-	nativeDecorations.value = settings.native_decorations
+	await getSettings()
+	nativeDecorations.value = false
 
 	if (os.value !== 'MacOS') {
-		await getCurrentWindow().setDecorations(nativeDecorations.value)
+		await getCurrentWindow().setDecorations(false)
 	}
 
 	isMaximized.value = await getCurrentWindow().isMaximized()

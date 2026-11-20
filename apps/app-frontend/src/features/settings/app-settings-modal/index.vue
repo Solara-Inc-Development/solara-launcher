@@ -4,7 +4,6 @@ import {
 	CoffeeIcon,
 	EyeOffIcon,
 	GaugeIcon,
-	LanguagesIcon,
 	LightBulbIcon,
 	PaintbrushIcon,
 	RefreshCwIcon,
@@ -35,7 +34,6 @@ import AppearanceSettings from '@/features/settings/display/appearance-settings.
 import BehaviorSettings from '@/features/settings/display/behavior-settings.vue'
 import FeatureFlagSettings from '@/features/settings/display/feature-flag-settings.vue'
 import FeaturesSettings from '@/features/settings/display/features-settings.vue'
-import LanguageSettings from '@/features/settings/display/language-settings.vue'
 import JavaAndMemorySettings from '@/features/settings/instance-defaults/java-and-memory-settings/index.vue'
 import LaunchHooksSettings from '@/features/settings/instance-defaults/launch-hooks-settings.vue'
 import WindowSettings from '@/features/settings/instance-defaults/window-settings.vue'
@@ -109,16 +107,6 @@ const tabs = [
 		category: tabCategories.display,
 		icon: Settings2Icon,
 		content: BehaviorSettings,
-	},
-	{
-		name: defineMessage({
-			id: 'app.settings.tabs.language',
-			defaultMessage: 'Language',
-		}),
-		category: tabCategories.display,
-		icon: LanguagesIcon,
-		content: LanguageSettings,
-		badge: commonMessages.beta,
 	},
 	{
 		name: commonSettingsMessages.featureFlags,

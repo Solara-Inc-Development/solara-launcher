@@ -42,7 +42,7 @@ interface SidebarSettings {
 
 export interface AppearanceSettingsContext {
 	theme: ThemeSettings
-	advancedRendering: AppearanceSetting<boolean>
+	advancedRendering?: AppearanceSetting<boolean>
 	nativeDecorations?: AppearanceSetting<boolean>
 	projectLayouts?: ProjectLayoutSettings
 	externalLinksNewTab?: AppearanceSetting<boolean>
@@ -60,7 +60,7 @@ export interface AppearanceSettingsProviderOptions {
 		syncAcrossDevices: WritableAppearanceSetting<boolean>
 		syncDisabled: AppearanceRef<boolean>
 	}
-	advancedRendering: WritableAppearanceSetting<boolean>
+	advancedRendering?: WritableAppearanceSetting<boolean>
 	nativeDecorations?: WritableAppearanceSetting<boolean>
 	projectLayouts?: {
 		value: AppearanceRef<readonly ProjectLayoutSetting[]>
@@ -207,7 +207,9 @@ export function provideAppearanceSettings(
 				update: updateThemeSync,
 			},
 		},
-		advancedRendering: createSetting(options.advancedRendering),
+		advancedRendering: options.advancedRendering
+			? createSetting(options.advancedRendering)
+			: undefined,
 		nativeDecorations: options.nativeDecorations
 			? createSetting(options.nativeDecorations)
 			: undefined,

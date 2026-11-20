@@ -626,12 +626,10 @@ async function setupApp() {
 	await traceStartupStep('Initialize onboarding checklist', () => onboardingChecklist.initialize())
 
 	const {
-		native_decorations,
 		theme,
 		locale,
 		telemetry,
 		hide_nametag_skins_page,
-		advanced_rendering,
 		toggle_sidebar,
 		sync_theme_across_devices,
 		sync_behavior_across_devices,
@@ -675,15 +673,15 @@ async function setupApp() {
 	const dev = await traceStartupStep('Read development mode', isDev)
 	isDevEnvironment.value = dev
 	const version = await traceStartupStep('Read app version', getVersion)
-	appSettings.nativeDecorations = native_decorations
+	appSettings.nativeDecorations = false
 	if (os.value !== 'MacOS') {
 		await traceStartupStep('Apply window decorations', () =>
-			getCurrentWindow().setDecorations(native_decorations),
+			getCurrentWindow().setDecorations(false),
 		)
 	}
 
 	appTheme.preferred = theme === 'light' ? 'light' : 'oled'
-	appTheme.advancedRendering = advanced_rendering
+	appTheme.advancedRendering = false
 	appTheme.syncAcrossDevices = sync_theme_across_devices
 	appSettings.syncBehaviorAcrossDevices = sync_behavior_across_devices
 	appSettings.syncFeaturesAcrossDevices = sync_features_across_devices

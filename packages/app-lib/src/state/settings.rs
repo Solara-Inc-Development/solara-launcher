@@ -144,6 +144,8 @@ impl Settings {
             .fetch_one(exec)
             .await?;
 
+        let _ = (res.advanced_rendering, res.native_decorations);
+
         Ok(Self {
             max_concurrent_downloads: res.max_concurrent_downloads as usize,
             max_concurrent_writes: res.max_concurrent_writes as usize,
@@ -152,8 +154,9 @@ impl Settings {
             default_page: DefaultPage::from_string(&res.default_page),
             collapsed_navigation: res.collapsed_navigation == 1,
             hide_nametag_skins_page: res.hide_nametag_skins_page == 1,
-            advanced_rendering: res.advanced_rendering == 1,
-            native_decorations: res.native_decorations == 1,
+            // Solara locks advanced rendering and native OS window decorations off permanently.
+            advanced_rendering: false,
+            native_decorations: false,
             toggle_sidebar: res.toggle_sidebar == 1,
             show_jump_in: res.show_jump_in == 1,
             always_show_copy_details: res.always_show_copy_details == 1,
@@ -311,8 +314,8 @@ impl Settings {
             self.locale,
             default_page,
             self.collapsed_navigation,
-            self.advanced_rendering,
-            self.native_decorations,
+            false,
+            false,
             self.discord_rpc,
             self.developer_mode,
             self.telemetry,

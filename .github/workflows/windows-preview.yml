@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.76: Fix ModPackInstaller project page navigation freeze, redesign top Solara Downloads UI, and switch Windows CI to thin LTO + Swatinem/rust-cache@v2; signing stays private.
+# Solara V-0.0.77: Remove Language tab from Settings, remove & permanently lock OFF Advanced rendering and System window frame, and skip duplicate debug cargo tests in preview packaging; signing stays private.
 on:
   workflow_dispatch:
   push:
@@ -63,8 +63,6 @@ jobs:
           Run-Check -Command npm -Arguments @('run', 'build')
           Run-Check -Command pnpm -Arguments @('--filter', '@modrinth/app-frontend', 'build')
           Run-Check -Command node -Arguments @('scripts/third-party.mjs')
-          Run-Check -Command cargo -Arguments @('test', '-p', 'theseus', '--lib', '--locked')
-          Run-Check -Command cargo -Arguments @('test', '-p', 'theseus_gui', '--bin', 'solaralauncher', '--locked')
       - name: Reserve unique testing version
         env:
           GH_TOKEN: ${{ github.token }}

@@ -174,12 +174,12 @@ fn are_updates_enabled() -> bool {
         && app_updates::configured_pubkey().is_some()
 }
 
-// Toggles decorations
+// Window decorations remain locked off so the custom Solara title bar is always used.
 #[tauri::command]
-async fn toggle_decorations(b: bool, window: tauri::Window) -> api::Result<()> {
+async fn toggle_decorations(_b: bool, window: tauri::Window) -> api::Result<()> {
     window
-        .set_decorations(b)
-        .context("failed to toggle decorations")?;
+        .set_decorations(false)
+        .context("failed to lock window decorations off")?;
     Ok(())
 }
 

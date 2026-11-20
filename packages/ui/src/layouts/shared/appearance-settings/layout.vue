@@ -22,7 +22,8 @@ const systemTheme = theme.system
 const preferredDarkTheme = theme.preferredDark
 const syncAcrossDevices = theme.syncAcrossDevices.value
 const syncDisabled = theme.syncAcrossDevices.disabled
-const advancedRendering = appearance.advancedRendering.value
+const advancedRendering = appearance.advancedRendering
+const advancedRenderingValue = advancedRendering?.value
 const nativeDecorations = appearance.nativeDecorations
 const nativeDecorationsValue = nativeDecorations?.value
 const projectLayouts = appearance.projectLayouts
@@ -31,6 +32,9 @@ const externalLinksNewTab = appearance.externalLinksNewTab
 const externalLinksNewTabValue = externalLinksNewTab?.value
 const sidebarPreferences = appearance.sidebarPreferences
 const sidebarPreferenceValues = sidebarPreferences?.value
+const hasAdditionalAppearanceOptions = Boolean(
+	advancedRendering || externalLinksNewTab || sidebarPreferences || nativeDecorations,
+)
 </script>
 
 <template>
@@ -102,9 +106,13 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 			</div>
 		</section>
 
-		<div class="mt-8 border-0 border-t border-solid border-divider pt-6">
+		<div
+			v-if="hasAdditionalAppearanceOptions"
+			class="mt-8 border-0 border-t border-solid border-divider pt-6"
+		>
 			<div class="flex flex-col gap-6">
 				<AppearanceSettingRow
+					v-if="advancedRendering"
 					control-id="advanced-rendering"
 					:title="formatMessage(messages.advancedRenderingTitle)"
 					:description="formatMessage(messages.advancedRenderingDescription)"
@@ -112,9 +120,9 @@ const sidebarPreferenceValues = sidebarPreferences?.value
 					<template #default="{ labelledBy }">
 						<Toggle
 							id="advanced-rendering"
-							:model-value="advancedRendering"
+							:model-value="advancedRenderingValue ?? false"
 							:aria-labelledby="labelledBy"
-							@update:model-value="appearance.advancedRendering.update"
+							@update:model-value="advancedRendering.update"
 						/>
 					</template>
 				</AppearanceSettingRow>

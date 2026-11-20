@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.77',
+		title: 'Streamlined Settings Menu & Permanently Locked Off Advanced Rendering / System Window Frame',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Removed the unused Language tab from the Settings menu for a cleaner, more focused settings layout.',
+			'Removed Advanced rendering and System window frame toggles from Settings → Appearance and locked both permanently OFF across frontend and Rust backend.',
+			'Streamlined Windows preview packaging workflow to avoid duplicate debug test builds alongside the parallel Windows source-check job.',
+		],
+		issuesFixed: [
+			'Ensured existing user profiles with saved advanced rendering or native OS window frame flags are automatically reset to OFF so the custom Solara title bar and fast rendering stay consistent.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.76',
 		title: 'ModPack Navigation Fix, Original Solara Downloads UI & Fast Windows CI Builds',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Redesigned the top Download Manager into an original Solara Downloads capsule and drawer featuring segmented Active / History tabs, cyan-to-gold gradient progress bars, status pills, live speed chip, and borderless task cards in both OLED and White themes.',
 			'Rendered project compatibility, links, tags, creators, and details inline in a clean responsive two-column layout on ModPackInstaller project pages.',

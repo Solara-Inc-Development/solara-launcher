@@ -6,17 +6,16 @@ import {
 	provideAppearanceSettings,
 	useSavable,
 } from '@modrinth/ui'
-import { platform } from '@tauri-apps/plugin-os'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
-import { catalogFeatures } from '@/config'
 import {
 	type ColorTheme,
 	isDarkTheme,
 	normalizeSolaraTheme,
 	useTheme,
 } from '@/composables/use-theme.ts'
+import { catalogFeatures } from '@/config'
 import { injectAppSettingsModal } from '@/features/settings/app-settings-modal/context'
 import { type AppSettings, get, set } from '@/helpers/settings.ts'
 
@@ -25,21 +24,16 @@ const appSettings = useAppSettings()
 const auth = injectAuth()
 const { updatePreferences } = injectUserPreferences()
 const settingsModal = injectAppSettingsModal()
-const os = platform()
 
 type AppearanceSettingsState = {
 	theme: ColorTheme
 	syncAcrossDevices: boolean
-	advancedRendering: boolean
-	nativeDecorations: boolean
 }
 
 function getAppearanceSettingsState(): AppearanceSettingsState {
 	return {
 		theme: normalizeSolaraTheme(theme.preferred),
 		syncAcrossDevices: theme.syncAcrossDevices,
-		advancedRendering: theme.advancedRendering,
-		nativeDecorations: appSettings.nativeDecorations,
 	}
 }
 
@@ -61,8 +55,8 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 			...(await get()),
 			theme: value.theme,
 			sync_theme_across_devices: value.syncAcrossDevices,
-			advanced_rendering: value.advancedRendering,
-			native_decorations: value.nativeDecorations,
+			advanced_rendering: false,
+			native_decorations: false,
 		}
 
 		await set(nextSettings)
@@ -71,8 +65,8 @@ const { saved, current, changes, saving, hasChanges, reset, save } = useSavable(
 		}
 		theme.preferred = value.theme
 		theme.syncAcrossDevices = value.syncAcrossDevices
-		theme.advancedRendering = value.advancedRendering
-		appSettings.nativeDecorations = value.nativeDecorations
+		theme.advancedRendering = false
+		appSettings.nativeDecorations = false
 	},
 )
 
@@ -86,14 +80,6 @@ function setTheme(value: ColorTheme): void {
 
 function setSyncAcrossDevices(enabled: boolean): void {
 	current.value.syncAcrossDevices = enabled
-}
-
-function setAdvancedRendering(enabled: boolean): void {
-	current.value.advancedRendering = enabled
-}
-
-function setNativeDecorations(enabled: boolean): void {
-	current.value.nativeDecorations = enabled
 }
 
 watch(
@@ -142,17 +128,6 @@ provideAppearanceSettings({
 		},
 		syncDisabled: computed(() => !auth.user.value),
 	},
-	advancedRendering: {
-		value: computed(() => current.value.advancedRendering),
-		set: setAdvancedRendering,
-	},
-	nativeDecorations:
-		os !== 'macos'
-			? {
-					value: computed(() => current.value.nativeDecorations),
-					set: setNativeDecorations,
-				}
-			: undefined,
 	updatePreferences,
 })
 </script>
