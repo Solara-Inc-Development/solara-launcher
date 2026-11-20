@@ -120,39 +120,28 @@ function openCurrentDir() {
 
 <template>
 	<section
-		class="solara-dir-card flex flex-col gap-4 rounded-2xl p-5"
+		class="flex flex-col gap-3 border-0 border-b border-solid border-surface-5 pb-6"
 		aria-labelledby="app-directory-title"
 	>
-		<div class="flex items-center gap-3">
-			<div
-				class="solara-dir-icon flex size-10 shrink-0 items-center justify-center rounded-xl"
-				aria-hidden="true"
-			>
-				<FolderOpenIcon class="size-5 text-amber-400" />
-			</div>
-			<div class="flex min-w-0 flex-col gap-0.5">
-				<h2 id="app-directory-title" class="m-0 text-base font-bold text-contrast">
-					{{ formatMessage(messages.title) }}
-				</h2>
-				<p class="m-0 text-xs font-medium text-secondary">
-					{{ formatMessage(messages.description) }}
-				</p>
-			</div>
+		<div class="flex flex-col gap-1">
+			<h2 id="app-directory-title" class="m-0 text-lg font-semibold text-contrast">
+				{{ formatMessage(messages.title) }}
+			</h2>
+			<p class="m-0 leading-tight text-secondary">
+				{{ formatMessage(messages.description) }}
+			</p>
 		</div>
 
 		<button
 			v-if="currentDir"
 			type="button"
-			class="solara-path-pill flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-0 px-3.5 py-3 text-left transition-colors"
+			class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid border-surface-5 bg-surface-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-4"
 			@click="copyPath(currentDir)"
 		>
-			<span class="min-w-0 truncate font-mono text-xs font-semibold text-contrast">
+			<span class="min-w-0 truncate text-sm text-primary">
 				{{ currentDir }}
 			</span>
-			<span class="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-secondary">
-				<ClipboardCopyIcon class="size-4" aria-hidden="true" />
-				<span>Copy</span>
-			</span>
+			<ClipboardCopyIcon class="size-4 shrink-0 text-secondary" aria-hidden="true" />
 		</button>
 
 		<Admonition
@@ -174,7 +163,7 @@ function openCurrentDir() {
 			</template>
 		</Admonition>
 
-		<div class="flex flex-wrap items-center gap-2.5">
+		<div class="flex flex-wrap items-center gap-2">
 			<Button :disabled="!currentDir" @click="openCurrentDir">
 				<FolderOpenIcon aria-hidden="true" />
 				{{ openFolderLabel }}
@@ -208,37 +197,3 @@ function openCurrentDir() {
 		/>
 	</section>
 </template>
-
-<style scoped>
-.solara-dir-card {
-	background: color-mix(in srgb, var(--surface-3) 86%, transparent);
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface-5) 55%, transparent);
-}
-
-:global(.light-mode) .solara-dir-card {
-	background: #ffffff;
-	box-shadow:
-		0 2px 10px rgba(15, 23, 42, 0.04),
-		inset 0 0 0 1px rgba(15, 23, 42, 0.07);
-}
-
-.solara-dir-icon {
-	background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(245, 158, 11, 0.1));
-}
-
-.solara-path-pill {
-	background: color-mix(in srgb, var(--surface-2) 78%, transparent);
-}
-
-.solara-path-pill:hover {
-	background: color-mix(in srgb, var(--surface-4) 80%, transparent);
-}
-
-:global(.light-mode) .solara-path-pill {
-	background: #f4f7fb;
-}
-
-:global(.light-mode) .solara-path-pill:hover {
-	background: #e9eff7;
-}
-</style>

@@ -11,11 +11,29 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.81',
+		title: 'Clean, Native Desktop Settings UI Without Gradient Clutter',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Refined the Settings modal, sidebar navigation, Theme selector previews, and Resources tab into a crisp, authentic desktop layout matching Java, Window, and Troubleshooting tabs.',
+			'Updated OLED and White theme preview cards with realistic mini window layouts and pure black/white surfaces without radial glow smudges or marketing sub-badges.',
+		],
+		issuesFixed: [
+			'Removed over-decorated gradient icon boxes, two-color active tab gradients, and glowing pill badges from Settings.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.80',
 		title: 'Cleaner Solara Settings Footer Without OS Version Clutter',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Simplified the bottom-left Solara Settings footer badge to display only the clean Solara Launcher version without the Windows OS build line underneath.',
 		],

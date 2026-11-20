@@ -282,8 +282,8 @@ function tabClasses(tab: Tab, index: number) {
 			: 'bg-transparent text-orange hover:bg-highlight-orange'
 	}
 	return isSelected
-		? 'tabbed-modal-tab-active text-contrast'
-		: 'bg-transparent text-secondary hover:bg-surface-4 hover:text-contrast'
+		? 'bg-surface-4 text-contrast'
+		: 'bg-transparent text-primary hover:bg-surface-4 hover:text-contrast'
 }
 
 function tabElementAttrs(tab: Tab) {
@@ -629,8 +629,8 @@ defineExpose({ show, hide, selectedTab, setTab })
 						<template v-for="(tab, index) in visibleTabs" :key="index">
 							<div
 								v-if="startsCategory(index) && tab.category"
-								class="shrink-0 truncate px-3 pb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] leading-4 text-secondary opacity-75"
-								:class="{ 'mt-4': index > 0 }"
+								class="shrink-0 truncate px-3 pb-1 text-xs font-bold uppercase leading-4 text-secondary"
+								:class="{ 'mt-3': index > 0 }"
 							>
 								{{ formatMessage(tab.category) }}
 							</div>
@@ -638,13 +638,13 @@ defineExpose({ show, hide, selectedTab, setTab })
 								:is="tab.href ? 'a' : 'button'"
 								v-bind="tabElementAttrs(tab)"
 								:class="[
-									'relative flex min-w-0 shrink-0 gap-2.5 items-center text-left rounded-xl px-3.5 py-2.5 border-none text-sm leading-5 font-semibold cursor-pointer active:scale-[0.98] transition-all no-underline',
+									'flex min-w-0 shrink-0 gap-2.5 items-center text-left rounded-xl px-3 py-2.5 border-none text-base leading-5 font-semibold cursor-pointer active:scale-[0.97] transition-all no-underline',
 									{ 'no-click-animation subpixel-antialiased will-change-auto': tab.href },
 									tabClasses(tab, index),
 								]"
 								@click="!tab.href && setTab(index)"
 							>
-								<component :is="tab.icon" class="size-[18px] flex-shrink-0" />
+								<component :is="tab.icon" class="size-5 flex-shrink-0" />
 								<span
 									:ref="(element) => setTabLabelRef(index, element)"
 									v-tooltip="tabLabelTooltip(index, formatMessage(tab.name))"
@@ -749,38 +749,6 @@ defineExpose({ show, hide, selectedTab, setTab })
 </template>
 
 <style scoped>
-.tabbed-modal-tab-active {
-	background: linear-gradient(
-		135deg,
-		rgba(56, 189, 248, 0.18) 0%,
-		rgba(251, 191, 36, 0.08) 100%
-	);
-	color: #38bdf8;
-	box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.24);
-}
-
-.tabbed-modal-tab-active::before {
-	content: '';
-	position: absolute;
-	left: 0;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 3px;
-	height: 54%;
-	border-radius: 999px;
-	background: linear-gradient(180deg, #38bdf8 0%, #fbbf24 100%);
-}
-
-:global(.light-mode) .tabbed-modal-tab-active {
-	background: linear-gradient(
-		135deg,
-		rgba(2, 132, 199, 0.13) 0%,
-		rgba(245, 158, 11, 0.07) 100%
-	);
-	color: #0284c7;
-	box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.2);
-}
-
 .tabbed-modal-scrollbar {
 	scrollbar-color: var(--surface-5) transparent;
 	scrollbar-width: thin;

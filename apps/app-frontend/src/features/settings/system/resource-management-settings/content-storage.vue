@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DatabaseIcon, LoaderCircleIcon, TrashIcon } from '@modrinth/assets'
+import { LoaderCircleIcon, TrashIcon } from '@modrinth/assets'
 import {
 	Button,
 	defineMessages,
@@ -135,19 +135,19 @@ const categories = computed(() => {
 			id: 'unique',
 			label: messages.unique,
 			bytes: Math.max(0, totalBytes.value - unused - shared),
-			tone: 'tone-cyan',
+			color: 'bg-brand',
 		},
 		{
 			id: 'shared',
 			label: messages.shared,
 			bytes: shared,
-			tone: 'tone-violet',
+			color: 'bg-secondary',
 		},
 		{
 			id: 'unused',
 			label: messages.unused,
 			bytes: unused,
-			tone: 'tone-amber',
+			color: 'bg-surface-5',
 		},
 	]
 })
@@ -193,98 +193,74 @@ function saveCacheLimit() {
 <template>
 	<section
 		v-if="calculating || storeUsage"
-		class="solara-res-card @container flex flex-col gap-5 rounded-2xl p-5"
+		class="@container flex flex-col gap-6 border-0 border-b border-solid border-surface-5 pb-6"
 		aria-labelledby="content-storage-title"
 	>
-		<!-- Card Header -->
-		<div class="flex flex-wrap items-start justify-between gap-3">
-			<div class="flex min-w-0 items-center gap-3">
-				<div
-					class="solara-res-icon is-cyan flex size-10 shrink-0 items-center justify-center rounded-xl"
-					aria-hidden="true"
-				>
-					<DatabaseIcon class="size-5 text-sky-400" />
-				</div>
-				<div class="flex min-w-0 flex-col gap-0.5">
-					<h2 id="content-storage-title" class="m-0 text-base font-bold text-contrast">
-						{{ formatMessage(messages.title) }}
-					</h2>
-					<p class="m-0 text-xs font-medium text-secondary">
-						{{ formatMessage(messages.description) }}
-					</p>
-				</div>
-			</div>
-			<span
-				class="solara-res-total-pill shrink-0 rounded-full px-3 py-1 text-xs font-bold tabular-nums"
-				aria-live="polite"
-			>
-				{{
-					calculating
-						? formatMessage(messages.calculating)
-						: formatMessage(messages.stored, { size: formatBytes(totalBytes, 1) })
-				}}
-			</span>
-		</div>
-
-		<!-- Storage Bar + Stat Tiles -->
 		<div class="flex flex-col gap-3">
+			<div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+				<h2 id="content-storage-title" class="m-0 text-lg font-semibold text-contrast">
+					{{ formatMessage(messages.title) }}
+				</h2>
+				<span class="text-sm font-medium tabular-nums text-secondary" aria-live="polite">
+					{{
+						calculating
+							? formatMessage(messages.calculating)
+							: formatMessage(messages.stored, { size: formatBytes(totalBytes, 1) })
+					}}
+				</span>
+			</div>
+			<p class="m-0 leading-tight text-secondary">
+				{{ formatMessage(messages.description) }}
+			</p>
+
 			<ProgressBar
 				v-if="calculating"
 				:progress="0"
 				waiting
 				full-width
-				class="[&>div:last-child]:h-2.5 [&>div:last-child]:bg-surface-4"
+				class="[&>div:last-child]:h-2 [&>div:last-child]:bg-surface-4"
 				aria-hidden="true"
 			/>
 			<div
 				v-else
 				aria-hidden="true"
-				class="solara-storage-track flex h-2.5 gap-1 overflow-hidden rounded-full p-0.5"
+				class="flex h-2 gap-0.5 overflow-hidden rounded-full bg-surface-4"
 			>
 				<template v-for="category in categories" :key="category.id">
 					<div
 						v-if="category.bytes > 0"
-						class="solara-storage-segment h-full min-w-[6px] rounded-full motion-safe:transition-[flex-grow] motion-safe:duration-300"
-						:class="category.tone"
+						class="h-full min-w-1 first:rounded-l-full last:rounded-r-full motion-safe:transition-[flex-grow] motion-safe:duration-300"
+						:class="category.color"
 						:style="{ flexGrow: category.bytes, flexBasis: '0%' }"
 					/>
 				</template>
 			</div>
 
-			<dl v-if="storeUsage" class="m-0 grid grid-cols-1 gap-2.5 @md:grid-cols-3">
-				<div
-					v-for="category in categories"
-					:key="category.id"
-					class="solara-stat-tile flex items-center justify-between gap-2 rounded-xl px-3 py-2.5"
-				>
-					<dt class="flex items-center gap-2 text-xs font-semibold text-secondary">
-						<span
-							class="solara-storage-dot size-2.5 shrink-0 rounded-full"
-							:class="category.tone"
-							aria-hidden="true"
-						/>
-						{{ formatMessage(category.label) }}
-					</dt>
-					<dd class="m-0 text-sm font-bold tabular-nums text-contrast">
+			<dl v-if="storeUsage" class="m-0 flex flex-wrap gap-x-5 gap-y-1 text-xs">
+				<div v-for="category in categories" :key="category.id" class="flex items-center gap-1.5">
+					<span
+						class="size-2 shrink-0 rounded-full"
+						:class="category.color"
+						aria-hidden="true"
+					/>
+					<dt class="text-secondary">{{ formatMessage(category.label) }}</dt>
+					<dd class="m-0 font-semibold tabular-nums text-contrast">
 						{{ formatBytes(category.bytes, 1) }}
 					</dd>
 				</div>
 			</dl>
 		</div>
 
-		<!-- Cache Limit & Cleanup Row -->
-		<div
-			class="solara-res-subrow flex flex-col gap-4 rounded-xl p-3.5 @lg:flex-row @lg:items-center @lg:justify-between"
-		>
-			<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-				<h3 class="m-0 text-sm font-semibold text-contrast">
+		<div class="flex flex-col gap-3 @lg:flex-row @lg:items-center @lg:justify-between">
+			<div class="flex min-w-0 flex-1 flex-col gap-1">
+				<h3 class="m-0 text-base font-semibold text-contrast">
 					<label for="store-cache-limit">{{ formatMessage(messages.limit) }}</label>
 				</h3>
-				<p id="store-cache-limit-description" class="m-0 text-xs text-secondary">
+				<p id="store-cache-limit-description" class="m-0 leading-tight text-secondary">
 					{{ formatMessage(messages.limitDescription) }}
 				</p>
 			</div>
-			<div class="flex flex-wrap items-center gap-2.5">
+			<div class="flex flex-wrap items-center gap-2">
 				<Input
 					id="store-cache-limit"
 					v-model="cacheLimitGiB"
@@ -297,16 +273,13 @@ function saveCacheLimit() {
 					@change="saveCacheLimit"
 				>
 					<template #trailing>
-						<span class="text-xs font-semibold text-secondary">
+						<span class="text-xs font-medium text-secondary">
 							{{ formatMessage(messages.limitUnit) }}
 						</span>
 					</template>
 				</Input>
 				<Button
 					v-tooltip="formatMessage(messages.clearDescription)"
-					type="colored"
-					color="red"
-					size="md"
 					:disabled="busy || !storeUsage || storeUsage.unused_cache_bytes === 0"
 					:loading="clearing"
 					@click="clearUnused"
@@ -319,7 +292,7 @@ function saveCacheLimit() {
 		</div>
 
 		<div aria-live="polite" class="empty:hidden">
-			<p v-if="clearedBytes !== null" class="m-0 text-xs font-semibold text-emerald-400">
+			<p v-if="clearedBytes !== null" class="m-0 text-xs text-secondary">
 				{{
 					clearedBytes > 0
 						? formatMessage(messages.cleared, { size: formatBytes(clearedBytes, 1) })
@@ -329,60 +302,3 @@ function saveCacheLimit() {
 		</div>
 	</section>
 </template>
-
-<style scoped>
-.solara-res-card {
-	background: color-mix(in srgb, var(--surface-3) 86%, transparent);
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface-5) 55%, transparent);
-}
-
-:global(.light-mode) .solara-res-card {
-	background: #ffffff;
-	box-shadow:
-		0 2px 10px rgba(15, 23, 42, 0.04),
-		inset 0 0 0 1px rgba(15, 23, 42, 0.07);
-}
-
-.solara-res-icon.is-cyan {
-	background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(96, 165, 250, 0.12));
-}
-
-.solara-res-total-pill {
-	background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(251, 191, 36, 0.12));
-	color: #38bdf8;
-}
-
-:global(.light-mode) .solara-res-total-pill {
-	background: rgba(2, 132, 199, 0.1);
-	color: #0284c7;
-}
-
-.solara-storage-track {
-	background: color-mix(in srgb, var(--surface-2) 90%, transparent);
-}
-
-.solara-storage-segment.tone-cyan,
-.solara-storage-dot.tone-cyan {
-	background: #38bdf8;
-}
-
-.solara-storage-segment.tone-violet,
-.solara-storage-dot.tone-violet {
-	background: #a78bfa;
-}
-
-.solara-storage-segment.tone-amber,
-.solara-storage-dot.tone-amber {
-	background: #fbbf24;
-}
-
-.solara-stat-tile,
-.solara-res-subrow {
-	background: color-mix(in srgb, var(--surface-2) 72%, transparent);
-}
-
-:global(.light-mode) .solara-stat-tile,
-:global(.light-mode) .solara-res-subrow {
-	background: #f4f7fb;
-}
-</style>

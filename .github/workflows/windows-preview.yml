@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.80: Remove OS version line beneath Solara Launcher version in Settings bottom-left footer card; signing stays private.
+# Solara V-0.0.81: Clean native desktop Settings UI (header, sidebar tabs, Theme previews, Resources layout); signing stays private.
 on:
   workflow_dispatch:
   push:

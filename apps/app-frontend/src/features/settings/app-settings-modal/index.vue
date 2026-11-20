@@ -264,38 +264,14 @@ const messages = defineMessages({
 		ref="modal"
 		:tabs="availableTabs"
 		:header="formatMessage(commonMessages.settingsLabel)"
-		width="980px"
-		max-width="980px"
-		class="solara-settings-modal"
 		:before-hide="canLeaveCurrentTab"
 		:before-tab-change="canLeaveCurrentTab"
 		:floating-action-bar-shown="hasUnsavedChanges"
 	>
 		<template #title>
-			<div class="flex min-w-0 items-center gap-3.5">
-				<div
-					class="solara-settings-crest flex size-10 shrink-0 items-center justify-center rounded-xl"
-					aria-hidden="true"
-				>
-					<SolaraIcon class="size-6" />
-				</div>
-				<div class="flex min-w-0 flex-col">
-					<div class="flex items-center gap-2">
-						<span class="truncate text-xl font-bold tracking-tight text-contrast">
-							Solara Settings
-						</span>
-						<span
-							v-if="appInfo?.version"
-							class="solara-settings-version-pill shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide tabular-nums"
-						>
-							v{{ appInfo.version }}
-						</span>
-					</div>
-					<span class="truncate text-xs font-medium text-secondary">
-						Themes, game defaults &amp; system resources
-					</span>
-				</div>
-			</div>
+			<span class="flex items-center gap-2 text-lg font-extrabold text-contrast">
+				{{ formatMessage(commonMessages.settingsLabel) }}
+			</span>
 		</template>
 		<template #floating-action-bar>
 			<UnsavedChangesPopup
@@ -309,28 +285,28 @@ const messages = defineMessages({
 			/>
 		</template>
 		<template #footer>
-			<div class="solara-settings-footer mt-auto pt-3">
+			<div class="mt-auto pt-3 text-secondary text-sm">
 				<div v-if="progress > 0 && progress < 1" class="mb-3">
-					<p class="m-0 mb-2 text-xs font-medium text-secondary">
+					<p class="text-xs m-0 mb-2">
 						{{ formatMessage(messages.downloading, { version: downloadingVersion }) }}
 					</p>
 					<ProgressBar :progress="progress" />
 				</div>
-				<p v-if="appSettings.devMode" class="mb-2 m-0 text-xs font-semibold text-sky-400">
+				<p v-if="appSettings.devMode" class="text-brand font-semibold m-0 mb-2">
 					{{ formatMessage(developerModeEnabled) }}
 				</p>
-				<div class="solara-settings-footer-card flex items-center gap-2.5 rounded-2xl p-2.5">
+				<div class="flex items-center gap-2.5">
 					<button
 						:aria-label="formatMessage(messages.developerModeButtonLabel)"
 						:disabled="developerModeMutation.isPending.value"
-						class="solara-settings-footer-icon flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl border-0 p-0 button-animation"
-						:class="{ 'is-dev': appSettings.devMode }"
+						class="p-0 bg-transparent border-none cursor-pointer button-animation flex items-center justify-center"
+						:class="{ 'text-brand': appSettings.devMode, 'text-secondary': !appSettings.devMode }"
 						@click="devModeCount"
 					>
-						<SolaraIcon aria-hidden="true" class="size-5" />
+						<SolaraIcon aria-hidden="true" class="w-5 h-5" />
 					</button>
-					<div v-if="appInfo" class="min-w-0 flex-1">
-						<p class="m-0 truncate text-xs font-semibold text-contrast">
+					<div v-if="appInfo">
+						<p class="m-0 text-xs font-medium text-secondary">
 							{{ formatMessage(messages.appVersion, { version: appInfo.version }) }}
 						</p>
 					</div>
@@ -339,36 +315,3 @@ const messages = defineMessages({
 		</template>
 	</TabbedModal>
 </template>
-
-<style scoped>
-.solara-settings-crest {
-	background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(251, 191, 36, 0.14));
-	box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.28);
-}
-
-.solara-settings-version-pill {
-	background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(251, 191, 36, 0.14));
-	color: #38bdf8;
-}
-
-:global(.light-mode) .solara-settings-version-pill {
-	background: rgba(2, 132, 199, 0.12);
-	color: #0284c7;
-}
-
-.solara-settings-footer-card {
-	background: color-mix(in srgb, var(--surface-4) 68%, transparent);
-}
-
-:global(.light-mode) .solara-settings-footer-card {
-	background: #f1f5f9;
-}
-
-.solara-settings-footer-icon {
-	background: color-mix(in srgb, var(--surface-2) 85%, transparent);
-}
-
-.solara-settings-footer-icon.is-dev {
-	box-shadow: 0 0 0 1.5px #38bdf8;
-}
-</style>
