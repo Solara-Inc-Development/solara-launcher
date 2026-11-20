@@ -2766,6 +2766,49 @@
       "notes": "- Clean Settings Version Card: Removed the Windows OS subtitle line beneath the launcher version in the bottom-left Settings footer card so only `Solara Launcher 0.0.80` is shown cleanly across OLED and White themes.\n- Refreshed Settings Screenshots: Updated the Settings Theme and Resources screenshots in the public repository documentation to reflect the cleaner footer card.\n- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.80/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "c4608cd6-6e70-4a6a-a6b8-30511c043518",
+      "publicVersion": "V-0.0.81",
+      "internalVersion": "0.0.81",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.81/solaralauncher.exe",
+      "commit": "b625504b9234bb99b9fd74e10b9373df3c405a3c",
+      "allocatedAt": "2026-11-20T14:54:04.478Z",
+      "state": "published",
+      "applicationSha256": "cee1362e69c0287ee259f57c09982cafba1e511f51eddc99e585aa7a99898c1f",
+      "applicationSize": 47535104,
+      "sourceTree": "3c6681669c0f5f894a2de9c2a7cb7f96b165e04f",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21398680,
+          "sha256": "cb5b349c506e02581ca68d10c3aa5f03168251090abe35e7888853b92046a57a"
+        },
+        "application/solaralauncher.exe": {
+          "size": 47535104,
+          "sha256": "cee1362e69c0287ee259f57c09982cafba1e511f51eddc99e585aa7a99898c1f"
+        },
+        "source.zip": {
+          "size": 34742462,
+          "sha256": "c190e94f80d4313939a96aaaa65d8f938ce14638d4520ed2db68086110048797"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21398680,
+      "sha256": "cb5b349c506e02581ca68d10c3aa5f03168251090abe35e7888853b92046a57a",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-20T15:06:47.851Z",
+      "verifiedAt": "2026-11-20T15:06:43.915Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDZFc2V0TjFCcHRydHpNYkdMT252eVR2NHZaWFkyQWZ5Z2I1Q0FGMmNQaVhQVGlpN2hYNFRBU2txTWZZdjNGdFJ3Z1l6TWprZk1aVWtVSm4wTVNwL2dNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTg3MjAyCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjgxCmFJYXp4REh1UW9PbWtLSzVJdzFJY3M0V3dNU1VaWXBWeWx3QmVlbExsellWRFZUY09FWkhjdE5helJhTGZzZnYvVzl6STgxcm5uZGUyOVZOR2p5Y0FBPT0K",
+      "notes": "- Authentic Desktop Settings UI: Removed AI-style gradient icon boxes, two-color active tab highlights, glowing pill badges, radial glow smudges, and marketing subtags across the Settings modal, sidebar navigation, Theme selector previews, and Resources tab.\n- Crisp OLED & White Theme Previews: Updated the OLED and White theme preview cards with realistic mini window layouts and pure black/white surfaces.\n- Unified Resources Layout: Aligned Content Storage, App Directory, and Transfer Limits with the clean native desktop typography and dividers used across Java, Window, and Troubleshooting tabs.\n- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.81/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

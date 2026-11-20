@@ -1,5 +1,12 @@
 # Changelog
 
+## V-0.0.81 — Authentic Native Desktop Settings UI (2026-11-20)
+
+- Removed AI-style gradient icon boxes, two-color active tab highlights, glowing pill badges, radial glow smudges, and marketing subtags across the Settings modal, sidebar navigation, Theme selector previews, and Resources tab.
+- Updated the **OLED** and **White** theme preview cards with realistic mini window layouts and pure black/white surfaces.
+- Unified **Settings → Resources** (Content storage, App directory, Maximum concurrent downloads/writes) with the clean native desktop typography and dividers used across Java, Window, and Troubleshooting tabs.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.80 — Clean Settings Version Footer Card (2026-11-20)
 
 - Removed the Windows OS platform/version subtitle line beneath `Solara Launcher 0.0.80` in the bottom-left **Solara Settings** footer card across both OLED and White themes.

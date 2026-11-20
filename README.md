@@ -7,7 +7,7 @@
     <img src="https://github.com/Solara-Inc-Development/solara-launcher/actions/workflows/windows-check.yml/badge.svg" alt="Windows source checks" />
   </a>
   <a href="https://github.com/Solara-Inc-Development/solara-launcher/releases/latest">
-    <img src="https://img.shields.io/badge/preview-V--0.0.80-0ea5e9?style=for-the-badge&logo=windows&logoColor=white&labelColor=090d16" alt="Latest testing preview" />
+    <img src="https://img.shields.io/badge/preview-V--0.0.81-0ea5e9?style=for-the-badge&logo=windows&logoColor=white&labelColor=090d16" alt="Latest testing preview" />
   </a>
   <img src="https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-1e293b?style=for-the-badge&labelColor=090d16" alt="Windows 10/11 x64" />
   <img src="https://img.shields.io/badge/stack-Vue%203%20%C2%B7%20Tauri%202%20%C2%B7%20Rust-1e293b?style=for-the-badge&labelColor=090d16" alt="Vue 3 · Tauri 2 · Rust" />
@@ -138,21 +138,21 @@ So we're building **Solara Launcher** — Windows-first, lightweight, zero ads, 
 
 ## Download
 
-**Testing preview V-0.0.80 available.** Redesigned Solara Settings control center (branded crest header, left-accented active tab rail, removed Syncing tab), card-based Resources UI (Content Storage, App Directory, Transfer & Disk Limits), custom mini Solara Launcher previews for OLED & White under Settings → Theme, ModPackInstaller navigation fix, redesigned Solara Downloads drawer, 3D Skin Studio with 6 live poses, and background Minisign-verified auto-updates.
+**Testing preview V-0.0.81 available.** Redesigned Solara Settings control center (branded crest header, left-accented active tab rail, removed Syncing tab), card-based Resources UI (Content Storage, App Directory, Transfer & Disk Limits), custom mini Solara Launcher previews for OLED & White under Settings → Theme, ModPackInstaller navigation fix, redesigned Solara Downloads drawer, 3D Skin Studio with 6 live poses, and background Minisign-verified auto-updates.
 
 The installer and app are always just **`solaralauncher.exe`** — no version junk in the filename. Install it once and let the built-in Minisign updater handle the rest whenever your games and downloads are idle.
 
-- **GitHub Release:** [Solara Launcher V-0.0.80 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (20.4 MB):** [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.80/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.80/solaralauncher.exe)
-- **Signature (Minisign):** [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.80/solaralauncher.exe.sig)
-- **Exact Source Archive:** [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.80/source.zip)
+- **GitHub Release:** [Solara Launcher V-0.0.81 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (20.4 MB):** [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.81/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.81/solaralauncher.exe)
+- **Signature (Minisign):** [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.81/solaralauncher.exe.sig)
+- **Exact Source Archive:** [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.81/source.zip)
 - **SHA-256:** `65d6716d992233e1acc3ad8e929d3cfb09fd0083242676ee36c642b2ac2d9c3d`
 
 | Area | Status | Notes |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Clean single filename for both installer & app |
 | **Platform** | Windows 10 / 11 (x64) | Native CI compile & tests pass; real-device acceptance in progress |
-| **Latest Preview** | `V-0.0.80` live | Privately signed with our persistent Minisign updater key |
+| **Latest Preview** | `V-0.0.81` live | Privately signed with our persistent Minisign updater key |
 | **Loaders** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifests + automatic Java runtime setup |
 | **Auto-Updates** | GitHub Releases CDN | Minisign-verified `latest.json` + silent background downloads |
 | **Website** | [app.solara-inc.in](https://app.solara-inc.in) | Official launcher site & download portal |
