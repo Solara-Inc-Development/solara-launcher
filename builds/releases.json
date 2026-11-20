@@ -2680,6 +2680,49 @@
       "notes": "Solara Launcher V-0.0.78 (Testing Preview)\n\n- Renamed Settings -> Appearance to Theme and replaced the generic preview boxes with custom mini Solara Launcher window previews for OLED (True Black) and White (Clean Daylight).\n- Removed the Features and Behavior tabs from Settings and locked clean defaults across frontend and Rust backend:\n  - Instances: Worlds OFF, Files OFF, Screenshots ON\n  - Sidebar: Show all screenshots OFF, Skin selector ON, Quick instances max 20\n  - Play page: Show Jump in OFF\n  - Behavior: Minimize app, Refocus on close, Hide right sidebar, Compact mode, Show play time, Hide nametag, Unknown modpack warning, and Skip non-essential warnings all locked OFF\n- Refreshed GitHub README with bespoke animated SVGs and clear, human-friendly docs.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.78/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "80af0fc2-7dff-4e0c-aa81-fa4ff3f0bf70",
+      "publicVersion": "V-0.0.79",
+      "internalVersion": "0.0.79",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.79/solaralauncher.exe",
+      "commit": "0d009d733328cf2a88b0261d4b9999c2a72c7ace",
+      "allocatedAt": "2026-11-20T05:54:56.917Z",
+      "state": "published",
+      "applicationSha256": "dbbcbe53830ee6d17ce2624ebf7908596661683f46933e99a30186f85e83bb8f",
+      "applicationSize": 47535104,
+      "sourceTree": "8cb7136fb899ac682c66f8f63a895aa0eee23819",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21394807,
+          "sha256": "65d6716d992233e1acc3ad8e929d3cfb09fd0083242676ee36c642b2ac2d9c3d"
+        },
+        "application/solaralauncher.exe": {
+          "size": 47535104,
+          "sha256": "dbbcbe53830ee6d17ce2624ebf7908596661683f46933e99a30186f85e83bb8f"
+        },
+        "source.zip": {
+          "size": 34063488,
+          "sha256": "8abb24169b9532d575392e9d59a4db167d874217f115b2dbee201e4194928328"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21394807,
+      "sha256": "65d6716d992233e1acc3ad8e929d3cfb09fd0083242676ee36c642b2ac2d9c3d",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-20T06:09:11.676Z",
+      "verifiedAt": "2026-11-20T06:09:07.290Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHptVFpLMlRzYnBnZ1cyRlQ1RitObDF2dGJFOTVWSE9GeTd4cmIwVWhOeVJvWDJTeWEyU0lLZmRIWTdQUTdRR1BEM296RUErWE9aVXN6ZFhUWVVHZUFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTU0ODk5CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjc5ClpKUXh4VmZ3ZGFUOGNkRkdvWDArakpUOHhsWjhIc1RweENPcGhSMkdoRXBFc2xkMkM4SmpuN1crNmdCWlU4WXpreFJBc0t2VkVMMHkzd2Z0R2VVekRRPT0K",
+      "notes": "Solara Launcher V-0.0.79 (Testing Preview)\n\n- Redesigned the entire Solara Settings modal with a branded Solara crest header, version badge, left-accented active tab rail, and elevated sidebar footer card in OLED and White themes.\n- Removed the unused Syncing tab from Settings.\n- Redesigned Settings -> Resources into three clean Solara cards: Content Storage (cyan/violet/amber breakdown bar + stat tiles + cache limit & cleanup), App Directory (monospace click-to-copy path bar), and a 2-column Transfer & Disk Limits card with live numeric badges.\n- Updated GitHub README with real Solara Launcher screenshots across OLED & White themes alongside the clean animated Solara banner.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.79/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

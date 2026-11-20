@@ -1,301 +1,131 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" role="img" aria-label="Solara Launcher — fast, clean Minecraft Java launcher for Windows">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Solara Launcher — fast, clean Minecraft Java launcher for Windows">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#020408"/>
-      <stop offset="48%" stop-color="#060c18"/>
-      <stop offset="100%" stop-color="#020306"/>
+      <stop offset="50%" stop-color="#050a14"/>
+      <stop offset="100%" stop-color="#020305"/>
     </linearGradient>
 
-    <radialGradient id="cyanAura" cx="50%" cy="50%" r="50%">
+    <radialGradient id="cyanOrb" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.34"/>
-      <stop offset="50%" stop-color="#0ea5e9" stop-opacity="0.1"/>
+      <stop offset="55%" stop-color="#0ea5e9" stop-opacity="0.09"/>
       <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="goldAura" cx="50%" cy="50%" r="50%">
+    <radialGradient id="goldOrb" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.28"/>
-      <stop offset="52%" stop-color="#f59e0b" stop-opacity="0.08"/>
+      <stop offset="55%" stop-color="#f59e0b" stop-opacity="0.07"/>
       <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
     </radialGradient>
 
-    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="solaraBrand" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38bdf8"/>
       <stop offset="52%" stop-color="#60a5fa"/>
       <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
 
-    <linearGradient id="textSweep" x1="-100%" y1="0%" x2="200%" y2="0%">
+    <linearGradient id="textShimmer" x1="-100%" y1="0%" x2="200%" y2="0%">
       <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="32%" stop-color="#7dd3fc"/>
-      <stop offset="50%" stop-color="#fef08a"/>
-      <stop offset="68%" stop-color="#fbbf24"/>
+      <stop offset="35%" stop-color="#7dd3fc"/>
+      <stop offset="50%" stop-color="#fde68a"/>
+      <stop offset="65%" stop-color="#fbbf24"/>
       <stop offset="100%" stop-color="#38bdf8"/>
-      <animate attributeName="x1" values="-100%;100%" dur="5.5s" repeatCount="indefinite"/>
-      <animate attributeName="x2" values="200%;400%" dur="5.5s" repeatCount="indefinite"/>
+      <animate attributeName="x1" values="-100%;100%" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="200%;400%" dur="6s" repeatCount="indefinite"/>
     </linearGradient>
 
-    <linearGradient id="beam" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="railBeam" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#38bdf8" stop-opacity="0"/>
-      <stop offset="35%" stop-color="#38bdf8" stop-opacity="0.9"/>
-      <stop offset="62%" stop-color="#fbbf24" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#38bdf8" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#fbbf24" stop-opacity="0.9"/>
       <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
     </linearGradient>
 
-    <linearGradient id="windowGlass" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0b1220"/>
-      <stop offset="100%" stop-color="#04070d"/>
-    </linearGradient>
-
-    <clipPath id="heroClip">
-      <rect width="1200" height="440" rx="26"/>
+    <clipPath id="cardClip">
+      <rect x="0" y="0" width="1200" height="360" rx="24"/>
     </clipPath>
 
-    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="8" result="b"/>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
       <feMerge>
-        <feMergeNode in="b"/>
+        <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
 
-  <g clip-path="url(#heroClip)">
-    <rect width="1200" height="440" fill="url(#bgGrad)"/>
+  <g clip-path="url(#cardClip)">
+    <rect width="1200" height="360" fill="url(#bgGrad)"/>
 
-    <!-- Fine architectural grid -->
     <g stroke="#38bdf8" stroke-opacity="0.045" stroke-width="1">
-      <path d="M0 73 H1200 M0 146 H1200 M0 219 H1200 M0 292 H1200 M0 365 H1200"/>
-      <path d="M120 0 V440 M240 0 V440 M360 0 V440 M480 0 V440 M600 0 V440 M720 0 V440 M840 0 V440 M960 0 V440 M1080 0 V440"/>
+      <path d="M0 72 H1200 M0 144 H1200 M0 216 H1200 M0 288 H1200"/>
+      <path d="M150 0 V360 M300 0 V360 M450 0 V360 M600 0 V360 M750 0 V360 M900 0 V360 M1050 0 V360"/>
     </g>
 
-    <!-- Drifting aurora fields -->
-    <circle cx="240" cy="175" r="290" fill="url(#cyanAura)">
-      <animate attributeName="cx" values="210;320;210" dur="11s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="160;220;160" dur="9s" repeatCount="indefinite"/>
+    <circle cx="310" cy="145" r="260" fill="url(#cyanOrb)">
+      <animate attributeName="cx" values="280;380;280" dur="11s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="135;190;135" dur="9s" repeatCount="indefinite"/>
     </circle>
-    <circle cx="930" cy="240" r="300" fill="url(#goldAura)">
-      <animate attributeName="cx" values="950;850;950" dur="12s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="260;180;260" dur="10s" repeatCount="indefinite"/>
+    <circle cx="890" cy="210" r="240" fill="url(#goldOrb)">
+      <animate attributeName="cx" values="920;810;920" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="215;155;215" dur="10s" repeatCount="indefinite"/>
     </circle>
 
-    <!-- Floating ambient stars -->
-    <g>
-      <circle cx="92" cy="86" r="2.2" fill="#7dd3fc">
-        <animate attributeName="cy" values="96;66;96" dur="5.2s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.2;0.9;0.2" dur="5.2s" repeatCount="indefinite"/>
+    <g fill="#7dd3fc">
+      <circle cx="165" cy="95" r="2.2" opacity="0.6">
+        <animate attributeName="cy" values="105;72;105" dur="5.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.2;0.85;0.2" dur="5.2s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="525" cy="68" r="1.8" fill="#fde68a">
-        <animate attributeName="cy" values="78;52;78" dur="4.6s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.2;0.85;0.2" dur="4.6s" repeatCount="indefinite"/>
+      <circle cx="245" cy="255" r="1.8" opacity="0.45">
+        <animate attributeName="cy" values="265;230;265" dur="6.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.15;0.75;0.15" dur="6.4s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="628" cy="368" r="2.1" fill="#38bdf8">
-        <animate attributeName="cy" values="376;348;376" dur="6.1s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.18;0.8;0.18" dur="6.1s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="1132" cy="90" r="2.4" fill="#fbbf24">
-        <animate attributeName="cy" values="102;72;102" dur="5.8s" repeatCount="indefinite"/>
+      <circle cx="980" cy="92" r="2.4" fill="#fde68a" opacity="0.65">
+        <animate attributeName="cy" values="104;68;104" dur="5.8s" repeatCount="indefinite"/>
         <animate attributeName="opacity" values="0.2;0.9;0.2" dur="5.8s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="475" cy="378" r="1.6" fill="#a78bfa">
-        <animate attributeName="cy" values="386;360;386" dur="5.4s" repeatCount="indefinite"/>
+      <circle cx="1055" cy="245" r="2" fill="#fbbf24" opacity="0.5">
+        <animate attributeName="cy" values="258;222;258" dur="7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.15;0.8;0.15" dur="7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="835" cy="70" r="1.6" opacity="0.5">
+        <animate attributeName="cy" values="80;52;80" dur="4.6s" repeatCount="indefinite"/>
       </circle>
     </g>
 
-    <!-- LEFT COLUMN: Brand Identity + Headline + Pills -->
-    <g transform="translate(64, 62)">
-      <!-- Floating Solara Emblem + Status Pill -->
-      <g>
-        <g transform="translate(36, 36)">
-          <animateTransform attributeName="transform" type="translate" values="36 38;36 31;36 38" dur="4.2s" repeatCount="indefinite"/>
-          <circle cx="0" cy="0" r="40" fill="none" stroke="url(#brandGrad)" stroke-width="1.3" stroke-dasharray="18 14" opacity="0.45">
-            <animateTransform attributeName="transform" type="rotate" values="0;360" dur="14s" repeatCount="indefinite"/>
-          </circle>
-          <rect x="-32" y="-32" width="64" height="64" rx="16" fill="#09111e" stroke="url(#brandGrad)" stroke-width="2.2" filter="url(#glow)"/>
-          <circle cx="0" cy="0" r="19" fill="none" stroke="url(#brandGrad)" stroke-width="3"/>
-          <path d="M2 -11.5 L-8 2 H0 L-2 11.5 L8 -2 H0 Z" fill="url(#brandGrad)"/>
-        </g>
-
-        <g transform="translate(92, 22)">
-          <rect width="272" height="28" rx="14" fill="#0b1729" stroke="#38bdf8" stroke-opacity="0.34" stroke-width="1"/>
-          <circle cx="18" cy="14" r="4" fill="#34d399">
-            <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
-          </circle>
-          <text x="32" y="18" fill="#7dd3fc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="11.5" font-weight="700" letter-spacing="1.8">SOLARA-INC · WINDOWS x64</text>
-        </g>
-      </g>
-
-      <!-- Big Title -->
-      <text x="0" y="148" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="60" font-weight="800" letter-spacing="-1.6">
-        <tspan fill="#f8fafc">Solara</tspan>
-      </text>
-      <text x="0" y="210" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="60" font-weight="800" letter-spacing="-1.6">
-        <tspan fill="url(#textSweep)">Launcher</tspan>
-      </text>
-
-      <!-- Tagline -->
-      <text x="0" y="252" fill="#94a3b8" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="17" font-weight="500">
-        Fast, ad-free Minecraft Java launcher with OLED &amp; White themes,
-      </text>
-      <text x="0" y="276" fill="#94a3b8" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="17" font-weight="500">
-        3D Skin Studio, ModPackInstaller, and silent Minisign updates.
-      </text>
-
-      <!-- Feature chips -->
-      <g transform="translate(0, 304)">
-        <rect width="128" height="30" rx="15" fill="#0d192b" stroke="#38bdf8" stroke-opacity="0.35"/>
-        <text x="64" y="19.5" text-anchor="middle" fill="#e0f2fe" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600">OLED &amp; White</text>
-
-        <rect x="138" width="136" height="30" rx="15" fill="#0d192b" stroke="#a78bfa" stroke-opacity="0.35"/>
-        <text x="206" y="19.5" text-anchor="middle" fill="#ede9fe" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600">3D Skin Studio</text>
-
-        <rect x="284" width="144" height="30" rx="15" fill="#0d192b" stroke="#fbbf24" stroke-opacity="0.35"/>
-        <text x="356" y="19.5" text-anchor="middle" fill="#fef3c7" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600">Zero Ads · GPL-3.0</text>
-      </g>
-    </g>
-
-    <!-- RIGHT COLUMN: Animated Live Solara Launcher App Mockup Window -->
-    <g transform="translate(650, 52)">
-      <animateTransform attributeName="transform" type="translate" values="650 56;650 46;650 56" dur="5.2s" repeatCount="indefinite"/>
-
-      <!-- Outer soft drop glow -->
-      <rect x="-4" y="-4" width="496" height="336" rx="22" fill="#38bdf8" fill-opacity="0.06"/>
-
-      <!-- App Window Frame -->
-      <rect width="488" height="328" rx="18" fill="url(#windowGlass)" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1.4"/>
-
-      <!-- Title Bar -->
-      <rect width="488" height="38" rx="18" fill="#080d16"/>
-      <rect y="20" width="488" height="18" fill="#080d16"/>
-      <line x1="0" y1="38" x2="488" y2="38" stroke="#1e293b" stroke-width="1"/>
-      <!-- Mini Solara crest in title bar -->
-      <circle cx="22" cy="19" r="8" fill="#0d1a2d" stroke="url(#brandGrad)" stroke-width="1.4"/>
-      <path d="M22.8 14.5 L19 19.5 H22 L21.2 23.5 L25 18.5 H22 Z" fill="url(#brandGrad)"/>
-      <text x="38" y="23" fill="#e2e8f0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11.5" font-weight="700">Solara Launcher</text>
-
-      <!-- Top right Solara Downloads live pill -->
-      <rect x="292" y="9" width="114" height="20" rx="10" fill="#0f1c2e" stroke="#38bdf8" stroke-opacity="0.35"/>
-      <circle cx="305" cy="19" r="3.5" fill="#38bdf8">
-        <animate attributeName="opacity" values="1;0.35;1" dur="1.6s" repeatCount="indefinite"/>
+    <g transform="translate(600, 96)">
+      <animateTransform attributeName="transform" type="translate" values="600 98;600 88;600 98" dur="4s" repeatCount="indefinite"/>
+      <circle cx="0" cy="0" r="46" fill="none" stroke="url(#solaraBrand)" stroke-width="1.5" opacity="0.35">
+        <animate attributeName="r" values="42;52;42" dur="3.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.45;0.1;0.45" dur="3.6s" repeatCount="indefinite"/>
       </circle>
-      <text x="315" y="22.5" fill="#e2e8f0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="9.5" font-weight="600">Java 21 · 84%</text>
-      <!-- Mini progress underline -->
-      <rect x="298" y="27" width="102" height="2" rx="1" fill="#1e293b"/>
-      <rect x="298" y="27" width="45" height="2" rx="1" fill="url(#brandGrad)">
-        <animate attributeName="width" values="22;98;22" dur="4.2s" repeatCount="indefinite"/>
-      </rect>
-      <!-- Window control dots -->
-      <circle cx="426" cy="19" r="4" fill="#334155"/>
-      <circle cx="444" cy="19" r="4" fill="#334155"/>
-      <circle cx="462" cy="19" r="4" fill="#ef4444" fill-opacity="0.75"/>
-
-      <!-- Left Sidebar Rail -->
-      <rect x="0" y="38" width="50" height="290" fill="#060a12"/>
-      <line x1="50" y1="38" x2="50" y2="328" stroke="#1e293b" stroke-width="1"/>
-      <!-- Active Home icon -->
-      <rect x="10" y="54" width="30" height="30" rx="10" fill="#38bdf8" fill-opacity="0.18" stroke="#38bdf8" stroke-opacity="0.5"/>
-      <path d="M25 63 L18 69 V76 H22.5 V71.5 H27.5 V76 H32 V69 Z" fill="#38bdf8"/>
-      <!-- Modpack / Skin / Library icons -->
-      <rect x="13" y="96" width="24" height="24" rx="8" fill="#111a29"/>
-      <rect x="19" y="102" width="12" height="12" rx="2.5" fill="none" stroke="#64748b" stroke-width="1.5"/>
-      <rect x="13" y="130" width="24" height="24" rx="8" fill="#111a29"/>
-      <circle cx="25" cy="142" r="5" fill="none" stroke="#64748b" stroke-width="1.5"/>
-      <rect x="13" y="164" width="24" height="24" rx="8" fill="#111a29"/>
-      <path d="M20 171 V181 M25 171 V181 M30 172 L32 181" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Settings bottom icon -->
-      <rect x="13" y="286" width="24" height="24" rx="8" fill="#111a29"/>
-      <circle cx="25" cy="298" r="4.5" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-
-      <!-- Main Window OLED Canvas -->
-      <g transform="translate(50, 38)">
-        <rect width="438" height="290" fill="#000000"/>
-        <circle cx="155" cy="128" r="110" fill="url(#cyanAura)" opacity="0.65"/>
-        <circle cx="345" cy="145" r="95" fill="url(#goldAura)" opacity="0.55"/>
-
-        <!-- Center-Left Welcome Hero -->
-        <g transform="translate(148, 62)">
-          <!-- Mini floating Solara logo -->
-          <g>
-            <animateTransform attributeName="transform" type="translate" values="0 2;0 -4;0 2" dur="3.6s" repeatCount="indefinite"/>
-            <rect x="-18" y="-18" width="36" height="36" rx="10" fill="#091324" stroke="url(#brandGrad)" stroke-width="1.6"/>
-            <circle cx="0" cy="0" r="10.5" fill="none" stroke="url(#brandGrad)" stroke-width="2"/>
-            <path d="M1 -6.5 L-4.5 1 H0 L-1 6.5 L4.5 -1 H0 Z" fill="url(#brandGrad)"/>
-          </g>
-          <text x="0" y="46" text-anchor="middle" fill="#f8fafc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="800">Welcome Back,</text>
-          <text x="0" y="74" text-anchor="middle" fill="url(#textSweep)" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="800">Player</text>
-          <rect x="-24" y="84" width="48" height="2.5" rx="1.25" fill="url(#brandGrad)"/>
-          <!-- Launch CTA button -->
-          <rect x="-56" y="102" width="112" height="30" rx="15" fill="#0c1e30" stroke="#38bdf8" stroke-width="1.3"/>
-          <text x="0" y="121" text-anchor="middle" fill="#e0f2fe" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11.5" font-weight="700">Play Minecraft</text>
-        </g>
-
-        <!-- Right 3D Character Pedestal & Waving Avatar -->
-        <g transform="translate(342, 146)">
-          <!-- Glowing holographic turntable -->
-          <ellipse cx="0" cy="64" rx="46" ry="12" fill="#38bdf8" fill-opacity="0.16" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.2"/>
-          <ellipse cx="0" cy="64" rx="28" ry="6.5" fill="#fbbf24" fill-opacity="0.14"/>
-
-          <!-- Character body bob -->
-          <g>
-            <animateTransform attributeName="transform" type="translate" values="0 2;0 -4;0 2" dur="3s" repeatCount="indefinite"/>
-            <!-- Head -->
-            <rect x="-17" y="-66" width="34" height="34" rx="4" fill="#d6a57c" stroke="#1e293b" stroke-width="1"/>
-            <!-- Hair -->
-            <path d="M-17 -66 H17 V-54 H12 V-59 H-12 V-54 H-17 Z" fill="#3b2618"/>
-            <!-- Eyes -->
-            <rect x="-11" y="-50" width="6" height="4" rx="1" fill="#ffffff"/>
-            <rect x="-8" y="-50" width="3" height="4" rx="0.8" fill="#0284c7"/>
-            <rect x="5" y="-50" width="6" height="4" rx="1" fill="#ffffff"/>
-            <rect x="5" y="-50" width="3" height="4" rx="0.8" fill="#0284c7"/>
-            <!-- Smile -->
-            <rect x="-5" y="-41" width="10" height="3" rx="1.5" fill="#8b5a3c"/>
-
-            <!-- Torso (Solara Cyan/Dark Hoodie) -->
-            <rect x="-16" y="-30" width="32" height="44" rx="3" fill="#0ea5e9" stroke="#0369a1" stroke-width="1"/>
-            <rect x="-10" y="-22" width="20" height="24" rx="3" fill="#091324" fill-opacity="0.65"/>
-            <path d="M1 -16 L-4 -9 H0 L-1 -3 L4 -10 H0 Z" fill="#fbbf24"/>
-
-            <!-- Left Arm -->
-            <rect x="-27" y="-30" width="10" height="40" rx="3" fill="#0284c7"/>
-            <rect x="-27" y="-2" width="10" height="12" rx="2.5" fill="#d6a57c"/>
-
-            <!-- Right Waving Arm -->
-            <g transform="translate(17, -26)">
-              <g>
-                <animateTransform attributeName="transform" type="rotate" values="-148 5 4;-115 5 4;-148 5 4" dur="1.7s" repeatCount="indefinite"/>
-                <rect x="0" y="-4" width="10" height="40" rx="3" fill="#0284c7"/>
-                <rect x="0" y="24" width="10" height="12" rx="2.5" fill="#d6a57c"/>
-              </g>
-            </g>
-
-            <!-- Legs -->
-            <rect x="-15" y="15" width="14" height="42" rx="3" fill="#1e293b"/>
-            <rect x="1" y="15" width="14" height="42" rx="3" fill="#1e293b"/>
-            <rect x="-15" y="48" width="14" height="9" rx="2" fill="#0f172a"/>
-            <rect x="1" y="48" width="14" height="9" rx="2" fill="#0f172a"/>
-          </g>
-        </g>
-
-        <!-- Bottom subtle news strip -->
-        <rect x="18" y="242" width="128" height="32" rx="9" fill="#0a0f18" stroke="#1e293b"/>
-        <rect x="28" y="251" width="38" height="6" rx="3" fill="#38bdf8" fill-opacity="0.5"/>
-        <rect x="28" y="262" width="96" height="4" rx="2" fill="#334155"/>
-
-        <rect x="155" y="242" width="128" height="32" rx="9" fill="#0a0f18" stroke="#1e293b"/>
-        <rect x="165" y="251" width="44" height="6" rx="3" fill="#fbbf24" fill-opacity="0.55"/>
-        <rect x="165" y="262" width="90" height="4" rx="2" fill="#334155"/>
-
-        <rect x="292" y="242" width="128" height="32" rx="9" fill="#0a0f18" stroke="#1e293b"/>
-        <rect x="302" y="251" width="40" height="6" rx="3" fill="#a78bfa" fill-opacity="0.55"/>
-        <rect x="302" y="262" width="84" height="4" rx="2" fill="#334155"/>
-      </g>
+      <rect x="-36" y="-36" width="72" height="72" rx="18" fill="#09111e" stroke="url(#solaraBrand)" stroke-width="2.2" filter="url(#softGlow)"/>
+      <circle cx="0" cy="0" r="21" fill="none" stroke="url(#solaraBrand)" stroke-width="3.2"/>
+      <path d="M2 -13 L-9 2 H0 L-2 13 L9 -2 H0 Z" fill="url(#solaraBrand)"/>
     </g>
 
-    <!-- Bottom glowing sweep rail -->
-    <rect x="0" y="435" width="1200" height="5" fill="#0c1320"/>
-    <rect x="-420" y="435" width="460" height="5" fill="url(#beam)">
-      <animate attributeName="x" values="-460;1200" dur="3.8s" repeatCount="indefinite"/>
+    <g transform="translate(600, 162)">
+      <rect x="-126" y="-12" width="252" height="24" rx="12" fill="#0c1829" stroke="#38bdf8" stroke-opacity="0.32" stroke-width="1"/>
+      <circle cx="-104" cy="0" r="3.5" fill="#34d399">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text x="6" y="4" text-anchor="middle" fill="#7dd3fc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="11.5" font-weight="700" letter-spacing="2.2">SOLARA-INC · WINDOWS</text>
+    </g>
+
+    <text x="600" y="232" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="56" font-weight="800" letter-spacing="-1.2">
+      <tspan fill="#f8fafc">Solara </tspan>
+      <tspan fill="url(#textShimmer)">Launcher</tspan>
+    </text>
+
+    <text x="600" y="270" text-anchor="middle" fill="#94a3b8" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="19" font-weight="500">
+      A clean, fast Minecraft Java launcher — built with OLED &amp; White themes, 3D Skin Studio, and zero clutter.
+    </text>
+
+    <rect x="0" y="355" width="1200" height="5" fill="#0f172a"/>
+    <rect x="-360" y="355" width="420" height="5" fill="url(#railBeam)">
+      <animate attributeName="x" values="-420;1200" dur="3.8s" repeatCount="indefinite"/>
     </rect>
 
-    <rect x="1" y="1" width="1198" height="438" rx="25" fill="none" stroke="#38bdf8" stroke-opacity="0.2" stroke-width="1.5"/>
+    <rect x="1" y="1" width="1198" height="358" rx="23" fill="none" stroke="#38bdf8" stroke-opacity="0.2" stroke-width="1.5"/>
   </g>
 </svg>

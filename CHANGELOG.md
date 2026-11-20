@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.79 — Redesigned Solara Settings Control Center, Card-Based Resources UI & Real-Screenshot README (2026-11-20)
+
+- Redesigned **Solara Settings** shell: Branded header with Solara crest icon, version badge, left-accented cyan-to-gold active tab highlight, cleaner tracked category labels, and an elevated sidebar footer card across both OLED and White themes.
+- Removed the unused **Syncing** tab from Settings.
+- Redesigned **Settings → Resources** into three cohesive Solara cards: **Content Storage** (cyan/violet/amber segmented bar, stat tiles, cache limit & Clear unused action), **App Directory** (monospace click-to-copy path pill & quick actions), and **Transfer & Disk Limits** (2-column slider grid with live value chips).
+- Updated GitHub `README.md` with real, crisp Solara Launcher screenshots (OLED Home, White Theme + Solara Downloads, Solara Settings → Theme, and Settings → Resources) alongside the clean animated Solara banner.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.78 — Custom Solara Theme Previews, Renamed Theme Tab & Locked Feature / Behavior Defaults (2026-11-20)
 
 - Renamed Settings → Appearance to **Theme** and replaced the stock theme preview boxes with bespoke mini Solara Launcher window previews for both **OLED (True Black)** and **White (Clean Daylight)**.

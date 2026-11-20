@@ -7,7 +7,7 @@
     <img src="https://github.com/Solara-Inc-Development/solara-launcher/actions/workflows/windows-check.yml/badge.svg" alt="Windows source checks" />
   </a>
   <a href="https://github.com/Solara-Inc-Development/solara-launcher/releases/latest">
-    <img src="https://img.shields.io/badge/preview-V--0.0.78-0ea5e9?style=for-the-badge&logo=windows&logoColor=white&labelColor=090d16" alt="Latest testing preview" />
+    <img src="https://img.shields.io/badge/preview-V--0.0.79-0ea5e9?style=for-the-badge&logo=windows&logoColor=white&labelColor=090d16" alt="Latest testing preview" />
   </a>
   <img src="https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-1e293b?style=for-the-badge&labelColor=090d16" alt="Windows 10/11 x64" />
   <img src="https://img.shields.io/badge/stack-Vue%203%20%C2%B7%20Tauri%202%20%C2%B7%20Rust-1e293b?style=for-the-badge&labelColor=090d16" alt="Vue 3 · Tauri 2 · Rust" />
@@ -36,8 +36,47 @@ Most Minecraft launchers either feel stuck in 2014 or pack the screen with ads, 
 So we're building **Solara Launcher** — Windows-first, lightweight, zero ads, and updated straight from GitHub Releases with cryptographic verification.
 
 <p align="center">
-  <img src="assets/readme/features-showcase.svg" alt="Solara Launcher highlights: 3D Skin Studio, Solara Downloads, Silent Auto-Updates, OLED and White themes" width="100%" />
+  <img src="public/screenshots/dashboard.png" alt="Solara Launcher OLED Home Screen with floating logo, welcome hero, and interactive 3D Minecraft character" width="100%" />
 </p>
+
+<p align="center"><sub>Real Solara Launcher UI in OLED True Black mode (captured from the desktop build with native IPC mocked).</sub></p>
+
+<p align="center">
+  <img src="assets/readme/divider.svg" alt="" width="100%" />
+</p>
+
+## Look inside the launcher
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="public/screenshots/downloads-white.png" alt="Solara Launcher White Theme with Solara Downloads drawer open" width="100%" />
+      </p>
+      <p align="center"><strong>White Theme &amp; Solara Downloads</strong><br /><sub>Crisp daylight look with live Active &amp; History transfer tracking.</sub></p>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="public/screenshots/settings-theme.png" alt="Solara Settings Theme selector with custom OLED and White previews" width="100%" />
+      </p>
+      <p align="center"><strong>Solara Settings &amp; Theme Switcher</strong><br /><sub>Switch between OLED True Black and White Clean Daylight.</sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="public/screenshots/settings-resources.png" alt="Solara Settings Resources page showing Content Storage and App Directory cards" width="100%" />
+      </p>
+      <p align="center"><strong>Resources &amp; Storage Control</strong><br /><sub>Clear visual breakdown of storage usage, cache limits, and app directory.</sub></p>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="public/screenshots/library.png" alt="Solara Launcher Library screen" width="100%" />
+      </p>
+      <p align="center"><strong>Isolated Instance Library</strong><br /><sub>Every Minecraft profile stays neatly separated in its own folder.</sub></p>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <img src="assets/readme/divider.svg" alt="" width="100%" />
@@ -90,23 +129,6 @@ So we're building **Solara Launcher** — Windows-first, lightweight, zero ads, 
   </tr>
 </table>
 
-<details>
-<summary><strong>Preview screenshots from local development</strong></summary>
-
-<br />
-
-<p align="center">
-  <img src="public/screenshots/dashboard.png" alt="Solara Launcher dashboard preview" width="100%" />
-</p>
-
-<p align="center">
-  <img src="public/screenshots/library.png" alt="Solara Launcher library preview" width="100%" />
-</p>
-
-<p align="center"><sub>Captured from browser dev fixtures with native IPC mocked — not proof of live sign-in or game launch.</sub></p>
-
-</details>
-
 > [!NOTE]
 > **Being upfront about the engine:** Right now, Solara still uses a Modrinth/Theseus-derived local engine under the hood while we work toward our own independent core. We keep all required upstream notices and licences intact in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
@@ -116,21 +138,21 @@ So we're building **Solara Launcher** — Windows-first, lightweight, zero ads, 
 
 ## Download
 
-**Testing preview V-0.0.78 available.** Custom mini Solara Launcher window previews for OLED & White themes under the renamed Settings → Theme tab, removed Features & Behavior tabs with locked clean defaults, ModPackInstaller navigation fix with inline sidebar, redesigned Solara Downloads drawer, 3D Skin Studio with custom uploader & 6 live poses, redesigned Solara-Inc splash screen, and background Minisign-verified auto-updates.
+**Testing preview V-0.0.79 available.** Redesigned Solara Settings control center (branded crest header, left-accented active tab rail, removed Syncing tab), card-based Resources UI (Content Storage, App Directory, Transfer & Disk Limits), custom mini Solara Launcher previews for OLED & White under Settings → Theme, ModPackInstaller navigation fix, redesigned Solara Downloads drawer, 3D Skin Studio with 6 live poses, and background Minisign-verified auto-updates.
 
 The installer and app are always just **`solaralauncher.exe`** — no version junk in the filename. Install it once and let the built-in Minisign updater handle the rest whenever your games and downloads are idle.
 
-- **GitHub Release:** [Solara Launcher V-0.0.78 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
-- **Installer (20.4 MB):** [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.78/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.78/solaralauncher.exe)
-- **Signature (Minisign):** [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.78/solaralauncher.exe.sig)
-- **Exact Source Archive:** [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.78/source.zip)
-- **SHA-256:** `568839218ccc8f6dcf0eb947889fbd2c771fad42ad4892e7426ced0a2b59f23b`
+- **GitHub Release:** [Solara Launcher V-0.0.79 (Latest)](https://github.com/Solara-Inc-Development/solara-launcher/releases/latest)
+- **Installer (20.4 MB):** [GitHub Download](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.79/solaralauncher.exe) · [Portal Mirror](https://app.solara-inc.in/builds/V-0.0.79/solaralauncher.exe)
+- **Signature (Minisign):** [`solaralauncher.exe.sig`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.79/solaralauncher.exe.sig)
+- **Exact Source Archive:** [`source.zip`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.79/source.zip)
+- **SHA-256:** `65d6716d992233e1acc3ad8e929d3cfb09fd0083242676ee36c642b2ac2d9c3d`
 
 | Area | Status | Notes |
 | :--- | :--- | :--- |
 | **Executable** | `solaralauncher.exe` | Clean single filename for both installer & app |
 | **Platform** | Windows 10 / 11 (x64) | Native CI compile & tests pass; real-device acceptance in progress |
-| **Latest Preview** | `V-0.0.78` live | Privately signed with our persistent Minisign updater key |
+| **Latest Preview** | `V-0.0.79` live | Privately signed with our persistent Minisign updater key |
 | **Loaders** | Vanilla, Fabric, Quilt, Forge, NeoForge | Official manifests + automatic Java runtime setup |
 | **Auto-Updates** | GitHub Releases CDN | Minisign-verified `latest.json` + silent background downloads |
 | **Website** | [app.solara-inc.in](https://app.solara-inc.in) | Official launcher site & download portal |
