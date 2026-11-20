@@ -23,7 +23,6 @@ import {
 } from '@modrinth/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { getVersion } from '@tauri-apps/api/app'
-import { platform as getOsPlatform, version as getOsVersion } from '@tauri-apps/plugin-os'
 import { computed, ref } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
@@ -202,8 +201,6 @@ const { data: appInfo } = useQuery({
 	networkMode: 'always',
 	queryFn: async () => ({
 		version: await getVersion(),
-		osPlatform: getOsPlatform(),
-		osVersion: getOsVersion(),
 	}),
 	staleTime: Infinity,
 })
@@ -335,11 +332,6 @@ const messages = defineMessages({
 					<div v-if="appInfo" class="min-w-0 flex-1">
 						<p class="m-0 truncate text-xs font-semibold text-contrast">
 							{{ formatMessage(messages.appVersion, { version: appInfo.version }) }}
-						</p>
-						<p class="m-0 truncate text-[11px] font-medium text-secondary">
-							<span v-if="appInfo.osPlatform === 'macos'">{{ formatMessage(messages.macos) }}</span>
-							<span v-else class="capitalize">{{ appInfo.osPlatform }}</span>
-							{{ appInfo.osVersion }}
 						</p>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.79: Redesign entire Settings modal into Solara Settings control center, remove Syncing tab, refresh Resources page into Solara cards, and upgrade animated GitHub README; signing stays private.
+# Solara V-0.0.80: Remove OS version line beneath Solara Launcher version in Settings bottom-left footer card; signing stays private.
 on:
   workflow_dispatch:
   push:

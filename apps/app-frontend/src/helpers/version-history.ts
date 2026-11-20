@@ -11,11 +11,28 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.80',
+		title: 'Cleaner Solara Settings Footer Without OS Version Clutter',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Simplified the bottom-left Solara Settings footer badge to display only the clean Solara Launcher version without the Windows OS build line underneath.',
+		],
+		issuesFixed: [
+			'Removed redundant operating system build version text from the Settings sidebar footer.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.79',
 		title: 'Redesigned Solara Settings Control Center & Card-Based Resources UI',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Upgraded the entire Settings modal into a custom Solara Settings experience with a branded Solara crest header, version badge, left-accented active tab indicator, and elevated sidebar footer card in both OLED and White themes.',
 			'Removed the unused Syncing tab from Settings for an even cleaner sidebar.',
