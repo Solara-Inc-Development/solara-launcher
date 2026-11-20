@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.78',
+		title: 'Custom Solara Theme Previews & Streamlined Settings Display Section',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Renamed Settings → Appearance to Theme and replaced the generic theme preview boxes with custom mini Solara Launcher window previews for both OLED and White themes.',
+			'Removed the Features and Behavior tabs from Settings so Display focuses cleanly on Theme.',
+			'Locked clean launcher defaults across frontend and backend: Instance Worlds OFF, Files OFF, Screenshots ON, Sidebar Screenshots OFF, Skin Studio ON, Quick Instances max 20, Jump In OFF, and all Behavior toggles (Minimize app, Refocus on close, Hide right sidebar, Compact mode, Show play time, Hide nametag, Unknown modpack warning, Skip non-essential warnings) permanently OFF.',
+		],
+		issuesFixed: [
+			'Ensured existing profiles automatically apply the locked Feature and Behavior defaults on startup.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.77',
 		title: 'Streamlined Settings Menu & Permanently Locked Off Advanced Rendering / System Window Frame',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Removed the unused Language tab from the Settings menu for a cleaner, more focused settings layout.',
 			'Removed Advanced rendering and System window frame toggles from Settings → Appearance and locked both permanently OFF across frontend and Rust backend.',

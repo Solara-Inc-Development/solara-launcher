@@ -4,10 +4,8 @@ import {
 	CoffeeIcon,
 	EyeOffIcon,
 	GaugeIcon,
-	LightBulbIcon,
 	PaintbrushIcon,
 	RefreshCwIcon,
-	Settings2Icon,
 	SolaraIcon,
 	ToggleRightIcon,
 	WindowIcon,
@@ -31,9 +29,7 @@ import { computed, ref } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import AppearanceSettings from '@/features/settings/display/appearance-settings.vue'
-import BehaviorSettings from '@/features/settings/display/behavior-settings.vue'
 import FeatureFlagSettings from '@/features/settings/display/feature-flag-settings.vue'
-import FeaturesSettings from '@/features/settings/display/features-settings.vue'
 import JavaAndMemorySettings from '@/features/settings/instance-defaults/java-and-memory-settings/index.vue'
 import LaunchHooksSettings from '@/features/settings/instance-defaults/launch-hooks-settings.vue'
 import WindowSettings from '@/features/settings/instance-defaults/window-settings.vue'
@@ -83,30 +79,12 @@ const tabCategories = defineMessages({
 const tabs = [
 	{
 		name: defineMessage({
-			id: 'app.settings.tabs.appearance',
-			defaultMessage: 'Appearance',
+			id: 'app.settings.tabs.theme',
+			defaultMessage: 'Theme',
 		}),
 		category: tabCategories.display,
 		icon: PaintbrushIcon,
 		content: AppearanceSettings,
-	},
-	{
-		name: defineMessage({
-			id: 'app.settings.tabs.features',
-			defaultMessage: 'Features',
-		}),
-		category: tabCategories.display,
-		icon: LightBulbIcon,
-		content: FeaturesSettings,
-	},
-	{
-		name: defineMessage({
-			id: 'app.settings.tabs.behavior',
-			defaultMessage: 'Behavior',
-		}),
-		category: tabCategories.display,
-		icon: Settings2Icon,
-		content: BehaviorSettings,
 	},
 	{
 		name: commonSettingsMessages.featureFlags,

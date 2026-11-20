@@ -629,21 +629,9 @@ async function setupApp() {
 		theme,
 		locale,
 		telemetry,
-		hide_nametag_skins_page,
-		toggle_sidebar,
 		sync_theme_across_devices,
 		sync_behavior_across_devices,
 		sync_features_across_devices,
-		show_files_tab_in_instances,
-		show_worlds_tab_in_instances,
-		show_screenshots_tab_in_instances,
-		show_skin_selector_in_sidebar,
-		refocus_on_game_close,
-		compact_instance_cards,
-		show_play_time,
-		warn_on_unknown_modpacks,
-		skip_non_essential_warnings,
-		show_jump_in,
 		always_show_copy_details,
 		hide_installed_modpacks,
 		advanced_filters_collapsed,
@@ -685,18 +673,18 @@ async function setupApp() {
 	appTheme.syncAcrossDevices = sync_theme_across_devices
 	appSettings.syncBehaviorAcrossDevices = sync_behavior_across_devices
 	appSettings.syncFeaturesAcrossDevices = sync_features_across_devices
-	appSettings.hideNametagSkinsPage = hide_nametag_skins_page
-	appSettings.toggleSidebar = toggle_sidebar
-	appSettings.showFilesTabInInstances = show_files_tab_in_instances
-	appSettings.showWorldsTabInInstances = show_worlds_tab_in_instances
-	appSettings.showScreenshotsTabInInstances = show_screenshots_tab_in_instances
-	appSettings.showSkinSelectorInSidebar = show_skin_selector_in_sidebar
-	appSettings.refocusOnGameClose = refocus_on_game_close
-	appSettings.compactInstanceCards = compact_instance_cards
-	appSettings.showPlayTime = show_play_time
-	appSettings.warnOnUnknownModpacks = warn_on_unknown_modpacks
-	appSettings.skipNonEssentialWarnings = skip_non_essential_warnings
-	appSettings.showJumpIn = show_jump_in
+	appSettings.hideNametagSkinsPage = false
+	appSettings.toggleSidebar = false
+	appSettings.showFilesTabInInstances = false
+	appSettings.showWorldsTabInInstances = false
+	appSettings.showScreenshotsTabInInstances = true
+	appSettings.showSkinSelectorInSidebar = true
+	appSettings.refocusOnGameClose = false
+	appSettings.compactInstanceCards = false
+	appSettings.showPlayTime = false
+	appSettings.warnOnUnknownModpacks = false
+	appSettings.skipNonEssentialWarnings = false
+	appSettings.showJumpIn = false
 	appSettings.alwaysShowCopyDetails = always_show_copy_details
 	appSettings.hideInstalledModpacks = hide_installed_modpacks
 	appSettings.advancedFiltersCollapsed = advanced_filters_collapsed
@@ -931,58 +919,39 @@ watch(
 				}
 
 				if (behavior && appSettings.syncBehaviorAcrossDevices) {
-					const behaviorSettings = {
-						refocus_on_game_close: 'refocusOnGameClose',
-						compact_instance_cards: 'compactInstanceCards',
-						show_play_time: 'showPlayTime',
-						warn_on_unknown_modpacks: 'warnOnUnknownModpacks',
-						skip_non_essential_warnings: 'skipNonEssentialWarnings',
-					}
-					for (const [key, stateKey] of Object.entries(behaviorSettings)) {
-						const value = behavior[key] ?? settings[key]
-						appSettings[stateKey] = value
-						if (settings[key] !== value) {
-							settings[key] = value
+					appSettings.refocusOnGameClose = false
+					appSettings.compactInstanceCards = false
+					appSettings.showPlayTime = false
+					appSettings.warnOnUnknownModpacks = false
+					appSettings.skipNonEssentialWarnings = false
+					appSettings.toggleSidebar = false
+					appSettings.hideNametagSkinsPage = false
+
+					const lockedFalseKeys = [
+						'hide_on_process_start',
+						'refocus_on_game_close',
+						'toggle_sidebar',
+						'compact_instance_cards',
+						'show_play_time',
+						'hide_nametag_skins_page',
+						'warn_on_unknown_modpacks',
+						'skip_non_essential_warnings',
+					]
+					for (const key of lockedFalseKeys) {
+						if (settings[key] !== false) {
+							settings[key] = false
 							settingsChanged = true
 						}
-					}
-
-					appSettings.toggleSidebar = behavior.hide_right_sidebar
-					appSettings.hideNametagSkinsPage = behavior.hide_nametag
-
-					if (settings.hide_on_process_start !== behavior.minimize_app) {
-						settings.hide_on_process_start = behavior.minimize_app
-						settingsChanged = true
-					}
-					if (settings.toggle_sidebar !== behavior.hide_right_sidebar) {
-						settings.toggle_sidebar = behavior.hide_right_sidebar
-						settingsChanged = true
-					}
-					if (settings.hide_nametag_skins_page !== behavior.hide_nametag) {
-						settings.hide_nametag_skins_page = behavior.hide_nametag
-						settingsChanged = true
 					}
 				}
 
 				if (behavior && appSettings.syncFeaturesAcrossDevices) {
-					const featureSettings = {
-						show_jump_in: 'showJumpIn',
-						show_files_tab_in_instances: 'showFilesTabInInstances',
-						show_worlds_tab_in_instances: 'showWorldsTabInInstances',
-						show_screenshots_tab_in_instances: 'showScreenshotsTabInInstances',
-						show_skin_selector_in_sidebar: 'showSkinSelectorInSidebar',
-					}
-					for (const [key, stateKey] of Object.entries(featureSettings)) {
-						const value = behavior[key] ?? settings[key]
-						appSettings[stateKey] = value
-						if (settings[key] !== value) {
-							settings[key] = value
-							settingsChanged = true
-						}
-					}
-					if (typeof behavior.quick_instance_count === 'number') {
-						quickInstances.setLimit(behavior.quick_instance_count)
-					}
+					appSettings.showFilesTabInInstances = false
+					appSettings.showWorldsTabInInstances = false
+					appSettings.showScreenshotsTabInInstances = true
+					appSettings.showSkinSelectorInSidebar = true
+					appSettings.showJumpIn = false
+					quickInstances.setLimit(null)
 
 					const showAllScreenshots = behavior.show_all_screenshots
 					if (typeof showAllScreenshots === 'boolean') {
