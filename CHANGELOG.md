@@ -1,5 +1,11 @@
 # Changelog
 
+## V-0.0.80 — Clean Settings Version Footer Card (2026-11-20)
+
+- Removed the Windows OS platform/version subtitle line beneath `Solara Launcher 0.0.80` in the bottom-left **Solara Settings** footer card across both OLED and White themes.
+- Refreshed the Settings Theme and Settings Resources screenshots in `public/screenshots/` to match the cleaner footer card.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.79 — Redesigned Solara Settings Control Center, Card-Based Resources UI & Real-Screenshot README (2026-11-20)
 
 - Redesigned **Solara Settings** shell: Branded header with Solara crest icon, version badge, left-accented cyan-to-gold active tab highlight, cleaner tracked category labels, and an elevated sidebar footer card across both OLED and White themes.
