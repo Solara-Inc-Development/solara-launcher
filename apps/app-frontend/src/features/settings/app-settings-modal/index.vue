@@ -5,7 +5,6 @@ import {
 	EyeOffIcon,
 	GaugeIcon,
 	PaintbrushIcon,
-	RefreshCwIcon,
 	SolaraIcon,
 	ToggleRightIcon,
 	WindowIcon,
@@ -34,7 +33,6 @@ import JavaAndMemorySettings from '@/features/settings/instance-defaults/java-an
 import LaunchHooksSettings from '@/features/settings/instance-defaults/launch-hooks-settings.vue'
 import WindowSettings from '@/features/settings/instance-defaults/window-settings.vue'
 import type { InstanceDefaultsTab } from '@/features/settings/settings-actions'
-import SyncingSettings from '@/features/settings/syncing/syncing-settings.vue'
 import ResourceManagementSettings from '@/features/settings/system/resource-management-settings/index.vue'
 import TroubleshootingSettings from '@/features/settings/system/troubleshooting-settings.vue'
 import { appSettingsKeys, appSettingsQueryOptions, set } from '@/helpers/settings.ts'
@@ -122,15 +120,6 @@ const tabs = [
 	},
 	{
 		name: defineMessage({
-			id: 'app.settings.tabs.syncing',
-			defaultMessage: 'Syncing',
-		}),
-		category: tabCategories.instanceDefaults,
-		icon: RefreshCwIcon,
-		content: SyncingSettings,
-	},
-	{
-		name: defineMessage({
 			id: 'app.settings.tabs.resources',
 			defaultMessage: 'Resources',
 		}),
@@ -191,10 +180,7 @@ function showFeatureFlags(): void {
 }
 
 function showSyncedOptions(): void {
-	const syncedOptionsTabIndex = availableTabs.value.findIndex(
-		(tab) => tab.content === SyncingSettings,
-	)
-	modal.value?.show(undefined, syncedOptionsTabIndex >= 0 ? syncedOptionsTabIndex : undefined)
+	modal.value?.show()
 }
 
 function showInstanceDefaults(tab: InstanceDefaultsTab): void {
@@ -281,10 +267,39 @@ const messages = defineMessages({
 		ref="modal"
 		:tabs="availableTabs"
 		:header="formatMessage(commonMessages.settingsLabel)"
+		width="980px"
+		max-width="980px"
+		class="solara-settings-modal"
 		:before-hide="canLeaveCurrentTab"
 		:before-tab-change="canLeaveCurrentTab"
 		:floating-action-bar-shown="hasUnsavedChanges"
 	>
+		<template #title>
+			<div class="flex min-w-0 items-center gap-3.5">
+				<div
+					class="solara-settings-crest flex size-10 shrink-0 items-center justify-center rounded-xl"
+					aria-hidden="true"
+				>
+					<SolaraIcon class="size-6" />
+				</div>
+				<div class="flex min-w-0 flex-col">
+					<div class="flex items-center gap-2">
+						<span class="truncate text-xl font-bold tracking-tight text-contrast">
+							Solara Settings
+						</span>
+						<span
+							v-if="appInfo?.version"
+							class="solara-settings-version-pill shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold tracking-wide tabular-nums"
+						>
+							v{{ appInfo.version }}
+						</span>
+					</div>
+					<span class="truncate text-xs font-medium text-secondary">
+						Themes, game defaults &amp; system resources
+					</span>
+				</div>
+			</div>
+		</template>
 		<template #floating-action-bar>
 			<UnsavedChangesPopup
 				ref="unsavedChangesPopup"
@@ -297,34 +312,31 @@ const messages = defineMessages({
 			/>
 		</template>
 		<template #footer>
-			<div class="mt-auto text-secondary text-sm">
+			<div class="solara-settings-footer mt-auto pt-3">
 				<div v-if="progress > 0 && progress < 1" class="mb-3">
-					<p class="m-0 mb-2">
+					<p class="m-0 mb-2 text-xs font-medium text-secondary">
 						{{ formatMessage(messages.downloading, { version: downloadingVersion }) }}
 					</p>
 					<ProgressBar :progress="progress" />
 				</div>
-				<p v-if="appSettings.devMode" class="text-brand font-semibold m-0 mb-2">
+				<p v-if="appSettings.devMode" class="mb-2 m-0 text-xs font-semibold text-sky-400">
 					{{ formatMessage(developerModeEnabled) }}
 				</p>
-				<div class="flex items-center gap-3">
+				<div class="solara-settings-footer-card flex items-center gap-2.5 rounded-2xl p-2.5">
 					<button
 						:aria-label="formatMessage(messages.developerModeButtonLabel)"
 						:disabled="developerModeMutation.isPending.value"
-						class="p-0 m-0 bg-transparent border-none cursor-pointer button-animation"
-						:class="{
-							'text-brand': appSettings.devMode,
-							'text-secondary': !appSettings.devMode,
-						}"
+						class="solara-settings-footer-icon flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl border-0 p-0 button-animation"
+						:class="{ 'is-dev': appSettings.devMode }"
 						@click="devModeCount"
 					>
-						<SolaraIcon aria-hidden="true" class="w-6 h-6" />
+						<SolaraIcon aria-hidden="true" class="size-5" />
 					</button>
-					<div v-if="appInfo" class="max-w-[200px]">
-						<p class="m-0">
+					<div v-if="appInfo" class="min-w-0 flex-1">
+						<p class="m-0 truncate text-xs font-semibold text-contrast">
 							{{ formatMessage(messages.appVersion, { version: appInfo.version }) }}
 						</p>
-						<p class="m-0">
+						<p class="m-0 truncate text-[11px] font-medium text-secondary">
 							<span v-if="appInfo.osPlatform === 'macos'">{{ formatMessage(messages.macos) }}</span>
 							<span v-else class="capitalize">{{ appInfo.osPlatform }}</span>
 							{{ appInfo.osVersion }}
@@ -335,3 +347,36 @@ const messages = defineMessages({
 		</template>
 	</TabbedModal>
 </template>
+
+<style scoped>
+.solara-settings-crest {
+	background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(251, 191, 36, 0.14));
+	box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.28);
+}
+
+.solara-settings-version-pill {
+	background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(251, 191, 36, 0.14));
+	color: #38bdf8;
+}
+
+:global(.light-mode) .solara-settings-version-pill {
+	background: rgba(2, 132, 199, 0.12);
+	color: #0284c7;
+}
+
+.solara-settings-footer-card {
+	background: color-mix(in srgb, var(--surface-4) 68%, transparent);
+}
+
+:global(.light-mode) .solara-settings-footer-card {
+	background: #f1f5f9;
+}
+
+.solara-settings-footer-icon {
+	background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+}
+
+.solara-settings-footer-icon.is-dev {
+	box-shadow: 0 0 0 1.5px #38bdf8;
+}
+</style>

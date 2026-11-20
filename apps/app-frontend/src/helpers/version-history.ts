@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.79',
+		title: 'Redesigned Solara Settings Control Center & Card-Based Resources UI',
+		date: 'November 20, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Upgraded the entire Settings modal into a custom Solara Settings experience with a branded Solara crest header, version badge, left-accented active tab indicator, and elevated sidebar footer card in both OLED and White themes.',
+			'Removed the unused Syncing tab from Settings for an even cleaner sidebar.',
+			'Redesigned Settings → Resources into three clean Solara cards: Content Storage (cyan/violet/amber breakdown bar, stat tiles, cache limit & cleanup), App Directory (monospace click-to-copy path bar & quick actions), and a 2-column Transfer & Disk Limits card with live value chips.',
+		],
+		issuesFixed: [
+			'Improved visual hierarchy and spacing across Settings tabs for both OLED True Black and White Clean Daylight themes.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.78',
 		title: 'Custom Solara Theme Previews & Streamlined Settings Display Section',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Renamed Settings → Appearance to Theme and replaced the generic theme preview boxes with custom mini Solara Launcher window previews for both OLED and White themes.',
 			'Removed the Features and Behavior tabs from Settings so Display focuses cleanly on Theme.',
