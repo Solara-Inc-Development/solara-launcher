@@ -1,5 +1,12 @@
 # Changelog
 
+## V-0.0.77 — Streamlined Settings Menu & Locked-Off Advanced Rendering / System Window Frame (2026-11-20)
+
+- Removed Language Tab: Removed the unused Language tab from the Settings menu for a cleaner Display section.
+- Removed & Locked OFF Appearance Toggles: Removed `Advanced rendering` and `System window frame` from Settings → Appearance and enforced both permanently OFF (`false`) across frontend state, window initialization, and Rust `Settings::get` / `Settings::update` / `toggle_decorations` so legacy enabled profiles reset automatically and neither can be turned on.
+- Faster Windows CI Builds: Removed duplicate debug-mode `cargo test` commands from `windows-preview.yml` (still enforced in parallel by `windows-check.yml`), cutting warm-cache Windows builds to ~13 minutes even on Rust edits.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.76 — ModPack Navigation Fix, Original Solara Downloads UI & Fast Windows CI (2026-11-20)
 
 - ModPackInstaller Navigation Fix: Added permanent `#sidebar-teleport-target` fallback mount in `App.vue` and refactored `/project/:id` metadata cards into a responsive inline two-column sidebar, fixing the bug where Home, Back, Versions, Gallery, Library, and Skin Studio clicks stopped updating the UI after browsing a modpack.

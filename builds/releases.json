@@ -2594,6 +2594,49 @@
       "notes": "Solara Launcher V-0.0.76 (Testing Preview)\n\n- Fixed the ModPackInstaller navigation freeze bug where clicking Home, Back, Versions, Gallery, Library, or Skin Studio stopped updating the UI after opening a modpack detail page.\n- Added a clean inline two-column project metadata sidebar on ModPackInstaller project pages.\n- Redesigned the top Download Manager into an original Solara Downloads capsule and drawer with segmented Active / History tabs, cyan-to-gold gradient progress bars, status pills, live speed chip, and borderless task cards in OLED and White themes.\n- Switched release builds to thin LTO and upgraded Windows CI workflows to Swatinem/rust-cache@v2 for faster future builds.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.76/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "86b811a2-920d-4dec-956a-148dd2169b08",
+      "publicVersion": "V-0.0.77",
+      "internalVersion": "0.0.77",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.77/solaralauncher.exe",
+      "commit": "ef877c764e36a3ca8597a375684aa636de8392cd",
+      "allocatedAt": "2026-11-20T03:45:12.676Z",
+      "state": "published",
+      "applicationSha256": "59f67433f8df5f483fdb87ea70c874d53c5ba137efff5a7bfe4b27e109416f56",
+      "applicationSize": 47543296,
+      "sourceTree": "371841b5b0b6cfe0adb245a4f7380d85fd7665df",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 21398986,
+          "sha256": "70b907fd8c2df6f02870316be14362dcb0ed19712f8d99cb33507a48550af059"
+        },
+        "application/solaralauncher.exe": {
+          "size": 47543296,
+          "sha256": "59f67433f8df5f483fdb87ea70c874d53c5ba137efff5a7bfe4b27e109416f56"
+        },
+        "source.zip": {
+          "size": 34049379,
+          "sha256": "828f258c86d4a20834763a4b2e81695c6b8dddf9ac384c91a3e9607bcbf3357d"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 21398986,
+      "sha256": "70b907fd8c2df6f02870316be14362dcb0ed19712f8d99cb33507a48550af059",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-20T03:56:13.071Z",
+      "verifiedAt": "2026-11-20T03:56:08.984Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDVPNXJCeEF3SHNTYVNZeXpBYkhQRlBIcWt6VWZIdXNNamhoanRpZ1NmWGpyYmorMWFNWVJWbEx0ckNvaHE1aXZ2NEVqdU9pc29VQ3QzaXoxWUJ3a2c0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MTQ2OTQxCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjc3ClNmL1FyTFBZOG8zNE8vMGxqTzVXSjRxaEFBT3RmcVVvbGhzelNINll1NUlRSTJlTmNpTjV5bWhlMldlV29sZU55ajY4bWY3Q2p3K2RlOU9kNmJnbkFRPT0K",
+      "notes": "Solara Launcher V-0.0.77 (Testing Preview)\n\n- Removed the unused Language tab from the Settings menu.\n- Removed Advanced rendering and System window frame from Settings -> Appearance and locked both permanently OFF across frontend and Rust backend (legacy saved values are automatically reset to OFF).\n- Streamlined Windows preview packaging workflow for faster builds (~13 min even on Rust changes).\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.77/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
