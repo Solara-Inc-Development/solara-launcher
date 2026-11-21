@@ -4,6 +4,7 @@ use theseus::error_code;
 
 pub mod auth;
 pub mod cache;
+pub mod curseforge;
 pub mod files;
 pub mod import;
 pub mod install;

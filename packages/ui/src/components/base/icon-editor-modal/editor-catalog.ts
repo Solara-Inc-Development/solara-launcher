@@ -1,227 +1,130 @@
-import backpack from '@modrinth/assets/illustrations/instance-icons/backpack.png'
-import beacon from '@modrinth/assets/illustrations/instance-icons/beacon.png'
-import blueShark from '@modrinth/assets/illustrations/instance-icons/blue-shark.png'
-import bookshelf from '@modrinth/assets/illustrations/instance-icons/bookshelf.png'
-import brownBear from '@modrinth/assets/illustrations/instance-icons/brown-bear.png'
-import cake from '@modrinth/assets/illustrations/instance-icons/cake.png'
-import campfire from '@modrinth/assets/illustrations/instance-icons/campfire.png'
-import chest from '@modrinth/assets/illustrations/instance-icons/chest.png'
-import cogwheel from '@modrinth/assets/illustrations/instance-icons/cogwheel.png'
-import commandBlock from '@modrinth/assets/illustrations/instance-icons/command-block.png'
-import cookingPot from '@modrinth/assets/illustrations/instance-icons/cooking-pot.png'
-import couch from '@modrinth/assets/illustrations/instance-icons/couch.png'
-import craftingTable from '@modrinth/assets/illustrations/instance-icons/crafting-table.png'
-import creeper from '@modrinth/assets/illustrations/instance-icons/creeper.png'
-import enchantingTable from '@modrinth/assets/illustrations/instance-icons/enchanting-table.png'
-import enderChest from '@modrinth/assets/illustrations/instance-icons/ender-chest.png'
-import enderDragon from '@modrinth/assets/illustrations/instance-icons/ender-dragon.png'
-import engine from '@modrinth/assets/illustrations/instance-icons/engine.png'
-import fabric from '@modrinth/assets/illustrations/instance-icons/fabric.png'
-import forge from '@modrinth/assets/illustrations/instance-icons/forge.png'
-import furnace from '@modrinth/assets/illustrations/instance-icons/furnace.png'
-import gizmo from '@modrinth/assets/illustrations/instance-icons/gizmo.png'
-import globe from '@modrinth/assets/illustrations/instance-icons/globe.png'
-import grassBlock from '@modrinth/assets/illustrations/instance-icons/grass-block.png'
-import lantern from '@modrinth/assets/illustrations/instance-icons/lantern.png'
-import moobloom from '@modrinth/assets/illustrations/instance-icons/moobloom.png'
-import mrPack from '@modrinth/assets/illustrations/instance-icons/mr-pack.png'
-import neoForge from '@modrinth/assets/illustrations/instance-icons/neoforge.png'
-import orb from '@modrinth/assets/illustrations/instance-icons/orb.png'
-import oxygenDistributor from '@modrinth/assets/illustrations/instance-icons/oxygen-distributor.png'
-import pancakes from '@modrinth/assets/illustrations/instance-icons/pancakes.png'
-import pickaxe from '@modrinth/assets/illustrations/instance-icons/pickaxe.png'
-import pokeBall from '@modrinth/assets/illustrations/instance-icons/poke-ball.png'
-import quilt from '@modrinth/assets/illustrations/instance-icons/quilt.png'
-import redstoneBlock from '@modrinth/assets/illustrations/instance-icons/redstone-block.png'
-import sculkSensor from '@modrinth/assets/illustrations/instance-icons/sculk-sensor.png'
-import skeleton from '@modrinth/assets/illustrations/instance-icons/skeleton.png'
-import skillet from '@modrinth/assets/illustrations/instance-icons/skillet.png'
-import slimeBlock from '@modrinth/assets/illustrations/instance-icons/slime-block.png'
-import spaceHelmet from '@modrinth/assets/illustrations/instance-icons/space-helmet.png'
-import stickyPiston from '@modrinth/assets/illustrations/instance-icons/sticky-piston.png'
-import sword from '@modrinth/assets/illustrations/instance-icons/sword.png'
-import terminal from '@modrinth/assets/illustrations/instance-icons/terminal.png'
-import tinyPotato from '@modrinth/assets/illustrations/instance-icons/tiny-potato.png'
-import tire from '@modrinth/assets/illustrations/instance-icons/tire.png'
-import tnt from '@modrinth/assets/illustrations/instance-icons/tnt.png'
-import wrench from '@modrinth/assets/illustrations/instance-icons/wrench.png'
-import solaraMark from '@modrinth/assets/solara/logo.svg?url'
-import zombie from '@modrinth/assets/illustrations/instance-icons/zombie.png'
+import amethystCrystal from '@modrinth/assets/solara/instance-icons/amethyst_crystal.png'
+import anvil from '@modrinth/assets/solara/instance-icons/anvil.png'
+import beacon from '@modrinth/assets/solara/instance-icons/beacon.png'
+import campfire from '@modrinth/assets/solara/instance-icons/campfire.png'
+import compass from '@modrinth/assets/solara/instance-icons/compass.png'
+import diamondOre from '@modrinth/assets/solara/instance-icons/diamond_ore.png'
+import diamondSword from '@modrinth/assets/solara/instance-icons/diamond_sword.png'
+import emeraldBlock from '@modrinth/assets/solara/instance-icons/emerald_block.png'
+import enchantedShield from '@modrinth/assets/solara/instance-icons/enchanted_shield.png'
+import enchantingTable from '@modrinth/assets/solara/instance-icons/enchanting_table.png'
+import enderPortal from '@modrinth/assets/solara/instance-icons/ender_portal.png'
+import goldenCrown from '@modrinth/assets/solara/instance-icons/golden_crown.png'
+import grassBlock from '@modrinth/assets/solara/instance-icons/grass_block.png'
+import lantern from '@modrinth/assets/solara/instance-icons/lantern.png'
+import magmaBlock from '@modrinth/assets/solara/instance-icons/magma_block.png'
+import netheriteBlock from '@modrinth/assets/solara/instance-icons/netherite_block.png'
+import netheritePickaxe from '@modrinth/assets/solara/instance-icons/netherite_pickaxe.png'
+import potionFlask from '@modrinth/assets/solara/instance-icons/potion_flask.png'
+import redstoneLamp from '@modrinth/assets/solara/instance-icons/redstone_lamp.png'
+import snowyPeak from '@modrinth/assets/solara/instance-icons/snowy_peak.png'
+import solaraCore from '@modrinth/assets/solara/instance-icons/solara_core.png'
+import techGear from '@modrinth/assets/solara/instance-icons/tech_gear.png'
+import tntCrate from '@modrinth/assets/solara/instance-icons/tnt_crate.png'
+import treasureChest from '@modrinth/assets/solara/instance-icons/treasure_chest.png'
 
 import { defineMessages, type MessageDescriptor } from '#ui/composables/i18n'
 
 const names = defineMessages({
-	yellow: {
-		id: 'instance.icon-editor.background.yellow',
-		defaultMessage: 'Yellow',
-	},
-	green: {
-		id: 'instance.icon-editor.background.green',
-		defaultMessage: 'Green',
-	},
-	lime: {
-		id: 'instance.icon-editor.background.lime',
-		defaultMessage: 'Lime',
-	},
-	darkGreen: {
-		id: 'instance.icon-editor.background.dark-green',
-		defaultMessage: 'Dark green',
-	},
-	purple: {
-		id: 'instance.icon-editor.background.purple',
-		defaultMessage: 'Purple',
-	},
-	blue: {
-		id: 'instance.icon-editor.background.blue',
-		defaultMessage: 'Blue',
-	},
-	orange: {
-		id: 'instance.icon-editor.background.orange',
-		defaultMessage: 'Orange',
-	},
-	red: {
-		id: 'instance.icon-editor.background.red',
-		defaultMessage: 'Red',
-	},
-	rose: {
-		id: 'instance.icon-editor.background.rose',
-		defaultMessage: 'Rose',
-	},
-	pink: {
-		id: 'instance.icon-editor.background.pink',
-		defaultMessage: 'Pink',
-	},
-	indigo: {
-		id: 'instance.icon-editor.background.indigo',
-		defaultMessage: 'Indigo',
-	},
-	lavender: {
-		id: 'instance.icon-editor.background.lavender',
-		defaultMessage: 'Lavender',
-	},
-	lightGray: {
-		id: 'instance.icon-editor.background.light-gray',
-		defaultMessage: 'Light gray',
-	},
-	gray: {
-		id: 'instance.icon-editor.background.gray',
-		defaultMessage: 'Gray',
-	},
-	darkGray: {
-		id: 'instance.icon-editor.background.dark-gray',
-		defaultMessage: 'Dark gray',
-	},
-	backpack: { id: 'instance.icon-editor.symbol.backpack', defaultMessage: 'Backpack' },
-	beacon: { id: 'instance.icon-editor.symbol.beacon', defaultMessage: 'Beacon' },
-	blueShark: { id: 'instance.icon-editor.symbol.blue-shark', defaultMessage: 'Blue Shark' },
-	bookshelf: { id: 'instance.icon-editor.symbol.bookshelf', defaultMessage: 'Bookshelf' },
-	brownBear: { id: 'instance.icon-editor.symbol.brown-bear', defaultMessage: 'Brown Bear' },
-	cake: { id: 'instance.icon-editor.symbol.cake', defaultMessage: 'Cake' },
+	cyan: { id: 'instance.icon-editor.background.cyan', defaultMessage: 'Cyan' },
+	blue: { id: 'instance.icon-editor.background.blue', defaultMessage: 'Blue' },
+	purple: { id: 'instance.icon-editor.background.purple', defaultMessage: 'Purple' },
+	lavender: { id: 'instance.icon-editor.background.lavender', defaultMessage: 'Lavender' },
+	rose: { id: 'instance.icon-editor.background.rose', defaultMessage: 'Rose' },
+	orange: { id: 'instance.icon-editor.background.orange', defaultMessage: 'Orange' },
+	yellow: { id: 'instance.icon-editor.background.yellow', defaultMessage: 'Gold' },
+	green: { id: 'instance.icon-editor.background.green', defaultMessage: 'Emerald' },
+	lime: { id: 'instance.icon-editor.background.lime', defaultMessage: 'Lime' },
+	pink: { id: 'instance.icon-editor.background.pink', defaultMessage: 'Pink' },
+	gray: { id: 'instance.icon-editor.background.gray', defaultMessage: 'Slate' },
+	darkGray: { id: 'instance.icon-editor.background.dark-gray', defaultMessage: 'Obsidian' },
+
+	solaraCore: { id: 'instance.icon-editor.symbol.solara-core', defaultMessage: 'Solara Core' },
+	grassBlock: { id: 'instance.icon-editor.symbol.grass-block', defaultMessage: 'Grass Terrain' },
+	diamondSword: { id: 'instance.icon-editor.symbol.sword', defaultMessage: 'Diamond Sword' },
+	netheritePickaxe: { id: 'instance.icon-editor.symbol.pickaxe', defaultMessage: 'Netherite Pickaxe' },
+	diamondOre: { id: 'instance.icon-editor.symbol.diamond-ore', defaultMessage: 'Diamond Ore' },
+	emeraldBlock: { id: 'instance.icon-editor.symbol.emerald-block', defaultMessage: 'Emerald Block' },
+	amethystCrystal: { id: 'instance.icon-editor.symbol.amethyst-crystal', defaultMessage: 'Amethyst Cluster' },
+	goldenCrown: { id: 'instance.icon-editor.symbol.golden-crown', defaultMessage: 'Golden Crown' },
+	enchantedShield: { id: 'instance.icon-editor.symbol.enchanted-shield', defaultMessage: 'Solara Shield' },
 	campfire: { id: 'instance.icon-editor.symbol.campfire', defaultMessage: 'Campfire' },
-	chest: { id: 'instance.icon-editor.symbol.chest', defaultMessage: 'Chest' },
-	cogwheel: { id: 'instance.icon-editor.symbol.cogwheel', defaultMessage: 'Cogwheel' },
-	commandBlock: {
-		id: 'instance.icon-editor.symbol.command-block',
-		defaultMessage: 'Command Block',
-	},
-	cookingPot: {
-		id: 'instance.icon-editor.symbol.cooking-pot',
-		defaultMessage: 'Cooking Pot',
-	},
-	couch: { id: 'instance.icon-editor.symbol.couch', defaultMessage: 'Couch' },
-	craftingTable: {
-		id: 'instance.icon-editor.symbol.crafting-table',
-		defaultMessage: 'Crafting Table',
-	},
-	creeper: { id: 'instance.icon-editor.symbol.creeper', defaultMessage: 'Creeper' },
-	enchantingTable: {
-		id: 'instance.icon-editor.symbol.enchanting-table',
-		defaultMessage: 'Enchanting Table',
-	},
-	enderChest: {
-		id: 'instance.icon-editor.symbol.ender-chest',
-		defaultMessage: 'Ender Chest',
-	},
-	enderDragon: {
-		id: 'instance.icon-editor.symbol.ender-dragon',
-		defaultMessage: 'Ender Dragon',
-	},
-	engine: { id: 'instance.icon-editor.symbol.engine', defaultMessage: 'Engine' },
-	furnace: { id: 'instance.icon-editor.symbol.furnace', defaultMessage: 'Furnace' },
-	gizmo: { id: 'instance.icon-editor.symbol.gizmo', defaultMessage: 'Gizmo' },
-	globe: { id: 'instance.icon-editor.symbol.globe', defaultMessage: 'Globe' },
-	grassBlock: {
-		id: 'instance.icon-editor.symbol.grass-block',
-		defaultMessage: 'Grass Block',
-	},
-	lantern: { id: 'instance.icon-editor.symbol.lantern', defaultMessage: 'Lantern' },
-	moobloom: { id: 'instance.icon-editor.symbol.moobloom', defaultMessage: 'Moobloom' },
-	mrPack: { id: 'instance.icon-editor.symbol.mr-pack', defaultMessage: 'Mr Pack' },
-	orb: { id: 'instance.icon-editor.symbol.orb', defaultMessage: 'Orb' },
-	oxygenDistributor: {
-		id: 'instance.icon-editor.symbol.oxygen-distributor',
-		defaultMessage: 'Oxygen Distributor',
-	},
-	pancakes: { id: 'instance.icon-editor.symbol.pancakes', defaultMessage: 'Pancakes' },
-	pickaxe: { id: 'instance.icon-editor.symbol.pickaxe', defaultMessage: 'Pickaxe' },
-	pokeBall: { id: 'instance.icon-editor.symbol.poke-ball', defaultMessage: 'Poke Ball' },
-	redstoneBlock: {
-		id: 'instance.icon-editor.symbol.redstone-block',
-		defaultMessage: 'Redstone Block',
-	},
-	sculkSensor: {
-		id: 'instance.icon-editor.symbol.sculk-sensor',
-		defaultMessage: 'Sculk Sensor',
-	},
-	skeleton: { id: 'instance.icon-editor.symbol.skeleton', defaultMessage: 'Skeleton' },
-	skillet: { id: 'instance.icon-editor.symbol.skillet', defaultMessage: 'Skillet' },
-	slimeBlock: {
-		id: 'instance.icon-editor.symbol.slime-block',
-		defaultMessage: 'Slime Block',
-	},
-	spaceHelmet: {
-		id: 'instance.icon-editor.symbol.space-helmet',
-		defaultMessage: 'Space Helmet',
-	},
-	stickyPiston: {
-		id: 'instance.icon-editor.symbol.sticky-piston',
-		defaultMessage: 'Sticky Piston',
-	},
-	sword: { id: 'instance.icon-editor.symbol.sword', defaultMessage: 'Sword' },
-	tnt: { id: 'instance.icon-editor.symbol.tnt', defaultMessage: 'TNT' },
-	terminal: { id: 'instance.icon-editor.symbol.terminal', defaultMessage: 'Terminal' },
-	tinyPotato: {
-		id: 'instance.icon-editor.symbol.tiny-potato',
-		defaultMessage: 'Tiny Potato',
-	},
-	tire: { id: 'instance.icon-editor.symbol.tire', defaultMessage: 'Tire' },
-	wrench: { id: 'instance.icon-editor.symbol.create-wrench', defaultMessage: 'Wrench' },
-	wrenchRinth: {
-		id: 'instance.icon-editor.symbol.wrenth-rinth',
-		defaultMessage: 'Solara Logo',
-	},
-	zombie: { id: 'instance.icon-editor.symbol.zombie', defaultMessage: 'Zombie' },
-	fabric: { id: 'instance.icon-editor.symbol.fabric', defaultMessage: 'Fabric' },
-	forge: { id: 'instance.icon-editor.symbol.forge', defaultMessage: 'Forge' },
-	neoForge: { id: 'instance.icon-editor.symbol.neoforge', defaultMessage: 'NeoForge' },
-	quilt: { id: 'instance.icon-editor.symbol.quilt', defaultMessage: 'Quilt' },
+	enchantingTable: { id: 'instance.icon-editor.symbol.enchanting-table', defaultMessage: 'Enchanting Table' },
+	beacon: { id: 'instance.icon-editor.symbol.beacon', defaultMessage: 'Beacon' },
+	treasureChest: { id: 'instance.icon-editor.symbol.chest', defaultMessage: 'Treasure Chest' },
+	enderPortal: { id: 'instance.icon-editor.symbol.ender-portal', defaultMessage: 'Ender Portal' },
+	redstoneLamp: { id: 'instance.icon-editor.symbol.redstone-lamp', defaultMessage: 'Redstone Lamp' },
+	tntCrate: { id: 'instance.icon-editor.symbol.tnt', defaultMessage: 'TNT Crate' },
+	potionFlask: { id: 'instance.icon-editor.symbol.potion-flask', defaultMessage: 'Elixir Flask' },
+	compass: { id: 'instance.icon-editor.symbol.compass', defaultMessage: 'Explorer Compass' },
+	snowyPeak: { id: 'instance.icon-editor.symbol.snowy-peak', defaultMessage: 'Snowy Peak' },
+	magmaBlock: { id: 'instance.icon-editor.symbol.magma-block', defaultMessage: 'Magma Core' },
+	lantern: { id: 'instance.icon-editor.symbol.lantern', defaultMessage: 'Iron Lantern' },
+	anvil: { id: 'instance.icon-editor.symbol.anvil', defaultMessage: 'Blacksmith Anvil' },
+	techGear: { id: 'instance.icon-editor.symbol.cogwheel', defaultMessage: 'Tech Gear' },
+	netheriteBlock: { id: 'instance.icon-editor.symbol.netherite-block', defaultMessage: 'Netherite Block' },
 })
 
 export interface SymbolOption {
 	id: string
 	name: MessageDescriptor
 	asset: string
-	category: 'loader' | 'modded' | 'vanilla'
+	category: 'solara' | 'vanilla'
 	excludeFromRandomization?: boolean
 }
 
 export const backgroundOptions = [
 	{
+		id: 'dark_gray',
+		background: {
+			type: 'linear-top-down-gradient',
+			top_color: '#111827',
+			bottom_color: '#1e293b',
+		},
+		name: names.darkGray,
+	},
+	{
+		id: 'cyan',
+		background: {
+			type: 'linear-top-down-gradient',
+			top_color: '#0284c7',
+			bottom_color: '#38bdf8',
+		},
+		name: names.cyan,
+	},
+	{
+		id: 'blue',
+		background: {
+			type: 'linear-top-down-gradient',
+			top_color: '#2563eb',
+			bottom_color: '#60a5fa',
+		},
+		name: names.blue,
+	},
+	{
+		id: 'purple',
+		background: {
+			type: 'linear-top-down-gradient',
+			top_color: '#4f46e5',
+			bottom_color: '#818cf8',
+		},
+		name: names.purple,
+	},
+	{
+		id: 'lavender',
+		background: {
+			type: 'linear-top-down-gradient',
+			top_color: '#9333ea',
+			bottom_color: '#c084fc',
+		},
+		name: names.lavender,
+	},
+	{
 		id: 'rose',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#D62E63',
-			bottom_color: '#F95C62',
+			top_color: '#e11d48',
+			bottom_color: '#fb7185',
 		},
 		name: names.rose,
 	},
@@ -229,8 +132,8 @@ export const backgroundOptions = [
 		id: 'orange',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#FF8D29',
-			bottom_color: '#FFB452',
+			top_color: '#ea580c',
+			bottom_color: '#fb923c',
 		},
 		name: names.orange,
 	},
@@ -238,283 +141,109 @@ export const backgroundOptions = [
 		id: 'yellow',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#FFC629',
-			bottom_color: '#FFEE53',
+			top_color: '#d97706',
+			bottom_color: '#fbbf24',
 		},
 		name: names.yellow,
-	},
-	{
-		id: 'lime',
-		background: {
-			type: 'linear-top-down-gradient',
-			top_color: '#6FDA1D',
-			bottom_color: '#CBFF50',
-		},
-		name: names.lime,
 	},
 	{
 		id: 'green',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#0B9F21',
-			bottom_color: '#4FD24B',
+			top_color: '#059669',
+			bottom_color: '#34d399',
 		},
 		name: names.green,
 	},
-	// {
-	// 	id: 'dark_green',
-	// 	background: {
-	// 		type: 'linear-top-down-gradient',
-	// 		top_color: '#084C13',
-	// 		bottom_color: '#327735',
-	// 	},
-	// 	name: names.darkGreen,
-	// },
-	// {
-	// 	id: 'indigo',
-	// 	background: {
-	// 		type: 'linear-top-down-gradient',
-	// 		top_color: '#3F00D3',
-	// 		bottom_color: '#2659FE',
-	// 	},
-	// 	name: names.indigo,
-	// },
 	{
-		id: 'purple',
+		id: 'lime',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#4739FF',
-			bottom_color: '#6670FF',
+			top_color: '#65a30d',
+			bottom_color: '#a3e635',
 		},
-		name: names.purple,
-	},
-	{
-		id: 'blue',
-		background: {
-			type: 'linear-top-down-gradient',
-			top_color: '#227EFF',
-			bottom_color: '#5EC1FF',
-		},
-		name: names.blue,
-	},
-	{
-		id: 'lavender',
-		background: {
-			type: 'linear-top-down-gradient',
-			top_color: '#C056FD',
-			bottom_color: '#B889FF',
-		},
-		name: names.lavender,
+		name: names.lime,
 	},
 	{
 		id: 'pink',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#F640C0',
-			bottom_color: '#FF7BF1',
+			top_color: '#db2777',
+			bottom_color: '#f472b6',
 		},
 		name: names.pink,
-	},
-
-	// {
-	// 	id: 'red',
-	// 	background: {
-	// 		type: 'linear-top-down-gradient',
-	// 		top_color: '#F6111C',
-	// 		bottom_color: '#F94548',
-	// 	},
-	// 	name: names.red,
-	// },
-	{
-		id: 'light_gray',
-		background: {
-			type: 'linear-top-down-gradient',
-			top_color: '#AEAEAE',
-			bottom_color: '#D9D9D9',
-		},
-		name: names.lightGray,
 	},
 	{
 		id: 'gray',
 		background: {
 			type: 'linear-top-down-gradient',
-			top_color: '#373C4C',
-			bottom_color: '#4C4F58',
+			top_color: '#334155',
+			bottom_color: '#64748b',
 		},
 		name: names.gray,
-	},
-	{
-		id: 'dark_gray',
-		background: {
-			type: 'linear-top-down-gradient',
-			top_color: '#1B1D29',
-			bottom_color: '#252731',
-		},
-		name: names.darkGray,
 	},
 ] as const
 
 export const symbolOptions = [
-	/////////////////////////
-	// loaders
-	/////////////////////////
+	// Solara & Adventure originals
+	{ id: 'solara_core', name: names.solaraCore, asset: solaraCore, category: 'solara' },
+	{ id: 'enchanted_shield', name: names.enchantedShield, asset: enchantedShield, category: 'solara' },
+	{ id: 'golden_crown', name: names.goldenCrown, asset: goldenCrown, category: 'solara' },
+	{ id: 'amethyst_crystal', name: names.amethystCrystal, asset: amethystCrystal, category: 'solara' },
+	{ id: 'potion_flask', name: names.potionFlask, asset: potionFlask, category: 'solara' },
+	{ id: 'compass', name: names.compass, asset: compass, category: 'solara' },
+	{ id: 'tech_gear', name: names.techGear, asset: techGear, category: 'solara' },
+	{ id: 'ender_portal', name: names.enderPortal, asset: enderPortal, category: 'solara' },
+	{ id: 'snowy_peak', name: names.snowyPeak, asset: snowyPeak, category: 'solara' },
+	{ id: 'magma_block', name: names.magmaBlock, asset: magmaBlock, category: 'solara' },
+	{ id: 'anvil', name: names.anvil, asset: anvil, category: 'solara' },
+	{ id: 'netherite_block', name: names.netheriteBlock, asset: netheriteBlock, category: 'solara' },
 
-	{
-		id: 'fabric',
-		name: names.fabric,
-		asset: fabric,
-		category: 'loader',
-		excludeFromRandomization: true,
-	},
-	{
-		id: 'forge',
-		name: names.forge,
-		asset: forge,
-		category: 'loader',
-		excludeFromRandomization: true,
-	},
-	{
-		id: 'neoforge',
-		name: names.neoForge,
-		asset: neoForge,
-		category: 'loader',
-		excludeFromRandomization: true,
-	},
-	{
-		id: 'quilt',
-		name: names.quilt,
-		asset: quilt,
-		category: 'loader',
-		excludeFromRandomization: true,
-	},
-
-	// Cobblemon: Poké Ball
-	{ id: 'poke_ball', name: names.pokeBall, asset: pokeBall, category: 'modded' },
-
-	// Origins: Orb of Origins
-	{ id: 'orb', name: names.orb, asset: orb, category: 'modded' },
-
-	// Farmer's Delight: Cooking Pot, Skillet
-	{ id: 'cooking_pot', name: names.cookingPot, asset: cookingPot, category: 'modded' },
-	{ id: 'skillet', name: names.skillet, asset: skillet, category: 'modded' },
-
-	// Supplementaries: Globe, Pancakes
-	{ id: 'globe', name: names.globe, asset: globe, category: 'modded' },
-	{ id: 'pancakes', name: names.pancakes, asset: pancakes, category: 'modded' },
-
-	// Sophisticated Backpacks: Backpack
-	{ id: 'backpack', name: names.backpack, asset: backpack, category: 'modded' },
-
-	// Chipped: Chair
-	{ id: 'couch', name: names.couch, asset: couch, category: 'modded' },
-
-	// Botania: Tiny Potato
-	{ id: 'tiny_potato', name: names.tinyPotato, asset: tinyPotato, category: 'modded' },
-
-	// Blåhaj: Blue Shark
-	{ id: 'blue_shark', name: names.blueShark, asset: blueShark, category: 'modded' },
-
-	// Other modded symbols: Brown Bear, Moobloom
-	{ id: 'brown_bear', name: names.brownBear, asset: brownBear, category: 'modded' },
-	{ id: 'moobloom', name: names.moobloom, asset: moobloom, category: 'modded' },
-
-	// Create: Wrench, Cogwheel
-	{ id: 'create_wrench', name: names.wrench, asset: wrench, category: 'modded' },
-	{ id: 'cogwheel', name: names.cogwheel, asset: cogwheel, category: 'modded' },
-
-	// Create Aeronautics: Engine, Tire
-	{ id: 'engine', name: names.engine, asset: engine, category: 'modded' },
-	{ id: 'tire', name: names.tire, asset: tire, category: 'modded' },
-
-	// Ad Astra: Oxygen Distributor, Space Helmet
-	{
-		id: 'oxygen_distributor',
-		name: names.oxygenDistributor,
-		asset: oxygenDistributor,
-		category: 'modded',
-	},
-	{ id: 'space_helmet', name: names.spaceHelmet, asset: spaceHelmet, category: 'modded' },
-
-	// Miscellaneous: Gizmo, Terminal
-	{ id: 'gizmo', name: names.gizmo, asset: gizmo, category: 'modded' },
-	{ id: 'terminal', name: names.terminal, asset: terminal, category: 'modded' },
-
-	// Miscellaneous: Modrinth Wrench, Mr Pack
-	// Retain the persisted symbol ID so existing generated instance icons still load.
-	{ id: 'wrenth_rinth', name: names.wrenchRinth, asset: solaraMark, category: 'modded' },
-	{ id: 'mr_pack', name: names.mrPack, asset: mrPack, category: 'modded' },
-
-	/////////////////////////
-	// vanilla ones
-	/////////////////////////
-
+	// Classic voxel originals
 	{ id: 'grass_block', name: names.grassBlock, asset: grassBlock, category: 'vanilla' },
-
-	{ id: 'crafting_table', name: names.craftingTable, asset: craftingTable, category: 'vanilla' },
-	{ id: 'furnace', name: names.furnace, asset: furnace, category: 'vanilla' },
-	{ id: 'chest', name: names.chest, asset: chest, category: 'vanilla' },
-
-	{ id: 'bookshelf', name: names.bookshelf, asset: bookshelf, category: 'vanilla' },
-	{
-		id: 'redstone_block',
-		name: names.redstoneBlock,
-		asset: redstoneBlock,
-		category: 'vanilla',
-	},
-	{
-		id: 'sticky_piston',
-		name: names.stickyPiston,
-		asset: stickyPiston,
-		category: 'vanilla',
-	},
-	{ id: 'slime_block', name: names.slimeBlock, asset: slimeBlock, category: 'vanilla' },
-	{ id: 'cake', name: names.cake, asset: cake, category: 'vanilla' },
+	{ id: 'sword', name: names.diamondSword, asset: diamondSword, category: 'vanilla' },
+	{ id: 'pickaxe', name: names.netheritePickaxe, asset: netheritePickaxe, category: 'vanilla' },
+	{ id: 'diamond_ore', name: names.diamondOre, asset: diamondOre, category: 'vanilla' },
+	{ id: 'emerald_block', name: names.emeraldBlock, asset: emeraldBlock, category: 'vanilla' },
+	{ id: 'chest', name: names.treasureChest, asset: treasureChest, category: 'vanilla' },
 	{ id: 'campfire', name: names.campfire, asset: campfire, category: 'vanilla' },
-	{ id: 'pickaxe', name: names.pickaxe, asset: pickaxe, category: 'vanilla' },
-	{ id: 'sword', name: names.sword, asset: sword, category: 'vanilla' },
-	{ id: 'zombie', name: names.zombie, asset: zombie, category: 'vanilla' },
-	{ id: 'creeper', name: names.creeper, asset: creeper, category: 'vanilla' },
-	{ id: 'skeleton', name: names.skeleton, asset: skeleton, category: 'vanilla' },
-	{ id: 'ender_dragon', name: names.enderDragon, asset: enderDragon, category: 'vanilla' },
-	{ id: 'ender_chest', name: names.enderChest, asset: enderChest, category: 'vanilla' },
-	{ id: 'sculk_sensor', name: names.sculkSensor, asset: sculkSensor, category: 'vanilla' },
+	{ id: 'enchanting_table', name: names.enchantingTable, asset: enchantingTable, category: 'vanilla' },
 	{ id: 'beacon', name: names.beacon, asset: beacon, category: 'vanilla' },
-	{
-		id: 'enchanting_table',
-		name: names.enchantingTable,
-		asset: enchantingTable,
-		category: 'vanilla',
-	},
+	{ id: 'redstone_lamp', name: names.redstoneLamp, asset: redstoneLamp, category: 'vanilla' },
 	{ id: 'lantern', name: names.lantern, asset: lantern, category: 'vanilla' },
-	{ id: 'tnt', name: names.tnt, asset: tnt, category: 'vanilla' },
-	{ id: 'command_block', name: names.commandBlock, asset: commandBlock, category: 'vanilla' },
+	{ id: 'tnt', name: names.tntCrate, asset: tntCrate, category: 'vanilla' },
 ] as const satisfies readonly SymbolOption[]
 
 export type BackgroundId = (typeof backgroundOptions)[number]['id']
 export type SymbolId = (typeof symbolOptions)[number]['id']
 
 export const RANDOM_CONFIG_BLACKLIST = [
-	{ background: 'purple', symbol: 'globe' },
-	{ background: 'blue', symbol: 'globe' },
-	{ background: 'gray', symbol: 'cogwheel' },
-	{ background: 'dark_gray', symbol: 'cogwheel' },
-	{ background: 'rose', symbol: 'poke_ball' },
-	{ background: 'lime', symbol: 'slime_block' },
-	{ background: 'green', symbol: 'slime_block' },
-	{ background: 'rose', symbol: 'redstone_block' },
-	{ background: 'rose', symbol: 'couch' },
-	{ background: 'orange', symbol: 'space_helmet' },
 	{ background: 'rose', symbol: 'tnt' },
-	{ background: 'yellow', symbol: 'moobloom' },
-	{ background: 'green', symbol: 'wrenth_rinth' },
-	{ background: 'lime', symbol: 'mr_pack' },
-	{ background: 'light_gray', symbol: 'skillet' },
-	{ background: 'light_gray', symbol: 'cooking_pot' },
+	{ background: 'green', symbol: 'emerald_block' },
+	{ background: 'lime', symbol: 'grass_block' },
+	{ background: 'yellow', symbol: 'golden_crown' },
+	{ background: 'orange', symbol: 'campfire' },
+	{ background: 'orange', symbol: 'tech_gear' },
+	{ background: 'lavender', symbol: 'amethyst_crystal' },
+	{ background: 'cyan', symbol: 'beacon' },
+	{ background: 'dark_gray', symbol: 'netherite_block' },
 ] satisfies readonly { background: BackgroundId; symbol: SymbolId }[]
 
-export const DEFAULT_BACKGROUND_ID = 'purple' satisfies BackgroundId
-export const DEFAULT_SYMBOL_ID = 'grass_block' satisfies SymbolId
+export const DEFAULT_BACKGROUND_ID = 'dark_gray' satisfies BackgroundId
+export const DEFAULT_SYMBOL_ID = 'solara_core' satisfies SymbolId
+
+const LEGACY_SYMBOL_FALLBACKS: Record<string, string> = {
+	wrenth_rinth: solaraCore,
+	mr_pack: solaraCore,
+	cogwheel: techGear,
+	redstone_block: redstoneLamp,
+	ender_chest: treasureChest,
+}
 
 export function getIconSymbolAsset(symbol: string): string | undefined {
-	return symbolOptions.find((option) => option.id === symbol)?.asset
+	return (
+		symbolOptions.find((option) => option.id === symbol)?.asset ??
+		LEGACY_SYMBOL_FALLBACKS[symbol] ??
+		solaraCore
+	)
 }

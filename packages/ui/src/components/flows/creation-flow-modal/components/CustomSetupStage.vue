@@ -40,9 +40,12 @@
 			</div>
 		</div>
 
-		<!-- Instance-specific: Icon upload -->
-		<div v-if="ctx.flowType === 'instance'" class="flex items-center gap-2.5">
-			<div class="group relative size-[7.75rem] shrink-0">
+		<!-- Instance-specific: Icon selection -->
+		<div
+			v-if="ctx.flowType === 'instance'"
+			class="flex items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-3.5"
+		>
+			<div class="group relative size-[6.75rem] shrink-0">
 				<Avatar
 					:src="ctx.instanceIconUrl.value ?? undefined"
 					size="100%"
@@ -63,25 +66,29 @@
 					</Button>
 				</div>
 			</div>
-			<div class="flex flex-col gap-1.5">
-				<Button type="outlined" @click="triggerIconInput">
-					<UploadIcon />
-					{{ formatMessage(messages.uploadIcon) }}
-				</Button>
-				<Button
-					type="outlined"
-					:disabled="randomizing"
-					class="disabled:!cursor-defcaault"
-					@click="randomizeIcon"
-				>
-					<SpinnerIcon v-if="randomizing" class="animate-spin" />
-					<RefreshCwIcon v-else />
-					{{ formatMessage(messages.randomizeIcon) }}
-				</Button>
-				<Button type="outlined" @click="ctx.customizeInstanceIcon?.()">
-					<PaletteIcon />
-					{{ formatMessage(messages.customizeIcon) }}
-				</Button>
+			<div class="flex min-w-0 flex-1 flex-col gap-2">
+				<span class="text-xs font-semibold uppercase tracking-wide text-secondary">
+					Instance icon
+				</span>
+				<div class="flex flex-wrap items-center gap-2">
+					<Button
+						size="sm"
+						:disabled="randomizing"
+						@click="randomizeIcon"
+					>
+						<SpinnerIcon v-if="randomizing" class="size-4 animate-spin" />
+						<RefreshCwIcon v-else class="size-4" />
+						<span>Randomize</span>
+					</Button>
+					<Button size="sm" @click="ctx.customizeInstanceIcon?.()">
+						<PaletteIcon class="size-4" />
+						<span>Choose specific</span>
+					</Button>
+					<Button size="sm" @click="triggerIconInput">
+						<UploadIcon class="size-4" />
+						<span>Upload custom</span>
+					</Button>
+				</div>
 			</div>
 		</div>
 

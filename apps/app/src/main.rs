@@ -381,6 +381,7 @@ fn main() {
         .plugin(api::users::init())
         .plugin(api::utils::init())
         .plugin(api::cache::init())
+        .plugin(api::curseforge::init())
         .plugin(api::files::init())
         .plugin(api::worlds::init())
         .manage(PendingUpdateData)

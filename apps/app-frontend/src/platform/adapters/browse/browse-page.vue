@@ -70,6 +70,8 @@ import { injectServerInstall } from '@/providers/server-install'
 import { type BreadcrumbDefinition, injectBreadcrumbManager } from '@/shared/breadcrumbs'
 import { useCachedServerIcon } from '@/shared/composables/use-cached-server-icon'
 
+import ModPackInstallerPage from '@/features/modpack-installer/ModPackInstallerPage.vue'
+
 import { provideServerInstallContent, useServerInstallContent } from './server-install-content'
 import { useAppServerBrowse } from './use-app-server-browse'
 
@@ -1503,10 +1505,17 @@ provideBrowseManager({
 	offline,
 	lockedFilterMessages,
 })
+const isStandaloneModpackInstaller = computed(
+	() => !route.query.i && !isServerContext.value && projectType.value === 'modpack',
+)
 </script>
 
 <template>
-	<div class="flex flex-col gap-2 p-6">
+	<ModPackInstallerPage
+		v-if="isStandaloneModpackInstaller"
+		:game-versions="availableGameVersions ?? []"
+	/>
+	<div v-else class="flex flex-col gap-2 p-6">
 		<BrowsePageLayout>
 			<template #after>
 				<ContextMenu ref="contextMenuRef" :label="formatMessage(messages.projectActionsLabel)">

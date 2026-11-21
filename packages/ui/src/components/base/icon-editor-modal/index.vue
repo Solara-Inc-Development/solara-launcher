@@ -417,7 +417,7 @@ const messages = defineMessages({
 									content: formatMessage(option.name),
 									delay: { show: 500, hide: 0 },
 								}"
-								class="icon-option icon-outline relative aspect-square cursor-pointer overflow-hidden rounded-[20px] border-0 bg-transparent p-0"
+								class="icon-option icon-outline relative aspect-square cursor-pointer overflow-hidden rounded-[20px] border-0 bg-surface-3 p-1"
 								:class="{ 'icon-outline-selected': selectedSymbol === option.id }"
 								:aria-label="formatMessage(option.name)"
 								:aria-pressed="selectedSymbol === option.id"

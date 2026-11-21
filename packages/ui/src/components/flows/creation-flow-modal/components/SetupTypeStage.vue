@@ -1,91 +1,113 @@
 <template>
 	<div class="flex flex-col gap-4" :aria-busy="ctx.navigating.value">
-		<span class="font-semibold text-contrast">
-			{{ formatMessage(messages.knownProjectPrompt) }}
-		</span>
-		<Combobox
-			ref="projectSearchCombobox"
-			v-model="ctx.projectSearchProjectId.value"
-			v-tooltip="ctx.finishDisabled.value ? ctx.finishDisabledTooltip.value : undefined"
-			:options="ctx.projectSearchOptions.value"
-			searchable
-			show-search-icon
-			:show-chevron="false"
-			:disabled="ctx.finishDisabled.value || ctx.navigating.value"
-			:search-placeholder="formatMessage(messages.searchProjectPlaceholder)"
-			:no-options-message="
-				searchLoading
-					? formatMessage(commonMessages.loadingLabel)
-					: formatMessage(messages.noResultsFound)
-			"
-			:disable-search-filter="true"
-			@search-input="handleSearch"
-		>
-			<template #option-suffix="{ item }">
-				<div
-					class="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary opacity-0 transition-opacity group-hover/option:opacity-100 group-data-[focused=true]/option:opacity-100"
-				>
-					<span>
-						{{
-							formatMessage(
-								isModpackOption(item.value)
-									? messages.installModpack
-									: ctx.flowType === 'instance'
-										? messages.createInstance
-										: commonMessages.continueButton,
-							)
-						}}
-					</span>
-					<DownloadIcon v-if="isModpackOption(item.value)" class="size-5 shrink-0" />
-					<RightArrowIcon v-else class="size-5 shrink-0" />
-				</div>
-			</template>
-		</Combobox>
-
-		<div class="flex items-center gap-3">
-			<div class="h-[1px] w-full flex-1 bg-surface-5" />
-			<span class="text-sm text-secondary">{{ formatMessage(commonMessages.orLabel) }}</span>
-			<div class="h-[1px] w-full flex-1 bg-surface-5" />
-		</div>
-
-		<span class="font-semibold text-contrast">
-			{{ setupTypeTitle }}
-		</span>
-
 		<template v-if="ctx.flowType === 'instance'">
-			<div class="flex flex-col gap-3">
-				<BigOptionButton
+			<p class="m-0 text-sm text-secondary">
+				Choose how you want to set up your new Minecraft instance.
+			</p>
+			<div class="grid grid-cols-1 gap-3">
+				<button
+					type="button"
 					:disabled="ctx.navigating.value"
-					:icon="BoxesIcon"
-					:title="formatMessage(messages.customSetupTitle)"
-					:description="formatMessage(messages.customSetupDescription)"
-					@click="setSetupType('custom')"
-				/>
-				<BigOptionButton
-					:disabled="ctx.navigating.value"
-					:icon="CompassIcon"
-					:title="formatMessage(messages.modpackBaseTitle)"
-					:description="formatMessage(messages.modpackBaseDescription)"
+					class="solara-setup-option group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60"
 					@click="browseModpacks"
-				/>
-				<BigOptionButton
+				>
+					<div
+						class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+					>
+						<CompassIcon class="size-6" aria-hidden="true" />
+					</div>
+					<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span class="text-base font-bold text-contrast">
+							Browse and download modpacks
+						</span>
+						<span class="text-xs leading-relaxed text-secondary">
+							Explore modpacks from Modrinth and CurseForge with one-click install.
+						</span>
+					</div>
+					<RightArrowIcon
+						class="size-5 shrink-0 text-secondary transition-transform group-hover:translate-x-0.5 group-hover:text-contrast"
+						aria-hidden="true"
+					/>
+				</button>
+
+				<button
+					type="button"
 					:disabled="ctx.navigating.value"
-					:icon="UploadIcon"
-					:title="formatMessage(messages.uploadModpackTitle)"
-					:description="formatMessage(messages.uploadModpackDescription)"
-					@click="triggerFileInput"
-				/>
-				<BigOptionButton
-					:disabled="ctx.navigating.value"
-					:icon="BoxImportIcon"
-					:title="formatMessage(messages.importInstanceTitle)"
-					:description="formatMessage(messages.importInstanceDescription)"
-					@click="ctx.setImportMode()"
-				/>
+					class="solara-setup-option group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+					@click="setSetupType('custom')"
+				>
+					<div
+						class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+					>
+						<BoxesIcon class="size-6" aria-hidden="true" />
+					</div>
+					<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+						<span class="text-base font-bold text-contrast">
+							Create your custom setup
+						</span>
+						<span class="text-xs leading-relaxed text-secondary">
+							Pick your Minecraft version, mod loader (Vanilla, Fabric, Forge, NeoForge, Quilt), and custom icon.
+						</span>
+					</div>
+					<RightArrowIcon
+						class="size-5 shrink-0 text-secondary transition-transform group-hover:translate-x-0.5 group-hover:text-contrast"
+						aria-hidden="true"
+					/>
+				</button>
 			</div>
 		</template>
 
 		<template v-else>
+			<span class="font-semibold text-contrast">
+				{{ formatMessage(messages.knownProjectPrompt) }}
+			</span>
+			<Combobox
+				ref="projectSearchCombobox"
+				v-model="ctx.projectSearchProjectId.value"
+				v-tooltip="ctx.finishDisabled.value ? ctx.finishDisabledTooltip.value : undefined"
+				:options="ctx.projectSearchOptions.value"
+				searchable
+				show-search-icon
+				:show-chevron="false"
+				:disabled="ctx.finishDisabled.value || ctx.navigating.value"
+				:search-placeholder="formatMessage(messages.searchProjectPlaceholder)"
+				:no-options-message="
+					searchLoading
+						? formatMessage(commonMessages.loadingLabel)
+						: formatMessage(messages.noResultsFound)
+				"
+				:disable-search-filter="true"
+				@search-input="handleSearch"
+			>
+				<template #option-suffix="{ item }">
+					<div
+						class="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary opacity-0 transition-opacity group-hover/option:opacity-100 group-data-[focused=true]/option:opacity-100"
+					>
+						<span>
+							{{
+								formatMessage(
+									isModpackOption(item.value)
+										? messages.installModpack
+										: commonMessages.continueButton,
+								)
+							}}
+						</span>
+						<DownloadIcon v-if="isModpackOption(item.value)" class="size-5 shrink-0" />
+						<RightArrowIcon v-else class="size-5 shrink-0" />
+					</div>
+				</template>
+			</Combobox>
+
+			<div class="flex items-center gap-3">
+				<div class="h-[1px] w-full flex-1 bg-surface-5" />
+				<span class="text-sm text-secondary">{{ formatMessage(commonMessages.orLabel) }}</span>
+				<div class="h-[1px] w-full flex-1 bg-surface-5" />
+			</div>
+
+			<span class="font-semibold text-contrast">
+				{{ setupTypeTitle }}
+			</span>
+
 			<div class="flex flex-col gap-3">
 				<BigOptionButton
 					:disabled="ctx.navigating.value"
@@ -372,3 +394,10 @@ watch(
 	},
 )
 </script>
+
+<style scoped>
+.solara-setup-option:hover {
+	border-color: color-mix(in srgb, var(--color-brand) 45%, var(--surface-5));
+	background: color-mix(in srgb, var(--surface-4) 55%, var(--surface-2));
+}
+</style>

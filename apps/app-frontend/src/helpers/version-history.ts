@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.82',
+		title: 'Redesigned ModPackInstaller (Modrinth & CurseForge) & Custom Solara Instance Creator',
+		date: 'November 21, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Completely redesigned ModPackInstaller to match Solara Launcher OLED and White themes with a clean top Modrinth | CurseForge source switcher.',
+			'Added live CurseForge modpack browsing, version picker modal, and native Rust CurseForge .zip modpack installer powered securely through Solara private server proxy (zero API keys embedded in the app).',
+			'Streamlined the Create Instance modal into two clean paths: Browse and download modpacks or Create your custom setup.',
+			'Replaced all Modrinth instance icons with 24 original 512x512 3D isometric voxel Solara icons with Randomize, Choose specific, and Upload custom controls.',
+		],
+		issuesFixed: [
+			'Removed legacy browse sidebar and cluttered Create Instance options for a cleaner OLED & White desktop flow.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.81',
 		title: 'Clean, Native Desktop Settings UI Without Gradient Clutter',
 		date: 'November 20, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Refined the Settings modal, sidebar navigation, Theme selector previews, and Resources tab into a crisp, authentic desktop layout matching Java, Window, and Troubleshooting tabs.',
 			'Updated OLED and White theme preview cards with realistic mini window layouts and pure black/white surfaces without radial glow smudges or marketing sub-badges.',
