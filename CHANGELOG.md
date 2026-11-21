@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.82 — Redesigned ModPackInstaller (Modrinth & CurseForge) & Custom Solara Instance Creator (2026-11-21)
+
+- Completely redesigned **ModPackInstaller** matching Solara Launcher OLED and White themes with a top **Modrinth | CurseForge** source switcher, unified search bar, loader pills (Fabric, Forge, NeoForge, Quilt), Minecraft version dropdown, category filter, and sorting.
+- Added live **CurseForge** modpack search, version picker modal, and native Rust CurseForge `.zip` modpack installer powered securely through Solara private server proxy (`/v1/launcher/curseforge/*`, zero API keys embedded in the desktop app or repository).
+- Streamlined the **Create Instance** modal into two crisp options: **Browse and download modpacks** or **Create your custom setup**, with **Randomize**, **Choose specific**, and **Upload custom** icon controls.
+- Replaced all Modrinth instance icons with **24 bespoke 512×512 3D isometric voxel Solara icons**.
+- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.81 — Authentic Native Desktop Settings UI (2026-11-20)
 
 - Removed AI-style gradient icon boxes, two-color active tab highlights, glowing pill badges, radial glow smudges, and marketing subtags across the Settings modal, sidebar navigation, Theme selector previews, and Resources tab.

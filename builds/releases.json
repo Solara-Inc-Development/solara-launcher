@@ -2809,6 +2809,49 @@
       "notes": "- Authentic Desktop Settings UI: Removed AI-style gradient icon boxes, two-color active tab highlights, glowing pill badges, radial glow smudges, and marketing subtags across the Settings modal, sidebar navigation, Theme selector previews, and Resources tab.\n- Crisp OLED & White Theme Previews: Updated the OLED and White theme preview cards with realistic mini window layouts and pure black/white surfaces.\n- Unified Resources Layout: Aligned Content Storage, App Directory, and Transfer Limits with the clean native desktop typography and dividers used across Java, Window, and Troubleshooting tabs.\n- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.81/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "1e282240-a218-4183-9f48-82c9bd7f4211",
+      "publicVersion": "V-0.0.82",
+      "internalVersion": "0.0.82",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.82/solaralauncher.exe",
+      "commit": "5adc947052915f1c3f26163e554c7412360ae06f",
+      "allocatedAt": "2026-11-21T17:21:09.077Z",
+      "state": "published",
+      "applicationSha256": "500fd12135755739a750ca47e355075af38a57245a5c1302b43e9fb7473979e6",
+      "applicationSize": 43535872,
+      "sourceTree": "d72a15ac07e9fb64136f045739985a01f48fbca3",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 16968119,
+          "sha256": "3dad607c98acdd1b6bacf624b8cadda1f29537997bde7cea2b490e20b0bcc292"
+        },
+        "application/solaralauncher.exe": {
+          "size": 43535872,
+          "sha256": "500fd12135755739a750ca47e355075af38a57245a5c1302b43e9fb7473979e6"
+        },
+        "source.zip": {
+          "size": 36016611,
+          "sha256": "b0dba895f31d9c8e893dccb37cccef373edfc559de6eb53e7f7e2650f352a275"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 16968119,
+      "sha256": "3dad607c98acdd1b6bacf624b8cadda1f29537997bde7cea2b490e20b0bcc292",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-21T17:32:59.445Z",
+      "verifiedAt": "2026-11-21T17:32:56.154Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaC9FUWJWcFlHODdlc3dlaC8zQmRnWXg5TFp5a0ZuM3NTVlNxZkp5c2wxRmp3SEJqUGx0eUtUTjc3bVFrczQwWXVjNDRBQmNqZGVQakQ5aHkveGM2T3c0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MjgyMzc1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjgyCms0c1loaURPdWl4WUZrYXNNY1N6MHFFRVBIck5wRXA1QU1TM01jWEc5dDZ0Yjl0aXZBdzd1eUpPY1NkaFBtTWthanNuZ3NHOGdBS3BIVGdMZ3J1NEF3PT0K",
+      "notes": "- Redesigned ModPackInstaller with Modrinth & CurseForge: Brand-new full-width ModPackInstaller matching Solara Launcher's OLED and White themes, featuring a top Modrinth | CurseForge source switcher, unified search, loader pills (Fabric, Forge, NeoForge, Quilt), Minecraft version and category filters, and sorting.\n- Live CurseForge Integration & Native Rust Installer: Browse live CurseForge modpacks, inspect versions in a clean modal, and install CurseForge .zip modpacks directly into isolated instances via Solara's private server proxy (zero API keys embedded in the app or repository).\n- Streamlined Create Instance Flow: Simplified Step 1 into two clean options — Browse and download modpacks or Create your custom setup — with Randomize, Choose specific, and Upload custom icon controls.\n- 24 Original 3D Solara Instance Icons: Replaced all Modrinth preset icons with 24 bespoke 512x512 3D isometric voxel Solara icons.\n- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.82/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
