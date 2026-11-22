@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.86: Evergreen single solaralauncher.exe zero-click auto-updater + VirusTotal false-positive hardening (zlib NSIS, strip="debuginfo" preserving PE symbols & unwind tables, clean hooks); signing stays private.
+# Solara V-0.0.87: Evergreen single solaralauncher.exe zero-click auto-updater + VirusTotal false-positive hardening (zlib NSIS, standard SEH unwinding, clean NSIS hooks); signing stays private.
 on:
   workflow_dispatch:
   push:

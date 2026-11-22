@@ -210,10 +210,10 @@ toasty = { path = "packages/toasty" }
 [profile.dev.package.sqlx-macros]
 opt-level = 3
 
-# Standard release profile preserving PE symbol/unwind metadata (stripping only bulky debuginfo) to prevent AV/VirusTotal false positives
+# Compact release profile (<50 MB PE binary for GitHub push) with standard SEH unwinding (no panic=abort)
 [profile.release]
-opt-level = 3
-strip = "debuginfo"
+opt-level = "s"
+strip = true
 lto = "thin"
 
 [profile.test]
