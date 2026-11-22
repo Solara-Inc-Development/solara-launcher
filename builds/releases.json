@@ -2852,6 +2852,49 @@
       "notes": "- Redesigned ModPackInstaller with Modrinth & CurseForge: Brand-new full-width ModPackInstaller matching Solara Launcher's OLED and White themes, featuring a top Modrinth | CurseForge source switcher, unified search, loader pills (Fabric, Forge, NeoForge, Quilt), Minecraft version and category filters, and sorting.\n- Live CurseForge Integration & Native Rust Installer: Browse live CurseForge modpacks, inspect versions in a clean modal, and install CurseForge .zip modpacks directly into isolated instances via Solara's private server proxy (zero API keys embedded in the app or repository).\n- Streamlined Create Instance Flow: Simplified Step 1 into two clean options — Browse and download modpacks or Create your custom setup — with Randomize, Choose specific, and Upload custom icon controls.\n- 24 Original 3D Solara Instance Icons: Replaced all Modrinth preset icons with 24 bespoke 512x512 3D isometric voxel Solara icons.\n- Signed Windows testing preview. Real-device installation, gameplay and update/relaunch acceptance remain pending.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.82/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "5be49404-2eb3-40e8-bc3e-c2ef4a834909",
+      "publicVersion": "V-0.0.83",
+      "internalVersion": "0.0.83",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.83/solaralauncher.exe",
+      "commit": "4508d0a99df60d6a61c8bc8bf2389bf6e09cc7a8",
+      "allocatedAt": "2026-11-22T04:02:16.157Z",
+      "state": "published",
+      "applicationSha256": "cdded13cc9708f0bda10ecf310953e75ea2ed05e04e9b283ea9f1ad42bb14706",
+      "applicationSize": 43213312,
+      "sourceTree": "226c3384b61e6e125e0e0eec4f287976b92b98d0",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 16645171,
+          "sha256": "548155a5add77c65fad40d11d0bc41edbfeebc145dcd787ba9c47b3a2e7ad2de"
+        },
+        "application/solaralauncher.exe": {
+          "size": 43213312,
+          "sha256": "cdded13cc9708f0bda10ecf310953e75ea2ed05e04e9b283ea9f1ad42bb14706"
+        },
+        "source.zip": {
+          "size": 36588649,
+          "sha256": "c646bd00e071363381b2eef82b7c340057ed394859086996c3cf3e778c350d83"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 16645171,
+      "sha256": "548155a5add77c65fad40d11d0bc41edbfeebc145dcd787ba9c47b3a2e7ad2de",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T04:18:32.730Z",
+      "verifiedAt": "2026-11-22T04:18:29.287Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHdKU0JZeFVXTUxYQXlEb3hzMFR6SXJhZVUvZjRJbzhPNEZLVUw5YU5jUnR0Tzg0Wjc3OEpIeURKTGJtZlBlYmw0d3Z3Vm5FeUxUeHdRcVpkb090c2d3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzIxMDYwCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjgzClZqQ1RWdUNxeTVEazV2TFJ3V3hPOFBFTkhJR0Frcys3TEpOaDdFYXBSOWRrbi91bEthMFYxZDZ2aVgxWHlQQVlDKzVySmhldVJ2Rm10NkY3YWdDTUR3PT0K",
+      "notes": "Solara Launcher V-0.0.83 (Testing Preview)\n\n- Fixed Modrinth modpack loading in ModPackInstaller using valid Labrinth v3 query syntax (?limit=...&new_filters=...) with proper loader, Minecraft version, and cover gallery parsing.\n- Completely redesigned ModPackInstaller with rich cover-banner cards (for both Modrinth and CurseForge), Grid/List view toggle, native Solara Combobox & Checkbox controls, and clean pagination.\n- Redesigned both steps of the Create Instance modal with side-by-side setup cards, unified icon & name identity card, 5-column visual loader selector, and live configuration summary.\n- Replaced procedural instance icons with 30 online Microsoft Fluent Emoji 3D icons (MIT licensed) and introduced Solara Icon Studio with 3D Icons search/categories, Monogram Badge generator, Framed Upload, dual custom color pickers, gradient angles, texture patterns, HUD/ring/border frames, scale slider, and depth shadow toggle.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.83/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

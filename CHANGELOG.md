@@ -1,5 +1,13 @@
 # Changelog
 
+## V-0.0.83 — Fixed Modrinth v3 Loading, Cover-Banner ModPackInstaller, Redesigned Create Instance & Solara Icon Studio (2026-11-22)
+
+- Fixed Modrinth modpack loading in **ModPackInstaller** by sending valid Labrinth v3 search queries (`?limit=...&new_filters=project_types = "modpack" ...`) and reading `mrpack_loaders`, `game_versions`, and `featured_gallery` accurately.
+- Completely redesigned **ModPackInstaller** with rich cover-banner cards (for both Modrinth and CurseForge), Grid/List layout toggle, native Solara `<Combobox>` and `<Checkbox>` filters (removing native Windows white `<select>` menus), and clean pagination.
+- Redesigned both steps of **Create Instance** with side-by-side setup cards, unified icon & name identity card, 5-column visual loader selector, and live configuration summary.
+- Replaced procedural instance icons with **30 online Microsoft Fluent Emoji 3D icons** (MIT licensed) and introduced **Solara Icon Studio** with 3D Icons search/categories, **Monogram Badge** generator, **Framed Upload**, dual custom color pickers, gradient angles, texture patterns, HUD/ring/border frames, scale slider, and depth shadow toggle.
+- Signed Windows testing preview (`15.87 MB`). Real-device installation, gameplay and update/relaunch acceptance remain pending.
+
 ## V-0.0.82 — Redesigned ModPackInstaller (Modrinth & CurseForge) & Custom Solara Instance Creator (2026-11-21)
 
 - Completely redesigned **ModPackInstaller** matching Solara Launcher OLED and White themes with a top **Modrinth | CurseForge** source switcher, unified search bar, loader pills (Fabric, Forge, NeoForge, Quilt), Minecraft version dropdown, category filter, and sorting.

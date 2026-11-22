@@ -46,13 +46,13 @@
     "result": "passed"
   },
   "windowsInstallerBuild": {
-    "run": 44929223333,
+    "run": 44982950903,
     "result": "passed",
-    "publicVersion": "V-0.0.82",
-    "sourceCommit": "5adc947052915f1c3f26163e554c7412360ae06f",
+    "publicVersion": "V-0.0.83",
+    "sourceCommit": "4508d0a99df60d6a61c8bc8bf2389bf6e09cc7a8",
     "staticVerification": "Genuine CI-built NSIS installer; x64 PE file version and 8 MiB stack; installed GPL/dependency licence payload; artifact/source SHA-256 and exact-source privacy checks; persistent Minisign signature and signed version verified. Physical Windows acceptance remains pending.",
-    "installerSha256": "3dad607c98acdd1b6bacf624b8cadda1f29537997bde7cea2b490e20b0bcc292",
-    "sourceArchiveSha256": "b0dba895f31d9c8e893dccb37cccef373edfc559de6eb53e7f7e2650f352a275",
+    "installerSha256": "548155a5add77c65fad40d11d0bc41edbfeebc145dcd787ba9c47b3a2e7ad2de",
+    "sourceArchiveSha256": "c646bd00e071363381b2eef82b7c340057ed394859086996c3cf3e778c350d83",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live",
