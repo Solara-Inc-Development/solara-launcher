@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.89',
+    version: 'V-0.0.90',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Custom Inside-Instance Command Deck UI & Horizon-Style Pure OLED Website',
+    highlights: [
+      'Redesigned the inside-instance workspace with a Solara Command Header card (Launch Game, Close Game, Open Directory, Customize, Pin to Desktop, Export Pack) and glowing accent hairline.',
+      'Replaced underline tabs with a floating segmented pill bar (Mods & Packs, Worlds & Servers, Gallery, Game Files, Console) plus a 1-click + Add Mods shortcut.',
+      'Customized Mods & Worlds toolbars (Install Mods, Import .jar, Update Mods, Direct IP / Server, Find Servers, Ping All), Mod/Pack table headers, and the Customize Profile modal.',
+    ],
+  },
+  {
+    version: 'V-0.0.89',
+    date: 'November 22, 2026',
+    tag: 'Permanent Installer',
     title: 'Permanent Universal solaralauncher.exe & 0ms Startup Auto-Updater',
     highlights: [
       'Locked one permanent universal solaralauncher.exe installer with a fixed SHA-256 and VirusTotal report so future releases never require downloading or re-scanning a new .exe.',

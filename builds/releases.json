@@ -3067,6 +3067,49 @@
       "notes": "- Permanent evergreen single `solaralauncher.exe` architecture: immediately checks GitHub Releases CDN at `0ms` on startup (`app_updates::start`) so even an older `solaralauncher.exe` installer saved on disk automatically fetches, verifies, and upgrades to the latest release on first launch.\n- Hardened silent in-place auto-update handoff (`/S /UPDATE /R` and native NSIS `Exec` in `apps/app/installer.nsi`) so updates install seamlessly without recreating deleted shortcuts or depending on Explorer Shell COM.\n- Simplified the `/downloads` page on `https://app.solara-inc.in` to present a single universal `solaralauncher.exe` installer instead of a multi-version `.exe` list.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.89/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "0edec62a-4fbe-4808-8c56-38ede9aa296f",
+      "publicVersion": "V-0.0.90",
+      "internalVersion": "0.0.90",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.90/solaralauncher.exe",
+      "commit": "cdb7e52df46c68d56ef1c478d57c581fe807b727",
+      "allocatedAt": "2026-11-22T16:02:02.353Z",
+      "state": "published",
+      "applicationSha256": "664380d0bfa06637f3a90ee19accd6c7561fd2679da8f42cd97a6418fb5b1d66",
+      "applicationSize": 74991104,
+      "sourceTree": "2ee83bdd6bdc8ae01d57afc49f701390328025f4",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31474393,
+          "sha256": "820534c2efbd32dbe044bbd7c825cd8b7f040e1c109b726f12bf1c9c96491339"
+        },
+        "application/solaralauncher.exe": {
+          "size": 74991104,
+          "sha256": "664380d0bfa06637f3a90ee19accd6c7561fd2679da8f42cd97a6418fb5b1d66"
+        },
+        "source.zip": {
+          "size": 36985908,
+          "sha256": "8e0429cfd54ba4cff5fb7b401e38b151ab1813302161c086c6b605f98c03db0b"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31474393,
+      "sha256": "820534c2efbd32dbe044bbd7c825cd8b7f040e1c109b726f12bf1c9c96491339",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T16:16:51.999Z",
+      "verifiedAt": "2026-11-22T16:16:47.373Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHhVZDR2QkFGSnNpVFlSaURVU0ZoczdtZUhncWkyU256UXBYcndzT2JDbkxMWXMxZ21wYTRKMThydzRTQWRVT3hWZ3RFaGE5SzJEUFBka2E2MkJNWmc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzY0MjA1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjkwCmxLQ2JxODdRWWhTeWJpdm4xYi81MnhPaWI2b0VQMVBidlYzVko0dStrVk1ELzcrOHpEWXBDenhwRWR4dm05TElVRFc3R3pFR1dYZnNMb2t5NnZEdkRRPT0K",
+      "notes": "- Redesigned the inside-instance desktop UI with a custom Solara Instance Command Header card (`Launch Game`, `Close Game`, `Open Directory`, `Customize`, `Pin to Desktop`, `Export Pack`), glowing accent top hairline, and live running badge.\n- Replaced underline tabs with a custom Solara floating segmented pill bar (`Mods & Packs`, `Worlds & Servers`, `Gallery`, `Game Files`, `Console`) plus a 1-click `+ Add Mods` button across all tabs.\n- Customized the Mods & Worlds toolbars, mod table column headers (`Mod / Pack`, `Installed Version`, `Controls`), and Instance Customize modal tabs (`Profile & Icon`, `Loader & Version`, `Java & RAM`, `Game Window`, `Launch Commands`, `Cloud Sync`).\n- Note: The public website `solaralauncher.exe` remains permanently locked to `V-0.0.89` so VirusTotal does not need a new scan; installed launchers fetch `V-0.0.90` automatically via GitHub Releases CDN.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.90/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
