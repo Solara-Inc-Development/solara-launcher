@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.88: Fix VirusTotal Sigma rules (skip embedded WebView2 bootstrapper PE drop, clean custom installer.nsi without System.dll COM/RstrtMgr calls) + pure OLED website; signing stays private.
+# Solara V-0.0.89: Final permanent evergreen solaralauncher.exe installer (0ms startup auto-fetch from GitHub Releases CDN, /S /UPDATE /R silent in-place upgrade, native NSIS Exec without Explorer COM).
 on:
   workflow_dispatch:
   push:
