@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.90: Custom inside-instance Solara UI (command deck header, floating segmented pill tabs, quick Add Mods button, renamed Customize/Launch Game/Mods & Packs controls, and Horizon-inspired pure OLED website).
+# Solara V-0.0.91: Brand-new custom Solara Mods & Packs Card Grid workspace + Dual Modrinth & CurseForge Instance Content Browser & 1-click CurseForge mod/shader/resourcepack installer.
 on:
   workflow_dispatch:
   push:

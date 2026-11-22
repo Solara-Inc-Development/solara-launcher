@@ -15,8 +15,30 @@ const SOLARA_CURSEFORGE_API_BASE: &str = "https://api.solara-inc.in/v1/launcher/
 
 pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("curseforge")
-        .invoke_handler(tauri::generate_handler![curseforge_install_modpack])
+        .invoke_handler(tauri::generate_handler![
+            curseforge_install_modpack,
+            curseforge_install_content
+        ])
         .build()
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeContentInstallRequest {
+    pub instance_id: String,
+    pub content_type: String,
+    pub mod_id: u64,
+    pub file_id: u64,
+    pub download_url: String,
+    pub file_name: Option<String>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CurseForgeContentInstallResult {
+    pub instance_id: String,
+    pub file_name: String,
+    pub relative_path: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -220,6 +242,72 @@ async fn build_http_client() -> anyhow::Result<reqwest::Client> {
         .connect_timeout(std::time::Duration::from_secs(15))
         .build()
         .context("Failed to initialize HTTP client")
+}
+
+#[tauri::command]
+pub async fn curseforge_install_content(
+    request: CurseForgeContentInstallRequest,
+) -> Result<CurseForgeContentInstallResult> {
+    Ok(Box::pin(curseforge_install_content_inner(request)).await?)
+}
+
+async fn curseforge_install_content_inner(
+    request: CurseForgeContentInstallRequest,
+) -> anyhow::Result<CurseForgeContentInstallResult> {
+    if !is_allowed_download_url(&request.download_url) {
+        bail!("Untrusted CurseForge download URL");
+    }
+
+    let subdir = match request.content_type.to_ascii_lowercase().as_str() {
+        "resourcepack" | "resourcepacks" => "resourcepacks",
+        "shader" | "shaders" | "shaderpack" | "shaderpacks" => "shaderpacks",
+        "datapack" | "datapacks" => "datapacks",
+        _ => "mods",
+    };
+
+    let raw_name = request
+        .file_name
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| {
+            request
+                .download_url
+                .rsplit('/')
+                .next()
+                .unwrap_or("curseforge-file.jar")
+        });
+    let safe_name = sanitize_mod_filename(raw_name, request.file_id);
+
+    let instance_dir = theseus::instance::get_full_path(&request.instance_id).await?;
+    let target_dir = instance_dir.join(subdir);
+    tokio::fs::create_dir_all(&target_dir).await?;
+
+    let client = build_http_client().await?;
+    let resp = client
+        .get(&request.download_url)
+        .send()
+        .await
+        .context("Failed to download CurseForge file")?
+        .error_for_status()
+        .context("CurseForge CDN rejected file download")?;
+
+    let bytes = resp
+        .bytes()
+        .await
+        .context("Failed to read CurseForge file bytes")?;
+
+    let target_path = target_dir.join(&safe_name);
+    let tmp_path = target_dir.join(format!(".solara-cf-{}.tmp", Uuid::new_v4()));
+    tokio::fs::write(&tmp_path, &bytes).await?;
+    tokio::fs::rename(&tmp_path, &target_path).await?;
+
+    let _ = theseus::instance::sync_content_files(&request.instance_id).await;
+
+    Ok(CurseForgeContentInstallResult {
+        instance_id: request.instance_id,
+        file_name: safe_name.clone(),
+        relative_path: format!("{subdir}/{safe_name}"),
+    })
 }
 
 #[tauri::command]

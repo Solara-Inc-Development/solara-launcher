@@ -119,11 +119,29 @@ export const CURSEFORGE_CATEGORY_MAP: Record<string, number> = {
 	hardcore: 4479,
 }
 
+export type CurseForgeContentType = 'modpack' | 'mod' | 'resourcepack' | 'shader' | 'datapack'
+
+export interface CurseForgeContentInstallRequest {
+	instanceId: string
+	contentType: Exclude<CurseForgeContentType, 'modpack'>
+	modId: number
+	fileId: number
+	downloadUrl: string
+	fileName?: string | null
+}
+
+export interface CurseForgeContentInstallResult {
+	instanceId: string
+	fileName: string
+	relativePath: string
+}
+
 export async function searchCurseForgeModpacks(params: {
 	q?: string
 	gameVersion?: string
 	loader?: string
 	categoryId?: number
+	contentType?: CurseForgeContentType
 	sort?: CurseForgeSort
 	index?: number
 	pageSize?: number
@@ -132,6 +150,7 @@ export async function searchCurseForgeModpacks(params: {
 	if (params.q?.trim()) search.set('q', params.q.trim())
 	if (params.gameVersion) search.set('gameVersion', params.gameVersion)
 	if (params.loader) search.set('loader', params.loader)
+	if (params.contentType) search.set('contentType', params.contentType)
 	if (params.categoryId && params.categoryId > 0) search.set('categoryId', String(params.categoryId))
 	if (params.sort) search.set('sort', params.sort)
 	if (typeof params.index === 'number' && params.index > 0) search.set('index', String(params.index))
@@ -173,6 +192,14 @@ export async function installCurseForgeModpack(
 	request: CurseForgeInstallRequest,
 ): Promise<CurseForgeInstallResult> {
 	return await invoke<CurseForgeInstallResult>('plugin:curseforge|curseforge_install_modpack', {
+		request,
+	})
+}
+
+export async function installCurseForgeContent(
+	request: CurseForgeContentInstallRequest,
+): Promise<CurseForgeContentInstallResult> {
+	return await invoke<CurseForgeContentInstallResult>('plugin:curseforge|curseforge_install_content', {
 		request,
 	})
 }

@@ -1,6 +1,6 @@
 <template>
 	<ReadyTransition :pending="loading">
-		<ContentPageLayout :highlighted-item-id="highlightedItemId">
+		<SolaraContentWorkspace :highlighted-item-id="highlightedItemId">
 			<template #modals>
 				<SyncedContentModal ref="syncedContentModal" />
 				<UnknownFileWarningModal
@@ -85,7 +85,7 @@
 					@version-hover="handleVersionHover"
 				/>
 			</template>
-		</ContentPageLayout>
+		</SolaraContentWorkspace>
 	</ReadyTransition>
 </template>
 
@@ -97,7 +97,6 @@ import {
 	commonMessages,
 	ConfirmDisableModal,
 	ConfirmModpackUpdateModal,
-	ContentCardLayout as ContentPageLayout,
 	type ContentItem,
 	type ContentOwner,
 	ContentUpdaterModal,
@@ -127,6 +126,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ExportModal from '@/components/ui/ExportModal.vue'
 import SyncedContentModal from '@/components/ui/instance/SyncedContentModal.vue'
 import ShareModalWrapper from '@/components/ui/modal/ShareModalWrapper.vue'
+import SolaraContentWorkspace from '@/features/instance-content/SolaraContentWorkspace.vue'
 import { useManagedContentPolicy } from '@/composables/instances/use-managed-content-policy'
 import { useSyncedPackActions } from '@/composables/instances/use-synced-pack-actions'
 import { useAppEvent } from '@/composables/use-app-event'

@@ -70,6 +70,7 @@ import { injectServerInstall } from '@/providers/server-install'
 import { type BreadcrumbDefinition, injectBreadcrumbManager } from '@/shared/breadcrumbs'
 import { useCachedServerIcon } from '@/shared/composables/use-cached-server-icon'
 
+import InstanceContentBrowser from '@/features/instance-content/InstanceContentBrowser.vue'
 import ModPackInstallerPage from '@/features/modpack-installer/ModPackInstallerPage.vue'
 
 import { provideServerInstallContent, useServerInstallContent } from './server-install-content'
@@ -1508,12 +1509,24 @@ provideBrowseManager({
 const isStandaloneModpackInstaller = computed(
 	() => !route.query.i && !isServerContext.value && projectType.value === 'modpack',
 )
+const isInstanceContentBrowser = computed(
+	() =>
+		!!route.query.i &&
+		!isServerContext.value &&
+		projectType.value !== 'server' &&
+		route.query.from !== 'worlds',
+)
 </script>
 
 <template>
 	<ModPackInstallerPage
 		v-if="isStandaloneModpackInstaller"
 		:game-versions="availableGameVersions ?? []"
+	/>
+	<InstanceContentBrowser
+		v-else-if="isInstanceContentBrowser && instance"
+		:instance="instance"
+		:initial-project-type="projectType"
 	/>
 	<div v-else class="flex flex-col gap-2 p-6">
 		<BrowsePageLayout>
