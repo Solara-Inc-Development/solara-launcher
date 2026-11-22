@@ -1,4 +1,4 @@
-/* Solara Launcher Official Website — Pure OLED #000000 + Frosted Glass */
+/* Solara Launcher Official Website — Pure OLED #000000 + Frosted Glass + Smooth Motion */
 :root {
   --web-bg: #000000;
   --web-surface: rgba(14, 15, 21, 0.78);
@@ -25,13 +25,63 @@ html {
   position: relative;
   min-height: 100vh;
   background: #000000;
-  background-image:
-    radial-gradient(ellipse 75% 40% at 50% -6%, rgba(56, 189, 248, 0.14), transparent 62%),
-    radial-gradient(ellipse 50% 30% at 80% 10%, rgba(59, 130, 246, 0.08), transparent 60%);
   color: var(--web-text);
   overflow-x: hidden;
   font-family: 'Inter', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth Ambient Aurora Orbs + Subtle Dot Grid */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.22;
+  will-change: transform;
+}
+
+.orb-1 {
+  width: 580px;
+  height: 420px;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-55%);
+  background: radial-gradient(circle, #38bdf8 0%, #3b82f6 55%, transparent 72%);
+  animation: orb-drift-1 14s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  width: 440px;
+  height: 360px;
+  top: 80px;
+  right: -110px;
+  background: radial-gradient(circle, #6366f1 0%, #3b82f6 55%, transparent 72%);
+  opacity: 0.14;
+  animation: orb-drift-2 18s ease-in-out infinite alternate;
+}
+
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 70% 45% at 50% 0%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 45% at 50% 0%, black 20%, transparent 80%);
+}
+
+.web-header,
+main,
+.web-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .web-container {
@@ -78,6 +128,11 @@ html {
   width: 30px;
   height: 30px;
   border-radius: 8px;
+  transition: transform 260ms var(--web-ease);
+}
+
+.web-brand:hover img {
+  transform: scale(1.06) rotate(-3deg);
 }
 
 .nav-version-badge {
@@ -105,7 +160,7 @@ html {
   gap: 4px;
   padding: 5px 2px;
   border-bottom: 2px solid transparent;
-  transition: color 140ms ease, border-color 140ms ease;
+  transition: color 160ms ease, border-color 200ms var(--web-ease);
 }
 
 .web-header nav a:hover {
@@ -134,13 +189,13 @@ html {
   color: #031525;
   background: #38bdf8;
   border: 1px solid rgba(125, 211, 252, 0.5);
-  transition: background 140ms ease, transform 140ms var(--web-ease), box-shadow 140ms ease;
+  transition: background 150ms ease, transform 180ms var(--web-ease), box-shadow 180ms ease;
 }
 
 .header-download:hover {
   background: #7dd3fc;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.28);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3);
 }
 
 .header-download svg {
@@ -154,6 +209,117 @@ html {
   background: transparent;
   border: 1px solid var(--web-border);
   border-radius: 9px;
+}
+
+/* Staggered Hero Entrance Animations */
+.hero-anim-1 { animation: fade-up 560ms var(--web-ease) both; animation-delay: 40ms; }
+.hero-anim-2 { animation: fade-up 620ms var(--web-ease) both; animation-delay: 110ms; }
+.hero-anim-3 { animation: fade-up 620ms var(--web-ease) both; animation-delay: 180ms; }
+.hero-anim-4 { animation: fade-up 620ms var(--web-ease) both; animation-delay: 250ms; }
+.hero-anim-5 { animation: fade-up 620ms var(--web-ease) both; animation-delay: 310ms; }
+.hero-anim-6 { animation: fade-up-scale 760ms var(--web-ease) both; animation-delay: 360ms; }
+
+/* Scroll Reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 560ms var(--web-ease), transform 600ms var(--web-ease);
+  transition-delay: var(--delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cursor-Following Subtle Spotlight Hover */
+.spotlight-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    260px circle at var(--mx, -999px) var(--my, -999px),
+    rgba(56, 189, 248, 0.12),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.spotlight-hover:hover::before {
+  opacity: 1;
+}
+
+/* Shimmer Primary Button */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.34) 50%,
+    transparent 75%
+  );
+  transform: translateX(-130%);
+  transition: transform 650ms var(--web-ease);
+}
+
+.shimmer-btn:hover::after {
+  transform: translateX(130%);
+}
+
+/* Pulse Dot */
+.pulse-dot {
+  animation: dot-pulse 2.2s ease-in-out infinite;
+}
+
+/* Vue Transitions */
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: opacity 240ms var(--web-ease), transform 260ms var(--web-ease);
+}
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.shot-fade-enter-active,
+.shot-fade-leave-active {
+  transition: opacity 220ms var(--web-ease), transform 260ms var(--web-ease);
+}
+.shot-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.985);
+}
+.shot-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.008);
+}
+
+.faq-slide-enter-active,
+.faq-slide-leave-active {
+  transition: opacity 200ms ease, transform 220ms var(--web-ease);
+}
+.faq-slide-enter-from,
+.faq-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 /* Centered Home Hero & Subpage Hero */
@@ -275,13 +441,13 @@ html {
   color: #031525;
   border: 1px solid rgba(186, 230, 253, 0.55);
   box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
-  transition: transform 150ms var(--web-ease), background 150ms ease, box-shadow 150ms ease;
+  transition: transform 180ms var(--web-ease), background 150ms ease, box-shadow 180ms ease;
 }
 
 .hero-cta:hover {
   background: #7dd3fc;
-  transform: translateY(-1.5px);
-  box-shadow: 0 14px 36px rgba(56, 189, 248, 0.34);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(56, 189, 248, 0.36);
 }
 
 .cta-meta {
@@ -300,13 +466,13 @@ html {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--web-border-strong);
   color: #e4e4e7;
-  transition: transform 150ms var(--web-ease), background 150ms ease, border-color 150ms ease;
+  transition: transform 180ms var(--web-ease), background 150ms ease, border-color 150ms ease;
 }
 
 .hero-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.28);
-  transform: translateY(-1.5px);
+  transform: translateY(-2px);
 }
 
 .hero-trust {
@@ -343,6 +509,12 @@ html {
   box-shadow: 0 36px 90px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   overflow: hidden;
   text-align: left;
+  transition: border-color 240ms ease, box-shadow 260ms ease;
+}
+
+.showcase-shell:hover {
+  border-color: rgba(56, 189, 248, 0.34);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 50px rgba(56, 189, 248, 0.08);
 }
 
 .showcase-toolbar {
@@ -387,7 +559,7 @@ html {
   color: var(--web-muted);
   font-size: 13px;
   font-weight: 600;
-  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms var(--web-ease);
 }
 
 .showcase-tab small {
@@ -398,7 +570,8 @@ html {
 
 .showcase-tab:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
 }
 
 .showcase-tab.active {
@@ -454,6 +627,12 @@ html {
   border: 1px solid var(--web-border);
   background: var(--web-surface);
   text-align: left;
+  transition: border-color 180ms ease, transform 200ms var(--web-ease);
+}
+
+.stat-box:hover {
+  border-color: var(--web-border-strong);
+  transform: translateY(-2px);
 }
 
 .stat-box strong {
@@ -526,13 +705,14 @@ html {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: border-color 160ms ease, transform 180ms var(--web-ease), background 160ms ease;
+  transition: border-color 180ms ease, transform 220ms var(--web-ease), background 180ms ease, box-shadow 220ms ease;
 }
 
 .feature:hover {
   border-color: var(--web-border-strong);
   background: var(--web-surface-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 
 .feature-top {
@@ -553,6 +733,11 @@ html {
   border: 1px solid rgba(59, 130, 246, 0.34);
   background: rgba(59, 130, 246, 0.14);
   color: #60a5fa;
+  transition: transform 220ms var(--web-ease);
+}
+
+.feature:hover .feature-icon-wrap {
+  transform: scale(1.08);
 }
 
 .feature-icon {
@@ -607,7 +792,7 @@ html {
   color: #fb7185;
 }
 
-/* Spotlight Deep-Dive Cards (Features page) */
+/* Spotlight Deep-Dive Cards */
 .spotlight-list {
   display: flex;
   flex-direction: column;
@@ -623,6 +808,11 @@ html {
   border-radius: 20px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
+  transition: border-color 200ms ease;
+}
+
+.spotlight-card:hover {
+  border-color: var(--web-border-strong);
 }
 
 .spotlight-card.reverse .spotlight-copy {
@@ -643,15 +833,24 @@ html {
   margin: 0;
 }
 
-.spotlight-media img {
-  display: block;
-  width: 100%;
-  height: auto;
+.spotlight-media {
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--web-border-strong);
 }
 
-/* Tables (Loaders & System Requirements) */
+.spotlight-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 420ms var(--web-ease);
+}
+
+.spotlight-card:hover .spotlight-media img {
+  transform: scale(1.025);
+}
+
+/* Tables */
 .data-table-wrap {
   overflow-x: auto;
   border-radius: 16px;
@@ -690,7 +889,7 @@ html {
   color: #ffffff;
 }
 
-/* Security Split Card & Pillars */
+/* Security Card & Pillars */
 .security-card {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
@@ -732,6 +931,12 @@ html {
   border-radius: 12px;
   border: 1px solid var(--web-border);
   background: rgba(0, 0, 0, 0.38);
+  transition: border-color 180ms ease, transform 180ms var(--web-ease);
+}
+
+.security-item:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  transform: translateX(3px);
 }
 
 .security-check {
@@ -776,6 +981,12 @@ html {
   border-radius: 16px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
+  transition: border-color 180ms ease, transform 200ms var(--web-ease);
+}
+
+.pillar-card:hover {
+  border-color: var(--web-border-strong);
+  transform: translateY(-2px);
 }
 
 .pillar-top {
@@ -994,7 +1205,7 @@ html {
   color: var(--web-muted);
 }
 
-/* Explore Cards on Home */
+/* Explore Cards */
 .explore-section {
   padding-bottom: 84px;
 }
@@ -1013,13 +1224,13 @@ html {
   border-radius: 16px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
-  transition: border-color 150ms ease, transform 160ms var(--web-ease), background 150ms ease;
+  transition: border-color 180ms ease, transform 200ms var(--web-ease), background 180ms ease;
 }
 
 .explore-card:hover {
   border-color: rgba(56, 189, 248, 0.45);
   background: var(--web-surface-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .explore-card h3 {
@@ -1111,6 +1322,11 @@ html {
   border-radius: 12px;
   border: 1px solid var(--web-border);
   background: rgba(0, 0, 0, 0.42);
+  transition: border-color 160ms ease;
+}
+
+.release-row:hover {
+  border-color: var(--web-border-strong);
 }
 
 .release-info {
@@ -1212,6 +1428,11 @@ html {
   border-radius: 16px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
+  transition: border-color 180ms ease;
+}
+
+.timeline-card:hover {
+  border-color: var(--web-border-strong);
 }
 
 .timeline-meta {
@@ -1282,6 +1503,12 @@ html {
   border-radius: 15px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
+  transition: border-color 180ms ease, transform 200ms var(--web-ease);
+}
+
+.roadmap-card:hover {
+  border-color: var(--web-border-strong);
+  transform: translateY(-2px);
 }
 
 .roadmap-phase {
@@ -1319,6 +1546,12 @@ html {
   border-radius: 16px;
   border: 1px solid var(--web-border);
   background: var(--web-surface);
+  transition: border-color 180ms ease, transform 200ms var(--web-ease);
+}
+
+.guide-card:hover {
+  border-color: var(--web-border-strong);
+  transform: translateY(-2px);
 }
 
 .step-num {
@@ -1494,12 +1727,55 @@ html {
   top: 12px;
 }
 
-/* Reduced Motion */
+/* Keyframes */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up-scale {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes orb-drift-1 {
+  0% { transform: translateX(-55%) translateY(0) scale(1); }
+  100% { transform: translateX(-44%) translateY(28px) scale(1.08); }
+}
+
+@keyframes orb-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-36px, 24px) scale(1.1); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+/* Reduced Motion Guards */
 .website[data-reduced-motion="true"] *,
 .website[data-reduced-motion="true"] *::before,
 .website[data-reduced-motion="true"] *::after {
   animation: none !important;
   transition-duration: 0ms !important;
+}
+
+.website[data-reduced-motion="true"] .reveal {
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1508,6 +1784,10 @@ html {
   .website *::after {
     animation: none !important;
     transition-duration: 0ms !important;
+  }
+  .website .reveal {
+    opacity: 1;
+    transform: none;
   }
 }
 
