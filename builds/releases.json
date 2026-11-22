@@ -3110,6 +3110,49 @@
       "notes": "- Redesigned the inside-instance desktop UI with a custom Solara Instance Command Header card (`Launch Game`, `Close Game`, `Open Directory`, `Customize`, `Pin to Desktop`, `Export Pack`), glowing accent top hairline, and live running badge.\n- Replaced underline tabs with a custom Solara floating segmented pill bar (`Mods & Packs`, `Worlds & Servers`, `Gallery`, `Game Files`, `Console`) plus a 1-click `+ Add Mods` button across all tabs.\n- Customized the Mods & Worlds toolbars, mod table column headers (`Mod / Pack`, `Installed Version`, `Controls`), and Instance Customize modal tabs (`Profile & Icon`, `Loader & Version`, `Java & RAM`, `Game Window`, `Launch Commands`, `Cloud Sync`).\n- Note: The public website `solaralauncher.exe` remains permanently locked to `V-0.0.89` so VirusTotal does not need a new scan; installed launchers fetch `V-0.0.90` automatically via GitHub Releases CDN.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.90/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "cc2dfaee-9460-4425-89cb-850977493848",
+      "publicVersion": "V-0.0.91",
+      "internalVersion": "0.0.91",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.91/solaralauncher.exe",
+      "commit": "c61ef9f390cb9d46fc07a5afe8c5e0ce694f0234",
+      "allocatedAt": "2026-11-22T16:35:51.195Z",
+      "state": "published",
+      "applicationSha256": "5ef5b947a7d9f40603bddbed9b6cafb0450d975a709dff0677401fe165c4e9c7",
+      "applicationSize": 75013120,
+      "sourceTree": "83979ee0579ea9d6870acb3977fbfc0db5938927",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31470644,
+          "sha256": "c7098a56ab197030105925b4155a0c0f433954ffad7914686a3977426112f626"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75013120,
+          "sha256": "5ef5b947a7d9f40603bddbed9b6cafb0450d975a709dff0677401fe165c4e9c7"
+        },
+        "source.zip": {
+          "size": 37001048,
+          "sha256": "d5efe2153c1cd44195afb89dc68340c71843ae7d9e9a285e944f0503fe1f49ef"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31470644,
+      "sha256": "c7098a56ab197030105925b4155a0c0f433954ffad7914686a3977426112f626",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T16:54:50.903Z",
+      "verifiedAt": "2026-11-22T16:54:45.766Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHlIdFNIclpKMnhNY2dOWmlXcjMvcjBhZjRWUXh2OFBvWDlWWGpYYlM3bFdsWmNHUERHRzI4ejlsSVJqQ3NIcENBYXZRUFhqZ284U3A4UWF1OUdidVFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzY2NDg0CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjkxCkZvTUQ4RGUyMUkxZ3ppSHl1ZDV5VEFXd1BuNk83QlpiQVVWRUtiN1UvOEJ2NHRkN2RuejJSN3MzcmJJYTV6Ykt5Y1ZHMHNoZTNtT0o3dEIxNXh3d0NnPT0K",
+      "notes": "- Replaced Modrinth's stock Mods table inside instances with a brand-new 100% custom Solara Card Grid + Compact List Mods & Packs workspace (`SolaraContentWorkspace`) with stats pills, category/status filters, custom pill toggle switches, bulk actions, and 1-click Update All.\n- Replaced Modrinth's stock Install Mods browser with a brand-new custom Solara Dual-Catalog Instance Content Browser (`InstanceContentBrowser`) featuring **both Modrinth and CurseForge** side-by-side switcher for Mods, Resource Packs, Shaders, and Datapacks filtered automatically to the instance's Minecraft version & loader.\n- Added native `curseforge_install_content` Rust Tauri command + live CurseForge backend `contentType` proxy (`mod`, `resourcepack`, `shader`, `datapack`) for 1-click CurseForge mod/shader/resourcepack installation directly into any instance.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.91/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.90',
+    version: 'V-0.0.91',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Custom Solara Mods Card Grid & Dual Modrinth + CurseForge Mod Installer',
+    highlights: [
+      'Replaced the stock Mods table inside instances with a brand-new 100% custom Solara Card Grid + Compact List workspace with stats pills, custom toggle switches, bulk actions, and 1-click Update All.',
+      'Built a brand-new Dual-Catalog Instance Content Browser featuring both Modrinth and CurseForge side by side for Mods, Resource Packs, Shaders, and Datapacks.',
+      'Added native 1-click CurseForge individual mod, shader, resource pack, and datapack installation directly into any instance.',
+    ],
+  },
+  {
+    version: 'V-0.0.90',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'Custom Inside-Instance Command Deck UI & Horizon-Style Pure OLED Website',
     highlights: [
       'Redesigned the inside-instance workspace with a Solara Command Header card (Launch Game, Close Game, Open Directory, Customize, Pin to Desktop, Export Pack) and glowing accent hairline.',
