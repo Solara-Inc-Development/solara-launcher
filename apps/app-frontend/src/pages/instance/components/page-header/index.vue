@@ -2,6 +2,10 @@
 	<section
 		class="solara-instance-hero relative overflow-hidden rounded-2xl border border-solid border-surface-4 bg-surface-2 px-5 py-4"
 	>
+		<div
+			class="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand/70 to-transparent"
+			aria-hidden="true"
+		/>
 		<div class="flex flex-wrap items-center justify-between gap-4">
 			<!-- Left: Icon + Title + Metadata Chips -->
 			<div class="flex min-w-0 flex-1 items-center gap-4">
@@ -198,7 +202,7 @@
 				</Button>
 
 				<Button
-					v-tooltip="'Open instance folder'"
+					v-tooltip="'Open instance game directory'"
 					type="outlined"
 					size="lg"
 					native-type="button"
@@ -206,11 +210,11 @@
 					@click="emit('openFolder')"
 				>
 					<FolderOpenIcon class="size-4" />
-					<span class="hidden sm:inline">Game Folder</span>
+					<span class="hidden sm:inline">Open Directory</span>
 				</Button>
 
 				<Button
-					v-tooltip="'Configure instance settings, Java & RAM'"
+					v-tooltip="'Customize profile icon, loader, Java & RAM'"
 					type="outlined"
 					size="lg"
 					native-type="button"
@@ -218,7 +222,7 @@
 					@click="emit('settings')"
 				>
 					<SettingsIcon class="size-4" />
-					<span class="hidden sm:inline">Configure</span>
+					<span class="hidden sm:inline">Customize</span>
 				</Button>
 
 				<TeleportOverflowMenu

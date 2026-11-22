@@ -69,25 +69,37 @@
 			/>
 		</div>
 		<div :class="['px-6', { 'shrink-0': isFixedRender }]">
-			<nav
-				aria-label="Instance sections"
-				class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-solid border-surface-4 bg-surface-2 p-1"
-			>
-				<RouterLink
-					v-for="tab in tabs"
-					:key="tab.href"
-					:to="tab.href"
-					:class="[
-						'inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold no-underline transition-colors',
-						isTabActive(tab.href)
-							? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
-							: 'text-secondary hover:bg-surface-3 hover:text-contrast',
-					]"
+			<div class="flex flex-wrap items-center justify-between gap-2.5">
+				<nav
+					aria-label="Instance sections"
+					class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-solid border-surface-4 bg-surface-2 p-1"
 				>
-					<component :is="tab.icon" class="size-4 shrink-0" />
-					<span>{{ tab.label }}</span>
-				</RouterLink>
-			</nav>
+					<RouterLink
+						v-for="tab in tabs"
+						:key="tab.href"
+						:to="tab.href"
+						:class="[
+							'inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold no-underline transition-colors',
+							isTabActive(tab.href)
+								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+								: 'text-secondary hover:bg-surface-3 hover:text-contrast',
+						]"
+					>
+						<component :is="tab.icon" class="size-4 shrink-0" />
+						<span>{{ tab.label }}</span>
+					</RouterLink>
+				</nav>
+
+				<button
+					v-if="!instance.content_locked"
+					type="button"
+					class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-solid border-brand/35 bg-brand/12 px-3.5 py-2 text-xs font-bold text-brand transition-colors hover:bg-brand/20"
+					@click="() => void browseContent(instance.loader === 'vanilla' ? 'resourcepack' : 'mod')"
+				>
+					<PlusIcon class="size-4 shrink-0" />
+					<span>Add Mods</span>
+				</button>
+			</div>
 			<InstanceAdmonitions
 				class="mt-4"
 				:instance="instance"

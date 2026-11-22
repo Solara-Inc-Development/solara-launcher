@@ -107,20 +107,20 @@ watch(
 
 const tabCategories = defineMessages({
 	instance: {
-		id: 'instance.settings.sidebar.label.instance',
-		defaultMessage: 'Instance',
+		id: 'solara.instance.settings.sidebar.profile',
+		defaultMessage: 'Profile',
 	},
 	game: {
-		id: 'instance.settings.sidebar.label.game',
-		defaultMessage: 'Game',
+		id: 'solara.instance.settings.sidebar.runtime',
+		defaultMessage: 'Runtime & Launch',
 	},
 })
 
 const tabs = computed<TabbedModalTab[]>(() => [
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.general',
-			defaultMessage: 'General',
+			id: 'solara.instance.settings.tabs.profile',
+			defaultMessage: 'Profile & Icon',
 		}),
 		icon: InfoIcon,
 		category: tabCategories.instance,
@@ -128,8 +128,8 @@ const tabs = computed<TabbedModalTab[]>(() => [
 	},
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.installation',
-			defaultMessage: 'Installation',
+			id: 'solara.instance.settings.tabs.loader',
+			defaultMessage: 'Loader & Version',
 		}),
 		icon: WrenchIcon,
 		category: tabCategories.instance,
@@ -137,8 +137,8 @@ const tabs = computed<TabbedModalTab[]>(() => [
 	},
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.java.label',
-			defaultMessage: 'Java and memory',
+			id: 'solara.instance.settings.tabs.java',
+			defaultMessage: 'Java & RAM',
 		}),
 		icon: CoffeeIcon,
 		category: tabCategories.game,
@@ -146,8 +146,8 @@ const tabs = computed<TabbedModalTab[]>(() => [
 	},
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.window.label',
-			defaultMessage: 'Window',
+			id: 'solara.instance.settings.tabs.window',
+			defaultMessage: 'Game Window',
 		}),
 		icon: WindowIcon,
 		category: tabCategories.game,
@@ -155,8 +155,8 @@ const tabs = computed<TabbedModalTab[]>(() => [
 	},
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.hooks.label',
-			defaultMessage: 'Launch hooks',
+			id: 'solara.instance.settings.tabs.commands',
+			defaultMessage: 'Launch Commands',
 		}),
 		icon: CodeIcon,
 		category: tabCategories.game,
@@ -164,8 +164,8 @@ const tabs = computed<TabbedModalTab[]>(() => [
 	},
 	{
 		name: defineMessage({
-			id: 'instance.settings.tabs.syncing',
-			defaultMessage: 'Syncing',
+			id: 'solara.instance.settings.tabs.sync',
+			defaultMessage: 'Cloud Sync',
 		}),
 		icon: Settings2Icon,
 		category: tabCategories.game,
@@ -236,7 +236,7 @@ defineExpose({ show, hide })
 	<TabbedModal
 		ref="tabbedModal"
 		:tabs="tabs"
-		:header="formatMessage(commonMessages.settingsLabel)"
+		header="Customize Profile"
 		:on-after-hide="handleAfterHide"
 		:before-hide="canLeaveCurrentTab"
 		:before-tab-change="canLeaveCurrentTab"

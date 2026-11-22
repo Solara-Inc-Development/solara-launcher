@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.89: Final permanent evergreen solaralauncher.exe installer (0ms startup auto-fetch from GitHub Releases CDN, /S /UPDATE /R silent in-place upgrade, native NSIS Exec without Explorer COM).
+# Solara V-0.0.90: Custom inside-instance Solara UI (command deck header, floating segmented pill tabs, quick Add Mods button, renamed Customize/Launch Game/Mods & Packs controls, and Horizon-inspired pure OLED website).
 on:
   workflow_dispatch:
   push:

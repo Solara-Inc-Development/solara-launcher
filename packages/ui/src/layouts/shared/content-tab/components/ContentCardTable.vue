@@ -343,25 +343,25 @@ function handleSort(column: ContentCardTableSortColumn) {
 					:aria-sort="
 						sortBy === 'project' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'
 					"
-					class="flex items-center gap-1.5 font-semibold text-secondary"
+					class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-secondary"
 					@click="handleSort('project')"
 				>
-					{{ formatMessage(commonMessages.projectLabel) }}
+					Mod / Pack
 					<ChevronUpIcon v-if="sortBy === 'project' && sortDirection === 'asc'" class="size-4" />
 					<ChevronDownIcon
 						v-else-if="sortBy === 'project' && sortDirection === 'desc'"
 						class="size-4"
 					/>
 				</button>
-				<span v-else role="columnheader" class="font-semibold text-secondary">{{
-					formatMessage(commonMessages.projectLabel)
-				}}</span>
+				<span v-else role="columnheader" class="text-xs font-bold uppercase tracking-wider text-secondary">
+					Mod / Pack
+				</span>
 			</div>
 
 			<div
 				v-if="hasEnabledForColumn"
 				role="columnheader"
-				class="flex min-w-0 items-center gap-1.5 whitespace-nowrap font-semibold text-secondary"
+				class="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-xs font-bold uppercase tracking-wider text-secondary"
 			>
 				<span>{{ formatMessage(messages.enabledFor) }}</span>
 				<span
@@ -380,19 +380,19 @@ function handleSort(column: ContentCardTableSortColumn) {
 					:aria-sort="
 						sortBy === 'version' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'
 					"
-					class="flex items-center gap-1.5 font-semibold text-secondary"
+					class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-secondary"
 					@click="handleSort('version')"
 				>
-					{{ formatMessage(commonMessages.versionLabel) }}
+					Installed Version
 					<ChevronUpIcon v-if="sortBy === 'version' && sortDirection === 'asc'" class="size-4" />
 					<ChevronDownIcon
 						v-else-if="sortBy === 'version' && sortDirection === 'desc'"
 						class="size-4"
 					/>
 				</button>
-				<span v-else role="columnheader" class="font-semibold text-secondary">{{
-					formatMessage(commonMessages.versionLabel)
-				}}</span>
+				<span v-else role="columnheader" class="text-xs font-bold uppercase tracking-wider text-secondary">
+					Installed Version
+				</span>
 			</div>
 
 			<div
@@ -401,9 +401,9 @@ function handleSort(column: ContentCardTableSortColumn) {
 				class="shrink-0 text-right"
 				:class="layout === 'narrow' ? 'justify-self-start' : 'justify-self-end'"
 			>
-				<span class="font-semibold text-secondary">{{
-					formatMessage(commonMessages.actionsLabel)
-				}}</span>
+				<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+					Controls
+				</span>
 			</div>
 		</div>
 
