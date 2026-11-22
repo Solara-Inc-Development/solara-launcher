@@ -82,6 +82,9 @@ const javaBarPercent = computed(() => {
   if (currentPreset.value.java === 17) return 74;
   return 100;
 });
+const sliderFillPercent = computed(() =>
+  Math.round((selectedMcIndex.value / (MC_PRESETS.length - 1)) * 100),
+);
 
 function pickLoader(loader: 'Fabric' | 'NeoForge' | 'Forge' | 'Quilt' | 'Vanilla') {
   selectedLoader.value = loader;
@@ -352,8 +355,9 @@ async function copyText(text: string, key: string) {
       <Transition name="page-slide" mode="out-in">
         <!-- ==================== HOME PAGE ==================== -->
         <div v-if="currentRoute === '/'" key="home" class="page-stack">
-          <!-- Asymmetric Split Hero -->
+          <!-- Asymmetric Split Hero with Pure OLED Pixel-Voxel Skyline Backdrop -->
           <section class="hero-section">
+            <div class="hero-backdrop" aria-hidden="true" />
             <div class="web-container hero-grid">
               <div class="hero-left">
                 <div class="hero-eyebrow-row">
@@ -363,12 +367,12 @@ async function copyText(text: string, key: string) {
                 </div>
 
                 <h1 class="display-title hero-h1">
-                  The launcher you know,<br />
-                  <span class="accent-text">rebuilt clean &amp; fast.</span>
+                  Minecraft, the way<br />
+                  <span class="accent-text">it should feel.</span>
                 </h1>
 
                 <p class="hero-lead">
-                  A fast, ad-free pure OLED Minecraft launcher for Windows — one-click modpacks, automatic Java setup, and one permanent evergreen installer.
+                  A fast, ad-free pure OLED Minecraft launcher for Windows — one-click modpacks, automatic Java runtimes, and one permanent evergreen installer.
                 </p>
 
                 <div class="hero-cta-row">
@@ -406,7 +410,7 @@ async function copyText(text: string, key: string) {
                 </p>
               </div>
 
-              <!-- Right Floating Interactive Runtime Widget Card -->
+              <!-- Right Floating Frosted OLED Interactive Runtime Card -->
               <div class="hero-right">
                 <div class="runtime-card">
                   <span class="runtime-label">Smart Runtime Engine</span>
@@ -445,6 +449,9 @@ async function copyText(text: string, key: string) {
                       </span>
                     </div>
                     <div class="runtime-slider-wrap">
+                      <div class="runtime-slider-track">
+                        <div class="runtime-slider-fill" :style="{ width: `${sliderFillPercent}%` }" />
+                      </div>
                       <input
                         v-model.number="selectedMcIndex"
                         type="range"
@@ -475,10 +482,9 @@ async function copyText(text: string, key: string) {
                 </div>
               </div>
             </div>
-            <div class="oled-horizon-line" aria-hidden="true" />
           </section>
 
-          <!-- Section 2: "What it is" Asymmetric Split + 3 Minimal Borderless Columns -->
+          <!-- Section 2: "What it is" Asymmetric Split with Rich Voxel World Artwork + 3 Borderless Columns -->
           <section id="about" class="web-container editorial-section">
             <div class="editorial-split">
               <div class="editorial-copy">
@@ -500,67 +506,18 @@ async function copyText(text: string, key: string) {
               </div>
 
               <div class="editorial-media">
-                <div class="media-frame">
-                  <Transition name="shot-fade" mode="out-in">
-                    <img
-                      v-if="activeShot === 'dashboard'"
-                      key="dashboard"
-                      src="/screenshots/dashboard.png"
-                      alt="Solara Launcher Home screen in OLED dark theme"
-                      width="1440"
-                      height="950"
-                    />
-                    <img
-                      v-else-if="activeShot === 'modpacks'"
-                      key="modpacks"
-                      src="/screenshots/modpacks.png"
-                      alt="Solara Launcher Modpack Browser"
-                      width="1380"
-                      height="860"
-                    />
-                    <img
-                      v-else-if="activeShot === 'icon-studio'"
-                      key="icon-studio"
-                      src="/screenshots/icon-studio.png"
-                      alt="Solara Icon Studio"
-                      width="1380"
-                      height="860"
-                    />
-                    <img
-                      v-else-if="activeShot === 'settings'"
-                      key="settings"
-                      src="/screenshots/settings-resources.png"
-                      alt="Solara Storage and Resources"
-                      width="1440"
-                      height="950"
-                    />
-                    <img
-                      v-else
-                      key="white"
-                      src="/screenshots/downloads-white.png"
-                      alt="Solara Launcher White Theme"
-                      width="1440"
-                      height="950"
-                    />
-                  </Transition>
-                </div>
-                <div class="media-pills" role="tablist" aria-label="Launcher views">
-                  <button
-                    v-for="tab in SHOWCASE_TABS"
-                    :key="tab.id"
-                    type="button"
-                    role="tab"
-                    :aria-selected="activeShot === tab.id"
-                    :class="['media-pill', { active: activeShot === tab.id }]"
-                    @click="selectShot(tab.id)"
-                  >
-                    {{ tab.label }}
-                  </button>
+                <div class="art-feature-frame">
+                  <img
+                    src="/art/alpine-lake-v1.webp"
+                    alt="Voxel alpine castle town by a mountain lake"
+                    width="1440"
+                    height="810"
+                  />
                 </div>
               </div>
             </div>
 
-            <!-- 3 Borderless Minimal Pillars (Horizon rhythm) -->
+            <!-- 3 Borderless Minimal Pillars -->
             <div class="pillars-row">
               <div class="pillar-minimal">
                 <h3><Lock class="pillar-ic" /> Official Microsoft login</h3>
@@ -583,9 +540,11 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Section 3: "Built in the open." 4-Tile High-Contrast Action Strip -->
+          <!-- Section 3: "Built in the open." Halftone Wave + 4-Tile High-Contrast Action Strip -->
           <section id="community" class="open-band">
-            <div class="web-container">
+            <div class="open-band-glow" aria-hidden="true" />
+            <div class="open-band-dots" aria-hidden="true" />
+            <div class="web-container open-band-inner">
               <span class="band-kicker">Community &amp; Transparency</span>
               <h2 class="display-title section-h2">Built in the open.</h2>
               <p class="section-body band-sub">
@@ -651,17 +610,15 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Section 4: Asymmetric Visual Gallery -->
+          <!-- Section 4: Asymmetric Voxel Biome Gallery (Horizon Style) -->
           <section id="gallery" class="web-container editorial-section">
             <div class="gallery-grid">
               <div class="gallery-col-left">
                 <figure class="gallery-shot">
-                  <img src="/screenshots/modpacks.png" alt="Solara Modpack Browser" loading="lazy" />
-                  <figcaption>One-click Modpack Browser</figcaption>
+                  <img src="/art/forest-valley-v1.webp" alt="Misty voxel pine valley and riverside cabin" loading="lazy" />
                 </figure>
                 <figure class="gallery-shot">
-                  <img src="/screenshots/icon-studio.png" alt="Solara Icon Studio" loading="lazy" />
-                  <figcaption>Solara Icon Studio · 30 3D Icons &amp; Badges</figcaption>
+                  <img src="/art/moss-cave-v1.webp" alt="Sunlit voxel lush moss cavern" loading="lazy" />
                 </figure>
               </div>
 
@@ -675,18 +632,83 @@ async function copyText(text: string, key: string) {
                     The same game you love, <span class="accent-text">zero clutter.</span>
                   </h2>
                   <p class="section-body">
-                    Every screen is built for pure #000000 OLED black and crisp White mode, with zero ads or popups getting in your way.
+                    Keep every survival world, modded SMP, and shader pack isolated in its own tidy instance — zero ads or popups.
                   </p>
                 </div>
 
                 <figure class="gallery-shot">
-                  <img src="/screenshots/settings-resources.png" alt="Storage & Resource Manager" loading="lazy" />
-                  <figcaption>Storage &amp; Resource Control</figcaption>
+                  <img src="/art/canyon-settlement-v1.webp" alt="Golden voxel canyon village" loading="lazy" />
                 </figure>
                 <figure class="gallery-shot">
-                  <img src="/screenshots/downloads-white.png" alt="Solara White Theme" loading="lazy" />
-                  <figcaption>Crisp White Theme</figcaption>
+                  <img src="/art/coastal-hamlet-v1.webp" alt="Coastal voxel fishing hamlet" loading="lazy" />
                 </figure>
+              </div>
+            </div>
+
+            <!-- Clean Interactive Desktop Preview Showcase -->
+            <div class="launcher-preview-wrap">
+              <div class="launcher-preview-head">
+                <div>
+                  <span class="band-kicker">INSIDE THE LAUNCHER</span>
+                  <h3 class="display-title preview-h3">Built for OLED Black &amp; Crisp White.</h3>
+                </div>
+                <div class="media-pills" role="tablist" aria-label="Launcher views">
+                  <button
+                    v-for="tab in SHOWCASE_TABS"
+                    :key="tab.id"
+                    type="button"
+                    role="tab"
+                    :aria-selected="activeShot === tab.id"
+                    :class="['media-pill', { active: activeShot === tab.id }]"
+                    @click="selectShot(tab.id)"
+                  >
+                    {{ tab.label }}
+                  </button>
+                </div>
+              </div>
+              <div class="media-frame">
+                <Transition name="shot-fade" mode="out-in">
+                  <img
+                    v-if="activeShot === 'dashboard'"
+                    key="dashboard"
+                    src="/screenshots/dashboard.png"
+                    alt="Solara Launcher Home screen in OLED dark theme"
+                    width="1440"
+                    height="950"
+                  />
+                  <img
+                    v-else-if="activeShot === 'modpacks'"
+                    key="modpacks"
+                    src="/screenshots/modpacks.png"
+                    alt="Solara Launcher Modpack Browser"
+                    width="1380"
+                    height="860"
+                  />
+                  <img
+                    v-else-if="activeShot === 'icon-studio'"
+                    key="icon-studio"
+                    src="/screenshots/icon-studio.png"
+                    alt="Solara Icon Studio"
+                    width="1380"
+                    height="860"
+                  />
+                  <img
+                    v-else-if="activeShot === 'settings'"
+                    key="settings"
+                    src="/screenshots/settings-resources.png"
+                    alt="Solara Storage and Resources"
+                    width="1440"
+                    height="950"
+                  />
+                  <img
+                    v-else
+                    key="white"
+                    src="/screenshots/downloads-white.png"
+                    alt="Solara Launcher White Theme"
+                    width="1440"
+                    height="950"
+                  />
+                </Transition>
               </div>
             </div>
           </section>
