@@ -1,11 +1,7 @@
 <template>
 	<section
-		class="solara-instance-hero relative overflow-hidden rounded-2xl border border-solid border-surface-4 bg-surface-2 px-5 py-4"
+		class="solara-instance-hero relative overflow-hidden rounded-[24px] border border-solid border-surface-5 bg-surface-3 px-6 py-5"
 	>
-		<div
-			class="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand/70 to-transparent"
-			aria-hidden="true"
-		/>
 		<div class="flex flex-wrap items-center justify-between gap-4">
 			<!-- Left: Icon + Title + Metadata Chips -->
 			<div class="flex min-w-0 flex-1 items-center gap-4">
@@ -16,11 +12,11 @@
 						size="72px"
 						:tint-by="instance.id"
 						pad-transparent-corners
-						class="rounded-2xl ring-1 ring-surface-5 shadow-md"
+						class="rounded-[20px] ring-1 ring-surface-5 shadow-md"
 					/>
 					<span
 						v-if="playing"
-						class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-surface-2"
+						class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-surface-3"
 						aria-label="Instance running"
 					>
 						<span class="size-2.5 rounded-full bg-brand animate-pulse" />
@@ -80,7 +76,7 @@
 					<div v-else class="flex flex-wrap items-center gap-2 text-xs font-medium text-secondary">
 						<span
 							v-tooltip="'Mod loader and Minecraft version'"
-							class="inline-flex items-center gap-1.5 rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1 text-contrast font-semibold"
+							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1 font-semibold text-contrast"
 						>
 							<TagIcon :tag="loaderDisplayName" enforce-type="loader" class="size-3.5 shrink-0" />
 							<span>{{ loaderLabel }}</span>
@@ -89,7 +85,7 @@
 						<span
 							v-if="showInstancePlayTime && playtimeLabel"
 							v-tooltip="'Total playtime'"
-							class="inline-flex items-center gap-1.5 rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1"
+							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1"
 						>
 							<TimerIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>Played {{ playtimeLabel }}</span>
@@ -98,14 +94,14 @@
 						<span
 							v-if="lastPlayedRelative"
 							v-tooltip="'Last launched'"
-							class="inline-flex items-center gap-1.5 rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1"
+							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1"
 						>
 							<ClockIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>Last launched {{ lastPlayedRelative }}</span>
 						</span>
 						<span
 							v-else
-							class="inline-flex items-center gap-1.5 rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1"
+							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1"
 						>
 							<ClockIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>Ready to launch</span>

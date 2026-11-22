@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.91: Brand-new custom Solara Mods & Packs Card Grid workspace + Dual Modrinth & CurseForge Instance Content Browser & 1-click CurseForge mod/shader/resourcepack installer.
+# Solara V-0.0.92: Fix Modrinth v3 search + Add Modrinth & CurseForge left filter sidebar + Theme-matched curved cards across Mods Workspace & Instance UI.
 on:
   workflow_dispatch:
   push:

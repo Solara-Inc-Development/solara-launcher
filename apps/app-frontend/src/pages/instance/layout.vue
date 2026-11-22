@@ -72,17 +72,17 @@
 			<div class="flex flex-wrap items-center justify-between gap-2.5">
 				<nav
 					aria-label="Instance sections"
-					class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-solid border-surface-4 bg-surface-2 p-1"
+					class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-[20px] border border-solid border-surface-5 bg-surface-3 p-1.5"
 				>
 					<RouterLink
 						v-for="tab in tabs"
 						:key="tab.href"
 						:to="tab.href"
 						:class="[
-							'inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold no-underline transition-colors',
+							'inline-flex items-center gap-2 rounded-[14px] px-3.5 py-2 text-sm font-semibold no-underline transition-all',
 							isTabActive(tab.href)
 								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
-								: 'text-secondary hover:bg-surface-3 hover:text-contrast',
+								: 'text-secondary hover:bg-surface-2 hover:text-contrast',
 						]"
 					>
 						<component :is="tab.icon" class="size-4 shrink-0" />
@@ -93,10 +93,10 @@
 				<button
 					v-if="!instance.content_locked"
 					type="button"
-					class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-solid border-brand/35 bg-brand/12 px-3.5 py-2 text-xs font-bold text-brand transition-colors hover:bg-brand/20"
+					class="inline-flex cursor-pointer items-center gap-1.5 rounded-2xl border border-solid border-surface-5 bg-surface-3 px-4 py-2.5 text-xs font-bold text-contrast transition-all hover:border-brand/55 hover:text-brand"
 					@click="() => void browseContent(instance.loader === 'vanilla' ? 'resourcepack' : 'mod')"
 				>
-					<PlusIcon class="size-4 shrink-0" />
+					<PlusIcon class="size-4 shrink-0 text-brand" />
 					<span>Add Mods</span>
 				</button>
 			</div>

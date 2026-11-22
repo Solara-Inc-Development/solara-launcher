@@ -22,6 +22,7 @@ import {
 	Avatar,
 	Button,
 	Checkbox,
+	Combobox,
 	type ContentItem,
 	injectContentManager,
 	TeleportOverflowMenu,
@@ -36,8 +37,22 @@ const props = defineProps<{
 const ctx = injectContentManager()
 
 type ViewMode = 'grid' | 'list'
-type FilterTab = 'all' | 'mod' | 'resourcepack' | 'shader' | 'datapack' | 'enabled' | 'disabled' | 'updates'
+type FilterTab =
+	| 'all'
+	| 'mod'
+	| 'resourcepack'
+	| 'shader'
+	| 'datapack'
+	| 'enabled'
+	| 'disabled'
+	| 'updates'
 type SortKey = 'name' | 'status' | 'type'
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+	{ value: 'name', label: 'Sort: Name A–Z' },
+	{ value: 'status', label: 'Sort: Active First' },
+	{ value: 'type', label: 'Sort: Content Type' },
+]
 
 const viewMode = ref<ViewMode>('grid')
 const searchQuery = ref('')
@@ -82,17 +97,24 @@ const filterTabs = computed<{ id: FilterTab; label: string; count?: number }[]>(
 		{ id: 'all', label: 'All', count: stats.value.total },
 	]
 	if (presentTypes.value.has('mod')) list.push({ id: 'mod', label: 'Mods' })
-	if (presentTypes.value.has('resourcepack')) list.push({ id: 'resourcepack', label: 'Resource Packs' })
+	if (presentTypes.value.has('resourcepack'))
+		list.push({ id: 'resourcepack', label: 'Resource Packs' })
 	if (presentTypes.value.has('shader')) list.push({ id: 'shader', label: 'Shaders' })
 	if (presentTypes.value.has('datapack')) list.push({ id: 'datapack', label: 'Datapacks' })
 	list.push({ id: 'enabled', label: 'Active', count: stats.value.enabled })
-	if (stats.value.disabled > 0) list.push({ id: 'disabled', label: 'Disabled', count: stats.value.disabled })
-	if (stats.value.updates > 0) list.push({ id: 'updates', label: 'Updates', count: stats.value.updates })
+	if (stats.value.disabled > 0)
+		list.push({ id: 'disabled', label: 'Disabled', count: stats.value.disabled })
+	if (stats.value.updates > 0)
+		list.push({ id: 'updates', label: 'Updates', count: stats.value.updates })
 	return list
 })
 
 function itemTitle(item: ContentItem): string {
-	return item.project?.title ?? item.embedded_metadata?.name ?? item.file_name.replace(/\.disabled$/i, '')
+	return (
+		item.project?.title ??
+		item.embedded_metadata?.name ??
+		item.file_name.replace(/\.disabled$/i, '')
+	)
 }
 
 function itemAuthor(item: ContentItem): string {
@@ -125,15 +147,15 @@ function itemTypeLabel(type?: string): string {
 function itemTypeClass(type?: string): string {
 	switch (type) {
 		case 'mod':
-			return 'border-indigo-500/30 bg-indigo-500/12 text-indigo-300'
+			return 'solara-type-mod'
 		case 'shader':
-			return 'border-amber-500/30 bg-amber-500/12 text-amber-300'
+			return 'solara-type-shader'
 		case 'resourcepack':
-			return 'border-sky-500/30 bg-sky-500/12 text-sky-300'
+			return 'solara-type-pack'
 		case 'datapack':
-			return 'border-purple-500/30 bg-purple-500/12 text-purple-300'
+			return 'solara-type-data'
 		default:
-			return 'border-surface-5 bg-surface-3 text-secondary'
+			return 'border-surface-5 bg-surface-2 text-secondary'
 	}
 }
 
@@ -212,7 +234,9 @@ async function handleRefresh() {
 
 async function handleUpdateAll() {
 	if (!ctx.bulkUpdateSelections || updatingAll.value) return
-	const outdated = allItems.value.filter((item) => item.has_update && !item.locked && item.update_version_id)
+	const outdated = allItems.value.filter(
+		(item) => item.has_update && !item.locked && item.update_version_id,
+	)
 	if (outdated.length === 0) return
 	updatingAll.value = true
 	try {
@@ -275,24 +299,26 @@ function itemCanSwitchVersion(item: ContentItem) {
 
 <template>
 	<div class="flex flex-col gap-4 pb-10">
-		<!-- Linked Modpack Banner (Custom Solara Card) -->
+		<!-- Linked Modpack Card -->
 		<div
 			v-if="ctx.managedContent.value"
-			class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-solid border-brand/30 bg-surface-2 px-5 py-4"
+			class="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-solid border-surface-5 bg-surface-3 px-5 py-4"
 		>
 			<div class="flex min-w-0 items-center gap-3.5">
 				<Avatar
 					:src="ctx.managedContent.value.card.manager.iconUrl"
 					:alt="ctx.managedContent.value.card.manager.name"
 					size="48px"
-					class="rounded-xl ring-1 ring-surface-5"
+					class="rounded-2xl ring-1 ring-surface-5"
 				/>
 				<div class="flex min-w-0 flex-col gap-0.5">
 					<div class="flex flex-wrap items-center gap-2">
-						<span class="text-xs font-bold uppercase tracking-wider text-brand">Linked Modpack</span>
+						<span class="text-[11px] font-bold uppercase tracking-wider text-brand">
+							Linked Modpack
+						</span>
 						<span
 							v-if="ctx.managedContent.value.card.manager.version"
-							class="rounded-md bg-surface-3 px-2 py-0.5 text-xs font-semibold text-secondary"
+							class="rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 text-[11px] font-semibold text-secondary"
 						>
 							{{ ctx.managedContent.value.card.manager.version }}
 						</span>
@@ -317,7 +343,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 				<Button
 					v-if="ctx.runManagedContentPrimaryAction && ctx.managedContent.value.card.hasUpdate"
 					type="colored"
-					color="green"
+					color="brand"
 					size="md"
 					class="!rounded-xl !font-bold"
 					@click="ctx.runManagedContentPrimaryAction($event)"
@@ -352,7 +378,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Loading State -->
 		<div
 			v-if="ctx.loading.value"
-			class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-4 bg-surface-2 py-16 text-secondary"
+			class="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 py-16 text-secondary"
 		>
 			<SpinnerIcon class="size-7 animate-spin text-brand" />
 			<span class="text-sm font-medium">Loading installed mods &amp; packs...</span>
@@ -361,24 +387,27 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Empty State -->
 		<div
 			v-else-if="allItems.length === 0"
-			class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-surface-5 bg-surface-2 px-6 py-16 text-center"
+			class="flex flex-col items-center justify-center gap-4 rounded-[24px] border border-dashed border-surface-5 bg-surface-3 px-6 py-16 text-center"
 		>
-			<div class="flex size-14 items-center justify-center rounded-2xl bg-brand/12 text-brand">
-				<PackageIcon class="size-7" />
+			<div
+				class="solara-empty-icon flex size-16 items-center justify-center rounded-[20px] text-brand"
+			>
+				<PackageIcon class="size-8" />
 			</div>
 			<div class="flex flex-col gap-1">
 				<h3 class="m-0 text-lg font-extrabold text-contrast">
 					{{ ctx.managedContent.value ? 'No extra mods added yet' : 'No mods or packs installed yet' }}
 				</h3>
 				<p class="m-0 max-w-md text-sm text-secondary">
-					Browse both Modrinth &amp; CurseForge catalogs in one place, or drag and drop local .jar / .zip files right here.
+					Browse both Modrinth &amp; CurseForge catalogs in one place, or drag and drop local .jar /
+					.zip files right here.
 				</p>
 			</div>
 			<div class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
 				<Button
 					type="outlined"
 					size="lg"
-					class="!rounded-xl"
+					class="!rounded-2xl"
 					:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
 					@click="ctx.uploadFiles"
 				>
@@ -389,7 +418,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 					type="colored"
 					color="brand"
 					size="lg"
-					class="!rounded-xl !font-bold"
+					class="!rounded-2xl !font-bold"
 					:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
 					@click="ctx.browse"
 				>
@@ -401,28 +430,32 @@ function itemCanSwitchVersion(item: ContentItem) {
 
 		<!-- Populated Solara Mods Workspace -->
 		<template v-else>
-			<!-- Top Compact Stats + Control Deck -->
-			<div class="flex flex-col gap-3 rounded-2xl border border-solid border-surface-4 bg-surface-2 p-4">
-				<!-- Row 1: Stats Pills + Main Action Buttons -->
+			<!-- Top Control Deck -->
+			<div
+				class="flex flex-col gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-4"
+			>
+				<!-- Row 1: Stats Pills + Actions -->
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-						<span class="rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1 text-contrast">
+						<span
+							class="rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1 text-contrast tabular-nums"
+						>
 							{{ stats.total }} Installed
 						</span>
-						<span class="rounded-lg border border-solid border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-emerald-400">
+						<span class="solara-active-stat rounded-full px-3 py-1 tabular-nums">
 							{{ stats.enabled }} Active
 						</span>
 						<span
 							v-if="stats.disabled > 0"
-							class="rounded-lg border border-solid border-surface-4 bg-surface-3 px-2.5 py-1 text-secondary"
+							class="rounded-full border border-solid border-surface-5 bg-surface-2 px-3 py-1 text-secondary tabular-nums"
 						>
-							{{ stats.disabled }} Disabled
+							{{ stats.disabled }} Off
 						</span>
 						<button
 							v-if="stats.updates > 0"
 							type="button"
 							:disabled="updatingAll || ctx.isBusy.value"
-							class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-emerald-500/40 bg-emerald-500/15 px-2.5 py-1 text-emerald-300 transition-colors hover:bg-emerald-500/25 disabled:opacity-50"
+							class="solara-update-pill inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
 							@click="handleUpdateAll"
 						>
 							<DownloadIcon class="size-3.5" />
@@ -456,19 +489,21 @@ function itemCanSwitchVersion(item: ContentItem) {
 							type="button"
 							:disabled="refreshing"
 							title="Reload installed content"
-							class="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-4 bg-surface-3 text-secondary transition-colors hover:text-contrast"
+							class="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:text-contrast"
 							@click="handleRefresh"
 						>
 							<RefreshCwIcon :class="['size-4', refreshing ? 'animate-spin' : '']" />
 						</button>
-						<div class="inline-flex items-center rounded-xl border border-solid border-surface-4 bg-surface-3 p-0.5">
+						<div
+							class="inline-flex items-center rounded-2xl border border-solid border-surface-5 bg-surface-2 p-1"
+						>
 							<button
 								type="button"
 								title="Card grid view"
 								:class="[
-									'inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border-0 transition-colors',
+									'inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border-0 transition-colors',
 									viewMode === 'grid'
-										? 'bg-brand text-[var(--color-accent-contrast)]'
+										? 'bg-surface-4 text-contrast'
 										: 'bg-transparent text-secondary hover:text-contrast',
 								]"
 								@click="viewMode = 'grid'"
@@ -479,9 +514,9 @@ function itemCanSwitchVersion(item: ContentItem) {
 								type="button"
 								title="Compact list view"
 								:class="[
-									'inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border-0 transition-colors',
+									'inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border-0 transition-colors',
 									viewMode === 'list'
-										? 'bg-brand text-[var(--color-accent-contrast)]'
+										? 'bg-surface-4 text-contrast'
 										: 'bg-transparent text-secondary hover:text-contrast',
 								]"
 								@click="viewMode = 'list'"
@@ -492,52 +527,57 @@ function itemCanSwitchVersion(item: ContentItem) {
 					</div>
 				</div>
 
-				<!-- Row 2: Search + Filter Chips + Sort -->
+				<!-- Row 2: Search + Sort Combobox -->
 				<div class="flex flex-wrap items-center gap-2.5">
-					<div class="relative min-w-[220px] flex-1">
-						<SearchIcon class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-secondary" />
+					<div
+						class="flex h-10 min-w-[220px] flex-1 items-center gap-2.5 rounded-2xl border border-solid border-surface-5 bg-surface-2 px-3.5 transition-colors focus-within:border-brand"
+					>
+						<SearchIcon class="size-4 shrink-0 text-secondary" />
 						<input
 							v-model="searchQuery"
 							type="text"
 							placeholder="Search installed mods, shaders, or packs..."
-							class="h-9 w-full rounded-xl border border-solid border-surface-4 bg-surface-1 pl-9 pr-8 text-sm text-contrast outline-none transition-colors focus:border-brand"
+							class="w-full border-none bg-transparent text-sm text-contrast outline-none placeholder:text-secondary"
 						/>
 						<button
 							v-if="searchQuery"
 							type="button"
-							class="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer border-0 bg-transparent p-0 text-secondary hover:text-contrast"
+							aria-label="Clear search"
+							class="flex size-5 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 text-secondary hover:text-contrast"
 							@click="searchQuery = ''"
 						>
-							<XIcon class="size-4" />
+							<XIcon class="size-3.5" />
 						</button>
 					</div>
 
-					<select
-						v-model="sortBy"
-						aria-label="Sort installed mods"
-						class="h-9 cursor-pointer rounded-xl border border-solid border-surface-4 bg-surface-1 px-3 text-xs font-semibold text-contrast outline-none focus:border-brand"
-					>
-						<option value="name">Sort: Name A–Z</option>
-						<option value="status">Sort: Active First</option>
-						<option value="type">Sort: Content Type</option>
-					</select>
+					<div class="w-48 shrink-0">
+						<Combobox
+							v-model="sortBy"
+							:options="SORT_OPTIONS"
+							placeholder="Sort by"
+							trigger-size="md"
+						/>
+					</div>
 				</div>
 
+				<!-- Row 3: Rounded Filter Pills -->
 				<div class="flex flex-wrap items-center gap-1.5">
 					<button
 						v-for="tab in filterTabs"
 						:key="tab.id"
 						type="button"
 						:class="[
-							'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors',
+							'inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-solid px-3 py-1 text-xs font-semibold transition-all',
 							activeFilter === tab.id
-								? 'border-brand/50 bg-brand/15 text-brand'
-								: 'border-surface-4 bg-surface-3 text-secondary hover:text-contrast',
+								? 'solara-pill-active text-contrast'
+								: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast',
 						]"
 						@click="activeFilter = tab.id"
 					>
 						<span>{{ tab.label }}</span>
-						<span v-if="typeof tab.count === 'number'" class="opacity-70">{{ tab.count }}</span>
+						<span v-if="typeof tab.count === 'number'" class="opacity-70 tabular-nums">
+							{{ tab.count }}
+						</span>
 					</button>
 				</div>
 			</div>
@@ -545,12 +585,13 @@ function itemCanSwitchVersion(item: ContentItem) {
 			<!-- Filtered Empty -->
 			<div
 				v-if="filteredItems.length === 0"
-				class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-solid border-surface-4 bg-surface-2 py-12 text-center"
+				class="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 py-12 text-center"
 			>
 				<p class="m-0 text-sm font-semibold text-contrast">No matching mods or packs found.</p>
-				<button
-					type="button"
-					class="cursor-pointer rounded-lg border border-solid border-surface-5 bg-surface-3 px-3 py-1.5 text-xs font-semibold text-secondary hover:text-contrast"
+				<Button
+					size="sm"
+					type="outlined"
+					class="!rounded-xl"
 					@click="
 						() => {
 							searchQuery = ''
@@ -559,39 +600,43 @@ function itemCanSwitchVersion(item: ContentItem) {
 					"
 				>
 					Reset filters
-				</button>
+				</Button>
 			</div>
 
-			<!-- GRID VIEW (Signature Solara Cards!) -->
+			<!-- GRID VIEW (Curved Solara Theme-Matched Cards) -->
 			<div
 				v-else-if="viewMode === 'grid'"
-				class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+				class="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3"
 			>
 				<article
 					v-for="item in filteredItems"
 					:key="ctx.getItemId(item)"
 					:class="[
-						'group relative flex flex-col justify-between gap-3 rounded-2xl border border-solid p-4 transition-all',
+						'solara-mod-card group relative flex flex-col justify-between gap-3.5 rounded-[22px] border border-solid p-4 transition-all',
 						selectedSet.has(ctx.getItemId(item))
-							? 'border-brand bg-brand/8'
+							? 'solara-mod-card-selected'
 							: item.file_path === props.highlightedItemId
-								? 'border-brand bg-surface-2'
-								: 'border-surface-4 bg-surface-2 hover:border-surface-5',
-						!item.enabled ? 'opacity-65 hover:opacity-90' : '',
+								? 'border-brand bg-surface-3'
+								: 'border-surface-5 bg-surface-3',
+						!item.enabled ? 'opacity-65 hover:opacity-95' : '',
 					]"
 				>
 					<!-- Card Header -->
 					<div class="flex items-start gap-3">
 						<div class="relative shrink-0">
-							<Avatar
-								:src="itemIcon(item)"
-								:alt="itemTitle(item)"
-								size="48px"
-								class="rounded-xl ring-1 ring-surface-5"
-							/>
+							<div
+								class="flex size-[52px] items-center justify-center overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-2 shadow-sm"
+							>
+								<Avatar
+									:src="itemIcon(item)"
+									:alt="itemTitle(item)"
+									size="52px"
+									class="!rounded-2xl"
+								/>
+							</div>
 							<span
 								v-if="item.installing"
-								class="absolute inset-0 flex items-center justify-center rounded-xl bg-black/65"
+								class="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/65"
 							>
 								<SpinnerIcon class="size-5 animate-spin text-brand" />
 							</span>
@@ -602,26 +647,28 @@ function itemCanSwitchVersion(item: ContentItem) {
 								<RouterLink
 									v-if="itemProjectLink(item)"
 									:to="itemProjectLink(item)!"
-									class="truncate text-sm font-bold text-contrast no-underline hover:text-brand"
+									class="truncate text-[14.5px] font-bold text-contrast no-underline transition-colors hover:text-brand"
 								>
 									{{ itemTitle(item) }}
 								</RouterLink>
-								<span v-else class="truncate text-sm font-bold text-contrast">
+								<span v-else class="truncate text-[14.5px] font-bold text-contrast">
 									{{ itemTitle(item) }}
 								</span>
-								<LockIcon v-if="item.locked" class="size-3.5 shrink-0 text-amber-400" />
+								<LockIcon v-if="item.locked" class="size-3.5 shrink-0 text-orange" />
 							</div>
 							<span class="truncate text-xs text-secondary">by {{ itemAuthor(item) }}</span>
-							<div class="mt-1 flex flex-wrap items-center gap-1.5">
+							<div class="mt-1.5 flex flex-wrap items-center gap-1.5">
 								<span
 									:class="[
-										'inline-flex items-center rounded-md border border-solid px-1.5 py-0.5 text-[10.5px] font-bold',
+										'inline-flex items-center rounded-full border border-solid px-2 py-0.5 text-[10.5px] font-bold',
 										itemTypeClass(item.project_type),
 									]"
 								>
 									{{ itemTypeLabel(item.project_type) }}
 								</span>
-								<span class="max-w-[140px] truncate rounded-md bg-surface-3 px-1.5 py-0.5 font-mono text-[10.5px] text-secondary">
+								<span
+									class="max-w-[140px] truncate rounded-full border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 font-mono text-[10.5px] text-secondary"
+								>
 									{{ itemVersion(item) }}
 								</span>
 							</div>
@@ -636,9 +683,10 @@ function itemCanSwitchVersion(item: ContentItem) {
 						/>
 					</div>
 
-					<!-- Card Footer: Custom Pill Switch + Quick Actions -->
-					<div class="flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-4 pt-3">
-						<!-- Custom Solara Toggle Switch -->
+					<!-- Card Footer: Smooth Switch + Rounded Quick Actions -->
+					<div
+						class="flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-5 pt-3"
+					>
 						<button
 							type="button"
 							role="switch"
@@ -666,12 +714,12 @@ function itemCanSwitchVersion(item: ContentItem) {
 							<span>{{ item.enabled ? 'Active' : 'Off' }}</span>
 						</button>
 
-						<div class="flex items-center gap-1">
+						<div class="flex items-center gap-1.5">
 							<button
 								v-if="item.has_update && !item.locked && ctx.updateItem"
 								type="button"
 								title="Update to latest compatible version"
-								class="inline-flex h-7 cursor-pointer items-center gap-1 rounded-lg border border-solid border-emerald-500/40 bg-emerald-500/15 px-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/25"
+								class="solara-update-pill inline-flex h-8 cursor-pointer items-center gap-1 rounded-xl px-2.5 text-xs font-bold transition-opacity hover:opacity-90"
 								@click="ctx.updateItem(item)"
 							>
 								<DownloadIcon class="size-3.5" />
@@ -682,7 +730,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 								v-if="itemCanSwitchVersion(item)"
 								type="button"
 								title="Switch version"
-								class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-solid border-surface-4 bg-surface-3 text-secondary hover:text-contrast"
+								class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:text-contrast"
 								@click="ctx.switchVersion?.(item)"
 							>
 								<UpdatedIcon class="size-3.5" />
@@ -692,7 +740,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 								v-if="canDelete(item)"
 								type="button"
 								title="Remove from instance"
-								class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-solid border-surface-4 bg-surface-3 text-secondary hover:border-red/40 hover:bg-red/15 hover:text-red"
+								class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:border-red/40 hover:bg-red/15 hover:text-red"
 								@click="pendingDeleteItem = item"
 							>
 								<TrashIcon class="size-3.5" />
@@ -713,16 +761,16 @@ function itemCanSwitchVersion(item: ContentItem) {
 			</div>
 
 			<!-- COMPACT LIST VIEW -->
-			<div v-else class="flex flex-col gap-2">
+			<div v-else class="flex flex-col gap-2.5">
 				<div
 					v-for="item in filteredItems"
 					:key="ctx.getItemId(item)"
 					:class="[
-						'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-solid px-4 py-2.5 transition-colors',
+						'solara-mod-card flex flex-wrap items-center justify-between gap-3 rounded-[20px] border border-solid px-4 py-3 transition-all',
 						selectedSet.has(ctx.getItemId(item))
-							? 'border-brand bg-brand/8'
-							: 'border-surface-4 bg-surface-2 hover:border-surface-5',
-						!item.enabled ? 'opacity-65' : '',
+							? 'solara-mod-card-selected'
+							: 'border-surface-5 bg-surface-3',
+						!item.enabled ? 'opacity-65 hover:opacity-95' : '',
 					]"
 				>
 					<div class="flex min-w-0 flex-1 items-center gap-3">
@@ -734,8 +782,8 @@ function itemCanSwitchVersion(item: ContentItem) {
 						<Avatar
 							:src="itemIcon(item)"
 							:alt="itemTitle(item)"
-							size="36px"
-							class="rounded-lg ring-1 ring-surface-5"
+							size="38px"
+							class="rounded-xl ring-1 ring-surface-5"
 						/>
 						<div class="flex min-w-0 flex-col">
 							<div class="flex items-center gap-2">
@@ -751,7 +799,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 								</span>
 								<span
 									:class="[
-										'inline-flex items-center rounded-md border border-solid px-1.5 py-0.5 text-[10px] font-bold',
+										'inline-flex items-center rounded-full border border-solid px-2 py-0.5 text-[10px] font-bold',
 										itemTypeClass(item.project_type),
 									]"
 								>
@@ -768,7 +816,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 						<button
 							v-if="item.has_update && !item.locked && ctx.updateItem"
 							type="button"
-							class="inline-flex h-7 cursor-pointer items-center gap-1 rounded-lg border border-solid border-emerald-500/40 bg-emerald-500/15 px-2.5 text-xs font-bold text-emerald-300"
+							class="solara-update-pill inline-flex h-8 cursor-pointer items-center gap-1 rounded-xl px-2.5 text-xs font-bold"
 							@click="ctx.updateItem(item)"
 						>
 							<DownloadIcon class="size-3.5" />
@@ -802,7 +850,7 @@ function itemCanSwitchVersion(item: ContentItem) {
 							v-if="canDelete(item)"
 							type="button"
 							title="Remove"
-							class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-solid border-surface-4 bg-surface-3 text-secondary hover:bg-red/15 hover:text-red"
+							class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:border-red/40 hover:bg-red/15 hover:text-red"
 							@click="pendingDeleteItem = item"
 						>
 							<TrashIcon class="size-3.5" />
@@ -815,18 +863,20 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Floating Bulk Action Bar -->
 		<div
 			v-if="selectedIds.length > 0"
-			class="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 flex-wrap items-center gap-2 rounded-2xl border border-solid border-brand/40 bg-surface-2 px-4 py-2.5 shadow-2xl"
+			class="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 flex-wrap items-center gap-2 rounded-[22px] border border-solid border-brand/45 bg-surface-3 px-4 py-2.5 shadow-2xl"
 		>
-			<span class="pr-2 text-xs font-bold text-contrast">{{ selectedIds.length }} selected</span>
-			<Button type="outlined" size="sm" class="!rounded-lg" @click="handleBulkEnable">
+			<span class="pr-2 text-xs font-bold text-contrast tabular-nums">
+				{{ selectedIds.length }} selected
+			</span>
+			<Button type="outlined" size="sm" class="!rounded-xl" @click="handleBulkEnable">
 				<CheckIcon class="size-3.5" />
 				<span>Enable</span>
 			</Button>
-			<Button type="outlined" size="sm" class="!rounded-lg" @click="handleBulkDisable">
+			<Button type="outlined" size="sm" class="!rounded-xl" @click="handleBulkDisable">
 				<XIcon class="size-3.5" />
 				<span>Disable</span>
 			</Button>
-			<Button type="colored" color="red" size="sm" class="!rounded-lg" @click="pendingBulkDelete = true">
+			<Button type="colored" color="red" size="sm" class="!rounded-xl" @click="pendingBulkDelete = true">
 				<TrashIcon class="size-3.5" />
 				<span>Remove</span>
 			</Button>
@@ -842,17 +892,26 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Single Delete Confirmation -->
 		<div
 			v-if="pendingDeleteItem"
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
 			@click.self="pendingDeleteItem = null"
 		>
-			<div class="w-full max-w-md rounded-2xl border border-solid border-surface-5 bg-surface-2 p-5 shadow-2xl">
-				<h3 class="m-0 text-lg font-extrabold text-contrast">Remove {{ itemTitle(pendingDeleteItem) }}?</h3>
+			<div
+				class="w-full max-w-md rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-6 shadow-2xl"
+			>
+				<h3 class="m-0 text-lg font-extrabold text-contrast">
+					Remove {{ itemTitle(pendingDeleteItem) }}?
+				</h3>
 				<p class="mt-2 mb-5 text-sm text-secondary">
-					This deletes <code>{{ pendingDeleteItem.file_name }}</code> from this instance. You can reinstall it anytime.
+					This deletes <code>{{ pendingDeleteItem.file_name }}</code> from this profile. You can
+					reinstall it anytime.
 				</p>
 				<div class="flex justify-end gap-2">
-					<Button type="outlined" @click="pendingDeleteItem = null">Cancel</Button>
-					<Button type="colored" color="red" @click="confirmSingleDelete">Remove</Button>
+					<Button type="outlined" class="!rounded-xl" @click="pendingDeleteItem = null">
+						Cancel
+					</Button>
+					<Button type="colored" color="red" class="!rounded-xl" @click="confirmSingleDelete">
+						Remove
+					</Button>
 				</div>
 			</div>
 		</div>
@@ -860,17 +919,25 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Bulk Delete Confirmation -->
 		<div
 			v-if="pendingBulkDelete"
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
 			@click.self="pendingBulkDelete = false"
 		>
-			<div class="w-full max-w-md rounded-2xl border border-solid border-surface-5 bg-surface-2 p-5 shadow-2xl">
-				<h3 class="m-0 text-lg font-extrabold text-contrast">Remove {{ selectedIds.length }} items?</h3>
+			<div
+				class="w-full max-w-md rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-6 shadow-2xl"
+			>
+				<h3 class="m-0 text-lg font-extrabold text-contrast">
+					Remove {{ selectedIds.length }} items?
+				</h3>
 				<p class="mt-2 mb-5 text-sm text-secondary">
-					Selected files will be permanently removed from this instance.
+					Selected files will be permanently removed from this profile.
 				</p>
 				<div class="flex justify-end gap-2">
-					<Button type="outlined" @click="pendingBulkDelete = false">Cancel</Button>
-					<Button type="colored" color="red" @click="confirmBulkDelete">Remove All</Button>
+					<Button type="outlined" class="!rounded-xl" @click="pendingBulkDelete = false">
+						Cancel
+					</Button>
+					<Button type="colored" color="red" class="!rounded-xl" @click="confirmBulkDelete">
+						Remove All
+					</Button>
 				</div>
 			</div>
 		</div>
@@ -878,17 +945,24 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<!-- Unlink Modpack Confirmation -->
 		<div
 			v-if="pendingUnlink"
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
 			@click.self="pendingUnlink = false"
 		>
-			<div class="w-full max-w-md rounded-2xl border border-solid border-surface-5 bg-surface-2 p-5 shadow-2xl">
+			<div
+				class="w-full max-w-md rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-6 shadow-2xl"
+			>
 				<h3 class="m-0 text-lg font-extrabold text-contrast">Unlink Modpack?</h3>
 				<p class="mt-2 mb-5 text-sm text-secondary">
-					Your installed mods will stay, and you’ll be able to customize this profile freely without modpack restrictions.
+					Your installed mods will stay, and you’ll be able to customize this profile freely without
+					modpack restrictions.
 				</p>
 				<div class="flex justify-end gap-2">
-					<Button type="outlined" @click="pendingUnlink = false">Cancel</Button>
-					<Button type="colored" color="red" @click="handleConfirmUnlink">Unlink Pack</Button>
+					<Button type="outlined" class="!rounded-xl" @click="pendingUnlink = false">
+						Cancel
+					</Button>
+					<Button type="colored" color="red" class="!rounded-xl" @click="handleConfirmUnlink">
+						Unlink Pack
+					</Button>
 				</div>
 			</div>
 		</div>
@@ -896,3 +970,61 @@ function itemCanSwitchVersion(item: ContentItem) {
 		<slot name="modals" />
 	</div>
 </template>
+
+<style scoped>
+.solara-empty-icon {
+	border: 1px solid color-mix(in srgb, var(--color-brand) 28%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-brand) 12%, var(--surface-2));
+}
+
+.solara-active-stat {
+	border: 1px solid color-mix(in srgb, var(--color-brand) 32%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-brand) 12%, var(--surface-2));
+	color: var(--color-brand);
+}
+
+.solara-update-pill {
+	border: 1px solid color-mix(in srgb, #1bd96a 38%, var(--surface-5));
+	background-color: color-mix(in srgb, #1bd96a 14%, var(--surface-2));
+	color: color-mix(in srgb, #1bd96a 82%, var(--color-contrast));
+}
+
+.solara-pill-active {
+	border-color: var(--color-brand);
+	background-color: color-mix(in srgb, var(--color-brand) 16%, var(--surface-2));
+}
+
+.solara-mod-card:hover {
+	border-color: color-mix(in srgb, var(--color-brand) 48%, var(--surface-5));
+	transform: translateY(-1px);
+}
+
+.solara-mod-card-selected {
+	border-color: var(--color-brand);
+	background-color: color-mix(in srgb, var(--color-brand) 10%, var(--surface-3));
+}
+
+.solara-type-mod {
+	border-color: color-mix(in srgb, var(--color-brand) 32%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-brand) 12%, var(--surface-2));
+	color: var(--color-brand);
+}
+
+.solara-type-shader {
+	border-color: color-mix(in srgb, var(--color-orange) 34%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-orange) 12%, var(--surface-2));
+	color: var(--color-orange);
+}
+
+.solara-type-pack {
+	border-color: color-mix(in srgb, var(--color-blue) 34%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-blue) 12%, var(--surface-2));
+	color: var(--color-blue);
+}
+
+.solara-type-data {
+	border-color: color-mix(in srgb, var(--color-purple) 34%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--color-purple) 12%, var(--surface-2));
+	color: var(--color-purple);
+}
+</style>
