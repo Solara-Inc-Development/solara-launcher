@@ -30,6 +30,12 @@ export default new createRouter({
 			},
 		},
 		{
+			path: '/curseforge/modpack/:id',
+			name: 'CurseForgeModpack',
+			component: () => import('@/features/modpack-installer/CurseForgePackPage.vue'),
+			props: true,
+		},
+		{
 			path: '/skins',
 			name: 'Skin selector',
 			component: () => import('@/pages/Skins.vue'),

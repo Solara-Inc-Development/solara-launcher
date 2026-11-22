@@ -24,6 +24,13 @@ export interface CurseForgeFile {
 	md5: string | null
 }
 
+export interface CurseForgeLinks {
+	websiteUrl?: string
+	wikiUrl?: string
+	issuesUrl?: string
+	sourceUrl?: string
+}
+
 export interface CurseForgeModpackSummary {
 	id: number
 	slug: string
@@ -37,6 +44,7 @@ export interface CurseForgeModpackSummary {
 	logoUrl: string | null
 	bannerUrl?: string | null
 	websiteUrl: string
+	links?: CurseForgeLinks
 	loaders: string[]
 	gameVersions: string[]
 	categories: CurseForgeCategory[]
@@ -50,6 +58,7 @@ export interface CurseForgeScreenshot {
 }
 
 export interface CurseForgeModpackDetail extends CurseForgeModpackSummary {
+	descriptionHtml?: string
 	screenshots: CurseForgeScreenshot[]
 	files: CurseForgeFile[]
 }

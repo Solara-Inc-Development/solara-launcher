@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useAppEvent } from '@/composables/use-app-event'
 import { useAppSettings } from '@/composables/use-app-settings.ts'
@@ -58,13 +58,37 @@ const props = defineProps<{
 	gameVersions: Labrinth.Tags.v2.GameVersion[]
 }>()
 
+const route = useRoute()
 const router = useRouter()
 const queryClient = useQueryClient()
 const appSettings = useAppSettings()
 const { handleError, addNotification } = injectNotificationManager()
 const { install: installModrinthVersion } = injectContentInstall()
 
-const source = ref<ProviderSource>('modrinth')
+function resolveInitialSource(): ProviderSource {
+	const querySource = String(route.query.source ?? '')
+	if (querySource === 'curseforge' || querySource === 'modrinth') {
+		return querySource
+	}
+	try {
+		const saved = sessionStorage.getItem('solara:modpack-source')
+		if (saved === 'curseforge' || saved === 'modrinth') {
+			return saved
+		}
+	} catch {
+		// Ignore storage restrictions
+	}
+	return 'modrinth'
+}
+
+const source = ref<ProviderSource>(resolveInitialSource())
+watch(source, (val) => {
+	try {
+		sessionStorage.setItem('solara:modpack-source', val)
+	} catch {
+		// Ignore storage restrictions
+	}
+})
 const viewMode = ref<ViewMode>('grid')
 const searchQuery = ref('')
 const debouncedQuery = ref('')
@@ -387,6 +411,13 @@ function openModrinthProject(hit: ModrinthV3Hit) {
 	})
 }
 
+function openCurseForgeProject(pack: CurseForgeModpackSummary, tab?: 'versions' | 'gallery') {
+	void router.push({
+		path: `/curseforge/modpack/${pack.id}`,
+		query: tab ? { tab } : undefined,
+	})
+}
+
 async function handleInstallModrinth(hit: ModrinthV3Hit) {
 	const pid = hit.project_id
 	if (!pid || installingModrinthIds.value.has(pid)) return
@@ -435,7 +466,7 @@ async function handleInstallCurseForge(
 ) {
 	const targetFile = explicitFile ?? pack.latestFile
 	if (!targetFile || targetFile.restricted || !targetFile.downloadUrl) {
-		activeCurseForgeModalPack.value = pack
+		openCurseForgeProject(pack, 'versions')
 		return
 	}
 
@@ -1067,7 +1098,7 @@ onBeforeUnmount(() => {
 					<!-- Cover Header -->
 					<div
 						class="relative h-28 w-full cursor-pointer overflow-hidden bg-surface-2"
-						@click="activeCurseForgeModalPack = pack"
+						@click="openCurseForgeProject(pack)"
 					>
 						<img
 							v-if="pack.bannerUrl"
@@ -1107,7 +1138,7 @@ onBeforeUnmount(() => {
 							<button
 								type="button"
 								class="-mt-10 flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
-								@click="activeCurseForgeModalPack = pack"
+								@click="openCurseForgeProject(pack)"
 							>
 								<img
 									v-if="pack.logoUrl"
@@ -1123,7 +1154,7 @@ onBeforeUnmount(() => {
 								<button
 									type="button"
 									class="m-0 block w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-[15px] font-bold leading-snug text-contrast transition-colors hover:text-brand"
-									@click="activeCurseForgeModalPack = pack"
+									@click="openCurseForgeProject(pack)"
 								>
 									{{ pack.name }}
 								</button>
@@ -1165,8 +1196,8 @@ onBeforeUnmount(() => {
 							</div>
 
 							<div class="flex shrink-0 items-center gap-1.5">
-								<Button size="sm" type="outlined" @click="activeCurseForgeModalPack = pack">
-									Versions
+								<Button size="sm" type="outlined" @click="openCurseForgeProject(pack)">
+									Details
 								</Button>
 								<Button
 									type="colored"
@@ -1208,7 +1239,7 @@ onBeforeUnmount(() => {
 					<button
 						type="button"
 						class="flex size-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-solid border-surface-5 bg-surface-2 p-0"
-						@click="activeCurseForgeModalPack = pack"
+						@click="openCurseForgeProject(pack)"
 					>
 						<img
 							v-if="pack.logoUrl"
@@ -1225,7 +1256,7 @@ onBeforeUnmount(() => {
 							<button
 								type="button"
 								class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
-								@click="activeCurseForgeModalPack = pack"
+								@click="openCurseForgeProject(pack)"
 							>
 								{{ pack.name }}
 							</button>
@@ -1261,8 +1292,8 @@ onBeforeUnmount(() => {
 							<span class="font-semibold text-primary">{{ formatDownloads(pack.downloads) }}</span>
 							<span v-if="pack.dateModified">{{ dayjs(pack.dateModified).fromNow() }}</span>
 						</div>
-						<Button size="sm" type="outlined" @click="activeCurseForgeModalPack = pack">
-							Versions
+						<Button size="sm" type="outlined" @click="openCurseForgeProject(pack)">
+							Details
 						</Button>
 						<Button
 							type="colored"
