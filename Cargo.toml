@@ -210,10 +210,10 @@ toasty = { path = "packages/toasty" }
 [profile.dev.package.sqlx-macros]
 opt-level = 3
 
-# Standard release profile preserving PE symbol/unwind metadata to prevent AV/VirusTotal false positives
+# Standard release profile preserving PE symbol/unwind metadata (stripping only bulky debuginfo) to prevent AV/VirusTotal false positives
 [profile.release]
 opt-level = 3
-strip = false
+strip = "debuginfo"
 lto = "thin"
 
 [profile.test]
