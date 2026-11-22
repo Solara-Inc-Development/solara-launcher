@@ -2938,6 +2938,49 @@
       "notes": "Solara Launcher V-0.0.84 (Testing Preview)\n\n- Fixed Modrinth and CurseForge modpack description images not loading (resolved image CSP rules and no-referrer handling for Imgur/external hosts).\n- Added dedicated CurseForge modpack detail pages with cover banners, sanitized full descriptions, filterable version lists, screenshot gallery with lightbox, and external links.\n- Overhauled the official Solara website (https://app.solara-inc.in) with a visual Bento showcase, live OLED Black vs White theme preview, and smooth animations.\n\nStatus: Signed Windows testing preview. Physical Windows device acceptance remains pending.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.84/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "d8182ada-75b1-4115-b2f5-10b814d300a1",
+      "publicVersion": "V-0.0.87",
+      "internalVersion": "0.0.87",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.87/solaralauncher.exe",
+      "commit": "4279b1b5854f99ea56e8bbcb5b8c736acb4891a3",
+      "allocatedAt": "2026-11-22T08:35:16.183Z",
+      "state": "published",
+      "applicationSha256": "0fece348d6560e2f36f6e37f9b77b41027ab1519bb2e7ae149e3c038bee8044a",
+      "applicationSize": 74995712,
+      "sourceTree": "9b5c65eb2563d9fdeacc89bc4ee47bc6a2d0ce5c",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31490632,
+          "sha256": "21cc653fd39275144b45c2962aa6e10e63d10a594a8711d382e6a96d7df36b0a"
+        },
+        "application/solaralauncher.exe": {
+          "size": 74995712,
+          "sha256": "0fece348d6560e2f36f6e37f9b77b41027ab1519bb2e7ae149e3c038bee8044a"
+        },
+        "source.zip": {
+          "size": 36607883,
+          "sha256": "518cd02aa75c7e8323d67cac6e7901624795ceb2aa3b18c72107fd4966ad09f8"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31490632,
+      "sha256": "21cc653fd39275144b45c2962aa6e10e63d10a594a8711d382e6a96d7df36b0a",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T08:57:56.955Z",
+      "verifiedAt": "2026-11-22T08:57:52.630Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDFMalhlUnlDUFlYai9qM3l5Vkw1eFBwUEZrVytHam1QZlpyVUl0ZlBEMkVyQjRjeEh6VXVWeWo1ZHZjL0JSZlM1VVRTTnJ2U3g5Z0lNSUthNExlbHdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzM3ODcxCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjg3ClFKUkZRYkM3YVpZRERiRm9qWEdvODBkRzZMK1drNkhrVzFUOWl2aHZJZU9POHNMYUdQM3hheTJwT0tpS2FEcHJlRThnUmxub1JML0E3RFhFT3p0eERBPT0K",
+      "notes": "Solara Launcher V-0.0.87 (Testing Preview)\n\n- Evergreen Single Installer (`solaralauncher.exe`): one permanent download link (`https://app.solara-inc.in/solaralauncher.exe`) that automatically updates any installed copy to the newest release on launch.\n- Zero-click background auto-updater applies verified releases automatically whenever no game is running.\n- Antivirus / VirusTotal false-positive hardening: switched NSIS packaging from solid LZMA to standard zlib Deflate compression, preserved standard Windows SEH `.pdata`/`.xdata` unwind metadata (removed `panic = \"abort\"`), and cleaned NSIS pre-install hooks.\n\nStatus: Signed Windows testing preview. Physical Windows device acceptance remains pending.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.87/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

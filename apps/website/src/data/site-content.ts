@@ -95,7 +95,7 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.85',
+    version: 'V-0.0.87',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
     title: 'Evergreen Single Installer & Antivirus False-Positive Hardening',
