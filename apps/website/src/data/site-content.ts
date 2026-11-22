@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
+    version: 'V-0.0.93',
+    date: 'November 23, 2026',
+    tag: 'Latest Preview',
+    title: 'Reliable Windows Auto-Update, Solara Console ASCII Logo & Smooth Animations',
+    highlights: [
+      'Fixed Windows auto-update startup idle detection, switched to detached passive handoff (/P /UPDATE /R), and added NSIS process/file-unlock retry loops so updates apply cleanly and restart Solara automatically.',
+      'Replaced the legacy frog ASCII art in the empty instance console with a custom Solara Launcher ASCII emblem and status banner.',
+      'Added smooth GPU-accelerated page transitions, staggered card entrances, elevated card hover lifts, tactile button press feedback, and modal pop-ins across the launcher.',
+    ],
+  },
+  {
     version: 'V-0.0.92',
     date: 'November 22, 2026',
-    tag: 'Latest Preview',
+    tag: 'Feature Release',
     title: 'Modrinth v3 Search Fix, Dual Filter Sidebar & Theme-Matched Curved Cards',
     highlights: [
       'Fixed Modrinth search inside the Install Mods browser so Modrinth Mods, Resource Packs, Shaders, and Datapacks load cleanly alongside CurseForge.',

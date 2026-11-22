@@ -3196,6 +3196,49 @@
       "notes": "# Solara Launcher V-0.0.92\n\n## Highlights\n- **Fixed Modrinth Mod Search**: Fixed an API v3 filter and response mismatch in the inside-instance Install Mods browser so Modrinth Mods, Resource Packs, Shaders, and Datapacks load smoothly alongside CurseForge.\n- **Left Filter Sidebar (Modrinth + CurseForge)**: Added a Modrinth-style left sidebar filter panel for both Modrinth and CurseForge catalogs with Profile Compatibility toggles (Minecraft version, Mod Loader, Hide Installed), Categories for every content type, and Client/Server Environment filters.\n- **Theme-Matched Curved Solara Cards**: Upgraded the Mods & Packs workspace, Instance Command Header, Navigation Bar, and Install Mods cards to match Solara's rounded `22px`–`24px` card geometry, cover art headers, overlapping icons, and adaptive OLED Black / Crisp White surface tokens.\n\n## Auto-Update Notice\nExisting `V-0.0.89+` installations receive this update automatically on startup.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.92/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "6ea63318-da22-478a-a4c1-268c6c1d745b",
+      "publicVersion": "V-0.0.93",
+      "internalVersion": "0.0.93",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.93/solaralauncher.exe",
+      "commit": "8fd8f7f5624484c622144f8a4afc9e441e988568",
+      "allocatedAt": "2026-11-22T18:59:25.038Z",
+      "state": "published",
+      "applicationSha256": "f171cefd1f9e7c3afdc84c3398ddc92970167c68c4aa05fe60ae2d39f351e02d",
+      "applicationSize": 75044352,
+      "sourceTree": "238a1e14097c558dadc55f272d1e2f4486b05f2b",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31479297,
+          "sha256": "6695592323641e10549880888d1bc5865dbd7ada1d841322a33f0b365b6c2cdc"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75044352,
+          "sha256": "f171cefd1f9e7c3afdc84c3398ddc92970167c68c4aa05fe60ae2d39f351e02d"
+        },
+        "source.zip": {
+          "size": 37010367,
+          "sha256": "31d0ed154639bc506e534745dbc7b594bb1ea0c77a1fd4bfd2e09eea86fc76b5"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31479297,
+      "sha256": "6695592323641e10549880888d1bc5865dbd7ada1d841322a33f0b365b6c2cdc",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T19:19:29.699Z",
+      "verifiedAt": "2026-11-22T19:19:24.477Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDl3OVlDUDlQYkFTT0YvaEw1N01QUkRtQjVTdmZ6Vks5Wkg5YUVtYkVRTTlka0dMYUlUcGN2blU3am5EeUhjamJKVUtsQUppNkcwckNYdmt1YlpRY1FBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1Mzc1MTYyCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjkzCmRmWEhlSitscWpaaGdwUTNxV0FkKzBkUGE1WkpNZlRsVC9TTmZHWjdrODZLYVBDNE5ZSE5qbGEvMC8rMXJ5NnVVVlVvT0krdkdYMS9iRktSSjExM0RnPT0K",
+      "notes": "# Solara Launcher V-0.0.93\n\n## Highlights\n- **Fixed Windows Auto-Update Reliability**: Fixed startup idle detection before state init, switched update handoff to detached passive mode (`/P /UPDATE /R` with `CREATE_NEW_PROCESS_GROUP` + clean exit delay), added automatic cached-update apply, and upgraded the NSIS updater with process-termination and binary-unlock retry loops so updates apply cleanly and restart Solara automatically.\n- **Solara Console ASCII Logo**: Replaced the legacy frog ASCII art in the empty instance console with a custom Solara Launcher ASCII emblem and status banner.\n- **Smooth Launcher Animations**: Added GPU-accelerated page transitions, staggered card entrances, elevated card hover lift, tactile button micro-press feedback, and modal pop-in animations across the app (respecting OS reduced-motion preferences).\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.93/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
