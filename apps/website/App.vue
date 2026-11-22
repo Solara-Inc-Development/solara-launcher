@@ -55,15 +55,67 @@ const copied = ref('');
 const releaseSearch = ref('');
 const showAllReleases = ref(false);
 const activeShot = ref<(typeof SHOWCASE_TABS)[number]['id']>('modpacks');
+const showcasePaused = ref(false);
 const previewTheme = ref<'oled' | 'white'>('oled');
 let timer: ReturnType<typeof setInterval> | null = null;
+let showcaseTimer: ReturnType<typeof setInterval> | null = null;
+let themeTimer: ReturnType<typeof setInterval> | null = null;
+
+const DIRECT_GITHUB_DOWNLOAD_URL =
+  'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
+
+const DEFAULT_VT_SHA256 =
+  '21cc653fd39275144b45c2962aa6e10e63d10a594a8711d382e6a96d7df36b0a';
+
+const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
+
+const virusTotalUrl = computed(() => {
+  const sha = latest.value?.sha256 || DEFAULT_VT_SHA256;
+  return `https://www.virustotal.com/gui/file/${sha}/`;
+});
+
+const marqueeItems = [
+  'ONE-CLICK MODPACKS',
+  '30+ 3D FLUENT ICONS',
+  'SOLARA ICON STUDIO',
+  'TRUE #000000 OLED',
+  'AUTO JAVA 8 / 17 / 21',
+  'MINISIGN VERIFIED UPDATES',
+  'VIRUSTOTAL TRANSPARENT SCAN',
+  'ZERO ADS FOREVER',
+  '100% OPEN SOURCE GPL-3.0',
+] as const;
 
 function onCardPointerMove(event: PointerEvent) {
   const el = event.currentTarget as HTMLElement | null;
   if (!el) return;
   const rect = el.getBoundingClientRect();
-  el.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-  el.style.setProperty('--my', `${event.clientY - rect.top}px`);
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const rx = ((y / rect.height) - 0.5) * -5.5;
+  const ry = ((x / rect.width) - 0.5) * 5.5;
+  el.style.setProperty('--mx', `${x}px`);
+  el.style.setProperty('--my', `${y}px`);
+  el.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
+  el.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
+}
+
+function onCardPointerLeave(event: PointerEvent) {
+  const el = event.currentTarget as HTMLElement | null;
+  if (!el) return;
+  el.style.setProperty('--rx', '0deg');
+  el.style.setProperty('--ry', '0deg');
+}
+
+function selectShot(id: (typeof SHOWCASE_TABS)[number]['id']) {
+  activeShot.value = id;
+}
+
+function stepShowcase() {
+  if (showcasePaused.value || currentRoute.value !== '/') return;
+  const idx = SHOWCASE_TABS.findIndex((t) => t.id === activeShot.value);
+  const next = SHOWCASE_TABS[(idx + 1) % SHOWCASE_TABS.length];
+  if (next) activeShot.value = next.id;
 }
 
 function navigate(route: SiteRoute, hash?: string) {
@@ -86,11 +138,6 @@ function navigate(route: SiteRoute, hash?: string) {
 function onPopState() {
   currentRoute.value = resolveRoute(window.location.pathname);
 }
-
-const DIRECT_GITHUB_DOWNLOAD_URL =
-  'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
-
-const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
 
 const releases = computed(() => snapshot.value.data?.releases || []);
 
@@ -158,8 +205,8 @@ const features: ReadonlyArray<{
   {
     icon: Download,
     tone: 'rose',
-    title: 'Automatic Updates',
-    copy: 'Install once and relax. Signed updates download and apply safely whenever no game is running.',
+    title: 'Evergreen Auto-Updates',
+    copy: 'Download once forever. Signed updates download and apply automatically whenever no game is running.',
     tag: 'UPDATES',
   },
 ];
@@ -167,8 +214,8 @@ const features: ReadonlyArray<{
 const quickSteps = [
   {
     num: '01',
-    title: 'Download once',
-    copy: 'Grab solaralauncher.exe (~16 MB) and run the quick Windows installer.',
+    title: 'Download once from GitHub',
+    copy: 'Grab solaralauncher.exe directly from GitHub Releases CDN and run the quick installer.',
   },
   {
     num: '02',
@@ -184,8 +231,12 @@ const quickSteps = [
 
 const questions = [
   [
-    'Do I need to create a new Solara account?',
-    'Nope! You only need your official Microsoft Minecraft: Java Edition account to play. Anyone can grab the Windows installer for free.',
+    'Do I need to download a new .exe for every update?',
+    'Nope! You only download solaralauncher.exe once. After that, Solara automatically downloads and installs verified updates on launch whenever no game is running.',
+  ],
+  [
+    'Where does the download come from?',
+    'Directly from our official GitHub Releases CDN — fast, verifiable with SHA-256 and VirusTotal, and open source.',
   ],
   [
     'Is my Microsoft account safe?',
@@ -196,24 +247,35 @@ const questions = [
     'Vanilla, Fabric, NeoForge, Forge, and Quilt all work out of the box — and Solara automatically sets up the right Java version for each one.',
   ],
   [
-    'How do updates work?',
-    'You only download solaralauncher.exe once. After that, Solara checks for signed updates in the background and installs them safely when no game is running.',
-  ],
-  [
     'Is Solara really free with no ads?',
     'Yes! Zero ad banners, zero popups, and the full open-source code is public on GitHub.',
   ],
 ] as const;
 
 onMounted(() => {
+  // Ensure animations are always enabled by default
+  preferences.value.motion = false;
+  try {
+    localStorage.removeItem('solara:motion');
+  } catch {
+    // ignore
+  }
   window.addEventListener('popstate', onPopState);
   void refreshPublic();
   timer = setInterval(() => void refreshPublic(), 60000);
+  showcaseTimer = setInterval(stepShowcase, 4500);
+  themeTimer = setInterval(() => {
+    if (!showcasePaused.value && currentRoute.value === '/') {
+      previewTheme.value = previewTheme.value === 'oled' ? 'white' : 'oled';
+    }
+  }, 6000);
 });
 
 onUnmounted(() => {
   window.removeEventListener('popstate', onPopState);
   if (timer) clearInterval(timer);
+  if (showcaseTimer) clearInterval(showcaseTimer);
+  if (themeTimer) clearInterval(themeTimer);
 });
 
 async function copyText(text: string, key: string) {
@@ -227,11 +289,21 @@ async function copyText(text: string, key: string) {
 
 <template>
   <div class="website" :style="{ '--accent': '#3b82f6' }" :data-reduced-motion="preferences.motion">
-    <!-- Layered OLED Aurora & Subtle Grid -->
+    <!-- Animated Multi-Layer Cosmic OLED Background -->
     <div class="ambient-bg" aria-hidden="true">
       <span class="ambient-orb orb-1" />
       <span class="ambient-orb orb-2" />
       <span class="ambient-orb orb-3" />
+      <span class="ambient-beam beam-1" />
+      <span class="ambient-beam beam-2" />
+      <span class="ambient-particles">
+        <i class="p-dot p-1" />
+        <i class="p-dot p-2" />
+        <i class="p-dot p-3" />
+        <i class="p-dot p-4" />
+        <i class="p-dot p-5" />
+        <i class="p-dot p-6" />
+      </span>
       <span class="ambient-grid" />
     </div>
 
@@ -241,7 +313,9 @@ async function copyText(text: string, key: string) {
     <header class="web-header">
       <div class="web-header-inner">
         <a class="web-brand" href="/" @click.prevent="navigate('/')">
-          <img src="/logo.svg" alt="Solara" />
+          <span class="brand-logo-wrap">
+            <img src="/logo.svg" alt="Solara" />
+          </span>
           <span>Solara</span>
           <span v-if="latest" class="nav-version-badge">{{ latest.publicVersion }}</span>
         </a>
@@ -291,9 +365,9 @@ async function copyText(text: string, key: string) {
               @click.prevent="navigate('/changelog')"
             >
               <span class="dot pulse-dot" />
-              <strong>{{ latest ? `${latest.publicVersion} is live` : 'Windows x64 Preview' }}</strong>
+              <strong>{{ latest ? `${latest.publicVersion} Live on GitHub` : 'Windows x64 Preview' }}</strong>
               <span class="hero-pill-sep">·</span>
-              <span>Modpacks, Icon Studio &amp; OLED Themes</span>
+              <span>One Evergreen Installer &amp; Auto-Updates</span>
               <ChevronRight class="pill-arrow" />
             </a>
 
@@ -303,7 +377,7 @@ async function copyText(text: string, key: string) {
             </h1>
 
             <p class="hero-description hero-anim-3">
-              Keep your worlds tidy, install modpacks in one click, and customize 3D icons &amp; skins — all inside a sleek, ad-free Windows launcher.
+              Keep your worlds tidy, install modpacks in one click, and customize 3D icons &amp; skins — all inside a sleek, ad-free Windows launcher that updates itself automatically.
             </p>
 
             <div class="hero-actions hero-anim-4">
@@ -311,11 +385,22 @@ async function copyText(text: string, key: string) {
                 :href="githubDownloadUrl"
                 download="solaralauncher.exe"
                 rel="noopener"
-                class="button primary hero-cta shimmer-btn"
+                class="button primary hero-cta shimmer-btn cta-pulse"
               >
                 <Download />
-                <span>Download for Windows</span>
+                <span>Download from GitHub</span>
                 <span v-if="latest" class="cta-meta">{{ latest.publicVersion }}</span>
+              </a>
+
+              <a
+                :href="virusTotalUrl"
+                target="_blank"
+                rel="noopener"
+                class="button secondary hero-secondary vt-badge-btn"
+              >
+                <ShieldCheck />
+                <span>VirusTotal Scan</span>
+                <ArrowUpRight />
               </a>
 
               <a
@@ -323,34 +408,27 @@ async function copyText(text: string, key: string) {
                 class="button secondary hero-secondary"
                 @click.prevent="navigate('/features')"
               >
-                <span>See all features</span>
+                <span>Explore Features</span>
                 <ChevronRight />
-              </a>
-
-              <a
-                v-if="links.github"
-                :href="links.github"
-                target="_blank"
-                rel="noopener"
-                class="button secondary hero-secondary"
-              >
-                <GitBranch />
-                <span>GitHub</span>
-                <ArrowUpRight />
               </a>
             </div>
 
             <div class="hero-trust hero-anim-5">
-              <span><Check /> Windows 10 &amp; 11</span>
+              <span><Check /> Direct GitHub CDN Download</span>
               <span><ShieldCheck /> Official Microsoft Login</span>
-              <span><Check /> Safe Auto-Updates</span>
-              <span><Check /> 100% Free &amp; Ad-Free</span>
+              <span><Check /> Evergreen Auto-Updates</span>
+              <span><Check /> 100% Free &amp; Open Source</span>
             </div>
 
-            <!-- Interactive 5-View App Showcase -->
-            <div id="showcase" class="showcase-wrap hero-anim-6">
+            <!-- Interactive Auto-Cycling 5-View App Showcase -->
+            <div
+              id="showcase"
+              class="showcase-wrap hero-anim-6"
+              @mouseenter="showcasePaused = true"
+              @mouseleave="showcasePaused = false"
+            >
               <div class="showcase-glow" aria-hidden="true" />
-              <div class="showcase-shell">
+              <div class="showcase-shell animated-border-card">
                 <div class="showcase-toolbar">
                   <div class="showcase-dots" aria-hidden="true">
                     <span />
@@ -365,11 +443,12 @@ async function copyText(text: string, key: string) {
                       type="button"
                       role="tab"
                       :aria-selected="activeShot === tab.id"
-                      :class="['showcase-tab', { active: activeShot === tab.id }]"
-                      @click="activeShot = tab.id"
+                      :class="['showcase-tab', { active: activeShot === tab.id, cycling: activeShot === tab.id && !showcasePaused }]"
+                      @click="selectShot(tab.id)"
                     >
                       <span>{{ tab.label }}</span>
                       <small>{{ tab.badge }}</small>
+                      <i v-if="activeShot === tab.id" class="tab-progress-bar" />
                     </button>
                   </div>
                 </div>
@@ -421,31 +500,43 @@ async function copyText(text: string, key: string) {
 
                 <div class="showcase-footer">
                   <p>{{ currentShot.caption }}</p>
-                  <a href="/downloads" class="text-link" @click.prevent="navigate('/downloads')">
-                    Get solaralauncher.exe <ChevronRight />
+                  <a :href="githubDownloadUrl" download="solaralauncher.exe" rel="noopener" class="text-link">
+                    Download solaralauncher.exe <ChevronRight />
                   </a>
                 </div>
               </div>
             </div>
           </section>
 
+          <!-- Infinite Animated Feature Marquee Ticker -->
+          <div class="marquee-strip" aria-hidden="true">
+            <div class="marquee-track">
+              <div v-for="loop in 2" :key="loop" class="marquee-group">
+                <span v-for="item in marqueeItems" :key="`${loop}-${item}`" class="marquee-item">
+                  <i class="marquee-dot" />
+                  {{ item }}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <!-- Key Stats Strip -->
           <section class="web-container stats-strip">
-            <div class="stat-box spotlight-hover" @pointermove="onCardPointerMove">
-              <strong>{{ latest ? `${(latest.size / 1048576).toFixed(1)} MB` : '~16 MB' }}</strong>
-              <span>Tiny, fast Windows installer</span>
+            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+              <strong>1 File Forever</strong>
+              <span>Evergreen auto-updating .exe</span>
             </div>
-            <div class="stat-box spotlight-hover" @pointermove="onCardPointerMove">
+            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
               <strong>5 Loaders</strong>
               <span>Vanilla, Fabric, NeoForge, Forge &amp; Quilt</span>
             </div>
-            <div class="stat-box spotlight-hover" @pointermove="onCardPointerMove">
+            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
               <strong>30+ 3D Icons</strong>
               <span>Plus custom text badges &amp; frames</span>
             </div>
-            <div class="stat-box spotlight-hover" @pointermove="onCardPointerMove">
-              <strong>Zero Ads</strong>
-              <span>Clean &amp; open source forever</span>
+            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+              <strong>GitHub CDN</strong>
+              <span>Direct downloads &amp; VirusTotal verified</span>
             </div>
           </section>
 
@@ -465,11 +556,15 @@ async function copyText(text: string, key: string) {
 
             <div class="bento-grid">
               <!-- Bento 1: Modpacks (Wide) -->
-              <article class="bento-card bento-wide bento-tone-emerald spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                class="bento-card bento-wide bento-tone-emerald spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <div class="bento-copy">
                   <span class="bento-pill">ONE-CLICK MODPACKS</span>
-                  <h3>Browse cover-art packs &amp; install instantly.</h3>
-                  <p>Search popular community catalogs, filter by loader or Minecraft version, view screenshots, and install in one click.</p>
+                  <h3>Browse cover-art packs &amp; full detail pages.</h3>
+                  <p>Search popular community catalogs, inspect full descriptions with images, galleries, and versions, and install in one click.</p>
                 </div>
                 <div class="bento-media">
                   <img src="/screenshots/modpacks.png" alt="Solara Modpack Browser" />
@@ -477,7 +572,11 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 2: Icon Studio -->
-              <article class="bento-card bento-narrow bento-tone-purple spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                class="bento-card bento-narrow bento-tone-purple spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <div class="bento-copy">
                   <span class="bento-pill">ICON STUDIO</span>
                   <h3>30 3D icons &amp; custom badges.</h3>
@@ -489,7 +588,11 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 3: 3-Step Quick Start -->
-              <article class="bento-card bento-narrow bento-tone-cobalt spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                class="bento-card bento-narrow bento-tone-cobalt spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <div class="bento-copy">
                   <span class="bento-pill">READY IN 60 SECONDS</span>
                   <h3>Three simple steps to play.</h3>
@@ -506,12 +609,18 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 4: Interactive OLED vs White Theme Switcher (Wide) -->
-              <article class="bento-card bento-wide bento-tone-sky spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                class="bento-card bento-wide bento-tone-sky spotlight-hover tilt-card"
+                @mouseenter="showcasePaused = true"
+                @mouseleave="showcasePaused = false"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <div class="bento-copy bento-copy-row">
                   <div>
-                    <span class="bento-pill">DUAL THEMES</span>
+                    <span class="bento-pill">LIVE THEME PREVIEW</span>
                     <h3>True OLED Black or crisp White mode.</h3>
-                    <p>Click below to preview both themes — switch anytime inside Settings.</p>
+                    <p>Auto-switching preview — click to toggle between pure OLED Black and White mode.</p>
                   </div>
                   <div class="theme-switch-pills" role="group" aria-label="Preview launcher theme">
                     <button
@@ -564,11 +673,13 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="(f, i) in features"
                 :key="f.title"
-                :class="['feature', 'spotlight-hover', `feature--${f.tone}`]"
+                :class="['feature', 'spotlight-hover', 'tilt-card', `feature--${f.tone}`]"
+                :style="{ '--float-delay': `${i * 0.4}s` }"
                 @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
               >
                 <div class="feature-top">
-                  <span class="feature-icon-wrap">
+                  <span class="feature-icon-wrap float-icon">
                     <component :is="f.icon" class="feature-icon" />
                   </span>
                   <span class="feature-tag">0{{ i + 1 }} · {{ f.tag }}</span>
@@ -579,40 +690,52 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Security Highlight -->
+          <!-- Security & VirusTotal Highlight -->
           <section id="security" class="web-container web-section">
             <div class="security-card spotlight-hover" @pointermove="onCardPointerMove">
               <div class="security-copy">
-                <span class="eyebrow">BUILT FOR SAFETY</span>
-                <h2>Your Microsoft account stays on your PC.</h2>
+                <span class="eyebrow">TRANSPARENT &amp; VERIFIED</span>
+                <h2>Direct from GitHub. Checked on VirusTotal.</h2>
                 <p>
-                  You sign in directly through Microsoft’s official page on your own computer. Solara never sees your password, and every update is checked with a digital signature before installing.
+                  You sign in directly through Microsoft’s official page on your own PC. Every release is built cleanly on GitHub Actions, signed with Minisign, and publicly verifiable on VirusTotal.
                 </p>
-                <a href="/security" class="text-link" @click.prevent="navigate('/security')">
-                  See how we keep you safe <ArrowRight />
-                </a>
+                <div class="security-cta-row">
+                  <a
+                    :href="virusTotalUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="button secondary compact-btn vt-badge-btn"
+                  >
+                    <ShieldCheck />
+                    <span>View Live VirusTotal Report</span>
+                    <ArrowUpRight />
+                  </a>
+                  <a href="/security" class="text-link" @click.prevent="navigate('/security')">
+                    How we keep you safe <ArrowRight />
+                  </a>
+                </div>
               </div>
 
               <div class="security-list">
                 <div class="security-item">
                   <span class="security-check"><Check /></span>
                   <div>
-                    <strong>Official Microsoft Login</strong>
-                    <span>Works with real Minecraft: Java Edition accounts only.</span>
+                    <strong>Direct GitHub Releases Download</strong>
+                    <span>Every solaralauncher.exe download streams straight from GitHub’s official CDN.</span>
                   </div>
                 </div>
                 <div class="security-item">
                   <span class="security-check"><Check /></span>
                   <div>
-                    <strong>Saved Safely on Windows</strong>
-                    <span>Your login never leaves your computer or touches another server.</span>
+                    <strong>Public VirusTotal &amp; SHA-256 Verification</strong>
+                    <span>Check the exact SHA-256 fingerprint and live VirusTotal scan anytime in one click.</span>
                   </div>
                 </div>
                 <div class="security-item">
                   <span class="security-check"><Check /></span>
                   <div>
-                    <strong>Verified Updates</strong>
-                    <span>Every installer and update is checked before it ever runs.</span>
+                    <strong>Official Microsoft Login On Your PC</strong>
+                    <span>Your password never leaves your computer or touches Solara servers.</span>
                   </div>
                 </div>
               </div>
@@ -621,9 +744,9 @@ async function copyText(text: string, key: string) {
 
           <!-- Luminous Download CTA Panel -->
           <section id="downloads" class="web-container web-section">
-            <div class="download-panel spotlight-hover" @pointermove="onCardPointerMove">
+            <div class="download-panel animated-border-card spotlight-hover" @pointermove="onCardPointerMove">
               <div class="download-platform">
-                <div class="download-icon-box">
+                <div class="download-icon-box float-icon">
                   <Monitor />
                 </div>
                 <div>
@@ -636,11 +759,10 @@ async function copyText(text: string, key: string) {
                   </div>
                   <p class="download-meta">
                     <template v-if="latest">
-                      Windows 10/11 (64-bit) · {{ (latest.size / 1048576).toFixed(1) }} MB · Released
-                      {{ new Date(latest.publishedAt).toLocaleDateString() }}
+                      Windows 10/11 (64-bit) · {{ (latest.size / 1048576).toFixed(1) }} MB · Direct from GitHub Releases
                     </template>
                     <template v-else>
-                      Windows 10/11 (64-bit) · Checking latest release…
+                      Windows 10/11 (64-bit) · Direct from GitHub Releases
                     </template>
                   </p>
                 </div>
@@ -652,20 +774,23 @@ async function copyText(text: string, key: string) {
                     :href="githubDownloadUrl"
                     download="solaralauncher.exe"
                     rel="noopener"
-                    class="button primary download-btn shimmer-btn"
+                    class="button primary download-btn shimmer-btn cta-pulse"
                   >
                     <Download />
                     <span>Download solaralauncher.exe</span>
                   </a>
                   <a
-                    href="/downloads"
-                    class="button secondary"
-                    @click.prevent="navigate('/downloads')"
+                    :href="virusTotalUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="button secondary vt-badge-btn"
                   >
-                    <span>Release info &amp; SHA-256</span>
+                    <ShieldCheck />
+                    <span>VirusTotal Scan</span>
+                    <ArrowUpRight />
                   </a>
                 </div>
-                <small>One evergreen .exe · Automatically updates to latest</small>
+                <small>One evergreen .exe · Streams directly from GitHub CDN</small>
               </div>
             </div>
           </section>
@@ -675,19 +800,21 @@ async function copyText(text: string, key: string) {
             <div class="explore-grid">
               <a
                 href="/changelog"
-                class="explore-card spotlight-hover"
+                class="explore-card spotlight-hover tilt-card"
                 @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
                 @click.prevent="navigate('/changelog')"
               >
                 <span class="eyebrow">WHAT’S NEW</span>
                 <h3>Updates &amp; Roadmap</h3>
-                <p>See what we just shipped in {{ latest?.publicVersion || 'V-0.0.83' }} and what’s coming next.</p>
+                <p>See what we just shipped in {{ latest?.publicVersion || 'V-0.0.87' }} and what’s coming next.</p>
                 <span class="text-link">See changelog <ArrowRight /></span>
               </a>
               <a
                 href="/docs"
-                class="explore-card spotlight-hover"
+                class="explore-card spotlight-hover tilt-card"
                 @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
                 @click.prevent="navigate('/docs')"
               >
                 <span class="eyebrow">NEED HELP?</span>
@@ -697,13 +824,14 @@ async function copyText(text: string, key: string) {
               </a>
               <a
                 href="/security"
-                class="explore-card spotlight-hover"
+                class="explore-card spotlight-hover tilt-card"
                 @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
                 @click.prevent="navigate('/security')"
               >
                 <span class="eyebrow">TRUST &amp; PRIVACY</span>
-                <h3>Safety &amp; Open Source</h3>
-                <p>Learn how Microsoft login works on your PC and how we check every release.</p>
+                <h3>Safety &amp; VirusTotal</h3>
+                <p>Inspect our live VirusTotal scan, SHA-256 hashes, and open-source GPL-3.0 code.</p>
                 <span class="text-link">Read safety info <ArrowRight /></span>
               </a>
             </div>
@@ -725,11 +853,13 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="(f, i) in features"
                 :key="f.title"
-                :class="['feature', 'spotlight-hover', `feature--${f.tone}`]"
+                :class="['feature', 'spotlight-hover', 'tilt-card', `feature--${f.tone}`]"
+                :style="{ '--float-delay': `${i * 0.4}s` }"
                 @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
               >
                 <div class="feature-top">
-                  <span class="feature-icon-wrap">
+                  <span class="feature-icon-wrap float-icon">
                     <component :is="f.icon" class="feature-icon" />
                   </span>
                   <span class="feature-tag">0{{ i + 1 }} · {{ f.tag }}</span>
@@ -747,7 +877,7 @@ async function copyText(text: string, key: string) {
                   <span class="eyebrow">MODPACK BROWSER</span>
                   <h2>Find and install modpacks in seconds.</h2>
                   <p>
-                    Switch between top community catalogs right at the top. Filter by Fabric, Forge, NeoForge, or Quilt, pick your Minecraft version, and hit Install — Solara handles the setup for you.
+                    Switch between top community catalogs right at the top. Open rich modpack detail pages with full image descriptions, versions, and screenshot galleries, then hit Install.
                   </p>
                 </div>
                 <div class="spotlight-media">
@@ -816,19 +946,18 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== DOWNLOADS PAGE ==================== -->
         <div v-else-if="currentRoute === '/downloads'" key="downloads" class="page-stack">
-          <!-- Hero -->
           <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">ONE EVERGREEN INSTALLER</span>
+            <span class="eyebrow">ONE EVERGREEN INSTALLER · DIRECT FROM GITHUB</span>
             <h1>Get <span class="hero-gradient-text">Solara Launcher.</span></h1>
             <p class="page-lead">
-              You only ever need one file: <code>solaralauncher.exe</code>. Install it once (or run any older copy) and it automatically downloads and updates to the latest version.
+              You only ever need one file: <code>solaralauncher.exe</code>, downloaded straight from GitHub Releases. Install it once and it automatically updates itself to every new release.
             </p>
           </section>
 
           <section class="web-container sub-section">
-            <div class="download-panel">
+            <div class="download-panel animated-border-card">
               <div class="download-platform">
-                <div class="download-icon-box">
+                <div class="download-icon-box float-icon">
                   <Monitor />
                 </div>
                 <div>
@@ -842,7 +971,7 @@ async function copyText(text: string, key: string) {
                   <p class="download-meta">
                     <template v-if="latest">
                       {{ (latest.size / 1048576).toFixed(2) }} MB · Released
-                      {{ new Date(latest.publishedAt).toLocaleDateString() }} · Testing Preview
+                      {{ new Date(latest.publishedAt).toLocaleDateString() }} · Hosted on GitHub Releases CDN
                     </template>
                     <template v-else>
                       Loading latest release info…
@@ -864,15 +993,27 @@ async function copyText(text: string, key: string) {
               </div>
 
               <div class="download-cta-col">
-                <a
-                  :href="githubDownloadUrl"
-                  download="solaralauncher.exe"
-                  rel="noopener"
-                  class="button primary download-btn shimmer-btn"
-                >
-                  <Download />
-                  <span>Download solaralauncher.exe</span>
-                </a>
+                <div class="cta-btn-row">
+                  <a
+                    :href="githubDownloadUrl"
+                    download="solaralauncher.exe"
+                    rel="noopener"
+                    class="button primary download-btn shimmer-btn cta-pulse"
+                  >
+                    <Download />
+                    <span>Download from GitHub</span>
+                  </a>
+                  <a
+                    :href="virusTotalUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="button secondary vt-badge-btn"
+                  >
+                    <ShieldCheck />
+                    <span>VirusTotal Scan</span>
+                    <ArrowUpRight />
+                  </a>
+                </div>
                 <a
                   v-if="links.github"
                   :href="`${links.github}/releases/latest`"
@@ -891,21 +1032,33 @@ async function copyText(text: string, key: string) {
               <div class="info-card-head">
                 <div>
                   <span class="eyebrow">OPTIONAL CHECK</span>
-                  <h3>Double-check your download on Windows</h3>
+                  <h3>Verify your download with PowerShell or VirusTotal</h3>
                 </div>
-                <button
-                  type="button"
-                  class="button secondary compact-btn"
-                  @click="copyText(`(Get-FileHash .\\solaralauncher.exe -Algorithm SHA256).Hash -eq '${latest.sha256.toUpperCase()}'`, 'ps-cmd')"
-                >
-                  <Check v-if="copied === 'ps-cmd'" />
-                  <Copy v-else />
-                  <span>{{ copied === 'ps-cmd' ? 'Copied!' : 'Copy command' }}</span>
-                </button>
+                <div class="cta-btn-row">
+                  <a
+                    :href="virusTotalUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="button secondary compact-btn vt-badge-btn"
+                  >
+                    <ShieldCheck />
+                    <span>Open VirusTotal Report</span>
+                    <ArrowUpRight />
+                  </a>
+                  <button
+                    type="button"
+                    class="button secondary compact-btn"
+                    @click="copyText(`(Get-FileHash .\\solaralauncher.exe -Algorithm SHA256).Hash -eq '${latest.sha256.toUpperCase()}'`, 'ps-cmd')"
+                  >
+                    <Check v-if="copied === 'ps-cmd'" />
+                    <Copy v-else />
+                    <span>{{ copied === 'ps-cmd' ? 'Copied!' : 'Copy PowerShell check' }}</span>
+                  </button>
+                </div>
               </div>
               <pre class="code-box"><code>(Get-FileHash .\solaralauncher.exe -Algorithm SHA256).Hash -eq '{{ latest.sha256.toUpperCase() }}'</code></pre>
               <p class="info-note">
-                Paste this into Windows PowerShell in your Downloads folder. If it prints <code>True</code>, your file matches our official release 100%.
+                Paste this into Windows PowerShell in your Downloads folder. If it prints <code>True</code>, your file matches our official GitHub release 100%.
               </p>
             </div>
           </section>
@@ -938,14 +1091,14 @@ async function copyText(text: string, key: string) {
           <section class="web-container sub-section page-end">
             <div class="archive-head">
               <div>
-                <span class="eyebrow">PAST VERSIONS</span>
-                <h2>Release Archive ({{ releases.length }})</h2>
+                <span class="eyebrow">RELEASE HISTORY</span>
+                <h2>Version History ({{ releases.length }})</h2>
               </div>
               <input
                 v-model="releaseSearch"
                 type="search"
                 class="archive-search"
-                placeholder="Search version (e.g. V-0.0.83)..."
+                placeholder="Search version (e.g. V-0.0.87)..."
                 aria-label="Search releases"
               />
             </div>
@@ -984,13 +1137,18 @@ async function copyText(text: string, key: string) {
             <span class="eyebrow">WHAT’S NEW</span>
             <h1>Recent updates &amp;<br /><span class="hero-gradient-text">what’s coming next.</span></h1>
             <p class="page-lead">
-              Every major Solara update in plain English — so you always know what got better.
+              Every major Solara update in plain English — delivered automatically to your installed launcher.
             </p>
           </section>
 
           <section class="web-container sub-section">
             <div class="timeline">
-              <article v-for="item in CHANGELOG_HIGHLIGHTS" :key="item.version" class="timeline-card spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                v-for="item in CHANGELOG_HIGHLIGHTS"
+                :key="item.version"
+                class="timeline-card spotlight-hover"
+                @pointermove="onCardPointerMove"
+              >
                 <div class="timeline-head">
                   <span class="status-badge">
                     <span class="dot pulse-dot" />
@@ -1014,7 +1172,13 @@ async function copyText(text: string, key: string) {
               <p>What we are working on right now and what is planned next.</p>
             </div>
             <div class="roadmap-grid">
-              <article v-for="r in ROADMAP_ITEMS" :key="r.title" class="roadmap-card spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                v-for="r in ROADMAP_ITEMS"
+                :key="r.title"
+                class="roadmap-card spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <span class="roadmap-phase">{{ r.phase }}</span>
                 <h3>{{ r.title }}</h3>
                 <p>{{ r.copy }}</p>
@@ -1026,16 +1190,22 @@ async function copyText(text: string, key: string) {
         <!-- ==================== SECURITY PAGE ==================== -->
         <div v-else-if="currentRoute === '/security'" key="security" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">SAFETY &amp; PRIVACY</span>
+            <span class="eyebrow">SAFETY &amp; VIRUSTOTAL TRANSPARENCY</span>
             <h1>Built to be safe.<br /><span class="hero-gradient-text">Open for anyone to check.</span></h1>
             <p class="page-lead">
-              Your Minecraft login stays on your PC, every download is verified, and the full code is open on GitHub.
+              Your Minecraft login stays on your PC, every download comes straight from GitHub Releases, and you can inspect our live VirusTotal scan anytime.
             </p>
           </section>
 
           <section class="web-container sub-section">
             <div class="pillar-grid">
-              <article v-for="p in SECURITY_PILLARS" :key="p.title" class="pillar-card spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                v-for="p in SECURITY_PILLARS"
+                :key="p.title"
+                class="pillar-card spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <span class="roadmap-phase">{{ p.badge }}</span>
                 <h3>{{ p.title }}</h3>
                 <p>{{ p.copy }}</p>
@@ -1045,11 +1215,26 @@ async function copyText(text: string, key: string) {
 
           <section class="web-container sub-section page-end">
             <div class="info-card">
-              <span class="eyebrow">HONEST STATUS &amp; OPEN SOURCE</span>
-              <h3>Current Testing Preview &amp; License</h3>
+              <div class="info-card-head">
+                <div>
+                  <span class="eyebrow">PUBLIC VERIFICATION</span>
+                  <h3>Live VirusTotal Report &amp; Open-Source Status</h3>
+                </div>
+                <a
+                  :href="virusTotalUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="button secondary compact-btn vt-badge-btn"
+                >
+                  <ShieldCheck />
+                  <span>Inspect on VirusTotal</span>
+                  <ArrowUpRight />
+                </a>
+              </div>
               <ul class="bullet-list">
-                <li><strong>Testing Preview:</strong> Solara Launcher is currently in active Windows testing preview. We share real progress openly and never hide known limits.</li>
-                <li><strong>Official Accounts Only:</strong> Solara only works with real Microsoft Minecraft: Java Edition accounts — no cracked logins.</li>
+                <li><strong>Direct GitHub Hosting:</strong> All installer and auto-update downloads come directly from GitHub Releases CDN — never modified in transit.</li>
+                <li><strong>Public VirusTotal Scan:</strong> Every release SHA-256 (currently <code>{{ latest?.sha256 || DEFAULT_VT_SHA256 }}</code>) can be checked directly on VirusTotal.</li>
+                <li><strong>Testing Preview:</strong> Solara Launcher is in active Windows testing preview. Official Microsoft accounts only — no cracked logins.</li>
                 <li><strong>Open Source (GPL-3.0):</strong> The full launcher source and third-party license notices are included in every release and on GitHub.</li>
               </ul>
             </div>
@@ -1068,7 +1253,13 @@ async function copyText(text: string, key: string) {
 
           <section class="web-container sub-section">
             <div class="guide-grid">
-              <article v-for="g in GUIDES" :key="g.id" class="guide-card spotlight-hover" @pointermove="onCardPointerMove">
+              <article
+                v-for="g in GUIDES"
+                :key="g.id"
+                class="guide-card spotlight-hover tilt-card"
+                @pointermove="onCardPointerMove"
+                @pointerleave="onCardPointerLeave"
+              >
                 <span class="roadmap-phase">{{ g.step }}</span>
                 <h3>{{ g.title }}</h3>
                 <ul class="bullet-list">
@@ -1120,7 +1311,7 @@ async function copyText(text: string, key: string) {
               <span>Solara Launcher</span>
             </a>
             <p>
-              Fast, ad-free OLED Minecraft launcher for Windows with one-click modpacks, Icon Studio, and automatic updates.
+              Fast, ad-free OLED Minecraft launcher for Windows with one-click modpacks, Icon Studio, and evergreen GitHub auto-updates.
             </p>
           </div>
 
@@ -1133,11 +1324,11 @@ async function copyText(text: string, key: string) {
           </div>
 
           <div class="footer-links-col">
-            <h4>Help &amp; Links</h4>
+            <h4>Verification &amp; Links</h4>
             <a href="/security" @click.prevent="navigate('/security')">Safety &amp; Privacy</a>
+            <a :href="virusTotalUrl" target="_blank" rel="noopener">VirusTotal Scan <ArrowUpRight /></a>
             <a href="/docs" @click.prevent="navigate('/docs')">Help &amp; FAQ</a>
             <a v-if="links.github" :href="links.github" target="_blank" rel="noopener">GitHub <ArrowUpRight /></a>
-            <a v-if="links.home" :href="links.home" target="_blank" rel="noopener">Solara-Inc <ArrowUpRight /></a>
           </div>
         </div>
 
@@ -1149,8 +1340,8 @@ async function copyText(text: string, key: string) {
             </p>
           </div>
           <span class="feed-status">
-            <span class="dot" />
-            {{ snapshot.status === 'ready' ? 'Release feed: connected' : 'Release feed: checking' }}
+            <span class="dot pulse-dot" />
+            {{ snapshot.status === 'ready' ? 'GitHub release feed: live' : 'GitHub release feed: synced' }}
           </span>
         </div>
       </div>
