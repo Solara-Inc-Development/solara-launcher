@@ -27,9 +27,13 @@
 			"icons/icon.ico"
 		],
 		"windows": {
+			"webviewInstallMode": {
+				"type": "skip"
+			},
 			"nsis": {
 				"installMode": "currentUser",
 				"compression": "zlib",
+				"template": "./installer.nsi",
 				"installerHooks": "./installer-hooks.nsh"
 			}
 		},

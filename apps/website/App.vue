@@ -55,11 +55,8 @@ const copied = ref('');
 const releaseSearch = ref('');
 const showAllReleases = ref(false);
 const activeShot = ref<(typeof SHOWCASE_TABS)[number]['id']>('modpacks');
-const showcasePaused = ref(false);
 const previewTheme = ref<'oled' | 'white'>('oled');
 let timer: ReturnType<typeof setInterval> | null = null;
-let showcaseTimer: ReturnType<typeof setInterval> | null = null;
-let themeTimer: ReturnType<typeof setInterval> | null = null;
 
 const DIRECT_GITHUB_DOWNLOAD_URL =
   'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
@@ -74,48 +71,8 @@ const virusTotalUrl = computed(() => {
   return `https://www.virustotal.com/gui/file/${sha}/`;
 });
 
-const marqueeItems = [
-  'ONE-CLICK MODPACKS',
-  '30+ 3D FLUENT ICONS',
-  'SOLARA ICON STUDIO',
-  'TRUE #000000 OLED',
-  'AUTO JAVA 8 / 17 / 21',
-  'MINISIGN VERIFIED UPDATES',
-  'VIRUSTOTAL TRANSPARENT SCAN',
-  'ZERO ADS FOREVER',
-  '100% OPEN SOURCE GPL-3.0',
-] as const;
-
-function onCardPointerMove(event: PointerEvent) {
-  const el = event.currentTarget as HTMLElement | null;
-  if (!el) return;
-  const rect = el.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  const rx = ((y / rect.height) - 0.5) * -5.5;
-  const ry = ((x / rect.width) - 0.5) * 5.5;
-  el.style.setProperty('--mx', `${x}px`);
-  el.style.setProperty('--my', `${y}px`);
-  el.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
-  el.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
-}
-
-function onCardPointerLeave(event: PointerEvent) {
-  const el = event.currentTarget as HTMLElement | null;
-  if (!el) return;
-  el.style.setProperty('--rx', '0deg');
-  el.style.setProperty('--ry', '0deg');
-}
-
 function selectShot(id: (typeof SHOWCASE_TABS)[number]['id']) {
   activeShot.value = id;
-}
-
-function stepShowcase() {
-  if (showcasePaused.value || currentRoute.value !== '/') return;
-  const idx = SHOWCASE_TABS.findIndex((t) => t.id === activeShot.value);
-  const next = SHOWCASE_TABS[(idx + 1) % SHOWCASE_TABS.length];
-  if (next) activeShot.value = next.id;
 }
 
 function navigate(route: SiteRoute, hash?: string) {
@@ -253,7 +210,6 @@ const questions = [
 ] as const;
 
 onMounted(() => {
-  // Ensure animations are always enabled by default
   preferences.value.motion = false;
   try {
     localStorage.removeItem('solara:motion');
@@ -263,19 +219,11 @@ onMounted(() => {
   window.addEventListener('popstate', onPopState);
   void refreshPublic();
   timer = setInterval(() => void refreshPublic(), 60000);
-  showcaseTimer = setInterval(stepShowcase, 4500);
-  themeTimer = setInterval(() => {
-    if (!showcasePaused.value && currentRoute.value === '/') {
-      previewTheme.value = previewTheme.value === 'oled' ? 'white' : 'oled';
-    }
-  }, 6000);
 });
 
 onUnmounted(() => {
   window.removeEventListener('popstate', onPopState);
   if (timer) clearInterval(timer);
-  if (showcaseTimer) clearInterval(showcaseTimer);
-  if (themeTimer) clearInterval(themeTimer);
 });
 
 async function copyText(text: string, key: string) {
@@ -289,33 +237,13 @@ async function copyText(text: string, key: string) {
 
 <template>
   <div class="website" :style="{ '--accent': '#3b82f6' }" :data-reduced-motion="preferences.motion">
-    <!-- Animated Multi-Layer Cosmic OLED Background -->
-    <div class="ambient-bg" aria-hidden="true">
-      <span class="ambient-orb orb-1" />
-      <span class="ambient-orb orb-2" />
-      <span class="ambient-orb orb-3" />
-      <span class="ambient-beam beam-1" />
-      <span class="ambient-beam beam-2" />
-      <span class="ambient-particles">
-        <i class="p-dot p-1" />
-        <i class="p-dot p-2" />
-        <i class="p-dot p-3" />
-        <i class="p-dot p-4" />
-        <i class="p-dot p-5" />
-        <i class="p-dot p-6" />
-      </span>
-      <span class="ambient-grid" />
-    </div>
-
     <a class="skip-link" href="#main">Skip to content</a>
 
     <!-- Sticky Frosted Navbar -->
     <header class="web-header">
       <div class="web-header-inner">
         <a class="web-brand" href="/" @click.prevent="navigate('/')">
-          <span class="brand-logo-wrap">
-            <img src="/logo.svg" alt="Solara" />
-          </span>
+          <img src="/logo.svg" alt="Solara" />
           <span>Solara</span>
           <span v-if="latest" class="nav-version-badge">{{ latest.publicVersion }}</span>
         </a>
@@ -334,7 +262,7 @@ async function copyText(text: string, key: string) {
             :href="githubDownloadUrl"
             download="solaralauncher.exe"
             rel="noopener"
-            class="header-download shimmer-btn"
+            class="header-download"
           >
             <Download />
             <span>Download</span>
@@ -364,7 +292,7 @@ async function copyText(text: string, key: string) {
               class="hero-pill hero-anim-1"
               @click.prevent="navigate('/changelog')"
             >
-              <span class="dot pulse-dot" />
+              <span class="dot" />
               <strong>{{ latest ? `${latest.publicVersion} Live on GitHub` : 'Windows x64 Preview' }}</strong>
               <span class="hero-pill-sep">·</span>
               <span>One Evergreen Installer &amp; Auto-Updates</span>
@@ -373,7 +301,7 @@ async function copyText(text: string, key: string) {
 
             <h1 class="hero-anim-2">
               Play Minecraft,<br />
-              <span class="hero-gradient-text">the fast &amp; clean way.</span>
+              <span class="hero-accent-text">the fast &amp; clean way.</span>
             </h1>
 
             <p class="hero-description hero-anim-3">
@@ -385,7 +313,7 @@ async function copyText(text: string, key: string) {
                 :href="githubDownloadUrl"
                 download="solaralauncher.exe"
                 rel="noopener"
-                class="button primary hero-cta shimmer-btn cta-pulse"
+                class="button primary hero-cta"
               >
                 <Download />
                 <span>Download from GitHub</span>
@@ -396,7 +324,7 @@ async function copyText(text: string, key: string) {
                 :href="virusTotalUrl"
                 target="_blank"
                 rel="noopener"
-                class="button secondary hero-secondary vt-badge-btn"
+                class="button secondary hero-secondary"
               >
                 <ShieldCheck />
                 <span>VirusTotal Scan</span>
@@ -420,15 +348,9 @@ async function copyText(text: string, key: string) {
               <span><Check /> 100% Free &amp; Open Source</span>
             </div>
 
-            <!-- Interactive Auto-Cycling 5-View App Showcase -->
-            <div
-              id="showcase"
-              class="showcase-wrap hero-anim-6"
-              @mouseenter="showcasePaused = true"
-              @mouseleave="showcasePaused = false"
-            >
-              <div class="showcase-glow" aria-hidden="true" />
-              <div class="showcase-shell animated-border-card">
+            <!-- Interactive 5-View App Showcase -->
+            <div id="showcase" class="showcase-wrap hero-anim-6">
+              <div class="showcase-shell">
                 <div class="showcase-toolbar">
                   <div class="showcase-dots" aria-hidden="true">
                     <span />
@@ -443,12 +365,11 @@ async function copyText(text: string, key: string) {
                       type="button"
                       role="tab"
                       :aria-selected="activeShot === tab.id"
-                      :class="['showcase-tab', { active: activeShot === tab.id, cycling: activeShot === tab.id && !showcasePaused }]"
+                      :class="['showcase-tab', { active: activeShot === tab.id }]"
                       @click="selectShot(tab.id)"
                     >
                       <span>{{ tab.label }}</span>
                       <small>{{ tab.badge }}</small>
-                      <i v-if="activeShot === tab.id" class="tab-progress-bar" />
                     </button>
                   </div>
                 </div>
@@ -508,39 +429,27 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Infinite Animated Feature Marquee Ticker -->
-          <div class="marquee-strip" aria-hidden="true">
-            <div class="marquee-track">
-              <div v-for="loop in 2" :key="loop" class="marquee-group">
-                <span v-for="item in marqueeItems" :key="`${loop}-${item}`" class="marquee-item">
-                  <i class="marquee-dot" />
-                  {{ item }}
-                </span>
-              </div>
-            </div>
-          </div>
-
           <!-- Key Stats Strip -->
           <section class="web-container stats-strip">
-            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+            <div class="stat-box">
               <strong>1 File Forever</strong>
               <span>Evergreen auto-updating .exe</span>
             </div>
-            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+            <div class="stat-box">
               <strong>5 Loaders</strong>
               <span>Vanilla, Fabric, NeoForge, Forge &amp; Quilt</span>
             </div>
-            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+            <div class="stat-box">
               <strong>30+ 3D Icons</strong>
               <span>Plus custom text badges &amp; frames</span>
             </div>
-            <div class="stat-box spotlight-hover tilt-card" @pointermove="onCardPointerMove" @pointerleave="onCardPointerLeave">
+            <div class="stat-box">
               <strong>GitHub CDN</strong>
               <span>Direct downloads &amp; VirusTotal verified</span>
             </div>
           </section>
 
-          <!-- Visual Bento Showcase -->
+          <!-- Clean Bento Showcase -->
           <section class="web-container web-section">
             <div class="section-header-row">
               <div class="section-header">
@@ -556,11 +465,7 @@ async function copyText(text: string, key: string) {
 
             <div class="bento-grid">
               <!-- Bento 1: Modpacks (Wide) -->
-              <article
-                class="bento-card bento-wide bento-tone-emerald spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
-              >
+              <article class="bento-card bento-wide">
                 <div class="bento-copy">
                   <span class="bento-pill">ONE-CLICK MODPACKS</span>
                   <h3>Browse cover-art packs &amp; full detail pages.</h3>
@@ -572,11 +477,7 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 2: Icon Studio -->
-              <article
-                class="bento-card bento-narrow bento-tone-purple spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
-              >
+              <article class="bento-card bento-narrow">
                 <div class="bento-copy">
                   <span class="bento-pill">ICON STUDIO</span>
                   <h3>30 3D icons &amp; custom badges.</h3>
@@ -588,11 +489,7 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 3: 3-Step Quick Start -->
-              <article
-                class="bento-card bento-narrow bento-tone-cobalt spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
-              >
+              <article class="bento-card bento-narrow">
                 <div class="bento-copy">
                   <span class="bento-pill">READY IN 60 SECONDS</span>
                   <h3>Three simple steps to play.</h3>
@@ -609,18 +506,12 @@ async function copyText(text: string, key: string) {
               </article>
 
               <!-- Bento 4: Interactive OLED vs White Theme Switcher (Wide) -->
-              <article
-                class="bento-card bento-wide bento-tone-sky spotlight-hover tilt-card"
-                @mouseenter="showcasePaused = true"
-                @mouseleave="showcasePaused = false"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
-              >
+              <article class="bento-card bento-wide">
                 <div class="bento-copy bento-copy-row">
                   <div>
-                    <span class="bento-pill">LIVE THEME PREVIEW</span>
+                    <span class="bento-pill">DUAL THEMES</span>
                     <h3>True OLED Black or crisp White mode.</h3>
-                    <p>Auto-switching preview — click to toggle between pure OLED Black and White mode.</p>
+                    <p>Click to preview both themes — switch anytime inside Settings.</p>
                   </div>
                   <div class="theme-switch-pills" role="group" aria-label="Preview launcher theme">
                     <button
@@ -659,7 +550,7 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Colorful 6-Card Feature Grid -->
+          <!-- Clean 6-Card Feature Grid -->
           <section id="features" class="web-container web-section">
             <div class="section-header-row">
               <div class="section-header">
@@ -673,13 +564,10 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="(f, i) in features"
                 :key="f.title"
-                :class="['feature', 'spotlight-hover', 'tilt-card', `feature--${f.tone}`]"
-                :style="{ '--float-delay': `${i * 0.4}s` }"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                :class="['feature', `feature--${f.tone}`]"
               >
                 <div class="feature-top">
-                  <span class="feature-icon-wrap float-icon">
+                  <span class="feature-icon-wrap">
                     <component :is="f.icon" class="feature-icon" />
                   </span>
                   <span class="feature-tag">0{{ i + 1 }} · {{ f.tag }}</span>
@@ -692,7 +580,7 @@ async function copyText(text: string, key: string) {
 
           <!-- Security & VirusTotal Highlight -->
           <section id="security" class="web-container web-section">
-            <div class="security-card spotlight-hover" @pointermove="onCardPointerMove">
+            <div class="security-card">
               <div class="security-copy">
                 <span class="eyebrow">TRANSPARENT &amp; VERIFIED</span>
                 <h2>Direct from GitHub. Checked on VirusTotal.</h2>
@@ -704,10 +592,10 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary compact-btn vt-badge-btn"
+                    class="button secondary compact-btn"
                   >
                     <ShieldCheck />
-                    <span>View Live VirusTotal Report</span>
+                    <span>View VirusTotal Report</span>
                     <ArrowUpRight />
                   </a>
                   <a href="/security" class="text-link" @click.prevent="navigate('/security')">
@@ -742,18 +630,18 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <!-- Luminous Download CTA Panel -->
+          <!-- Clean Download CTA Panel -->
           <section id="downloads" class="web-container web-section">
-            <div class="download-panel animated-border-card spotlight-hover" @pointermove="onCardPointerMove">
+            <div class="download-panel">
               <div class="download-platform">
-                <div class="download-icon-box float-icon">
+                <div class="download-icon-box">
                   <Monitor />
                 </div>
                 <div>
                   <div class="download-title-row">
                     <h3>Solara Launcher for Windows</h3>
                     <span class="status-badge">
-                      <span class="dot pulse-dot" />
+                      <span class="dot" />
                       {{ latest ? latest.publicVersion : 'Preview' }}
                     </span>
                   </div>
@@ -774,7 +662,7 @@ async function copyText(text: string, key: string) {
                     :href="githubDownloadUrl"
                     download="solaralauncher.exe"
                     rel="noopener"
-                    class="button primary download-btn shimmer-btn cta-pulse"
+                    class="button primary download-btn"
                   >
                     <Download />
                     <span>Download solaralauncher.exe</span>
@@ -783,7 +671,7 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary vt-badge-btn"
+                    class="button secondary"
                   >
                     <ShieldCheck />
                     <span>VirusTotal Scan</span>
@@ -800,9 +688,7 @@ async function copyText(text: string, key: string) {
             <div class="explore-grid">
               <a
                 href="/changelog"
-                class="explore-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="explore-card"
                 @click.prevent="navigate('/changelog')"
               >
                 <span class="eyebrow">WHAT’S NEW</span>
@@ -812,9 +698,7 @@ async function copyText(text: string, key: string) {
               </a>
               <a
                 href="/docs"
-                class="explore-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="explore-card"
                 @click.prevent="navigate('/docs')"
               >
                 <span class="eyebrow">NEED HELP?</span>
@@ -824,9 +708,7 @@ async function copyText(text: string, key: string) {
               </a>
               <a
                 href="/security"
-                class="explore-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="explore-card"
                 @click.prevent="navigate('/security')"
               >
                 <span class="eyebrow">TRUST &amp; PRIVACY</span>
@@ -842,7 +724,7 @@ async function copyText(text: string, key: string) {
         <div v-else-if="currentRoute === '/features'" key="features" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
             <span class="eyebrow">FEATURES</span>
-            <h1>Made for smooth,<br /><span class="hero-gradient-text">stress-free Minecraft.</span></h1>
+            <h1>Made for smooth,<br /><span class="hero-accent-text">stress-free Minecraft.</span></h1>
             <p class="page-lead">
               Every screen in Solara is built to feel snappy, clean on OLED and bright screens, and easy for any player to jump right into.
             </p>
@@ -853,13 +735,10 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="(f, i) in features"
                 :key="f.title"
-                :class="['feature', 'spotlight-hover', 'tilt-card', `feature--${f.tone}`]"
-                :style="{ '--float-delay': `${i * 0.4}s` }"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                :class="['feature', `feature--${f.tone}`]"
               >
                 <div class="feature-top">
-                  <span class="feature-icon-wrap float-icon">
+                  <span class="feature-icon-wrap">
                     <component :is="f.icon" class="feature-icon" />
                   </span>
                   <span class="feature-tag">0{{ i + 1 }} · {{ f.tag }}</span>
@@ -948,23 +827,23 @@ async function copyText(text: string, key: string) {
         <div v-else-if="currentRoute === '/downloads'" key="downloads" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
             <span class="eyebrow">ONE EVERGREEN INSTALLER · DIRECT FROM GITHUB</span>
-            <h1>Get <span class="hero-gradient-text">Solara Launcher.</span></h1>
+            <h1>Get <span class="hero-accent-text">Solara Launcher.</span></h1>
             <p class="page-lead">
               You only ever need one file: <code>solaralauncher.exe</code>, downloaded straight from GitHub Releases. Install it once and it automatically updates itself to every new release.
             </p>
           </section>
 
           <section class="web-container sub-section">
-            <div class="download-panel animated-border-card">
+            <div class="download-panel">
               <div class="download-platform">
-                <div class="download-icon-box float-icon">
+                <div class="download-icon-box">
                   <Monitor />
                 </div>
                 <div>
                   <div class="download-title-row">
                     <h3>Solara Launcher for Windows (64-bit)</h3>
                     <span class="status-badge">
-                      <span class="dot pulse-dot" />
+                      <span class="dot" />
                       {{ latest ? latest.publicVersion : 'Preview' }}
                     </span>
                   </div>
@@ -998,7 +877,7 @@ async function copyText(text: string, key: string) {
                     :href="githubDownloadUrl"
                     download="solaralauncher.exe"
                     rel="noopener"
-                    class="button primary download-btn shimmer-btn cta-pulse"
+                    class="button primary download-btn"
                   >
                     <Download />
                     <span>Download from GitHub</span>
@@ -1007,7 +886,7 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary vt-badge-btn"
+                    class="button secondary"
                   >
                     <ShieldCheck />
                     <span>VirusTotal Scan</span>
@@ -1039,7 +918,7 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary compact-btn vt-badge-btn"
+                    class="button secondary compact-btn"
                   >
                     <ShieldCheck />
                     <span>Open VirusTotal Report</span>
@@ -1135,7 +1014,7 @@ async function copyText(text: string, key: string) {
         <div v-else-if="currentRoute === '/changelog'" key="changelog" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
             <span class="eyebrow">WHAT’S NEW</span>
-            <h1>Recent updates &amp;<br /><span class="hero-gradient-text">what’s coming next.</span></h1>
+            <h1>Recent updates &amp;<br /><span class="hero-accent-text">what’s coming next.</span></h1>
             <p class="page-lead">
               Every major Solara update in plain English — delivered automatically to your installed launcher.
             </p>
@@ -1146,12 +1025,11 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="item in CHANGELOG_HIGHLIGHTS"
                 :key="item.version"
-                class="timeline-card spotlight-hover"
-                @pointermove="onCardPointerMove"
+                class="timeline-card"
               >
                 <div class="timeline-head">
                   <span class="status-badge">
-                    <span class="dot pulse-dot" />
+                    <span class="dot" />
                     {{ item.version }}
                   </span>
                   <span class="timeline-tag">{{ item.tag }}</span>
@@ -1175,9 +1053,7 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="r in ROADMAP_ITEMS"
                 :key="r.title"
-                class="roadmap-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="roadmap-card"
               >
                 <span class="roadmap-phase">{{ r.phase }}</span>
                 <h3>{{ r.title }}</h3>
@@ -1191,7 +1067,7 @@ async function copyText(text: string, key: string) {
         <div v-else-if="currentRoute === '/security'" key="security" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
             <span class="eyebrow">SAFETY &amp; VIRUSTOTAL TRANSPARENCY</span>
-            <h1>Built to be safe.<br /><span class="hero-gradient-text">Open for anyone to check.</span></h1>
+            <h1>Built to be safe.<br /><span class="hero-accent-text">Open for anyone to check.</span></h1>
             <p class="page-lead">
               Your Minecraft login stays on your PC, every download comes straight from GitHub Releases, and you can inspect our live VirusTotal scan anytime.
             </p>
@@ -1202,9 +1078,7 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="p in SECURITY_PILLARS"
                 :key="p.title"
-                class="pillar-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="pillar-card"
               >
                 <span class="roadmap-phase">{{ p.badge }}</span>
                 <h3>{{ p.title }}</h3>
@@ -1224,7 +1098,7 @@ async function copyText(text: string, key: string) {
                   :href="virusTotalUrl"
                   target="_blank"
                   rel="noopener"
-                  class="button secondary compact-btn vt-badge-btn"
+                  class="button secondary compact-btn"
                 >
                   <ShieldCheck />
                   <span>Inspect on VirusTotal</span>
@@ -1245,7 +1119,7 @@ async function copyText(text: string, key: string) {
         <div v-else key="docs" class="page-stack">
           <section class="web-container page-hero hero-anim-1">
             <span class="eyebrow">HELP &amp; GUIDES</span>
-            <h1>Easy setup &amp;<br /><span class="hero-gradient-text">quick answers.</span></h1>
+            <h1>Easy setup &amp;<br /><span class="hero-accent-text">quick answers.</span></h1>
             <p class="page-lead">
               New to Solara? Follow these quick steps to get playing in under two minutes.
             </p>
@@ -1256,9 +1130,7 @@ async function copyText(text: string, key: string) {
               <article
                 v-for="g in GUIDES"
                 :key="g.id"
-                class="guide-card spotlight-hover tilt-card"
-                @pointermove="onCardPointerMove"
-                @pointerleave="onCardPointerLeave"
+                class="guide-card"
               >
                 <span class="roadmap-phase">{{ g.step }}</span>
                 <h3>{{ g.title }}</h3>
@@ -1340,7 +1212,7 @@ async function copyText(text: string, key: string) {
             </p>
           </div>
           <span class="feed-status">
-            <span class="dot pulse-dot" />
+            <span class="dot" />
             {{ snapshot.status === 'ready' ? 'GitHub release feed: live' : 'GitHub release feed: synced' }}
           </span>
         </div>
