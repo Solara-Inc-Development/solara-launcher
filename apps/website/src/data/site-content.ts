@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.83',
+    version: 'V-0.0.84',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Fixed Description Images & Full CurseForge Modpack Detail Pages',
+    highlights: [
+      'Fixed images not loading inside modpack descriptions so banners, screenshots, and badges display cleanly.',
+      'Added full CurseForge modpack detail pages with cover banners, rich descriptions, filterable versions, and screenshot gallery.',
+      'Overhauled the official Solara website with a Bento showcase, live OLED/White theme preview, and smooth animations.',
+    ],
+  },
+  {
+    version: 'V-0.0.83',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'Fresh Modpack Browser, New Create Instance UI & Solara Icon Studio',
     highlights: [
       'Fixed modpack catalog loading so all packs load fast and reliably.',
