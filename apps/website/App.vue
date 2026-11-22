@@ -87,6 +87,11 @@ function onPopState() {
   currentRoute.value = resolveRoute(window.location.pathname);
 }
 
+const DIRECT_GITHUB_DOWNLOAD_URL =
+  'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
+
+const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
+
 const releases = computed(() => snapshot.value.data?.releases || []);
 
 const filteredReleases = computed(() => {
@@ -252,8 +257,9 @@ async function copyText(text: string, key: string) {
 
         <div class="header-actions">
           <a
-            href="/solaralauncher.exe"
+            :href="githubDownloadUrl"
             download="solaralauncher.exe"
+            rel="noopener"
             class="header-download shimmer-btn"
           >
             <Download />
@@ -302,8 +308,9 @@ async function copyText(text: string, key: string) {
 
             <div class="hero-actions hero-anim-4">
               <a
-                href="/solaralauncher.exe"
+                :href="githubDownloadUrl"
                 download="solaralauncher.exe"
+                rel="noopener"
                 class="button primary hero-cta shimmer-btn"
               >
                 <Download />
@@ -642,8 +649,9 @@ async function copyText(text: string, key: string) {
               <div class="download-cta-col">
                 <div class="cta-btn-row">
                   <a
-                    href="/solaralauncher.exe"
+                    :href="githubDownloadUrl"
                     download="solaralauncher.exe"
+                    rel="noopener"
                     class="button primary download-btn shimmer-btn"
                   >
                     <Download />
@@ -857,8 +865,9 @@ async function copyText(text: string, key: string) {
 
               <div class="download-cta-col">
                 <a
-                  href="/solaralauncher.exe"
+                  :href="githubDownloadUrl"
                   download="solaralauncher.exe"
+                  rel="noopener"
                   class="button primary download-btn shimmer-btn"
                 >
                   <Download />
