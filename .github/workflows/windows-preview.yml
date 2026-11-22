@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.92: Fix Modrinth v3 search + Add Modrinth & CurseForge left filter sidebar + Theme-matched curved cards across Mods Workspace & Instance UI.
+# Solara V-0.0.93: Bulletproof Windows auto-update (detached /P /UPDATE /R + NSIS process/unlock retry + idle fix), Solara ASCII Console logo, and smooth launcher animations.
 on:
   workflow_dispatch:
   push:

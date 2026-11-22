@@ -182,10 +182,12 @@ async fn idle() -> bool {
     if !READY.load(Ordering::SeqCst) {
         return false;
     }
+    // If Theseus state is not initialized yet (e.g. during early startup splash), no Minecraft
+    // instance can be running yet — treat as idle instead of blocking automatic updates.
     let running_processes = theseus::process::get_all()
         .await
         .map(|procs| !procs.is_empty())
-        .unwrap_or(true);
+        .unwrap_or(false);
     !running_processes
 }
 
@@ -514,11 +516,15 @@ async fn apply_verified_bytes(
 
     #[cfg(target_os = "windows")]
     {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+
         tokio::fs::create_dir_all(cache_dir).await?;
         let installer_path = cache_dir.join("solaralauncher-update-setup.exe");
         tokio::fs::write(&installer_path, bytes).await?;
         std::process::Command::new(&installer_path)
-            .args(["/S", "/UPDATE", "/R"])
+            .args(["/P", "/UPDATE", "/R"])
+            .creation_flags(CREATE_NEW_PROCESS_GROUP)
             .spawn()
             .map_err(|e| {
                 let msg = e.to_string();
@@ -535,6 +541,8 @@ async fn apply_verified_bytes(
             })?;
         let _ = tokio::fs::remove_file(cache_dir.join("pending.bin")).await;
         let _ = tokio::fs::remove_file(cache_dir.join("pending.json")).await;
+        // Brief pause so Windows initializes the detached updater process before parent exits.
+        tokio::time::sleep(Duration::from_millis(250)).await;
         app.exit(0);
     }
 
@@ -789,6 +797,42 @@ pub async fn check_only(app: &tauri::AppHandle) -> anyhow::Result<Value> {
             Some(size),
             None,
         );
+        // If a verified update is already cached on disk and hasn't been auto-applied yet,
+        // automatically apply it when idle on Windows release builds.
+        if cfg!(windows) && !cfg!(debug_assertions) {
+            if let Ok(cache_dir) = update_cache_dir(app) {
+                if let Some(meta) = read_pending_meta(&cache_dir).await {
+                    if should_auto_install_cached(&meta, current_internal_version()) && idle().await
+                    {
+                        let app_clone = app.clone();
+                        let version_clone = version.clone();
+                        let notes_clone = notes.clone();
+                        tauri::async_runtime::spawn(async move {
+                            if !CYCLING.swap(true, Ordering::SeqCst) {
+                                let _cycle = CycleGuard;
+                                if let Some(mut m) = read_pending_meta(&cache_dir).await {
+                                    m.auto_install_attempted = true;
+                                    let _ = write_pending_meta(&cache_dir, &m).await;
+                                }
+                                if let Ok(bytes) =
+                                    tokio::fs::read(cache_dir.join("pending.bin")).await
+                                {
+                                    let _ = apply_verified_bytes(
+                                        &app_clone,
+                                        &cache_dir,
+                                        &version_clone,
+                                        notes_clone.as_deref(),
+                                        &bytes,
+                                        true,
+                                    )
+                                    .await;
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
         return Ok(json!({
             "available": true,
             "stage": "ready",

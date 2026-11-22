@@ -1030,9 +1030,10 @@ function goBackToInstance() {
 						class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
 					>
 						<article
-							v-for="hit in modrinthHits"
+							v-for="(hit, idx) in modrinthHits"
 							:key="hit.project_id"
-							class="solara-mp-card group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
+							:style="{ animationDelay: `${Math.min(idx, 11) * 28}ms` }"
+							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
 						>
 							<!-- Cover Banner Header -->
 							<div
@@ -1301,9 +1302,10 @@ function goBackToInstance() {
 						class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
 					>
 						<article
-							v-for="item in curseforgeItems"
+							v-for="(item, idx) in curseforgeItems"
 							:key="item.id"
-							class="solara-mp-card group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
+							:style="{ animationDelay: `${Math.min(idx, 11) * 28}ms` }"
+							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
 						>
 							<!-- Cover Banner Header -->
 							<div

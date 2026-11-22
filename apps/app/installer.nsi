@@ -118,10 +118,23 @@ VIAddVersionKey "OriginalFilename" "solaralauncher.exe"
     ${EndIf}
     MessageBox MB_OKCANCEL "${productName} is currently running. Click OK to close it and continue." IDOK kill_${UniqueID} IDCANCEL cancel_${UniqueID}
     kill_${UniqueID}:
-      Sleep 300
-      nsis_tauri_utils::KillProcessCurrentUser "${executableName}"
-      Pop $R0
-      Sleep 500
+      StrCpy $R1 0
+      kill_loop_${UniqueID}:
+        Sleep 400
+        nsis_tauri_utils::KillProcessCurrentUser "${executableName}"
+        Pop $R0
+        Sleep 450
+        nsis_tauri_utils::FindProcessCurrentUser "${executableName}"
+        Pop $R0
+        ${If} $R0 <> 0
+          Goto kill_done_${UniqueID}
+        ${EndIf}
+        IntOp $R1 $R1 + 1
+        ${If} $R1 < 12
+          Goto kill_loop_${UniqueID}
+        ${EndIf}
+      kill_done_${UniqueID}:
+      Sleep 600
       Goto app_check_done_${UniqueID}
     cancel_${UniqueID}:
       Abort "${productName} is currently running."
@@ -235,6 +248,22 @@ Section Install
 
   !insertmacro CheckIfAppIsRunning "${MAINBINARYNAME}.exe" "${PRODUCTNAME}"
 
+  ; Wait until Windows releases any remaining file lock on the existing binary before overwriting
+  StrCpy $R2 0
+  unlock_bin_loop:
+    IfFileExists "$INSTDIR\${MAINBINARYNAME}.exe" 0 unlock_bin_done
+    ClearErrors
+    Delete "$INSTDIR\${MAINBINARYNAME}.exe"
+    ${IfNot} ${Errors}
+      Goto unlock_bin_done
+    ${EndIf}
+    Sleep 400
+    IntOp $R2 $R2 + 1
+    ${If} $R2 < 15
+      Goto unlock_bin_loop
+    ${EndIf}
+  unlock_bin_done:
+
   File "${MAINBINARYSRCPATH}"
 
   {{#each resources_dirs}}
@@ -312,8 +341,10 @@ SectionEnd
 Function .onInstSuccess
   ${If} $PassiveMode = 1
   ${OrIf} ${Silent}
+  ${OrIf} $UpdateMode = 1
     ${GetOptions} $CMDLINE "/R" $R0
     ${IfNot} ${Errors}
+      Sleep 300
       Exec '"$INSTDIR\${MAINBINARYNAME}.exe"'
     ${EndIf}
   ${EndIf}

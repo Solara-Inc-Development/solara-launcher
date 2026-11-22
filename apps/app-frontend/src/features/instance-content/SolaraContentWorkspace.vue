@@ -609,10 +609,11 @@ function itemCanSwitchVersion(item: ContentItem) {
 				class="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3"
 			>
 				<article
-					v-for="item in filteredItems"
+					v-for="(item, idx) in filteredItems"
 					:key="ctx.getItemId(item)"
+					:style="{ animationDelay: `${Math.min(idx, 14) * 24}ms` }"
 					:class="[
-						'solara-mod-card group relative flex flex-col justify-between gap-3.5 rounded-[22px] border border-solid p-4 transition-all',
+						'solara-mod-card solara-card-animate group relative flex flex-col justify-between gap-3.5 rounded-[22px] border border-solid p-4 transition-all',
 						selectedSet.has(ctx.getItemId(item))
 							? 'solara-mod-card-selected'
 							: item.file_path === props.highlightedItemId

@@ -75,29 +75,29 @@ const props = withDefaults(
 	},
 )
 
-const FROG = [
-	'\x1B[32m     _    _ \x1B[37m',
-	'\x1B[32m    (o)--(o)      \x1B[37m',
-	'\x1B[32m   /.______.\\\x1B[37m',
-	'\x1B[32m   \\________/     \x1B[37m',
-	'\x1B[32m  ./        \\.    \x1B[37m',
-	'\x1B[32m ( .        , )\x1B[37m',
-	'\x1B[32m  \\ \\_\\\\ //_/ /\x1B[37m',
-	'\x1B[32m   ~~  ~~  ~~\x1B[37m',
+const SOLARA_LOGO = [
+	'',
+	'\x1B[94m       ▄▄▄▄▄▄▄▄▄▄▄  \x1B[1;97m   _____ ____  __    ___    ____  ___ \x1B[0m',
+	'\x1B[94m     ▄█▀▀       ▀▀█▄\x1B[1;97m  / ___// __ \\/ /   /   |  / __ \\/   |\x1B[0m',
+	'\x1B[36m    ██   ▄█████▄   █\x1B[1;97m  \\__ \\/ / / / /   / /| | / /_/ / /| |\x1B[0m',
+	'\x1B[36m    ██   ▀█████▀   █\x1B[1;97m ___/ / /_/ / /___/ ___ |/ _, _/ ___ |\x1B[0m',
+	'\x1B[94m     ▀█▄▄       ▄▄█▀\x1B[1;97m/____/\\____/_____/_/  |_/_/ |_/_/  |_|\x1B[0m',
+	'\x1B[94m       ▀▀▀▀▀▀▀▀▀▀▀  \x1B[90m        SOLARA LAUNCHER · CONSOLE\x1B[0m',
+	'',
 ]
 
 const EMPTY_STATE_BUBBLES: Record<string, string[]> = {
 	server: [
-		'   __________________________________________________',
-		' /  Welcome to your \x1B[32mMinecraft Server\x1B[37m!                  \\',
-		'|   Press the green start button to start your server! |',
-		' \\____________________________________________________/',
+		'\x1B[90m  ┌──────────────────────────────────────────────────────────┐\x1B[0m',
+		'\x1B[90m  │\x1B[0m  Welcome to your \x1B[94mMinecraft Server\x1B[0m console.              \x1B[90m│\x1B[0m',
+		'\x1B[90m  │\x1B[0m  Press \x1B[1;97mStart\x1B[0m to launch your server and view live logs.   \x1B[90m│\x1B[0m',
+		'\x1B[90m  └──────────────────────────────────────────────────────────┘\x1B[0m',
 	],
 	instance: [
-		'   _____________________________________________________________',
-		' /  Start your instance in the top right to start               \\',
-		'|   receiving live logs!                                        |',
-		' \\_____________________________________________________________/',
+		'\x1B[90m  ┌──────────────────────────────────────────────────────────┐\x1B[0m',
+		'\x1B[90m  │\x1B[0m  No active game session running right now.              \x1B[90m│\x1B[0m',
+		'\x1B[90m  │\x1B[0m  Click \x1B[1;94mLaunch Game\x1B[0m in the top right to stream live logs!\x1B[90m│\x1B[0m',
+		'\x1B[90m  └──────────────────────────────────────────────────────────┘\x1B[0m',
 	],
 }
 
@@ -141,7 +141,7 @@ function writeEmptyState() {
 	terminal.value.reset()
 	const bubble = EMPTY_STATE_BUBBLES[props.emptyStateType]
 	if (bubble) {
-		for (const line of [...bubble, ...FROG]) {
+		for (const line of [...SOLARA_LOGO, ...bubble]) {
 			terminal.value.writeln(line)
 		}
 	}

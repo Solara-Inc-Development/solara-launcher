@@ -1,6 +1,6 @@
 <template>
 	<section
-		class="solara-instance-hero relative overflow-hidden rounded-[24px] border border-solid border-surface-5 bg-surface-3 px-6 py-5"
+		class="solara-instance-hero solara-animate-in relative overflow-hidden rounded-[24px] border border-solid border-surface-5 bg-surface-3 px-6 py-5"
 	>
 		<div class="flex flex-wrap items-center justify-between gap-4">
 			<!-- Left: Icon + Title + Metadata Chips -->
