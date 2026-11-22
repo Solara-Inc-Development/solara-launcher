@@ -62,7 +62,7 @@ const DIRECT_GITHUB_DOWNLOAD_URL =
   'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
 
 const DEFAULT_VT_SHA256 =
-  '21cc653fd39275144b45c2962aa6e10e63d10a594a8711d382e6a96d7df36b0a';
+  '5d1fef8d2ed3c8aee453c0ac298514f41b7fba3932340fb567878ee2a0713f61';
 
 const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
 

@@ -2981,6 +2981,49 @@
       "notes": "Solara Launcher V-0.0.87 (Testing Preview)\n\n- Evergreen Single Installer (`solaralauncher.exe`): one permanent download link (`https://app.solara-inc.in/solaralauncher.exe`) that automatically updates any installed copy to the newest release on launch.\n- Zero-click background auto-updater applies verified releases automatically whenever no game is running.\n- Antivirus / VirusTotal false-positive hardening: switched NSIS packaging from solid LZMA to standard zlib Deflate compression, preserved standard Windows SEH `.pdata`/`.xdata` unwind metadata (removed `panic = \"abort\"`), and cleaned NSIS pre-install hooks.\n\nStatus: Signed Windows testing preview. Physical Windows device acceptance remains pending.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.87/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "6e4ea063-e22b-416f-ac64-102c338f2f6b",
+      "publicVersion": "V-0.0.88",
+      "internalVersion": "0.0.88",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.88/solaralauncher.exe",
+      "commit": "fbde9782e494d11a05fa3db72e2f4597c4fde975",
+      "allocatedAt": "2026-11-22T10:38:08.728Z",
+      "state": "published",
+      "applicationSha256": "383edae22052759c51bf3e7f23b22d8596843eea68526e20d4f55792766fb0e9",
+      "applicationSize": 74995712,
+      "sourceTree": "c2c23b11c6b2f2b346152371d8838bbcaa31c086",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31476047,
+          "sha256": "5d1fef8d2ed3c8aee453c0ac298514f41b7fba3932340fb567878ee2a0713f61"
+        },
+        "application/solaralauncher.exe": {
+          "size": 74995712,
+          "sha256": "383edae22052759c51bf3e7f23b22d8596843eea68526e20d4f55792766fb0e9"
+        },
+        "source.zip": {
+          "size": 36608918,
+          "sha256": "68e7630878bdd2381b075b15b4619d3e01fc348c0b98b6734fbc1bee4a31c4de"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31476047,
+      "sha256": "5d1fef8d2ed3c8aee453c0ac298514f41b7fba3932340fb567878ee2a0713f61",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T10:56:57.457Z",
+      "verifiedAt": "2026-11-22T10:56:52.726Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHpiaFNQd1FaMm1mZnc4M0dKTDNoL0pyZlJzOUhXc3NLbUx3VXpmTVRVZEFRZWxqK0c5RmNlZkY3Y2Y0Ynk2dDZrTlRLNTdDdzFieVJZY281MVQ1NXd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzQ1MDExCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjg4Ck9WUisrVVZnYnpRZlJ5SVVaY2daQlJ2bHczclBXRithSGt0QWpOSEJVd0RKU0ZzZzVVSllZUHArOWJiRUl3ZmV1blE3Z2U4eHBIL1dWNEVzbTl5MUJ3PT0K",
+      "notes": "- Removed embedded WebView2 bootstrapper (`MicrosoftEdgeWebview2Setup.exe`) `%TEMP%` extraction and silent execution (`webviewInstallMode: skip`) to eliminate VirusTotal Sysmon `%TEMP%` PE executable drop and `RstrtMgr.dll` false-positive behavioral detections.\n- Replaced default Tauri NSIS script with a clean custom `apps/app/installer.nsi` template without `Win\\COM.nsh`, `Win\\Propkey.nsh`, or `System.dll` raw FFI COM calls (`ICustomDestinationList` / `IApplicationDestinations`) that caused Windows Shell to load `RstrtMgr.dll` (Restart Manager).\n- Redesigned `https://app.solara-inc.in` with a pure `#000000` OLED black background, zero background animations, clean `#090a0f` cards, normal smooth hover/tab transitions, direct GitHub Releases CDN downloads, and VirusTotal SHA-256 verification links.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.88/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

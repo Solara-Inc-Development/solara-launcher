@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.87',
+    version: 'V-0.0.88',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'VirusTotal Behavioral Hardening & Pure OLED Website',
+    highlights: [
+      'Removed embedded WebView2 bootstrapper %TEMP% executable extraction and silent execution to eliminate Sysmon %TEMP% PE drop and RstrtMgr.dll false-positive Sigma alerts.',
+      'Switched to a custom clean NSIS template without System.dll raw FFI or Shell COM ICustomDestinationList calls that loaded Windows Restart Manager (RstrtMgr.dll).',
+      'Redesigned the official website with a pure #000000 OLED black background, zero background animations, simple clean cards, and direct GitHub Releases CDN downloads.',
+    ],
+  },
+  {
+    version: 'V-0.0.87',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'Evergreen Single Installer & Antivirus False-Positive Hardening',
     highlights: [
       'Evergreen single solaralauncher.exe: one permanent download link that automatically updates any installed copy to the newest release on launch.',
