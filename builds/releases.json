@@ -3024,6 +3024,49 @@
       "notes": "- Removed embedded WebView2 bootstrapper (`MicrosoftEdgeWebview2Setup.exe`) `%TEMP%` extraction and silent execution (`webviewInstallMode: skip`) to eliminate VirusTotal Sysmon `%TEMP%` PE executable drop and `RstrtMgr.dll` false-positive behavioral detections.\n- Replaced default Tauri NSIS script with a clean custom `apps/app/installer.nsi` template without `Win\\COM.nsh`, `Win\\Propkey.nsh`, or `System.dll` raw FFI COM calls (`ICustomDestinationList` / `IApplicationDestinations`) that caused Windows Shell to load `RstrtMgr.dll` (Restart Manager).\n- Redesigned `https://app.solara-inc.in` with a pure `#000000` OLED black background, zero background animations, clean `#090a0f` cards, normal smooth hover/tab transitions, direct GitHub Releases CDN downloads, and VirusTotal SHA-256 verification links.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.88/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "4293bc63-b9c5-45d8-8b07-b3288a8d5f9e",
+      "publicVersion": "V-0.0.89",
+      "internalVersion": "0.0.89",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.89/solaralauncher.exe",
+      "commit": "e2990ae147c2742bc3f5c6c6ce9681c1ad374fdd",
+      "allocatedAt": "2026-11-22T12:07:34.349Z",
+      "state": "published",
+      "applicationSha256": "64929b4b14e19d6bc54c828b3ab86d8d1bb3f928ffa2b4ffd007247c0a7c785f",
+      "applicationSize": 74997760,
+      "sourceTree": "1d667cf15afa1f26c0cf6695fc9c9764f25f220e",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31476844,
+          "sha256": "199ad3d42baf50ac5a85317dd4b61a90522650f3c22921191aee23be238fea96"
+        },
+        "application/solaralauncher.exe": {
+          "size": 74997760,
+          "sha256": "64929b4b14e19d6bc54c828b3ab86d8d1bb3f928ffa2b4ffd007247c0a7c785f"
+        },
+        "source.zip": {
+          "size": 36609834,
+          "sha256": "dac46b1e386bf14c6a9a99ce7a6bb04837c93abda37f878393da9e579f6230da"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31476844,
+      "sha256": "199ad3d42baf50ac5a85317dd4b61a90522650f3c22921191aee23be238fea96",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T12:25:51.251Z",
+      "verifiedAt": "2026-11-22T12:25:46.923Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHg4U3ROQ3lXYWdOOEtuTlNSRURjK0sxR0N2aExPZ1BaNENpeXFNMUVueFFNWjZYMXBwYWhNZExFNklWRXZwb0dUekRsRzlpUmZSdDd6VHo2SkpVRVFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzUwMzQ1CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjg5Clpod28yMGZkbHVvRFloTGpZWDdjT1VNcWhpYXN3Qm9FZEVoMmNFM2hrRk45NSt6QUxUblZscWM4N29YbWFZSXpBVm9Ma3FCQUF3YTJNY3J1YkVXUkF3PT0K",
+      "notes": "- Permanent evergreen single `solaralauncher.exe` architecture: immediately checks GitHub Releases CDN at `0ms` on startup (`app_updates::start`) so even an older `solaralauncher.exe` installer saved on disk automatically fetches, verifies, and upgrades to the latest release on first launch.\n- Hardened silent in-place auto-update handoff (`/S /UPDATE /R` and native NSIS `Exec` in `apps/app/installer.nsi`) so updates install seamlessly without recreating deleted shortcuts or depending on Explorer Shell COM.\n- Simplified the `/downloads` page on `https://app.solara-inc.in` to present a single universal `solaralauncher.exe` installer instead of a multi-version `.exe` list.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.89/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

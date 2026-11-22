@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.88',
+    version: 'V-0.0.89',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Permanent Universal solaralauncher.exe & 0ms Startup Auto-Updater',
+    highlights: [
+      'Locked one permanent universal solaralauncher.exe installer with a fixed SHA-256 and VirusTotal report so future releases never require downloading or re-scanning a new .exe.',
+      'Immediate 0ms startup check fetches the newest release from GitHub Releases CDN on launch and applies silent in-place updates (/S /UPDATE /R) automatically.',
+      'Replaced Explorer Shell COM RunAsUser calls with native NSIS Exec and simplified the Downloads page to a single universal installer.',
+    ],
+  },
+  {
+    version: 'V-0.0.88',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'VirusTotal Behavioral Hardening & Pure OLED Website',
     highlights: [
       'Removed embedded WebView2 bootstrapper %TEMP% executable extraction and silent execution to eliminate Sysmon %TEMP% PE drop and RstrtMgr.dll false-positive Sigma alerts.',

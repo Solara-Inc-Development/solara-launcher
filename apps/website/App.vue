@@ -56,16 +56,15 @@ const previewTheme = ref<'oled' | 'white'>('oled');
 let timer: ReturnType<typeof setInterval> | null = null;
 
 const DIRECT_GITHUB_DOWNLOAD_URL =
-  'https://github.com/Solara-Inc-Development/solara-launcher/releases/latest/download/solaralauncher.exe';
+  'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.89/solaralauncher.exe';
 
 const DEFAULT_VT_SHA256 =
-  '5d1fef8d2ed3c8aee453c0ac298514f41b7fba3932340fb567878ee2a0713f61';
+  '199ad3d42baf50ac5a85317dd4b61a90522650f3c22921191aee23be238fea96';
 
 const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
 
 const virusTotalUrl = computed(() => {
-  const sha = latest.value?.sha256 || DEFAULT_VT_SHA256;
-  return `https://www.virustotal.com/gui/file/${sha}/`;
+  return `https://www.virustotal.com/gui/file/${DEFAULT_VT_SHA256}/`;
 });
 
 function selectShot(id: (typeof SHOWCASE_TABS)[number]['id']) {
@@ -836,12 +835,12 @@ async function copyText(text: string, key: string) {
                       Loading latest release info…
                     </template>
                   </p>
-                  <div v-if="latest?.sha256" class="download-hash-row">
-                    <code>SHA-256: {{ latest.sha256 }}</code>
+                  <div class="download-hash-row">
+                    <code>SHA-256: {{ DEFAULT_VT_SHA256 }}</code>
                     <button
                       type="button"
                       class="hash-copy-btn"
-                      @click="copyText(latest.sha256, 'latest-sha')"
+                      @click="copyText(DEFAULT_VT_SHA256, 'latest-sha')"
                     >
                       <Check v-if="copied === 'latest-sha'" />
                       <Copy v-else />
@@ -886,7 +885,7 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <section v-if="latest?.sha256" class="web-container sub-section">
+          <section class="web-container sub-section">
             <div class="info-card">
               <div class="info-card-head">
                 <div>
@@ -907,7 +906,7 @@ async function copyText(text: string, key: string) {
                   <button
                     type="button"
                     class="button secondary compact-btn"
-                    @click="copyText(`(Get-FileHash .\\solaralauncher.exe -Algorithm SHA256).Hash -eq '${latest.sha256.toUpperCase()}'`, 'ps-cmd')"
+                    @click="copyText(`(Get-FileHash .\\solaralauncher.exe -Algorithm SHA256).Hash -eq '${DEFAULT_VT_SHA256.toUpperCase()}'`, 'ps-cmd')"
                   >
                     <Check v-if="copied === 'ps-cmd'" />
                     <Copy v-else />
@@ -915,7 +914,7 @@ async function copyText(text: string, key: string) {
                   </button>
                 </div>
               </div>
-              <pre class="code-box"><code>(Get-FileHash .\solaralauncher.exe -Algorithm SHA256).Hash -eq '{{ latest.sha256.toUpperCase() }}'</code></pre>
+              <pre class="code-box"><code>(Get-FileHash .\solaralauncher.exe -Algorithm SHA256).Hash -eq '{{ DEFAULT_VT_SHA256.toUpperCase() }}'</code></pre>
               <p class="info-note">
                 Paste this into Windows PowerShell in your Downloads folder. If it prints <code>True</code>, your file matches our official GitHub release 100%.
               </p>
