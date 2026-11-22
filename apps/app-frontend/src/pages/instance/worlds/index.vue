@@ -20,53 +20,51 @@
 	/>
 	<DesyncServerModal ref="desyncServerModal" @confirm="confirmDesyncServer" />
 	<ReadyTransition :pending="worldsReadyPending">
-		<div v-if="dedupedWorlds.length > 0" class="flex flex-col gap-2">
-			<div class="flex flex-wrap items-center gap-2">
-				<Input
-					v-model="searchFilter"
-					:icon="SearchIcon"
-					type="text"
-					autocomplete="off"
-					:spellcheck="false"
-					size="medium"
-					wrapper-class="flex-1 min-w-0"
-					clearable
-					:placeholder="
-						formatMessage(messages.searchWorldsPlaceholder, { count: dedupedWorlds.length })
-					"
-				/>
-				<div class="flex gap-2">
-					<Button type="outlined" size="lg" @click="addServerModal?.show()">
-						<PlusIcon class="size-5" />
-						{{ formatMessage(messages.addServer) }}
-					</Button>
-					<Button type="colored" color="brand" size="lg" @click="instancePage.browseServers">
-						<CompassIcon class="size-5" />
-						<span>{{ formatMessage(messages.browseServers) }}</span>
+		<div v-if="dedupedWorlds.length > 0" class="flex flex-col gap-3">
+			<div class="flex flex-col gap-2.5 rounded-2xl border border-solid border-surface-4 bg-surface-2 p-3.5">
+				<div class="flex flex-wrap items-center gap-2">
+					<Input
+						v-model="searchFilter"
+						:icon="SearchIcon"
+						type="text"
+						autocomplete="off"
+						:spellcheck="false"
+						size="medium"
+						wrapper-class="flex-1 min-w-0"
+						clearable
+						:placeholder="`Search ${dedupedWorlds.length} worlds & servers...`"
+					/>
+					<div class="flex gap-2">
+						<Button type="outlined" size="lg" class="!rounded-xl" @click="addServerModal?.show()">
+							<PlusIcon class="size-5" />
+							<span>Direct IP / Server</span>
+						</Button>
+						<Button type="colored" color="brand" size="lg" class="!rounded-xl !font-bold" @click="instancePage.browseServers">
+							<CompassIcon class="size-5" />
+							<span>Find Servers</span>
+						</Button>
+					</div>
+				</div>
+				<div class="flex flex-wrap items-center justify-between gap-2">
+					<FilterPills
+						:model-value="selectedFilters"
+						:options="filterOptions"
+						@update:model-value="updateFilters"
+					>
+						<template #all>
+							{{ formatMessage(commonMessages.allProjectType) }}
+						</template>
+					</FilterPills>
+					<Button
+						type="quiet"
+						:disabled="refreshingAll"
+						class="!text-sm !font-medium"
+						@click="refreshAllWorlds"
+					>
+						<RefreshCwIcon :class="refreshingAll ? 'animate-spin' : ''" />
+						<span>{{ refreshingAll ? 'Pinging...' : 'Ping All' }}</span>
 					</Button>
 				</div>
-			</div>
-			<div class="flex flex-wrap items-center justify-between gap-2">
-				<FilterPills
-					:model-value="selectedFilters"
-					:options="filterOptions"
-					@update:model-value="updateFilters"
-				>
-					<template #all>
-						{{ formatMessage(commonMessages.allProjectType) }}
-					</template>
-				</FilterPills>
-				<Button
-					type="quiet"
-					:disabled="refreshingAll"
-					class="!text-sm !font-medium"
-					@click="refreshAllWorlds"
-				>
-					<RefreshCwIcon :class="refreshingAll ? 'animate-spin' : ''" />
-					{{
-						formatMessage(refreshingAll ? messages.refreshingButton : commonMessages.refreshButton)
-					}}
-				</Button>
 			</div>
 			<div class="mt-2 flex w-full flex-col gap-2">
 				<WorldItem
@@ -107,17 +105,17 @@
 		<EmptyState
 			v-else
 			type="empty-inbox"
-			:heading="formatMessage(messages.noWorldsHeading)"
-			:description="formatMessage(messages.noWorldsDescription)"
+			heading="No worlds or servers yet"
+			description="Launch Minecraft to create a singleplayer world, or connect directly to a multiplayer server."
 		>
 			<template #actions>
-				<Button type="outlined" size="lg" @click="addServerModal?.show()">
+				<Button type="outlined" size="lg" class="!rounded-xl" @click="addServerModal?.show()">
 					<PlusIcon class="size-5" />
-					{{ formatMessage(messages.addServer) }}
+					<span>Direct IP / Server</span>
 				</Button>
-				<Button type="colored" color="brand" size="lg" @click="instancePage.browseServers">
+				<Button type="colored" color="brand" size="lg" class="!rounded-xl !font-bold" @click="instancePage.browseServers">
 					<CompassIcon class="size-5" />
-					<span>{{ formatMessage(messages.browseServers) }}</span>
+					<span>Find Servers</span>
 				</Button>
 			</template>
 		</EmptyState>

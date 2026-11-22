@@ -69,7 +69,25 @@
 			/>
 		</div>
 		<div :class="['px-6', { 'shrink-0': isFixedRender }]">
-			<NavTabs :links="tabs" />
+			<nav
+				aria-label="Instance sections"
+				class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-xl border border-solid border-surface-4 bg-surface-2 p-1"
+			>
+				<RouterLink
+					v-for="tab in tabs"
+					:key="tab.href"
+					:to="tab.href"
+					:class="[
+						'inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold no-underline transition-colors',
+						isTabActive(tab.href)
+							? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+							: 'text-secondary hover:bg-surface-3 hover:text-contrast',
+					]"
+				>
+					<component :is="tab.icon" class="size-4 shrink-0" />
+					<span>{{ tab.label }}</span>
+				</RouterLink>
+			</nav>
 			<InstanceAdmonitions
 				class="mt-4"
 				:instance="instance"
@@ -122,7 +140,6 @@ import {
 	ContextMenu,
 	defineMessages,
 	injectNotificationManager,
-	NavTabs,
 	useLoadingBarToken,
 	useVIntl,
 } from '@modrinth/ui'
@@ -566,45 +583,45 @@ const showShareTab = computed(() => {
 const tabs = computed(() => {
 	const instanceTabs = [
 		{
-			label: formatMessage(messages.contentTab),
+			label: 'Mods & Packs',
 			href: `${basePath.value}`,
 			icon: BoxesIcon,
 		},
 	]
 
-	if (appSettings.showFilesTabInInstances) {
-		instanceTabs.push({
-			label: formatMessage(messages.filesTab),
-			href: `${basePath.value}/files`,
-			icon: FolderOpenIcon,
-		})
-	}
-
-	if (appSettings.showScreenshotsTabInInstances) {
-		instanceTabs.push({
-			label: formatMessage(messages.screenshotsTab),
-			href: `${basePath.value}/screenshots`,
-			icon: ImageIcon,
-		})
-	}
-
 	if (appSettings.showWorldsTabInInstances) {
 		instanceTabs.push({
-			label: formatMessage(messages.worldsTab),
+			label: 'Worlds & Servers',
 			href: `${basePath.value}/worlds`,
 			icon: GlobeIcon,
 		})
 	}
 
+	if (appSettings.showScreenshotsTabInInstances) {
+		instanceTabs.push({
+			label: 'Gallery',
+			href: `${basePath.value}/screenshots`,
+			icon: ImageIcon,
+		})
+	}
+
+	if (appSettings.showFilesTabInInstances) {
+		instanceTabs.push({
+			label: 'Game Files',
+			href: `${basePath.value}/files`,
+			icon: FolderOpenIcon,
+		})
+	}
+
 	instanceTabs.push({
-		label: formatMessage(messages.logsTab),
+		label: 'Console',
 		href: `${basePath.value}/logs`,
 		icon: TerminalSquareIcon,
 	})
 
 	if (showShareTab.value) {
 		instanceTabs.push({
-			label: formatMessage(messages.shareTab),
+			label: 'Share Pack',
 			href: `${basePath.value}/share`,
 			icon: UserPlusIcon,
 		})
@@ -612,6 +629,15 @@ const tabs = computed(() => {
 
 	return instanceTabs
 })
+
+function isTabActive(href: string) {
+	const current = route.path.replace(/\/+$/, '')
+	const target = href.replace(/\/+$/, '')
+	if (target === basePath.value.replace(/\/+$/, '')) {
+		return current === target
+	}
+	return current === target || current.startsWith(`${target}/`)
+}
 
 watch(
 	() => ({
@@ -918,7 +944,7 @@ const handleRightClick = (event: MouseEvent) => {
 	options.value?.open(event, [
 		{
 			id: 'stop',
-			label: formatMessage(messages.stop),
+			label: 'Close Game',
 			icon: StopCircleIcon,
 			shown: playing.value,
 			tone: 'red',
@@ -926,7 +952,7 @@ const handleRightClick = (event: MouseEvent) => {
 		},
 		{
 			id: 'play',
-			label: formatMessage(messages.play),
+			label: 'Launch Game',
 			icon: PlayIcon,
 			shown: !playing.value && canAddContent,
 			tone: 'brand',
@@ -934,7 +960,7 @@ const handleRightClick = (event: MouseEvent) => {
 		},
 		{
 			id: 'add_content',
-			label: formatMessage(messages.addContent),
+			label: 'Install Mods',
 			icon: PlusIcon,
 			shown: canAddContent,
 			action: () => void browseContent(instance.value?.loader === 'vanilla' ? 'datapack' : 'mod'),
@@ -942,7 +968,7 @@ const handleRightClick = (event: MouseEvent) => {
 		{ type: 'divider', shown: canAddContent },
 		{
 			id: 'edit',
-			label: formatMessage(messages.edit),
+			label: 'Configure',
 			icon: EditIcon,
 			action: openSettings,
 		},

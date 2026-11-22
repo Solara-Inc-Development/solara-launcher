@@ -1051,147 +1051,142 @@ const confirmUnlinkModal = ref<InstanceType<typeof ConfirmUnlinkModal>>()
 				/>
 
 				<template v-if="ctx.items.value.length > 0">
-					<div class="flex flex-col gap-2">
-						<span v-if="ctx.managedContent.value" class="mb-2 text-xl font-semibold text-contrast">
-							{{ formatMessage(messages.additionalContent) }}
+					<div class="flex flex-col gap-3">
+						<span v-if="ctx.managedContent.value" class="mb-1 text-lg font-bold text-contrast">
+							Installed Additions
 						</span>
 
-						<div class="flex flex-wrap items-center gap-2">
-							<Input
-								v-model="searchQuery"
-								:icon="SearchIcon"
-								type="text"
-								autocomplete="off"
-								:spellcheck="false"
-								size="medium"
-								wrapper-class="flex-1 min-w-0"
-								clearable
-								:placeholder="
-									formatMessage(messages.searchPlaceholder, {
-										count: tableItems.length,
-										contentType: formatContentTypeSentence(
-											formatMessage,
-											'project',
-											tableItems.length,
-										),
-									})
-								"
-							/>
+						<div class="flex flex-col gap-2.5 rounded-2xl border border-solid border-surface-4 bg-surface-2 p-3.5">
+							<div class="flex flex-wrap items-center gap-2">
+								<Input
+									v-model="searchQuery"
+									:icon="SearchIcon"
+									type="text"
+									autocomplete="off"
+									:spellcheck="false"
+									size="medium"
+									wrapper-class="flex-1 min-w-0"
+									clearable
+									:placeholder="`Search ${tableItems.length} installed items...`"
+								/>
 
-							<div class="flex gap-2">
-								<Button
-									v-tooltip="
-										ctx.busyMessage?.value ??
-										(ctx.disableAddContent?.value ? ctx.disableAddContentTooltip : undefined)
-									"
-									type="outlined"
-									size="lg"
-									:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
-									@click="ctx.uploadFiles"
-								>
-									<FolderOpenIcon class="size-5" />
-									{{ formatMessage(messages.uploadFiles) }}
-								</Button>
-								<Button
-									v-tooltip="
-										ctx.busyMessage?.value ??
-										(ctx.disableAddContent?.value ? ctx.disableAddContentTooltip : undefined)
-									"
-									type="colored"
-									color="brand"
-									size="lg"
-									:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
-									@click="ctx.browse"
-								>
-									<CompassIcon class="size-5" />
-									<span>{{ formatMessage(messages.browseContent) }}</span>
-								</Button>
-							</div>
-						</div>
-
-						<div class="@container flex items-start gap-2">
-							<div
-								ref="filterControlsRef"
-								class="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2"
-							>
-								<ContentSortMenu v-model="sortMode" />
-								<div ref="filterPillsRef" class="relative min-w-0">
-									<div
-										class="absolute -left-2 top-[5px] h-6 w-px bg-surface-5"
-										:class="{ invisible: filterPillsWrapped }"
-									/>
-									<FilterPills
-										:model-value="selectedFilters"
-										:options="visibleFilterOptions"
-										@update:model-value="updateFilterChips"
+								<div class="flex gap-2">
+									<Button
+										v-tooltip="
+											ctx.busyMessage?.value ??
+											(ctx.disableAddContent?.value ? ctx.disableAddContentTooltip : undefined)
+										"
+										type="outlined"
+										size="lg"
+										class="!rounded-xl"
+										:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
+										@click="ctx.uploadFiles"
 									>
-										<template #all>
-											{{ formatMessage(commonMessages.allProjectType) }}
-										</template>
-									</FilterPills>
+										<FolderOpenIcon class="size-5" />
+										<span>Import .jar</span>
+									</Button>
+									<Button
+										v-tooltip="
+											ctx.busyMessage?.value ??
+											(ctx.disableAddContent?.value ? ctx.disableAddContentTooltip : undefined)
+										"
+										type="colored"
+										color="brand"
+										size="lg"
+										class="!rounded-xl !font-bold"
+										:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
+										@click="ctx.browse"
+									>
+										<CompassIcon class="size-5" />
+										<span>Install Mods</span>
+									</Button>
 								</div>
+							</div>
+
+							<div class="@container flex items-start gap-2">
 								<div
-									v-if="metadataFilterCategories.length > 0"
-									ref="metadataFiltersRef"
-									class="relative flex flex-wrap items-center gap-1.5 [&>div:last-of-type]:!h-[34px] [&>div:last-of-type]:!gap-1.5 [&_[data-button]]:!h-[34px]"
+									ref="filterControlsRef"
+									class="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2"
 								>
+									<ContentSortMenu v-model="sortMode" />
+									<div ref="filterPillsRef" class="relative min-w-0">
+										<div
+											class="absolute -left-2 top-[5px] h-6 w-px bg-surface-5"
+											:class="{ invisible: filterPillsWrapped }"
+										/>
+										<FilterPills
+											:model-value="selectedFilters"
+											:options="visibleFilterOptions"
+											@update:model-value="updateFilterChips"
+										>
+											<template #all>
+												{{ formatMessage(commonMessages.allProjectType) }}
+											</template>
+										</FilterPills>
+									</div>
 									<div
-										class="absolute -left-2 top-[5px] h-6 w-px bg-surface-5"
-										:class="{ invisible: metadataFiltersWrapped }"
-									/>
-									<DropdownFilterBar
-										:model-value="selectedMetadataFilters"
-										:categories="metadataFilterCategories"
-										:show-label="false"
-										:add-label="formatMessage(messages.filter)"
-										:add-button-class="metadataFilterTriggerClass"
-										:preview-trigger-class="metadataFilterPreviewTriggerClass"
-										add-button-size="sm"
-										checkbox-position="right"
-										apply-immediately
-										@update:model-value="updateMetadataFilters"
+										v-if="metadataFilterCategories.length > 0"
+										ref="metadataFiltersRef"
+										class="relative flex flex-wrap items-center gap-1.5 [&>div:last-of-type]:!h-[34px] [&>div:last-of-type]:!gap-1.5 [&_[data-button]]:!h-[34px]"
 									>
-										<template #preview-content="{ label, summary }">
-											<span class="min-w-0 flex-1 truncate">
-												<span class="font-medium">{{ label }}:</span>
-												<span class="ml-1 font-semibold text-contrast">{{ summary }}</span>
-											</span>
-										</template>
-										<template #option="{ option, selected }">
-											<span
-												class="min-w-0 truncate font-semibold leading-tight"
-												:class="selected ? 'text-contrast' : 'text-primary'"
-											>
-												{{ option.label }}
-											</span>
-										</template>
-									</DropdownFilterBar>
+										<div
+											class="absolute -left-2 top-[5px] h-6 w-px bg-surface-5"
+											:class="{ invisible: metadataFiltersWrapped }"
+										/>
+										<DropdownFilterBar
+											:model-value="selectedMetadataFilters"
+											:categories="metadataFilterCategories"
+											:show-label="false"
+											:add-label="formatMessage(messages.filter)"
+											:add-button-class="metadataFilterTriggerClass"
+											:preview-trigger-class="metadataFilterPreviewTriggerClass"
+											add-button-size="sm"
+											checkbox-position="right"
+											apply-immediately
+											@update:model-value="updateMetadataFilters"
+										>
+											<template #preview-content="{ label, summary }">
+												<span class="min-w-0 flex-1 truncate">
+													<span class="font-medium">{{ label }}:</span>
+													<span class="ml-1 font-semibold text-contrast">{{ summary }}</span>
+												</span>
+											</template>
+											<template #option="{ option, selected }">
+												<span
+													class="min-w-0 truncate font-semibold leading-tight"
+													:class="selected ? 'text-contrast' : 'text-primary'"
+												>
+													{{ option.label }}
+												</span>
+											</template>
+										</DropdownFilterBar>
+									</div>
 								</div>
-							</div>
 
-							<div class="flex shrink-0 items-center gap-2">
-								<Button
-									v-if="hasBulkUpdateSupport && hasOutdatedProjects"
-									v-tooltip="formatMessage(messages.updateAll)"
-									type="quiet"
-									color="green"
-									:disabled="isBulkOperating || loadingUpdateAll"
-									class="!text-sm !font-medium hover:!bg-green focus-visible:!bg-green hover:!text-[var(--color-accent-contrast)] focus-visible:!text-[var(--color-accent-contrast)]"
-									@click="promptUpdateAll"
-								>
-									<DownloadIcon />
-									{{ formatMessage(messages.updateAll) }}
-								</Button>
+								<div class="flex shrink-0 items-center gap-2">
+									<Button
+										v-if="hasBulkUpdateSupport && hasOutdatedProjects"
+										v-tooltip="'Update all outdated mods'"
+										type="quiet"
+										color="green"
+										:disabled="isBulkOperating || loadingUpdateAll"
+										class="!text-sm !font-semibold hover:!bg-green focus-visible:!bg-green hover:!text-[var(--color-accent-contrast)] focus-visible:!text-[var(--color-accent-contrast)]"
+										@click="promptUpdateAll"
+									>
+										<DownloadIcon />
+										<span>Update Mods</span>
+									</Button>
 
-								<Button
-									type="quiet"
-									:disabled="refreshing"
-									class="!text-sm !font-medium"
-									@click="handleRefresh"
-								>
-									<RefreshCwIcon :class="refreshing ? 'animate-spin' : ''" />
-									{{ formatMessage(commonMessages.refreshButton) }}
-								</Button>
+									<Button
+										type="quiet"
+										:disabled="refreshing"
+										class="!text-sm !font-medium"
+										@click="handleRefresh"
+									>
+										<RefreshCwIcon :class="refreshing ? 'animate-spin' : ''" />
+										<span>Reload</span>
+									</Button>
+								</div>
 							</div>
 						</div>
 
@@ -1218,25 +1213,16 @@ const confirmUnlinkModal = ref<InstanceType<typeof ConfirmUnlinkModal>>()
 				<EmptyState v-else type="empty-inbox">
 					<template #heading>
 						{{
-							formatMessage(
-								ctx.managedContent.value
-									? messages.noExtraContentInstalled
-									: messages.noContentInstalled,
-							)
+							ctx.managedContent.value
+								? 'No extra mods added yet'
+								: 'No mods or packs installed yet'
 						}}
 					</template>
 					<template #description>
 						{{
 							ctx.managedContent.value
-								? formatMessage(messages.emptyModpackHint)
-								: formatMessage(messages.emptyHint, {
-										contentType: formatContentTypeSentence(
-											formatMessage,
-											ctx.contentTypeLabel.value,
-											2,
-											'content',
-										),
-									})
+								? 'Install extra mods or import .jar files on top of this modpack.'
+								: 'Browse community catalogs or import local .jar files to get started.'
 						}}
 					</template>
 					<template #actions>
@@ -1247,11 +1233,12 @@ const confirmUnlinkModal = ref<InstanceType<typeof ConfirmUnlinkModal>>()
 							"
 							type="outlined"
 							size="lg"
+							class="!rounded-xl"
 							:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
 							@click="ctx.uploadFiles"
 						>
 							<FolderOpenIcon class="size-5" />
-							{{ formatMessage(messages.uploadFiles) }}
+							<span>Import .jar</span>
 						</Button>
 						<Button
 							v-tooltip="
@@ -1261,11 +1248,12 @@ const confirmUnlinkModal = ref<InstanceType<typeof ConfirmUnlinkModal>>()
 							type="colored"
 							color="brand"
 							size="lg"
+							class="!rounded-xl !font-bold"
 							:disabled="ctx.isBusy.value || ctx.disableAddContent?.value"
 							@click="ctx.browse"
 						>
 							<CompassIcon class="size-5" />
-							<span>{{ formatMessage(messages.browseContent) }}</span>
+							<span>Install Mods</span>
 						</Button>
 					</template>
 				</EmptyState>
