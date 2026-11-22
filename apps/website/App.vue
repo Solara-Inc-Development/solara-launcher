@@ -12,11 +12,17 @@ import {
   Minus,
   Check,
   ChevronRight,
+  ChevronDown,
   Copy,
   Sparkles,
   GitBranch,
   Menu,
   X,
+  Box,
+  Discord,
+  Lock,
+  Coffee,
+  Layers3,
 } from './src/ui/icons';
 import { useInteractions } from './src/ui/interactions';
 import './src/ui/motion.css';
@@ -50,10 +56,43 @@ function resolveRoute(pathname: string): SiteRoute {
 const currentRoute = ref<SiteRoute>(resolveRoute(window.location.pathname));
 const mobile = ref(false);
 const faq = ref<number | null>(0);
+const openSubsystem = ref<number | null>(null);
 const copied = ref('');
-const activeShot = ref<(typeof SHOWCASE_TABS)[number]['id']>('modpacks');
-const previewTheme = ref<'oled' | 'white'>('oled');
+const activeShot = ref<(typeof SHOWCASE_TABS)[number]['id']>('dashboard');
 let timer: ReturnType<typeof setInterval> | null = null;
+
+// Interactive Hero Runtime Simulator (100% real Java & loader mapping used by Solara)
+const MC_PRESETS = [
+  { version: '1.12.2', java: 8, runtime: 'Temurin 8', loaders: ['Forge', 'Vanilla'] },
+  { version: '1.16.5', java: 17, runtime: 'Temurin 17', loaders: ['Fabric', 'Forge', 'Vanilla'] },
+  { version: '1.18.2', java: 17, runtime: 'Temurin 17', loaders: ['Fabric', 'Forge', 'Quilt', 'Vanilla'] },
+  { version: '1.19.4', java: 17, runtime: 'Temurin 17', loaders: ['Fabric', 'Forge', 'Quilt', 'Vanilla'] },
+  { version: '1.20.1', java: 17, runtime: 'Temurin 17', loaders: ['Fabric', 'NeoForge', 'Forge', 'Quilt', 'Vanilla'] },
+  { version: '1.20.4', java: 17, runtime: 'Temurin 17', loaders: ['Fabric', 'NeoForge', 'Forge', 'Quilt', 'Vanilla'] },
+  { version: '1.21.1', java: 21, runtime: 'Temurin 21', loaders: ['Fabric', 'NeoForge', 'Forge', 'Quilt', 'Vanilla'] },
+  { version: '1.21.4', java: 21, runtime: 'Temurin 21', loaders: ['Fabric', 'NeoForge', 'Forge', 'Quilt', 'Vanilla'] },
+] as const;
+
+const selectedMcIndex = ref(6); // Default: 1.21.1 -> Java 21
+const selectedLoader = ref<'Fabric' | 'NeoForge' | 'Forge' | 'Quilt' | 'Vanilla'>('Fabric');
+
+const currentPreset = computed(() => MC_PRESETS[selectedMcIndex.value] ?? MC_PRESETS[6]);
+const javaBarPercent = computed(() => {
+  if (currentPreset.value.java === 8) return 44;
+  if (currentPreset.value.java === 17) return 74;
+  return 100;
+});
+
+function pickLoader(loader: 'Fabric' | 'NeoForge' | 'Forge' | 'Quilt' | 'Vanilla') {
+  selectedLoader.value = loader;
+  if (loader === 'NeoForge' && selectedMcIndex.value < 4) {
+    selectedMcIndex.value = 6;
+  } else if (loader === 'Quilt' && selectedMcIndex.value < 2) {
+    selectedMcIndex.value = 6;
+  } else if (loader === 'Fabric' && selectedMcIndex.value < 1) {
+    selectedMcIndex.value = 6;
+  }
+}
 
 const DIRECT_GITHUB_DOWNLOAD_URL =
   'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.89/solaralauncher.exe';
@@ -61,11 +100,17 @@ const DIRECT_GITHUB_DOWNLOAD_URL =
 const DEFAULT_VT_SHA256 =
   '199ad3d42baf50ac5a85317dd4b61a90522650f3c22921191aee23be238fea96';
 
+const DISCORD_URL = 'https://discord.gg/solara-inc';
+
 const githubDownloadUrl = computed(() => DIRECT_GITHUB_DOWNLOAD_URL);
 
 const virusTotalUrl = computed(() => {
   return `https://www.virustotal.com/gui/file/${DEFAULT_VT_SHA256}/`;
 });
+
+const currentShot = computed(
+  () => SHOWCASE_TABS.find((t) => t.id === activeShot.value) ?? SHOWCASE_TABS[1],
+);
 
 function selectShot(id: (typeof SHOWCASE_TABS)[number]['id']) {
   activeShot.value = id;
@@ -92,10 +137,6 @@ function onPopState() {
   currentRoute.value = resolveRoute(window.location.pathname);
 }
 
-const currentShot = computed(
-  () => SHOWCASE_TABS.find((t) => t.id === activeShot.value) ?? SHOWCASE_TABS[0],
-);
-
 const features: ReadonlyArray<{
   icon: typeof Gamepad2;
   tone: string;
@@ -106,77 +147,112 @@ const features: ReadonlyArray<{
   {
     icon: Gamepad2,
     tone: 'cobalt',
-    title: 'Separate Game Folders',
-    copy: 'Keep Vanilla, Fabric, Forge, NeoForge, and Quilt worlds in their own clean folders so mods never clash.',
+    title: 'Isolated Game Folders',
+    copy: 'Keep Vanilla, Fabric, NeoForge, Forge, and Quilt worlds in their own clean folders so mods never clash.',
     tag: 'WORLDS',
   },
   {
     icon: Package,
     tone: 'emerald',
     title: 'One-Click Modpacks',
-    copy: 'Browse huge community catalogs, filter by Minecraft version or loader, and install with a single click.',
+    copy: 'Browse top community catalogs with rich descriptions, screenshots, and instant .mrpack & .zip installs.',
     tag: 'MODPACKS',
   },
   {
     icon: Sparkles,
     tone: 'purple',
-    title: 'Icon Studio & 3D Skins',
-    copy: 'Customize every instance with 30 3D icons, text badges, and frames — plus a live 3D skin viewer.',
-    tag: 'STYLE',
+    title: 'Solara Icon Studio',
+    copy: 'Customize every world with 30 crisp 3D icons, text badges, gradient backgrounds, and clean frames.',
+    tag: 'ICONS',
   },
   {
     icon: Monitor,
     tone: 'amber',
-    title: 'Auto Java Setup',
-    copy: 'No hunting for Java downloads. Solara detects and installs the right Java version automatically.',
-    tag: 'AUTO JAVA',
+    title: 'Pure OLED & White Mode',
+    copy: 'True #000000 OLED black for late-night sessions and a crisp White theme for bright rooms — zero ads.',
+    tag: 'THEMES',
   },
   {
     icon: ShieldCheck,
     tone: 'sky',
-    title: 'Safe Microsoft Login',
-    copy: 'Sign in directly with Microsoft on your own PC. Your password never touches Solara servers.',
-    tag: 'PRIVATE',
+    title: 'Local Microsoft Login',
+    copy: 'Sign in directly through Microsoft OAuth 2.0 PKCE on your own PC. Credentials never touch Solara servers.',
+    tag: 'SECURITY',
   },
   {
-    icon: Download,
+    icon: GitBranch,
     tone: 'rose',
-    title: 'Evergreen Auto-Updates',
-    copy: 'Download once forever. Signed updates download and apply automatically whenever no game is running.',
-    tag: 'UPDATES',
+    title: 'One Evergreen .exe Forever',
+    copy: 'Download solaralauncher.exe once. Every future release checks at launch and applies silently from GitHub.',
+    tag: 'AUTO-UPDATE',
   },
 ];
 
-const quickSteps = [
+const SUBSYSTEMS = [
   {
-    num: '01',
-    title: 'Download once from GitHub',
-    copy: 'Grab solaralauncher.exe directly from GitHub Releases CDN and run the quick installer.',
+    id: '01',
+    title: 'Isolated instance directories',
+    detail: 'Every profile gets its own mods, configs, resource packs, shader packs, and saves folder so different Minecraft versions never corrupt each other.',
   },
   {
-    num: '02',
-    title: 'Sign in with Microsoft',
-    copy: 'Log in safely through Microsoft’s official window on your own PC.',
+    id: '02',
+    title: 'One-click modpack & mod browser',
+    detail: 'Search multiple community catalogs, inspect full rich-image descriptions and screenshots, filter by loader/version, and install automatically.',
   },
   {
-    num: '03',
-    title: 'Pick a pack & play',
-    copy: 'Create a custom world or click Install on any modpack — Java sets up automatically.',
+    id: '03',
+    title: 'Automatic Temurin Java runtimes',
+    detail: 'Solara automatically downloads and pairs the right Eclipse Temurin Java version (Java 8, 17, or 21) for each Minecraft version.',
+  },
+  {
+    id: '04',
+    title: 'All 5 modern mod loaders',
+    detail: 'Full native support for Vanilla, Fabric, NeoForge, Forge, and Quilt with automatic loader metadata resolution.',
+  },
+  {
+    id: '05',
+    title: 'Solara Icon Studio (3D + Badges)',
+    detail: 'Built-in icon designer with 30 3D voxel icons, custom text badges, color palettes, patterns, and frames saved locally per instance.',
+  },
+  {
+    id: '06',
+    title: 'Permanent evergreen solaralauncher.exe',
+    detail: 'One locked public Windows installer with a fixed SHA-256 and VirusTotal report — no need to manually download a new .exe on future releases.',
+  },
+  {
+    id: '07',
+    title: '0ms Minisign auto-updates via GitHub CDN',
+    detail: 'On startup, Solara checks GitHub Releases CDN, verifies the Minisign cryptographic signature in memory, and silently updates in place when idle.',
+  },
+  {
+    id: '08',
+    title: 'Local Microsoft OAuth 2.0 PKCE',
+    detail: 'Official Microsoft loopback authentication runs strictly on your own PC and stores tokens encrypted in Windows Credential Manager.',
+  },
+  {
+    id: '09',
+    title: 'True OLED #000000 & White UI',
+    detail: 'Zero ad banners, zero sponsor popups, and instant theme switching between true pitch-black OLED and crisp White mode.',
+  },
+  {
+    id: '10',
+    title: 'Open-source GPL-3.0 & notice verification',
+    detail: 'Full source code, exact release source archives, and bundled third-party license notices are published transparently on GitHub.',
   },
 ] as const;
 
 const questions = [
   [
     'Do I need to download a new .exe for every update?',
-    'Nope! You only download solaralauncher.exe once. After that, Solara automatically downloads and installs verified updates on launch whenever no game is running.',
+    'No! You only download solaralauncher.exe once. Even if you install from this same file months later, Solara checks GitHub Releases on launch and automatically updates itself in place.',
   ],
   [
     'Where does the download come from?',
-    'Directly from our official GitHub Releases CDN — fast, verifiable with SHA-256 and VirusTotal, and open source.',
+    'Directly from our official GitHub Releases CDN — fast, open source, and verifiable with its permanent SHA-256 fingerprint and VirusTotal report.',
   ],
   [
     'Is my Microsoft account safe?',
-    'Yes. You sign in straight through Microsoft on your own PC. Your password never goes through Solara, and your login stays locked inside Windows.',
+    'Yes. You sign in straight through Microsoft on your own PC using OAuth 2.0 PKCE. Your password never goes through Solara servers.',
   ],
   [
     'Which mod loaders work in Solara?',
@@ -184,7 +260,7 @@ const questions = [
   ],
   [
     'Is Solara really free with no ads?',
-    'Yes! Zero ad banners, zero popups, and the full open-source code is public on GitHub.',
+    'Yes. Zero ad banners, zero popups, and the full GPL-3.0 source code is public on GitHub.',
   ],
 ] as const;
 
@@ -218,32 +294,44 @@ async function copyText(text: string, key: string) {
   <div class="website" :style="{ '--accent': '#3b82f6' }" :data-reduced-motion="preferences.motion">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <!-- Sticky Frosted Navbar -->
+    <!-- Minimal Sticky Pure OLED Navbar -->
     <header class="web-header">
       <div class="web-header-inner">
         <a class="web-brand" href="/" @click.prevent="navigate('/')">
           <img src="/logo.svg" alt="Solara" />
           <span>Solara</span>
-          <span v-if="latest" class="nav-version-badge">{{ latest.publicVersion }}</span>
         </a>
 
         <nav :class="{ expanded: mobile }" aria-label="Website navigation">
-          <a href="/" :class="{ active: currentRoute === '/' }" @click.prevent="navigate('/')">Home</a>
+          <a href="/" :class="{ active: currentRoute === '/' }" @click.prevent="navigate('/')">About</a>
           <a href="/features" :class="{ active: currentRoute === '/features' }" @click.prevent="navigate('/features')">Features</a>
           <a href="/downloads" :class="{ active: currentRoute === '/downloads' }" @click.prevent="navigate('/downloads')">Downloads</a>
-          <a href="/changelog" :class="{ active: currentRoute === '/changelog' }" @click.prevent="navigate('/changelog')">What’s New</a>
+          <a href="/changelog" :class="['nav-with-pill', { active: currentRoute === '/changelog' }]" @click.prevent="navigate('/changelog')">
+            <span>Releases</span>
+            <span class="nav-release-pill">{{ latest ? latest.publicVersion : 'V-0.0.89' }}</span>
+          </a>
           <a href="/security" :class="{ active: currentRoute === '/security' }" @click.prevent="navigate('/security')">Safety</a>
-          <a href="/docs" :class="{ active: currentRoute === '/docs' }" @click.prevent="navigate('/docs')">Help &amp; FAQ</a>
+          <a href="/docs" :class="{ active: currentRoute === '/docs' }" @click.prevent="navigate('/docs')">Docs</a>
         </nav>
 
         <div class="header-actions">
+          <a
+            v-if="links.github"
+            :href="links.github"
+            target="_blank"
+            rel="noopener"
+            class="header-github"
+          >
+            <GitBranch />
+            <span>GitHub</span>
+          </a>
+
           <a
             :href="githubDownloadUrl"
             download="solaralauncher.exe"
             rel="noopener"
             class="header-download"
           >
-            <Download />
             <span>Download</span>
           </a>
 
@@ -264,96 +352,155 @@ async function copyText(text: string, key: string) {
       <Transition name="page-slide" mode="out-in">
         <!-- ==================== HOME PAGE ==================== -->
         <div v-if="currentRoute === '/'" key="home" class="page-stack">
-          <!-- Hero -->
-          <section class="web-hero web-container">
-            <a
-              href="/changelog"
-              class="hero-pill hero-anim-1"
-              @click.prevent="navigate('/changelog')"
-            >
-              <span class="dot" />
-              <strong>{{ latest ? `${latest.publicVersion} Live on GitHub` : 'Windows x64 Preview' }}</strong>
-              <span class="hero-pill-sep">·</span>
-              <span>One Evergreen Installer &amp; Auto-Updates</span>
-              <ChevronRight class="pill-arrow" />
-            </a>
-
-            <h1 class="hero-anim-2">
-              Play Minecraft,<br />
-              <span class="hero-accent-text">the fast &amp; clean way.</span>
-            </h1>
-
-            <p class="hero-description hero-anim-3">
-              Keep your worlds tidy, install modpacks in one click, and customize 3D icons &amp; skins — all inside a sleek, ad-free Windows launcher that updates itself automatically.
-            </p>
-
-            <div class="hero-actions hero-anim-4">
-              <a
-                :href="githubDownloadUrl"
-                download="solaralauncher.exe"
-                rel="noopener"
-                class="button primary hero-cta"
-              >
-                <Download />
-                <span>Download solaralauncher.exe</span>
-                <span class="cta-meta">Auto-Updating</span>
-              </a>
-
-              <a
-                :href="virusTotalUrl"
-                target="_blank"
-                rel="noopener"
-                class="button secondary hero-secondary"
-              >
-                <ShieldCheck />
-                <span>VirusTotal Scan</span>
-                <ArrowUpRight />
-              </a>
-
-              <a
-                href="/features"
-                class="button secondary hero-secondary"
-                @click.prevent="navigate('/features')"
-              >
-                <span>Explore Features</span>
-                <ChevronRight />
-              </a>
-            </div>
-
-            <div class="hero-trust hero-anim-5">
-              <span><Check /> Direct GitHub CDN Download</span>
-              <span><ShieldCheck /> Official Microsoft Login</span>
-              <span><Check /> Evergreen Auto-Updates</span>
-              <span><Check /> 100% Free &amp; Open Source</span>
-            </div>
-
-            <!-- Interactive 5-View App Showcase -->
-            <div id="showcase" class="showcase-wrap hero-anim-6">
-              <div class="showcase-shell">
-                <div class="showcase-toolbar">
-                  <div class="showcase-dots" aria-hidden="true">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-
-                  <div class="showcase-tabs" role="tablist" aria-label="Launcher views">
-                    <button
-                      v-for="tab in SHOWCASE_TABS"
-                      :key="tab.id"
-                      type="button"
-                      role="tab"
-                      :aria-selected="activeShot === tab.id"
-                      :class="['showcase-tab', { active: activeShot === tab.id }]"
-                      @click="selectShot(tab.id)"
-                    >
-                      <span>{{ tab.label }}</span>
-                      <small>{{ tab.badge }}</small>
-                    </button>
-                  </div>
+          <!-- Asymmetric Split Hero -->
+          <section class="hero-section">
+            <div class="web-container hero-grid">
+              <div class="hero-left">
+                <div class="hero-eyebrow-row">
+                  <span class="hero-eyebrow-item"><Box class="eyebrow-ic" /> Minecraft: Java Edition</span>
+                  <span class="hero-sep">·</span>
+                  <span class="hero-eyebrow-item">Built with Rust &amp; Vue</span>
                 </div>
 
-                <div class="showcase-stage">
+                <h1 class="display-title hero-h1">
+                  The launcher you know,<br />
+                  <span class="accent-text">rebuilt clean &amp; fast.</span>
+                </h1>
+
+                <p class="hero-lead">
+                  A fast, ad-free pure OLED Minecraft launcher for Windows — one-click modpacks, automatic Java setup, and one permanent evergreen installer.
+                </p>
+
+                <div class="hero-cta-row">
+                  <a
+                    :href="githubDownloadUrl"
+                    download="solaralauncher.exe"
+                    rel="noopener"
+                    class="btn-primary"
+                  >
+                    <Download />
+                    <span>Download the launcher</span>
+                  </a>
+
+                  <a
+                    v-if="links.github"
+                    :href="links.github"
+                    target="_blank"
+                    rel="noopener"
+                    class="btn-secondary"
+                  >
+                    <GitBranch />
+                    <span>View on GitHub</span>
+                  </a>
+                </div>
+
+                <div class="hero-meta-strip">
+                  <span class="meta-os"><Monitor /> Windows 10/11 (64-bit)</span>
+                  <span class="hero-sep">·</span>
+                  <a :href="virusTotalUrl" target="_blank" rel="noopener" class="meta-vt">
+                    <ShieldCheck /> VirusTotal Verified
+                  </a>
+                </div>
+                <p class="hero-meta-sub">
+                  Evergreen <code>solaralauncher.exe</code> · {{ latest ? `${(latest.size / 1048576).toFixed(1)} MB` : '30.0 MB' }} · Latest {{ latest ? latest.publicVersion : 'V-0.0.89' }} · Direct GitHub CDN
+                </p>
+              </div>
+
+              <!-- Right Floating Interactive Runtime Widget Card -->
+              <div class="hero-right">
+                <div class="runtime-card">
+                  <span class="runtime-label">Smart Runtime Engine</span>
+                  <h2 class="display-title runtime-title">
+                    <span class="accent-text">Zero</span> manual setup.
+                  </h2>
+                  <p class="runtime-sub">
+                    Automatic Eclipse Temurin Java pairing and isolated folders for every Minecraft version.
+                  </p>
+
+                  <div class="runtime-metric">
+                    <div class="runtime-metric-head">
+                      <span class="runtime-metric-name">
+                        <img src="/logo.svg" alt="" class="mini-mark" />
+                        <span>Solara Auto-Java</span>
+                      </span>
+                      <span class="runtime-metric-val">
+                        <strong>Java {{ currentPreset.java }}</strong>
+                        <small>{{ currentPreset.runtime }}</small>
+                      </span>
+                    </div>
+                    <div class="runtime-bar-track">
+                      <div class="runtime-bar-fill" :style="{ width: `${javaBarPercent}%` }" />
+                    </div>
+                  </div>
+
+                  <div class="runtime-metric">
+                    <div class="runtime-metric-head">
+                      <span class="runtime-metric-name">
+                        <Coffee class="metric-ic" />
+                        <span>Minecraft Version</span>
+                      </span>
+                      <span class="runtime-metric-val muted-val">
+                        <strong>{{ currentPreset.version }}</strong>
+                        <small>{{ selectedLoader }}</small>
+                      </span>
+                    </div>
+                    <div class="runtime-slider-wrap">
+                      <input
+                        v-model.number="selectedMcIndex"
+                        type="range"
+                        min="0"
+                        :max="MC_PRESETS.length - 1"
+                        step="1"
+                        class="runtime-slider"
+                        aria-label="Preview Minecraft version Java auto-pairing"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="runtime-loaders" role="group" aria-label="Select mod loader">
+                    <button
+                      v-for="loader in (['Fabric', 'NeoForge', 'Forge', 'Quilt', 'Vanilla'] as const)"
+                      :key="loader"
+                      type="button"
+                      :class="['loader-chip', { active: selectedLoader === loader }]"
+                      @click="pickLoader(loader)"
+                    >
+                      {{ loader }}
+                    </button>
+                  </div>
+
+                  <p class="runtime-foot">
+                    Drag the version bar to preview Solara’s automatic Java &amp; loader pairing.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="oled-horizon-line" aria-hidden="true" />
+          </section>
+
+          <!-- Section 2: "What it is" Asymmetric Split + 3 Minimal Borderless Columns -->
+          <section id="about" class="web-container editorial-section">
+            <div class="editorial-split">
+              <div class="editorial-copy">
+                <div class="section-kicker">
+                  <span>What it is</span>
+                  <img src="/logo.svg" alt="" class="kicker-logo" />
+                </div>
+                <h2 class="display-title section-h2">
+                  Same Minecraft,<br />
+                  cleaner workflow.
+                </h2>
+                <p class="section-body">
+                  Solara Launcher gives every modpack and vanilla world its own clean directory, installs required Java runtimes automatically, and stays up to date from a single permanent Windows installer.
+                </p>
+                <a href="/features" class="inline-accent-link" @click.prevent="navigate('/features')">
+                  <span>Explore all features</span>
+                  <ArrowUpRight />
+                </a>
+              </div>
+
+              <div class="editorial-media">
+                <div class="media-frame">
                   <Transition name="shot-fade" mode="out-in">
                     <img
                       v-if="activeShot === 'dashboard'"
@@ -367,7 +514,7 @@ async function copyText(text: string, key: string) {
                       v-else-if="activeShot === 'modpacks'"
                       key="modpacks"
                       src="/screenshots/modpacks.png"
-                      alt="Solara Launcher Modpack Browser with cover art cards"
+                      alt="Solara Launcher Modpack Browser"
                       width="1380"
                       height="860"
                     />
@@ -375,7 +522,7 @@ async function copyText(text: string, key: string) {
                       v-else-if="activeShot === 'icon-studio'"
                       key="icon-studio"
                       src="/screenshots/icon-studio.png"
-                      alt="Solara Icon Studio with 3D icons and custom badges"
+                      alt="Solara Icon Studio"
                       width="1380"
                       height="860"
                     />
@@ -383,7 +530,7 @@ async function copyText(text: string, key: string) {
                       v-else-if="activeShot === 'settings'"
                       key="settings"
                       src="/screenshots/settings-resources.png"
-                      alt="Solara Storage and Resources screen"
+                      alt="Solara Storage and Resources"
                       width="1440"
                       height="950"
                     />
@@ -391,226 +538,215 @@ async function copyText(text: string, key: string) {
                       v-else
                       key="white"
                       src="/screenshots/downloads-white.png"
-                      alt="Solara Launcher clean White theme"
+                      alt="Solara Launcher White Theme"
                       width="1440"
                       height="950"
                     />
                   </Transition>
                 </div>
-
-                <div class="showcase-footer">
-                  <p>{{ currentShot.caption }}</p>
-                  <a :href="githubDownloadUrl" download="solaralauncher.exe" rel="noopener" class="text-link">
-                    Download solaralauncher.exe <ChevronRight />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Key Stats Strip -->
-          <section class="web-container stats-strip">
-            <div class="stat-box">
-              <strong>1 File Forever</strong>
-              <span>Evergreen auto-updating .exe</span>
-            </div>
-            <div class="stat-box">
-              <strong>5 Loaders</strong>
-              <span>Vanilla, Fabric, NeoForge, Forge &amp; Quilt</span>
-            </div>
-            <div class="stat-box">
-              <strong>30+ 3D Icons</strong>
-              <span>Plus custom text badges &amp; frames</span>
-            </div>
-            <div class="stat-box">
-              <strong>GitHub CDN</strong>
-              <span>Direct downloads &amp; VirusTotal verified</span>
-            </div>
-          </section>
-
-          <!-- Clean Bento Showcase -->
-          <section class="web-container web-section">
-            <div class="section-header-row">
-              <div class="section-header">
-                <span class="eyebrow">BUILT FOR PLAYERS</span>
-                <h2>Designed to feel effortless.</h2>
-                <p>No bloated menus or messy setup — everything you actually use is right where you expect it.</p>
-              </div>
-              <a href="/features" class="button secondary" @click.prevent="navigate('/features')">
-                <span>All features</span>
-                <ArrowRight />
-              </a>
-            </div>
-
-            <div class="bento-grid">
-              <!-- Bento 1: Modpacks (Wide) -->
-              <article class="bento-card bento-wide">
-                <div class="bento-copy">
-                  <span class="bento-pill">ONE-CLICK MODPACKS</span>
-                  <h3>Browse cover-art packs &amp; full detail pages.</h3>
-                  <p>Search popular community catalogs, inspect full descriptions with images, galleries, and versions, and install in one click.</p>
-                </div>
-                <div class="bento-media">
-                  <img src="/screenshots/modpacks.png" alt="Solara Modpack Browser" />
-                </div>
-              </article>
-
-              <!-- Bento 2: Icon Studio -->
-              <article class="bento-card bento-narrow">
-                <div class="bento-copy">
-                  <span class="bento-pill">ICON STUDIO</span>
-                  <h3>30 3D icons &amp; custom badges.</h3>
-                  <p>Style every world with 3D icons, text badges, custom colors, patterns, and frames.</p>
-                </div>
-                <div class="bento-media">
-                  <img src="/screenshots/icon-studio.png" alt="Solara Icon Studio" />
-                </div>
-              </article>
-
-              <!-- Bento 3: 3-Step Quick Start -->
-              <article class="bento-card bento-narrow">
-                <div class="bento-copy">
-                  <span class="bento-pill">READY IN 60 SECONDS</span>
-                  <h3>Three simple steps to play.</h3>
-                </div>
-                <div class="steps-list">
-                  <div v-for="step in quickSteps" :key="step.num" class="step-row">
-                    <span class="step-num">{{ step.num }}</span>
-                    <div>
-                      <strong>{{ step.title }}</strong>
-                      <p>{{ step.copy }}</p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <!-- Bento 4: Interactive OLED vs White Theme Switcher (Wide) -->
-              <article class="bento-card bento-wide">
-                <div class="bento-copy bento-copy-row">
-                  <div>
-                    <span class="bento-pill">DUAL THEMES</span>
-                    <h3>True OLED Black or crisp White mode.</h3>
-                    <p>Click to preview both themes — switch anytime inside Settings.</p>
-                  </div>
-                  <div class="theme-switch-pills" role="group" aria-label="Preview launcher theme">
-                    <button
-                      type="button"
-                      :class="['theme-pill', { active: previewTheme === 'oled' }]"
-                      @click="previewTheme = 'oled'"
-                    >
-                      OLED Black
-                    </button>
-                    <button
-                      type="button"
-                      :class="['theme-pill', { active: previewTheme === 'white' }]"
-                      @click="previewTheme = 'white'"
-                    >
-                      White Mode
-                    </button>
-                  </div>
-                </div>
-                <div class="bento-media">
-                  <Transition name="shot-fade" mode="out-in">
-                    <img
-                      v-if="previewTheme === 'oled'"
-                      key="oled-preview"
-                      src="/screenshots/dashboard.png"
-                      alt="Solara OLED Black theme"
-                    />
-                    <img
-                      v-else
-                      key="white-preview"
-                      src="/screenshots/downloads-white.png"
-                      alt="Solara White theme"
-                    />
-                  </Transition>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <!-- Clean 6-Card Feature Grid -->
-          <section id="features" class="web-container web-section">
-            <div class="section-header-row">
-              <div class="section-header">
-                <span class="eyebrow">EVERYTHING INCLUDED</span>
-                <h2>Simple to use. Built to last.</h2>
-                <p>No add-on paywalls, no ad clutter — every core launcher tool comes built in.</p>
-              </div>
-            </div>
-
-            <div class="feature-grid">
-              <article
-                v-for="(f, i) in features"
-                :key="f.title"
-                :class="['feature', `feature--${f.tone}`]"
-              >
-                <div class="feature-top">
-                  <span class="feature-icon-wrap">
-                    <component :is="f.icon" class="feature-icon" />
-                  </span>
-                  <span class="feature-tag">0{{ i + 1 }} · {{ f.tag }}</span>
-                </div>
-                <h3>{{ f.title }}</h3>
-                <p>{{ f.copy }}</p>
-              </article>
-            </div>
-          </section>
-
-          <!-- Security & VirusTotal Highlight -->
-          <section id="security" class="web-container web-section">
-            <div class="security-card">
-              <div class="security-copy">
-                <span class="eyebrow">TRANSPARENT &amp; VERIFIED</span>
-                <h2>Direct from GitHub. Checked on VirusTotal.</h2>
-                <p>
-                  You sign in directly through Microsoft’s official page on your own PC. Every release is built cleanly on GitHub Actions, signed with Minisign, and publicly verifiable on VirusTotal.
-                </p>
-                <div class="security-cta-row">
-                  <a
-                    :href="virusTotalUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="button secondary compact-btn"
+                <div class="media-pills" role="tablist" aria-label="Launcher views">
+                  <button
+                    v-for="tab in SHOWCASE_TABS"
+                    :key="tab.id"
+                    type="button"
+                    role="tab"
+                    :aria-selected="activeShot === tab.id"
+                    :class="['media-pill', { active: activeShot === tab.id }]"
+                    @click="selectShot(tab.id)"
                   >
+                    {{ tab.label }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 Borderless Minimal Pillars (Horizon rhythm) -->
+            <div class="pillars-row">
+              <div class="pillar-minimal">
+                <h3><Lock class="pillar-ic" /> Official Microsoft login</h3>
+                <p>
+                  Sign in with your legally owned Minecraft: Java Edition account through Microsoft OAuth 2.0 PKCE directly on your own PC. Solara never sees your password.
+                </p>
+              </div>
+              <div class="pillar-minimal">
+                <h3><Layers3 class="pillar-ic" /> One permanent .exe</h3>
+                <p>
+                  Install <code>solaralauncher.exe</code> once from GitHub Releases. Every future update checks on launch, verifies its Minisign signature, and upgrades silently.
+                </p>
+              </div>
+              <div class="pillar-minimal">
+                <h3><GitBranch class="pillar-ic" /> Open source (GPL-3.0)</h3>
+                <p>
+                  Solara’s launcher code and exact release source archives are public on GitHub with permanent SHA-256 fingerprints and verifiable VirusTotal reports.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: "Built in the open." 4-Tile High-Contrast Action Strip -->
+          <section id="community" class="open-band">
+            <div class="web-container">
+              <span class="band-kicker">Community &amp; Transparency</span>
+              <h2 class="display-title section-h2">Built in the open.</h2>
+              <p class="section-body band-sub">
+                Every release lands on GitHub in public. Inspect the source code, verify the permanent VirusTotal scan, or join the community.
+              </p>
+
+              <div class="action-tiles">
+                <a
+                  :href="DISCORD_URL"
+                  target="_blank"
+                  rel="noopener"
+                  class="action-tile tile-discord"
+                >
+                  <div class="tile-head">
+                    <Discord />
+                    <strong>Discord</strong>
+                  </div>
+                  <p>Questions, live progress updates, and screenshots.</p>
+                </a>
+
+                <a
+                  :href="virusTotalUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="action-tile tile-dark"
+                >
+                  <div class="tile-head">
                     <ShieldCheck />
-                    <span>View VirusTotal Report</span>
+                    <strong>VirusTotal</strong>
+                  </div>
+                  <p>Inspect the permanent SHA-256 scan report anytime.</p>
+                </a>
+
+                <a
+                  :href="links.github || 'https://github.com/Solara-Inc-Development/solara-launcher'"
+                  target="_blank"
+                  rel="noopener"
+                  class="action-tile tile-white"
+                >
+                  <div class="tile-head">
+                    <GitBranch />
+                    <strong>Source</strong>
+                  </div>
+                  <p>Issues, pull requests, and official releases on GitHub.</p>
+                </a>
+
+                <a
+                  href="/security"
+                  class="action-tile tile-dark"
+                  @click.prevent="navigate('/security')"
+                >
+                  <div class="tile-head">
+                    <Lock />
+                    <strong>How it’s built</strong>
+                  </div>
+                  <p>Minisign verification, local login, and why it’s safe to run.</p>
+                </a>
+              </div>
+
+              <p class="band-foot">
+                Want to verify your installer? <a href="/downloads" @click.prevent="navigate('/downloads')">Check the permanent SHA-256 &amp; PowerShell command</a>.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 4: Asymmetric Visual Gallery -->
+          <section id="gallery" class="web-container editorial-section">
+            <div class="gallery-grid">
+              <div class="gallery-col-left">
+                <figure class="gallery-shot">
+                  <img src="/screenshots/modpacks.png" alt="Solara Modpack Browser" loading="lazy" />
+                  <figcaption>One-click Modpack Browser</figcaption>
+                </figure>
+                <figure class="gallery-shot">
+                  <img src="/screenshots/icon-studio.png" alt="Solara Icon Studio" loading="lazy" />
+                  <figcaption>Solara Icon Studio · 30 3D Icons &amp; Badges</figcaption>
+                </figure>
+              </div>
+
+              <div class="gallery-col-right">
+                <div class="gallery-heading-block">
+                  <div class="section-kicker">
+                    <span>Crafted for OLED</span>
+                    <img src="/logo.svg" alt="" class="kicker-logo" />
+                  </div>
+                  <h2 class="display-title section-h2">
+                    The same game you love, <span class="accent-text">zero clutter.</span>
+                  </h2>
+                  <p class="section-body">
+                    Every screen is built for pure #000000 OLED black and crisp White mode, with zero ads or popups getting in your way.
+                  </p>
+                </div>
+
+                <figure class="gallery-shot">
+                  <img src="/screenshots/settings-resources.png" alt="Storage & Resource Manager" loading="lazy" />
+                  <figcaption>Storage &amp; Resource Control</figcaption>
+                </figure>
+                <figure class="gallery-shot">
+                  <img src="/screenshots/downloads-white.png" alt="Solara White Theme" loading="lazy" />
+                  <figcaption>Crisp White Theme</figcaption>
+                </figure>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 5: Big Typographic Stat + 2-Column Numbered Expandable Subsystems -->
+          <section id="architecture" class="web-container editorial-section">
+            <div class="stat-header-grid">
+              <div class="stat-hero-left">
+                <div class="big-stat-number display-title">100%</div>
+                <p class="section-body">
+                  ad-free and open source: every subsystem in Solara Launcher is transparent, isolated on your disk, and cryptographically verified before updating.
+                </p>
+              </div>
+              <div class="stat-hero-right">
+                <h2 class="display-title section-h2">Built for everyday play.</h2>
+                <p class="section-body">
+                  Below is an overview of Solara’s core launcher subsystems — click any row to inspect how it works under the hood on Windows.
+                </p>
+                <p class="stat-meta-line">
+                  Current preview {{ latest ? latest.publicVersion : 'V-0.0.89' }} ·
+                  <a href="/changelog" class="inline-accent-link" @click.prevent="navigate('/changelog')">
+                    <span>read full release notes</span>
                     <ArrowUpRight />
                   </a>
-                  <a href="/security" class="text-link" @click.prevent="navigate('/security')">
-                    How we keep you safe <ArrowRight />
-                  </a>
-                </div>
+                </p>
               </div>
+            </div>
 
-              <div class="security-list">
-                <div class="security-item">
-                  <span class="security-check"><Check /></span>
-                  <div>
-                    <strong>Direct GitHub Releases Download</strong>
-                    <span>Every solaralauncher.exe download streams straight from GitHub’s official CDN.</span>
-                  </div>
-                </div>
-                <div class="security-item">
-                  <span class="security-check"><Check /></span>
-                  <div>
-                    <strong>Public VirusTotal &amp; SHA-256 Verification</strong>
-                    <span>Check the exact SHA-256 fingerprint and live VirusTotal scan anytime in one click.</span>
-                  </div>
-                </div>
-                <div class="security-item">
-                  <span class="security-check"><Check /></span>
-                  <div>
-                    <strong>Official Microsoft Login On Your PC</strong>
-                    <span>Your password never leaves your computer or touches Solara servers.</span>
-                  </div>
+            <div class="subsystem-grid">
+              <div
+                v-for="(item, idx) in SUBSYSTEMS"
+                :key="item.id"
+                :class="['subsystem-row', { open: openSubsystem === idx }]"
+              >
+                <button
+                  type="button"
+                  class="subsystem-trigger"
+                  :aria-expanded="openSubsystem === idx"
+                  @click="openSubsystem = openSubsystem === idx ? null : idx"
+                >
+                  <span class="subsystem-left">
+                    <span class="subsystem-num">{{ item.id }}</span>
+                    <span class="subsystem-title">{{ item.title }}</span>
+                  </span>
+                  <span class="subsystem-right">
+                    <span class="status-bars" aria-hidden="true">
+                      <i /><i /><i /><i />
+                    </span>
+                    <ChevronDown class="subsystem-chev" />
+                  </span>
+                </button>
+                <div v-if="openSubsystem === idx" class="subsystem-body">
+                  <p>{{ item.detail }}</p>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- Clean Download CTA Panel -->
-          <section id="downloads" class="web-container web-section">
+          <!-- Section 6: Clean Download CTA Panel -->
+          <section id="downloads" class="web-container editorial-section">
             <div class="download-panel">
               <div class="download-platform">
                 <div class="download-icon-box">
@@ -621,16 +757,11 @@ async function copyText(text: string, key: string) {
                     <h3>Solara Launcher for Windows</h3>
                     <span class="status-badge">
                       <span class="dot" />
-                      {{ latest ? latest.publicVersion : 'Preview' }}
+                      {{ latest ? latest.publicVersion : 'V-0.0.89' }}
                     </span>
                   </div>
                   <p class="download-meta">
-                    <template v-if="latest">
-                      Windows 10/11 (64-bit) · {{ (latest.size / 1048576).toFixed(1) }} MB · Direct from GitHub Releases
-                    </template>
-                    <template v-else>
-                      Windows 10/11 (64-bit) · Direct from GitHub Releases
-                    </template>
+                    Windows 10/11 (64-bit) · {{ latest ? `${(latest.size / 1048576).toFixed(1)} MB` : '30.0 MB' }} · One permanent evergreen installer
                   </p>
                 </div>
               </div>
@@ -641,7 +772,7 @@ async function copyText(text: string, key: string) {
                     :href="githubDownloadUrl"
                     download="solaralauncher.exe"
                     rel="noopener"
-                    class="button primary download-btn"
+                    class="btn-primary"
                   >
                     <Download />
                     <span>Download solaralauncher.exe</span>
@@ -650,61 +781,27 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary"
+                    class="btn-secondary"
                   >
                     <ShieldCheck />
-                    <span>VirusTotal Scan</span>
+                    <span>VirusTotal</span>
                     <ArrowUpRight />
                   </a>
                 </div>
-                <small>One evergreen .exe · Streams directly from GitHub CDN</small>
+                <small>Permanent SHA-256 · Streams directly from GitHub Releases CDN</small>
               </div>
-            </div>
-          </section>
-
-          <!-- Explore Pages Grid -->
-          <section class="web-container web-section explore-section">
-            <div class="explore-grid">
-              <a
-                href="/changelog"
-                class="explore-card"
-                @click.prevent="navigate('/changelog')"
-              >
-                <span class="eyebrow">WHAT’S NEW</span>
-                <h3>Updates &amp; Roadmap</h3>
-                <p>See what we just shipped in {{ latest?.publicVersion || 'V-0.0.87' }} and what’s coming next.</p>
-                <span class="text-link">See changelog <ArrowRight /></span>
-              </a>
-              <a
-                href="/docs"
-                class="explore-card"
-                @click.prevent="navigate('/docs')"
-              >
-                <span class="eyebrow">NEED HELP?</span>
-                <h3>Easy Guides &amp; FAQ</h3>
-                <p>Quick step-by-step tips for installing modpacks, making icons, and fixing lag.</p>
-                <span class="text-link">Open guides <ArrowRight /></span>
-              </a>
-              <a
-                href="/security"
-                class="explore-card"
-                @click.prevent="navigate('/security')"
-              >
-                <span class="eyebrow">TRUST &amp; PRIVACY</span>
-                <h3>Safety &amp; VirusTotal</h3>
-                <p>Inspect our live VirusTotal scan, SHA-256 hashes, and open-source GPL-3.0 code.</p>
-                <span class="text-link">Read safety info <ArrowRight /></span>
-              </a>
             </div>
           </section>
         </div>
 
         <!-- ==================== FEATURES PAGE ==================== -->
         <div v-else-if="currentRoute === '/features'" key="features" class="page-stack">
-          <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">FEATURES</span>
-            <h1>Made for smooth,<br /><span class="hero-accent-text">stress-free Minecraft.</span></h1>
-            <p class="page-lead">
+          <section class="web-container sub-hero">
+            <span class="band-kicker">FEATURES</span>
+            <h1 class="display-title sub-h1">
+              Made for smooth,<br /><span class="accent-text">stress-free Minecraft.</span>
+            </h1>
+            <p class="hero-lead">
               Every screen in Solara is built to feel snappy, clean on OLED and bright screens, and easy for any player to jump right into.
             </p>
           </section>
@@ -728,54 +825,11 @@ async function copyText(text: string, key: string) {
             </div>
           </section>
 
-          <section class="web-container sub-section">
-            <div class="spotlight-list">
-              <article class="spotlight-card">
-                <div class="spotlight-copy">
-                  <span class="eyebrow">MODPACK BROWSER</span>
-                  <h2>Find and install modpacks in seconds.</h2>
-                  <p>
-                    Switch between top community catalogs right at the top. Open rich modpack detail pages with full image descriptions, versions, and screenshot galleries, then hit Install.
-                  </p>
-                </div>
-                <div class="spotlight-media">
-                  <img src="/screenshots/modpacks.png" alt="Modpack browser cover cards" loading="lazy" />
-                </div>
-              </article>
-
-              <article class="spotlight-card reverse">
-                <div class="spotlight-copy">
-                  <span class="eyebrow">SOLARA ICON STUDIO</span>
-                  <h2>3D icons, text badges &amp; cool frames.</h2>
-                  <p>
-                    Make every world stand out. Choose from 30 crisp 3D icons, type your own badge like SMP or 1.21, or upload your own picture — then mix custom colors, patterns, and frames.
-                  </p>
-                </div>
-                <div class="spotlight-media">
-                  <img src="/screenshots/icon-studio.png" alt="Solara Icon Studio" loading="lazy" />
-                </div>
-              </article>
-
-              <article class="spotlight-card">
-                <div class="spotlight-copy">
-                  <span class="eyebrow">TWO CLEAN THEMES</span>
-                  <h2>Pure OLED Black or crisp White mode.</h2>
-                  <p>
-                    Playing late at night or in a bright room? Switch smoothly between true pitch-black OLED and a crisp White theme right from Settings → Theme.
-                  </p>
-                </div>
-                <div class="spotlight-media">
-                  <img src="/screenshots/downloads-white.png" alt="Solara White Theme" loading="lazy" />
-                </div>
-              </article>
-            </div>
-          </section>
-
           <section class="web-container sub-section page-end">
-            <div class="section-header">
-              <span class="eyebrow">MOD LOADERS</span>
-              <h2>All 5 Minecraft setups supported</h2>
-              <p>Pick whichever loader you like — Solara matches the right Java version automatically.</p>
+            <div class="section-header-left">
+              <span class="band-kicker">MOD LOADERS</span>
+              <h2 class="display-title section-h2">All 5 Minecraft setups supported.</h2>
+              <p class="section-body">Pick whichever loader you like — Solara matches the right Java version automatically.</p>
             </div>
             <div class="data-table-wrap">
               <table class="data-table">
@@ -804,11 +858,13 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== DOWNLOADS PAGE ==================== -->
         <div v-else-if="currentRoute === '/downloads'" key="downloads" class="page-stack">
-          <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">ONE EVERGREEN INSTALLER · DIRECT FROM GITHUB</span>
-            <h1>Get <span class="hero-accent-text">Solara Launcher.</span></h1>
-            <p class="page-lead">
-              You only ever need one file: <code>solaralauncher.exe</code>, downloaded straight from GitHub Releases. Install it once and it automatically updates itself to every new release.
+          <section class="web-container sub-hero">
+            <span class="band-kicker">PERMANENT EVERGREEN INSTALLER · DIRECT FROM GITHUB</span>
+            <h1 class="display-title sub-h1">
+              Get <span class="accent-text">Solara Launcher.</span>
+            </h1>
+            <p class="hero-lead">
+              One single permanent file: <code>solaralauncher.exe</code>. Download it once from GitHub Releases — every future update fetches and installs automatically on launch.
             </p>
           </section>
 
@@ -823,17 +879,11 @@ async function copyText(text: string, key: string) {
                     <h3>Solara Launcher for Windows (64-bit)</h3>
                     <span class="status-badge">
                       <span class="dot" />
-                      {{ latest ? latest.publicVersion : 'Preview' }}
+                      {{ latest ? latest.publicVersion : 'V-0.0.89' }}
                     </span>
                   </div>
                   <p class="download-meta">
-                    <template v-if="latest">
-                      {{ (latest.size / 1048576).toFixed(2) }} MB · Released
-                      {{ new Date(latest.publishedAt).toLocaleDateString() }} · Hosted on GitHub Releases CDN
-                    </template>
-                    <template v-else>
-                      Loading latest release info…
-                    </template>
+                    {{ latest ? `${(latest.size / 1048576).toFixed(2)} MB` : '30.02 MB' }} · Permanent Universal Installer · Hosted on GitHub Releases CDN
                   </p>
                   <div class="download-hash-row">
                     <code>SHA-256: {{ DEFAULT_VT_SHA256 }}</code>
@@ -856,7 +906,7 @@ async function copyText(text: string, key: string) {
                     :href="githubDownloadUrl"
                     download="solaralauncher.exe"
                     rel="noopener"
-                    class="button primary download-btn"
+                    class="btn-primary"
                   >
                     <Download />
                     <span>Download from GitHub</span>
@@ -865,7 +915,7 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary"
+                    class="btn-secondary"
                   >
                     <ShieldCheck />
                     <span>VirusTotal Scan</span>
@@ -877,9 +927,10 @@ async function copyText(text: string, key: string) {
                   :href="`${links.github}/releases/latest`"
                   target="_blank"
                   rel="noopener"
-                  class="text-link"
+                  class="inline-accent-link"
                 >
-                  View latest release on GitHub <ArrowUpRight />
+                  <span>View latest release on GitHub</span>
+                  <ArrowUpRight />
                 </a>
               </div>
             </div>
@@ -889,7 +940,7 @@ async function copyText(text: string, key: string) {
             <div class="info-card">
               <div class="info-card-head">
                 <div>
-                  <span class="eyebrow">OPTIONAL CHECK</span>
+                  <span class="band-kicker">VERIFICATION</span>
                   <h3>Verify your download with PowerShell or VirusTotal</h3>
                 </div>
                 <div class="cta-btn-row">
@@ -897,7 +948,7 @@ async function copyText(text: string, key: string) {
                     :href="virusTotalUrl"
                     target="_blank"
                     rel="noopener"
-                    class="button secondary compact-btn"
+                    class="btn-secondary compact-btn"
                   >
                     <ShieldCheck />
                     <span>Open VirusTotal Report</span>
@@ -905,7 +956,7 @@ async function copyText(text: string, key: string) {
                   </a>
                   <button
                     type="button"
-                    class="button secondary compact-btn"
+                    class="btn-secondary compact-btn"
                     @click="copyText(`(Get-FileHash .\\solaralauncher.exe -Algorithm SHA256).Hash -eq '${DEFAULT_VT_SHA256.toUpperCase()}'`, 'ps-cmd')"
                   >
                     <Check v-if="copied === 'ps-cmd'" />
@@ -922,9 +973,9 @@ async function copyText(text: string, key: string) {
           </section>
 
           <section class="web-container sub-section">
-            <div class="section-header">
-              <span class="eyebrow">WHAT YOU NEED</span>
-              <h2>PC Requirements</h2>
+            <div class="section-header-left">
+              <span class="band-kicker">REQUIREMENTS</span>
+              <h2 class="display-title section-h2">PC Requirements</h2>
             </div>
             <div class="data-table-wrap">
               <table class="data-table">
@@ -950,12 +1001,12 @@ async function copyText(text: string, key: string) {
             <div class="info-card">
               <div class="info-card-head">
                 <div>
-                  <span class="eyebrow">EVERGREEN INSTALLER ARCHITECTURE</span>
+                  <span class="band-kicker">EVERGREEN ARCHITECTURE</span>
                   <h3>One single <code>solaralauncher.exe</code> for every future update</h3>
                 </div>
                 <a
                   href="/changelog"
-                  class="button secondary compact-btn"
+                  class="btn-secondary compact-btn"
                   @click.prevent="navigate('/changelog')"
                 >
                   <span>View What’s New</span>
@@ -964,8 +1015,8 @@ async function copyText(text: string, key: string) {
               </div>
               <ul class="bullet-list">
                 <li><strong>One File Forever:</strong> You never need to download a separate <code>.exe</code> when a new version is released.</li>
-                <li><strong>Always Fetches the Latest Version:</strong> Even if you run an older <code>solaralauncher.exe</code> saved on your PC months from now, it automatically connects to GitHub Releases on launch, fetches the latest verified release, and upgrades itself in seconds.</li>
-                <li><strong>Zero-Click Background Updates:</strong> Installed copies check GitHub Releases automatically on startup and apply signed updates in the background whenever no game is running.</li>
+                <li><strong>Always Fetches the Latest Version:</strong> Even if you run this same <code>solaralauncher.exe</code> months later, it automatically checks GitHub Releases on launch and upgrades itself in seconds.</li>
+                <li><strong>Zero-Click Background Updates:</strong> Installed copies verify Minisign signatures and apply updates silently whenever no game is running.</li>
               </ul>
             </div>
           </section>
@@ -973,10 +1024,12 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== CHANGELOG PAGE ==================== -->
         <div v-else-if="currentRoute === '/changelog'" key="changelog" class="page-stack">
-          <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">WHAT’S NEW</span>
-            <h1>Recent updates &amp;<br /><span class="hero-accent-text">what’s coming next.</span></h1>
-            <p class="page-lead">
+          <section class="web-container sub-hero">
+            <span class="band-kicker">RELEASES</span>
+            <h1 class="display-title sub-h1">
+              Recent updates &amp;<br /><span class="accent-text">what’s coming next.</span>
+            </h1>
+            <p class="hero-lead">
               Every major Solara update in plain English — delivered automatically to your installed launcher.
             </p>
           </section>
@@ -1005,10 +1058,10 @@ async function copyText(text: string, key: string) {
           </section>
 
           <section class="web-container sub-section page-end">
-            <div class="section-header">
-              <span class="eyebrow">COMING SOON</span>
-              <h2>Public Roadmap</h2>
-              <p>What we are working on right now and what is planned next.</p>
+            <div class="section-header-left">
+              <span class="band-kicker">ROADMAP</span>
+              <h2 class="display-title section-h2">Public Roadmap</h2>
+              <p class="section-body">What we are working on right now and what is planned next.</p>
             </div>
             <div class="roadmap-grid">
               <article
@@ -1026,11 +1079,13 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== SECURITY PAGE ==================== -->
         <div v-else-if="currentRoute === '/security'" key="security" class="page-stack">
-          <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">SAFETY &amp; VIRUSTOTAL TRANSPARENCY</span>
-            <h1>Built to be safe.<br /><span class="hero-accent-text">Open for anyone to check.</span></h1>
-            <p class="page-lead">
-              Your Minecraft login stays on your PC, every download comes straight from GitHub Releases, and you can inspect our live VirusTotal scan anytime.
+          <section class="web-container sub-hero">
+            <span class="band-kicker">SAFETY &amp; TRANSPARENCY</span>
+            <h1 class="display-title sub-h1">
+              Built to be safe.<br /><span class="accent-text">Open for anyone to check.</span>
+            </h1>
+            <p class="hero-lead">
+              Your Minecraft login stays on your PC, every download streams straight from GitHub Releases, and you can inspect our permanent VirusTotal report anytime.
             </p>
           </section>
 
@@ -1052,14 +1107,14 @@ async function copyText(text: string, key: string) {
             <div class="info-card">
               <div class="info-card-head">
                 <div>
-                  <span class="eyebrow">PUBLIC VERIFICATION</span>
-                  <h3>Live VirusTotal Report &amp; Open-Source Status</h3>
+                  <span class="band-kicker">PUBLIC VERIFICATION</span>
+                  <h3>Permanent VirusTotal Report &amp; Open-Source Status</h3>
                 </div>
                 <a
                   :href="virusTotalUrl"
                   target="_blank"
                   rel="noopener"
-                  class="button secondary compact-btn"
+                  class="btn-secondary compact-btn"
                 >
                   <ShieldCheck />
                   <span>Inspect on VirusTotal</span>
@@ -1067,8 +1122,8 @@ async function copyText(text: string, key: string) {
                 </a>
               </div>
               <ul class="bullet-list">
-                <li><strong>Direct GitHub Hosting:</strong> All installer and auto-update downloads come directly from GitHub Releases CDN — never modified in transit.</li>
-                <li><strong>Public VirusTotal Scan:</strong> Every release SHA-256 (currently <code>{{ latest?.sha256 || DEFAULT_VT_SHA256 }}</code>) can be checked directly on VirusTotal.</li>
+                <li><strong>Direct GitHub Hosting:</strong> All installer and auto-update payloads come directly from GitHub Releases CDN.</li>
+                <li><strong>Permanent Installer SHA-256:</strong> <code>{{ DEFAULT_VT_SHA256 }}</code> — verified directly on VirusTotal.</li>
                 <li><strong>Testing Preview:</strong> Solara Launcher is in active Windows testing preview. Official Microsoft accounts only — no cracked logins.</li>
                 <li><strong>Open Source (GPL-3.0):</strong> The full launcher source and third-party license notices are included in every release and on GitHub.</li>
               </ul>
@@ -1078,10 +1133,12 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== DOCS & FAQ PAGE ==================== -->
         <div v-else key="docs" class="page-stack">
-          <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">HELP &amp; GUIDES</span>
-            <h1>Easy setup &amp;<br /><span class="hero-accent-text">quick answers.</span></h1>
-            <p class="page-lead">
+          <section class="web-container sub-hero">
+            <span class="band-kicker">DOCS &amp; HELP</span>
+            <h1 class="display-title sub-h1">
+              Easy setup &amp;<br /><span class="accent-text">quick answers.</span>
+            </h1>
+            <p class="hero-lead">
               New to Solara? Follow these quick steps to get playing in under two minutes.
             </p>
           </section>
@@ -1103,9 +1160,9 @@ async function copyText(text: string, key: string) {
           </section>
 
           <section id="faq" class="web-container sub-section page-end">
-            <div class="section-header">
-              <span class="eyebrow">FAQ</span>
-              <h2>Common questions</h2>
+            <div class="section-header-left">
+              <span class="band-kicker">FAQ</span>
+              <h2 class="display-title section-h2">Common questions</h2>
             </div>
 
             <div class="faq-list">
@@ -1122,11 +1179,9 @@ async function copyText(text: string, key: string) {
                     <Plus v-else />
                   </span>
                 </button>
-                <Transition name="faq-slide">
-                  <div v-if="faq === i" class="faq-answer">
-                    <p>{{ answer }}</p>
-                  </div>
-                </Transition>
+                <div v-if="faq === i" class="faq-answer">
+                  <p>{{ answer }}</p>
+                </div>
               </div>
             </div>
           </section>
@@ -1134,48 +1189,59 @@ async function copyText(text: string, key: string) {
       </Transition>
     </main>
 
-    <!-- Footer -->
+    <!-- Minimal Editorial 3-Column Footer (Horizon Rhythm on Pure OLED Black) -->
     <footer class="web-footer">
       <div class="web-container">
-        <div class="footer-top">
-          <div class="footer-brand-col">
-            <a class="web-brand" href="/" @click.prevent="navigate('/')">
-              <img src="/logo.svg" alt="Solara" />
-              <span>Solara Launcher</span>
-            </a>
+        <div class="footer-head">
+          <a class="web-brand" href="/" @click.prevent="navigate('/')">
+            <img src="/logo.svg" alt="Solara" />
+            <span>Solara</span>
+          </a>
+          <p class="footer-disclaimer">
+            Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+          </p>
+        </div>
+
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h2>Who makes it</h2>
             <p>
-              Fast, ad-free OLED Minecraft launcher for Windows with one-click modpacks, Icon Studio, and evergreen GitHub auto-updates.
+              Solara Launcher is developed by Solara Inc. Development for Windows players who want a fast, pitch-black OLED launcher without ad clutter. This site offers no Minecraft game files — you need your own legally owned copy of Minecraft: Java Edition.
             </p>
           </div>
 
-          <div class="footer-links-col">
-            <h4>Pages</h4>
-            <a href="/" @click.prevent="navigate('/')">Home</a>
-            <a href="/features" @click.prevent="navigate('/features')">Features</a>
-            <a href="/downloads" @click.prevent="navigate('/downloads')">Downloads</a>
-            <a href="/changelog" @click.prevent="navigate('/changelog')">What’s New</a>
+          <div class="footer-col">
+            <h2>Licences</h2>
+            <p>
+              Solara Launcher is open source under the <a :href="`${links.github || 'https://github.com/Solara-Inc-Development/solara-launcher'}/blob/main/LICENSE`" target="_blank" rel="noopener">GPL-3.0-only licence</a>. Third-party dependency notices are bundled in every build and listed in <code>THIRD_PARTY_NOTICES.md</code>. Fonts are Geist, Bricolage Grotesque, and JetBrains Mono under the SIL Open Font License.
+            </p>
           </div>
 
-          <div class="footer-links-col">
-            <h4>Verification &amp; Links</h4>
-            <a href="/security" @click.prevent="navigate('/security')">Safety &amp; Privacy</a>
-            <a :href="virusTotalUrl" target="_blank" rel="noopener">VirusTotal Scan <ArrowUpRight /></a>
-            <a href="/docs" @click.prevent="navigate('/docs')">Help &amp; FAQ</a>
-            <a v-if="links.github" :href="links.github" target="_blank" rel="noopener">GitHub <ArrowUpRight /></a>
+          <div class="footer-col">
+            <h2>Privacy &amp; Verification</h2>
+            <p>
+              Your Microsoft login stays strictly on your own PC via OAuth 2.0 PKCE. All installer downloads stream directly from GitHub Releases CDN and can be inspected anytime via our <a :href="virusTotalUrl" target="_blank" rel="noopener">permanent VirusTotal report</a>.
+            </p>
+            <div class="footer-inline-links">
+              <a href="/downloads" @click.prevent="navigate('/downloads')">Downloads</a>
+              <a href="/changelog" @click.prevent="navigate('/changelog')">Releases</a>
+              <a href="/security" @click.prevent="navigate('/security')">Safety</a>
+              <a href="/docs" @click.prevent="navigate('/docs')">Docs</a>
+            </div>
           </div>
         </div>
 
         <div class="footer-bottom">
-          <div>
-            <p>© {{ new Date().getFullYear() }} Solara Launcher · Open source (GPL-3.0-only).</p>
-            <p class="legal-note">
-              Independent Minecraft Java launcher. Not an official Minecraft product; not approved by or associated with Mojang or Microsoft.
-            </p>
-          </div>
-          <span class="feed-status">
-            <span class="dot" />
-            {{ snapshot.status === 'ready' ? 'GitHub release feed: live' : 'GitHub release feed: synced' }}
-          </span>
+          <span>Made in the open, with Rust &amp; Vue.</span>
+          <a
+            :href="links.github || 'https://github.com/Solara-Inc-Development/solara-launcher'"
+            target="_blank"
+            rel="noopener"
+            class="footer-repo-link"
+          >
+            <GitBranch />
+            <span>Solara-Inc-Development/solara-launcher</span>
+          </a>
         </div>
       </div>
     </footer>
