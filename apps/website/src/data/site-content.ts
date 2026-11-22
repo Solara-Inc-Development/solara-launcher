@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.91',
+    version: 'V-0.0.92',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Modrinth v3 Search Fix, Dual Filter Sidebar & Theme-Matched Curved Cards',
+    highlights: [
+      'Fixed Modrinth search inside the Install Mods browser so Modrinth Mods, Resource Packs, Shaders, and Datapacks load cleanly alongside CurseForge.',
+      'Added a Modrinth-style left filter sidebar for both Modrinth and CurseForge with profile version/loader toggles, categories, hide-installed toggle, and client/server environment filters.',
+      'Upgraded the Mods & Packs workspace, instance header, tabs, and catalog cards to match Solara’s rounded 22px–24px cards and OLED Black / Crisp White theme surfaces.',
+    ],
+  },
+  {
+    version: 'V-0.0.91',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'Custom Solara Mods Card Grid & Dual Modrinth + CurseForge Mod Installer',
     highlights: [
       'Replaced the stock Mods table inside instances with a brand-new 100% custom Solara Card Grid + Compact List workspace with stats pills, custom toggle switches, bulk actions, and 1-click Update All.',

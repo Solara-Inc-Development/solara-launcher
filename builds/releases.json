@@ -3153,6 +3153,49 @@
       "notes": "- Replaced Modrinth's stock Mods table inside instances with a brand-new 100% custom Solara Card Grid + Compact List Mods & Packs workspace (`SolaraContentWorkspace`) with stats pills, category/status filters, custom pill toggle switches, bulk actions, and 1-click Update All.\n- Replaced Modrinth's stock Install Mods browser with a brand-new custom Solara Dual-Catalog Instance Content Browser (`InstanceContentBrowser`) featuring **both Modrinth and CurseForge** side-by-side switcher for Mods, Resource Packs, Shaders, and Datapacks filtered automatically to the instance's Minecraft version & loader.\n- Added native `curseforge_install_content` Rust Tauri command + live CurseForge backend `contentType` proxy (`mod`, `resourcepack`, `shader`, `datapack`) for 1-click CurseForge mod/shader/resourcepack installation directly into any instance.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.91/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "98ef0828-fa59-4def-9044-aa2e4f8f97ae",
+      "publicVersion": "V-0.0.92",
+      "internalVersion": "0.0.92",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.92/solaralauncher.exe",
+      "commit": "7ad18f24561238f78f69299d8406f9cef462ebf9",
+      "allocatedAt": "2026-11-22T17:40:42.538Z",
+      "state": "published",
+      "applicationSha256": "61b27f87c75fcd92b655a54f2f3a5a0dfdeaee441f19f55eb0a4d0fdc757f332",
+      "applicationSize": 75023360,
+      "sourceTree": "f99673471c868fc2b8005714cb17090534efac39",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 31474106,
+          "sha256": "42ef4763deea2f1df9931cca26deb0122830bed793944ec528e162068e87a306"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75023360,
+          "sha256": "61b27f87c75fcd92b655a54f2f3a5a0dfdeaee441f19f55eb0a4d0fdc757f332"
+        },
+        "source.zip": {
+          "size": 37007572,
+          "sha256": "887c57c627611cc8b944f6d7a5ab3a58a5a1e2ff1081abe00e38c509a091e4c9"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 31474106,
+      "sha256": "42ef4763deea2f1df9931cca26deb0122830bed793944ec528e162068e87a306",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T18:02:26.561Z",
+      "verifiedAt": "2026-11-22T18:02:21.004Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDhPWUY2VnpRaDZSbmlldlFoVmxwZkVGRFhTTWNsbDk1MXV4NnpyVTVVa1hKanBGbzZVcVZUSnZISDVZMEdvUmh5WlJjT283c1NkNGN2RVY5TmROK3djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzcwNTM4CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjkyCkxQcGRYWS9CT1l3OUdWM0owZmhCWHlXbHRGT05xYjJyR0xnRmJVOUMyOXFVREJZbDFnYnY0YWsvOFdzcGFBWHlUdHB6TTM4RElCemY1SU5sZndDZkFRPT0K",
+      "notes": "# Solara Launcher V-0.0.92\n\n## Highlights\n- **Fixed Modrinth Mod Search**: Fixed an API v3 filter and response mismatch in the inside-instance Install Mods browser so Modrinth Mods, Resource Packs, Shaders, and Datapacks load smoothly alongside CurseForge.\n- **Left Filter Sidebar (Modrinth + CurseForge)**: Added a Modrinth-style left sidebar filter panel for both Modrinth and CurseForge catalogs with Profile Compatibility toggles (Minecraft version, Mod Loader, Hide Installed), Categories for every content type, and Client/Server Environment filters.\n- **Theme-Matched Curved Solara Cards**: Upgraded the Mods & Packs workspace, Instance Command Header, Navigation Bar, and Install Mods cards to match Solara's rounded `22px`–`24px` card geometry, cover art headers, overlapping icons, and adaptive OLED Black / Crisp White surface tokens.\n\n## Auto-Update Notice\nExisting `V-0.0.89+` installations receive this update automatically on startup.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.92/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
