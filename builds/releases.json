@@ -2895,6 +2895,49 @@
       "notes": "Solara Launcher V-0.0.83 (Testing Preview)\n\n- Fixed Modrinth modpack loading in ModPackInstaller using valid Labrinth v3 query syntax (?limit=...&new_filters=...) with proper loader, Minecraft version, and cover gallery parsing.\n- Completely redesigned ModPackInstaller with rich cover-banner cards (for both Modrinth and CurseForge), Grid/List view toggle, native Solara Combobox & Checkbox controls, and clean pagination.\n- Redesigned both steps of the Create Instance modal with side-by-side setup cards, unified icon & name identity card, 5-column visual loader selector, and live configuration summary.\n- Replaced procedural instance icons with 30 online Microsoft Fluent Emoji 3D icons (MIT licensed) and introduced Solara Icon Studio with 3D Icons search/categories, Monogram Badge generator, Framed Upload, dual custom color pickers, gradient angles, texture patterns, HUD/ring/border frames, scale slider, and depth shadow toggle.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.83/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "0d9e17ac-aa81-4c45-823f-1c032b65bcf2",
+      "publicVersion": "V-0.0.84",
+      "internalVersion": "0.0.84",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.84/solaralauncher.exe",
+      "commit": "7be91058a9dce81fca2d2e5619bd050c179374c3",
+      "allocatedAt": "2026-11-22T05:42:17.174Z",
+      "state": "published",
+      "applicationSha256": "7e806fe7e7bfb446d9dc507906e4eaf4b0f865054f8d0a38515c1c3dfe2b012c",
+      "applicationSize": 43219456,
+      "sourceTree": "ef42409e728d523b4efed5993d2e8727b3a32b61",
+      "acceptance": false,
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 16646130,
+          "sha256": "f35e78dd13c7871eedcdfb9393c440daa4642cecc2bafac9f365a70e9370e891"
+        },
+        "application/solaralauncher.exe": {
+          "size": 43219456,
+          "sha256": "7e806fe7e7bfb446d9dc507906e4eaf4b0f865054f8d0a38515c1c3dfe2b012c"
+        },
+        "source.zip": {
+          "size": 36607190,
+          "sha256": "d43f2ea08e58e6c9e3ec14e1d0a46f5b9fcfbe12340443efa96ca3998de6472d"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 16646130,
+      "sha256": "f35e78dd13c7871eedcdfb9393c440daa4642cecc2bafac9f365a70e9370e891",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-22T05:53:51.806Z",
+      "verifiedAt": "2026-11-22T05:53:47.920Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaC8yaWU3M2FZM0NzeGxZMitFdlpRcnM2eElWNFlOc0ZXb2dXWEVjRitLRlhWVDdraXovNlZ1d1hJeXk3bWlKazd6aENCSjNVUlc3R0pCbjdEL1pEeVE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MzI2ODI2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjg0Cmgzd2x2eG4yNCtBTXFuZEEyaHlrWFc5aitKcUlsMUJ4L2E3L3VtMTVxSFFJYWE4Mzc4WDJyMFQ5QWt5TlVnNFdjdUtHc0dFVVptUXRvSDRrNTVGbUFRPT0K",
+      "notes": "Solara Launcher V-0.0.84 (Testing Preview)\n\n- Fixed Modrinth and CurseForge modpack description images not loading (resolved image CSP rules and no-referrer handling for Imgur/external hosts).\n- Added dedicated CurseForge modpack detail pages with cover banners, sanitized full descriptions, filterable version lists, screenshot gallery with lightbox, and external links.\n- Overhauled the official Solara website (https://app.solara-inc.in) with a visual Bento showcase, live OLED Black vs White theme preview, and smooth animations.\n\nStatus: Signed Windows testing preview. Physical Windows device acceptance remains pending.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.84/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
