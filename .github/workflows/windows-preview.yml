@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.84: Fix Modrinth & CurseForge description image loading (CSP + no-referrer), add full CurseForge modpack detail page, and overhaul OLED website UI; signing stays private.
+# Solara V-0.0.85: Evergreen single solaralauncher.exe zero-click auto-updater + VirusTotal false-positive hardening (zlib NSIS, preserved PE symbol/unwind metadata, clean hooks); signing stays private.
 on:
   workflow_dispatch:
   push:

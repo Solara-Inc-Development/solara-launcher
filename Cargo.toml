@@ -210,12 +210,11 @@ toasty = { path = "packages/toasty" }
 [profile.dev.package.sqlx-macros]
 opt-level = 3
 
-# Optimize for speed and reduce size on release builds
+# Standard release profile preserving PE symbol/unwind metadata to prevent AV/VirusTotal false positives
 [profile.release]
-opt-level = "s"  # Optimize for binary size
-strip = true  # Remove debug symbols
-lto = "thin"  # Thin LTO for fast parallel release links with compact binaries
-panic = "abort"  # Strip expensive panic clean-up logic
+opt-level = 3
+strip = false
+lto = "thin"
 
 [profile.test]
 inherits = "dev"

@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.84',
+    version: 'V-0.0.85',
     date: 'November 22, 2026',
     tag: 'Latest Preview',
+    title: 'Evergreen Single Installer & Antivirus False-Positive Hardening',
+    highlights: [
+      'Evergreen single solaralauncher.exe: one permanent download link that automatically updates any installed copy to the newest release on launch.',
+      'Zero-click background auto-update applies verified releases automatically whenever no game is running.',
+      'Switched NSIS packaging to standard zlib compression and preserved PE symbol/unwind metadata to prevent antivirus false positives.',
+    ],
+  },
+  {
+    version: 'V-0.0.84',
+    date: 'November 22, 2026',
+    tag: 'Feature Release',
     title: 'Fixed Description Images & Full CurseForge Modpack Detail Pages',
     highlights: [
       'Fixed images not loading inside modpack descriptions so banners, screenshots, and badges display cleanly.',

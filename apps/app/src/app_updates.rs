@@ -577,21 +577,25 @@ fn spawn_background_download(
         .await
         {
             Ok(bytes) => {
-                // If the user clicked "Update Now" while this background download was running,
-                // immediately proceed to silent installation without requiring another click.
-                if INSTALL_AFTER_DOWNLOAD.swap(false, Ordering::SeqCst) {
-                    if !CYCLING.swap(true, Ordering::SeqCst) {
-                        let _cycle = CycleGuard;
-                        let _ = apply_verified_bytes(
-                            &app,
-                            &cache_dir,
-                            &version,
-                            notes.as_deref(),
-                            &bytes,
-                            true,
-                        )
-                        .await;
+                // Evergreen automatic update: as soon as the signed update is downloaded and
+                // verified, automatically apply it right away if the launcher is idle (no game
+                // running) or if the user explicitly queued install.
+                let user_queued = INSTALL_AFTER_DOWNLOAD.swap(false, Ordering::SeqCst);
+                if (user_queued || idle().await) && !CYCLING.swap(true, Ordering::SeqCst) {
+                    let _cycle = CycleGuard;
+                    if let Some(mut meta) = read_pending_meta(&cache_dir).await {
+                        meta.auto_install_attempted = true;
+                        let _ = write_pending_meta(&cache_dir, &meta).await;
                     }
+                    let _ = apply_verified_bytes(
+                        &app,
+                        &cache_dir,
+                        &version,
+                        notes.as_deref(),
+                        &bytes,
+                        true,
+                    )
+                    .await;
                 }
             }
             Err(err) => {

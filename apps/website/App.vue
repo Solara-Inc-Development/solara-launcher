@@ -252,17 +252,12 @@ async function copyText(text: string, key: string) {
 
         <div class="header-actions">
           <a
-            v-if="latest"
-            :href="latest.url"
+            href="/solaralauncher.exe"
             download="solaralauncher.exe"
             class="header-download shimmer-btn"
           >
             <Download />
             <span>Download</span>
-          </a>
-          <a v-else href="/downloads" class="header-download shimmer-btn" @click.prevent="navigate('/downloads')">
-            <Download />
-            <span>Get Solara</span>
           </a>
 
           <button
@@ -307,19 +302,13 @@ async function copyText(text: string, key: string) {
 
             <div class="hero-actions hero-anim-4">
               <a
-                v-if="latest"
-                :href="latest.url"
+                href="/solaralauncher.exe"
                 download="solaralauncher.exe"
                 class="button primary hero-cta shimmer-btn"
               >
                 <Download />
                 <span>Download for Windows</span>
-                <span class="cta-meta">{{ latest.publicVersion }}</span>
-              </a>
-              <a v-else href="/downloads" class="button primary hero-cta shimmer-btn" @click.prevent="navigate('/downloads')">
-                <Download />
-                <span>Download for Windows</span>
-                <ArrowRight />
+                <span v-if="latest" class="cta-meta">{{ latest.publicVersion }}</span>
               </a>
 
               <a
@@ -653,8 +642,7 @@ async function copyText(text: string, key: string) {
               <div class="download-cta-col">
                 <div class="cta-btn-row">
                   <a
-                    v-if="latest"
-                    :href="latest.url"
+                    href="/solaralauncher.exe"
                     download="solaralauncher.exe"
                     class="button primary download-btn shimmer-btn"
                   >
@@ -666,10 +654,10 @@ async function copyText(text: string, key: string) {
                     class="button secondary"
                     @click.prevent="navigate('/downloads')"
                   >
-                    <span>All versions &amp; hashes</span>
+                    <span>Release info &amp; SHA-256</span>
                   </a>
                 </div>
-                <small>Signed updates · Auto-updates built in</small>
+                <small>One evergreen .exe · Automatically updates to latest</small>
               </div>
             </div>
           </section>
@@ -820,11 +808,12 @@ async function copyText(text: string, key: string) {
 
         <!-- ==================== DOWNLOADS PAGE ==================== -->
         <div v-else-if="currentRoute === '/downloads'" key="downloads" class="page-stack">
+          <!-- Hero -->
           <section class="web-container page-hero hero-anim-1">
-            <span class="eyebrow">WINDOWS INSTALLER</span>
+            <span class="eyebrow">ONE EVERGREEN INSTALLER</span>
             <h1>Get <span class="hero-gradient-text">Solara Launcher.</span></h1>
             <p class="page-lead">
-              One clean file: <code>solaralauncher.exe</code>. Install it once, and new updates arrive automatically in the background.
+              You only ever need one file: <code>solaralauncher.exe</code>. Install it once (or run any older copy) and it automatically downloads and updates to the latest version.
             </p>
           </section>
 
@@ -868,8 +857,7 @@ async function copyText(text: string, key: string) {
 
               <div class="download-cta-col">
                 <a
-                  v-if="latest"
-                  :href="latest.url"
+                  href="/solaralauncher.exe"
                   download="solaralauncher.exe"
                   class="button primary download-btn shimmer-btn"
                 >
@@ -878,12 +866,12 @@ async function copyText(text: string, key: string) {
                 </a>
                 <a
                   v-if="links.github"
-                  :href="`${links.github}/releases`"
+                  :href="`${links.github}/releases/latest`"
                   target="_blank"
                   rel="noopener"
                   class="text-link"
                 >
-                  View on GitHub Releases <ArrowUpRight />
+                  View latest release on GitHub <ArrowUpRight />
                 </a>
               </div>
             </div>
@@ -965,15 +953,10 @@ async function copyText(text: string, key: string) {
                   <code v-if="r.sha256" class="archive-sha">SHA-256: {{ r.sha256 }}</code>
                 </div>
                 <div class="archive-actions">
-                  <a
-                    v-if="isDownloadable(r)"
-                    :href="r.url"
-                    download="solaralauncher.exe"
-                    class="button secondary compact-btn"
-                  >
-                    <Download />
-                    <span>Download</span>
-                  </a>
+                  <span v-if="isDownloadable(r)" class="status-badge">
+                    <Check />
+                    <span>Included in solaralauncher.exe</span>
+                  </span>
                 </div>
               </article>
             </div>
