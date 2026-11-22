@@ -2,15 +2,16 @@
 import type { Labrinth } from '@modrinth/api-client'
 import {
 	CheckIcon,
-	ChevronLeftIcon,
-	ChevronRightIcon,
 	DownloadIcon,
+	GridIcon,
+	ListIcon,
 	PackageIcon,
 	SearchIcon,
 	SpinnerIcon,
+	UpdatedIcon,
 	XIcon,
 } from '@modrinth/assets'
-import { Button, injectNotificationManager } from '@modrinth/ui'
+import { Button, Checkbox, Combobox, injectNotificationManager, Pagination } from '@modrinth/ui'
 import { useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -40,6 +41,18 @@ dayjs.extend(relativeTime)
 type ProviderSource = 'modrinth' | 'curseforge'
 type LoaderFilter = 'all' | 'fabric' | 'forge' | 'neoforge' | 'quilt'
 type SortOption = 'relevance' | 'downloads' | 'updated' | 'newest'
+type ViewMode = 'grid' | 'list'
+
+interface ModrinthV3Hit extends Labrinth.Search.v3.ResultSearchProject {
+	mrpack_loaders?: string[]
+	game_versions?: string[]
+	featured_gallery?: string | null
+	gallery?: string[]
+	project_loader_fields?: {
+		mrpack_loaders?: string[]
+		game_versions?: string[]
+	}
+}
 
 const props = defineProps<{
 	gameVersions: Labrinth.Tags.v2.GameVersion[]
@@ -52,21 +65,22 @@ const { handleError, addNotification } = injectNotificationManager()
 const { install: installModrinthVersion } = injectContentInstall()
 
 const source = ref<ProviderSource>('modrinth')
+const viewMode = ref<ViewMode>('grid')
 const searchQuery = ref('')
 const debouncedQuery = ref('')
 const selectedLoader = ref<LoaderFilter>('all')
-const selectedGameVersion = ref('')
-const selectedCategory = ref('')
+const selectedGameVersion = ref<string>('all')
+const selectedCategory = ref<string>('all')
 const selectedSort = ref<SortOption>('relevance')
 const page = ref(1)
-const pageSize = 20
+const pageSize = 18
 
 const loading = ref(false)
 const errorMessage = ref<string | null>(null)
 const offline = ref(!navigator.onLine)
 
 // Modrinth state
-const modrinthHits = ref<Labrinth.Search.v3.ResultSearchProject[]>([])
+const modrinthHits = ref<ModrinthV3Hit[]>([])
 const modrinthTotal = ref(0)
 const installedProjectIds = ref<Set<string>>(new Set())
 const installingModrinthIds = ref<Set<string>>(new Set())
@@ -79,41 +93,47 @@ const activeCurseForgeModalPack = ref<CurseForgeModpackSummary | null>(null)
 const installingCurseForgeKey = ref<string | null>(null)
 
 const LOADERS: { id: LoaderFilter; label: string }[] = [
-	{ id: 'all', label: 'All loaders' },
+	{ id: 'all', label: 'All' },
 	{ id: 'fabric', label: 'Fabric' },
 	{ id: 'forge', label: 'Forge' },
 	{ id: 'neoforge', label: 'NeoForge' },
 	{ id: 'quilt', label: 'Quilt' },
 ]
 
-const CATEGORIES: { id: string; label: string }[] = [
-	{ id: '', label: 'All categories' },
-	{ id: 'adventure', label: 'Adventure' },
-	{ id: 'tech', label: 'Technology' },
-	{ id: 'magic', label: 'Magic' },
-	{ id: 'optimization', label: 'Optimization' },
-	{ id: 'combat', label: 'Combat' },
-	{ id: 'multiplayer', label: 'Multiplayer' },
-	{ id: 'quests', label: 'Quests' },
-	{ id: 'kitchen-sink', label: 'Kitchen Sink' },
-	{ id: 'lightweight', label: 'Lightweight' },
-	{ id: 'skyblock', label: 'Skyblock' },
-	{ id: 'hardcore', label: 'Hardcore' },
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+	{ value: 'relevance', label: 'Most popular' },
+	{ value: 'downloads', label: 'Most downloads' },
+	{ value: 'updated', label: 'Recently updated' },
+	{ value: 'newest', label: 'Newest releases' },
 ]
 
-const SORT_OPTIONS: { id: SortOption; label: string }[] = [
-	{ id: 'relevance', label: 'Most popular' },
-	{ id: 'downloads', label: 'Most downloads' },
-	{ id: 'updated', label: 'Recently updated' },
-	{ id: 'newest', label: 'Newest' },
+const CATEGORY_OPTIONS: { value: string; label: string }[] = [
+	{ value: 'all', label: 'All categories' },
+	{ value: 'adventure', label: 'Adventure' },
+	{ value: 'tech', label: 'Technology' },
+	{ value: 'magic', label: 'Magic' },
+	{ value: 'optimization', label: 'Optimization' },
+	{ value: 'combat', label: 'Combat' },
+	{ value: 'multiplayer', label: 'Multiplayer' },
+	{ value: 'quests', label: 'Quests' },
+	{ value: 'kitchen-sink', label: 'Kitchen Sink' },
+	{ value: 'lightweight', label: 'Lightweight' },
+	{ value: 'skyblock', label: 'Skyblock' },
+	{ value: 'hardcore', label: 'Hardcore' },
 ]
 
-const releaseGameVersions = computed(() => {
+const gameVersionOptions = computed(() => {
 	const releases = (props.gameVersions ?? [])
 		.filter((v) => v.version_type === 'release')
 		.map((v) => v.version)
-	if (releases.length > 0) return releases.slice(0, 40)
-	return ['1.21.4', '1.21.1', '1.20.4', '1.20.1', '1.19.2', '1.18.2', '1.16.5', '1.12.2']
+	const list =
+		releases.length > 0
+			? releases.slice(0, 48)
+			: ['1.21.4', '1.21.1', '1.20.4', '1.20.1', '1.19.2', '1.18.2', '1.16.5', '1.12.2']
+	return [
+		{ value: 'all', label: 'All versions' },
+		...list.map((ver) => ({ value: ver, label: `MC ${ver}` })),
+	]
 })
 
 const hideInstalledModpacks = computed({
@@ -133,8 +153,8 @@ const hasActiveFilters = computed(
 	() =>
 		searchQuery.value.trim() !== '' ||
 		selectedLoader.value !== 'all' ||
-		selectedGameVersion.value !== '' ||
-		selectedCategory.value !== '' ||
+		selectedGameVersion.value !== 'all' ||
+		selectedCategory.value !== 'all' ||
 		selectedSort.value !== 'relevance',
 )
 
@@ -143,7 +163,7 @@ const totalResults = computed(() =>
 )
 
 const totalPages = computed(() =>
-	Math.max(1, Math.min(500, Math.ceil(totalResults.value / pageSize))),
+	Math.max(1, Math.min(250, Math.ceil(totalResults.value / pageSize))),
 )
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
@@ -155,9 +175,17 @@ watch(searchQuery, (val) => {
 	}, 260)
 })
 
-watch([source, selectedLoader, selectedGameVersion, selectedCategory, selectedSort, hideInstalledModpacks], () => {
-	page.value = 1
-})
+watch(
+	[source, selectedLoader, selectedGameVersion, selectedCategory, selectedSort, hideInstalledModpacks],
+	() => {
+		page.value = 1
+	},
+)
+
+function switchPage(nextPage: number) {
+	page.value = Math.max(1, Math.min(totalPages.value, nextPage))
+	window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 async function refreshInstalledIds() {
 	try {
@@ -177,6 +205,10 @@ async function refreshInstalledIds() {
 	}
 }
 
+function escapeFilterValue(value: string): string {
+	return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+}
+
 let activeRequestToken = 0
 
 async function fetchCatalog() {
@@ -186,35 +218,39 @@ async function fetchCatalog() {
 
 	try {
 		if (source.value === 'modrinth') {
-			const facets: string[][] = [['project_types:modpack']]
+			const filters: string[] = ['project_types = "modpack"']
 			if (selectedLoader.value !== 'all') {
-				facets.push([`categories:${selectedLoader.value}`])
+				filters.push(`mrpack_loaders = ${escapeFilterValue(selectedLoader.value)}`)
 			}
-			if (selectedGameVersion.value) {
-				facets.push([`game_versions:${selectedGameVersion.value}`])
+			if (selectedGameVersion.value && selectedGameVersion.value !== 'all') {
+				filters.push(`game_versions = ${escapeFilterValue(selectedGameVersion.value)}`)
 			}
-			if (selectedCategory.value) {
-				facets.push([`categories:${selectedCategory.value}`])
+			if (selectedCategory.value && selectedCategory.value !== 'all') {
+				filters.push(`categories = ${escapeFilterValue(selectedCategory.value)}`)
 			}
 			if (hideInstalledModpacks.value && installedProjectIds.value.size > 0) {
-				for (const id of installedProjectIds.value) {
-					facets.push([`project_id!=${id}`])
-				}
+				const quotedIds = [...installedProjectIds.value].map(escapeFilterValue).join(', ')
+				filters.push(`project_id NOT IN [${quotedIds}]`)
 			}
 
-			const qs = new URLSearchParams()
-			if (debouncedQuery.value) qs.set('query', debouncedQuery.value)
-			qs.set('limit', String(pageSize))
-			qs.set('offset', String((page.value - 1) * pageSize))
-			qs.set('index', selectedSort.value)
-			qs.set('facets', JSON.stringify(facets))
+			const params = [
+				`limit=${pageSize}`,
+				`index=${selectedSort.value}`,
+				`new_filters=${encodeURIComponent(filters.join(' AND '))}`,
+			]
+			if (debouncedQuery.value) {
+				params.push(`query=${encodeURIComponent(debouncedQuery.value)}`)
+			}
+			if (page.value > 1) {
+				params.push(`offset=${(page.value - 1) * pageSize}`)
+			}
 
-			const raw = (await get_search_results_v3(qs.toString(), 'must_revalidate')) as {
+			const raw = (await get_search_results_v3(`?${params.join('&')}`, 'must_revalidate')) as {
 				result?: Labrinth.Search.v3.SearchResults
 			} | null
 
 			if (token !== activeRequestToken) return
-			modrinthHits.value = raw?.result?.hits ?? []
+			modrinthHits.value = (raw?.result?.hits ?? []) as ModrinthV3Hit[]
 			modrinthTotal.value = raw?.result?.total_hits ?? 0
 		} else {
 			const sortMap: Record<SortOption, CurseForgeSort> = {
@@ -223,13 +259,17 @@ async function fetchCatalog() {
 				updated: 'updated',
 				newest: 'newest',
 			}
-			const categoryId = selectedCategory.value
-				? CURSEFORGE_CATEGORY_MAP[selectedCategory.value]
-				: undefined
+			const categoryId =
+				selectedCategory.value && selectedCategory.value !== 'all'
+					? CURSEFORGE_CATEGORY_MAP[selectedCategory.value]
+					: undefined
 
 			const res = await searchCurseForgeModpacks({
 				q: debouncedQuery.value || undefined,
-				gameVersion: selectedGameVersion.value || undefined,
+				gameVersion:
+					selectedGameVersion.value && selectedGameVersion.value !== 'all'
+						? selectedGameVersion.value
+						: undefined,
 				loader: selectedLoader.value === 'all' ? undefined : selectedLoader.value,
 				categoryId,
 				sort: sortMap[selectedSort.value],
@@ -254,7 +294,16 @@ async function fetchCatalog() {
 }
 
 watch(
-	[source, debouncedQuery, selectedLoader, selectedGameVersion, selectedCategory, selectedSort, page, hideInstalledModpacks],
+	[
+		source,
+		debouncedQuery,
+		selectedLoader,
+		selectedGameVersion,
+		selectedCategory,
+		selectedSort,
+		page,
+		hideInstalledModpacks,
+	],
 	() => {
 		void fetchCatalog()
 	},
@@ -265,8 +314,8 @@ function resetFilters() {
 	searchQuery.value = ''
 	debouncedQuery.value = ''
 	selectedLoader.value = 'all'
-	selectedGameVersion.value = ''
-	selectedCategory.value = ''
+	selectedGameVersion.value = 'all'
+	selectedCategory.value = 'all'
 	selectedSort.value = 'relevance'
 	page.value = 1
 }
@@ -288,23 +337,57 @@ function formatLoaderLabel(loader: string): string {
 	return map[loader.toLowerCase()] ?? loader
 }
 
-function modrinthLoaders(hit: Labrinth.Search.v3.ResultSearchProject): string[] {
+function formatCategoryLabel(cat: string): string {
+	return cat
+		.split('-')
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join(' ')
+}
+
+function modrinthLoaders(hit: ModrinthV3Hit): string[] {
 	const known = ['fabric', 'forge', 'neoforge', 'quilt']
 	const raw = [
+		...(hit.mrpack_loaders ?? []),
+		...(hit.project_loader_fields?.mrpack_loaders ?? []),
 		...(hit.categories ?? []),
 		...(hit.display_categories ?? []),
 	].map((c) => c.toLowerCase())
 	return known.filter((l) => raw.includes(l))
 }
 
-function openModrinthProject(hit: Labrinth.Search.v3.ResultSearchProject) {
+function modrinthLatestMcVersion(hit: ModrinthV3Hit): string | null {
+	if (hit.latest_version) return hit.latest_version
+	const versions = hit.game_versions ?? hit.project_loader_fields?.game_versions ?? []
+	if (versions.length === 0) return null
+	const standard = versions.filter((v) => /^\d+\.\d+/.test(v))
+	return standard.length > 0 ? standard[standard.length - 1] : versions[versions.length - 1]
+}
+
+function modrinthBannerUrl(hit: ModrinthV3Hit): string | null {
+	return hit.featured_gallery || hit.gallery?.[0] || null
+}
+
+function modrinthTags(hit: ModrinthV3Hit): string[] {
+	const loaders = new Set(['fabric', 'forge', 'neoforge', 'quilt', 'mrpack'])
+	const raw = hit.display_categories ?? hit.categories ?? []
+	const unique: string[] = []
+	for (const c of raw) {
+		const lower = c.toLowerCase()
+		if (loaders.has(lower) || unique.includes(lower)) continue
+		unique.push(lower)
+		if (unique.length >= 2) break
+	}
+	return unique
+}
+
+function openModrinthProject(hit: ModrinthV3Hit) {
 	void router.push({
 		path: `/project/${hit.project_id ?? hit.slug}`,
 		query: { b: '/browse/modpack' },
 	})
 }
 
-async function handleInstallModrinth(hit: Labrinth.Search.v3.ResultSearchProject) {
+async function handleInstallModrinth(hit: ModrinthV3Hit) {
 	const pid = hit.project_id
 	if (!pid || installingModrinthIds.value.has(pid)) return
 	const next = new Set(installingModrinthIds.value)
@@ -332,7 +415,10 @@ async function handleInstallModrinth(hit: Labrinth.Search.v3.ResultSearchProject
 			},
 			{
 				preferredLoader: selectedLoader.value === 'all' ? undefined : selectedLoader.value,
-				preferredGameVersion: selectedGameVersion.value || undefined,
+				preferredGameVersion:
+					selectedGameVersion.value && selectedGameVersion.value !== 'all'
+						? selectedGameVersion.value
+						: undefined,
 			},
 		)
 	} catch (err) {
@@ -418,82 +504,133 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<div class="mx-auto flex w-full max-w-[1260px] flex-col gap-5 px-6 py-6">
+	<div class="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-6 py-6">
 		<!-- Top Header & Source Switcher -->
 		<header class="flex flex-wrap items-center justify-between gap-4">
 			<div class="flex flex-col gap-1">
-				<h1 class="m-0 text-2xl font-bold tracking-tight text-contrast">
-					ModPackInstaller
-				</h1>
+				<div class="flex items-center gap-2.5">
+					<h1 class="m-0 text-2xl font-bold tracking-tight text-contrast">
+						Modpacks
+					</h1>
+					<span
+						v-if="!loading && totalResults > 0 && (source === 'modrinth' || curseforgeConfigured)"
+						class="rounded-full border border-solid border-surface-5 bg-surface-3 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-secondary"
+					>
+						{{ totalResults.toLocaleString() }}
+					</span>
+				</div>
 				<p class="m-0 text-sm text-secondary">
-					<template v-if="source === 'modrinth'">
-						Browse and install Minecraft modpacks from Modrinth
-						<span v-if="totalResults > 0" class="tabular-nums">
-							· {{ totalResults.toLocaleString() }} packs
-						</span>
-					</template>
-					<template v-else>
-						Browse and install Minecraft modpacks from CurseForge
-						<span v-if="curseforgeConfigured && totalResults > 0" class="tabular-nums">
-							· {{ totalResults.toLocaleString() }} packs
-						</span>
-					</template>
+					{{
+						source === 'modrinth'
+							? 'Install curated Minecraft modpacks directly from Modrinth.'
+							: 'Install popular Minecraft modpacks directly from CurseForge.'
+					}}
 				</p>
 			</div>
 
-			<!-- Provider Segmented Switcher -->
-			<div
-				class="inline-flex items-center rounded-xl border border-solid border-surface-5 bg-surface-3 p-1"
-				role="tablist"
-				aria-label="Modpack source"
-			>
-				<button
-					type="button"
-					role="tab"
-					:aria-selected="source === 'modrinth'"
-					class="flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-semibold transition-colors"
-					:class="
-						source === 'modrinth'
-							? 'bg-surface-4 text-contrast shadow-sm'
-							: 'bg-transparent text-secondary hover:text-contrast'
-					"
-					@click="source = 'modrinth'"
+			<div class="flex flex-wrap items-center gap-2.5">
+				<!-- Provider Segmented Switcher -->
+				<div
+					class="inline-flex items-center rounded-xl border border-solid border-surface-5 bg-surface-3 p-1"
+					role="tablist"
+					aria-label="Modpack source"
 				>
-					<span
-						class="size-2 rounded-full"
-						:class="source === 'modrinth' ? 'bg-emerald-400' : 'bg-surface-5'"
-						aria-hidden="true"
-					/>
-					<span>Modrinth</span>
-				</button>
-				<button
-					type="button"
-					role="tab"
-					:aria-selected="source === 'curseforge'"
-					class="flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-semibold transition-colors"
-					:class="
-						source === 'curseforge'
-							? 'bg-surface-4 text-contrast shadow-sm'
-							: 'bg-transparent text-secondary hover:text-contrast'
-					"
-					@click="source = 'curseforge'"
+					<button
+						type="button"
+						role="tab"
+						:aria-selected="source === 'modrinth'"
+						class="solara-source-tab flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-semibold transition-all"
+						:class="
+							source === 'modrinth'
+								? 'solara-source-modrinth-active text-contrast'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="source = 'modrinth'"
+					>
+						<svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+							<circle
+								cx="12"
+								cy="12"
+								r="9.5"
+								:stroke="source === 'modrinth' ? '#1bd96a' : 'currentColor'"
+								stroke-width="2"
+							/>
+							<path
+								d="M8.5 14.5L11 9.5L13.5 12L16 8.5"
+								:stroke="source === 'modrinth' ? '#1bd96a' : 'currentColor'"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+						<span>Modrinth</span>
+					</button>
+					<button
+						type="button"
+						role="tab"
+						:aria-selected="source === 'curseforge'"
+						class="solara-source-tab flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-2 text-sm font-semibold transition-all"
+						:class="
+							source === 'curseforge'
+								? 'solara-source-cf-active text-contrast'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="source = 'curseforge'"
+					>
+						<svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+							<path
+								d="M4 7H20L18.2 11.2C17.4 13 15.6 14.2 13.6 14.2H11.5L10.5 17H16.5V19H7.5V17L9 13.8C6.6 13.2 4.8 11.3 4.2 8.8L4 7Z"
+								:fill="source === 'curseforge' ? '#f16436' : 'currentColor'"
+							/>
+						</svg>
+						<span>CurseForge</span>
+					</button>
+				</div>
+
+				<!-- Grid / List Toggle -->
+				<div
+					class="inline-flex items-center rounded-xl border border-solid border-surface-5 bg-surface-3 p-1"
+					role="group"
+					aria-label="Layout view"
 				>
-					<span
-						class="size-2 rounded-full"
-						:class="source === 'curseforge' ? 'bg-orange-400' : 'bg-surface-5'"
-						aria-hidden="true"
-					/>
-					<span>CurseForge</span>
-				</button>
+					<button
+						type="button"
+						class="flex size-9 cursor-pointer items-center justify-center rounded-lg border-none p-0 transition-colors"
+						:class="
+							viewMode === 'grid'
+								? 'bg-surface-4 text-contrast'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						title="Card view"
+						aria-label="Card view"
+						@click="viewMode = 'grid'"
+					>
+						<GridIcon class="size-4" />
+					</button>
+					<button
+						type="button"
+						class="flex size-9 cursor-pointer items-center justify-center rounded-lg border-none p-0 transition-colors"
+						:class="
+							viewMode === 'list'
+								? 'bg-surface-4 text-contrast'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						title="List view"
+						aria-label="List view"
+						@click="viewMode = 'list'"
+					>
+						<ListIcon class="size-4" />
+					</button>
+				</div>
 			</div>
 		</header>
 
-		<!-- Unified Search & Filter Panel -->
-		<section class="flex flex-col gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4">
-			<!-- Row 1: Search Input + Sort -->
-			<div class="flex flex-wrap items-center gap-3">
+		<!-- Search & Filter Bar -->
+		<section class="flex flex-col gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-3.5">
+			<!-- Row 1: Search + Sort Combobox -->
+			<div class="flex flex-wrap items-center gap-2.5">
 				<div
-					class="flex min-w-[240px] flex-1 items-center gap-2.5 rounded-xl border border-solid border-surface-5 bg-surface-2 px-3.5 py-2.5 focus-within:border-brand"
+					class="flex h-10 min-w-[240px] flex-1 items-center gap-2.5 rounded-xl border border-solid border-surface-5 bg-surface-2 px-3.5 transition-colors focus-within:border-brand"
 				>
 					<SearchIcon class="size-4 shrink-0 text-secondary" aria-hidden="true" />
 					<input
@@ -501,8 +638,8 @@ onBeforeUnmount(() => {
 						type="text"
 						:placeholder="
 							source === 'modrinth'
-								? 'Search Modrinth modpacks...'
-								: 'Search CurseForge modpacks...'
+								? 'Search Modrinth modpacks (e.g. Fabulously Optimized, Cobblemon)...'
+								: 'Search CurseForge modpacks (e.g. All the Mods, RLCraft, Better MC)...'
 						"
 						class="w-full border-none bg-transparent text-sm text-contrast outline-none placeholder:text-secondary"
 					/>
@@ -517,20 +654,23 @@ onBeforeUnmount(() => {
 					</button>
 				</div>
 
-				<select
-					v-model="selectedSort"
-					aria-label="Sort modpacks"
-					class="h-10 cursor-pointer rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 text-sm font-medium text-contrast outline-none focus:border-brand"
-				>
-					<option v-for="opt in SORT_OPTIONS" :key="opt.id" :value="opt.id">
-						{{ opt.label }}
-					</option>
-				</select>
+				<div class="w-48 shrink-0">
+					<Combobox
+						v-model="selectedSort"
+						:options="SORT_OPTIONS"
+						placeholder="Sort by"
+						trigger-size="md"
+					/>
+				</div>
 			</div>
 
-			<!-- Row 2: Loaders + MC Version + Category + Options -->
-			<div class="flex flex-wrap items-center justify-between gap-3">
-				<div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by mod loader">
+			<!-- Row 2: Loader Pills + Combobox Filters + Hide Installed -->
+			<div class="flex flex-wrap items-center justify-between gap-2.5">
+				<div
+					class="flex flex-wrap items-center gap-1.5"
+					role="group"
+					aria-label="Filter by mod loader"
+				>
 					<button
 						v-for="loader in LOADERS"
 						:key="loader.id"
@@ -547,39 +687,38 @@ onBeforeUnmount(() => {
 					</button>
 				</div>
 
-				<div class="flex flex-wrap items-center gap-2.5">
-					<select
-						v-model="selectedGameVersion"
-						aria-label="Filter by Minecraft version"
-						class="h-8 cursor-pointer rounded-lg border border-solid border-surface-5 bg-surface-2 px-2.5 text-xs font-medium text-contrast outline-none focus:border-brand"
-					>
-						<option value="">All versions</option>
-						<option v-for="ver in releaseGameVersions" :key="ver" :value="ver">
-							{{ ver }}
-						</option>
-					</select>
-
-					<select
-						v-model="selectedCategory"
-						aria-label="Filter by category"
-						class="h-8 cursor-pointer rounded-lg border border-solid border-surface-5 bg-surface-2 px-2.5 text-xs font-medium text-contrast outline-none focus:border-brand"
-					>
-						<option v-for="cat in CATEGORIES" :key="cat.id" :value="cat.id">
-							{{ cat.label }}
-						</option>
-					</select>
-
-					<label
-						v-if="source === 'modrinth'"
-						class="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-solid border-surface-5 bg-surface-2 px-2.5 py-1.5 text-xs font-medium text-secondary transition-colors hover:text-contrast"
-					>
-						<input
-							v-model="hideInstalledModpacks"
-							type="checkbox"
-							class="solara-checkbox m-0 cursor-pointer"
+				<div class="flex flex-wrap items-center gap-2">
+					<div class="w-36">
+						<Combobox
+							v-model="selectedGameVersion"
+							:options="gameVersionOptions"
+							searchable
+							sync-with-selection
+							placeholder="MC Version"
+							search-placeholder="Type version..."
+							trigger-size="sm"
 						/>
-						<span>Hide installed</span>
-					</label>
+					</div>
+
+					<div class="w-40">
+						<Combobox
+							v-model="selectedCategory"
+							:options="CATEGORY_OPTIONS"
+							placeholder="Category"
+							trigger-size="sm"
+						/>
+					</div>
+
+					<div
+						v-if="source === 'modrinth'"
+						class="flex h-8 items-center rounded-lg border border-solid border-surface-5 bg-surface-2 px-2.5"
+					>
+						<Checkbox
+							v-model="hideInstalledModpacks"
+							label="Hide installed"
+							label-class="text-xs font-medium text-secondary"
+						/>
+					</div>
 
 					<button
 						v-if="hasActiveFilters"
@@ -593,24 +732,24 @@ onBeforeUnmount(() => {
 			</div>
 		</section>
 
-		<!-- Offline Banner -->
+		<!-- Offline State -->
 		<div
 			v-if="offline"
-			class="rounded-2xl border border-solid border-surface-5 bg-surface-3 p-6 text-center text-sm text-secondary"
+			class="rounded-2xl border border-solid border-surface-5 bg-surface-3 p-8 text-center text-sm text-secondary"
 		>
-			You appear to be offline. Reconnect to the internet to browse and install modpacks.
+			You appear to be offline. Reconnect to browse and install modpacks.
 		</div>
 
 		<!-- Error State -->
 		<div
 			v-else-if="errorMessage"
-			class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-8 text-center"
+			class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-10 text-center"
 		>
 			<p class="m-0 text-sm font-semibold text-contrast">{{ errorMessage }}</p>
 			<Button size="sm" @click="fetchCatalog">Retry</Button>
 		</div>
 
-		<!-- CurseForge Not Yet Configured State (Honest Status) -->
+		<!-- CurseForge Awaiting Key State -->
 		<div
 			v-else-if="source === 'curseforge' && !loading && !curseforgeConfigured"
 			class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 px-6 py-12 text-center"
@@ -622,24 +761,28 @@ onBeforeUnmount(() => {
 				CurseForge catalog is awaiting server API key
 			</h2>
 			<p class="m-0 max-w-md text-sm leading-relaxed text-secondary">
-				CurseForge modpack search is routed securely through Solara's private server so no API key is ever embedded in the app. Once the CurseForge API key is added on the server, modpacks will appear here automatically.
+				CurseForge modpack search is routed securely through Solara's private server.
 			</p>
 			<Button size="sm" @click="source = 'modrinth'">Browse Modrinth Modpacks</Button>
 		</div>
 
-		<!-- Loading Skeleton Grid -->
+		<!-- Loading Skeletons -->
 		<div
 			v-else-if="loading"
-			class="grid grid-cols-1 gap-3.5 xl:grid-cols-2"
+			:class="
+				viewMode === 'grid'
+					? 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'
+					: 'flex flex-col gap-3'
+			"
 			aria-busy="true"
 		>
 			<div
-				v-for="n in 8"
+				v-for="n in 9"
 				:key="n"
-				class="flex items-start gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4"
+				class="overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-3"
 			>
-				<div class="size-16 shrink-0 animate-pulse rounded-xl bg-surface-4" />
-				<div class="flex flex-1 flex-col gap-2">
+				<div v-if="viewMode === 'grid'" class="h-28 w-full animate-pulse bg-surface-4" />
+				<div class="flex flex-col gap-2.5 p-4">
 					<div class="h-4 w-44 animate-pulse rounded bg-surface-4" />
 					<div class="h-3 w-full animate-pulse rounded bg-surface-4" />
 					<div class="h-3 w-2/3 animate-pulse rounded bg-surface-4" />
@@ -647,21 +790,171 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 
-		<!-- Modrinth Results Grid -->
+		<!-- MODRINTH RESULTS -->
 		<template v-else-if="source === 'modrinth'">
 			<div
 				v-if="modrinthHits.length === 0"
-				class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-10 text-center"
+				class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-12 text-center"
 			>
 				<p class="m-0 text-sm font-semibold text-contrast">No Modrinth modpacks matched your filters.</p>
 				<Button v-if="hasActiveFilters" size="sm" @click="resetFilters">Clear filters</Button>
 			</div>
 
-			<div v-else class="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
+			<!-- Modrinth Grid Cards -->
+			<div
+				v-else-if="viewMode === 'grid'"
+				class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+			>
 				<article
 					v-for="hit in modrinthHits"
 					:key="hit.project_id"
-					class="solara-mp-card group flex items-start gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4 transition-colors"
+					class="solara-mp-card group flex flex-col overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-3 transition-all"
+				>
+					<!-- Cover Header -->
+					<div
+						class="relative h-28 w-full cursor-pointer overflow-hidden bg-surface-2"
+						@click="openModrinthProject(hit)"
+					>
+						<img
+							v-if="modrinthBannerUrl(hit)"
+							:src="modrinthBannerUrl(hit)!"
+							:alt="hit.name"
+							loading="lazy"
+							class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+						/>
+						<img
+							v-else-if="hit.icon_url"
+							:src="hit.icon_url"
+							alt=""
+							loading="lazy"
+							class="size-full scale-125 object-cover opacity-35 blur-xl"
+						/>
+						<div class="solara-card-scrim pointer-events-none absolute inset-0" />
+
+						<!-- Top-right version & loader pills -->
+						<div class="absolute right-2.5 top-2.5 flex items-center gap-1.5">
+							<span
+								v-if="modrinthLoaders(hit)[0]"
+								class="solara-cover-pill rounded-md px-2 py-0.5 text-[11px] font-semibold"
+							>
+								{{ formatLoaderLabel(modrinthLoaders(hit)[0]) }}
+							</span>
+							<span
+								v-if="modrinthLatestMcVersion(hit)"
+								class="solara-cover-pill rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums"
+							>
+								{{ modrinthLatestMcVersion(hit) }}
+							</span>
+						</div>
+					</div>
+
+					<!-- Body -->
+					<div class="relative flex flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
+						<div class="flex items-end gap-3">
+							<button
+								type="button"
+								class="-mt-10 flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
+								@click="openModrinthProject(hit)"
+							>
+								<img
+									v-if="hit.icon_url"
+									:src="hit.icon_url"
+									:alt="hit.name"
+									loading="lazy"
+									class="size-full object-cover"
+								/>
+								<PackageIcon v-else class="size-6 text-secondary" />
+							</button>
+
+							<div class="min-w-0 flex-1">
+								<button
+									type="button"
+									class="m-0 block w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-[15px] font-bold leading-snug text-contrast transition-colors hover:text-brand"
+									@click="openModrinthProject(hit)"
+								>
+									{{ hit.name }}
+								</button>
+								<p class="m-0 truncate text-xs text-secondary">
+									by {{ hit.author || 'Community' }}
+								</p>
+							</div>
+						</div>
+
+						<p class="m-0 line-clamp-2 min-h-[2.4rem] text-xs leading-relaxed text-secondary">
+							{{ hit.summary }}
+						</p>
+
+						<div v-if="modrinthTags(hit).length > 0" class="flex flex-wrap items-center gap-1.5">
+							<span
+								v-for="tag in modrinthTags(hit)"
+								:key="tag"
+								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-secondary"
+							>
+								{{ formatCategoryLabel(tag) }}
+							</span>
+						</div>
+
+						<!-- Dedicated Footer -->
+						<div
+							class="mt-auto flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-5 pt-3"
+						>
+							<div class="flex items-center gap-3 text-xs font-medium text-secondary tabular-nums">
+								<span class="flex items-center gap-1" title="Total downloads">
+									<DownloadIcon class="size-3.5" />
+									{{ formatDownloads(hit.downloads) }}
+								</span>
+								<span
+									v-if="hit.date_modified"
+									class="flex items-center gap-1"
+									title="Last updated"
+								>
+									<UpdatedIcon class="size-3.5" />
+									{{ dayjs(hit.date_modified).fromNow() }}
+								</span>
+							</div>
+
+							<div class="flex shrink-0 items-center gap-1.5">
+								<Button size="sm" type="outlined" @click="openModrinthProject(hit)">
+									Details
+								</Button>
+								<Button
+									:type="installedProjectIds.has(hit.project_id) ? 'outlined' : 'colored'"
+									:color="installedProjectIds.has(hit.project_id) ? 'default' : 'brand'"
+									size="sm"
+									:disabled="
+										installedProjectIds.has(hit.project_id) ||
+										installingModrinthIds.has(hit.project_id)
+									"
+									@click="handleInstallModrinth(hit)"
+								>
+									<SpinnerIcon
+										v-if="installingModrinthIds.has(hit.project_id)"
+										class="size-3.5 animate-spin"
+									/>
+									<CheckIcon v-else-if="installedProjectIds.has(hit.project_id)" class="size-3.5" />
+									<DownloadIcon v-else class="size-3.5" />
+									<span>
+										{{
+											installingModrinthIds.has(hit.project_id)
+												? 'Installing'
+												: installedProjectIds.has(hit.project_id)
+													? 'Installed'
+													: 'Install'
+										}}
+									</span>
+								</Button>
+							</div>
+						</div>
+					</div>
+				</article>
+			</div>
+
+			<!-- Modrinth List Rows -->
+			<div v-else class="flex flex-col gap-2.5">
+				<article
+					v-for="hit in modrinthHits"
+					:key="hit.project_id"
+					class="solara-mp-card flex flex-wrap items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4 transition-all"
 				>
 					<button
 						type="button"
@@ -678,55 +971,19 @@ onBeforeUnmount(() => {
 						<PackageIcon v-else class="size-7 text-secondary" />
 					</button>
 
-					<div class="flex min-w-0 flex-1 flex-col gap-1.5">
-						<div class="flex items-start justify-between gap-3">
-							<div class="min-w-0">
-								<button
-									type="button"
-									class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
-									@click="openModrinthProject(hit)"
-								>
-									{{ hit.name }}
-								</button>
-								<p class="m-0 text-xs text-secondary">
-									by {{ hit.author || 'Community' }}
-								</p>
-							</div>
-
-							<Button
-								:type="installedProjectIds.has(hit.project_id) ? 'outlined' : 'colored'"
-								:color="installedProjectIds.has(hit.project_id) ? 'default' : 'brand'"
-								size="sm"
-								class="shrink-0"
-								:disabled="
-									installedProjectIds.has(hit.project_id) ||
-									installingModrinthIds.has(hit.project_id)
-								"
-								@click="handleInstallModrinth(hit)"
+					<div class="flex min-w-0 flex-1 flex-col gap-1">
+						<div class="flex flex-wrap items-baseline gap-2">
+							<button
+								type="button"
+								class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
+								@click="openModrinthProject(hit)"
 							>
-								<SpinnerIcon
-									v-if="installingModrinthIds.has(hit.project_id)"
-									class="size-4 animate-spin"
-								/>
-								<CheckIcon v-else-if="installedProjectIds.has(hit.project_id)" class="size-4" />
-								<DownloadIcon v-else class="size-4" />
-								<span>
-									{{
-										installingModrinthIds.has(hit.project_id)
-											? 'Installing'
-											: installedProjectIds.has(hit.project_id)
-												? 'Installed'
-												: 'Install'
-									}}
-								</span>
-							</Button>
+								{{ hit.name }}
+							</button>
+							<span class="text-xs text-secondary">by {{ hit.author || 'Community' }}</span>
 						</div>
-
-						<p class="m-0 line-clamp-2 text-xs leading-relaxed text-secondary">
-							{{ hit.summary }}
-						</p>
-
-						<div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-secondary">
+						<p class="m-0 line-clamp-1 text-xs text-secondary">{{ hit.summary }}</p>
+						<div class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-medium">
 							<span
 								v-for="ldr in modrinthLoaders(hit)"
 								:key="ldr"
@@ -735,38 +992,218 @@ onBeforeUnmount(() => {
 								{{ formatLoaderLabel(ldr) }}
 							</span>
 							<span
-								v-if="hit.latest_version"
+								v-if="modrinthLatestMcVersion(hit)"
 								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 tabular-nums text-primary"
 							>
-								{{ hit.latest_version }}
+								MC {{ modrinthLatestMcVersion(hit) }}
 							</span>
-							<span class="ml-auto tabular-nums">
-								{{ formatDownloads(hit.downloads) }} downloads
-								<template v-if="hit.date_modified">
-									· {{ dayjs(hit.date_modified).fromNow() }}
-								</template>
+							<span
+								v-for="tag in modrinthTags(hit)"
+								:key="tag"
+								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-secondary"
+							>
+								{{ formatCategoryLabel(tag) }}
 							</span>
 						</div>
+					</div>
+
+					<div class="flex shrink-0 items-center gap-3">
+						<div class="hidden flex-col items-end text-xs text-secondary tabular-nums sm:flex">
+							<span class="font-semibold text-primary">{{ formatDownloads(hit.downloads) }}</span>
+							<span v-if="hit.date_modified">{{ dayjs(hit.date_modified).fromNow() }}</span>
+						</div>
+						<Button size="sm" type="outlined" @click="openModrinthProject(hit)">Details</Button>
+						<Button
+							:type="installedProjectIds.has(hit.project_id) ? 'outlined' : 'colored'"
+							:color="installedProjectIds.has(hit.project_id) ? 'default' : 'brand'"
+							size="sm"
+							:disabled="
+								installedProjectIds.has(hit.project_id) ||
+								installingModrinthIds.has(hit.project_id)
+							"
+							@click="handleInstallModrinth(hit)"
+						>
+							<SpinnerIcon
+								v-if="installingModrinthIds.has(hit.project_id)"
+								class="size-3.5 animate-spin"
+							/>
+							<CheckIcon v-else-if="installedProjectIds.has(hit.project_id)" class="size-3.5" />
+							<DownloadIcon v-else class="size-3.5" />
+							<span>
+								{{
+									installingModrinthIds.has(hit.project_id)
+										? 'Installing'
+										: installedProjectIds.has(hit.project_id)
+											? 'Installed'
+											: 'Install'
+								}}
+							</span>
+						</Button>
 					</div>
 				</article>
 			</div>
 		</template>
 
-		<!-- CurseForge Results Grid -->
+		<!-- CURSEFORGE RESULTS -->
 		<template v-else>
 			<div
 				v-if="curseforgeItems.length === 0"
-				class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-10 text-center"
+				class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-12 text-center"
 			>
 				<p class="m-0 text-sm font-semibold text-contrast">No CurseForge modpacks matched your filters.</p>
 				<Button v-if="hasActiveFilters" size="sm" @click="resetFilters">Clear filters</Button>
 			</div>
 
-			<div v-else class="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
+			<!-- CurseForge Grid Cards -->
+			<div
+				v-else-if="viewMode === 'grid'"
+				class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+			>
 				<article
 					v-for="pack in curseforgeItems"
 					:key="pack.id"
-					class="solara-mp-card group flex items-start gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4 transition-colors"
+					class="solara-mp-card group flex flex-col overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-3 transition-all"
+				>
+					<!-- Cover Header -->
+					<div
+						class="relative h-28 w-full cursor-pointer overflow-hidden bg-surface-2"
+						@click="activeCurseForgeModalPack = pack"
+					>
+						<img
+							v-if="pack.bannerUrl"
+							:src="pack.bannerUrl"
+							:alt="pack.name"
+							loading="lazy"
+							class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+						/>
+						<img
+							v-else-if="pack.logoUrl"
+							:src="pack.logoUrl"
+							alt=""
+							loading="lazy"
+							class="size-full scale-125 object-cover opacity-35 blur-xl"
+						/>
+						<div class="solara-card-scrim pointer-events-none absolute inset-0" />
+
+						<div class="absolute right-2.5 top-2.5 flex items-center gap-1.5">
+							<span
+								v-if="pack.loaders[0]"
+								class="solara-cover-pill rounded-md px-2 py-0.5 text-[11px] font-semibold"
+							>
+								{{ formatLoaderLabel(pack.loaders[0]) }}
+							</span>
+							<span
+								v-if="pack.gameVersions[0]"
+								class="solara-cover-pill rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums"
+							>
+								{{ pack.gameVersions[0] }}
+							</span>
+						</div>
+					</div>
+
+					<!-- Body -->
+					<div class="relative flex flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
+						<div class="flex items-end gap-3">
+							<button
+								type="button"
+								class="-mt-10 flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
+								@click="activeCurseForgeModalPack = pack"
+							>
+								<img
+									v-if="pack.logoUrl"
+									:src="pack.logoUrl"
+									:alt="pack.name"
+									loading="lazy"
+									class="size-full object-cover"
+								/>
+								<PackageIcon v-else class="size-6 text-secondary" />
+							</button>
+
+							<div class="min-w-0 flex-1">
+								<button
+									type="button"
+									class="m-0 block w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-[15px] font-bold leading-snug text-contrast transition-colors hover:text-brand"
+									@click="activeCurseForgeModalPack = pack"
+								>
+									{{ pack.name }}
+								</button>
+								<p class="m-0 truncate text-xs text-secondary">by {{ pack.author }}</p>
+							</div>
+						</div>
+
+						<p class="m-0 line-clamp-2 min-h-[2.4rem] text-xs leading-relaxed text-secondary">
+							{{ pack.summary }}
+						</p>
+
+						<div v-if="pack.categories.length > 0" class="flex flex-wrap items-center gap-1.5">
+							<span
+								v-for="cat in pack.categories.slice(0, 2)"
+								:key="cat.id"
+								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-secondary"
+							>
+								{{ cat.name }}
+							</span>
+						</div>
+
+						<!-- Dedicated Footer -->
+						<div
+							class="mt-auto flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-5 pt-3"
+						>
+							<div class="flex items-center gap-3 text-xs font-medium text-secondary tabular-nums">
+								<span class="flex items-center gap-1" title="Total downloads">
+									<DownloadIcon class="size-3.5" />
+									{{ formatDownloads(pack.downloads) }}
+								</span>
+								<span
+									v-if="pack.dateModified"
+									class="flex items-center gap-1"
+									title="Last updated"
+								>
+									<UpdatedIcon class="size-3.5" />
+									{{ dayjs(pack.dateModified).fromNow() }}
+								</span>
+							</div>
+
+							<div class="flex shrink-0 items-center gap-1.5">
+								<Button size="sm" type="outlined" @click="activeCurseForgeModalPack = pack">
+									Versions
+								</Button>
+								<Button
+									type="colored"
+									color="brand"
+									size="sm"
+									:disabled="installingCurseForgeKey !== null"
+									@click="handleInstallCurseForge(pack)"
+								>
+									<SpinnerIcon
+										v-if="
+											pack.latestFile &&
+											installingCurseForgeKey === `cf:${pack.id}:${pack.latestFile.id}`
+										"
+										class="size-3.5 animate-spin"
+									/>
+									<DownloadIcon v-else class="size-3.5" />
+									<span>
+										{{
+											pack.latestFile &&
+											installingCurseForgeKey === `cf:${pack.id}:${pack.latestFile.id}`
+												? 'Installing'
+												: 'Install'
+										}}
+									</span>
+								</Button>
+							</div>
+						</div>
+					</div>
+				</article>
+			</div>
+
+			<!-- CurseForge List Rows -->
+			<div v-else class="flex flex-col gap-2.5">
+				<article
+					v-for="pack in curseforgeItems"
+					:key="pack.id"
+					class="solara-mp-card flex flex-wrap items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4 transition-all"
 				>
 					<button
 						type="button"
@@ -783,101 +1220,88 @@ onBeforeUnmount(() => {
 						<PackageIcon v-else class="size-7 text-secondary" />
 					</button>
 
-					<div class="flex min-w-0 flex-1 flex-col gap-1.5">
-						<div class="flex items-start justify-between gap-3">
-							<div class="min-w-0">
-								<button
-									type="button"
-									class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
-									@click="activeCurseForgeModalPack = pack"
-								>
-									{{ pack.name }}
-								</button>
-								<p class="m-0 text-xs text-secondary">
-									by {{ pack.author }}
-								</p>
-							</div>
-
-							<div class="flex shrink-0 items-center gap-1.5">
-								<Button
-									size="sm"
-									@click="activeCurseForgeModalPack = pack"
-								>
-									Versions
-								</Button>
-								<Button
-									type="colored"
-									color="brand"
-									size="sm"
-									:disabled="installingCurseForgeKey !== null"
-									@click="handleInstallCurseForge(pack)"
-								>
-									<SpinnerIcon
-										v-if="installingCurseForgeKey?.startsWith(`cf:${pack.id}:`)"
-										class="size-4 animate-spin"
-									/>
-									<DownloadIcon v-else class="size-4" />
-									<span>
-										{{
-											installingCurseForgeKey?.startsWith(`cf:${pack.id}:`)
-												? 'Installing'
-												: 'Install'
-										}}
-									</span>
-								</Button>
-							</div>
+					<div class="flex min-w-0 flex-1 flex-col gap-1">
+						<div class="flex flex-wrap items-baseline gap-2">
+							<button
+								type="button"
+								class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
+								@click="activeCurseForgeModalPack = pack"
+							>
+								{{ pack.name }}
+							</button>
+							<span class="text-xs text-secondary">by {{ pack.author }}</span>
 						</div>
-
-						<p class="m-0 line-clamp-2 text-xs leading-relaxed text-secondary">
-							{{ pack.summary }}
-						</p>
-
-						<div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-secondary">
+						<p class="m-0 line-clamp-1 text-xs text-secondary">{{ pack.summary }}</p>
+						<div class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-medium">
 							<span
-								v-for="ldr in pack.loaders.slice(0, 3)"
+								v-for="ldr in pack.loaders.slice(0, 2)"
 								:key="ldr"
 								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-primary"
 							>
 								{{ formatLoaderLabel(ldr) }}
 							</span>
 							<span
-								v-if="pack.gameVersions.length > 0"
+								v-if="pack.gameVersions[0]"
 								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 tabular-nums text-primary"
 							>
-								{{ pack.gameVersions[0] }}
+								MC {{ pack.gameVersions[0] }}
 							</span>
-							<span class="ml-auto tabular-nums">
-								{{ formatDownloads(pack.downloads) }} downloads
-								<template v-if="pack.dateModified">
-									· {{ dayjs(pack.dateModified).fromNow() }}
-								</template>
+							<span
+								v-for="cat in pack.categories.slice(0, 2)"
+								:key="cat.id"
+								class="rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-secondary"
+							>
+								{{ cat.name }}
 							</span>
 						</div>
+					</div>
+
+					<div class="flex shrink-0 items-center gap-3">
+						<div class="hidden flex-col items-end text-xs text-secondary tabular-nums sm:flex">
+							<span class="font-semibold text-primary">{{ formatDownloads(pack.downloads) }}</span>
+							<span v-if="pack.dateModified">{{ dayjs(pack.dateModified).fromNow() }}</span>
+						</div>
+						<Button size="sm" type="outlined" @click="activeCurseForgeModalPack = pack">
+							Versions
+						</Button>
+						<Button
+							type="colored"
+							color="brand"
+							size="sm"
+							:disabled="installingCurseForgeKey !== null"
+							@click="handleInstallCurseForge(pack)"
+						>
+							<SpinnerIcon
+								v-if="
+									pack.latestFile &&
+									installingCurseForgeKey === `cf:${pack.id}:${pack.latestFile.id}`
+								"
+								class="size-3.5 animate-spin"
+							/>
+							<DownloadIcon v-else class="size-3.5" />
+							<span>
+								{{
+									pack.latestFile &&
+									installingCurseForgeKey === `cf:${pack.id}:${pack.latestFile.id}`
+										? 'Installing'
+										: 'Install'
+								}}
+							</span>
+						</Button>
 					</div>
 				</article>
 			</div>
 		</template>
 
-		<!-- Pagination Controls -->
-		<nav
-			v-if="!loading && !errorMessage && totalPages > 1 && (source === 'modrinth' || curseforgeConfigured)"
-			class="flex items-center justify-center gap-2 pt-2"
-			aria-label="Pagination"
+		<!-- Pagination -->
+		<footer
+			v-if="!loading && !errorMessage && totalPages > 1"
+			class="flex items-center justify-center pt-2"
 		>
-			<Button size="sm" :disabled="page <= 1" @click="page = Math.max(1, page - 1)">
-				<ChevronLeftIcon class="size-4" />
-				<span>Previous</span>
-			</Button>
-			<span class="px-3 text-xs font-semibold tabular-nums text-secondary">
-				Page {{ page }} of {{ totalPages }}
-			</span>
-			<Button size="sm" :disabled="page >= totalPages" @click="page = Math.min(totalPages, page + 1)">
-				<span>Next</span>
-				<ChevronRightIcon class="size-4" />
-			</Button>
-		</nav>
+			<Pagination :page="page" :count="totalPages" @switch-page="switchPage" />
+		</footer>
 
-		<!-- CurseForge Details & Versions Modal -->
+		<!-- CurseForge Version Picker Modal -->
 		<CurseForgePackModal
 			:pack="activeCurseForgeModalPack"
 			:installing-key="installingCurseForgeKey"
@@ -888,19 +1312,39 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.solara-source-modrinth-active {
+	background-color: color-mix(in srgb, #1bd96a 14%, var(--surface-4));
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, #1bd96a 34%, transparent);
+}
+
+.solara-source-cf-active {
+	background-color: color-mix(in srgb, #f16436 14%, var(--surface-4));
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, #f16436 34%, transparent);
+}
+
 .solara-loader-active {
 	border-color: var(--color-brand);
-	background: color-mix(in srgb, var(--color-brand) 14%, transparent);
+	background-color: color-mix(in srgb, var(--color-brand) 16%, var(--surface-2));
 }
 
 .solara-mp-card:hover {
-	border-color: color-mix(in srgb, var(--color-brand) 40%, var(--surface-5));
-	background: color-mix(in srgb, var(--surface-4) 55%, var(--surface-3));
+	border-color: color-mix(in srgb, var(--color-brand) 48%, var(--surface-5));
+	transform: translateY(-1px);
 }
 
-.solara-checkbox {
-	width: 14px;
-	height: 14px;
-	accent-color: var(--color-brand);
+.solara-card-scrim {
+	background: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.08) 0%,
+		rgba(0, 0, 0, 0.25) 60%,
+		color-mix(in srgb, var(--surface-3) 96%, transparent) 100%
+	);
+}
+
+.solara-cover-pill {
+	background-color: rgba(10, 14, 22, 0.76);
+	color: #f8fafc;
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	backdrop-filter: blur(6px);
 }
 </style>

@@ -35,6 +35,7 @@ export interface CurseForgeModpackSummary {
 	dateModified: string
 	dateCreated: string
 	logoUrl: string | null
+	bannerUrl?: string | null
 	websiteUrl: string
 	loaders: string[]
 	gameVersions: string[]

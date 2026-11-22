@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { CheckIcon, InfoIcon, RefreshCwIcon, SaveIcon, SpinnerIcon, XIcon } from '@modrinth/assets'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import {
+	CheckIcon,
+	RefreshCwIcon,
+	SaveIcon,
+	SearchIcon,
+	SpinnerIcon,
+	UploadIcon,
+	XIcon,
+} from '@modrinth/assets'
+import { computed, nextTick, ref, watch } from 'vue'
 
-import Avatar from '#ui/components/base/Avatar.vue'
 import Button from '#ui/components/base/buttons/Button.vue'
 import NewModal from '#ui/components/modal/NewModal.vue'
 import { defineMessages, useVIntl } from '#ui/composables/i18n'
@@ -15,12 +22,24 @@ import {
 	DEFAULT_BACKGROUND_ID,
 	DEFAULT_SYMBOL_ID,
 	RANDOM_CONFIG_BLACKLIST,
+	SYMBOL_CATEGORIES,
+	type SymbolCategory,
 	type SymbolId,
 	type SymbolOption,
 	symbolOptions,
 } from './editor-catalog'
-import { iconBackgroundStyle } from './generated-icon'
 import GeneratedIcon from './GeneratedIcon.vue'
+import {
+	type GradientAngle,
+	renderStudioCanvas,
+	renderStudioIconDataUrl,
+	type StudioBackdropMode,
+	type StudioFont,
+	type StudioFrame,
+	type StudioMode,
+	type StudioPattern,
+	type StudioRenderOptions,
+} from './render-icon'
 import type { IconBackground, IconConfig } from './types'
 
 const props = defineProps<{
@@ -38,138 +57,139 @@ const { handleError } = injectNotificationManager()
 const modal = ref<InstanceType<typeof NewModal> | null>(null)
 const recentConfigs = ref<IconConfig[]>([])
 const saving = ref(false)
-const backgroundScroller = ref<HTMLElement | null>(null)
-const showLeftBackgroundShadow = ref(false)
-const showRightBackgroundShadow = ref(false)
-const draggingBackgrounds = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const previewCanvasRef = ref<HTMLCanvasElement | null>(null)
+const previewDataUrl = ref<string>('')
 
-let backgroundScrollerResizeObserver: ResizeObserver | null = null
-let backgroundDragPointerId: number | null = null
-let backgroundDragCaptureTarget: Element | null = null
-let backgroundDragStartX = 0
-let backgroundDragStartScrollLeft = 0
-let suppressBackgroundClick = false
-let suppressBackgroundClickTimeout: ReturnType<typeof setTimeout> | null = null
+// Studio state
+const activeTab = ref<StudioMode>('icon')
+const selectedBackground = ref<BackgroundId | 'custom'>(DEFAULT_BACKGROUND_ID)
+const backdropMode = ref<StudioBackdropMode>('gradient')
+const primaryColor = ref('#0f172a')
+const secondaryColor = ref('#1e293b')
+const gradientAngle = ref<GradientAngle>(135)
+const selectedPattern = ref<StudioPattern>('none')
+const selectedFrame = ref<StudioFrame>('none')
+const iconScale = ref(74) // percent 55..95
+const dropShadow = ref(true)
 
-const selectedBackground = ref<BackgroundId>(DEFAULT_BACKGROUND_ID)
+// Icon tab state
 const selectedSymbol = ref<SymbolId>(DEFAULT_SYMBOL_ID)
+const activeCategory = ref<'all' | SymbolCategory>('all')
+const symbolSearch = ref('')
 
-const selectedBackgroundOption = computed(
-	() => backgroundOptions.find((option) => option.id === selectedBackground.value)!,
-)
+// Monogram tab state
+const monogramText = ref('SOL')
+const monogramSubtext = ref('1.21')
+const monogramFont = ref<StudioFont>('bold')
+const monogramColor = ref('#ffffff')
+
+// Custom upload tab state
+const uploadedImageUrl = ref<string | null>(null)
+const uploadedFileName = ref<string>('')
+
+const PATTERNS: { id: StudioPattern; label: string }[] = [
+	{ id: 'none', label: 'Clean' },
+	{ id: 'dots', label: 'Dots' },
+	{ id: 'diagonal', label: 'Stripes' },
+	{ id: 'grid', label: 'Grid' },
+]
+
+const FRAMES: { id: StudioFrame; label: string }[] = [
+	{ id: 'none', label: 'None' },
+	{ id: 'border', label: 'Border' },
+	{ id: 'corners', label: 'HUD' },
+	{ id: 'ring', label: 'Ring' },
+]
+
+const ANGLES: { value: GradientAngle; label: string }[] = [
+	{ value: 180, label: '↓' },
+	{ value: 135, label: '↘' },
+	{ value: 90, label: '→' },
+	{ value: 45, label: '↗' },
+]
+
+const FONTS: { id: StudioFont; label: string }[] = [
+	{ id: 'bold', label: 'Sans' },
+	{ id: 'mono', label: 'Mono' },
+	{ id: 'serif', label: 'Classic' },
+]
+
+const MONOGRAM_COLORS = ['#ffffff', '#0f172a', '#38bdf8', '#fbbf24', '#34d399', '#f472b6']
+
 const selectedSymbolOption = computed(
-	() => symbolOptions.find((option) => option.id === selectedSymbol.value)!,
+	() => symbolOptions.find((option) => option.id === selectedSymbol.value) ?? symbolOptions[0],
 )
-const vanillaSymbolStartIndex = symbolOptions.findIndex((option) => option.category === 'vanilla')
-const selectedConfig = computed<IconConfig>(() => ({
-	background: { ...selectedBackgroundOption.value.background },
-	symbol: selectedSymbol.value,
+
+const filteredSymbols = computed(() => {
+	const q = symbolSearch.value.trim().toLowerCase()
+	return symbolOptions.filter((option) => {
+		if (activeCategory.value !== 'all' && option.category !== activeCategory.value) return false
+		if (!q) return true
+		return (
+			option.label.toLowerCase().includes(q) ||
+			option.id.toLowerCase().includes(q) ||
+			option.keywords.some((k) => k.includes(q))
+		)
+	})
+})
+
+const renderOptions = computed<StudioRenderOptions>(() => ({
+	mode: activeTab.value,
+	backdropMode: backdropMode.value,
+	primaryColor: primaryColor.value,
+	secondaryColor: secondaryColor.value,
+	angle: gradientAngle.value,
+	pattern: selectedPattern.value,
+	frame: selectedFrame.value,
+	scale: iconScale.value / 100,
+	shadow: dropShadow.value,
+	symbolAsset: selectedSymbolOption.value.asset,
+	uploadAsset: uploadedImageUrl.value,
+	monogramText: monogramText.value,
+	monogramSubtext: monogramSubtext.value,
+	monogramFont: monogramFont.value,
+	monogramColor: monogramColor.value,
 }))
+
+const selectedConfig = computed<IconConfig>(() => {
+	const symbolId =
+		activeTab.value === 'monogram'
+			? 'solara_monogram'
+			: activeTab.value === 'upload'
+				? 'solara_custom'
+				: selectedSymbol.value
+	return {
+		background:
+			backdropMode.value === 'solid'
+				? { type: 'color', value: normalizeHex(primaryColor.value) }
+				: {
+						type: 'linear-top-down-gradient',
+						top_color: normalizeHex(primaryColor.value),
+						bottom_color: normalizeHex(secondaryColor.value),
+					},
+		symbol: symbolId,
+	}
+})
+
 const visibleRecentConfigs = computed(() =>
 	recentConfigs.value.filter(
 		(config) => backgroundOption(config.background) && symbolOption(config.symbol),
 	),
 )
 
-function updateBackgroundScrollShadows() {
-	const el = backgroundScroller.value
-	if (!el) {
-		showLeftBackgroundShadow.value = false
-		showRightBackgroundShadow.value = false
-		return
-	}
-
-	showLeftBackgroundShadow.value = el.scrollLeft > 0
-	showRightBackgroundShadow.value = el.scrollLeft < el.scrollWidth - el.clientWidth - 1
+function normalizeHex(hex: string): string {
+	const clean = hex.trim()
+	if (/^#[0-9a-fA-F]{6}$/.test(clean)) return clean.toLowerCase()
+	return '#0f172a'
 }
-
-function onBackgroundWheel(event: WheelEvent) {
-	const el = backgroundScroller.value
-	if (!el || el.scrollWidth <= el.clientWidth) return
-
-	const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
-	const nextScrollLeft = Math.max(
-		0,
-		Math.min(el.scrollLeft + delta, el.scrollWidth - el.clientWidth),
-	)
-	if (nextScrollLeft === el.scrollLeft) return
-	event.preventDefault()
-	el.scrollLeft = nextScrollLeft
-}
-
-function onBackgroundPointerDown(event: PointerEvent) {
-	const el = backgroundScroller.value
-	if (!el || event.pointerType === 'touch' || event.button !== 0) return
-
-	backgroundDragPointerId = event.pointerId
-	backgroundDragStartX = event.clientX
-	backgroundDragStartScrollLeft = el.scrollLeft
-	suppressBackgroundClick = false
-	backgroundDragCaptureTarget =
-		event.target instanceof Element ? (event.target.closest('button') ?? el) : el
-	backgroundDragCaptureTarget.setPointerCapture(event.pointerId)
-}
-
-function onBackgroundPointerMove(event: PointerEvent) {
-	const el = backgroundScroller.value
-	if (!el || event.pointerId !== backgroundDragPointerId) return
-
-	const distance = event.clientX - backgroundDragStartX
-	if (!draggingBackgrounds.value && Math.abs(distance) < 4) return
-
-	draggingBackgrounds.value = true
-	suppressBackgroundClick = true
-	event.preventDefault()
-	el.scrollLeft = backgroundDragStartScrollLeft - distance
-}
-
-function finishBackgroundDrag(event: PointerEvent) {
-	const el = backgroundScroller.value
-	if (!el || event.pointerId !== backgroundDragPointerId) return
-
-	if (backgroundDragCaptureTarget?.hasPointerCapture(event.pointerId)) {
-		backgroundDragCaptureTarget.releasePointerCapture(event.pointerId)
-	}
-	backgroundDragPointerId = null
-	backgroundDragCaptureTarget = null
-	draggingBackgrounds.value = false
-
-	if (suppressBackgroundClick) {
-		if (suppressBackgroundClickTimeout) clearTimeout(suppressBackgroundClickTimeout)
-		suppressBackgroundClickTimeout = setTimeout(() => {
-			suppressBackgroundClick = false
-			suppressBackgroundClickTimeout = null
-		}, 0)
-	}
-}
-
-function onBackgroundClick(event: MouseEvent) {
-	if (!suppressBackgroundClick) return
-
-	event.preventDefault()
-	event.stopPropagation()
-	suppressBackgroundClick = false
-	if (suppressBackgroundClickTimeout) clearTimeout(suppressBackgroundClickTimeout)
-	suppressBackgroundClickTimeout = null
-}
-
-onMounted(() => {
-	backgroundScrollerResizeObserver = new ResizeObserver(updateBackgroundScrollShadows)
-	if (backgroundScroller.value) backgroundScrollerResizeObserver.observe(backgroundScroller.value)
-	nextTick(updateBackgroundScrollShadows)
-})
-
-onBeforeUnmount(() => {
-	backgroundScrollerResizeObserver?.disconnect()
-	if (suppressBackgroundClickTimeout) clearTimeout(suppressBackgroundClickTimeout)
-})
 
 function backgroundOption(background?: IconBackground) {
 	if (background?.type !== 'linear-top-down-gradient') return undefined
 	return backgroundOptions.find(
 		(option) =>
-			option.background.top_color === background.top_color &&
-			option.background.bottom_color === background.bottom_color,
+			option.background.top_color.toLowerCase() === background.top_color.toLowerCase() &&
+			option.background.bottom_color.toLowerCase() === background.bottom_color.toLowerCase(),
 	)
 }
 
@@ -182,17 +202,33 @@ function symbolOption(symbol: string) {
 	return symbolOptions.find((option) => option.id === symbol)
 }
 
+function applyPresetBackground(option: (typeof backgroundOptions)[number]) {
+	selectedBackground.value = option.id
+	primaryColor.value = option.background.top_color
+	secondaryColor.value = option.background.bottom_color
+	if (backdropMode.value === 'solid') {
+		backdropMode.value = 'gradient'
+	}
+}
+
+function onCustomColorInput(which: 'primary' | 'secondary', event: Event) {
+	const target = event.target as HTMLInputElement
+	selectedBackground.value = 'custom'
+	if (which === 'primary') primaryColor.value = target.value
+	else secondaryColor.value = target.value
+}
+
 function selectRecent(config: IconConfig) {
 	const background = backgroundOption(config.background)
 	const symbol = symbolOption(config.symbol)
 	if (!background || !symbol) return
-
-	selectedBackground.value = background.id
+	activeTab.value = 'icon'
+	applyPresetBackground(background)
 	selectedSymbol.value = symbol.id
 }
 
-function surpriseMe() {
-	const configurations = backgroundOptions.flatMap((background) =>
+function pickRandomLook() {
+	const candidates = backgroundOptions.flatMap((background) =>
 		symbolOptions
 			.filter(
 				(symbol: SymbolOption) =>
@@ -200,17 +236,77 @@ function surpriseMe() {
 					background.id !== selectedBackground.value &&
 					symbol.id !== selectedSymbol.value &&
 					!RANDOM_CONFIG_BLACKLIST.some(
-						(config) => config.background === background.id && config.symbol === symbol.id,
+						(cfg) => cfg.background === background.id && cfg.symbol === symbol.id,
 					),
 			)
-			.map((symbol) => ({ background: background.id, symbol: symbol.id })),
+			.map((symbol) => ({ background, symbol })),
 	)
-	const configuration = configurations[Math.floor(Math.random() * configurations.length)]
+	const picked = candidates[Math.floor(Math.random() * candidates.length)]
+	if (!picked) return null
 
-	if (!configuration) return
-	selectedBackground.value = configuration.background
-	selectedSymbol.value = configuration.symbol
+	const randomPatterns: StudioPattern[] = ['none', 'none', 'dots', 'diagonal', 'grid']
+	const randomFrames: StudioFrame[] = ['none', 'none', 'border', 'corners', 'ring']
+	const randomAngles: GradientAngle[] = [180, 135, 135, 45]
+
+	return {
+		background: picked.background,
+		symbol: picked.symbol,
+		pattern: randomPatterns[Math.floor(Math.random() * randomPatterns.length)],
+		frame: randomFrames[Math.floor(Math.random() * randomFrames.length)],
+		angle: randomAngles[Math.floor(Math.random() * randomAngles.length)],
+	}
 }
+
+function surpriseMe() {
+	const picked = pickRandomLook()
+	if (!picked) return
+	activeTab.value = 'icon'
+	applyPresetBackground(picked.background)
+	selectedSymbol.value = picked.symbol.id
+	selectedPattern.value = picked.pattern
+	selectedFrame.value = picked.frame
+	gradientAngle.value = picked.angle
+	iconScale.value = 74
+	dropShadow.value = true
+}
+
+function handleFileSelect(event: Event) {
+	const input = event.target as HTMLInputElement
+	const file = input.files?.[0]
+	if (!file) return
+	const reader = new FileReader()
+	reader.onload = () => {
+		if (typeof reader.result === 'string') {
+			uploadedImageUrl.value = reader.result
+			uploadedFileName.value = file.name
+			iconScale.value = 84
+		}
+	}
+	reader.readAsDataURL(file)
+	input.value = ''
+}
+
+let renderSeq = 0
+async function refreshPreview() {
+	const seq = ++renderSeq
+	const canvas = previewCanvasRef.value
+	if (!canvas) return
+	try {
+		await renderStudioCanvas(canvas, renderOptions.value)
+		if (seq !== renderSeq) return
+		previewDataUrl.value = canvas.toDataURL('image/png')
+	} catch {
+		// Ignore preview render error
+	}
+}
+
+watch(
+	renderOptions,
+	() => {
+		void refreshPreview()
+	},
+	{ deep: true },
+)
 
 async function refreshRecentConfigs() {
 	try {
@@ -221,11 +317,28 @@ async function refreshRecentConfigs() {
 }
 
 function show() {
-	selectedBackground.value = backgroundOption(props.config?.background)?.id ?? DEFAULT_BACKGROUND_ID
+	activeTab.value = 'icon'
+	const matchedBg = backgroundOption(props.config?.background)
+	if (matchedBg) {
+		applyPresetBackground(matchedBg)
+	} else if (props.config?.background?.type === 'color') {
+		selectedBackground.value = 'custom'
+		backdropMode.value = 'solid'
+		primaryColor.value = props.config.background.value
+	} else if (props.config?.background?.type === 'linear-top-down-gradient') {
+		selectedBackground.value = 'custom'
+		backdropMode.value = 'gradient'
+		primaryColor.value = props.config.background.top_color
+		secondaryColor.value = props.config.background.bottom_color
+	} else {
+		const def = backgroundOptions.find((b) => b.id === DEFAULT_BACKGROUND_ID) ?? backgroundOptions[0]
+		applyPresetBackground(def)
+	}
+
 	selectedSymbol.value = symbolOption(props.config?.symbol ?? '')?.id ?? DEFAULT_SYMBOL_ID
 	modal.value?.show()
 	void refreshRecentConfigs()
-	nextTick(updateBackgroundScrollShadows)
+	void nextTick(() => refreshPreview())
 }
 
 function hide() {
@@ -234,11 +347,16 @@ function hide() {
 
 async function saveIcon() {
 	if (saving.value) return
+	if (activeTab.value === 'upload' && !uploadedImageUrl.value) {
+		handleError(new Error('Please choose an image file first.'))
+		return
+	}
 
 	saving.value = true
 	try {
+		const dataUrl = await renderStudioIconDataUrl(renderOptions.value, 512)
 		const config = selectedConfig.value
-		const result = await props.save(config, selectedSymbolOption.value.asset)
+		const result = await props.save(config, dataUrl)
 		emit('saved', result, config)
 		saving.value = false
 		await nextTick()
@@ -250,9 +368,20 @@ async function saveIcon() {
 	}
 }
 
-function randomize() {
-	surpriseMe()
-	return { config: selectedConfig.value, symbolAsset: selectedSymbolOption.value.asset }
+async function randomize() {
+	const picked = pickRandomLook()
+	if (picked) {
+		activeTab.value = 'icon'
+		applyPresetBackground(picked.background)
+		selectedSymbol.value = picked.symbol.id
+		selectedPattern.value = picked.pattern
+		selectedFrame.value = picked.frame
+		gradientAngle.value = picked.angle
+		iconScale.value = 74
+		dropShadow.value = true
+	}
+	const dataUrl = await renderStudioIconDataUrl(renderOptions.value, 512)
+	return { config: selectedConfig.value, symbolAsset: dataUrl }
 }
 
 defineExpose({ show, hide, randomize })
@@ -260,31 +389,11 @@ defineExpose({ show, hide, randomize })
 const messages = defineMessages({
 	title: {
 		id: 'instance.icon-editor.title',
-		defaultMessage: 'Icon editor',
-	},
-	background: {
-		id: 'instance.icon-editor.background',
-		defaultMessage: 'Background',
-	},
-	symbol: {
-		id: 'instance.icon-editor.symbol',
-		defaultMessage: 'Symbol',
-	},
-	surpriseMe: {
-		id: 'instance.icon-editor.surprise-me',
-		defaultMessage: 'Randomize',
-	},
-	recents: {
-		id: 'instance.icon-editor.recents',
-		defaultMessage: 'Recents',
-	},
-	description: {
-		id: 'instance.icon-editor.description',
-		defaultMessage: 'Mix and match elements to create a custom icon.',
+		defaultMessage: 'Solara Icon Studio',
 	},
 	saveIcon: {
 		id: 'instance.icon-editor.save',
-		defaultMessage: 'Save icon',
+		defaultMessage: 'Apply icon',
 	},
 })
 </script>
@@ -292,61 +401,103 @@ const messages = defineMessages({
 <template>
 	<NewModal
 		ref="modal"
-		:header="formatMessage(messages.title)"
-		width="928px"
+		header="Solara Icon Studio"
+		width="960px"
 		max-width="calc(100vw - 2rem)"
 		no-padding
 		actions-divider
 		:disable-close="saving"
 	>
-		<div class="flex h-[552px] max-h-[calc(100vh-168px)] min-h-0">
+		<div class="flex h-[588px] max-h-[calc(100vh-160px)] min-h-0 flex-col md:flex-row">
+			<!-- Left Live Preview & Quick Controls -->
 			<aside
-				class="flex w-[244px] shrink-0 flex-col gap-4 overflow-y-auto border-0 border-r border-solid border-surface-5 p-6"
+				class="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-0 border-b border-solid border-surface-5 bg-surface-2 p-5 md:w-[264px] md:border-b-0 md:border-r"
 			>
 				<div
-					class="flex w-full flex-col items-center gap-3.5 rounded-[20px] border border-solid border-surface-4 bg-surface-2 p-5"
+					class="flex flex-col items-center gap-3.5 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-4"
 				>
-					<Avatar
-						:src="selectedSymbolOption.asset"
-						size="132px"
-						:style="iconBackgroundStyle(selectedBackgroundOption.background)"
-						no-shadow
-					/>
+					<div class="relative overflow-hidden rounded-2xl border border-solid border-surface-5 shadow-md">
+						<canvas
+							ref="previewCanvasRef"
+							width="256"
+							height="256"
+							class="block size-[148px]"
+						/>
+					</div>
+
+					<!-- Multi-size live strip -->
 					<div class="flex items-center gap-2.5">
-						<Avatar
-							:src="selectedSymbolOption.asset"
-							size="40px"
-							:style="iconBackgroundStyle(selectedBackgroundOption.background)"
-							no-shadow
+						<img
+							v-if="previewDataUrl"
+							:src="previewDataUrl"
+							alt="Medium preview"
+							class="size-10 rounded-xl border border-solid border-surface-5 object-cover"
 						/>
-						<Avatar
-							:src="selectedSymbolOption.asset"
-							size="30px"
-							:style="iconBackgroundStyle(selectedBackgroundOption.background)"
-							no-shadow
+						<img
+							v-if="previewDataUrl"
+							:src="previewDataUrl"
+							alt="Small preview"
+							class="size-7 rounded-lg border border-solid border-surface-5 object-cover"
 						/>
-						<Avatar
-							:src="selectedSymbolOption.asset"
-							size="20px"
-							:style="iconBackgroundStyle(selectedBackgroundOption.background)"
-							no-shadow
+						<img
+							v-if="previewDataUrl"
+							:src="previewDataUrl"
+							alt="Compact preview"
+							class="size-5 rounded-md border border-solid border-surface-5 object-cover"
 						/>
 					</div>
 				</div>
 
-				<Button class="w-full" @click="surpriseMe">
-					<RefreshCwIcon />
-					{{ formatMessage(messages.surpriseMe) }}
+				<Button class="w-full" size="sm" @click="surpriseMe">
+					<RefreshCwIcon class="size-4" />
+					<span>Shuffle look</span>
 				</Button>
 
-				<div v-if="visibleRecentConfigs.length" class="flex flex-col gap-2.5">
-					<span class="font-semibold text-contrast">{{ formatMessage(messages.recents) }}</span>
-					<div class="grid grid-cols-4 gap-3">
+				<!-- Scale & Shadow Controls -->
+				<div class="flex flex-col gap-3 rounded-xl border border-solid border-surface-5 bg-surface-3 p-3.5">
+					<div class="flex flex-col gap-1.5">
+						<div class="flex items-center justify-between text-xs font-semibold">
+							<span class="text-secondary">Artwork size</span>
+							<span class="tabular-nums text-contrast">{{ iconScale }}%</span>
+						</div>
+						<input
+							v-model.number="iconScale"
+							type="range"
+							min="52"
+							max="96"
+							step="2"
+							class="solara-range w-full cursor-pointer"
+						/>
+					</div>
+
+					<label class="flex cursor-pointer items-center justify-between text-xs font-semibold text-secondary">
+						<span>Depth shadow</span>
 						<button
-							v-for="(recentConfig, index) in visibleRecentConfigs"
+							type="button"
+							role="switch"
+							:aria-checked="dropShadow"
+							class="relative h-5 w-9 cursor-pointer rounded-full border border-solid border-surface-5 p-0 transition-colors"
+							:class="dropShadow ? 'bg-brand' : 'bg-surface-2'"
+							@click="dropShadow = !dropShadow"
+						>
+							<span
+								class="block size-3.5 rounded-full bg-white shadow transition-transform"
+								:class="dropShadow ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+							/>
+						</button>
+					</label>
+				</div>
+
+				<!-- Recents -->
+				<div v-if="visibleRecentConfigs.length" class="flex flex-col gap-2">
+					<span class="text-xs font-semibold uppercase tracking-wide text-secondary">Recent</span>
+					<div class="grid grid-cols-4 gap-2">
+						<button
+							v-for="(recentConfig, index) in visibleRecentConfigs.slice(0, 8)"
 							:key="`${backgroundKey(recentConfig.background)}-${recentConfig.symbol}`"
-							class="icon-outline relative size-10 cursor-pointer overflow-hidden rounded-xl border-0 p-0 transition-transform hover:scale-105"
-							:aria-label="`${formatMessage(messages.recents)} ${index + 1}`"
+							type="button"
+							class="relative size-11 cursor-pointer overflow-hidden rounded-xl border border-solid border-surface-5 p-0 transition-transform hover:scale-105"
+							:aria-label="`Recent icon ${index + 1}`"
 							@click="selectRecent(recentConfig)"
 						>
 							<GeneratedIcon :config="recentConfig" class="size-full" />
@@ -355,94 +506,394 @@ const messages = defineMessages({
 				</div>
 			</aside>
 
-			<div class="min-w-0 flex-1 overflow-y-auto bg-surface-2">
-				<section class="border-0 border-b border-solid border-surface-5 p-4">
-					<h3 class="m-0 mb-3 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.background) }}
-					</h3>
-					<div class="relative">
-						<div
-							class="background-scroll-shadow-left pointer-events-none absolute bottom-0 -left-0.5 top-0 z-10 w-8 bg-surface-2 transition-opacity duration-200"
-							:class="showLeftBackgroundShadow ? 'opacity-100' : 'opacity-0'"
-						/>
-						<div
-							ref="backgroundScroller"
-							class="flex w-full select-none gap-2.5 overflow-x-auto overflow-y-hidden pb-2 pr-6"
-							:class="{ 'cursor-grabbing': draggingBackgrounds }"
-							@pointerdown="onBackgroundPointerDown"
-							@pointermove="onBackgroundPointerMove"
-							@pointerup="finishBackgroundDrag"
-							@pointercancel="finishBackgroundDrag"
-							@click.capture="onBackgroundClick"
-							@wheel="onBackgroundWheel"
-							@scroll="updateBackgroundScrollShadows"
+			<!-- Right Studio Workbench -->
+			<div class="flex min-w-0 flex-1 flex-col overflow-hidden bg-surface-2">
+				<!-- Mode Switcher Bar -->
+				<div
+					class="flex items-center justify-between gap-3 border-0 border-b border-solid border-surface-5 bg-surface-3 px-4 py-3"
+				>
+					<div
+						class="inline-flex items-center rounded-xl border border-solid border-surface-5 bg-surface-2 p-1"
+						role="tablist"
+					>
+						<button
+							type="button"
+							role="tab"
+							:aria-selected="activeTab === 'icon'"
+							class="cursor-pointer rounded-lg border-none px-3.5 py-1.5 text-xs font-semibold transition-colors"
+							:class="
+								activeTab === 'icon'
+									? 'bg-surface-4 text-contrast shadow-sm'
+									: 'bg-transparent text-secondary hover:text-contrast'
+							"
+							@click="activeTab = 'icon'"
 						>
-							<button
-								v-for="option in backgroundOptions"
-								:key="option.id"
-								class="icon-option icon-outline relative aspect-square w-[calc((100%_-_3.125rem)/6)] shrink-0 cursor-pointer rounded-[20px] border-0 p-0"
-								:class="{ 'icon-outline-selected': selectedBackground === option.id }"
-								:style="iconBackgroundStyle(option.background)"
-								:aria-label="formatMessage(option.name)"
-								:aria-pressed="selectedBackground === option.id"
-								@click="selectedBackground = option.id"
-							>
-								<span
-									v-if="selectedBackground === option.id"
-									class="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-white/80 text-black"
-								>
-									<CheckIcon class="size-4" />
-								</span>
-							</button>
-						</div>
-						<div
-							class="background-scroll-shadow-right pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8 bg-surface-2 transition-opacity duration-200"
-							:class="showRightBackgroundShadow ? 'opacity-100' : 'opacity-0'"
-						/>
+							3D Icons
+						</button>
+						<button
+							type="button"
+							role="tab"
+							:aria-selected="activeTab === 'monogram'"
+							class="cursor-pointer rounded-lg border-none px-3.5 py-1.5 text-xs font-semibold transition-colors"
+							:class="
+								activeTab === 'monogram'
+									? 'bg-surface-4 text-contrast shadow-sm'
+									: 'bg-transparent text-secondary hover:text-contrast'
+							"
+							@click="activeTab = 'monogram'"
+						>
+							Monogram Badge
+						</button>
+						<button
+							type="button"
+							role="tab"
+							:aria-selected="activeTab === 'upload'"
+							class="cursor-pointer rounded-lg border-none px-3.5 py-1.5 text-xs font-semibold transition-colors"
+							:class="
+								activeTab === 'upload'
+									? 'bg-surface-4 text-contrast shadow-sm'
+									: 'bg-transparent text-secondary hover:text-contrast'
+							"
+							@click="activeTab = 'upload'"
+						>
+							Framed Upload
+						</button>
 					</div>
-				</section>
 
-				<section class="p-4">
-					<h3 class="m-0 mb-3 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.symbol) }}
-					</h3>
-					<div class="grid grid-cols-6 gap-2.5">
-						<template v-for="(option, index) in symbolOptions" :key="option.id">
-							<hr
-								v-if="index === vanillaSymbolStartIndex"
-								class="col-span-6 my-2.5 mx-1 w-full border-0 border-t border-solid border-surface-5"
-							/>
+					<span class="hidden text-xs text-secondary sm:inline">
+						512 × 512 PNG
+					</span>
+				</div>
+
+				<!-- Scrollable Controls Area -->
+				<div class="flex-1 space-y-5 overflow-y-auto p-4">
+					<!-- TAB 1: 3D ICONS -->
+					<section v-if="activeTab === 'icon'" class="flex flex-col gap-3">
+						<div class="flex flex-wrap items-center justify-between gap-2">
+							<div class="flex flex-wrap items-center gap-1.5">
+								<button
+									v-for="cat in SYMBOL_CATEGORIES"
+									:key="cat.id"
+									type="button"
+									class="cursor-pointer rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors"
+									:class="
+										activeCategory === cat.id
+											? 'solara-chip-active text-contrast'
+											: 'border-surface-5 bg-surface-3 text-secondary hover:text-contrast'
+									"
+									@click="activeCategory = cat.id"
+								>
+									{{ cat.label }}
+								</button>
+							</div>
+
+							<div
+								class="flex items-center gap-2 rounded-lg border border-solid border-surface-5 bg-surface-3 px-2.5 py-1.5 focus-within:border-brand"
+							>
+								<SearchIcon class="size-3.5 text-secondary" />
+								<input
+									v-model="symbolSearch"
+									type="text"
+									placeholder="Filter icons..."
+									class="w-32 border-none bg-transparent text-xs text-contrast outline-none placeholder:text-secondary"
+								/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-5 gap-2 sm:grid-cols-6">
 							<button
-								v-tooltip="{
-									content: formatMessage(option.name),
-									delay: { show: 500, hide: 0 },
-								}"
-								class="icon-option icon-outline relative aspect-square cursor-pointer overflow-hidden rounded-[20px] border-0 bg-surface-3 p-1"
-								:class="{ 'icon-outline-selected': selectedSymbol === option.id }"
-								:aria-label="formatMessage(option.name)"
+								v-for="option in filteredSymbols"
+								:key="option.id"
+								v-tooltip="{ content: option.label, delay: { show: 350, hide: 0 } }"
+								type="button"
+								class="group relative flex aspect-square cursor-pointer items-center justify-center rounded-xl border border-solid bg-surface-3 p-2.5 transition-all"
+								:class="
+									selectedSymbol === option.id
+										? 'border-brand bg-surface-4 shadow-sm'
+										: 'border-surface-5 hover:border-surface-4 hover:bg-surface-4'
+								"
+								:aria-label="option.label"
 								:aria-pressed="selectedSymbol === option.id"
 								@click="selectedSymbol = option.id"
 							>
-								<img :src="option.asset" alt="" class="size-full object-cover" />
+								<img
+									:src="option.asset"
+									:alt="option.label"
+									class="size-full object-contain transition-transform duration-150 group-hover:scale-105"
+								/>
 								<span
 									v-if="selectedSymbol === option.id"
-									class="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-white/80 text-black"
+									class="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-brand text-brand-inverted"
 								>
-									<CheckIcon class="size-4" />
+									<CheckIcon class="size-2.5" />
 								</span>
 							</button>
-						</template>
-					</div>
-				</section>
+						</div>
+					</section>
+
+					<!-- TAB 2: MONOGRAM BADGE -->
+					<section
+						v-else-if="activeTab === 'monogram'"
+						class="grid grid-cols-1 gap-4 rounded-xl border border-solid border-surface-5 bg-surface-3 p-4 sm:grid-cols-2"
+					>
+						<div class="flex flex-col gap-1.5">
+							<label class="text-xs font-semibold text-secondary">Main badge text (1–5 chars)</label>
+							<input
+								v-model="monogramText"
+								type="text"
+								maxlength="5"
+								placeholder="SMP"
+								class="rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 py-2 text-sm font-bold uppercase tracking-wider text-contrast outline-none focus:border-brand"
+							/>
+						</div>
+
+						<div class="flex flex-col gap-1.5">
+							<label class="text-xs font-semibold text-secondary">Subtitle tag (optional)</label>
+							<input
+								v-model="monogramSubtext"
+								type="text"
+								maxlength="12"
+								placeholder="1.21 / FABRIC"
+								class="rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 py-2 text-sm font-semibold uppercase tracking-wide text-contrast outline-none focus:border-brand"
+							/>
+						</div>
+
+						<div class="flex flex-col gap-1.5">
+							<span class="text-xs font-semibold text-secondary">Typography</span>
+							<div class="flex items-center gap-1.5">
+								<button
+									v-for="f in FONTS"
+									:key="f.id"
+									type="button"
+									class="flex-1 cursor-pointer rounded-lg border border-solid py-1.5 text-xs font-semibold transition-colors"
+									:class="
+										monogramFont === f.id
+											? 'solara-chip-active text-contrast'
+											: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+									"
+									@click="monogramFont = f.id"
+								>
+									{{ f.label }}
+								</button>
+							</div>
+						</div>
+
+						<div class="flex flex-col gap-1.5">
+							<span class="text-xs font-semibold text-secondary">Text color</span>
+							<div class="flex items-center gap-2">
+								<button
+									v-for="c in MONOGRAM_COLORS"
+									:key="c"
+									type="button"
+									class="size-7 cursor-pointer rounded-full border-2 border-solid transition-transform hover:scale-105"
+									:class="monogramColor === c ? 'border-brand scale-105' : 'border-surface-5'"
+									:style="{ backgroundColor: c }"
+									:aria-label="`Text color ${c}`"
+									@click="monogramColor = c"
+								/>
+							</div>
+						</div>
+					</section>
+
+					<!-- TAB 3: FRAMED UPLOAD -->
+					<section
+						v-else
+						class="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-surface-5 bg-surface-3 px-6 py-8 text-center"
+					>
+						<input
+							ref="fileInputRef"
+							type="file"
+							accept="image/png,image/jpeg,image/webp,image/gif"
+							class="hidden"
+							@change="handleFileSelect"
+						/>
+						<div class="flex size-12 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2">
+							<UploadIcon class="size-5 text-secondary" />
+						</div>
+						<div class="flex flex-col gap-1">
+							<span class="text-sm font-semibold text-contrast">
+								{{ uploadedFileName || 'Upload custom artwork' }}
+							</span>
+							<span class="text-xs text-secondary">
+								Combine your own PNG, JPG, or WebP with Solara backdrops, scale, and HUD frames.
+							</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<Button size="sm" @click="fileInputRef?.click()">
+								<UploadIcon class="size-4" />
+								<span>{{ uploadedImageUrl ? 'Replace image' : 'Choose image' }}</span>
+							</Button>
+							<Button
+								v-if="uploadedImageUrl"
+								size="sm"
+								type="outlined"
+								@click="
+									uploadedImageUrl = null;
+									uploadedFileName = ''
+								"
+							>
+								Clear
+							</Button>
+						</div>
+					</section>
+
+					<!-- SHARED BACKDROP & FINISH STUDIO -->
+					<section class="flex flex-col gap-3.5 rounded-xl border border-solid border-surface-5 bg-surface-3 p-4">
+						<div class="flex flex-wrap items-center justify-between gap-2">
+							<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+								Backdrop & Finish
+							</span>
+							<div class="flex items-center gap-1.5">
+								<button
+									type="button"
+									class="cursor-pointer rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors"
+									:class="
+										backdropMode === 'gradient'
+											? 'solara-chip-active text-contrast'
+											: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+									"
+									@click="backdropMode = 'gradient'"
+								>
+									Gradient
+								</button>
+								<button
+									type="button"
+									class="cursor-pointer rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors"
+									:class="
+										backdropMode === 'solid'
+											? 'solara-chip-active text-contrast'
+											: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+									"
+									@click="backdropMode = 'solid'"
+								>
+									Solid
+								</button>
+								<template v-if="backdropMode === 'gradient'">
+									<span class="mx-1 h-4 w-px bg-surface-5" />
+									<button
+										v-for="ang in ANGLES"
+										:key="ang.value"
+										type="button"
+										class="flex size-6 cursor-pointer items-center justify-center rounded-md border border-solid p-0 text-xs font-bold transition-colors"
+										:class="
+											gradientAngle === ang.value
+												? 'solara-chip-active text-contrast'
+												: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+										"
+										:title="`Gradient angle ${ang.value}°`"
+										@click="gradientAngle = ang.value"
+									>
+										{{ ang.label }}
+									</button>
+								</template>
+							</div>
+						</div>
+
+						<!-- Palette Swatches + Custom Color Pickers -->
+						<div class="flex flex-wrap items-center gap-2">
+							<button
+								v-for="option in backgroundOptions"
+								:key="option.id"
+								v-tooltip="{ content: formatMessage(option.name), delay: { show: 350, hide: 0 } }"
+								type="button"
+								class="relative size-8 cursor-pointer rounded-lg border-2 border-solid p-0 transition-transform hover:scale-105"
+								:class="selectedBackground === option.id ? 'border-white scale-105 shadow' : 'border-transparent'"
+								:style="{
+									backgroundImage: `linear-gradient(135deg, ${option.background.top_color}, ${option.background.bottom_color})`,
+								}"
+								:aria-label="formatMessage(option.name)"
+								@click="applyPresetBackground(option)"
+							>
+								<span
+									v-if="selectedBackground === option.id"
+									class="flex size-full items-center justify-center text-white drop-shadow"
+								>
+									<CheckIcon class="size-3.5" />
+								</span>
+							</button>
+
+							<span class="mx-1 h-6 w-px bg-surface-5" />
+
+							<label
+								class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-surface-5 bg-surface-2 px-2 py-1 text-xs font-medium text-secondary hover:text-contrast"
+								title="Custom primary color"
+							>
+								<input
+									type="color"
+									:value="primaryColor"
+									class="solara-color-input cursor-pointer"
+									@input="onCustomColorInput('primary', $event)"
+								/>
+								<span>Color 1</span>
+							</label>
+
+							<label
+								v-if="backdropMode === 'gradient'"
+								class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-solid border-surface-5 bg-surface-2 px-2 py-1 text-xs font-medium text-secondary hover:text-contrast"
+								title="Custom secondary color"
+							>
+								<input
+									type="color"
+									:value="secondaryColor"
+									class="solara-color-input cursor-pointer"
+									@input="onCustomColorInput('secondary', $event)"
+								/>
+								<span>Color 2</span>
+							</label>
+						</div>
+
+						<!-- Pattern & Frame Row -->
+						<div class="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
+							<div class="flex flex-col gap-1.5">
+								<span class="text-xs font-semibold text-secondary">Texture pattern</span>
+								<div class="flex flex-wrap items-center gap-1.5">
+									<button
+										v-for="pat in PATTERNS"
+										:key="pat.id"
+										type="button"
+										class="cursor-pointer rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors"
+										:class="
+											selectedPattern === pat.id
+												? 'solara-chip-active text-contrast'
+												: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+										"
+										@click="selectedPattern = pat.id"
+									>
+										{{ pat.label }}
+									</button>
+								</div>
+							</div>
+
+							<div class="flex flex-col gap-1.5">
+								<span class="text-xs font-semibold text-secondary">Frame overlay</span>
+								<div class="flex flex-wrap items-center gap-1.5">
+									<button
+										v-for="fr in FRAMES"
+										:key="fr.id"
+										type="button"
+										class="cursor-pointer rounded-lg border border-solid px-2.5 py-1 text-xs font-semibold transition-colors"
+										:class="
+											selectedFrame === fr.id
+												? 'solara-chip-active text-contrast'
+												: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+										"
+										@click="selectedFrame = fr.id"
+									>
+										{{ fr.label }}
+									</button>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
 			</div>
 		</div>
 
 		<template #actions>
 			<div class="flex items-center justify-between gap-4 px-2">
-				<div class="flex min-w-0 items-center gap-2 text-primary">
-					<InfoIcon class="size-6 shrink-0 text-blue" />
-					<span>{{ formatMessage(messages.description) }}</span>
-				</div>
+				<span class="text-xs text-secondary">
+					3D icon assets via Microsoft Fluent Emoji (MIT) · Custom badges rendered locally
+				</span>
 				<div class="flex shrink-0 items-center gap-2">
 					<Button :disabled="saving" type="outlined" @click="hide">
 						<XIcon />
@@ -460,35 +911,35 @@ const messages = defineMessages({
 </template>
 
 <style scoped>
-.icon-outline {
-	outline: 1px solid color-mix(in srgb, var(--color-text-primary) 15%, transparent);
-	outline-offset: -1px;
+.solara-chip-active {
+	border-color: var(--color-brand);
+	background-color: color-mix(in srgb, var(--color-brand) 16%, var(--surface-3));
 }
 
-.icon-option:not(.icon-outline-selected):hover {
-	outline-color: color-mix(in srgb, var(--color-text-primary) 30%, transparent);
+.solara-range {
+	accent-color: var(--color-brand);
+	background: transparent;
+	height: 20px;
+	padding: 0;
+	margin: 0;
 }
 
-.icon-option {
-	transition: outline-color 150ms ease;
+.solara-color-input {
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	overflow: hidden;
 }
 
-.cursor-grabbing,
-.cursor-grabbing * {
-	cursor: grabbing !important;
+.solara-color-input::-webkit-color-swatch-wrapper {
+	padding: 0;
 }
 
-.icon-outline-selected {
-	outline-color: color-mix(in srgb, var(--color-text-primary) 60%, transparent);
-}
-
-.background-scroll-shadow-left {
-	-webkit-mask-image: linear-gradient(to right, black, transparent);
-	mask-image: linear-gradient(to right, black, transparent);
-}
-
-.background-scroll-shadow-right {
-	-webkit-mask-image: linear-gradient(to left, black, transparent);
-	mask-image: linear-gradient(to left, black, transparent);
+.solara-color-input::-webkit-color-swatch {
+	border: none;
+	border-radius: 4px;
 }
 </style>

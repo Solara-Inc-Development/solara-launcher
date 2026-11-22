@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.83',
+		title: 'Fixed Modrinth Loading, Cover-Banner Modpack UI, Redesigned Create Instance & Solara Icon Studio',
+		date: 'November 22, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Completely redesigned ModPackInstaller with rich cover-banner cards (for both Modrinth and CurseForge), Grid/List view toggle, native Solara dropdown filters, and clean pagination.',
+			'Redesigned both steps of Create Instance with side-by-side setup hero cards, unified icon & name header, 5-column visual loader selector, and live configuration summary.',
+			'Replaced procedural icons with 30 crisp online Microsoft Fluent Emoji 3D PNG icons (MIT licensed) and built Solara Icon Studio with 3D Icons search/categories, Monogram Badge generator, Framed Upload, dual custom color pickers, gradient angles, texture patterns, HUD/ring/border frames, scale slider, and depth shadow toggle.',
+		],
+		issuesFixed: [
+			'Fixed Modrinth modpacks failing with "Unable to load modpacks right now" by sending valid Labrinth v3 query syntax (?limit=...&new_filters=...) and reading mrpack_loaders, game_versions, and featured_gallery properly.',
+			'Replaced native Windows HTML select boxes and checkboxes in ModPackInstaller with Solara-themed Combobox and Checkbox controls for OLED and White modes.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.82',
 		title: 'Redesigned ModPackInstaller (Modrinth & CurseForge) & Custom Solara Instance Creator',
 		date: 'November 21, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Completely redesigned ModPackInstaller to match Solara Launcher OLED and White themes with a clean top Modrinth | CurseForge source switcher.',
 			'Added live CurseForge modpack browsing, version picker modal, and native Rust CurseForge .zip modpack installer powered securely through Solara private server proxy (zero API keys embedded in the app).',

@@ -1,58 +1,107 @@
 <template>
 	<div class="flex flex-col gap-4" :aria-busy="ctx.navigating.value">
 		<template v-if="ctx.flowType === 'instance'">
-			<p class="m-0 text-sm text-secondary">
-				Choose how you want to set up your new Minecraft instance.
-			</p>
-			<div class="grid grid-cols-1 gap-3">
+			<div class="flex flex-col gap-1">
+				<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+					New Instance
+				</span>
+				<p class="m-0 text-sm text-secondary">
+					Start with a ready-made modpack or build your own Minecraft setup from scratch.
+				</p>
+			</div>
+
+			<div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+				<!-- Card 1: Browse & download modpacks -->
 				<button
 					type="button"
 					:disabled="ctx.navigating.value"
-					class="solara-setup-option group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+					class="solara-setup-card group flex min-h-[208px] cursor-pointer flex-col justify-between gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-5 text-left transition-all disabled:cursor-not-allowed disabled:opacity-60"
 					@click="browseModpacks"
 				>
+					<div class="flex flex-col gap-3.5">
+						<div class="flex items-start justify-between gap-2">
+							<div
+								class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+							>
+								<CompassIcon class="size-5" aria-hidden="true" />
+							</div>
+							<div class="flex items-center gap-1.5">
+								<span
+									class="inline-flex items-center gap-1 rounded-md border border-solid border-surface-5 bg-surface-3 px-2 py-0.5 text-[10px] font-semibold text-secondary"
+								>
+									<span class="size-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+									Modrinth
+								</span>
+								<span
+									class="inline-flex items-center gap-1 rounded-md border border-solid border-surface-5 bg-surface-3 px-2 py-0.5 text-[10px] font-semibold text-secondary"
+								>
+									<span class="size-1.5 rounded-full bg-orange-400" aria-hidden="true" />
+									CurseForge
+								</span>
+							</div>
+						</div>
+
+						<div class="flex flex-col gap-1.5">
+							<span class="text-base font-bold leading-snug text-contrast">
+								Browse and download modpacks
+							</span>
+							<span class="text-xs leading-relaxed text-secondary">
+								Explore curated modpacks from Modrinth and CurseForge with one-click setup.
+							</span>
+						</div>
+					</div>
+
 					<div
-						class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+						class="flex items-center justify-between border-0 border-t border-solid border-surface-5 pt-3 text-xs font-semibold text-secondary transition-colors group-hover:text-brand"
 					>
-						<CompassIcon class="size-6" aria-hidden="true" />
+						<span>Open catalog</span>
+						<RightArrowIcon
+							class="size-4 transition-transform group-hover:translate-x-0.5"
+							aria-hidden="true"
+						/>
 					</div>
-					<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-						<span class="text-base font-bold text-contrast">
-							Browse and download modpacks
-						</span>
-						<span class="text-xs leading-relaxed text-secondary">
-							Explore modpacks from Modrinth and CurseForge with one-click install.
-						</span>
-					</div>
-					<RightArrowIcon
-						class="size-5 shrink-0 text-secondary transition-transform group-hover:translate-x-0.5 group-hover:text-contrast"
-						aria-hidden="true"
-					/>
 				</button>
 
+				<!-- Card 2: Create your custom setup -->
 				<button
 					type="button"
 					:disabled="ctx.navigating.value"
-					class="solara-setup-option group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+					class="solara-setup-card group flex min-h-[208px] cursor-pointer flex-col justify-between gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-5 text-left transition-all disabled:cursor-not-allowed disabled:opacity-60"
 					@click="setSetupType('custom')"
 				>
+					<div class="flex flex-col gap-3.5">
+						<div class="flex items-start justify-between gap-2">
+							<div
+								class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+							>
+								<BoxesIcon class="size-5" aria-hidden="true" />
+							</div>
+							<span
+								class="rounded-md border border-solid border-surface-5 bg-surface-3 px-2 py-0.5 text-[10px] font-semibold text-secondary"
+							>
+								Vanilla · Modded
+							</span>
+						</div>
+
+						<div class="flex flex-col gap-1.5">
+							<span class="text-base font-bold leading-snug text-contrast">
+								Create your custom setup
+							</span>
+							<span class="text-xs leading-relaxed text-secondary">
+								Pick any Minecraft version, mod loader, and design a custom icon in Icon Studio.
+							</span>
+						</div>
+					</div>
+
 					<div
-						class="flex size-12 shrink-0 items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-3 text-contrast transition-colors group-hover:border-brand group-hover:text-brand"
+						class="flex items-center justify-between border-0 border-t border-solid border-surface-5 pt-3 text-xs font-semibold text-secondary transition-colors group-hover:text-brand"
 					>
-						<BoxesIcon class="size-6" aria-hidden="true" />
+						<span>Configure setup</span>
+						<RightArrowIcon
+							class="size-4 transition-transform group-hover:translate-x-0.5"
+							aria-hidden="true"
+						/>
 					</div>
-					<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-						<span class="text-base font-bold text-contrast">
-							Create your custom setup
-						</span>
-						<span class="text-xs leading-relaxed text-secondary">
-							Pick your Minecraft version, mod loader (Vanilla, Fabric, Forge, NeoForge, Quilt), and custom icon.
-						</span>
-					</div>
-					<RightArrowIcon
-						class="size-5 shrink-0 text-secondary transition-transform group-hover:translate-x-0.5 group-hover:text-contrast"
-						aria-hidden="true"
-					/>
 				</button>
 			</div>
 		</template>
@@ -396,8 +445,9 @@ watch(
 </script>
 
 <style scoped>
-.solara-setup-option:hover {
-	border-color: color-mix(in srgb, var(--color-brand) 45%, var(--surface-5));
+.solara-setup-card:hover {
+	border-color: color-mix(in srgb, var(--color-brand) 52%, var(--surface-5));
 	background: color-mix(in srgb, var(--surface-4) 55%, var(--surface-2));
+	transform: translateY(-1px);
 }
 </style>

@@ -1,19 +1,19 @@
 <template>
-	<div class="space-y-6">
+	<div class="flex flex-col gap-4">
 		<div
 			v-if="ctx.projectInstall.value"
-			class="flex items-center gap-2.5 rounded-[20px] bg-surface-2 p-3"
+			class="flex items-center gap-2.5 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-3"
 		>
 			<div class="shrink-0">
 				<div
-					class="size-14 shrink-0 overflow-hidden rounded-2xl border border-solid border-surface-5"
+					class="size-14 shrink-0 overflow-hidden rounded-xl border border-solid border-surface-5"
 				>
 					<Avatar
 						v-if="ctx.projectInstall.value.iconUrl"
 						:src="ctx.projectInstall.value.iconUrl"
 						:alt="ctx.projectInstall.value.title"
 						size="100%"
-						class="!rounded-2xl"
+						class="!rounded-xl"
 						no-shadow
 					/>
 				</div>
@@ -40,15 +40,16 @@
 			</div>
 		</div>
 
-		<!-- Instance-specific: Icon selection -->
-		<div
+		<!-- Zone 1: Unified Instance Identity Card (Icon + Name + Actions) -->
+		<section
 			v-if="ctx.flowType === 'instance'"
-			class="flex items-center gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-3.5"
+			class="flex flex-col gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4 sm:flex-row sm:items-center"
 		>
-			<div class="group relative size-[6.75rem] shrink-0">
+			<div class="group relative size-[96px] shrink-0 self-center sm:self-auto">
 				<Avatar
 					:src="ctx.instanceIconUrl.value ?? undefined"
 					size="100%"
+					class="!rounded-2xl border border-solid border-surface-5"
 					no-shadow
 					pad-transparent-corners
 				/>
@@ -58,165 +59,224 @@
 				>
 					<Button
 						size="sm"
-						class="!p-2"
+						class="!p-1.5"
 						:aria-label="formatMessage(commonMessages.removeImageButton)"
 						@click="removeIcon"
 					>
-						<XIcon />
+						<XIcon class="size-3.5" />
 					</Button>
 				</div>
 			</div>
-			<div class="flex min-w-0 flex-1 flex-col gap-2">
-				<span class="text-xs font-semibold uppercase tracking-wide text-secondary">
-					Instance icon
-				</span>
+
+			<div class="flex min-w-0 flex-1 flex-col gap-3">
+				<div class="flex flex-col gap-1.5">
+					<label class="text-xs font-bold uppercase tracking-wider text-secondary">
+						{{ formatMessage(messages.nameLabel) }}
+					</label>
+					<Input
+						v-model="ctx.instanceName.value"
+						:placeholder="ctx.autoInstanceName.value || formatMessage(messages.instanceNamePlaceholder)"
+					/>
+				</div>
+
 				<div class="flex flex-wrap items-center gap-2">
 					<Button
 						size="sm"
 						:disabled="randomizing"
 						@click="randomizeIcon"
 					>
-						<SpinnerIcon v-if="randomizing" class="size-4 animate-spin" />
-						<RefreshCwIcon v-else class="size-4" />
+						<SpinnerIcon v-if="randomizing" class="size-3.5 animate-spin" />
+						<RefreshCwIcon v-else class="size-3.5" />
 						<span>Randomize</span>
 					</Button>
 					<Button size="sm" @click="ctx.customizeInstanceIcon?.()">
-						<PaletteIcon class="size-4" />
+						<PaletteIcon class="size-3.5" />
 						<span>Choose specific</span>
 					</Button>
 					<Button size="sm" @click="triggerIconInput">
-						<UploadIcon class="size-4" />
+						<UploadIcon class="size-3.5" />
 						<span>Upload custom</span>
 					</Button>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		<!-- Instance-specific: Name field -->
-		<div v-if="ctx.flowType === 'instance'" class="flex flex-col gap-2">
-			<span class="font-semibold text-contrast">{{ formatMessage(messages.nameLabel) }}</span>
-			<Input
-				v-model="ctx.instanceName.value"
-				:placeholder="ctx.autoInstanceName.value || formatMessage(messages.instanceNamePlaceholder)"
-			/>
-		</div>
-
-		<!-- Loader chips -->
-		<div v-if="!hideLoaderChips" class="flex flex-col gap-2">
-			<span class="font-semibold text-contrast">{{
-				ctx.flowType === 'instance'
-					? formatMessage(messages.loaderLabel)
-					: formatMessage(messages.contentLoaderLabel)
-			}}</span>
-			<Chips
-				v-model="selectedLoader"
-				:items="effectiveLoaders"
-				:format-label="formatLoaderLabel"
-				:never-empty="false"
-			/>
-		</div>
-
-		<!-- Game version -->
-		<div class="flex flex-col gap-2">
-			<span class="font-semibold text-contrast">{{
-				formatMessage(commonMessages.gameVersionLabel)
-			}}</span>
-			<Combobox
-				v-model="selectedGameVersion"
-				:options="gameVersionOptions"
-				:no-options-message="
-					gameVersionsLoading
-						? formatMessage(commonMessages.loadingLabel)
-						: formatMessage(messages.noVersionsAvailable)
-				"
-				searchable
-				sync-with-selection
-				:placeholder="formatMessage(messages.selectGameVersion)"
-				:search-placeholder="formatMessage(messages.searchGameVersion)"
-				@option-hover="handleGameVersionHover"
-			>
-				<template v-if="ctx.showSnapshotToggle" #dropdown-footer>
-					<button
-						class="flex w-full cursor-pointer items-center justify-center gap-1.5 border-0 border-t border-solid border-surface-5 bg-transparent py-3 text-center text-sm font-semibold text-secondary transition-colors hover:text-contrast"
-						@mousedown.prevent
-						@click="ctx.showSnapshots.value = !ctx.showSnapshots.value"
-					>
-						<EyeOffIcon v-if="ctx.showSnapshots.value" class="size-4" />
-						<EyeIcon v-else class="size-4" />
-						{{
-							ctx.showSnapshots.value
-								? formatMessage(commonMessages.hideSnapshotsButton)
-								: formatMessage(commonMessages.showAllVersionsButton)
-						}}
-					</button>
-				</template>
-			</Combobox>
-		</div>
-
-		<!-- Loader version -->
-		<template v-if="!hideLoaderVersion">
-			<Collapsible :collapsed="!selectedLoader || !selectedGameVersion" overflow-visible>
-				<div class="flex flex-col gap-2">
-					<span class="font-semibold text-contrast">{{
-						isPaperLike
-							? formatMessage(messages.buildNumberLabel)
-							: formatMessage(messages.loaderVersionLabel)
-					}}</span>
-					<Chips
-						v-if="!isPaperLike"
-						v-model="loaderVersionType"
-						:items="loaderVersionTypeItems"
-						:disabled-items="loaderVersionTypeDisabledItems"
-						:disabled-tooltip="'No such versions available'"
-						:format-label="formatLoaderVersionTypeLabel"
-					/>
-					<div v-if="isPaperLike || loaderVersionType === 'other'">
-						<Combobox
-							v-model="selectedLoaderVersion"
-							:options="loaderVersionOptions"
-							:no-options-message="
-								loaderVersionsLoading
-									? formatMessage(commonMessages.loadingLabel)
-									: formatMessage(messages.noVersionsAvailable)
-							"
-							searchable
-							sync-with-selection
-							:placeholder="
-								isPaperLike
-									? formatMessage(messages.selectBuildNumber)
-									: formatMessage(messages.selectLoaderVersion)
-							"
-							:search-placeholder="
-								isPaperLike
-									? formatMessage(messages.searchBuildNumber)
-									: formatMessage(messages.searchLoaderVersion)
-							"
-						>
-							<!-- When not Paper, this scoped slot is omitted and Combobox uses default option markup. -->
-							<template v-if="selectedLoader === 'paper'" #option="{ item, isSelected }">
-								<div class="flex w-full items-center justify-between gap-2">
-									<div class="flex flex-wrap items-center gap-2">
-										<span
-											class="font-semibold leading-tight"
-											:class="isSelected ? 'text-contrast' : 'text-primary'"
-										>
-											{{ item.label }}
-										</span>
-										<PaperChannelBadge :channel="paperBuildChannelTag(String(item.value))" />
-									</div>
-								</div>
-							</template>
-							<template v-if="selectedLoader === 'paper'" #search-selection-affix="{ option }">
-								<PaperChannelBadge
-									affix
-									:channel="option ? paperBuildChannelTag(String(option.value)) : null"
-								/>
-							</template>
-						</Combobox>
+		<!-- Zone 2: Loader Visual Card Grid -->
+		<section v-if="!hideLoaderChips" class="flex flex-col gap-2">
+			<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+				{{
+					ctx.flowType === 'instance'
+						? formatMessage(messages.loaderLabel)
+						: formatMessage(messages.contentLoaderLabel)
+				}}
+			</span>
+			<div class="grid grid-cols-2 gap-2 sm:grid-cols-5" role="radiogroup">
+				<button
+					v-for="loader in effectiveLoaders"
+					:key="loader"
+					type="button"
+					role="radio"
+					:aria-checked="selectedLoader === loader"
+					class="solara-loader-card flex cursor-pointer flex-col items-start gap-1 rounded-xl border border-solid px-3 py-2.5 text-left transition-all"
+					:class="
+						selectedLoader === loader
+							? 'solara-loader-card-active text-contrast'
+							: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+					"
+					@click="selectedLoader = loader"
+				>
+					<div class="flex w-full items-center justify-between gap-1.5">
+						<span class="text-xs font-bold">{{ formatLoaderLabel(loader) }}</span>
+						<span
+							class="size-2 rounded-full transition-colors"
+							:class="selectedLoader === loader ? 'bg-brand' : 'bg-surface-5'"
+							aria-hidden="true"
+						/>
 					</div>
-				</div>
-			</Collapsible>
-		</template>
+					<span class="text-[10px] leading-tight text-secondary">
+						{{ loaderSubtitle(loader) }}
+					</span>
+				</button>
+			</div>
+		</section>
+
+		<!-- Zone 3: Version & Build Configuration Card -->
+		<section class="flex flex-col gap-4 rounded-2xl border border-solid border-surface-5 bg-surface-2 p-4">
+			<!-- Game version -->
+			<div class="flex flex-col gap-1.5">
+				<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+					{{ formatMessage(commonMessages.gameVersionLabel) }}
+				</span>
+				<Combobox
+					v-model="selectedGameVersion"
+					:options="gameVersionOptions"
+					:no-options-message="
+						gameVersionsLoading
+							? formatMessage(commonMessages.loadingLabel)
+							: formatMessage(messages.noVersionsAvailable)
+					"
+					searchable
+					sync-with-selection
+					:placeholder="formatMessage(messages.selectGameVersion)"
+					:search-placeholder="formatMessage(messages.searchGameVersion)"
+					@option-hover="handleGameVersionHover"
+				>
+					<template v-if="ctx.showSnapshotToggle" #dropdown-footer>
+						<button
+							class="flex w-full cursor-pointer items-center justify-center gap-1.5 border-0 border-t border-solid border-surface-5 bg-transparent py-3 text-center text-sm font-semibold text-secondary transition-colors hover:text-contrast"
+							@mousedown.prevent
+							@click="ctx.showSnapshots.value = !ctx.showSnapshots.value"
+						>
+							<EyeOffIcon v-if="ctx.showSnapshots.value" class="size-4" />
+							<EyeIcon v-else class="size-4" />
+							{{
+								ctx.showSnapshots.value
+									? formatMessage(commonMessages.hideSnapshotsButton)
+									: formatMessage(commonMessages.showAllVersionsButton)
+							}}
+						</button>
+					</template>
+				</Combobox>
+			</div>
+
+			<!-- Loader version -->
+			<template v-if="!hideLoaderVersion">
+				<Collapsible :collapsed="!selectedLoader || !selectedGameVersion" overflow-visible>
+					<div class="flex flex-col gap-2 border-0 border-t border-solid border-surface-5 pt-3.5">
+						<div class="flex flex-wrap items-center justify-between gap-2">
+							<span class="text-xs font-bold uppercase tracking-wider text-secondary">
+								{{
+									isPaperLike
+										? formatMessage(messages.buildNumberLabel)
+										: formatMessage(messages.loaderVersionLabel)
+								}}
+							</span>
+							<div
+								v-if="!isPaperLike"
+								class="inline-flex items-center rounded-lg border border-solid border-surface-5 bg-surface-3 p-0.5"
+							>
+								<button
+									v-for="item in loaderVersionTypeItems"
+									:key="item"
+									type="button"
+									:disabled="loaderVersionTypeDisabledItems.includes(item)"
+									class="cursor-pointer rounded-md border-none px-2.5 py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45"
+									:class="
+										loaderVersionType === item
+											? 'bg-surface-4 text-contrast shadow-sm'
+											: 'bg-transparent text-secondary hover:text-contrast'
+									"
+									@click="loaderVersionType = item"
+								>
+									{{ formatLoaderVersionTypeLabel(item) }}
+								</button>
+							</div>
+						</div>
+
+						<div v-if="isPaperLike || loaderVersionType === 'other'">
+							<Combobox
+								v-model="selectedLoaderVersion"
+								:options="loaderVersionOptions"
+								:no-options-message="
+									loaderVersionsLoading
+										? formatMessage(commonMessages.loadingLabel)
+										: formatMessage(messages.noVersionsAvailable)
+								"
+								searchable
+								sync-with-selection
+								:placeholder="
+									isPaperLike
+										? formatMessage(messages.selectBuildNumber)
+										: formatMessage(messages.selectLoaderVersion)
+								"
+								:search-placeholder="
+									isPaperLike
+										? formatMessage(messages.searchBuildNumber)
+										: formatMessage(messages.searchLoaderVersion)
+								"
+							>
+								<template v-if="selectedLoader === 'paper'" #option="{ item, isSelected }">
+									<div class="flex w-full items-center justify-between gap-2">
+										<div class="flex flex-wrap items-center gap-2">
+											<span
+												class="font-semibold leading-tight"
+												:class="isSelected ? 'text-contrast' : 'text-primary'"
+											>
+												{{ item.label }}
+											</span>
+											<PaperChannelBadge :channel="paperBuildChannelTag(String(item.value))" />
+										</div>
+									</div>
+								</template>
+								<template v-if="selectedLoader === 'paper'" #search-selection-affix="{ option }">
+									<PaperChannelBadge
+										affix
+										:channel="option ? paperBuildChannelTag(String(option.value)) : null"
+									/>
+								</template>
+							</Combobox>
+						</div>
+					</div>
+				</Collapsible>
+			</template>
+		</section>
+
+		<!-- Live Configuration Summary Bar -->
+		<div
+			v-if="ctx.flowType === 'instance' && selectedGameVersion"
+			class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-solid border-surface-5 bg-surface-3 px-3.5 py-2 text-xs text-secondary"
+		>
+			<span class="font-semibold text-contrast">
+				{{ ctx.instanceName.value.trim() || ctx.autoInstanceName.value || 'New Instance' }}
+			</span>
+			<span class="tabular-nums">
+				{{ formatLoaderLabel(selectedLoader || 'vanilla') }}
+				<template v-if="selectedLoader && selectedLoader !== 'vanilla' && selectedLoaderVersion">
+					{{ selectedLoaderVersion }}
+				</template>
+				· Minecraft {{ selectedGameVersion }}
+			</span>
+		</div>
 	</div>
 </template>
 
@@ -239,7 +299,6 @@ import { useDebugLogger } from '#ui/composables/debug-logger'
 
 import { injectFilePicker, injectModrinthClient, injectTags } from '../../../../providers'
 import Avatar from '../../../base/Avatar.vue'
-import Chips from '../../../base/Chips.vue'
 import Collapsible from '../../../base/Collapsible.vue'
 import Combobox, { type ComboboxOption } from '../../../base/Combobox.vue'
 import Input from '../../../base/inputs/Input.vue'
@@ -339,6 +398,27 @@ const messages = defineMessages({
 		defaultMessage: 'Other',
 	},
 })
+
+function loaderSubtitle(loader: string): string {
+	switch (loader.toLowerCase()) {
+		case 'vanilla':
+			return 'Unmodified'
+		case 'fabric':
+			return 'Fast & modern'
+		case 'neoforge':
+			return 'Next-gen Forge'
+		case 'forge':
+			return 'Classic mods'
+		case 'quilt':
+			return 'Fabric fork'
+		case 'paper':
+			return 'Server build'
+		case 'purpur':
+			return 'Server fork'
+		default:
+			return 'Mod loader'
+	}
+}
 
 function formatLoaderVersionTypeLabel(type: LoaderVersionType): string {
 	switch (type) {
@@ -747,3 +827,14 @@ const loaderVersionOptions = computed<ComboboxOption<string>[]>(() => {
 	}))
 })
 </script>
+
+<style scoped>
+.solara-loader-card:hover {
+	border-color: color-mix(in srgb, var(--color-brand) 42%, var(--surface-5));
+}
+
+.solara-loader-card-active {
+	border-color: var(--color-brand);
+	background-color: color-mix(in srgb, var(--color-brand) 14%, var(--surface-3));
+}
+</style>

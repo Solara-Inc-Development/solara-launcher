@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { IconConfig } from '@modrinth/api-client'
-import { getIconSymbolAsset, IconEditorModal, injectNotificationManager } from '@modrinth/ui'
+import {
+	getIconSymbolAsset,
+	IconEditorModal,
+	injectNotificationManager,
+	renderStudioIconDataUrl,
+} from '@modrinth/ui'
 import { ref } from 'vue'
 
 import { toError } from '@/helpers/errors'
@@ -24,6 +29,17 @@ const { handleError } = injectNotificationManager()
 const editor = ref<InstanceType<typeof IconEditorModal> | null>(null)
 
 async function loadSymbolBytes(asset: string): Promise<number[]> {
+	if (asset.startsWith('data:')) {
+		const commaIndex = asset.indexOf(',')
+		if (commaIndex === -1) throw new Error('Invalid rendered icon image.')
+		const b64 = asset.slice(commaIndex + 1)
+		const bin = atob(b64)
+		const out = new Array<number>(bin.length)
+		for (let i = 0; i < bin.length; i++) {
+			out[i] = bin.charCodeAt(i)
+		}
+		return out
+	}
 	const response = await fetch(asset)
 	if (!response.ok) throw new Error('Failed to load the icon symbol.')
 	return Array.from(new Uint8Array(await response.arrayBuffer()))
@@ -50,7 +66,7 @@ function hide() {
 
 async function randomizeAndSave() {
 	try {
-		const selection = editor.value?.randomize()
+		const selection = await editor.value?.randomize()
 		if (!selection) return null
 		const iconPath = await cache_generated_icon(
 			selection.config,
@@ -67,7 +83,23 @@ async function applyGeneratedIcon(instanceId: string, config: IconConfig) {
 	const asset = getIconSymbolAsset(config.symbol)
 	if (!asset) return false
 	try {
-		return await edit_generated_icon_if_empty(instanceId, config, await loadSymbolBytes(asset))
+		const primaryColor =
+			config.background.type === 'color' ? config.background.value : config.background.top_color
+		const secondaryColor =
+			config.background.type === 'color' ? config.background.value : config.background.bottom_color
+		const rendered = await renderStudioIconDataUrl({
+			mode: 'icon',
+			backdropMode: config.background.type === 'color' ? 'solid' : 'gradient',
+			primaryColor,
+			secondaryColor,
+			angle: 135,
+			pattern: 'none',
+			frame: 'none',
+			scale: 0.74,
+			shadow: true,
+			symbolAsset: asset,
+		})
+		return await edit_generated_icon_if_empty(instanceId, config, await loadSymbolBytes(rendered))
 	} catch (error) {
 		handleError(toError(error))
 		return false

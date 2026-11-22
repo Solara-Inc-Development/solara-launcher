@@ -10,7 +10,7 @@ import { Button } from '@modrinth/ui'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import {
 	type CurseForgeFile,
@@ -34,10 +34,26 @@ const emit = defineEmits<{
 const loading = ref(false)
 const error = ref<string | null>(null)
 const detail = ref<CurseForgeModpackDetail | null>(null)
+const selectedVersionFilter = ref<string>('all')
+
+const availableMcVersions = computed(() => {
+	const set = new Set<string>()
+	for (const f of detail.value?.files ?? []) {
+		for (const gv of f.gameVersions) set.add(gv)
+	}
+	return [...set]
+})
+
+const filteredFiles = computed(() => {
+	const files = detail.value?.files ?? []
+	if (selectedVersionFilter.value === 'all') return files
+	return files.filter((f) => f.gameVersions.includes(selectedVersionFilter.value))
+})
 
 watch(
 	() => props.pack?.id,
 	async (modId) => {
+		selectedVersionFilter.value = 'all'
 		if (!modId) {
 			detail.value = null
 			error.value = null
@@ -90,16 +106,16 @@ function openWebsite(url: string) {
 	<Teleport to="body">
 		<div
 			v-if="pack"
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
 			@click.self="emit('close')"
 		>
 			<div
-				class="flex max-h-[84vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-2 shadow-2xl"
+				class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-2 shadow-2xl"
 				role="dialog"
 				aria-modal="true"
 				:aria-label="pack.name"
 			>
-				<!-- Modal Header -->
+				<!-- Header -->
 				<div class="flex items-start gap-4 border-0 border-b border-solid border-surface-5 bg-surface-3 p-5">
 					<div
 						class="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-solid border-surface-5 bg-surface-4"
@@ -118,7 +134,7 @@ function openWebsite(url: string) {
 								{{ pack.name }}
 							</h2>
 							<span
-								class="shrink-0 rounded-md border border-solid border-surface-5 bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-secondary"
+								class="solara-cf-badge shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold"
 							>
 								CurseForge
 							</span>
@@ -152,7 +168,7 @@ function openWebsite(url: string) {
 					</div>
 				</div>
 
-				<!-- Modal Content -->
+				<!-- Content -->
 				<div class="flex-1 overflow-y-auto p-5">
 					<div v-if="loading" class="flex items-center justify-center gap-2.5 py-12 text-sm text-secondary">
 						<SpinnerIcon class="size-5 animate-spin" />
@@ -167,37 +183,68 @@ function openWebsite(url: string) {
 					</div>
 
 					<div v-else-if="detail" class="flex flex-col gap-5">
-						<!-- Screenshots -->
+						<!-- Gallery -->
 						<div v-if="detail.screenshots.length > 0" class="flex flex-col gap-2">
 							<h3 class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
-								Gallery
+								Screenshots
 							</h3>
 							<div class="flex gap-2.5 overflow-x-auto pb-1">
 								<img
-									v-for="(shot, i) in detail.screenshots.slice(0, 5)"
+									v-for="(shot, i) in detail.screenshots.slice(0, 6)"
 									:key="i"
 									:src="shot.thumbnailUrl || shot.url"
 									:alt="shot.title || pack.name"
-									class="h-28 w-48 shrink-0 rounded-xl border border-solid border-surface-5 object-cover bg-surface-3"
+									class="h-28 w-48 shrink-0 rounded-xl border border-solid border-surface-5 bg-surface-3 object-cover"
 								/>
 							</div>
 						</div>
 
-						<!-- Versions List -->
-						<div class="flex flex-col gap-2.5">
-							<div class="flex items-center justify-between">
+						<!-- Versions -->
+						<div class="flex flex-col gap-3">
+							<div class="flex flex-wrap items-center justify-between gap-2">
 								<h3 class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
-									Available Versions ({{ detail.files.length }})
+									Versions ({{ filteredFiles.length }})
 								</h3>
+								<div v-if="availableMcVersions.length > 1" class="flex flex-wrap items-center gap-1.5">
+									<button
+										type="button"
+										class="cursor-pointer rounded-md border border-solid px-2 py-0.5 text-[11px] font-semibold transition-colors"
+										:class="
+											selectedVersionFilter === 'all'
+												? 'solara-pill-active text-contrast'
+												: 'border-surface-5 bg-surface-3 text-secondary hover:text-contrast'
+										"
+										@click="selectedVersionFilter = 'all'"
+									>
+										All
+									</button>
+									<button
+										v-for="ver in availableMcVersions.slice(0, 6)"
+										:key="ver"
+										type="button"
+										class="cursor-pointer rounded-md border border-solid px-2 py-0.5 text-[11px] font-semibold tabular-nums transition-colors"
+										:class="
+											selectedVersionFilter === ver
+												? 'solara-pill-active text-contrast'
+												: 'border-surface-5 bg-surface-3 text-secondary hover:text-contrast'
+										"
+										@click="selectedVersionFilter = ver"
+									>
+										{{ ver }}
+									</button>
+								</div>
 							</div>
 
-							<div v-if="detail.files.length === 0" class="rounded-xl border border-solid border-surface-5 bg-surface-3 p-4 text-sm text-secondary">
-								No downloadable modpack files were returned for this project.
+							<div
+								v-if="filteredFiles.length === 0"
+								class="rounded-xl border border-solid border-surface-5 bg-surface-3 p-4 text-sm text-secondary"
+							>
+								No downloadable modpack files matched this version.
 							</div>
 
 							<div v-else class="flex flex-col gap-2">
 								<div
-									v-for="file in detail.files"
+									v-for="file in filteredFiles"
 									:key="file.id"
 									class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-solid border-surface-5 bg-surface-3 px-4 py-3"
 								>
@@ -264,3 +311,16 @@ function openWebsite(url: string) {
 		</div>
 	</Teleport>
 </template>
+
+<style scoped>
+.solara-cf-badge {
+	background-color: color-mix(in srgb, #f16436 16%, var(--surface-2));
+	color: #f16436;
+	border: 1px solid color-mix(in srgb, #f16436 32%, transparent);
+}
+
+.solara-pill-active {
+	border-color: var(--color-brand);
+	background-color: color-mix(in srgb, var(--color-brand) 16%, var(--surface-3));
+}
+</style>
