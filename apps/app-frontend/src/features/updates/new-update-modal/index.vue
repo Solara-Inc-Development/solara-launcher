@@ -104,26 +104,29 @@ defineExpose({ show, hide, notifyForVersion })
 </script>
 
 <template>
-	<NewModal ref="modal" header="New Version Available — Update Available" max-width="36rem">
+	<NewModal ref="modal" header="New Version Available — Automatic Update" max-width="36rem">
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-1">
 				<h3 class="text-xl font-extrabold text-contrast m-0 flex items-center gap-2">
 					<span class="size-2.5 rounded-full bg-brand animate-pulse" />
-					Update Available
+					<span v-if="isRestarting">Installing Latest Version...</span>
+					<span v-else-if="isDownloading">Update Available — Auto-Updating to {{ displayVersion }}</span>
+					<span v-else-if="isDownloadedReady">Update Available — {{ displayVersion }} Ready to Apply</span>
+					<span v-else>Update Available — {{ displayVersion }}</span>
 				</h3>
 				<div class="flex flex-wrap items-center gap-2">
-					<span class="text-base text-brand font-semibold">{{ displayVersion }} available</span>
+					<span class="text-base text-brand font-semibold">{{ displayVersion }} from GitHub Releases</span>
 					<span
 						v-if="isDownloadedReady"
 						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400"
 					>
-						Downloaded &amp; ready to install
+						Verified &amp; ready to restart
 					</span>
 					<span
 						v-else-if="isDownloading"
 						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand/15 text-brand tabular-nums"
 					>
-						Downloading in background... {{ downloadPercent }}%
+						Auto-downloading from GitHub... {{ downloadPercent }}%
 					</span>
 				</div>
 				<div
@@ -174,8 +177,8 @@ defineExpose({ show, hide, notifyForVersion })
 				<Button color="brand" :disabled="isBusy" @click="handleUpdateNow">
 					<RefreshCwIcon v-if="isBusy" class="animate-spin" />
 					<DownloadIcon v-else />
-					<span v-if="isRestarting">Installing...</span>
-					<span v-else-if="isInstallQueued">Installing after download ({{ downloadPercent }}%)...</span>
+					<span v-if="isRestarting">Installing &amp; Restarting...</span>
+					<span v-else-if="isInstallQueued">Auto-installing at 100% ({{ downloadPercent }}%)...</span>
 					<span v-else>Update Now</span>
 				</Button>
 			</div>

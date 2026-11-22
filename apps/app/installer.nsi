@@ -112,11 +112,16 @@ VIAddVersionKey "OriginalFilename" "solaralauncher.exe"
   Pop $R0
   ${If} $R0 = 0
     IfSilent kill_${UniqueID} 0
-    ${IfThen} $PassiveMode != 1 ${|} MessageBox MB_OKCANCEL "${productName} is currently running. Click OK to close it and continue." IDOK kill_${UniqueID} IDCANCEL cancel_${UniqueID} ${|}
+    ${If} $UpdateMode = 1
+    ${OrIf} $PassiveMode = 1
+      Goto kill_${UniqueID}
+    ${EndIf}
+    MessageBox MB_OKCANCEL "${productName} is currently running. Click OK to close it and continue." IDOK kill_${UniqueID} IDCANCEL cancel_${UniqueID}
     kill_${UniqueID}:
+      Sleep 300
       nsis_tauri_utils::KillProcessCurrentUser "${executableName}"
       Pop $R0
-      Sleep 400
+      Sleep 500
       Goto app_check_done_${UniqueID}
     cancel_${UniqueID}:
       Abort "${productName} is currently running."
@@ -178,7 +183,7 @@ Var AppStartMenuFolder
 !insertmacro MUI_PAGE_FINISH
 
 Function RunMainBinary
-  nsis_tauri_utils::RunAsUser "$INSTDIR\${MAINBINARYNAME}.exe" ""
+  Exec '"$INSTDIR\${MAINBINARYNAME}.exe"'
 FunctionEnd
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE un.SkipIfPassive
@@ -309,8 +314,7 @@ Function .onInstSuccess
   ${OrIf} ${Silent}
     ${GetOptions} $CMDLINE "/R" $R0
     ${IfNot} ${Errors}
-      ${GetOptions} $CMDLINE "/ARGS" $R0
-      nsis_tauri_utils::RunAsUser "$INSTDIR\${MAINBINARYNAME}.exe" "$R0"
+      Exec '"$INSTDIR\${MAINBINARYNAME}.exe"'
     ${EndIf}
   ${EndIf}
 FunctionEnd

@@ -27,7 +27,6 @@ import {
   latest,
   links,
 } from '../../packages/shared/client';
-import { isDownloadable } from '../../packages/shared/domain.mjs';
 import {
   CHANGELOG_HIGHLIGHTS,
   GUIDES,
@@ -52,8 +51,6 @@ const currentRoute = ref<SiteRoute>(resolveRoute(window.location.pathname));
 const mobile = ref(false);
 const faq = ref<number | null>(0);
 const copied = ref('');
-const releaseSearch = ref('');
-const showAllReleases = ref(false);
 const activeShot = ref<(typeof SHOWCASE_TABS)[number]['id']>('modpacks');
 const previewTheme = ref<'oled' | 'white'>('oled');
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -95,23 +92,6 @@ function navigate(route: SiteRoute, hash?: string) {
 function onPopState() {
   currentRoute.value = resolveRoute(window.location.pathname);
 }
-
-const releases = computed(() => snapshot.value.data?.releases || []);
-
-const filteredReleases = computed(() => {
-  const q = releaseSearch.value.trim().toLowerCase();
-  if (!q) return releases.value;
-  return releases.value.filter(
-    (r: { publicVersion: string; notes?: string; sha256?: string }) =>
-      r.publicVersion.toLowerCase().includes(q) ||
-      (r.notes || '').toLowerCase().includes(q) ||
-      (r.sha256 || '').toLowerCase().includes(q),
-  );
-});
-
-const visibleReleases = computed(() =>
-  showAllReleases.value ? filteredReleases.value : filteredReleases.value.slice(0, 8),
-);
 
 const currentShot = computed(
   () => SHOWCASE_TABS.find((t) => t.id === activeShot.value) ?? SHOWCASE_TABS[0],
@@ -316,8 +296,8 @@ async function copyText(text: string, key: string) {
                 class="button primary hero-cta"
               >
                 <Download />
-                <span>Download from GitHub</span>
-                <span v-if="latest" class="cta-meta">{{ latest.publicVersion }}</span>
+                <span>Download solaralauncher.exe</span>
+                <span class="cta-meta">Auto-Updating</span>
               </a>
 
               <a
@@ -968,44 +948,26 @@ async function copyText(text: string, key: string) {
           </section>
 
           <section class="web-container sub-section page-end">
-            <div class="archive-head">
-              <div>
-                <span class="eyebrow">RELEASE HISTORY</span>
-                <h2>Version History ({{ releases.length }})</h2>
+            <div class="info-card">
+              <div class="info-card-head">
+                <div>
+                  <span class="eyebrow">EVERGREEN INSTALLER ARCHITECTURE</span>
+                  <h3>One single <code>solaralauncher.exe</code> for every future update</h3>
+                </div>
+                <a
+                  href="/changelog"
+                  class="button secondary compact-btn"
+                  @click.prevent="navigate('/changelog')"
+                >
+                  <span>View What’s New</span>
+                  <ChevronRight />
+                </a>
               </div>
-              <input
-                v-model="releaseSearch"
-                type="search"
-                class="archive-search"
-                placeholder="Search version (e.g. V-0.0.87)..."
-                aria-label="Search releases"
-              />
-            </div>
-
-            <div class="archive-list">
-              <article v-for="r in visibleReleases" :key="r.publicVersion" class="archive-row">
-                <div class="archive-meta">
-                  <div class="archive-title">
-                    <strong>{{ r.publicVersion }}</strong>
-                    <span class="archive-date">{{ new Date(r.publishedAt).toLocaleDateString() }}</span>
-                    <span class="archive-size">{{ (r.size / 1048576).toFixed(2) }} MB</span>
-                  </div>
-                  <p v-if="r.notes" class="archive-notes">{{ r.notes.slice(0, 180) }}{{ r.notes.length > 180 ? '…' : '' }}</p>
-                  <code v-if="r.sha256" class="archive-sha">SHA-256: {{ r.sha256 }}</code>
-                </div>
-                <div class="archive-actions">
-                  <span v-if="isDownloadable(r)" class="status-badge">
-                    <Check />
-                    <span>Included in solaralauncher.exe</span>
-                  </span>
-                </div>
-              </article>
-            </div>
-
-            <div v-if="filteredReleases.length > 8" class="archive-more">
-              <button type="button" class="button secondary" @click="showAllReleases = !showAllReleases">
-                {{ showAllReleases ? 'Show fewer versions' : `Show all ${filteredReleases.length} versions` }}
-              </button>
+              <ul class="bullet-list">
+                <li><strong>One File Forever:</strong> You never need to download a separate <code>.exe</code> when a new version is released.</li>
+                <li><strong>Always Fetches the Latest Version:</strong> Even if you run an older <code>solaralauncher.exe</code> saved on your PC months from now, it automatically connects to GitHub Releases on launch, fetches the latest verified release, and upgrades itself in seconds.</li>
+                <li><strong>Zero-Click Background Updates:</strong> Installed copies check GitHub Releases automatically on startup and apply signed updates in the background whenever no game is running.</li>
+              </ul>
             </div>
           </section>
         </div>

@@ -17,6 +17,7 @@ use tokio::sync::RwLock;
 
 pub static READY: AtomicBool = AtomicBool::new(false);
 pub static OPERATIONS: RwLock<()> = RwLock::const_new(());
+static CHECK_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 static STATUS: Mutex<Option<Value>> = Mutex::new(None);
 static CYCLING: AtomicBool = AtomicBool::new(false);
 static DOWNLOADING: AtomicBool = AtomicBool::new(false);
@@ -517,7 +518,7 @@ async fn apply_verified_bytes(
         let installer_path = cache_dir.join("solaralauncher-update-setup.exe");
         tokio::fs::write(&installer_path, bytes).await?;
         std::process::Command::new(&installer_path)
-            .args(["/S", "/R"])
+            .args(["/S", "/UPDATE", "/R"])
             .spawn()
             .map_err(|e| {
                 let msg = e.to_string();
@@ -686,6 +687,7 @@ pub async fn try_apply_cached_update_on_startup(app: &tauri::AppHandle) -> bool 
 /// Checks for an available signed update and automatically downloads & verifies it in the
 /// background so clicking "Update Now" (or reopening the launcher) installs immediately.
 pub async fn check_only(app: &tauri::AppHandle) -> anyhow::Result<Value> {
+    let _check_guard = CHECK_LOCK.lock().await;
     let Some(key) = configured_pubkey() else {
         set_status(Some(app), "unconfigured", None, None, 0, None, None);
         return Ok(
@@ -978,9 +980,10 @@ pub fn start(app: tauri::AppHandle) {
             return;
         }
 
-        // Frontend triggers an immediate check on mount; wait before starting periodic polling
-        // so startup does not fire duplicate concurrent network checks.
-        tokio::time::sleep(Duration::from_secs(15)).await;
+        // Evergreen instant startup check: immediately check GitHub Releases CDN at 0ms on
+        // launch (protected by CHECK_LOCK so concurrent frontend checks reuse the result)
+        // so even an older solaralauncher.exe installer immediately fetches and applies the
+        // newest version on first launch.
         loop {
             if READY.load(Ordering::SeqCst) {
                 let before_check = snapshot();
