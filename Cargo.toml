@@ -210,9 +210,9 @@ toasty = { path = "packages/toasty" }
 [profile.dev.package.sqlx-macros]
 opt-level = 3
 
-# Standard unstripped MSVC desktop release profile (normal PE metadata & symbols; standard SEH unwinding)
+# Unstripped MSVC desktop release profile (<100 MB GitHub push ceiling; normal PE metadata & standard SEH unwinding)
 [profile.release]
-opt-level = 3
+opt-level = "s"
 strip = false
 lto = "thin"
 

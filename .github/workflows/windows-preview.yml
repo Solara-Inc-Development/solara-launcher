@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.95: Standard unstripped MSVC opt-level=3 standalone x64 PE profile + standard uncompressed Windows DIB icon.ico (.rsrc entropy fix) for cleaner static ML scores.
+# Solara V-0.0.96: Unstripped MSVC standalone x64 PE profile (opt-level=s, strip=false, <100 MB GitHub ceiling) + uncompressed DIB icon.ico (.rsrc entropy 4.666).
 on:
   workflow_dispatch:
   push:
