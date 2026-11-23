@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.94: Option 2 direct standalone x64 solaralauncher.exe (zero NSIS, atomic in-place self-update), exact Solara website logo in Console, and compact wide horizontal instance mod cards.
+# Solara V-0.0.95: Standard unstripped MSVC opt-level=3 standalone x64 PE profile + standard uncompressed Windows DIB icon.ico (.rsrc entropy fix) for cleaner static ML scores.
 on:
   workflow_dispatch:
   push:
