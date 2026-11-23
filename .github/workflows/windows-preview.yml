@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.96: Unstripped MSVC standalone x64 PE profile (opt-level=s, strip=false, <100 MB GitHub ceiling) + uncompressed DIB icon.ico (.rsrc entropy 4.666).
+# Solara V-0.0.97: Fix instance single-mod Update + bulk Update All/Selected buttons, disable unprompted auto-restart, and reliably open NewUpdateModal changelog popup.
 on:
   workflow_dispatch:
   push:

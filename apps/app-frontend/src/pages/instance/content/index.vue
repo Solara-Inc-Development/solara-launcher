@@ -1054,19 +1054,33 @@ async function bulkUpdateSelections(selections: UpdateAllSelection[]) {
 	const instanceId = instance.value.id
 	const updates = selections.flatMap((selection) => {
 		const item =
-			projects.value.find((project) => getContentItemId(project) === selection.id) ??
-			projects.value.find((project) => project.project?.id === selection.projectId)
+			projects.value.find(
+				(project) =>
+					getContentItemId(project) === selection.id ||
+					project.file_path === selection.id ||
+					project.file_name === selection.id,
+			) ?? projects.value.find((project) => project.project?.id === selection.projectId)
+		const targetVersionId = selection.version?.id
 		if (
 			!item ||
+			!targetVersionId ||
 			!canChangeContentVersion(item) ||
 			!item.file_path ||
-			item.version?.id === selection.version.id
+			item.version?.id === targetVersionId
 		)
 			return []
-		return [{ project_path: item.file_path, version_id: selection.version.id }]
+		return [{ project_path: item.file_path, version_id: targetVersionId }]
 	})
 	if (!updates.length) return
 	await bulkUpdateMutation.mutateAsync({ instanceId, updates })
+	addNotification({
+		type: 'info',
+		title:
+			updates.length === 1
+				? 'Updating 1 item'
+				: `Updating ${updates.length} items`,
+		text: 'Downloading compatible updates in the background.',
+	})
 }
 
 async function updateProject(mod: ContentItem) {
@@ -1125,9 +1139,14 @@ async function switchProjectVersion(mod: ContentItem, version: Labrinth.Versions
 }
 
 async function handleUpdate(id: string) {
-	const item = projects.value.find((p) => getContentItemId(p) === id)
-	if (!item || item.locked || !canUpdateProject(item) || !item.project?.id || !item.version?.id)
+	const item = projects.value.find(
+		(p) => getContentItemId(p) === id || p.file_path === id || p.file_name === id,
+	)
+	if (!item || item.locked || !canUpdateProject(item)) return
+	if (!item.project?.id || !item.version?.id) {
+		await updateProject(item)
 		return
+	}
 
 	const requestId = beginUpdateRequest()
 	const itemId = getContentItemId(item)

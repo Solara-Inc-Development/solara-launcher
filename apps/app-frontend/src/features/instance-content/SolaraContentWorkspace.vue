@@ -26,6 +26,7 @@ import {
 	type ContentItem,
 	injectContentManager,
 	TeleportOverflowMenu,
+	type UpdateAllSelection,
 } from '@modrinth/ui'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -196,6 +197,9 @@ const selectedSet = computed(() => new Set(selectedIds.value))
 const selectedItems = computed(() =>
 	allItems.value.filter((item) => selectedSet.value.has(ctx.getItemId(item))),
 )
+const selectedUpdatableItems = computed(() =>
+	selectedItems.value.filter((item) => item.has_update && !item.locked && !!item.update_version_id),
+)
 
 function toggleSelect(item: ContentItem) {
 	const id = ctx.getItemId(item)
@@ -232,20 +236,48 @@ async function handleRefresh() {
 	}
 }
 
+function toUpdateSelections(items: ContentItem[]): UpdateAllSelection[] {
+	return items
+		.filter((item) => item.has_update && !item.locked && !!item.update_version_id)
+		.map((item) => ({
+			id: ctx.getItemId(item),
+			projectId: item.project?.id ?? ctx.getItemId(item),
+			version: {
+				id: item.update_version_id!,
+				version_number: item.version?.version_number ?? item.update_version_id!,
+				date_published: '',
+				loaders: [],
+				game_versions: [],
+				files: [],
+			},
+		}))
+}
+
+function handleUpdateSingle(item: ContentItem) {
+	if (!ctx.updateItem || item.locked || item.installing || ctx.isBusy.value) return
+	ctx.updateItem(ctx.getItemId(item))
+}
+
 async function handleUpdateAll() {
-	if (!ctx.bulkUpdateSelections || updatingAll.value) return
-	const outdated = allItems.value.filter(
-		(item) => item.has_update && !item.locked && item.update_version_id,
-	)
-	if (outdated.length === 0) return
+	if (!ctx.bulkUpdateSelections || updatingAll.value || ctx.isBusy.value) return
+	const selections = toUpdateSelections(allItems.value)
+	if (selections.length === 0) return
 	updatingAll.value = true
 	try {
-		await ctx.bulkUpdateSelections(
-			outdated.map((item) => ({
-				item,
-				versionId: item.update_version_id!,
-			})),
-		)
+		await ctx.bulkUpdateSelections(selections)
+	} finally {
+		updatingAll.value = false
+	}
+}
+
+async function handleBulkUpdateSelected() {
+	if (!ctx.bulkUpdateSelections || updatingAll.value || ctx.isBusy.value) return
+	const selections = toUpdateSelections(selectedUpdatableItems.value)
+	if (selections.length === 0) return
+	updatingAll.value = true
+	try {
+		await ctx.bulkUpdateSelections(selections)
+		clearSelection()
 	} finally {
 		updatingAll.value = false
 	}
@@ -556,10 +588,11 @@ function itemCanSwitchVersion(item: ContentItem) {
 						v-if="stats.updates > 0"
 						type="button"
 						:disabled="updatingAll || ctx.isBusy.value"
-						class="solara-update-pill inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-bold transition-opacity hover:opacity-90 disabled:opacity-50"
+						class="solara-update-pill inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-bold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
 						@click="handleUpdateAll"
 					>
-						<DownloadIcon class="size-3" />
+						<SpinnerIcon v-if="updatingAll" class="size-3 animate-spin" />
+						<DownloadIcon v-else class="size-3" />
 						<span>{{ updatingAll ? 'Updating...' : `Update All (${stats.updates})` }}</span>
 					</button>
 				</div>
@@ -675,12 +708,14 @@ function itemCanSwitchVersion(item: ContentItem) {
 						<button
 							v-if="item.has_update && !item.locked && ctx.updateItem"
 							type="button"
+							:disabled="item.installing || ctx.isBusy.value"
 							title="Update to latest compatible version"
-							class="solara-update-pill inline-flex h-7 cursor-pointer items-center gap-1 rounded-lg px-2 text-[11px] font-bold transition-opacity hover:opacity-90"
-							@click="ctx.updateItem(item)"
+							class="solara-update-pill inline-flex h-7 cursor-pointer items-center gap-1 rounded-lg px-2 text-[11px] font-bold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+							@click="handleUpdateSingle(item)"
 						>
-							<DownloadIcon class="size-3" />
-							<span class="hidden sm:inline">Update</span>
+							<SpinnerIcon v-if="item.installing" class="size-3 animate-spin" />
+							<DownloadIcon v-else class="size-3" />
+							<span class="hidden sm:inline">{{ item.installing ? 'Updating' : 'Update' }}</span>
 						</button>
 
 						<button
@@ -749,6 +784,19 @@ function itemCanSwitchVersion(item: ContentItem) {
 			<span class="pr-2 text-xs font-bold text-contrast tabular-nums">
 				{{ selectedIds.length }} selected
 			</span>
+			<Button
+				v-if="selectedUpdatableItems.length > 0 && ctx.bulkUpdateSelections"
+				type="colored"
+				color="brand"
+				size="sm"
+				class="!rounded-xl !font-bold"
+				:disabled="updatingAll || ctx.isBusy.value"
+				@click="handleBulkUpdateSelected"
+			>
+				<SpinnerIcon v-if="updatingAll" class="size-3.5 animate-spin" />
+				<DownloadIcon v-else class="size-3.5" />
+				<span>Update ({{ selectedUpdatableItems.length }})</span>
+			</Button>
 			<Button type="outlined" size="sm" class="!rounded-xl" @click="handleBulkEnable">
 				<CheckIcon class="size-3.5" />
 				<span>Enable</span>

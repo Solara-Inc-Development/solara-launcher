@@ -27,41 +27,76 @@ const changelogData = computed(() => {
 	const rawNotes = updateDetails.value?.notes
 	if (!rawNotes || typeof rawNotes !== 'string') return base
 
-	const lines = rawNotes
-		.split('\n')
-		.map((l) => l.trim())
-		.filter((l) => l.startsWith('-') || l.startsWith('*') || l.startsWith('•'))
-
-	if (lines.length === 0) return base
-
+	const rawLines = rawNotes.split('\n').map((l) => l.trim())
 	const features: string[] = []
 	const fixes: string[] = []
 	const future: string[] = []
 
-	for (const line of lines) {
+	let currentSection: 'features' | 'fixes' | 'future' | null = null
+
+	for (const line of rawLines) {
+		if (!line) continue
+		const headingMatch = line.match(/^#{1,4}\s+(.+)$/)
+		if (headingMatch) {
+			const heading = headingMatch[1].toLowerCase()
+			if (heading.includes('fix') || heading.includes('bug') || heading.includes('issue')) {
+				currentSection = 'fixes'
+			} else if (
+				heading.includes('future') ||
+				heading.includes('next') ||
+				heading.includes('plan') ||
+				heading.includes('upcoming')
+			) {
+				currentSection = 'future'
+			} else if (
+				heading.includes('feature') ||
+				heading.includes('added') ||
+				heading.includes('what') ||
+				heading.includes('new') ||
+				heading.includes('change')
+			) {
+				currentSection = 'features'
+			} else {
+				currentSection = null
+			}
+			continue
+		}
+
+		if (!line.startsWith('-') && !line.startsWith('*') && !line.startsWith('•')) continue
 		const clean = line.replace(/^[-*•]\s*/, '').trim()
 		if (!clean) continue
-		const lower = clean.toLowerCase()
-		if (
-			lower.includes('fix') ||
-			lower.includes('resolve') ||
-			lower.includes('correct') ||
-			lower.includes('patch') ||
-			lower.includes('error')
-		) {
+
+		if (currentSection === 'fixes') {
 			fixes.push(clean)
-		} else if (
-			lower.includes('future') ||
-			lower.includes('plan') ||
-			lower.includes('remain') ||
-			lower.includes('coming') ||
-			lower.includes('next')
-		) {
+		} else if (currentSection === 'future') {
 			future.push(clean)
-		} else {
+		} else if (currentSection === 'features') {
 			features.push(clean)
+		} else {
+			const lower = clean.toLowerCase()
+			if (
+				lower.includes('fix') ||
+				lower.includes('resolve') ||
+				lower.includes('correct') ||
+				lower.includes('patch') ||
+				lower.includes('error')
+			) {
+				fixes.push(clean)
+			} else if (
+				lower.includes('future') ||
+				lower.includes('plan') ||
+				lower.includes('remain') ||
+				lower.includes('coming') ||
+				lower.includes('next')
+			) {
+				future.push(clean)
+			} else {
+				features.push(clean)
+			}
 		}
 	}
+
+	if (features.length === 0 && fixes.length === 0 && future.length === 0) return base
 
 	return {
 		...base,
@@ -104,14 +139,13 @@ defineExpose({ show, hide, notifyForVersion })
 </script>
 
 <template>
-	<NewModal ref="modal" header="New Version Available — Automatic Update" max-width="36rem">
+	<NewModal ref="modal" header="New Version Available" max-width="36rem">
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-1">
 				<h3 class="text-xl font-extrabold text-contrast m-0 flex items-center gap-2">
 					<span class="size-2.5 rounded-full bg-brand animate-pulse" />
 					<span v-if="isRestarting">Installing Latest Version...</span>
-					<span v-else-if="isDownloading">Update Available — Auto-Updating to {{ displayVersion }}</span>
-					<span v-else-if="isDownloadedReady">Update Available — {{ displayVersion }} Ready to Apply</span>
+					<span v-else-if="isDownloadedReady">Update Ready — {{ displayVersion }}</span>
 					<span v-else>Update Available — {{ displayVersion }}</span>
 				</h3>
 				<div class="flex flex-wrap items-center gap-2">
@@ -120,13 +154,13 @@ defineExpose({ show, hide, notifyForVersion })
 						v-if="isDownloadedReady"
 						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400"
 					>
-						Verified &amp; ready to restart
+						Ready — click Update Now when you want to restart
 					</span>
 					<span
 						v-else-if="isDownloading"
 						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand/15 text-brand tabular-nums"
 					>
-						Auto-downloading from GitHub... {{ downloadPercent }}%
+						Downloading in background... {{ downloadPercent }}%
 					</span>
 				</div>
 				<div

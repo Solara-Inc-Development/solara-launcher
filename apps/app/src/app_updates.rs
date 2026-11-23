@@ -310,6 +310,7 @@ async fn read_verified_cached_update(
     }
 }
 
+#[allow(dead_code)]
 fn should_auto_install_cached(
     meta: &PendingUpdateMeta,
     current_version: &str,
@@ -778,11 +779,10 @@ fn spawn_background_download(
         .await
         {
             Ok(bytes) => {
-                // Evergreen automatic update: as soon as the signed update is downloaded and
-                // verified, automatically apply it right away if the launcher is idle (no game
-                // running) or if the user explicitly queued install.
+                // Keep the verified update cached and ready in the background, and ONLY
+                // install + restart when the user explicitly clicked "Update Now".
                 let user_queued = INSTALL_AFTER_DOWNLOAD.swap(false, Ordering::SeqCst);
-                if (user_queued || idle().await) && !CYCLING.swap(true, Ordering::SeqCst) {
+                if user_queued && !CYCLING.swap(true, Ordering::SeqCst) {
                     let _cycle = CycleGuard;
                     if let Some(mut meta) = read_pending_meta(&cache_dir).await {
                         meta.auto_install_attempted = true;
@@ -808,7 +808,7 @@ fn spawn_background_download(
 }
 
 /// Checks if a verified newer update was already downloaded in a prior session and
-/// automatically installs it on launcher startup.
+/// marks it "ready" so the UI opens the changelog modal without restarting automatically.
 pub async fn try_apply_cached_update_on_startup(app: &tauri::AppHandle) -> bool {
     if !cfg!(windows) || cfg!(debug_assertions) {
         return false;
@@ -830,57 +830,24 @@ pub async fn try_apply_cached_update_on_startup(app: &tauri::AppHandle) -> bool 
         return false;
     }
 
-    let Some((mut verified_meta, bytes)) =
+    let Some((verified_meta, bytes)) =
         read_verified_cached_update(&cache_dir, key).await
     else {
         clear_cached_update(&cache_dir).await;
         return false;
     };
 
-    if !should_auto_install_cached(&verified_meta, current_internal_version()) {
-        // Previously attempted on startup and cancelled; keep ready for one-click install.
-        set_status(
-            Some(app),
-            "ready",
-            Some(&verified_meta.version),
-            verified_meta.notes.as_deref(),
-            bytes.len() as u64,
-            Some(bytes.len() as u64),
-            None,
-        );
-        return false;
-    }
-
-    // Mark attempted before spawning installer so cancelling UAC never causes a boot loop.
-    verified_meta.auto_install_attempted = true;
-    let _ = write_pending_meta(&cache_dir, &verified_meta).await;
-
+    // Never auto-restart on startup: emit "ready" so the launcher opens and shows
+    // the update changelog modal for the user to click "Update Now" when ready.
     set_status(
         Some(app),
-        "installing",
+        "ready",
         Some(&verified_meta.version),
         verified_meta.notes.as_deref(),
         bytes.len() as u64,
         Some(bytes.len() as u64),
         None,
     );
-
-    // Give the splash screen a brief moment to render the installing status before handing off.
-    tokio::time::sleep(Duration::from_millis(350)).await;
-
-    if !CYCLING.swap(true, Ordering::SeqCst) {
-        let _cycle = CycleGuard;
-        return apply_verified_bytes(
-            app,
-            &cache_dir,
-            &verified_meta.version,
-            verified_meta.notes.as_deref(),
-            &bytes,
-            false,
-        )
-        .await
-        .is_ok();
-    }
     false
 }
 
@@ -989,42 +956,6 @@ pub async fn check_only(app: &tauri::AppHandle) -> anyhow::Result<Value> {
             Some(size),
             None,
         );
-        // If a verified update is already cached on disk and hasn't been auto-applied yet,
-        // automatically apply it when idle on Windows release builds.
-        if cfg!(windows) && !cfg!(debug_assertions) {
-            if let Ok(cache_dir) = update_cache_dir(app) {
-                if let Some(meta) = read_pending_meta(&cache_dir).await {
-                    if should_auto_install_cached(&meta, current_internal_version()) && idle().await
-                    {
-                        let app_clone = app.clone();
-                        let version_clone = version.clone();
-                        let notes_clone = notes.clone();
-                        tauri::async_runtime::spawn(async move {
-                            if !CYCLING.swap(true, Ordering::SeqCst) {
-                                let _cycle = CycleGuard;
-                                if let Some(mut m) = read_pending_meta(&cache_dir).await {
-                                    m.auto_install_attempted = true;
-                                    let _ = write_pending_meta(&cache_dir, &m).await;
-                                }
-                                if let Ok(bytes) =
-                                    tokio::fs::read(cache_dir.join("pending.bin")).await
-                                {
-                                    let _ = apply_verified_bytes(
-                                        &app_clone,
-                                        &cache_dir,
-                                        &version_clone,
-                                        notes_clone.as_deref(),
-                                        &bytes,
-                                        true,
-                                    )
-                                    .await;
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        }
         return Ok(json!({
             "available": true,
             "stage": "ready",
