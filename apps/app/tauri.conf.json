@@ -47,7 +47,7 @@
 		]
 	},
 	"productName": "Solara Launcher",
-	"version": "0.0.93",
+	"version": "0.0.94",
 	"mainBinaryName": "solaralauncher",
 	"identifier": "in.solara.launcher",
 	"plugins": {

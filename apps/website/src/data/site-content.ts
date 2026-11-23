@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.93',
+    version: 'V-0.0.94',
     date: 'November 23, 2026',
     tag: 'Latest Preview',
+    title: 'Direct Standalone x64 Executable, Exact Console Logo & Compact Instance Cards',
+    highlights: [
+      'Switched solaralauncher.exe to a direct standalone Windows x64 executable (71.6 MB, zero NSIS wrapper) with pure-Rust atomic in-place self-updating and automatic migration for existing installs.',
+      'Recreated the exact official Solara website logo in TrueColor terminal block art inside the empty instance console alongside a clean live status banner.',
+      'Redesigned installed mod cards into compact, wide horizontal cards with a unified 2-row toolbar, sleeker instance header, tighter tabs, and polished Worlds toolbar.',
+    ],
+  },
+  {
+    version: 'V-0.0.93',
+    date: 'November 23, 2026',
+    tag: 'Feature Release',
     title: 'Reliable Windows Auto-Update, Solara Console ASCII Logo & Smooth Animations',
     highlights: [
       'Fixed Windows auto-update startup idle detection, switched to detached passive handoff (/P /UPDATE /R), and added NSIS process/file-unlock retry loops so updates apply cleanly and restart Solara automatically.',
