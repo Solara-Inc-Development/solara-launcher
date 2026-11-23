@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.97: Pure-#000000 OLED Instance/Library/Add Mods long-card UI, custom Instance Settings, colorful classic ASCII SOLARA console logo, fixed mod/bulk updates, no unprompted update restarts.
+# Solara V-0.0.97 (retry after transient Windows Gradle hiccup): Pure-#000000 OLED Instance/Library/Add Mods long-card UI, custom Instance Settings, colorful classic ASCII SOLARA console logo, fixed mod/bulk updates, no unprompted update restarts.
 on:
   workflow_dispatch:
   push:
@@ -86,8 +86,9 @@ jobs:
           $code = $LASTEXITCODE
           if ($code -ne 0) {
             # This step receives no private signing key or repository token.
-            $tail = (Get-Content $log -Tail 70) -join "`n"
-            if ($tail.Length -gt 12000) { $tail = $tail.Substring($tail.Length - 12000) }
+            $tail = (Get-Content $log -Tail 80) -join "`n"
+            $tail = $tail -replace "`r", "`n"
+            if ($tail.Length -gt 3500) { $tail = $tail.Substring($tail.Length - 3500) }
             $tail = $tail.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
             Write-Output "::error title=Windows packaging diagnostics::$tail"
             exit $code
