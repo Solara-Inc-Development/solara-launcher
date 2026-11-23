@@ -95,7 +95,7 @@ export async function prepare(version,output){
     '',
     '| Asset | File | Size | SHA-256 Checksum |',
     '| :--- | :--- | :--- | :--- |',
-    `| **Windows Installer** | [\`solaralauncher.exe\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/solaralauncher.exe) | ${exeSizeMb} MB | \`${release.sha256}\` |`,
+    `| **Windows Application (x64)** | [\`solaralauncher.exe\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/solaralauncher.exe) | ${exeSizeMb} MB | \`${release.sha256}\` |`,
     `| **Signature (Minisign)** | [\`solaralauncher.exe.sig\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/solaralauncher.exe.sig) | 424 B | Minisign signature |`,
     ...(srcSizeMb ? [`| **Exact Source Archive** | [\`source.zip\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/source.zip) | ${srcSizeMb} MB | \`${srcSha}\` |`] : []),
     `| **Auto-Updater Manifest** | [\`latest.json\`](https://github.com/Solara-Inc-Development/solara-launcher/releases/download/${version}/latest.json) | JSON | Schema v2 manifest |`,

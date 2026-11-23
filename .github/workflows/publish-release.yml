@@ -12,13 +12,14 @@ on:
     paths:
       - 'builds/releases.json'
       - 'scripts/prepare-github-release.mjs'
+      - '.github/workflows/publish-release.yml'
     tags:
       - 'V-*'
 
 permissions:
   contents: write
 concurrency:
-  group: solara-release-${{ github.event.inputs.version || github.ref_name }}
+  group: solara-release-publish
   cancel-in-progress: false
 
 jobs:
@@ -75,12 +76,16 @@ jobs:
               --notes-file release-assets/release_notes.md \
               --latest
           else
+            TARGET_ARGS=()
+            if ! git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null 2>&1; then
+              TARGET_ARGS=(--target "${{ github.sha }}")
+            fi
             gh release create "$VERSION" \
               release-assets/solaralauncher.exe \
               release-assets/solaralauncher.exe.sig \
               release-assets/source.zip \
               release-assets/latest.json \
-              --target "${{ github.sha }}" \
+              "${TARGET_ARGS[@]}" \
               --latest \
               --title "Solara Launcher $VERSION" \
               --notes-file release-assets/release_notes.md
