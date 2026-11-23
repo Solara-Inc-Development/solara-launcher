@@ -1,44 +1,42 @@
 <template>
-	<section
-		class="solara-instance-hero solara-animate-in relative overflow-hidden rounded-[20px] border border-solid border-surface-5 bg-surface-3 px-5 py-3.5"
-	>
-		<div class="flex flex-wrap items-center justify-between gap-3.5">
-			<!-- Left: Compact Icon + Title + Sleek Inline Metadata -->
-			<div class="flex min-w-0 flex-1 items-center gap-3.5">
+	<section class="solara-instance-header solara-animate-in relative py-1">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<!-- Left: Crisp Modrinth-OLED Icon + Title + Borderless Metadata -->
+			<div class="flex min-w-0 flex-1 items-center gap-4">
 				<div class="relative shrink-0">
 					<Avatar
 						:src="iconSrc"
 						:alt="instance.name"
-						size="56px"
+						size="64px"
 						:tint-by="instance.id"
 						pad-transparent-corners
-						class="rounded-2xl ring-1 ring-surface-5 shadow-sm"
+						class="solara-header-icon rounded-2xl"
 					/>
 					<span
 						v-if="playing"
-						class="absolute -bottom-1 -right-1 flex size-3.5 items-center justify-center rounded-full bg-surface-3"
+						class="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-bg"
 						aria-label="Instance running"
 					>
-						<span class="size-2 rounded-full bg-brand animate-pulse" />
+						<span class="size-2.5 rounded-full bg-brand animate-pulse" />
 					</span>
 				</div>
 
-				<div class="flex min-w-0 flex-col gap-1">
-					<div class="flex flex-wrap items-center gap-2">
-						<h1 class="m-0 truncate text-xl font-extrabold tracking-tight text-contrast">
+				<div class="flex min-w-0 flex-col gap-1.5">
+					<div class="flex flex-wrap items-center gap-2.5">
+						<h1 class="m-0 truncate text-[22px] font-extrabold leading-tight tracking-tight text-contrast">
 							{{ instance.name }}
 						</h1>
 
 						<span
 							v-if="playing"
-							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-brand/40 bg-brand/15 px-2 py-0.5 text-[11px] font-bold text-brand"
+							class="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-0.5 text-[11px] font-bold text-brand"
 						>
 							<span class="size-1.5 rounded-full bg-brand animate-pulse" />
 							Running
 						</span>
 						<span
 							v-else-if="isInstalling"
-							class="inline-flex items-center gap-1.5 rounded-full border border-solid border-brand/40 bg-brand/15 px-2 py-0.5 text-[11px] font-bold text-brand"
+							class="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-2.5 py-0.5 text-[11px] font-bold text-brand"
 						>
 							Installing...
 						</span>
@@ -73,45 +71,45 @@
 						:playtime-label="playtimeLabel ?? 'Ready to launch'"
 					/>
 
-					<div v-else class="flex flex-wrap items-center gap-1.5 text-[11.5px] font-medium text-secondary">
+					<div v-else class="flex flex-wrap items-center gap-2 text-xs font-medium text-secondary">
 						<span
 							v-tooltip="'Mod loader and Minecraft version'"
-							class="inline-flex items-center gap-1 rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 font-semibold text-contrast"
+							class="inline-flex items-center gap-1.5 rounded-lg bg-bg-raised px-2.5 py-1 font-semibold text-contrast"
 						>
-							<TagIcon :tag="loaderDisplayName" enforce-type="loader" class="size-3 shrink-0" />
+							<TagIcon :tag="loaderDisplayName" enforce-type="loader" class="size-3.5 shrink-0" />
 							<span>{{ loaderLabel }}</span>
 						</span>
 
 						<span
 							v-if="showInstancePlayTime && playtimeLabel"
 							v-tooltip="'Total playtime'"
-							class="inline-flex items-center gap-1 rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5"
+							class="inline-flex items-center gap-1.5 rounded-lg bg-bg-raised px-2.5 py-1"
 						>
-							<TimerIcon class="size-3 shrink-0 text-secondary" />
+							<TimerIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>{{ playtimeLabel }}</span>
 						</span>
 
 						<span
 							v-if="lastPlayedRelative"
 							v-tooltip="'Last launched'"
-							class="inline-flex items-center gap-1 rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5"
+							class="inline-flex items-center gap-1.5 rounded-lg bg-bg-raised px-2.5 py-1"
 						>
-							<ClockIcon class="size-3 shrink-0 text-secondary" />
+							<ClockIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>{{ lastPlayedRelative }}</span>
 						</span>
 						<span
 							v-else
-							class="inline-flex items-center gap-1 rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5"
+							class="inline-flex items-center gap-1.5 rounded-lg bg-bg-raised px-2.5 py-1"
 						>
-							<ClockIcon class="size-3 shrink-0 text-secondary" />
+							<ClockIcon class="size-3.5 shrink-0 text-secondary" />
 							<span>Ready</span>
 						</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- Right: Sleek Quick Action Dock -->
-			<div class="flex flex-wrap items-center gap-1.5 shrink-0">
+			<!-- Right: Smooth Raised Action Controls -->
+			<div class="flex flex-wrap items-center gap-2 shrink-0">
 				<Button
 					v-if="playing"
 					type="colored"
@@ -119,11 +117,11 @@
 					size="md"
 					native-type="button"
 					:disabled="stopping"
-					class="!rounded-xl !px-4 !font-bold"
+					class="!rounded-xl !px-5 !font-bold"
 					@click="emit('stop')"
 				>
 					<StopCircleIcon />
-					<span>{{ stopping ? 'Closing...' : 'Close Game' }}</span>
+					<span>{{ stopping ? 'Closing...' : 'Stop' }}</span>
 				</Button>
 				<Button
 					v-else-if="isInstalling"
@@ -132,7 +130,7 @@
 					size="md"
 					native-type="button"
 					disabled
-					class="!rounded-xl !px-4 !font-bold"
+					class="!rounded-xl !px-5 !font-bold"
 				>
 					<span>Installing...</span>
 				</Button>
@@ -144,10 +142,10 @@
 					size="md"
 					native-type="button"
 					disabled
-					class="!rounded-xl !px-4 !font-bold"
+					class="!rounded-xl !px-5 !font-bold"
 				>
 					<PlayIcon />
-					<span>Launch Game</span>
+					<span>Play</span>
 				</Button>
 				<Button
 					v-else-if="instance.install_stage !== 'installed'"
@@ -155,11 +153,11 @@
 					color="brand"
 					size="md"
 					native-type="button"
-					class="!rounded-xl !px-4 !font-bold"
+					class="!rounded-xl !px-5 !font-bold"
 					@click="emit('repair')"
 				>
 					<DownloadIcon />
-					<span>Fix &amp; Verify</span>
+					<span>Repair</span>
 				</Button>
 				<SplitButton
 					v-else-if="!loading && isServerInstance"
@@ -167,7 +165,7 @@
 					color="brand"
 					size="md"
 					:options="serverPlayOptions"
-					menu-label="Launch Game"
+					menu-label="Play"
 					@click="emit('playServer')"
 				>
 					<PlayIcon />
@@ -179,11 +177,11 @@
 					color="brand"
 					size="md"
 					native-type="button"
-					class="!rounded-xl !px-4 !font-bold"
+					class="solara-play-btn !rounded-xl !px-5 !font-bold"
 					@click="emit('play')"
 				>
 					<PlayIcon />
-					<span>Launch Game</span>
+					<span>Play</span>
 				</Button>
 				<Button
 					v-else
@@ -192,37 +190,33 @@
 					size="md"
 					native-type="button"
 					disabled
-					class="!rounded-xl !px-4 !font-bold"
+					class="!rounded-xl !px-5 !font-bold"
 				>
 					<span>Launching...</span>
 				</Button>
 
-				<Button
-					v-tooltip="'Open instance game directory'"
-					type="outlined"
-					size="md"
-					native-type="button"
-					class="!rounded-xl !px-3"
+				<button
+					v-tooltip="'Open instance game folder'"
+					type="button"
+					class="solara-raised-btn inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-bg-raised px-3.5 text-sm font-semibold text-contrast transition-all"
 					@click="emit('openFolder')"
 				>
-					<FolderOpenIcon class="size-4" />
+					<FolderOpenIcon class="size-4 text-secondary" />
 					<span class="hidden md:inline">Folder</span>
-				</Button>
+				</button>
 
-				<Button
-					v-tooltip="'Customize profile icon, loader, Java & RAM'"
-					type="outlined"
-					size="md"
-					native-type="button"
-					class="!rounded-xl !px-3"
+				<button
+					v-tooltip="'Instance settings (icon, loader, Java & RAM)'"
+					type="button"
+					class="solara-raised-btn inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-bg-raised px-3.5 text-sm font-semibold text-contrast transition-all"
 					@click="emit('settings')"
 				>
-					<SettingsIcon class="size-4" />
-					<span class="hidden md:inline">Customize</span>
-				</Button>
+					<SettingsIcon class="size-4 text-secondary" />
+					<span class="hidden md:inline">Settings</span>
+				</button>
 
 				<TeleportOverflowMenu
-					type="outlined"
+					type="base"
 					size="md"
 					label="More options"
 					tooltip="More options"
@@ -435,3 +429,13 @@ const moreActions = computed<ButtonMenuOption[]>(() => {
 	return actions
 })
 </script>
+
+<style scoped>
+.solara-header-icon {
+	box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.55);
+}
+
+.solara-raised-btn:hover {
+	background-color: var(--surface-4);
+}
+</style>

@@ -234,17 +234,17 @@ onMounted(() => {
 	</template>
 	<div v-else>
 		<div
-			class="button-base bg-bg-raised p-4 rounded-xl flex gap-3 group"
+			class="solara-instance-card button-base bg-bg-raised p-4 rounded-2xl flex items-center gap-3.5 group"
 			@click="seeInstance"
 			@mouseenter="checkProcess"
 		>
-			<div class="relative flex items-center justify-center">
+			<div class="relative flex items-center justify-center shrink-0">
 				<Avatar
-					size="48px"
+					size="52px"
 					:src="getInstanceIconUrl(instance.icon_path)"
 					:tint-by="instance.id"
 					:alt="formatMessage(messages.instanceIcon)"
-					:class="`transition-all ${modLoading || installing ? `brightness-[0.25] scale-[0.85]` : `group-hover:brightness-75`}`"
+					:class="`rounded-xl transition-all duration-200 ${modLoading || installing ? `brightness-[0.25] scale-[0.88]` : `group-hover:brightness-75 group-hover:scale-[1.03]`}`"
 					pad-transparent-corners
 				/>
 				<div class="absolute inset-0 flex items-center justify-center">
@@ -275,7 +275,7 @@ onMounted(() => {
 						color="brand"
 						size="xl"
 						:label="formatMessage(messages.repair)"
-						class="transition-all scale-75 group-hover:scale-100 group-focus-within:scale-100 origin-bottom opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 card-shadow"
+						class="transition-all duration-200 scale-75 group-hover:scale-100 group-focus-within:scale-100 origin-bottom opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 card-shadow"
 						@click="(e) => repair(e)"
 					>
 						<DownloadIcon />
@@ -287,7 +287,7 @@ onMounted(() => {
 						color="brand"
 						size="xl"
 						:label="formatMessage(messages.play)"
-						class="transition-all scale-75 group-hover:scale-100 group-focus-within:scale-100 origin-bottom opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 card-shadow"
+						class="transition-all duration-200 scale-75 group-hover:scale-100 group-focus-within:scale-100 origin-bottom opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 card-shadow"
 						@click="(e) => play(e, 'InstanceCard')"
 						@mouseenter="checkProcess"
 					>
@@ -295,13 +295,13 @@ onMounted(() => {
 					</IconButton>
 				</div>
 			</div>
-			<div class="flex flex-col gap-1">
-				<p class="m-0 text-md font-bold text-contrast leading-tight line-clamp-1">
+			<div class="flex min-w-0 flex-1 flex-col gap-1">
+				<p class="m-0 text-[15px] font-bold text-contrast leading-tight line-clamp-1">
 					{{ instance.name }}
 				</p>
-				<div class="flex items-center col-span-3 gap-1 text-secondary font-semibold mt-auto">
-					<GameIcon class="shrink-0" />
-					<span class="text-sm capitalize">
+				<div class="flex items-center gap-1.5 text-secondary font-medium">
+					<GameIcon class="size-3.5 shrink-0 opacity-75" />
+					<span class="truncate text-xs capitalize">
 						{{ instance.loader }} {{ instance.game_version }}
 					</span>
 				</div>
@@ -309,3 +309,15 @@ onMounted(() => {
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.solara-instance-card {
+	transition:
+		background-color 0.2s ease,
+		transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.solara-instance-card:hover {
+	background-color: color-mix(in srgb, var(--surface-4) 72%, var(--surface-3));
+}
+</style>

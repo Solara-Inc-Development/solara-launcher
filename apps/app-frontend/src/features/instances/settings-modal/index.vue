@@ -3,21 +3,21 @@ import type { Labrinth } from '@modrinth/api-client'
 import {
 	CodeIcon,
 	CoffeeIcon,
+	FolderOpenIcon,
 	InfoIcon,
 	Settings2Icon,
-	UsersIcon,
+	SolaraIcon,
 	WindowIcon,
 	WrenchIcon,
 } from '@modrinth/assets'
 import {
 	Avatar,
-	commonMessages,
 	defineMessage,
 	defineMessages,
+	formatLoaderLabel,
 	TabbedModal,
 	type TabbedModalTab,
 	UnsavedChangesPopup,
-	useVIntl,
 } from '@modrinth/ui'
 import type { PlatformTag } from '@modrinth/utils'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -28,6 +28,7 @@ import { get_linked_modpack_info, getInstanceIconUrl } from '@/helpers/instance'
 import { get_loader_versions } from '@/helpers/metadata'
 import { get_game_versions, get_loaders } from '@/helpers/tags'
 import type { GameInstance } from '@/helpers/types'
+import { showInstanceInFolder } from '@/helpers/utils.js'
 import { useUnsavedChangesHost } from '@/shared/unsaved-changes/use-unsaved-changes-host'
 
 import GeneralSettings from './general-settings.vue'
@@ -38,7 +39,6 @@ import JavaSettings from './java-settings.vue'
 import SyncedOptionsSettings from './synced-options-settings.vue'
 import WindowSettings from './window-settings.vue'
 
-const { formatMessage } = useVIntl()
 const queryClient = useQueryClient()
 
 const props = defineProps<{
@@ -236,12 +236,17 @@ defineExpose({ show, hide })
 	<TabbedModal
 		ref="tabbedModal"
 		:tabs="tabs"
-		header="Customize Profile"
+		header="Instance Settings"
 		:on-after-hide="handleAfterHide"
 		:before-hide="canLeaveCurrentTab"
 		:before-tab-change="canLeaveCurrentTab"
 		:floating-action-bar-shown="hasUnsavedChanges"
 	>
+		<template #title>
+			<span class="flex items-center gap-2 text-lg font-extrabold text-contrast">
+				Instance Settings
+			</span>
+		</template>
 		<template #breadcrumb>
 			<Avatar
 				:src="getInstanceIconUrl(instance.icon_path)"
@@ -250,6 +255,42 @@ defineExpose({ show, hide })
 				pad-transparent-corners
 			/>
 			<span class="truncate">{{ instance.name }}</span>
+		</template>
+		<template #sidebar-header>
+			<div class="mb-2 flex items-center gap-3 rounded-2xl bg-bg-raised p-3">
+				<Avatar
+					:src="getInstanceIconUrl(instance.icon_path)"
+					:alt="instance.name"
+					size="40px"
+					:tint-by="props.instance.id"
+					pad-transparent-corners
+					class="shrink-0 rounded-xl"
+				/>
+				<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+					<span class="truncate text-sm font-bold leading-tight text-contrast">
+						{{ instance.name }}
+					</span>
+					<span class="truncate text-[11px] font-semibold text-secondary">
+						{{ formatLoaderLabel(instance.loader) }} · {{ instance.game_version }}
+					</span>
+				</div>
+			</div>
+		</template>
+		<template #footer>
+			<div class="mt-auto flex flex-col gap-2.5 pt-3">
+				<button
+					type="button"
+					class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-0 bg-bg-raised px-3 py-2 text-xs font-semibold text-contrast transition-colors hover:bg-surface-4"
+					@click="showInstanceInFolder(instance.id)"
+				>
+					<FolderOpenIcon class="size-3.5 text-brand" />
+					<span>Open Game Folder</span>
+				</button>
+				<div class="flex items-center gap-2 px-1 text-secondary">
+					<SolaraIcon aria-hidden="true" class="size-4 text-brand" />
+					<span class="text-[11px] font-medium">Solara Profile Controls</span>
+				</div>
+			</div>
 		</template>
 		<template #floating-action-bar>
 			<UnsavedChangesPopup

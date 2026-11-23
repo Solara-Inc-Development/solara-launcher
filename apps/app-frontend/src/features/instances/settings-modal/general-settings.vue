@@ -313,100 +313,112 @@ const messages = defineMessages({
 		:config="iconConfig"
 		@saved="onGeneratedIconSaved"
 	/>
-	<div class="block">
-		<div class="float-end ml-10 relative group w-fit">
-			<div class="flex flex-col gap-1">
-				<span class="text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.icon) }}
-				</span>
-				<div class="group relative w-fit">
-					<TeleportOverflowMenu
-						:label="formatMessage(messages.editIcon)"
-						:icon-only="false"
-						type="quiet"
-						interaction="none"
-						class="m-0 !h-auto cursor-pointer appearance-none border-none bg-transparent !p-0 transition-transform group-active:scale-95"
-						:options="[
-							{
-								id: 'select',
-								label: icon
-									? formatMessage(messages.replaceIcon)
-									: formatMessage(messages.selectIcon),
-								action: () => setIcon(),
-							},
-							{
-								id: 'create',
-								action: () => openIconEditor(),
-							},
-							{
-								id: 'remove',
-								label: formatMessage(messages.removeIcon),
-								action: () => resetIcon(),
-								shown: !!icon,
-							},
-						]"
+	<div class="flex flex-col gap-4">
+		<!-- Solara Profile Identity Card -->
+		<section class="flex flex-col gap-4 rounded-2xl bg-bg-raised p-4 sm:flex-row sm:items-center">
+			<div class="group relative w-fit shrink-0">
+				<TeleportOverflowMenu
+					:label="formatMessage(messages.editIcon)"
+					:icon-only="false"
+					type="quiet"
+					interaction="none"
+					class="m-0 !h-auto cursor-pointer appearance-none border-none bg-transparent !p-0 transition-transform group-active:scale-95"
+					:options="[
+						{
+							id: 'select',
+							label: icon
+								? formatMessage(messages.replaceIcon)
+								: formatMessage(messages.selectIcon),
+							action: () => setIcon(),
+						},
+						{
+							id: 'create',
+							action: () => openIconEditor(),
+						},
+						{
+							id: 'remove',
+							label: formatMessage(messages.removeIcon),
+							action: () => resetIcon(),
+							shown: !!icon,
+						},
+					]"
+				>
+					<Avatar
+						:src="getInstanceIconUrl(icon)"
+						size="88px"
+						class="rounded-2xl transition-[filter] group-hover:brightness-75"
+						:tint-by="instance.id"
+						no-shadow
+						pad-transparent-corners
+					/>
+					<div
+						class="absolute inset-0 flex items-center justify-center rounded-2xl opacity-0 transition-opacity group-hover:opacity-100"
 					>
-						<Avatar
-							:src="getInstanceIconUrl(icon)"
-							size="108px"
-							class="transition-[filter] group-hover:brightness-75"
-							:tint-by="instance.id"
-							no-shadow
-							pad-transparent-corners
-						/>
-						<div
-							class="absolute top-0 h-full w-full flex items-center justify-center opacity-0 transition-all group-hover:opacity-100"
-						>
-							<EditIcon aria-hidden="true" class="h-10 w-10 text-white opacity-70" />
-						</div>
-						<template #select>
-							<UploadIcon />
-							{{ icon ? formatMessage(messages.replaceIcon) : formatMessage(messages.selectIcon) }}
-						</template>
-						<template #create>
-							<PaletteIcon />
-							{{ formatMessage(iconConfig ? messages.editCreatedIcon : messages.createIcon) }}
-						</template>
-						<template #remove> <TrashIcon /> {{ formatMessage(messages.removeIcon) }} </template>
-					</TeleportOverflowMenu>
+						<EditIcon aria-hidden="true" class="size-7 text-white drop-shadow" />
+					</div>
+					<template #select>
+						<UploadIcon />
+						{{ icon ? formatMessage(messages.replaceIcon) : formatMessage(messages.selectIcon) }}
+					</template>
+					<template #create>
+						<PaletteIcon />
+						{{ formatMessage(iconConfig ? messages.editCreatedIcon : messages.createIcon) }}
+					</template>
+					<template #remove> <TrashIcon /> {{ formatMessage(messages.removeIcon) }} </template>
+				</TeleportOverflowMenu>
+			</div>
+
+			<div class="flex min-w-0 flex-1 flex-col gap-2.5">
+				<div class="flex flex-col gap-1">
+					<label for="instance-name" class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
+						{{ formatMessage(messages.name) }}
+					</label>
+					<Input
+						id="instance-name"
+						v-model="title"
+						autocomplete="off"
+						:maxlength="80"
+						wrapper-class="w-full"
+					/>
+				</div>
+				<div class="flex flex-wrap items-center gap-1.5">
+					<button
+						type="button"
+						class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-surface-4 px-3 py-1.5 text-xs font-semibold text-contrast transition-colors hover:brightness-110"
+						@click="openIconEditor"
+					>
+						<PaletteIcon class="size-3.5 text-brand" />
+						<span>Icon Studio</span>
+					</button>
+					<button
+						type="button"
+						class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-surface-4 px-3 py-1.5 text-xs font-semibold text-contrast transition-colors hover:brightness-110"
+						@click="setIcon"
+					>
+						<UploadIcon class="size-3.5 text-secondary" />
+						<span>Upload Image</span>
+					</button>
+					<button
+						v-if="icon"
+						type="button"
+						class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-transparent px-2.5 py-1.5 text-xs font-semibold text-secondary transition-colors hover:bg-red/15 hover:text-red"
+						@click="resetIcon"
+					>
+						<TrashIcon class="size-3.5" />
+						<span>Reset</span>
+					</button>
 				</div>
 			</div>
-		</div>
-		<label for="instance-name" class="m-0 text-lg font-semibold text-contrast block">
-			{{ formatMessage(messages.name) }}
-		</label>
-		<div class="flex">
-			<Input
-				id="instance-name"
-				v-model="title"
-				autocomplete="off"
-				:maxlength="80"
-				wrapper-class="flex-grow"
-			/>
-		</div>
-		<template v-if="instance.install_stage == 'installed'">
-			<div class="flex flex-col gap-2.5 mt-6">
-				<h2 id="duplicate-instance-label" class="m-0 text-lg font-semibold text-contrast block">
-					{{ formatMessage(messages.duplicateInstance) }}
-				</h2>
-				<Button
-					v-tooltip="duplicateDisabledTooltip"
-					aria-labelledby="duplicate-instance-label"
-					:disabled="installing || instance.quarantined"
-					class="w-max"
-					@click="duplicateInstance"
-				>
-					<CopyIcon /> {{ formatMessage(messages.duplicateButton) }}
-				</Button>
-				<p class="m-0">
-					{{ formatMessage(messages.duplicateInstanceDescription) }}
-				</p>
-			</div>
-		</template>
-		<div class="flex flex-col gap-2.5 mt-6">
-			<h2 class="m-0 text-lg font-semibold text-contrast block">
+		</section>
+
+		<!-- Update Channel Card -->
+		<section class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
+			<h2 class="m-0 text-sm font-bold text-contrast">
 				{{ formatMessage(messages.updateChannel) }}
 			</h2>
+			<p class="m-0 text-xs leading-relaxed text-secondary">
+				{{ formatReleaseChannelDescription(selectedReleaseChannel) }}
+			</p>
 			<Chips
 				v-model="selectedReleaseChannel"
 				:items="releaseChannelOptions"
@@ -415,21 +427,51 @@ const messages = defineMessages({
 				:disabled-items="releaseChannelDisabledItems"
 				:aria-label="formatMessage(messages.selectUpdateChannelAriaLabel)"
 			/>
-			<p class="m-0">
-				{{ formatReleaseChannelDescription(selectedReleaseChannel) }}
-			</p>
-		</div>
+		</section>
 
-		<div class="flex flex-col gap-2.5 mt-6">
-			<h2 id="delete-instance-label" class="m-0 text-lg font-semibold text-contrast block">
-				{{ formatMessage(messages.deleteInstance) }}
-			</h2>
+		<!-- Duplicate Instance Card -->
+		<section
+			v-if="instance.install_stage == 'installed'"
+			class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-bg-raised p-4"
+		>
+			<div class="flex min-w-0 flex-1 flex-col gap-1">
+				<h2 id="duplicate-instance-label" class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.duplicateInstance) }}
+				</h2>
+				<p class="m-0 text-xs leading-relaxed text-secondary">
+					{{ formatMessage(messages.duplicateInstanceDescription) }}
+				</p>
+			</div>
+			<Button
+				v-tooltip="duplicateDisabledTooltip"
+				aria-labelledby="duplicate-instance-label"
+				:disabled="installing || instance.quarantined"
+				type="base"
+				size="sm"
+				class="shrink-0 !rounded-xl"
+				@click="duplicateInstance"
+			>
+				<CopyIcon /> {{ formatMessage(messages.duplicateButton) }}
+			</Button>
+		</section>
+
+		<!-- Danger Zone: Delete Instance Card -->
+		<section class="solara-danger-card flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4">
+			<div class="flex min-w-0 flex-1 flex-col gap-1">
+				<h2 id="delete-instance-label" class="m-0 text-sm font-bold text-red">
+					{{ formatMessage(messages.deleteInstance) }}
+				</h2>
+				<p class="m-0 text-xs leading-relaxed text-secondary">
+					{{ formatMessage(messages.deleteInstanceDescription) }}
+				</p>
+			</div>
 			<Button
 				type="colored"
 				color="red"
+				size="sm"
 				aria-labelledby="delete-instance-label"
 				:disabled="removing"
-				class="w-fit"
+				class="shrink-0 !rounded-xl"
 				@click="deleteConfirmModal.show()"
 			>
 				<SpinnerIcon v-if="removing" class="animate-spin" />
@@ -440,14 +482,15 @@ const messages = defineMessages({
 						: formatMessage(messages.deleteInstanceButton)
 				}}
 			</Button>
-			<p class="m-0">
-				{{ formatMessage(messages.deleteInstanceDescription) }}
-			</p>
-		</div>
+		</section>
 	</div>
 </template>
 <style scoped lang="scss">
 .hovering-icon-shadow {
 	box-shadow: var(--shadow-inset-sm), var(--shadow-raised);
+}
+
+.solara-danger-card {
+	background-color: color-mix(in srgb, var(--color-red) 8%, var(--surface-3));
 }
 </style>

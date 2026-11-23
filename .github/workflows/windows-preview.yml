@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.97: Fix instance single-mod Update + bulk Update All/Selected buttons, disable unprompted auto-restart, and reliably open NewUpdateModal changelog popup.
+# Solara V-0.0.97: Pure-#000000 OLED Instance/Library/Add Mods long-card UI, custom Instance Settings, colorful classic ASCII SOLARA console logo, fixed mod/bulk updates, no unprompted update restarts.
 on:
   workflow_dispatch:
   push:

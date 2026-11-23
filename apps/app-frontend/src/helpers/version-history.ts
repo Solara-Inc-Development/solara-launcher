@@ -12,18 +12,20 @@ export interface VersionChangelog {
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
 		version: 'V-0.0.97',
-		title: 'Fixed Mod Update & Bulk Update Actions + User-Controlled Update Changelog Popup',
+		title: 'Pure-OLED Instance/Library/Browser UI, Classic ASCII Console Logo, Custom Instance Settings & Fixed Updates',
 		date: 'November 23, 2026',
 		channel: 'Testing Preview',
 		isLatest: true,
 		featuresAdded: [
-			'Restored the New Version Available popup with Features Added, Issues Fixed, and Future Updates Implementation whenever a new Solara update is ready.',
-			'Added an Update Selected action right inside the instance bulk-selection bar alongside Update All, with live updating indicators and notifications.',
+			'Redesigned the Instance header, tabs, Mods & Packs workspace, Library grid, and Add Mods browser into a borderless pure-#000000 OLED style with silky raised cards and Modrinth-style long horizontal browse cards.',
+			'Customized the Instance Settings menu with a Solara profile identity card, one-click Icon Studio & Upload controls, quick Game Folder footer shortcut, and clean borderless settings cards.',
+			'Replaced the console logo with colorful classic / \\ | _ ASCII art spelling SOLARA.',
+			'Restored the New Version Available popup with Features Added, Issues Fixed, and Future Updates Implementation, plus added Update Selected in the bulk-selection dock.',
 		],
 		issuesFixed: [
 			'Stopped Solara Launcher from restarting automatically on its own when an update finishes downloading — it now waits until you click Update Now.',
 			'Fixed the single-mod Update button and Bulk Update All button inside instance management by passing the correct item IDs and UpdateAllSelection payloads.',
-			'Fixed a startup timing race where the update changelog modal could be skipped if update status arrived before the main window finished mounting.',
+			'Fixed Install buttons overflowing outside narrow mod cards inside Add Mods and removed harsh gray card/toolbar outlines across Instance, Add Mods, and Library pages.',
 		],
 		futureUpdates: [
 			'Independent custom launcher core architecture replacing inherited engine.',

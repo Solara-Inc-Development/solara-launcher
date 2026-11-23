@@ -104,7 +104,7 @@ const source = ref<ProviderSource>(
 	String(route.query.source ?? '') === 'curseforge' ? 'curseforge' : 'modrinth',
 )
 const contentKind = ref<ContentKind>(normalizeContentKind(props.initialProjectType))
-const viewMode = ref<ViewMode>('grid')
+const viewMode = ref<ViewMode>('list')
 const searchQuery = ref('')
 const debouncedQuery = ref('')
 const selectedSort = ref<SortOption>('relevance')
@@ -611,14 +611,12 @@ function goBackToInstance() {
 
 <template>
 	<div class="mx-auto flex w-full max-w-[1380px] flex-col gap-5 px-6 py-6">
-		<!-- Top Instance Context + Dual Provider Switcher Header -->
-		<header
-			class="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-solid border-surface-5 bg-surface-3 px-5 py-4"
-		>
+		<!-- Pure-OLED Open Header + Dual Provider Switcher -->
+		<header class="flex flex-wrap items-center justify-between gap-4">
 			<div class="flex min-w-0 items-center gap-3.5">
 				<button
 					type="button"
-					class="inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-2xl border border-solid border-surface-5 bg-surface-2 px-3.5 text-xs font-bold text-contrast transition-colors hover:border-brand/50"
+					class="inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-bg-raised px-3.5 text-xs font-bold text-contrast transition-colors hover:bg-surface-4"
 					@click="goBackToInstance"
 				>
 					<ArrowLeftIcon class="size-4" />
@@ -630,12 +628,12 @@ function goBackToInstance() {
 					:alt="instance.name"
 					size="44px"
 					:tint-by="instance.id"
-					class="rounded-2xl ring-1 ring-surface-5"
+					class="rounded-xl"
 				/>
 
 				<div class="flex min-w-0 flex-col gap-0.5">
 					<span class="text-[11px] font-bold uppercase tracking-wider text-secondary">
-						Installing into profile
+						Installing into
 					</span>
 					<div class="flex flex-wrap items-center gap-2">
 						<h1 class="m-0 truncate text-lg font-extrabold tracking-tight text-contrast">
@@ -648,10 +646,10 @@ function goBackToInstance() {
 				</div>
 			</div>
 
-			<div class="flex flex-wrap items-center gap-2.5">
-				<!-- Theme-Matched Modrinth / CurseForge Switcher -->
+			<div class="flex flex-wrap items-center gap-2">
+				<!-- Pure-OLED Modrinth / CurseForge Switcher -->
 				<div
-					class="inline-flex items-center rounded-2xl border border-solid border-surface-5 bg-surface-2 p-1"
+					class="inline-flex items-center rounded-xl bg-bg-raised p-1"
 					role="tablist"
 					aria-label="Content source"
 				>
@@ -659,7 +657,7 @@ function goBackToInstance() {
 						type="button"
 						role="tab"
 						:aria-selected="source === 'modrinth'"
-						class="flex cursor-pointer items-center gap-2 rounded-xl border-none px-4 py-2 text-sm font-semibold transition-all"
+						class="flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-1.5 text-sm font-semibold transition-all"
 						:class="
 							source === 'modrinth'
 								? 'solara-source-modrinth-active text-contrast'
@@ -680,7 +678,7 @@ function goBackToInstance() {
 						type="button"
 						role="tab"
 						:aria-selected="source === 'curseforge'"
-						class="flex cursor-pointer items-center gap-2 rounded-xl border-none px-4 py-2 text-sm font-semibold transition-all"
+						class="flex cursor-pointer items-center gap-2 rounded-lg border-none px-4 py-1.5 text-sm font-semibold transition-all"
 						:class="
 							source === 'curseforge'
 								? 'solara-source-cf-active text-contrast'
@@ -698,31 +696,17 @@ function goBackToInstance() {
 					</button>
 				</div>
 
-				<!-- Grid / List Toggle -->
+				<!-- List / Grid Toggle -->
 				<div
-					class="inline-flex items-center rounded-2xl border border-solid border-surface-5 bg-surface-2 p-1"
+					class="inline-flex items-center rounded-xl bg-bg-raised p-1"
 					role="group"
 					aria-label="Layout view"
 				>
 					<button
 						type="button"
-						title="Card view"
-						aria-label="Card view"
-						class="flex size-9 cursor-pointer items-center justify-center rounded-xl border-none p-0 transition-colors"
-						:class="
-							viewMode === 'grid'
-								? 'bg-surface-4 text-contrast'
-								: 'bg-transparent text-secondary hover:text-contrast'
-						"
-						@click="viewMode = 'grid'"
-					>
-						<GridIcon class="size-4" />
-					</button>
-					<button
-						type="button"
-						title="List view"
-						aria-label="List view"
-						class="flex size-9 cursor-pointer items-center justify-center rounded-xl border-none p-0 transition-colors"
+						title="Long cards view"
+						aria-label="Long cards view"
+						class="flex size-8 cursor-pointer items-center justify-center rounded-lg border-none p-0 transition-colors"
 						:class="
 							viewMode === 'list'
 								? 'bg-surface-4 text-contrast'
@@ -732,19 +716,33 @@ function goBackToInstance() {
 					>
 						<ListIcon class="size-4" />
 					</button>
+					<button
+						type="button"
+						title="2-column card view"
+						aria-label="2-column card view"
+						class="flex size-8 cursor-pointer items-center justify-center rounded-lg border-none p-0 transition-colors"
+						:class="
+							viewMode === 'grid'
+								? 'bg-surface-4 text-contrast'
+								: 'bg-transparent text-secondary hover:text-contrast'
+						"
+						@click="viewMode = 'grid'"
+					>
+						<GridIcon class="size-4" />
+					</button>
 				</div>
 			</div>
 		</header>
 
-		<!-- Main 2-Column Layout: Left Modrinth/CurseForge Filter Sidebar + Right Catalog -->
-		<div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
-			<!-- LEFT FILTER SIDEBAR (Works for BOTH Modrinth & CurseForge) -->
+		<!-- Main 2-Column Layout: Left Filter Sidebar + Right Long-Card Catalog -->
+		<div class="grid grid-cols-1 items-start gap-5 lg:grid-cols-[248px_minmax(0,1fr)]">
+			<!-- LEFT FILTER SIDEBAR (Silky Borderless Pure-OLED) -->
 			<aside
 				aria-label="Catalog filters"
-				class="flex flex-col gap-4 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-4 lg:sticky lg:top-6"
+				class="flex flex-col gap-4 rounded-2xl bg-bg-raised p-4 lg:sticky lg:top-6"
 			>
 				<!-- Sidebar Title + Reset -->
-				<div class="flex items-center justify-between gap-2 border-0 border-b border-solid border-surface-5 pb-3">
+				<div class="solara-subtle-divider flex items-center justify-between gap-2 pb-3">
 					<div class="flex items-center gap-2">
 						<FilterIcon class="size-4 text-brand" />
 						<h2 class="m-0 text-sm font-extrabold text-contrast">Filters</h2>
@@ -766,10 +764,10 @@ function goBackToInstance() {
 				</div>
 
 				<!-- Profile Compatibility Section -->
-				<div class="flex flex-col gap-2.5 border-0 border-b border-solid border-surface-5 pb-3.5">
+				<div class="solara-subtle-divider flex flex-col gap-2 pb-3.5">
 					<button
 						type="button"
-						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-xs font-bold uppercase tracking-wider text-secondary hover:text-contrast"
+						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-[11px] font-bold uppercase tracking-wider text-secondary hover:text-contrast"
 						@click="openSections.compatibility = !openSections.compatibility"
 					>
 						<span>Compatibility</span>
@@ -781,9 +779,9 @@ function goBackToInstance() {
 						/>
 					</button>
 
-					<div v-if="openSections.compatibility" class="flex flex-col gap-2">
+					<div v-if="openSections.compatibility" class="flex flex-col gap-1.5">
 						<label
-							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 py-2 text-xs font-medium text-contrast"
+							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-surface-2 px-3 py-2 text-xs font-medium text-contrast transition-colors hover:bg-surface-4"
 						>
 							<span>MC {{ instance.game_version }}</span>
 							<Checkbox v-model="matchInstanceVersion" aria-label="Match Minecraft version" />
@@ -791,14 +789,14 @@ function goBackToInstance() {
 
 						<label
 							v-if="contentKind === 'mod' && !isVanilla"
-							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 py-2 text-xs font-medium text-contrast"
+							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-surface-2 px-3 py-2 text-xs font-medium text-contrast transition-colors hover:bg-surface-4"
 						>
 							<span>{{ formatLoaderLabel(instance.loader) }} Loader</span>
 							<Checkbox v-model="matchInstanceLoader" aria-label="Match mod loader" />
 						</label>
 
 						<label
-							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid border-surface-5 bg-surface-2 px-3 py-2 text-xs font-medium text-secondary hover:text-contrast"
+							class="flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-surface-2 px-3 py-2 text-xs font-medium text-secondary transition-colors hover:bg-surface-4 hover:text-contrast"
 						>
 							<span>Hide installed</span>
 							<Checkbox v-model="hideInstalled" aria-label="Hide installed items" />
@@ -806,11 +804,11 @@ function goBackToInstance() {
 					</div>
 				</div>
 
-				<!-- Categories Section (Both Modrinth & CurseForge) -->
-				<div class="flex flex-col gap-2.5 border-0 border-b border-solid border-surface-5 pb-3.5">
+				<!-- Categories Section -->
+				<div class="solara-subtle-divider flex flex-col gap-2 pb-3.5">
 					<button
 						type="button"
-						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-xs font-bold uppercase tracking-wider text-secondary hover:text-contrast"
+						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-[11px] font-bold uppercase tracking-wider text-secondary hover:text-contrast"
 						@click="openSections.categories = !openSections.categories"
 					>
 						<span>Categories</span>
@@ -828,10 +826,10 @@ function goBackToInstance() {
 							:key="cat.id"
 							type="button"
 							:class="[
-								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid px-3 py-1.5 text-left text-xs font-semibold transition-all',
+								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border-0 px-3 py-1.5 text-left text-xs font-semibold transition-all',
 								selectedCategories.includes(cat.id)
-									? 'solara-pill-active text-contrast'
-									: 'border-transparent bg-transparent text-secondary hover:bg-surface-2 hover:text-contrast',
+									? 'solara-pill-active text-brand'
+									: 'bg-transparent text-secondary hover:bg-surface-4 hover:text-contrast',
 							]"
 							@click="toggleCategory(cat.id)"
 						>
@@ -842,10 +840,10 @@ function goBackToInstance() {
 				</div>
 
 				<!-- Environment Section (Modrinth Client/Server) -->
-				<div v-if="source === 'modrinth'" class="flex flex-col gap-2.5">
+				<div v-if="source === 'modrinth'" class="flex flex-col gap-2">
 					<button
 						type="button"
-						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-xs font-bold uppercase tracking-wider text-secondary hover:text-contrast"
+						class="flex w-full cursor-pointer items-center justify-between border-none bg-transparent p-0 text-left text-[11px] font-bold uppercase tracking-wider text-secondary hover:text-contrast"
 						@click="openSections.environment = !openSections.environment"
 					>
 						<span>Environment</span>
@@ -861,10 +859,10 @@ function goBackToInstance() {
 						<button
 							type="button"
 							:class="[
-								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid px-3 py-1.5 text-left text-xs font-semibold transition-all',
+								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border-0 px-3 py-1.5 text-left text-xs font-semibold transition-all',
 								selectedEnvironments.includes('client')
-									? 'solara-pill-active text-contrast'
-									: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast',
+									? 'solara-pill-active text-brand'
+									: 'bg-surface-2 text-secondary hover:bg-surface-4 hover:text-contrast',
 							]"
 							@click="toggleEnvironment('client')"
 						>
@@ -874,10 +872,10 @@ function goBackToInstance() {
 						<button
 							type="button"
 							:class="[
-								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-solid px-3 py-1.5 text-left text-xs font-semibold transition-all',
+								'flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl border-0 px-3 py-1.5 text-left text-xs font-semibold transition-all',
 								selectedEnvironments.includes('server')
-									? 'solara-pill-active text-contrast'
-									: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast',
+									? 'solara-pill-active text-brand'
+									: 'bg-surface-2 text-secondary hover:bg-surface-4 hover:text-contrast',
 							]"
 							@click="toggleEnvironment('server')"
 						>
@@ -890,22 +888,20 @@ function goBackToInstance() {
 				<!-- CurseForge Provider Hint -->
 				<div
 					v-else
-					class="rounded-2xl border border-solid border-surface-5 bg-surface-2 px-3 py-2.5 text-[11px] leading-relaxed text-secondary"
+					class="rounded-xl bg-surface-2 px-3 py-2.5 text-[11px] leading-relaxed text-secondary"
 				>
 					Browsing live <strong class="text-contrast">CurseForge</strong> catalog with 1-click
 					profile install.
 				</div>
 			</aside>
 
-			<!-- RIGHT CONTENT COLUMN: Search Bar + Content Tabs + Cards -->
+			<!-- RIGHT CONTENT COLUMN: Open Pure-OLED Search + Modrinth-Style Long Cards -->
 			<div class="flex min-w-0 flex-col gap-4">
-				<!-- Search, Content Type Pills & Sort Bar -->
-				<section
-					class="flex flex-col gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-4"
-				>
+				<!-- Open Search, Content Type Pills & Sort Bar -->
+				<section class="flex flex-col gap-2.5">
 					<div class="flex flex-wrap items-center gap-2.5">
 						<div
-							class="flex h-10 min-w-[220px] flex-1 items-center gap-2.5 rounded-2xl border border-solid border-surface-5 bg-surface-2 px-3.5 transition-colors focus-within:border-brand"
+							class="solara-oled-search flex h-10 min-w-[220px] flex-1 items-center gap-2.5 rounded-xl bg-bg-raised px-3.5 transition-all"
 						>
 							<SearchIcon class="size-4 shrink-0 text-secondary" aria-hidden="true" />
 							<input
@@ -947,11 +943,11 @@ function goBackToInstance() {
 										? 'Switch profile to Fabric, Forge, NeoForge, or Quilt to install mods'
 										: undefined
 								"
-								class="cursor-pointer rounded-full border border-solid px-3.5 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40"
+								class="cursor-pointer rounded-full border-0 px-3.5 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40"
 								:class="
 									contentKind === tab.id
-										? 'solara-pill-active text-contrast'
-										: 'border-surface-5 bg-surface-2 text-secondary hover:text-contrast'
+										? 'solara-pill-active text-brand'
+										: 'bg-bg-raised text-secondary hover:bg-surface-4 hover:text-contrast'
 								"
 								@click="contentKind = tab.id"
 							>
@@ -969,7 +965,7 @@ function goBackToInstance() {
 				<!-- Error State -->
 				<div
 					v-if="errorMessage"
-					class="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-10 text-center"
+					class="flex flex-col items-center justify-center gap-3 rounded-2xl bg-bg-raised p-10 text-center"
 				>
 					<p class="m-0 text-sm font-semibold text-contrast">{{ errorMessage }}</p>
 					<Button size="sm" class="!rounded-xl" @click="fetchCatalog">Retry</Button>
@@ -980,21 +976,24 @@ function goBackToInstance() {
 					v-else-if="loading"
 					:class="
 						viewMode === 'grid'
-							? 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'
-							: 'flex flex-col gap-3'
+							? 'grid grid-cols-1 gap-3.5 md:grid-cols-2'
+							: 'flex flex-col gap-2.5'
 					"
 					aria-busy="true"
 				>
 					<div
-						v-for="n in 9"
+						v-for="n in 8"
 						:key="n"
-						class="overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3"
+						class="overflow-hidden rounded-2xl bg-bg-raised"
 					>
-						<div v-if="viewMode === 'grid'" class="h-28 w-full animate-pulse bg-surface-4" />
-						<div class="flex flex-col gap-2.5 p-4">
-							<div class="h-4 w-44 animate-pulse rounded-lg bg-surface-4" />
-							<div class="h-3 w-full animate-pulse rounded-lg bg-surface-4" />
-							<div class="h-3 w-2/3 animate-pulse rounded-lg bg-surface-4" />
+						<div v-if="viewMode === 'grid'" class="h-24 w-full animate-pulse bg-surface-4" />
+						<div class="flex items-center gap-4 p-4">
+							<div v-if="viewMode === 'list'" class="size-16 shrink-0 animate-pulse rounded-2xl bg-surface-4" />
+							<div class="flex flex-1 flex-col gap-2">
+								<div class="h-4 w-48 animate-pulse rounded-lg bg-surface-4" />
+								<div class="h-3 w-full animate-pulse rounded-lg bg-surface-4" />
+								<div class="h-3 w-2/3 animate-pulse rounded-lg bg-surface-4" />
+							</div>
 						</div>
 					</div>
 				</div>
@@ -1003,11 +1002,9 @@ function goBackToInstance() {
 				<template v-else-if="source === 'modrinth'">
 					<div
 						v-if="modrinthHits.length === 0"
-						class="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-12 text-center"
+						class="flex flex-col items-center justify-center gap-3 rounded-2xl bg-bg-raised p-12 text-center"
 					>
-						<div
-							class="flex size-12 items-center justify-center rounded-2xl border border-solid border-surface-5 bg-surface-2 text-secondary"
-						>
+						<div class="flex size-12 items-center justify-center rounded-2xl bg-surface-4 text-secondary">
 							<PackageIcon class="size-6" />
 						</div>
 						<p class="m-0 text-sm font-semibold text-contrast">
@@ -1016,7 +1013,7 @@ function goBackToInstance() {
 						<Button
 							v-if="activeFilterCount > 0 || searchQuery"
 							size="sm"
-							type="outlined"
+							type="base"
 							class="!rounded-xl"
 							@click="resetSidebarFilters"
 						>
@@ -1024,20 +1021,117 @@ function goBackToInstance() {
 						</Button>
 					</div>
 
-					<!-- Modrinth Grid Cards -->
-					<div
-						v-else-if="viewMode === 'grid'"
-						class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-					>
+					<!-- Modrinth Long Horizontal Cards (DEFAULT — Modrinth Pure-OLED Style) -->
+					<div v-else-if="viewMode === 'list'" class="flex flex-col gap-2.5">
 						<article
 							v-for="(hit, idx) in modrinthHits"
 							:key="hit.project_id"
-							:style="{ animationDelay: `${Math.min(idx, 11) * 28}ms` }"
-							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
+							:style="{ animationDelay: `${Math.min(idx, 12) * 18}ms` }"
+							class="solara-mp-card solara-card-animate group flex items-center gap-4 rounded-2xl bg-bg-raised px-4 py-3.5"
 						>
-							<!-- Cover Banner Header -->
+							<button
+								type="button"
+								class="flex size-[68px] shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-0 bg-surface-2 p-0 transition-transform duration-200 group-hover:scale-[1.03]"
+								@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
+							>
+								<img
+									v-if="hit.icon_url"
+									:src="hit.icon_url"
+									:alt="modrinthName(hit)"
+									loading="lazy"
+									class="size-full object-cover"
+								/>
+								<PackageIcon v-else class="size-7 text-secondary" />
+							</button>
+
+							<div class="flex min-w-0 flex-1 flex-col gap-1.5">
+								<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+									<button
+										type="button"
+										class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-[15.5px] font-bold leading-snug text-contrast transition-colors hover:text-brand"
+										@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
+									>
+										{{ modrinthName(hit) }}
+									</button>
+									<span class="text-xs font-medium text-secondary">
+										by {{ hit.author || 'Community' }}
+									</span>
+								</div>
+
+								<p class="m-0 line-clamp-2 text-[12.5px] leading-relaxed text-secondary">
+									{{ modrinthSummary(hit) }}
+								</p>
+
+								<div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+									<span class="inline-flex items-center gap-1 rounded-md bg-[#1bd96a]/12 px-2 py-0.5 text-[10.5px] font-semibold text-[#1bd96a]">
+										<span class="size-1.5 rounded-full bg-[#1bd96a]" />
+										Modrinth
+									</span>
+									<span
+										v-for="tag in modrinthTags(hit)"
+										:key="tag"
+										class="rounded-md bg-surface-4 px-2 py-0.5 text-[10.5px] font-medium text-secondary"
+									>
+										{{ formatCategoryLabel(tag) }}
+									</span>
+								</div>
+							</div>
+
+							<div class="flex shrink-0 flex-col items-end justify-between gap-2.5 self-stretch pl-2">
+								<div class="flex flex-col items-end gap-0.5 text-xs text-secondary tabular-nums">
+									<span class="flex items-center gap-1 font-bold text-contrast">
+										<DownloadIcon class="size-3.5 text-secondary" />
+										{{ formatDownloads(hit.downloads) }}
+									</span>
+									<span v-if="hit.date_modified" class="flex items-center gap-1 text-[11px]">
+										<UpdatedIcon class="size-3" />
+										{{ dayjs(hit.date_modified).fromNow() }}
+									</span>
+								</div>
+
+								<div class="flex items-center gap-1.5">
+									<Button
+										:type="installedModrinthIds.has(hit.project_id) ? 'base' : 'colored'"
+										:color="installedModrinthIds.has(hit.project_id) ? 'default' : 'brand'"
+										size="sm"
+										class="!rounded-xl !px-3.5 !font-bold"
+										:disabled="
+											installingModrinthIds.has(hit.project_id) ||
+											installedModrinthIds.has(hit.project_id)
+										"
+										@click="handleInstallModrinth(hit)"
+									>
+										<SpinnerIcon
+											v-if="installingModrinthIds.has(hit.project_id)"
+											class="size-3.5 animate-spin"
+										/>
+										<CheckIcon v-else-if="installedModrinthIds.has(hit.project_id)" class="size-3.5" />
+										<DownloadIcon v-else class="size-3.5" />
+										<span>
+											{{
+												installingModrinthIds.has(hit.project_id)
+													? 'Installing'
+													: installedModrinthIds.has(hit.project_id)
+														? 'Installed'
+														: 'Install'
+											}}
+										</span>
+									</Button>
+								</div>
+							</div>
+						</article>
+					</div>
+
+					<!-- Modrinth 2-Column Spacious Cards (zero button overflow!) -->
+					<div v-else class="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+						<article
+							v-for="(hit, idx) in modrinthHits"
+							:key="hit.project_id"
+							:style="{ animationDelay: `${Math.min(idx, 11) * 20}ms` }"
+							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-2xl bg-bg-raised"
+						>
 							<div
-								class="relative h-28 w-full cursor-pointer overflow-hidden bg-surface-2"
+								class="relative h-24 w-full cursor-pointer overflow-hidden bg-surface-2"
 								@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
 							>
 								<img
@@ -1052,30 +1146,22 @@ function goBackToInstance() {
 									:src="hit.icon_url"
 									alt=""
 									loading="lazy"
-									class="size-full scale-125 object-cover opacity-35 blur-xl"
+									class="size-full scale-125 object-cover opacity-30 blur-xl"
 								/>
 								<div class="solara-card-scrim pointer-events-none absolute inset-0" />
-
 								<div class="absolute left-2.5 top-2.5">
 									<span class="solara-cover-pill inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold">
 										<span class="size-1.5 rounded-full bg-[#1bd96a]" />
 										Modrinth
 									</span>
 								</div>
-
-								<div class="absolute right-2.5 top-2.5 flex items-center gap-1.5">
-									<span class="solara-cover-pill rounded-full px-2.5 py-0.5 text-[11px] font-semibold tabular-nums">
-										{{ instance.game_version }}
-									</span>
-								</div>
 							</div>
 
-							<!-- Body -->
-							<div class="relative flex flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
-								<div class="flex items-end gap-3">
+							<div class="relative flex min-w-0 flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
+								<div class="flex min-w-0 items-end gap-3">
 									<button
 										type="button"
-										class="-mt-10 flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
+										class="-mt-9 flex size-13 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
 										@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
 									>
 										<img
@@ -1102,166 +1188,49 @@ function goBackToInstance() {
 									</div>
 								</div>
 
-								<p class="m-0 line-clamp-2 min-h-[2.4rem] text-xs leading-relaxed text-secondary">
+								<p class="m-0 line-clamp-2 min-h-[2.3rem] text-xs leading-relaxed text-secondary">
 									{{ modrinthSummary(hit) }}
 								</p>
 
-								<div v-if="modrinthTags(hit).length > 0" class="flex flex-wrap items-center gap-1.5">
-									<span
-										v-for="tag in modrinthTags(hit)"
-										:key="tag"
-										class="rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-secondary"
-									>
-										{{ formatCategoryLabel(tag) }}
-									</span>
-								</div>
-
-								<!-- Footer -->
-								<div
-									class="mt-auto flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-5 pt-3"
-								>
-									<div class="flex items-center gap-3 text-xs font-medium text-secondary tabular-nums">
-										<span class="flex items-center gap-1" title="Total downloads">
-											<DownloadIcon class="size-3.5" />
+								<div class="solara-subtle-top mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+									<div class="flex min-w-0 items-center gap-2.5 text-xs font-medium text-secondary tabular-nums">
+										<span class="flex items-center gap-1 font-semibold text-contrast">
+											<DownloadIcon class="size-3.5 text-secondary" />
 											{{ formatDownloads(hit.downloads) }}
 										</span>
-										<span
-											v-if="hit.date_modified"
-											class="flex items-center gap-1"
-											title="Last updated"
-										>
-											<UpdatedIcon class="size-3.5" />
+										<span v-if="hit.date_modified" class="truncate text-[11px]">
 											{{ dayjs(hit.date_modified).fromNow() }}
 										</span>
 									</div>
 
-									<div class="flex shrink-0 items-center gap-1.5">
-										<Button
-											size="sm"
-											type="outlined"
-											class="!rounded-xl"
-											@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
-										>
-											Details
-										</Button>
-										<Button
-											:type="installedModrinthIds.has(hit.project_id) ? 'outlined' : 'colored'"
-											:color="installedModrinthIds.has(hit.project_id) ? 'default' : 'brand'"
-											size="sm"
-											class="!rounded-xl !font-bold"
-											:disabled="
-												installingModrinthIds.has(hit.project_id) ||
-												installedModrinthIds.has(hit.project_id)
-											"
-											@click="handleInstallModrinth(hit)"
-										>
-											<SpinnerIcon
-												v-if="installingModrinthIds.has(hit.project_id)"
-												class="size-3.5 animate-spin"
-											/>
-											<CheckIcon v-else-if="installedModrinthIds.has(hit.project_id)" class="size-3.5" />
-											<DownloadIcon v-else class="size-3.5" />
-											<span>
-												{{
-													installingModrinthIds.has(hit.project_id)
-														? 'Installing'
-														: installedModrinthIds.has(hit.project_id)
-															? 'Installed'
-															: 'Install'
-												}}
-											</span>
-										</Button>
-									</div>
-								</div>
-							</div>
-						</article>
-					</div>
-
-					<!-- Modrinth List Rows -->
-					<div v-else class="flex flex-col gap-2.5">
-						<article
-							v-for="hit in modrinthHits"
-							:key="hit.project_id"
-							class="solara-mp-card flex flex-wrap items-center gap-4 rounded-[22px] border border-solid border-surface-5 bg-surface-3 p-4 transition-all"
-						>
-							<button
-								type="button"
-								class="flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-2 p-0"
-								@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
-							>
-								<img
-									v-if="hit.icon_url"
-									:src="hit.icon_url"
-									:alt="modrinthName(hit)"
-									loading="lazy"
-									class="size-full object-cover"
-								/>
-								<PackageIcon v-else class="size-6 text-secondary" />
-							</button>
-
-							<div class="flex min-w-0 flex-1 flex-col gap-1">
-								<div class="flex flex-wrap items-center gap-2">
-									<button
-										type="button"
-										class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
-										@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
+									<Button
+										:type="installedModrinthIds.has(hit.project_id) ? 'base' : 'colored'"
+										:color="installedModrinthIds.has(hit.project_id) ? 'default' : 'brand'"
+										size="sm"
+										class="shrink-0 !rounded-xl !px-3.5 !font-bold"
+										:disabled="
+											installingModrinthIds.has(hit.project_id) ||
+											installedModrinthIds.has(hit.project_id)
+										"
+										@click="handleInstallModrinth(hit)"
 									>
-										{{ modrinthName(hit) }}
-									</button>
-									<span class="text-xs text-secondary">by {{ hit.author || 'Community' }}</span>
+										<SpinnerIcon
+											v-if="installingModrinthIds.has(hit.project_id)"
+											class="size-3.5 animate-spin"
+										/>
+										<CheckIcon v-else-if="installedModrinthIds.has(hit.project_id)" class="size-3.5" />
+										<DownloadIcon v-else class="size-3.5" />
+										<span>
+											{{
+												installingModrinthIds.has(hit.project_id)
+													? 'Installing'
+													: installedModrinthIds.has(hit.project_id)
+														? 'Installed'
+														: 'Install'
+											}}
+										</span>
+									</Button>
 								</div>
-								<p class="m-0 line-clamp-1 text-xs text-secondary">{{ modrinthSummary(hit) }}</p>
-								<div v-if="modrinthTags(hit).length > 0" class="mt-0.5 flex flex-wrap items-center gap-1.5">
-									<span
-										v-for="tag in modrinthTags(hit)"
-										:key="tag"
-										class="rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-secondary"
-									>
-										{{ formatCategoryLabel(tag) }}
-									</span>
-								</div>
-							</div>
-
-							<div class="flex shrink-0 items-center gap-3">
-								<div class="hidden flex-col items-end text-xs text-secondary tabular-nums sm:flex">
-									<span class="font-semibold text-primary">{{ formatDownloads(hit.downloads) }}</span>
-									<span v-if="hit.date_modified">{{ dayjs(hit.date_modified).fromNow() }}</span>
-								</div>
-								<Button
-									size="sm"
-									type="outlined"
-									class="!rounded-xl"
-									@click="router.push({ path: `/project/${hit.project_id}`, query: { i: instance.id } })"
-								>
-									Details
-								</Button>
-								<Button
-									:type="installedModrinthIds.has(hit.project_id) ? 'outlined' : 'colored'"
-									:color="installedModrinthIds.has(hit.project_id) ? 'default' : 'brand'"
-									size="sm"
-									class="!rounded-xl !font-bold"
-									:disabled="
-										installingModrinthIds.has(hit.project_id) ||
-										installedModrinthIds.has(hit.project_id)
-									"
-									@click="handleInstallModrinth(hit)"
-								>
-									<SpinnerIcon
-										v-if="installingModrinthIds.has(hit.project_id)"
-										class="size-3.5 animate-spin"
-									/>
-									<CheckIcon v-else-if="installedModrinthIds.has(hit.project_id)" class="size-3.5" />
-									<DownloadIcon v-else class="size-3.5" />
-									<span>
-										{{
-											installingModrinthIds.has(hit.project_id)
-												? 'Installing'
-												: installedModrinthIds.has(hit.project_id)
-													? 'Installed'
-													: 'Install'
-										}}
-									</span>
-								</Button>
 							</div>
 						</article>
 					</div>
@@ -1271,11 +1240,9 @@ function goBackToInstance() {
 				<template v-else>
 					<div
 						v-if="!curseforgeConfigured || curseforgeItems.length === 0"
-						class="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-solid border-surface-5 bg-surface-3 p-12 text-center"
+						class="flex flex-col items-center justify-center gap-3 rounded-2xl bg-bg-raised p-12 text-center"
 					>
-						<div
-							class="flex size-12 items-center justify-center rounded-2xl border border-solid border-surface-5 bg-surface-2 text-secondary"
-						>
+						<div class="flex size-12 items-center justify-center rounded-2xl bg-surface-4 text-secondary">
 							<PackageIcon class="size-6" />
 						</div>
 						<p class="m-0 text-sm font-semibold text-contrast">
@@ -1288,7 +1255,7 @@ function goBackToInstance() {
 						<Button
 							v-if="activeFilterCount > 0 || searchQuery"
 							size="sm"
-							type="outlined"
+							type="base"
 							class="!rounded-xl"
 							@click="resetSidebarFilters"
 						>
@@ -1296,20 +1263,123 @@ function goBackToInstance() {
 						</Button>
 					</div>
 
-					<!-- CurseForge Grid Cards -->
-					<div
-						v-else-if="viewMode === 'grid'"
-						class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-					>
+					<!-- CurseForge Long Horizontal Cards (DEFAULT — Modrinth Pure-OLED Style) -->
+					<div v-else-if="viewMode === 'list'" class="flex flex-col gap-2.5">
 						<article
 							v-for="(item, idx) in curseforgeItems"
 							:key="item.id"
-							:style="{ animationDelay: `${Math.min(idx, 11) * 28}ms` }"
-							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-[22px] border border-solid border-surface-5 bg-surface-3 transition-all"
+							:style="{ animationDelay: `${Math.min(idx, 12) * 18}ms` }"
+							class="solara-mp-card solara-card-animate group flex items-center gap-4 rounded-2xl bg-bg-raised px-4 py-3.5"
 						>
-							<!-- Cover Banner Header -->
+							<button
+								type="button"
+								class="flex size-[68px] shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-0 bg-surface-2 p-0 transition-transform duration-200 group-hover:scale-[1.03]"
+								@click="item.websiteUrl && openUrl(item.websiteUrl)"
+							>
+								<img
+									v-if="item.logoUrl"
+									:src="item.logoUrl"
+									:alt="item.name"
+									loading="lazy"
+									class="size-full object-cover"
+								/>
+								<PackageIcon v-else class="size-7 text-secondary" />
+							</button>
+
+							<div class="flex min-w-0 flex-1 flex-col gap-1.5">
+								<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+									<button
+										type="button"
+										class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-[15.5px] font-bold leading-snug text-contrast transition-colors hover:text-brand"
+										@click="item.websiteUrl && openUrl(item.websiteUrl)"
+									>
+										{{ item.name }}
+									</button>
+									<span class="text-xs font-medium text-secondary">by {{ item.author }}</span>
+								</div>
+
+								<p class="m-0 line-clamp-2 text-[12.5px] leading-relaxed text-secondary">
+									{{ item.summary }}
+								</p>
+
+								<div class="mt-0.5 flex flex-wrap items-center gap-1.5">
+									<span class="inline-flex items-center gap-1 rounded-md bg-[#f16436]/14 px-2 py-0.5 text-[10.5px] font-semibold text-[#f16436]">
+										<span class="size-1.5 rounded-full bg-[#f16436]" />
+										CurseForge
+									</span>
+									<span
+										v-for="cat in (item.categories ?? []).slice(0, 2)"
+										:key="cat.id"
+										class="rounded-md bg-surface-4 px-2 py-0.5 text-[10.5px] font-medium text-secondary"
+									>
+										{{ cat.name }}
+									</span>
+								</div>
+							</div>
+
+							<div class="flex shrink-0 flex-col items-end justify-between gap-2.5 self-stretch pl-2">
+								<div class="flex flex-col items-end gap-0.5 text-xs text-secondary tabular-nums">
+									<span class="flex items-center gap-1 font-bold text-contrast">
+										<DownloadIcon class="size-3.5 text-secondary" />
+										{{ formatDownloads(item.downloads) }}
+									</span>
+									<span v-if="item.dateModified" class="flex items-center gap-1 text-[11px]">
+										<UpdatedIcon class="size-3" />
+										{{ dayjs(item.dateModified).fromNow() }}
+									</span>
+								</div>
+
+								<div class="flex items-center gap-1.5">
+									<button
+										v-if="item.websiteUrl"
+										type="button"
+										title="Open on CurseForge"
+										class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border-0 bg-surface-4 text-secondary transition-colors hover:text-contrast"
+										@click="openUrl(item.websiteUrl)"
+									>
+										<ExternalIcon class="size-3.5" />
+									</button>
+									<Button
+										:type="installedCurseForgeIds.has(item.id) ? 'base' : 'colored'"
+										:color="installedCurseForgeIds.has(item.id) ? 'default' : 'brand'"
+										size="sm"
+										class="!rounded-xl !px-3.5 !font-bold"
+										:disabled="
+											installingCurseForgeIds.has(item.id) || installedCurseForgeIds.has(item.id)
+										"
+										@click="handleInstallCurseForge(item)"
+									>
+										<SpinnerIcon
+											v-if="installingCurseForgeIds.has(item.id)"
+											class="size-3.5 animate-spin"
+										/>
+										<CheckIcon v-else-if="installedCurseForgeIds.has(item.id)" class="size-3.5" />
+										<DownloadIcon v-else class="size-3.5" />
+										<span>
+											{{
+												installingCurseForgeIds.has(item.id)
+													? 'Installing'
+													: installedCurseForgeIds.has(item.id)
+														? 'Installed'
+														: 'Install'
+											}}
+										</span>
+									</Button>
+								</div>
+							</div>
+						</article>
+					</div>
+
+					<!-- CurseForge 2-Column Spacious Cards (zero button overflow!) -->
+					<div v-else class="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+						<article
+							v-for="(item, idx) in curseforgeItems"
+							:key="item.id"
+							:style="{ animationDelay: `${Math.min(idx, 11) * 20}ms` }"
+							class="solara-mp-card solara-card-animate group flex flex-col overflow-hidden rounded-2xl bg-bg-raised"
+						>
 							<div
-								class="relative h-28 w-full cursor-pointer overflow-hidden bg-surface-2"
+								class="relative h-24 w-full cursor-pointer overflow-hidden bg-surface-2"
 								@click="item.websiteUrl && openUrl(item.websiteUrl)"
 							>
 								<img
@@ -1324,30 +1394,22 @@ function goBackToInstance() {
 									:src="item.logoUrl"
 									alt=""
 									loading="lazy"
-									class="size-full scale-125 object-cover opacity-35 blur-xl"
+									class="size-full scale-125 object-cover opacity-30 blur-xl"
 								/>
 								<div class="solara-card-scrim pointer-events-none absolute inset-0" />
-
 								<div class="absolute left-2.5 top-2.5">
 									<span class="solara-cover-pill inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold">
 										<span class="size-1.5 rounded-full bg-[#f16436]" />
 										CurseForge
 									</span>
 								</div>
-
-								<div class="absolute right-2.5 top-2.5 flex items-center gap-1.5">
-									<span class="solara-cover-pill rounded-full px-2.5 py-0.5 text-[11px] font-semibold tabular-nums">
-										{{ item.gameVersions?.[0] || instance.game_version }}
-									</span>
-								</div>
 							</div>
 
-							<!-- Body -->
-							<div class="relative flex flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
-								<div class="flex items-end gap-3">
+							<div class="relative flex min-w-0 flex-1 flex-col gap-2.5 px-4 pb-4 pt-3">
+								<div class="flex min-w-0 items-end gap-3">
 									<button
 										type="button"
-										class="-mt-10 flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
+										class="-mt-9 flex size-13 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-solid border-surface-3 bg-surface-2 p-0 shadow-md"
 										@click="item.websiteUrl && openUrl(item.websiteUrl)"
 									>
 										<img
@@ -1372,35 +1434,17 @@ function goBackToInstance() {
 									</div>
 								</div>
 
-								<p class="m-0 line-clamp-2 min-h-[2.4rem] text-xs leading-relaxed text-secondary">
+								<p class="m-0 line-clamp-2 min-h-[2.3rem] text-xs leading-relaxed text-secondary">
 									{{ item.summary }}
 								</p>
 
-								<div v-if="item.categories?.length" class="flex flex-wrap items-center gap-1.5">
-									<span
-										v-for="cat in item.categories.slice(0, 2)"
-										:key="cat.id"
-										class="rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-secondary"
-									>
-										{{ cat.name }}
-									</span>
-								</div>
-
-								<!-- Footer -->
-								<div
-									class="mt-auto flex items-center justify-between gap-2 border-0 border-t border-solid border-surface-5 pt-3"
-								>
-									<div class="flex items-center gap-3 text-xs font-medium text-secondary tabular-nums">
-										<span class="flex items-center gap-1" title="Total downloads">
-											<DownloadIcon class="size-3.5" />
+								<div class="solara-subtle-top mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+									<div class="flex min-w-0 items-center gap-2.5 text-xs font-medium text-secondary tabular-nums">
+										<span class="flex items-center gap-1 font-semibold text-contrast">
+											<DownloadIcon class="size-3.5 text-secondary" />
 											{{ formatDownloads(item.downloads) }}
 										</span>
-										<span
-											v-if="item.dateModified"
-											class="flex items-center gap-1"
-											title="Last updated"
-										>
-											<UpdatedIcon class="size-3.5" />
+										<span v-if="item.dateModified" class="truncate text-[11px]">
 											{{ dayjs(item.dateModified).fromNow() }}
 										</span>
 									</div>
@@ -1410,16 +1454,16 @@ function goBackToInstance() {
 											v-if="item.websiteUrl"
 											type="button"
 											title="Open on CurseForge"
-											class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:text-contrast"
+											class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border-0 bg-surface-4 text-secondary transition-colors hover:text-contrast"
 											@click="openUrl(item.websiteUrl)"
 										>
 											<ExternalIcon class="size-3.5" />
 										</button>
 										<Button
-											:type="installedCurseForgeIds.has(item.id) ? 'outlined' : 'colored'"
+											:type="installedCurseForgeIds.has(item.id) ? 'base' : 'colored'"
 											:color="installedCurseForgeIds.has(item.id) ? 'default' : 'brand'"
 											size="sm"
-											class="!rounded-xl !font-bold"
+											class="!rounded-xl !px-3.5 !font-bold"
 											:disabled="
 												installingCurseForgeIds.has(item.id) ||
 												installedCurseForgeIds.has(item.id)
@@ -1447,95 +1491,6 @@ function goBackToInstance() {
 							</div>
 						</article>
 					</div>
-
-					<!-- CurseForge List Rows -->
-					<div v-else class="flex flex-col gap-2.5">
-						<article
-							v-for="item in curseforgeItems"
-							:key="item.id"
-							class="solara-mp-card flex flex-wrap items-center gap-4 rounded-[22px] border border-solid border-surface-5 bg-surface-3 p-4 transition-all"
-						>
-							<button
-								type="button"
-								class="flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-solid border-surface-5 bg-surface-2 p-0"
-								@click="item.websiteUrl && openUrl(item.websiteUrl)"
-							>
-								<img
-									v-if="item.logoUrl"
-									:src="item.logoUrl"
-									:alt="item.name"
-									loading="lazy"
-									class="size-full object-cover"
-								/>
-								<PackageIcon v-else class="size-6 text-secondary" />
-							</button>
-
-							<div class="flex min-w-0 flex-1 flex-col gap-1">
-								<div class="flex flex-wrap items-center gap-2">
-									<button
-										type="button"
-										class="m-0 max-w-full cursor-pointer truncate border-none bg-transparent p-0 text-left text-base font-bold text-contrast hover:text-brand"
-										@click="item.websiteUrl && openUrl(item.websiteUrl)"
-									>
-										{{ item.name }}
-									</button>
-									<span class="text-xs text-secondary">by {{ item.author }}</span>
-								</div>
-								<p class="m-0 line-clamp-1 text-xs text-secondary">{{ item.summary }}</p>
-								<div v-if="item.categories?.length" class="mt-0.5 flex flex-wrap items-center gap-1.5">
-									<span
-										v-for="cat in item.categories.slice(0, 2)"
-										:key="cat.id"
-										class="rounded-full border border-solid border-surface-5 bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-secondary"
-									>
-										{{ cat.name }}
-									</span>
-								</div>
-							</div>
-
-							<div class="flex shrink-0 items-center gap-3">
-								<div class="hidden flex-col items-end text-xs text-secondary tabular-nums sm:flex">
-									<span class="font-semibold text-primary">{{ formatDownloads(item.downloads) }}</span>
-									<span v-if="item.dateModified">{{ dayjs(item.dateModified).fromNow() }}</span>
-								</div>
-								<button
-									v-if="item.websiteUrl"
-									type="button"
-									title="Open on CurseForge"
-									class="inline-flex size-8 cursor-pointer items-center justify-center rounded-xl border border-solid border-surface-5 bg-surface-2 text-secondary transition-colors hover:text-contrast"
-									@click="openUrl(item.websiteUrl)"
-								>
-									<ExternalIcon class="size-3.5" />
-								</button>
-								<Button
-									:type="installedCurseForgeIds.has(item.id) ? 'outlined' : 'colored'"
-									:color="installedCurseForgeIds.has(item.id) ? 'default' : 'brand'"
-									size="sm"
-									class="!rounded-xl !font-bold"
-									:disabled="
-										installingCurseForgeIds.has(item.id) || installedCurseForgeIds.has(item.id)
-									"
-									@click="handleInstallCurseForge(item)"
-								>
-									<SpinnerIcon
-										v-if="installingCurseForgeIds.has(item.id)"
-										class="size-3.5 animate-spin"
-									/>
-									<CheckIcon v-else-if="installedCurseForgeIds.has(item.id)" class="size-3.5" />
-									<DownloadIcon v-else class="size-3.5" />
-									<span>
-										{{
-											installingCurseForgeIds.has(item.id)
-												? 'Installing'
-												: installedCurseForgeIds.has(item.id)
-													? 'Installed'
-													: 'Install'
-										}}
-									</span>
-								</Button>
-							</div>
-						</article>
-					</div>
 				</template>
 
 				<!-- Pagination -->
@@ -1552,28 +1507,47 @@ function goBackToInstance() {
 
 <style scoped>
 .solara-brand-pill {
-	border: 1px solid color-mix(in srgb, var(--color-brand) 32%, var(--surface-5));
-	background-color: color-mix(in srgb, var(--color-brand) 14%, var(--surface-2));
+	background-color: color-mix(in srgb, var(--color-brand) 15%, transparent);
 	color: var(--color-brand);
 }
 
+.solara-oled-search {
+	border: 1px solid transparent;
+}
+
+.solara-oled-search:focus-within {
+	border-color: color-mix(in srgb, var(--color-brand) 55%, transparent);
+}
+
+.solara-subtle-divider {
+	border-bottom: 1px solid color-mix(in srgb, var(--surface-5) 35%, transparent);
+}
+
+.solara-subtle-top {
+	border-top: 1px solid color-mix(in srgb, var(--surface-5) 35%, transparent);
+}
+
 .solara-source-modrinth-active {
-	background-color: color-mix(in srgb, #1bd96a 14%, var(--surface-4));
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, #1bd96a 34%, transparent);
+	background-color: color-mix(in srgb, #1bd96a 16%, var(--surface-4));
 }
 
 .solara-source-cf-active {
-	background-color: color-mix(in srgb, #f16436 14%, var(--surface-4));
-	box-shadow: inset 0 0 0 1px color-mix(in srgb, #f16436 34%, transparent);
+	background-color: color-mix(in srgb, #f16436 16%, var(--surface-4));
 }
 
 .solara-pill-active {
-	border-color: var(--color-brand);
-	background-color: color-mix(in srgb, var(--color-brand) 16%, var(--surface-2));
+	background-color: color-mix(in srgb, var(--color-brand) 18%, var(--surface-3));
+}
+
+.solara-mp-card {
+	border: 1px solid transparent;
+	transition:
+		background-color 180ms ease,
+		transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .solara-mp-card:hover {
-	border-color: color-mix(in srgb, var(--color-brand) 48%, var(--surface-5));
+	background-color: color-mix(in srgb, var(--surface-4) 68%, var(--surface-3));
 	transform: translateY(-1px);
 }
 
@@ -1587,9 +1561,8 @@ function goBackToInstance() {
 }
 
 .solara-cover-pill {
-	background-color: rgba(10, 14, 22, 0.76);
+	background-color: rgba(10, 14, 22, 0.78);
 	color: #f8fafc;
-	border: 1px solid rgba(255, 255, 255, 0.16);
 	backdrop-filter: blur(6px);
 }
 </style>

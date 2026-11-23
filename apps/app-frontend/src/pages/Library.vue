@@ -7,7 +7,7 @@ import {
 	SpinnerIcon,
 	XIcon,
 } from '@modrinth/assets'
-import { Button } from '@modrinth/ui'
+import { Button, Combobox } from '@modrinth/ui'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
 import { computed, inject, ref } from 'vue'
@@ -45,6 +45,11 @@ useAppEvent('instance', () => {
 const searchQuery = ref('')
 const selectedLoader = ref<string>('all')
 const sortBy = ref<'recent' | 'name' | 'created'>('recent')
+const SORT_OPTIONS: { value: 'recent' | 'name' | 'created'; label: string }[] = [
+	{ value: 'recent', label: 'Recently played' },
+	{ value: 'name', label: 'Name (A–Z)' },
+	{ value: 'created', label: 'Date created' },
+]
 
 const visibleInstances = computed(() =>
 	(instancesQuery.data.value ?? []).filter((instance) => !hiddenIds.value.has(instance.id)),
@@ -128,7 +133,7 @@ function openBrowseModpacks() {
 					<div class="flex items-center gap-2.5">
 						<h1 class="text-2xl font-extrabold text-contrast tracking-tight m-0">Library</h1>
 						<span
-							class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-3 text-secondary border border-solid border-surface-5 tabular-nums"
+							class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-bg-raised text-secondary tabular-nums"
 						>
 							{{ visibleInstances.length }}
 							{{ visibleInstances.length === 1 ? 'Instance' : 'Instances' }}
@@ -152,21 +157,21 @@ function openBrowseModpacks() {
 			</div>
 		</header>
 
-		<!-- Search & Filter Bar -->
+		<!-- Pure-OLED Open Search & Filter Strip -->
 		<section
 			v-if="visibleInstances.length > 0"
-			class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-solid border-surface-5 bg-surface-2/80 p-3"
+			class="flex flex-wrap items-center justify-between gap-3"
 		>
 			<div class="relative flex-1 min-w-[14rem] max-w-md">
 				<SearchIcon
-					class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-secondary"
+					class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-secondary"
 				/>
 				<input
 					v-model="searchQuery"
 					type="text"
 					placeholder="Search instances, versions, or loaders..."
 					aria-label="Search instances"
-					class="w-full rounded-xl border border-solid border-surface-5 bg-surface-3 py-2 pl-9 pr-8 text-sm text-contrast placeholder:text-secondary focus:border-brand focus:outline-none transition-colors"
+					class="solara-oled-input w-full rounded-xl bg-bg-raised py-2.5 pl-10 pr-8 text-sm text-contrast placeholder:text-secondary focus:outline-none transition-all"
 				/>
 				<button
 					v-if="searchQuery"
@@ -185,11 +190,11 @@ function openBrowseModpacks() {
 						v-for="loader in availableLoaders"
 						:key="loader"
 						type="button"
-						class="px-3 py-1.5 rounded-xl text-xs font-bold border border-solid cursor-pointer transition-colors"
+						class="px-3 py-1.5 rounded-xl text-xs font-semibold border-0 cursor-pointer transition-all duration-150"
 						:class="
 							selectedLoader === loader
-								? 'bg-brand text-[var(--color-accent-contrast)] border-brand'
-								: 'bg-surface-3 text-secondary hover:text-contrast border-surface-5 hover:border-surface-5'
+								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
+								: 'bg-bg-raised text-secondary hover:bg-surface-4 hover:text-contrast'
 						"
 						@click="selectedLoader = loader"
 					>
@@ -197,15 +202,14 @@ function openBrowseModpacks() {
 					</button>
 				</div>
 
-				<select
-					v-model="sortBy"
-					aria-label="Sort instances"
-					class="rounded-xl border border-solid border-surface-5 bg-surface-3 px-3 py-1.5 text-xs font-semibold text-contrast focus:border-brand focus:outline-none cursor-pointer"
-				>
-					<option value="recent">Recently played</option>
-					<option value="name">Name (A-Z)</option>
-					<option value="created">Date created</option>
-				</select>
+				<div class="w-40 shrink-0">
+					<Combobox
+						v-model="sortBy"
+						:options="SORT_OPTIONS"
+						placeholder="Sort"
+						trigger-size="sm"
+					/>
+				</div>
 			</div>
 		</section>
 
@@ -221,10 +225,10 @@ function openBrowseModpacks() {
 		<!-- Empty library state -->
 		<div
 			v-else-if="visibleInstances.length === 0"
-			class="rounded-3xl border border-solid border-surface-5 bg-surface-2/70 px-6 py-16 flex flex-col items-center justify-center text-center gap-4"
+			class="rounded-3xl bg-bg-raised px-6 py-16 flex flex-col items-center justify-center text-center gap-4"
 		>
 			<div
-				class="size-16 rounded-2xl border border-solid border-brand/25 bg-brand/10 text-brand flex items-center justify-center"
+				class="size-16 rounded-2xl bg-brand/12 text-brand flex items-center justify-center"
 			>
 				<LibraryIcon class="size-8" />
 			</div>
@@ -250,7 +254,7 @@ function openBrowseModpacks() {
 		<!-- No search matches -->
 		<div
 			v-else-if="filteredInstances.length === 0"
-			class="rounded-2xl border border-solid border-surface-5 bg-surface-2/70 px-6 py-12 flex flex-col items-center justify-center text-center gap-3"
+			class="rounded-2xl bg-bg-raised px-6 py-12 flex flex-col items-center justify-center text-center gap-3"
 		>
 			<p class="text-base font-bold text-contrast m-0">No matching instances</p>
 			<p class="text-sm text-secondary m-0">
@@ -259,15 +263,16 @@ function openBrowseModpacks() {
 			<Button type="outlined" size="small" @click="clearFilters">Clear filters</Button>
 		</div>
 
-		<!-- Instances Grid -->
+		<!-- Smooth Pure-OLED Instances Grid -->
 		<section
 			v-else
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5"
 		>
 			<div
-				v-for="instance in filteredInstances"
+				v-for="(instance, idx) in filteredInstances"
 				:key="instance.id"
-				class="solara-library-card rounded-xl border border-solid border-surface-5 hover:border-brand/55 transition-colors overflow-hidden"
+				:style="{ animationDelay: `${Math.min(idx, 12) * 24}ms` }"
+				class="solara-library-card solara-card-animate rounded-2xl overflow-hidden"
 			>
 				<Instance :instance="instance" />
 			</div>
@@ -276,13 +281,22 @@ function openBrowseModpacks() {
 </template>
 
 <style scoped>
+.solara-oled-input {
+	border: 1px solid transparent;
+}
+
+.solara-oled-input:focus {
+	border-color: color-mix(in srgb, var(--color-brand) 60%, transparent);
+}
+
 .solara-library-card {
 	transition:
-		border-color 0.18s ease,
-		transform 0.16s ease;
+		transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 0.22s ease;
 }
 
 .solara-library-card:hover {
-	transform: translateY(-1px);
+	transform: translateY(-2px);
+	box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.75);
 }
 </style>
