@@ -11,7 +11,7 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
-		version: 'V-0.0.97',
+		version: 'V-0.0.99',
 		title: 'Pure-OLED Instance/Library/Browser UI, Classic ASCII Console Logo, Custom Instance Settings & Fixed Updates',
 		date: 'November 23, 2026',
 		channel: 'Testing Preview',

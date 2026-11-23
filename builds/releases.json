@@ -3327,6 +3327,50 @@
       "notes": "# Solara Launcher V-0.0.96\n\n## Highlights\n- **Unstripped Release PE Hygiene & Clean Icon Entropy**: Switched the standalone Windows x64 release build to `strip = false` with standard uncompressed 32-bit DIB multi-size `icon.ico` (lowering `.rsrc` section entropy from `7.95` to `4.67`) for cleaner static scanner compatibility while staying compact (~78 MB).\n- **Standalone In-Place Auto-Updates**: Preserves direct standalone `solaralauncher.exe` execution with atomic NTFS in-place self-updating, exact Solara console logo, and compact wide instance mod cards.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.96/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "0b0312af-533e-4043-b07a-b789bc1b9b5b",
+      "publicVersion": "V-0.0.99",
+      "internalVersion": "0.0.99",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.99/solaralauncher.exe",
+      "commit": "fdca3bebd689f74e9346f096fb579cda61d228b0",
+      "allocatedAt": "2026-11-23T18:43:55.191Z",
+      "state": "published",
+      "applicationSha256": "bd3fd1283810db4d3372f88c7cab3296ce1331a2913c20a496a9516e72053f47",
+      "applicationSize": 75319808,
+      "sourceTree": "d9e4719cda1d048e4abff3fd30e2c74d71955197",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75319808,
+          "sha256": "bd3fd1283810db4d3372f88c7cab3296ce1331a2913c20a496a9516e72053f47"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75319808,
+          "sha256": "bd3fd1283810db4d3372f88c7cab3296ce1331a2913c20a496a9516e72053f47"
+        },
+        "source.zip": {
+          "size": 37024182,
+          "sha256": "6c910efa5416387c88cfdb10bfb27e12eeae4c10a0ebecc175935433a5e8d1d8"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 75319808,
+      "sha256": "bd3fd1283810db4d3372f88c7cab3296ce1331a2913c20a496a9516e72053f47",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-23T19:08:08.146Z",
+      "verifiedAt": "2026-11-23T19:07:59.577Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDVIWFo2eFJSb0tUTFNoem9nS0t5MFM1MHZneE9KVDFMQXFDaHVEN3Z0ckxtZFpwTzZYN2QveGR1Q3FRMFV4VXdUNHU3V0MrcWtqUlhmYjlMWW5OSHdZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1NDYwODc2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjk5Ck50MlVkNEZGRE5nd1gzTVU0dVlGaWgxamUrMkpRZmpRcjNxQmFiM2wxWDN5cFk4eVlRcUdwVW9KVzNESjExUDF4MjJQeVp4Q3cwZStYYzEyYnZHK0FnPT0K",
+      "notes": "## Features Added\n- Upgraded the **Instance Header, Tabs, Mods & Packs, Library, and Add Mods browser** to a seamless pure-`#000000` OLED aesthetic with silky borderless raised cards and **Modrinth-style long horizontal mod cards**.\n- Customized the **Instance Settings** menu with a Solara profile card header, quick Icon Studio & Upload buttons, a Game Folder shortcut in the sidebar footer, and smooth borderless option cards.\n- Replaced the console banner with **colorful classic ASCII art** (`/ \\ | _`) spelling **SOLARA** in a cyan-to-gold gradient.\n- Restored the **New Version Available** update popup showing **Features Added**, **Issues Fixed**, and **Future Updates Implementation** whenever a new Solara Launcher update is ready, and added **Update Selected** to the bulk-selection dock.\n\n## Issues Fixed\n- Stopped Solara Launcher from restarting automatically on its own when an update downloads — updates now wait quietly in the background until you click **Update Now**.\n- Fixed the single-mod **Update** button and **Update All** button inside Instance Management so they reliably open the updater and apply compatible mod updates.\n- Fixed **Install** buttons overflowing outside narrow mod cards inside **Add Mods**, removed harsh gray outlines across Instance/Library/Add Mods, and replaced the Library sort dropdown with the native Solara Combobox.\n- Fixed a startup race condition that could prevent the update changelog popup from appearing if the update check finished during the splash screen.\n\n## Future Updates Implementation\n- Continue migrating to the independent custom Solara launcher core architecture.\n- Expand Solara Theme Studio customization and offline world snapshot backups.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.99/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

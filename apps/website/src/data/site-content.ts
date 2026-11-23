@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
+    version: 'V-0.0.99',
+    date: 'November 24, 2026',
+    tag: 'Latest Preview',
+    title: 'Pure-OLED Instance & Browser UI, Custom Instance Settings, ASCII Console Logo & Update Control',
+    highlights: [
+      'Upgraded the Instance header, tabs, Mods & Packs cards, Library grid, and Add Mods browser to a borderless pure-#000000 OLED aesthetic with silky raised cards and Modrinth-style long horizontal mod cards.',
+      'Customized Instance Settings with a profile identity header, quick Icon Studio & Upload buttons, and a Game Folder footer shortcut; replaced the console banner with colorful classic ASCII art spelling SOLARA.',
+      'Fixed single-mod Update and Bulk Update All buttons (plus added Update Selected), stopped unprompted auto-restarts on update download, and restored the New Version Available changelog popup.',
+    ],
+  },
+  {
     version: 'V-0.0.96',
     date: 'November 23, 2026',
-    tag: 'Latest Preview',
+    tag: 'Permanent Download',
     title: 'Unstripped Standalone PE Hygiene & Low-Entropy Standard DIB Icon',
     highlights: [
       'Switched the standalone Windows x64 release build to strip = false with standard uncompressed 32-bit DIB multi-size icon.ico (lowering .rsrc entropy from 7.95 to standard desktop levels) for cleaner static scanner compatibility.',
