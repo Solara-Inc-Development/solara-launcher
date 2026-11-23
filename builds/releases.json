@@ -3283,6 +3283,50 @@
       "notes": "# Solara Launcher V-0.0.94\n\n## Highlights\n- **Direct Standalone Windows Executable (Zero NSIS)**: `solaralauncher.exe` is now a direct standalone x64 executable (~75 MB) with zero NSIS wrapper and pure-Rust atomic in-place self-updating (plus automatic migration for existing `V-0.0.89`–`V-0.0.93` installations).\n- **Exact Solara Website Logo in Console**: Recreated the official Solara rounded navy + cyan-to-gold lightning emblem pixel-accurately inside the empty instance console using TrueColor half-block art alongside a clean status banner.\n- **Compact Wide Instance Management UI**: Redesigned installed mod cards into sleek, short-height horizontal wide cards (`2-column` desktop grid + compact list view) with a unified 2-row toolbar, sleeker instance header, tighter navigation tabs, and polished Worlds toolbar.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.94/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "f48b9bd4-ea42-482b-80a1-7a0182a6d68b",
+      "publicVersion": "V-0.0.96",
+      "internalVersion": "0.0.96",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.96/solaralauncher.exe",
+      "commit": "2a412ad73a863ae5565d8fc0a5b18b70f3417f16",
+      "allocatedAt": "2026-11-23T17:08:18.356Z",
+      "state": "published",
+      "applicationSha256": "f36b679d5a8896eefb087bfd4065760468aa4e1cda8f9cd551cd08f06217bd47",
+      "applicationSize": 75383296,
+      "sourceTree": "f012073fa0682691f31b2c5ebf672ff638c1d589",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75383296,
+          "sha256": "f36b679d5a8896eefb087bfd4065760468aa4e1cda8f9cd551cd08f06217bd47"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75383296,
+          "sha256": "f36b679d5a8896eefb087bfd4065760468aa4e1cda8f9cd551cd08f06217bd47"
+        },
+        "source.zip": {
+          "size": 37022742,
+          "sha256": "05dc9c65d68a2654dfc7b910047753ff3d2093c41cc27546fa84f701432062a3"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 75383296,
+      "sha256": "f36b679d5a8896eefb087bfd4065760468aa4e1cda8f9cd551cd08f06217bd47",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-23T17:24:57.270Z",
+      "verifiedAt": "2026-11-23T17:24:49.120Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDJUZG5NTGltQlVtYjZSbG05d2Ewd2UzajgreUtzckJJcms3ZmdDRHRZd0t5Q3pUSUlsU3Nqd2YxQ3F3bFNCSU9raTQxMXVhcjQ0S2Yrd1NPNjd6WmdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1NDU0Njg2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjk2CitZNFY4c0NMeHphRmlSNmlzVnp3blVlTmNIb1hpYUx1SFROalp6Qk44Vm5zb2c2ZG9aQm12S0k4TVZnNGFFQklydXF4V3J3YWx1ZWt5TVRUWFlTR0JBPT0K",
+      "notes": "# Solara Launcher V-0.0.96\n\n## Highlights\n- **Unstripped Release PE Hygiene & Clean Icon Entropy**: Switched the standalone Windows x64 release build to `strip = false` with standard uncompressed 32-bit DIB multi-size `icon.ico` (lowering `.rsrc` section entropy from `7.95` to `4.67`) for cleaner static scanner compatibility while staying compact (~78 MB).\n- **Standalone In-Place Auto-Updates**: Preserves direct standalone `solaralauncher.exe` execution with atomic NTFS in-place self-updating, exact Solara console logo, and compact wide instance mod cards.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.96/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

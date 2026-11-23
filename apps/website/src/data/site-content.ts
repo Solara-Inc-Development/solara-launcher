@@ -95,9 +95,19 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.94',
+    version: 'V-0.0.96',
     date: 'November 23, 2026',
     tag: 'Latest Preview',
+    title: 'Unstripped Standalone PE Hygiene & Low-Entropy Standard DIB Icon',
+    highlights: [
+      'Switched the standalone Windows x64 release build to strip = false with standard uncompressed 32-bit DIB multi-size icon.ico (lowering .rsrc entropy from 7.95 to standard desktop levels) for cleaner static scanner compatibility.',
+      'Preserves direct standalone solaralauncher.exe execution with atomic NTFS in-place self-updating, exact Solara console logo, and compact wide instance mod cards.',
+    ],
+  },
+  {
+    version: 'V-0.0.94',
+    date: 'November 23, 2026',
+    tag: 'Feature Release',
     title: 'Direct Standalone x64 Executable, Exact Console Logo & Compact Instance Cards',
     highlights: [
       'Switched solaralauncher.exe to a direct standalone Windows x64 executable (71.6 MB, zero NSIS wrapper) with pure-Rust atomic in-place self-updating and automatic migration for existing installs.',
