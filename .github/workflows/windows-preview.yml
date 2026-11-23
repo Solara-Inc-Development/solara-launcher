@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.93: Bulletproof Windows auto-update (detached /P /UPDATE /R + NSIS process/unlock retry + idle fix), Solara ASCII Console logo, and smooth launcher animations.
+# Solara V-0.0.94: Option 2 direct standalone x64 solaralauncher.exe (zero NSIS, atomic in-place self-update), exact Solara website logo in Console, and compact wide horizontal instance mod cards.
 on:
   workflow_dispatch:
   push:
@@ -78,10 +78,9 @@ jobs:
             Write-Output "::error title=Build reservation diagnostics::$tail"
             exit $code
           }
-      - name: Build actual NSIS installer without private signing keys
+      - name: Build direct standalone x64 solaralauncher.exe without private signing keys
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
-          Remove-Item -Recurse -Force target/release/bundle/nsis -ErrorAction SilentlyContinue
           $log = Join-Path $env:RUNNER_TEMP 'solara-packaging.log'
           node scripts/release.mjs package --candidate 2>&1 | Tee-Object -FilePath $log
           $code = $LASTEXITCODE

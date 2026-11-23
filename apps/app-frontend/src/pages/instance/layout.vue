@@ -1,7 +1,7 @@
 <template>
 	<div v-if="instance" :class="{ 'flex h-full flex-col': isFixedRender }">
 		<div
-			:class="['p-6 pr-2 pb-4', { 'shrink-0': isFixedRender }]"
+			:class="['px-5 pt-4 pb-3', { 'shrink-0': isFixedRender }]"
 			@contextmenu.prevent.stop="(event) => handleRightClick(event)"
 		>
 			<ExportModal v-if="!instance.quarantined" ref="exportModal" :instance="instance" />
@@ -68,40 +68,40 @@
 				@report="reportSharedInstance"
 			/>
 		</div>
-		<div :class="['px-6', { 'shrink-0': isFixedRender }]">
-			<div class="flex flex-wrap items-center justify-between gap-2.5">
+		<div :class="['px-5', { 'shrink-0': isFixedRender }]">
+			<div class="flex flex-wrap items-center justify-between gap-2">
 				<nav
 					aria-label="Instance sections"
-					class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-[20px] border border-solid border-surface-5 bg-surface-3 p-1.5"
+					class="inline-flex max-w-full flex-wrap items-center gap-1 rounded-2xl border border-solid border-surface-5 bg-surface-3 p-1"
 				>
 					<RouterLink
 						v-for="tab in tabs"
 						:key="tab.href"
 						:to="tab.href"
 						:class="[
-							'inline-flex items-center gap-2 rounded-[14px] px-3.5 py-2 text-sm font-semibold no-underline transition-all',
+							'inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold no-underline transition-all',
 							isTabActive(tab.href)
 								? 'bg-brand text-[var(--color-accent-contrast)] shadow-sm'
 								: 'text-secondary hover:bg-surface-2 hover:text-contrast',
 						]"
 					>
-						<component :is="tab.icon" class="size-4 shrink-0" />
+						<component :is="tab.icon" class="size-3.5 shrink-0" />
 						<span>{{ tab.label }}</span>
 					</RouterLink>
 				</nav>
 
 				<button
-					v-if="!instance.content_locked"
+					v-if="!instance.content_locked && !isTabActive(basePath)"
 					type="button"
-					class="inline-flex cursor-pointer items-center gap-1.5 rounded-2xl border border-solid border-surface-5 bg-surface-3 px-4 py-2.5 text-xs font-bold text-contrast transition-all hover:border-brand/55 hover:text-brand"
+					class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-solid border-surface-5 bg-surface-3 px-3 py-1.5 text-xs font-bold text-contrast transition-all hover:border-brand/55 hover:text-brand"
 					@click="() => void browseContent(instance.loader === 'vanilla' ? 'resourcepack' : 'mod')"
 				>
-					<PlusIcon class="size-4 shrink-0 text-brand" />
+					<PlusIcon class="size-3.5 shrink-0 text-brand" />
 					<span>Add Mods</span>
 				</button>
 			</div>
 			<InstanceAdmonitions
-				class="mt-4"
+				class="mt-3"
 				:instance="instance"
 				:shared-instance-unavailable-reason="sharedInstanceUnavailableReason"
 				:shared-instance-unavailable-manager="sharedInstanceUnavailableManager"
@@ -116,7 +116,7 @@
 				@review-update="reviewSharedInstanceUpdate"
 			/>
 		</div>
-		<div :class="['p-6 pt-4', { 'min-h-0 flex-1 overflow-y-auto': isFixedRender }]">
+		<div :class="['px-5 pt-3 pb-5', { 'min-h-0 flex-1 overflow-y-auto': isFixedRender }]">
 			<RouterView v-slot="{ Component }">
 				<template v-if="Component">
 					<Suspense

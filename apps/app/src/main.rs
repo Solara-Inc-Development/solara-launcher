@@ -200,7 +200,16 @@ async fn set_restart_after_pending_update(
     Ok(())
 }
 
+pub const BUNDLED_LICENSE: &str = include_str!("../../../LICENSE");
+pub const BUNDLED_THIRD_PARTY_NOTICES: &str = include_str!("../../../THIRD_PARTY_NOTICES.md");
+
 fn main() {
+    #[cfg(target_os = "windows")]
+    if app_updates::try_handle_legacy_update_handoff() {
+        return;
+    }
+    app_updates::wait_if_post_update_relaunch();
+
     install_panic_hook();
     theseus::install_crypto_provider();
 

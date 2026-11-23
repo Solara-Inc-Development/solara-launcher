@@ -481,6 +481,154 @@ async fn download_and_verify_to_cache(
     Ok(buf)
 }
 
+pub fn is_x64_pe(bytes: &[u8]) -> bool {
+    if bytes.len() < 1024 || &bytes[0..2] != b"MZ" {
+        return false;
+    }
+    let offset = u32::from_le_bytes([bytes[0x3c], bytes[0x3d], bytes[0x3e], bytes[0x3f]]) as usize;
+    if offset < 64 || offset + 26 > bytes.len() || &bytes[offset..offset + 4] != b"PE\0\0" {
+        return false;
+    }
+    let machine = u16::from_le_bytes([bytes[offset + 4], bytes[offset + 5]]);
+    let magic = u16::from_le_bytes([bytes[offset + 24], bytes[offset + 25]]);
+    machine == 0x8664 && magic == 0x20b
+}
+
+fn sibling_with_suffix(exe: &Path, suffix: &str) -> PathBuf {
+    let mut name = exe
+        .file_name()
+        .map(|s| s.to_os_string())
+        .unwrap_or_else(|| std::ffi::OsString::from("solaralauncher.exe"));
+    name.push(suffix);
+    exe.with_file_name(name)
+}
+
+fn replace_running_exe_atomically(current_exe: &Path, new_bytes: &[u8]) -> anyhow::Result<()> {
+    let staged_new = sibling_with_suffix(current_exe, ".new");
+    let backup_old = sibling_with_suffix(current_exe, ".old");
+
+    let _ = std::fs::remove_file(&staged_new);
+    let _ = std::fs::remove_file(&backup_old);
+
+    std::fs::write(&staged_new, new_bytes)
+        .with_context(|| format!("Failed to stage updated binary at {}", staged_new.display()))?;
+
+    // Windows allows renaming a currently running .exe on the same NTFS volume.
+    if let Err(err) = std::fs::rename(current_exe, &backup_old) {
+        let _ = std::fs::remove_file(&staged_new);
+        return Err(err).with_context(|| {
+            format!(
+                "Failed to move running executable aside at {}",
+                current_exe.display()
+            )
+        });
+    }
+
+    if let Err(err) = std::fs::rename(&staged_new, current_exe) {
+        let _ = std::fs::rename(&backup_old, current_exe);
+        let _ = std::fs::remove_file(&staged_new);
+        return Err(err).with_context(|| {
+            format!(
+                "Failed to activate updated executable at {}",
+                current_exe.display()
+            )
+        });
+    }
+
+    Ok(())
+}
+
+/// If launched right after an in-place self-update, wait briefly before Tauri's single-instance
+/// mutex is acquired so the previous process finishes exiting cleanly.
+pub fn wait_if_post_update_relaunch() {
+    if std::env::args().any(|a| a == "--solara-post-update-wait") {
+        std::thread::sleep(Duration::from_millis(900));
+    }
+}
+
+/// Cleans up any leftover `.old` / `.new` sibling binaries from a previous in-place self-update.
+#[cfg(target_os = "windows")]
+pub fn spawn_stale_binary_cleanup() {
+    let Ok(current_exe) = std::env::current_exe() else {
+        return;
+    };
+    let backup_old = sibling_with_suffix(&current_exe, ".old");
+    let staged_new = sibling_with_suffix(&current_exe, ".new");
+    tauri::async_runtime::spawn(async move {
+        for _ in 0..12 {
+            let old_done = !backup_old.exists() || tokio::fs::remove_file(&backup_old).await.is_ok();
+            let new_done = !staged_new.exists() || tokio::fs::remove_file(&staged_new).await.is_ok();
+            if old_done && new_done {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(350)).await;
+        }
+    });
+}
+
+/// Backwards-compatible migration bridge: if an older NSIS-installed launcher (V-0.0.89..V-0.0.93)
+/// downloads this standalone `solaralauncher.exe` and invokes it with `/UPDATE` (and `/P` or `/S` + `/R`),
+/// replace the installed `%LOCALAPPDATA%\Solara Launcher\solaralauncher.exe` directly and relaunch it.
+#[cfg(target_os = "windows")]
+pub fn try_handle_legacy_update_handoff() -> bool {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let is_legacy_update = args.iter().any(|a| a.eq_ignore_ascii_case("/UPDATE"));
+    if !is_legacy_update {
+        return false;
+    }
+
+    let Ok(self_exe) = std::env::current_exe() else {
+        return false;
+    };
+    let Ok(local_app_data) = std::env::var("LOCALAPPDATA") else {
+        return false;
+    };
+    let target_dir = PathBuf::from(local_app_data).join("Solara Launcher");
+    let target_exe = target_dir.join("solaralauncher.exe");
+
+    // If we are already running from the target path, just continue normal boot.
+    if target_exe
+        .to_string_lossy()
+        .eq_ignore_ascii_case(&self_exe.to_string_lossy())
+    {
+        return false;
+    }
+
+    let _ = std::fs::create_dir_all(&target_dir);
+    if let Ok(bytes) = std::fs::read(&self_exe) {
+        let staged = sibling_with_suffix(&target_exe, ".new");
+        let backup = sibling_with_suffix(&target_exe, ".old");
+        let _ = std::fs::remove_file(&staged);
+        let _ = std::fs::remove_file(&backup);
+
+        if std::fs::write(&staged, &bytes).is_ok() {
+            // Retry briefly while the previous launcher process exits and releases handles.
+            for _ in 0..20 {
+                if !target_exe.exists() || std::fs::rename(&target_exe, &backup).is_ok() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(250));
+            }
+            if std::fs::rename(&staged, &target_exe).is_ok() {
+                let _ = std::fs::remove_file(&backup);
+                let _ = std::process::Command::new(&target_exe)
+                    .arg("--solara-post-update-wait")
+                    .creation_flags(CREATE_NEW_PROCESS_GROUP)
+                    .spawn();
+                std::thread::sleep(Duration::from_millis(150));
+                return true;
+            }
+            let _ = std::fs::rename(&backup, &target_exe);
+            let _ = std::fs::remove_file(&staged);
+        }
+    }
+
+    false
+}
+
 async fn apply_verified_bytes(
     app: &tauri::AppHandle,
     cache_dir: &Path,
@@ -519,15 +667,13 @@ async fn apply_verified_bytes(
         use std::os::windows::process::CommandExt;
         const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
 
-        tokio::fs::create_dir_all(cache_dir).await?;
-        let installer_path = cache_dir.join("solaralauncher-update-setup.exe");
-        tokio::fs::write(&installer_path, bytes).await?;
-        std::process::Command::new(&installer_path)
-            .args(["/P", "/UPDATE", "/R"])
-            .creation_flags(CREATE_NEW_PROCESS_GROUP)
-            .spawn()
-            .map_err(|e| {
-                let msg = e.to_string();
+        if is_x64_pe(bytes) {
+            // Direct standalone x64 executable: atomically replace current solaralauncher.exe
+            // in-place with zero NSIS wrapper and zero shell scripts, then relaunch cleanly.
+            let current_exe = std::env::current_exe()
+                .context("Unable to determine current Solara Launcher executable path")?;
+            if let Err(err) = replace_running_exe_atomically(&current_exe, bytes) {
+                let msg = err.to_string();
                 set_status(
                     Some(app),
                     "ready",
@@ -537,13 +683,59 @@ async fn apply_verified_bytes(
                     Some(bytes.len() as u64),
                     Some(&msg),
                 );
-                e
-            })?;
-        let _ = tokio::fs::remove_file(cache_dir.join("pending.bin")).await;
-        let _ = tokio::fs::remove_file(cache_dir.join("pending.json")).await;
-        // Brief pause so Windows initializes the detached updater process before parent exits.
-        tokio::time::sleep(Duration::from_millis(250)).await;
-        app.exit(0);
+                return Err(err);
+            }
+
+            let _ = tokio::fs::remove_file(cache_dir.join("pending.bin")).await;
+            let _ = tokio::fs::remove_file(cache_dir.join("pending.json")).await;
+
+            std::process::Command::new(&current_exe)
+                .arg("--solara-post-update-wait")
+                .creation_flags(CREATE_NEW_PROCESS_GROUP)
+                .spawn()
+                .map_err(|e| {
+                    let msg = e.to_string();
+                    set_status(
+                        Some(app),
+                        "ready",
+                        Some(version),
+                        notes,
+                        bytes.len() as u64,
+                        Some(bytes.len() as u64),
+                        Some(&msg),
+                    );
+                    e
+                })?;
+
+            tokio::time::sleep(Duration::from_millis(120)).await;
+            app.exit(0);
+        } else {
+            // Legacy NSIS installer fallback (for x86 bootstrapper packages).
+            tokio::fs::create_dir_all(cache_dir).await?;
+            let installer_path = cache_dir.join("solaralauncher-update-setup.exe");
+            tokio::fs::write(&installer_path, bytes).await?;
+            std::process::Command::new(&installer_path)
+                .args(["/P", "/UPDATE", "/R"])
+                .creation_flags(CREATE_NEW_PROCESS_GROUP)
+                .spawn()
+                .map_err(|e| {
+                    let msg = e.to_string();
+                    set_status(
+                        Some(app),
+                        "ready",
+                        Some(version),
+                        notes,
+                        bytes.len() as u64,
+                        Some(bytes.len() as u64),
+                        Some(&msg),
+                    );
+                    e
+                })?;
+            let _ = tokio::fs::remove_file(cache_dir.join("pending.bin")).await;
+            let _ = tokio::fs::remove_file(cache_dir.join("pending.json")).await;
+            tokio::time::sleep(Duration::from_millis(250)).await;
+            app.exit(0);
+        }
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -1012,6 +1204,8 @@ pub async fn trigger(app: &tauri::AppHandle) -> anyhow::Result<Value> {
 
 pub fn start(app: tauri::AppHandle) {
     READY.store(true, Ordering::SeqCst);
+    #[cfg(target_os = "windows")]
+    spawn_stale_binary_cleanup();
     tauri::async_runtime::spawn(async move {
         if !cfg!(windows) || cfg!(debug_assertions) {
             set_status(Some(&app), "development", None, None, 0, None, None);
@@ -1177,5 +1371,41 @@ mod tests {
         let _ = manifest_client_ipv4();
         let _ = manifest_client_default();
         let _ = download_client();
+    }
+
+    #[test]
+    fn is_x64_pe_distinguishes_standalone_x64_from_x86_nsis() {
+        let mut x64 = vec![0u8; 1024];
+        x64[0..2].copy_from_slice(b"MZ");
+        x64[0x3c..0x40].copy_from_slice(&128u32.to_le_bytes());
+        x64[128..132].copy_from_slice(b"PE\0\0");
+        x64[132..134].copy_from_slice(&0x8664u16.to_le_bytes());
+        x64[152..154].copy_from_slice(&0x020bu16.to_le_bytes());
+        assert!(is_x64_pe(&x64));
+
+        let mut x86 = x64.clone();
+        x86[132..134].copy_from_slice(&0x014cu16.to_le_bytes());
+        x86[152..154].copy_from_slice(&0x010bu16.to_le_bytes());
+        assert!(!is_x64_pe(&x86));
+        assert!(!is_x64_pe(b"not a pe"));
+    }
+
+    #[test]
+    fn atomic_self_replace_swaps_bytes_and_preserves_old_backup() {
+        let dir = std::env::temp_dir()
+            .join(format!("solara-self-replace-test-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let exe = dir.join("solaralauncher.exe");
+        std::fs::write(&exe, b"old-binary-v93").unwrap();
+
+        replace_running_exe_atomically(&exe, b"new-binary-v94").unwrap();
+
+        assert_eq!(std::fs::read(&exe).unwrap(), b"new-binary-v94");
+        assert_eq!(
+            std::fs::read(sibling_with_suffix(&exe, ".old")).unwrap(),
+            b"old-binary-v93"
+        );
+        assert!(!sibling_with_suffix(&exe, ".new").exists());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

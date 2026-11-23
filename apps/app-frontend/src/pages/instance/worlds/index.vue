@@ -21,7 +21,7 @@
 	<DesyncServerModal ref="desyncServerModal" @confirm="confirmDesyncServer" />
 	<ReadyTransition :pending="worldsReadyPending">
 		<div v-if="dedupedWorlds.length > 0" class="flex flex-col gap-3">
-			<div class="flex flex-col gap-2.5 rounded-2xl border border-solid border-surface-4 bg-surface-2 p-3.5">
+			<div class="flex flex-col gap-2.5 rounded-[18px] border border-solid border-surface-5 bg-surface-3 p-3">
 				<div class="flex flex-wrap items-center gap-2">
 					<Input
 						v-model="searchFilter"
@@ -34,13 +34,13 @@
 						clearable
 						:placeholder="`Search ${dedupedWorlds.length} worlds & servers...`"
 					/>
-					<div class="flex gap-2">
-						<Button type="outlined" size="lg" class="!rounded-xl" @click="addServerModal?.show()">
-							<PlusIcon class="size-5" />
-							<span>Direct IP / Server</span>
+					<div class="flex gap-1.5">
+						<Button type="outlined" size="md" class="!rounded-xl" @click="addServerModal?.show()">
+							<PlusIcon class="size-4" />
+							<span>Direct IP</span>
 						</Button>
-						<Button type="colored" color="brand" size="lg" class="!rounded-xl !font-bold" @click="instancePage.browseServers">
-							<CompassIcon class="size-5" />
+						<Button type="colored" color="brand" size="md" class="!rounded-xl !font-bold" @click="instancePage.browseServers">
+							<CompassIcon class="size-4" />
 							<span>Find Servers</span>
 						</Button>
 					</div>
