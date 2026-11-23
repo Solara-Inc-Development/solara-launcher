@@ -98,10 +98,10 @@ function pickLoader(loader: 'Fabric' | 'NeoForge' | 'Forge' | 'Quilt' | 'Vanilla
 }
 
 const DIRECT_GITHUB_DOWNLOAD_URL =
-  'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.89/solaralauncher.exe';
+  'https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.94/solaralauncher.exe';
 
 const DEFAULT_VT_SHA256 =
-  '199ad3d42baf50ac5a85317dd4b61a90522650f3c22921191aee23be238fea96';
+  '73a0f741eac4fbd8ee06d9d726d3382ec15d907ceef5c0afa299faf6825076e0';
 
 const DISCORD_URL = 'https://discord.gg/solara-inc';
 
@@ -311,7 +311,7 @@ async function copyText(text: string, key: string) {
           <a href="/downloads" :class="{ active: currentRoute === '/downloads' }" @click.prevent="navigate('/downloads')">Downloads</a>
           <a href="/changelog" :class="['nav-with-pill', { active: currentRoute === '/changelog' }]" @click.prevent="navigate('/changelog')">
             <span>Releases</span>
-            <span class="nav-release-pill">{{ latest ? latest.publicVersion : 'V-0.0.89' }}</span>
+            <span class="nav-release-pill">{{ latest ? latest.publicVersion : 'V-0.0.94' }}</span>
           </a>
           <a href="/security" :class="{ active: currentRoute === '/security' }" @click.prevent="navigate('/security')">Safety</a>
           <a href="/docs" :class="{ active: currentRoute === '/docs' }" @click.prevent="navigate('/docs')">Docs</a>
@@ -406,7 +406,7 @@ async function copyText(text: string, key: string) {
                   </a>
                 </div>
                 <p class="hero-meta-sub">
-                  Evergreen <code>solaralauncher.exe</code> · {{ latest ? `${(latest.size / 1048576).toFixed(1)} MB` : '30.0 MB' }} · Latest {{ latest ? latest.publicVersion : 'V-0.0.89' }} · Direct GitHub CDN
+                  Standalone <code>solaralauncher.exe</code> · {{ latest ? `${(latest.size / 1048576).toFixed(1)} MB` : '71.6 MB' }} · Latest {{ latest ? latest.publicVersion : 'V-0.0.94' }} · Direct GitHub CDN
                 </p>
               </div>
 
@@ -728,7 +728,7 @@ async function copyText(text: string, key: string) {
                   Below is an overview of Solara’s core launcher subsystems — click any row to inspect how it works under the hood on Windows.
                 </p>
                 <p class="stat-meta-line">
-                  Current preview {{ latest ? latest.publicVersion : 'V-0.0.89' }} ·
+                  Current preview {{ latest ? latest.publicVersion : 'V-0.0.94' }} ·
                   <a href="/changelog" class="inline-accent-link" @click.prevent="navigate('/changelog')">
                     <span>read full release notes</span>
                     <ArrowUpRight />
@@ -779,7 +779,7 @@ async function copyText(text: string, key: string) {
                     <h3>Solara Launcher for Windows</h3>
                     <span class="status-badge">
                       <span class="dot" />
-                      {{ latest ? latest.publicVersion : 'V-0.0.89' }}
+                      {{ latest ? latest.publicVersion : 'V-0.0.94' }}
                     </span>
                   </div>
                   <p class="download-meta">
@@ -901,7 +901,7 @@ async function copyText(text: string, key: string) {
                     <h3>Solara Launcher for Windows (64-bit)</h3>
                     <span class="status-badge">
                       <span class="dot" />
-                      {{ latest ? latest.publicVersion : 'V-0.0.89' }}
+                      {{ latest ? latest.publicVersion : 'V-0.0.94' }}
                     </span>
                   </div>
                   <p class="download-meta">
