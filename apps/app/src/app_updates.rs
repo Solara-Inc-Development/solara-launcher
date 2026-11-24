@@ -778,26 +778,10 @@ fn spawn_background_download(
         )
         .await
         {
-            Ok(bytes) => {
-                // Keep the verified update cached and ready in the background, and ONLY
-                // install + restart when the user explicitly clicked "Update Now".
-                let user_queued = INSTALL_AFTER_DOWNLOAD.swap(false, Ordering::SeqCst);
-                if user_queued && !CYCLING.swap(true, Ordering::SeqCst) {
-                    let _cycle = CycleGuard;
-                    if let Some(mut meta) = read_pending_meta(&cache_dir).await {
-                        meta.auto_install_attempted = true;
-                        let _ = write_pending_meta(&cache_dir, &meta).await;
-                    }
-                    let _ = apply_verified_bytes(
-                        &app,
-                        &cache_dir,
-                        &version,
-                        notes.as_deref(),
-                        &bytes,
-                        true,
-                    )
-                    .await;
-                }
+            Ok(_bytes) => {
+                // Always stop at "ready" after background download completes.
+                // Never restart automatically — the user must explicitly click "Update Now".
+                INSTALL_AFTER_DOWNLOAD.store(false, Ordering::SeqCst);
             }
             Err(err) => {
                 INSTALL_AFTER_DOWNLOAD.store(false, Ordering::SeqCst);
@@ -1007,19 +991,11 @@ pub async fn check_only(app: &tauri::AppHandle) -> anyhow::Result<Value> {
 /// download is already running, or downloads and installs right away) when the user clicks
 /// "Update Now" or "Restart to Update".
 pub async fn install_now(app: &tauri::AppHandle) -> anyhow::Result<Value> {
-    // If background download is already running, queue automatic install on completion!
+    // Never queue an automatic restart while a background download is still in progress:
+    // let the download finish to "ready" so the user clicks "Update Now" when ready.
     if DOWNLOADING.load(Ordering::SeqCst) {
-        INSTALL_AFTER_DOWNLOAD.store(true, Ordering::SeqCst);
-        let prev = snapshot();
-        return Ok(set_status(
-            Some(app),
-            "downloading",
-            prev["version"].as_str(),
-            prev["notes"].as_str(),
-            prev["downloaded"].as_u64().unwrap_or(0),
-            prev["total"].as_u64(),
-            None,
-        ));
+        INSTALL_AFTER_DOWNLOAD.store(false, Ordering::SeqCst);
+        return Ok(snapshot());
     }
 
     if CYCLING.swap(true, Ordering::SeqCst) {

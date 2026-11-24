@@ -89,6 +89,7 @@
 		"process:default",
 		"reports:default",
 		"cache:default",
+		"curseforge:default",
 		"files:default",
 		"settings:default",
 		"shortcuts:default",

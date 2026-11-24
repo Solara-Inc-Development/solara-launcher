@@ -71,7 +71,16 @@ pub async fn set(settings: Settings) -> crate::Result<()> {
         } else {
             false
         };
+    let discord_rpc_changed = current_settings.discord_rpc != settings.discord_rpc;
     settings.update(&state.pool).await?;
+
+    if discord_rpc_changed {
+        let _ = state
+            .presence
+            .discord_rpc
+            .clear_to_default(true, &state.pool, &state.process_manager)
+            .await;
+    }
 
     if shared_fullscreen_changed {
         let result =

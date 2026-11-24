@@ -60,7 +60,7 @@ export const configuredXss = new FilterXSS({
 		kbd: ['id'],
 		'inline-copy-code': [],
 		input: ['checked', 'disabled', 'type'],
-		iframe: ['width', 'height', 'allowfullscreen', 'frameborder', 'start', 'end'],
+		iframe: ['width', 'height', 'allowfullscreen', 'frameborder', 'start', 'end', 'title'],
 		img: [...(whiteList.img || []), 'usemap', 'style', 'align'],
 		map: ['name'],
 		area: [...(whiteList.a || []), 'coords'],
@@ -86,10 +86,12 @@ export const configuredXss = new FilterXSS({
 				{
 					url: /^https?:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[a-zA-Z0-9_-]{11}/,
 					allowedParameters: [/start=\d+/, /end=\d+/],
+					isYouTube: true,
 				},
 				{
 					url: /^https?:\/\/(www\.)?discord\.com\/widget/,
 					allowedParameters: [/id=\d{18,19}/],
+					isYouTube: false,
 				},
 			]
 
@@ -108,7 +110,15 @@ export const configuredXss = new FilterXSS({
 						}
 					})
 
+					if (source.isYouTube) {
+						url.protocol = 'https:'
+						url.hostname = 'www.youtube-nocookie.com'
+					}
+
 					url.search = newSearchParams.toString()
+					if (source.isYouTube) {
+						return `${name}="${escapeAttrValue(url.toString())}" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"`
+					}
 					return `${name}="${escapeAttrValue(url.toString())}"`
 				}
 			} catch {

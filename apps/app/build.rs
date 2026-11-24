@@ -55,6 +55,17 @@ fn main() {
                     ),
             )
             .plugin(
+                "curseforge",
+                InlinedPlugin::new()
+                    .commands(&[
+                        "curseforge_install_modpack",
+                        "curseforge_install_content",
+                    ])
+                    .default_permission(
+                        DefaultPermissionRule::AllowAllCommands,
+                    ),
+            )
+            .plugin(
                 "import",
                 InlinedPlugin::new()
                     .commands(&[

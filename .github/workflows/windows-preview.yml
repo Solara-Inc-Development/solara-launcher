@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.100: Custom Solara frosted OLED side notifications, 100% custom pure-OLED Instance Settings modal, and unified light-blue Solara accents.
+# Solara V-0.0.101: Native Solara Discord Rich Presence (App ID 1574631435627659615), CurseForge Tauri ACL fix, YouTube Error 153 embed fix, and strict no-auto-restart update guard.
 on:
   workflow_dispatch:
   push:

@@ -243,6 +243,23 @@ impl State {
             if let Err(e) = res {
                 tracing::error!("Error running startup tasks: {e}");
             }
+
+            // Keep checking for Discord desktop client in the background so Rich Presence
+            // connects automatically even if Discord is launched after Solara Launcher.
+            tokio::spawn(async move {
+                let mut interval = tokio::time::interval(
+                    std::time::Duration::from_secs(15),
+                );
+                interval.tick().await;
+                loop {
+                    interval.tick().await;
+                    state
+                        .presence
+                        .discord_rpc
+                        .sync_background(&state.pool, &state.process_manager)
+                        .await;
+                }
+            });
         });
 
         Ok(())

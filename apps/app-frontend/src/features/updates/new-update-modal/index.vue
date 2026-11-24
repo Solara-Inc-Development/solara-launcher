@@ -109,9 +109,8 @@ const changelogData = computed(() => {
 const isDownloading = computed(() => appUpdateState.downloading.value)
 const isDownloadedReady = computed(() => appUpdateState.finishedDownloading.value)
 const isRestarting = computed(() => appUpdateState.restarting.value)
-const isInstallQueued = computed(() => appUpdateState.installQueued.value)
 const downloadPercent = computed(() => appUpdateState.downloadPercent.value)
-const isBusy = computed(() => isRestarting.value || isInstallQueued.value)
+const isBusy = computed(() => isRestarting.value || isDownloading.value)
 
 function show(details?: SolaraUpdateNotification) {
 	if (details) {
@@ -152,7 +151,7 @@ defineExpose({ show, hide, notifyForVersion })
 					<span class="text-base text-brand font-semibold">{{ displayVersion }} from GitHub Releases</span>
 					<span
 						v-if="isDownloadedReady"
-						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400"
+						class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand/15 text-brand"
 					>
 						Ready — click Update Now when you want to restart
 					</span>
@@ -175,7 +174,7 @@ defineExpose({ show, hide, notifyForVersion })
 			</div>
 
 			<div class="flex flex-col gap-3 max-h-[20rem] overflow-y-auto pr-1">
-				<div class="rounded-xl border border-solid border-surface-5 bg-surface-2 p-3.5">
+				<div class="rounded-2xl bg-bg-raised p-4">
 					<h4 class="text-contrast font-bold text-sm mb-2 flex items-center gap-2 m-0">
 						Features Added
 					</h4>
@@ -184,7 +183,7 @@ defineExpose({ show, hide, notifyForVersion })
 					</ul>
 				</div>
 
-				<div class="rounded-xl border border-solid border-surface-5 bg-surface-2 p-3.5">
+				<div class="rounded-2xl bg-bg-raised p-4">
 					<h4 class="text-contrast font-bold text-sm mb-2 flex items-center gap-2 m-0">
 						Issues Fixed
 					</h4>
@@ -193,7 +192,7 @@ defineExpose({ show, hide, notifyForVersion })
 					</ul>
 				</div>
 
-				<div class="rounded-xl border border-solid border-surface-5 bg-surface-2 p-3.5">
+				<div class="rounded-2xl bg-bg-raised p-4">
 					<h4 class="text-contrast font-bold text-sm mb-2 flex items-center gap-2 m-0">
 						Future Updates Implementation
 					</h4>
@@ -203,7 +202,7 @@ defineExpose({ show, hide, notifyForVersion })
 				</div>
 			</div>
 
-			<div class="flex items-center justify-end gap-2 pt-2 border-0 border-t border-solid border-surface-5">
+			<div class="flex items-center justify-end gap-2 pt-3 border-0 border-t border-solid border-white/10">
 				<Button type="outlined" :disabled="isRestarting" @click="hide">
 					<XIcon />
 					I'll do it later
@@ -212,7 +211,7 @@ defineExpose({ show, hide, notifyForVersion })
 					<RefreshCwIcon v-if="isBusy" class="animate-spin" />
 					<DownloadIcon v-else />
 					<span v-if="isRestarting">Installing &amp; Restarting...</span>
-					<span v-else-if="isInstallQueued">Auto-installing at 100% ({{ downloadPercent }}%)...</span>
+					<span v-else-if="isDownloading">Downloading ({{ downloadPercent }}%)...</span>
 					<span v-else>Update Now</span>
 				</Button>
 			</div>

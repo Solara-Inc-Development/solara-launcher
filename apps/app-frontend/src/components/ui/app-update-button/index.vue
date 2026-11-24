@@ -4,7 +4,6 @@
 		type="outlined"
 		native-type="button"
 		class="!h-[34px] text-sm !transition-[opacity,transform,background-color,color,filter] !duration-200 ease-out !text-brand [&>svg]:!text-inherit !shadow-[inset_0_0_0_1px_var(--color-brand)] hover:!bg-brand focus-visible:!bg-brand hover:!text-[var(--color-accent-contrast)] focus-visible:!text-[var(--color-accent-contrast)]"
-		:disabled="isUpdateDownloading"
 		:aria-busy="isUpdateDownloading"
 		@click="handleUpdateClick"
 	>
@@ -23,10 +22,7 @@ import { DownloadIcon, RefreshCwIcon } from '@modrinth/assets'
 import { Button, defineMessages, useVIntl } from '@modrinth/ui'
 import { computed } from 'vue'
 
-import {
-	appUpdateState,
-	installAvailableAppUpdate,
-} from '@/providers/app-update'
+import { appUpdateState } from '@/providers/app-update'
 
 const { formatMessage } = useVIntl()
 
@@ -34,6 +30,10 @@ const messages = defineMessages({
 	restartToUpdate: {
 		id: 'app.action-bar.restart-to-update',
 		defaultMessage: 'Restart to Update',
+	},
+	updateAvailable: {
+		id: 'app.action-bar.update-available',
+		defaultMessage: 'Update Available',
 	},
 	downloadingUpdate: {
 		id: 'app.action-bar.downloading-update',
@@ -56,16 +56,18 @@ const isUpdateDownloading = computed(
 		(downloadProgress.value > 0 && downloadProgress.value < 1 && !finishedDownloading.value),
 )
 const showUpdatePill = computed(() => isUpdateVisible.value)
-const updateLabel = computed(() =>
-	isUpdateDownloading.value
-		? formatMessage(messages.downloadingUpdate)
-		: formatMessage(messages.restartToUpdate),
-)
-
-async function handleUpdateClick() {
+const updateLabel = computed(() => {
 	if (isUpdateDownloading.value) {
-		return
+		return formatMessage(messages.downloadingUpdate)
 	}
-	await installAvailableAppUpdate()
+	return finishedDownloading.value
+		? formatMessage(messages.restartToUpdate)
+		: formatMessage(messages.updateAvailable)
+})
+
+function handleUpdateClick() {
+	// Always open the New Version Available modal so the launcher never restarts
+	// until the user explicitly clicks "Update Now".
+	appUpdateState.showUpdateModalTrigger.value?.()
 }
 </script>

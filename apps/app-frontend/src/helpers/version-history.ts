@@ -11,11 +11,31 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.101',
+		title: 'Solara Discord Rich Presence & Fixed CurseForge Downloads',
+		date: 'November 24, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Enabled native Solara Discord Rich Presence using the official Solara Launcher Discord app, Solara logo artwork, live game/modloader status, elapsed play timer, background Discord detection, and a "Get Solara Launcher" profile button.',
+			'Added a Discord Rich Presence toggle inside Settings → Appearance so you can turn Discord status sharing on or off instantly.',
+		],
+		issuesFixed: [
+			'Fixed the CurseForge ACL permission error ("Command plugin:curseforge|curseforge_install_content not allowed by ACL") so installing CurseForge mods, shaders, resource packs, datapacks, and modpacks works cleanly again.',
+			'Fixed YouTube "Video Player Configuration Error" (Error 153) inside project descriptions by switching the launcher referrer policy to strict-origin-when-cross-origin and attaching proper YouTube nocookie iframe referrer attributes.',
+			'Hardened update handling so background downloads never queue or trigger an automatic restart — clicking the top-bar update pill opens the changelog modal and Solara only restarts when you explicitly click Update Now.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.100',
 		title: 'Solara Frosted OLED Side Notifications, Custom Instance Settings & Unified Light-Blue Accent',
 		date: 'November 24, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Redesigned all side notifications and download progress popups into sleek frosted pure-OLED Solara glass cards with a glowing top accent hairline, soft icon badges, and smooth slide animations.',
 			'Built a 100% custom pure-#000000 OLED Solara Instance Settings modal with a profile identity sidebar, light-blue active tabs, quick Open Game Folder shortcut, and borderless raised cards across every settings tab.',

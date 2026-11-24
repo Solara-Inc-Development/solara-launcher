@@ -4,9 +4,10 @@ import {
 	injectAuth,
 	injectUserPreferences,
 	provideAppearanceSettings,
+	Toggle,
 	useSavable,
 } from '@modrinth/ui'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useAppSettings } from '@/composables/use-app-settings.ts'
 import {
@@ -114,6 +115,36 @@ onBeforeUnmount(() => {
 	settingsModal.registerUnsavedChangesController(null)
 })
 
+const discordRpcEnabled = ref(true)
+const savingDiscordRpc = ref(false)
+
+onMounted(async () => {
+	try {
+		const loaded = await get()
+		discordRpcEnabled.value = Boolean(loaded.discord_rpc)
+	} catch {
+		discordRpcEnabled.value = true
+	}
+})
+
+async function toggleDiscordRpc(nextValue: boolean) {
+	if (savingDiscordRpc.value) return
+	const previous = discordRpcEnabled.value
+	discordRpcEnabled.value = nextValue
+	savingDiscordRpc.value = true
+	try {
+		const currentSettings = await get()
+		await set({
+			...currentSettings,
+			discord_rpc: nextValue,
+		})
+	} catch {
+		discordRpcEnabled.value = previous
+	} finally {
+		savingDiscordRpc.value = false
+	}
+}
+
 provideAppearanceSettings({
 	deferPersistence: true,
 	theme: {
@@ -133,5 +164,24 @@ provideAppearanceSettings({
 </script>
 
 <template>
-	<AppearanceSettingsLayout :show-account-sync="catalogFeatures.cloudSettings" />
+	<div class="flex flex-col gap-5">
+		<AppearanceSettingsLayout :show-account-sync="catalogFeatures.cloudSettings" />
+
+		<section class="flex items-center justify-between gap-4 rounded-2xl bg-bg-raised p-4">
+			<div class="flex min-w-0 flex-col gap-1">
+				<h3 class="m-0 text-sm font-bold text-contrast">Discord Rich Presence</h3>
+				<p class="m-0 text-xs leading-relaxed text-secondary">
+					Automatically show Solara Launcher, your active Minecraft instance, loader, and play timer
+					on your Discord profile.
+				</p>
+			</div>
+			<Toggle
+				id="solara-discord-rpc"
+				:model-value="discordRpcEnabled"
+				:disabled="savingDiscordRpc"
+				class="shrink-0"
+				@update:model-value="toggleDiscordRpc"
+			/>
+		</section>
+	</div>
 </template>

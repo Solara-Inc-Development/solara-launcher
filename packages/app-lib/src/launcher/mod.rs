@@ -1288,11 +1288,33 @@ pub async fn launch_minecraft(
         }
     }
 
-    let _ = state
-        .presence
-        .discord_rpc
-        .set_activity(&format!("Playing {}", instance.name), true, &state.pool)
-        .await;
+    if let Ok(Some(inst_meta)) =
+        crate::state::get_instance(&instance.id, &state.pool).await
+    {
+        let _ = state
+            .presence
+            .discord_rpc
+            .set_instance_activity(
+                &inst_meta.instance.name,
+                inst_meta.applied_content_set.loader.as_str(),
+                &inst_meta.applied_content_set.game_version,
+                true,
+                &state.pool,
+            )
+            .await;
+    } else {
+        let _ = state
+            .presence
+            .discord_rpc
+            .set_rich_activity(
+                &format!("Playing {}", instance.name),
+                "Minecraft Java Edition",
+                true,
+                true,
+                &state.pool,
+            )
+            .await;
+    }
 
     let _ = state
         .presence
