@@ -3459,6 +3459,50 @@
       "notes": "## Features Added\n- Enabled native Solara Discord Rich Presence using the official Solara Launcher Discord app, Solara logo artwork, live game and modloader status, elapsed play timer, background Discord detection, and a \"Get Solara Launcher\" profile button.\n- Added a Discord Rich Presence toggle inside Settings -> Appearance so you can turn Discord status sharing on or off instantly.\n\n## Issues Fixed\n- Fixed the CurseForge ACL permission error (\"Command plugin:curseforge|curseforge_install_content not allowed by ACL\") so installing CurseForge mods, shaders, resource packs, datapacks, and modpacks works cleanly again.\n- Fixed YouTube \"Video Player Configuration Error\" (Error 153) inside project descriptions by switching the launcher referrer policy to strict-origin-when-cross-origin and attaching proper YouTube nocookie iframe referrer attributes.\n- Hardened update handling so background downloads never queue or trigger an automatic restart — clicking the top-bar update pill opens the changelog modal and Solara only restarts when you explicitly click Update Now.\n\n## Future Updates Implementation\n- Independent custom launcher core architecture replacing inherited engine.\n- Custom Solara Theme Studio integration with personalized accent controls.\n- Enhanced offline world backups and automatic snapshot recovery.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.101/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "3156b7b5-7534-4593-b9d6-6b09a250753e",
+      "publicVersion": "V-0.0.102",
+      "internalVersion": "0.0.102",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.102/solaralauncher.exe",
+      "commit": "0242b4ebfdbd6630cdafe4c6eeea2124a204aa7f",
+      "allocatedAt": "2026-11-24T04:58:19.863Z",
+      "state": "published",
+      "applicationSha256": "43cbb968218d65d0a3a711f9cd5b72947178b42b484ff5bb4aa45a8617ef635c",
+      "applicationSize": 75353600,
+      "sourceTree": "85ea7a2f21f1b665fafdaa11e8e984cc09f48c8e",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75353600,
+          "sha256": "43cbb968218d65d0a3a711f9cd5b72947178b42b484ff5bb4aa45a8617ef635c"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75353600,
+          "sha256": "43cbb968218d65d0a3a711f9cd5b72947178b42b484ff5bb4aa45a8617ef635c"
+        },
+        "source.zip": {
+          "size": 36231809,
+          "sha256": "7254bc180bb1e2773cc47145f3182d938ee5297292b766916d894a10a3cc292d"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 75353600,
+      "sha256": "43cbb968218d65d0a3a711f9cd5b72947178b42b484ff5bb4aa45a8617ef635c",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-24T05:20:29.290Z",
+      "verifiedAt": "2026-11-24T05:18:49.544Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDNxUnlKdHM0UlR6T2k0NVhyTkNDWmlXdmM2NUdtZElMbUpETVVwa3Fld1RQc3NOMUhjdm1manl2YTNwb2FvaVBlaTJGbXUzSE5OSWtPdWNCUkowZlFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1NDk3NTI2CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEwMgpBSnhEenNibUVuZ1dBdWFON2JzdHNkdmRZRXRvODk1YUR6N2Z1YXE1WkoxR2xOaVZETWo4b3pzZGRma0grZE9Gelh5enNvWnRTcjZyZkUydUdmY2pCdz09Cg==",
+      "notes": "## Features Added\n- Built a 100% custom pure-#000000 OLED Solara App Settings modal with a branded navigation sidebar, light-blue active tabs, and borderless raised cards across Java & Memory, Game Window, Launch Hooks, and Troubleshooting.\n- Added native solara:// deep-link handling in Rust and switched desktop instance shortcuts to solara://launch/instance while keeping external .mrpack compatibility.\n- Upgraded the Title Bar, Sidebar, Getting Started card, Screenshots toolbar, Project Description and Gallery pages, Export Pack modal, Error modal, and Delete Instance modal to borderless pure-OLED Solara styling.\n\n## Issues Fixed\n- Removed over 520 unused legacy Modrinth files (blog, moderation, old library, friends, and unused cloud-sync modules), dead fallback URLs, and migrated launcher localStorage keys cleanly to solara-* with automatic legacy fallback.\n\n## Future Updates Implementation\n- Independent Solara Rust launcher core (packages/solara-core) replacing inherited Theseus engine module-by-module.\n- Custom Solara Theme Studio integration with personalized accent controls.\n- Enhanced offline world backups and automatic snapshot recovery.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.102/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

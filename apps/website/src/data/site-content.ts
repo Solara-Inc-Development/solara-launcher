@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.101',
+    version: 'V-0.0.102',
     date: 'November 24, 2026',
     tag: 'Latest Preview',
+    title: 'Custom Pure-OLED Solara App Settings, Native solara:// Shortcuts & Major Code Cleanup',
+    highlights: [
+      'Built a 100% custom pure-#000000 OLED Solara App Settings menu with a branded sidebar, light-blue active tabs, and borderless raised cards across Java & Memory, Window, Launch Hooks, and Troubleshooting.',
+      'Added native solara:// deep-link handling and switched desktop instance shortcuts to solara://launch/instance while keeping external .mrpack compatibility.',
+      'Removed over 520 unused upstream files, upgraded Title Bar, Sidebar, Export, Project Description/Gallery, Screenshots, and modals to pure-OLED Solara styling, and migrated localStorage keys to solara-*.',
+    ],
+  },
+  {
+    version: 'V-0.0.101',
+    date: 'November 24, 2026',
+    tag: 'Feature Release',
     title: 'Solara Discord Rich Presence, Fixed CurseForge Downloads, YouTube Fix & Strict Update Control',
     highlights: [
       'Enabled native Solara Discord Rich Presence with Solara branding, live game and modloader status, elapsed timer, background Discord detection, and a Settings -> Appearance toggle.',
