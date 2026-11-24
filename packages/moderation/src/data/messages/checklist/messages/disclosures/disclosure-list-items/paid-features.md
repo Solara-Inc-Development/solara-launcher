@@ -1,1 +1,0 @@
-- [Paid Features](%DISCLOSURES_FAQ_PAID_LINK%).

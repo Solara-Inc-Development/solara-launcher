@@ -1,1 +1,0 @@
-- [Generative AI Functionality](%DISCLOSURES_FAQ_AI_FUNCTIONALITY_LINK%).

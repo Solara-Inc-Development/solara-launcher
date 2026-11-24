@@ -31,7 +31,7 @@
 						<div
 							v-for="instance in instances"
 							:key="instance.id"
-							class="flex min-w-0 items-center gap-2.5 rounded-[20px] border border-solid border-transparent bg-surface-2 p-3"
+							class="flex min-w-0 items-center gap-2.5 rounded-2xl bg-bg-raised p-3"
 						>
 							<Avatar
 								:src="getInstanceIconUrl(instance.icon_path)"

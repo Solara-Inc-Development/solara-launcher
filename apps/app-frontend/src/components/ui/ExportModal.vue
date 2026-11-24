@@ -191,10 +191,12 @@ function normalizeExportPath(path) {
 		width="46rem"
 		max-width="calc(100vw - 2rem)"
 	>
-		<div class="flex flex-col gap-4">
-			<div class="grid grid-cols-2 gap-4">
-				<div class="labeled_input w-full">
-					<p class="text-contrast font-semibold">{{ formatMessage(messages.modpackNameLabel) }}</p>
+		<div class="flex flex-col gap-3">
+			<div class="rounded-2xl bg-bg-raised p-4 grid grid-cols-2 gap-4">
+				<div class="labeled_input w-full flex flex-col gap-1.5">
+					<p class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
+						{{ formatMessage(messages.modpackNameLabel) }}
+					</p>
 					<Input
 						v-model="nameInput"
 						type="text"
@@ -203,8 +205,8 @@ function normalizeExportPath(path) {
 						wrapper-class="w-full"
 					/>
 				</div>
-				<div class="labeled_input w-full">
-					<p class="text-contrast font-semibold">
+				<div class="labeled_input w-full flex flex-col gap-1.5">
+					<p class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
 						{{ formatMessage(messages.versionNumberLabel) }}
 					</p>
 					<Input
@@ -216,8 +218,8 @@ function normalizeExportPath(path) {
 					/>
 				</div>
 			</div>
-			<div class="flex flex-col gap-2 min-w-0">
-				<p class="m-0 text-contrast font-semibold">
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2 min-w-0">
+				<p class="m-0 text-xs font-bold uppercase tracking-wider text-secondary">
 					{{ formatMessage(commonMessages.descriptionLabel) }}
 				</p>
 				<Textarea
@@ -226,15 +228,17 @@ function normalizeExportPath(path) {
 					wrapper-class="w-full"
 				/>
 			</div>
-			<FileTreeSelect
-				:key="fileTreeKey"
-				v-model="includedFilePaths"
-				v-model:excluded-paths="excludedFilePaths"
-				class="min-w-0"
-				:items="files"
-				lazy
-				@navigate="loadExportDirectory"
-			/>
+			<div class="rounded-2xl bg-bg-raised p-3.5 min-w-0">
+				<FileTreeSelect
+					:key="fileTreeKey"
+					v-model="includedFilePaths"
+					v-model:excluded-paths="excludedFilePaths"
+					class="min-w-0"
+					:items="files"
+					lazy
+					@navigate="loadExportDirectory"
+				/>
+			</div>
 		</div>
 		<template #actions>
 			<div class="flex items-center justify-end gap-2">

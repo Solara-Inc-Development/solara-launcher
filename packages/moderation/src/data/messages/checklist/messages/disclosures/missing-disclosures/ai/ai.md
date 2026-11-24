@@ -1,1 +1,0 @@
-- [AI-generated or assisted content](%DISCLOSURES_FAQ_AI_CONTENT_LINK%).

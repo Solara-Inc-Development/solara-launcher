@@ -11,7 +11,6 @@ import {
 } from '@modrinth/ui'
 import { computed } from 'vue'
 
-import InstanceSharedBadge from '@/components/ui/library/instance-group/instance-shared-badge.vue'
 import {
 	isUninstalledSharedInstance,
 	type LibraryInstance,
@@ -89,13 +88,6 @@ const messages = defineMessages({
 				class="!rounded-2xl"
 				:class="{ 'opacity-50 !outline-none': notInstalled }"
 				pad-transparent-corners
-			/>
-			<InstanceSharedBadge
-				v-if="notInstalled && (isOwner || owner)"
-				:owner="owner ?? null"
-				:is-owner="isOwner"
-				compact
-				class="!left-1 !top-1"
 			/>
 			<div
 				v-if="loading"

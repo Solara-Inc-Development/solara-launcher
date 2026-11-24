@@ -1,11 +1,11 @@
 <template>
-	<Card>
+	<div class="rounded-2xl bg-bg-raised p-5">
 		<ProjectPageDescription :description="project.body" />
-	</Card>
+	</div>
 </template>
 
 <script setup>
-import { Card, ProjectPageDescription } from '@modrinth/ui'
+import { ProjectPageDescription } from '@modrinth/ui'
 
 defineProps({
 	project: {

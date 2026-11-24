@@ -278,32 +278,31 @@ async function copyToClipboard(text) {
 					{{ debugInfo }}
 				</template>
 				<template v-if="hasDebugInfo">
-					<div class="w-full h-[1px] bg-surface-5 mb-3"></div>
+					<div class="w-full h-[1px] bg-white/[0.08] mb-3"></div>
 					<p>
-						If nothing is working and you need help, visit
-						<a :href="supportLink">our support page</a>
-						and start a chat using the widget in the bottom right and we will be more than happy to
-						assist! Make sure to provide the following debug information to the agent:
+						If the issue continues, open
+						<a :href="supportLink">Solara Support</a>
+						and share the debug details below so we can help you fix it quickly.
 					</p>
 				</template>
 			</div>
 			<div class="flex items-center gap-2">
-				<ButtonLink :href="supportLink" @click="errorModal.hide()"
+				<ButtonLink :href="supportLink" color="brand" @click="errorModal.hide()"
 					><ChatIcon /> Get support</ButtonLink
 				>
 				<Button v-if="closable" @click="errorModal.hide()"><XIcon /> Close</Button>
 			</div>
 			<template v-if="hasDebugInfo">
 				<div class="flex flex-col gap-2">
-					<div class="w-full h-[1px] bg-surface-5"></div>
+					<div class="w-full h-[1px] bg-white/[0.08]"></div>
 
 					<div class="overflow-clip">
 						<button
-							class="flex items-center justify-between w-full bg-transparent border-0 py-4 cursor-pointer"
+							class="flex items-center justify-between w-full bg-transparent border-0 py-3 cursor-pointer"
 							@click="errorCollapsed = !errorCollapsed"
 						>
 							<span class="flex items-center gap-2 text-contrast font-extrabold m-0">
-								<WrenchIcon class="h-4 w-4" />
+								<WrenchIcon class="h-4 w-4 text-brand" />
 								Debug information
 							</span>
 							<DropdownIcon
@@ -313,13 +312,13 @@ async function copyToClipboard(text) {
 						</button>
 						<Collapsible :collapsed="errorCollapsed">
 							<div
-								class="p-3 bg-surface-2 rounded-2xl text-xs grid grid-cols-[1fr_auto] max-w-full items-start"
+								class="p-3.5 bg-bg-raised rounded-2xl text-xs grid grid-cols-[1fr_auto] max-w-full items-start gap-2"
 							>
 								<div
 									class="m-0 p-0 rounded-none bg-transparent text-sm font-mono break-words overflow-auto"
 								>
 									{{ debugInfo }}
-									<button class="btn" @click="openDbBackupsFolder">
+									<button class="btn mt-2" @click="openDbBackupsFolder">
 										<FolderOpenIcon aria-hidden="true" />
 										{{ formatMessage(messages.openBackupsFolder) }}
 									</button>
@@ -331,7 +330,7 @@ async function copyToClipboard(text) {
 									@click="copyToClipboard(debugInfo)"
 								>
 									<template v-if="copied">
-										<CheckIcon class="text-green" />
+										<CheckIcon class="text-brand" />
 									</template>
 									<template v-else> <CopyIcon /> </template>
 								</IconButton>

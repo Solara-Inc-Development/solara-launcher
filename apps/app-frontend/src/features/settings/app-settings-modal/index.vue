@@ -2,13 +2,13 @@
 import {
 	CodeIcon,
 	CoffeeIcon,
-	EyeOffIcon,
 	GaugeIcon,
 	PaintbrushIcon,
 	SolaraIcon,
 	ToggleRightIcon,
 	WindowIcon,
 	WrenchIcon,
+	XIcon,
 } from '@modrinth/assets'
 import {
 	commonMessages,
@@ -16,8 +16,8 @@ import {
 	defineMessage,
 	defineMessages,
 	injectNotificationManager,
+	NewModal,
 	ProgressBar,
-	TabbedModal,
 	UnsavedChangesPopup,
 	useVIntl,
 } from '@modrinth/ui'
@@ -40,7 +40,6 @@ import { useUnsavedChangesHost } from '@/shared/unsaved-changes/use-unsaved-chan
 
 import { provideAppSettingsModal } from './context'
 
-// TODO: Apply COMPONENT_STRUCTURE.md here and extract out common setting option components
 const appSettings = useAppSettings()
 
 const { formatMessage } = useVIntl()
@@ -48,6 +47,8 @@ const { handleError } = injectNotificationManager()
 const queryClient = useQueryClient()
 
 const devModeCounter = ref(0)
+const selectedTab = ref(0)
+const contentScrollRef = ref<HTMLElement | null>(null)
 
 const developerModeEnabled = defineMessage({
 	id: 'app.settings.developer-mode-enabled',
@@ -58,10 +59,6 @@ const tabCategories = defineMessages({
 	display: {
 		id: 'settings.sidebar.label.display',
 		defaultMessage: 'Display',
-	},
-	account: {
-		id: 'settings.sidebar.label.account',
-		defaultMessage: 'Account',
 	},
 	instanceDefaults: {
 		id: 'app.settings.sidebar.label.instance-defaults',
@@ -75,62 +72,76 @@ const tabCategories = defineMessages({
 
 const tabs = [
 	{
+		id: 'theme',
 		name: defineMessage({
 			id: 'app.settings.tabs.theme',
-			defaultMessage: 'Theme',
+			defaultMessage: 'Theme & Presence',
 		}),
+		subtitle: 'Customize OLED appearance, Discord Rich Presence, and visual preferences.',
 		category: tabCategories.display,
 		icon: PaintbrushIcon,
 		content: AppearanceSettings,
 	},
 	{
+		id: 'flags',
 		name: commonSettingsMessages.featureFlags,
+		subtitle: 'Toggle experimental developer flags for Solara Launcher.',
 		category: tabCategories.display,
 		icon: ToggleRightIcon,
 		content: FeatureFlagSettings,
 		developerOnly: true,
 	},
 	{
+		id: 'java',
 		name: defineMessage({
 			id: 'app.settings.tabs.java-and-memory',
-			defaultMessage: 'Java and memory',
+			defaultMessage: 'Java & Memory',
 		}),
+		subtitle: 'Configure default Java runtimes, RAM allocation, and JVM flags for new instances.',
 		category: tabCategories.instanceDefaults,
 		icon: CoffeeIcon,
 		content: JavaAndMemorySettings,
 	},
 	{
+		id: 'window',
 		name: defineMessage({
 			id: 'app.settings.tabs.window',
-			defaultMessage: 'Window',
+			defaultMessage: 'Game Window',
 		}),
+		subtitle: 'Set default fullscreen mode and window resolution when launching Minecraft.',
 		category: tabCategories.instanceDefaults,
 		icon: WindowIcon,
 		content: WindowSettings,
 	},
 	{
+		id: 'hooks',
 		name: defineMessage({
 			id: 'app.settings.tabs.launch-hooks',
-			defaultMessage: 'Launch hooks',
+			defaultMessage: 'Launch Hooks',
 		}),
+		subtitle: 'Run optional pre-launch, wrapper, or post-exit commands across instances.',
 		category: tabCategories.instanceDefaults,
 		icon: CodeIcon,
 		content: LaunchHooksSettings,
 	},
 	{
+		id: 'resources',
 		name: defineMessage({
 			id: 'app.settings.tabs.resources',
-			defaultMessage: 'Resources',
+			defaultMessage: 'Storage & Resources',
 		}),
+		subtitle: 'Manage Solara Launcher folders, cache limits, and concurrent downloads.',
 		category: tabCategories.system,
 		icon: GaugeIcon,
 		content: ResourceManagementSettings,
 	},
 	{
+		id: 'troubleshooting',
 		name: defineMessage({
 			id: 'app.settings.tabs.troubleshooting',
 			defaultMessage: 'Troubleshooting',
 		}),
+		subtitle: 'Export debug logs, open backups, and diagnose launcher or connection issues.',
 		category: tabCategories.system,
 		icon: WrenchIcon,
 		content: TroubleshootingSettings,
@@ -141,7 +152,23 @@ const availableTabs = computed(() =>
 	tabs.filter((tab) => !tab.developerOnly || appSettings.devMode),
 )
 
-const modal = ref<InstanceType<typeof TabbedModal> | null>(null)
+const groupedTabs = computed(() => {
+	const groups: Array<{ category: string; items: Array<{ tab: (typeof tabs)[number]; index: number }> }> = []
+	availableTabs.value.forEach((tab, index) => {
+		const category = formatMessage(tab.category)
+		let group = groups.find((g) => g.category === category)
+		if (!group) {
+			group = { category, items: [] }
+			groups.push(group)
+		}
+		group.items.push({ tab, index })
+	})
+	return groups
+})
+
+const activeTab = computed(() => availableTabs.value[selectedTab.value] ?? availableTabs.value[0])
+
+const modal = ref<InstanceType<typeof NewModal> | null>(null)
 const {
 	popup: unsavedChangesPopup,
 	original: originalUnsavedChangesState,
@@ -154,8 +181,24 @@ const {
 	save: saveUnsavedChanges,
 } = useUnsavedChangesHost()
 
+function setTab(index: number) {
+	if (index === selectedTab.value) return
+	if (!canLeaveCurrentTab()) return
+	const clamped = Math.max(0, Math.min(index, availableTabs.value.length - 1))
+	selectedTab.value = clamped
+	if (contentScrollRef.value) {
+		contentScrollRef.value.scrollTop = 0
+	}
+}
+
 function close(): boolean {
-	return modal.value?.hide() ?? false
+	if (!canLeaveCurrentTab()) return false
+	modal.value?.hide()
+	return true
+}
+
+function handleBeforeHide(): boolean {
+	return canLeaveCurrentTab()
 }
 
 provideAppSettingsModal({
@@ -163,23 +206,32 @@ provideAppSettingsModal({
 	registerUnsavedChangesController,
 })
 
-function show() {
+function openAtIndex(index?: number) {
+	if (typeof index === 'number' && index >= 0 && index < availableTabs.value.length) {
+		selectedTab.value = index
+	} else if (selectedTab.value >= availableTabs.value.length) {
+		selectedTab.value = 0
+	}
 	modal.value?.show()
 }
 
+function show() {
+	openAtIndex(0)
+}
+
 function showProfile(): void {
-	modal.value?.show()
+	openAtIndex(0)
 }
 
 function showFeatureFlags(): void {
 	const featureFlagsTabIndex = availableTabs.value.findIndex(
 		(tab) => tab.content === FeatureFlagSettings,
 	)
-	modal.value?.show(undefined, featureFlagsTabIndex >= 0 ? featureFlagsTabIndex : undefined)
+	openAtIndex(featureFlagsTabIndex >= 0 ? featureFlagsTabIndex : 0)
 }
 
 function showSyncedOptions(): void {
-	modal.value?.show()
+	openAtIndex(0)
 }
 
 function showInstanceDefaults(tab: InstanceDefaultsTab): void {
@@ -188,8 +240,8 @@ function showInstanceDefaults(tab: InstanceDefaultsTab): void {
 		window: WindowSettings,
 		hooks: LaunchHooksSettings,
 	}[tab]
-	const tabIndex = availableTabs.value.findIndex((tab) => tab.content === content)
-	modal.value?.show(undefined, tabIndex >= 0 ? tabIndex : undefined)
+	const tabIndex = availableTabs.value.findIndex((t) => t.content === content)
+	openAtIndex(tabIndex >= 0 ? tabIndex : 0)
 }
 
 defineExpose({ show, showProfile, showFeatureFlags, showSyncedOptions, showInstanceDefaults })
@@ -217,15 +269,13 @@ const developerModeMutation = useMutation({
 	},
 	onMutate: () => queryClient.cancelQueries({ queryKey: appSettingsKeys.all }),
 	onSuccess: (settings) => {
-		const selectedTab = modal.value ? availableTabs.value[modal.value.selectedTab] : undefined
+		const previousTab = availableTabs.value[selectedTab.value]
 
 		queryClient.setQueryData(appSettingsKeys.all, settings)
 		appSettings.devMode = settings.developer_mode
 
-		if (modal.value) {
-			const selectedTabIndex = selectedTab ? availableTabs.value.indexOf(selectedTab) : -1
-			modal.value.setTab(selectedTabIndex >= 0 ? selectedTabIndex : 0)
-		}
+		const nextIdx = previousTab ? availableTabs.value.indexOf(previousTab) : -1
+		selectedTab.value = nextIdx >= 0 ? nextIdx : 0
 	},
 	onError: handleError,
 	onSettled: () => queryClient.invalidateQueries({ queryKey: appSettingsKeys.all }),
@@ -249,69 +299,314 @@ const messages = defineMessages({
 		id: 'app.settings.app-version',
 		defaultMessage: 'Solara Launcher {version}',
 	},
-	macos: {
-		id: 'app.settings.operating-system.macos',
-		defaultMessage: 'macOS',
-	},
 	developerModeButtonLabel: {
 		id: 'app.settings.developer-mode-button.label',
 		defaultMessage: 'Toggle developer mode',
 	},
 })
 </script>
+
 <template>
-	<TabbedModal
+	<NewModal
 		ref="modal"
-		:tabs="availableTabs"
-		:header="formatMessage(commonMessages.settingsLabel)"
-		:before-hide="canLeaveCurrentTab"
-		:before-tab-change="canLeaveCurrentTab"
-		:floating-action-bar-shown="hasUnsavedChanges"
+		hide-header
+		no-padding
+		max-width="58rem"
+		width="min(58rem, calc(100vw - 3rem))"
+		:on-hide="handleBeforeHide"
 	>
-		<template #title>
-			<span class="flex items-center gap-2 text-lg font-extrabold text-contrast">
-				{{ formatMessage(commonMessages.settingsLabel) }}
-			</span>
-		</template>
-		<template #floating-action-bar>
-			<UnsavedChangesPopup
-				ref="unsavedChangesPopup"
-				:original="originalUnsavedChangesState"
-				:modified="modifiedUnsavedChangesState"
-				:saving="savingUnsavedChanges"
-				inline
-				@reset="resetUnsavedChanges"
-				@save="saveUnsavedChanges"
-			/>
-		</template>
-		<template #footer>
-			<div class="mt-auto pt-3 text-secondary text-sm">
-				<div v-if="progress > 0 && progress < 1" class="mb-3">
-					<p class="text-xs m-0 mb-2">
-						{{ formatMessage(messages.downloading, { version: downloadingVersion }) }}
-					</p>
-					<ProgressBar :progress="progress" />
-				</div>
-				<p v-if="appSettings.devMode" class="text-brand font-semibold m-0 mb-2">
-					{{ formatMessage(developerModeEnabled) }}
-				</p>
-				<div class="flex items-center gap-2.5">
-					<button
-						:aria-label="formatMessage(messages.developerModeButtonLabel)"
-						:disabled="developerModeMutation.isPending.value"
-						class="p-0 bg-transparent border-none cursor-pointer button-animation flex items-center justify-center"
-						:class="{ 'text-brand': appSettings.devMode, 'text-secondary': !appSettings.devMode }"
-						@click="devModeCount"
-					>
-						<SolaraIcon aria-hidden="true" class="w-5 h-5" />
-					</button>
-					<div v-if="appInfo">
-						<p class="m-0 text-xs font-medium text-secondary">
-							{{ formatMessage(messages.appVersion, { version: appInfo.version }) }}
-						</p>
+		<div class="solara-app-settings-shell">
+			<div class="solara-settings-accent-bar" aria-hidden="true" />
+
+			<div class="solara-app-settings-body">
+				<!-- Left Solara Navigation Sidebar -->
+				<aside class="solara-app-settings-sidebar">
+					<div class="solara-app-settings-brand-card">
+						<div class="solara-brand-emblem">
+							<SolaraIcon class="size-6 text-brand" />
+						</div>
+						<div class="min-w-0 flex-1">
+							<div class="text-sm font-extrabold text-contrast tracking-tight truncate">
+								Solara {{ formatMessage(commonMessages.settingsLabel) }}
+							</div>
+							<div class="text-[11px] font-semibold text-brand truncate">
+								{{ appInfo?.version ? `V-${appInfo.version}` : 'Desktop Preferences' }}
+							</div>
+						</div>
 					</div>
-				</div>
+
+					<nav class="solara-app-settings-nav" aria-label="Solara Settings">
+						<div v-for="group in groupedTabs" :key="group.category" class="flex flex-col gap-1">
+							<span class="px-2.5 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary/75">
+								{{ group.category }}
+							</span>
+							<button
+								v-for="{ tab, index } in group.items"
+								:key="tab.id"
+								type="button"
+								class="solara-app-settings-tab"
+								:class="{ 'is-active': selectedTab === index }"
+								@click="setTab(index)"
+							>
+								<span v-if="selectedTab === index" class="solara-tab-indicator" aria-hidden="true" />
+								<component :is="tab.icon" class="size-4 shrink-0" />
+								<span class="truncate">{{ formatMessage(tab.name) }}</span>
+							</button>
+						</div>
+					</nav>
+
+					<div class="solara-app-settings-footer">
+						<div v-if="progress > 0 && progress < 1" class="mb-2.5 rounded-xl bg-bg-raised p-2.5">
+							<p class="text-[11px] font-semibold text-brand m-0 mb-1.5">
+								{{ formatMessage(messages.downloading, { version: downloadingVersion }) }}
+							</p>
+							<ProgressBar :progress="progress" />
+						</div>
+						<p v-if="appSettings.devMode" class="text-[11px] text-brand font-bold m-0 mb-2">
+							{{ formatMessage(developerModeEnabled) }}
+						</p>
+						<div class="flex items-center gap-2.5">
+							<button
+								type="button"
+								:aria-label="formatMessage(messages.developerModeButtonLabel)"
+								:disabled="developerModeMutation.isPending.value"
+								class="p-1.5 rounded-lg bg-bg-raised border-0 cursor-pointer flex items-center justify-center transition-colors hover:bg-white/10"
+								:class="appSettings.devMode ? 'text-brand' : 'text-secondary'"
+								@click="devModeCount"
+							>
+								<SolaraIcon aria-hidden="true" class="size-4" />
+							</button>
+							<div v-if="appInfo" class="min-w-0">
+								<p class="m-0 text-xs font-semibold text-contrast truncate">
+									{{ formatMessage(messages.appVersion, { version: appInfo.version }) }}
+								</p>
+								<p class="m-0 text-[10px] text-secondary/70">Pure OLED Edition</p>
+							</div>
+						</div>
+					</div>
+				</aside>
+
+				<!-- Right Pure-OLED Stage -->
+				<section class="solara-app-settings-stage">
+					<header class="solara-app-settings-header">
+						<div class="min-w-0">
+							<h2 class="m-0 text-lg font-extrabold text-contrast tracking-tight flex items-center gap-2">
+								<component :is="activeTab.icon" class="size-5 text-brand shrink-0" />
+								<span>{{ formatMessage(activeTab.name) }}</span>
+							</h2>
+							<p class="m-0 mt-0.5 text-xs text-secondary truncate">
+								{{ activeTab.subtitle }}
+							</p>
+						</div>
+						<button
+							type="button"
+							class="solara-close-btn"
+							aria-label="Close settings"
+							@click="close"
+						>
+							<XIcon class="size-4" />
+						</button>
+					</header>
+
+					<div ref="contentScrollRef" class="solara-app-settings-content">
+						<component :is="activeTab.content" />
+					</div>
+
+					<div v-if="hasUnsavedChanges" class="solara-unsaved-dock">
+						<UnsavedChangesPopup
+							ref="unsavedChangesPopup"
+							:original="originalUnsavedChangesState"
+							:modified="modifiedUnsavedChangesState"
+							:saving="savingUnsavedChanges"
+							inline
+							@reset="resetUnsavedChanges"
+							@save="saveUnsavedChanges"
+						/>
+					</div>
+				</section>
 			</div>
-		</template>
-	</TabbedModal>
+		</div>
+	</NewModal>
 </template>
+
+<style scoped lang="scss">
+.solara-app-settings-shell {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	background: #000000;
+	border-radius: 20px;
+	overflow: hidden;
+	height: min(42rem, calc(100vh - 5rem));
+	box-shadow:
+		0 24px 70px rgba(0, 0, 0, 0.85),
+		0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.solara-settings-accent-bar {
+	height: 2px;
+	width: 100%;
+	flex-shrink: 0;
+	background: linear-gradient(90deg, #3dd6f5 0%, #6ce4ff 52%, #f4c15d 100%);
+	opacity: 0.9;
+}
+
+.solara-app-settings-body {
+	display: grid;
+	grid-template-columns: 244px minmax(0, 1fr);
+	flex: 1;
+	min-height: 0;
+}
+
+.solara-app-settings-sidebar {
+	display: flex;
+	flex-direction: column;
+	background: #06080c;
+	border-right: 1px solid rgba(255, 255, 255, 0.06);
+	padding: 1rem 0.85rem;
+	min-height: 0;
+}
+
+.solara-app-settings-brand-card {
+	display: flex;
+	align-items: center;
+	gap: 0.7rem;
+	padding: 0.65rem 0.75rem;
+	border-radius: 14px;
+	background: rgba(61, 214, 245, 0.07);
+	border: 1px solid rgba(61, 214, 245, 0.16);
+	margin-bottom: 0.85rem;
+}
+
+.solara-brand-emblem {
+	width: 36px;
+	height: 36px;
+	border-radius: 11px;
+	background: rgba(61, 214, 245, 0.12);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.solara-app-settings-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	overflow-y: auto;
+	flex: 1;
+	padding-right: 2px;
+}
+
+.solara-app-settings-tab {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	padding: 0.58rem 0.78rem;
+	border: 0;
+	border-radius: 11px;
+	background: transparent;
+	color: var(--color-secondary);
+	font-size: 0.84rem;
+	font-weight: 600;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background-color 140ms ease,
+		color 140ms ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.05);
+		color: var(--color-contrast);
+	}
+
+	&.is-active {
+		background: rgba(61, 214, 245, 0.13);
+		color: #7ee8ff;
+	}
+}
+
+.solara-tab-indicator {
+	position: absolute;
+	left: 0;
+	top: 20%;
+	bottom: 20%;
+	width: 3px;
+	border-radius: 999px;
+	background: #3dd6f5;
+	box-shadow: 0 0 10px rgba(61, 214, 245, 0.7);
+}
+
+.solara-app-settings-footer {
+	margin-top: auto;
+	padding-top: 0.85rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.solara-app-settings-stage {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	background: #000000;
+	position: relative;
+}
+
+.solara-app-settings-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1.15rem 1.5rem 0.95rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	flex-shrink: 0;
+}
+
+.solara-close-btn {
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	border: 0;
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--color-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition:
+		background-color 140ms ease,
+		color 140ms ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.11);
+		color: var(--color-contrast);
+	}
+}
+
+.solara-app-settings-content {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 1.25rem 1.5rem 1.75rem;
+}
+
+.solara-unsaved-dock {
+	padding: 0.75rem 1.25rem 1rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+	background: rgba(6, 8, 12, 0.96);
+	flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+	.solara-app-settings-body {
+		grid-template-columns: 1fr;
+	}
+
+	.solara-app-settings-sidebar {
+		border-right: 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	}
+}
+</style>

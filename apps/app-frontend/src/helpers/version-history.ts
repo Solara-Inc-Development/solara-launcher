@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.102',
+		title: 'Custom Pure-OLED Solara App Settings, Native solara:// Shortcuts & Major Upstream Cleanup',
+		date: 'November 24, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Built a 100% custom pure-#000000 OLED Solara App Settings modal with a branded left navigation sidebar, light-blue active tabs, and borderless raised cards across Java & Memory, Game Window, Launch Hooks, and Troubleshooting.',
+			'Added native solara:// deep-link handling in Rust and switched desktop instance shortcuts to solara://launch/instance while keeping external .mrpack compatibility.',
+			'Upgraded the Title Bar, Sidebar, Getting Started card, Screenshots toolbar, Project Description/Gallery pages, Export Pack modal, Error modal, and Delete Instance modal to borderless pure-OLED Solara styling.',
+		],
+		issuesFixed: [
+			'Removed over 500 unused legacy Modrinth files (blog, moderation, old library, friends, and cloud-sync modules), dead fallback URLs, and migrated launcher localStorage keys cleanly to solara-* with automatic fallback.',
+		],
+		futureUpdates: [
+			'Independent Solara Rust launcher core (packages/solara-core) replacing inherited Theseus engine module-by-module.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.101',
 		title: 'Solara Discord Rich Presence & Fixed CurseForge Downloads',
 		date: 'November 24, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Enabled native Solara Discord Rich Presence using the official Solara Launcher Discord app, Solara logo artwork, live game/modloader status, elapsed play timer, background Discord detection, and a "Get Solara Launcher" profile button.',
 			'Added a Discord Rich Presence toggle inside Settings → Appearance so you can turn Discord status sharing on or off instantly.',

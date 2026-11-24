@@ -63,70 +63,68 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
-		<section class="flex flex-col gap-4">
-			<h2 class="m-0 text-xl font-semibold text-contrast">
+	<div class="flex flex-col gap-3">
+		<section class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-3">
+			<h2 class="m-0 text-sm font-bold text-contrast">
 				{{ formatMessage(messages.javaInstallationsTitle) }}
 			</h2>
 			<JavaInstallations />
 		</section>
-		<div class="flex flex-col gap-6 border-0 border-t border-solid border-surface-5 pt-6">
-			<template v-if="settings">
-				<div class="flex flex-col gap-2.5">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.memoryAllocationTitle) }}
-					</h2>
-					<MemorySlider
-						id="max-memory"
-						v-model="settings.memory.maximum"
-						:aria-label="formatMessage(messages.memoryAllocationTitle)"
-					/>
-					<p class="m-0 mt-1 leading-tight">
-						{{ formatMessage(messages.memoryAllocationDescription) }}
-					</p>
-				</div>
-				<div class="flex flex-col gap-2.5">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.javaArgumentsTitle) }}
-					</h2>
-					<Input
-						id="java-args"
-						v-model="settings.launchArgs"
-						:aria-label="formatMessage(messages.javaArgumentsTitle)"
-						autocomplete="off"
-						type="text"
-						:placeholder="formatMessage(messages.javaArgumentsPlaceholder)"
-						wrapper-class="w-full"
-					/>
-					<p class="m-0 leading-tight">
-						{{ formatMessage(messages.javaArgumentsDescription) }}
-					</p>
-				</div>
-				<div class="flex flex-col gap-2.5">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.environmentVariablesTitle) }}
-					</h2>
-					<Input
-						id="env-vars"
-						v-model="settings.envVars"
-						:aria-label="formatMessage(messages.environmentVariablesTitle)"
-						autocomplete="off"
-						type="text"
-						:placeholder="formatMessage(messages.environmentVariablesPlaceholder)"
-						wrapper-class="w-full"
-					/>
-					<p class="m-0 leading-tight">
-						{{ formatMessage(messages.environmentVariablesDescription) }}
-					</p>
-				</div>
-			</template>
-			<Button v-else-if="settingsQuery.isError.value" @click="settingsQuery.refetch()">
-				{{ formatMessage(commonMessages.refreshButton) }}
-			</Button>
-			<div v-else class="flex items-center gap-2 text-secondary">
-				<SpinnerIcon class="size-5 animate-spin" aria-hidden="true" />
-				{{ formatMessage(commonMessages.loadingLabel) }}
+		<template v-if="settings">
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.memoryAllocationTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.memoryAllocationDescription) }}
+				</p>
+				<MemorySlider
+					id="max-memory"
+					v-model="settings.memory.maximum"
+					:aria-label="formatMessage(messages.memoryAllocationTitle)"
+				/>
 			</div>
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.javaArgumentsTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.javaArgumentsDescription) }}
+				</p>
+				<Input
+					id="java-args"
+					v-model="settings.launchArgs"
+					:aria-label="formatMessage(messages.javaArgumentsTitle)"
+					autocomplete="off"
+					type="text"
+					:placeholder="formatMessage(messages.javaArgumentsPlaceholder)"
+					wrapper-class="w-full"
+				/>
+			</div>
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.environmentVariablesTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.environmentVariablesDescription) }}
+				</p>
+				<Input
+					id="env-vars"
+					v-model="settings.envVars"
+					:aria-label="formatMessage(messages.environmentVariablesTitle)"
+					autocomplete="off"
+					type="text"
+					:placeholder="formatMessage(messages.environmentVariablesPlaceholder)"
+					wrapper-class="w-full"
+				/>
+			</div>
+		</template>
+		<Button v-else-if="settingsQuery.isError.value" @click="settingsQuery.refetch()">
+			{{ formatMessage(commonMessages.refreshButton) }}
+		</Button>
+		<div v-else class="flex items-center gap-2 text-secondary">
+			<SpinnerIcon class="size-5 animate-spin" aria-hidden="true" />
+			{{ formatMessage(commonMessages.loadingLabel) }}
 		</div>
 	</div>
 </template>

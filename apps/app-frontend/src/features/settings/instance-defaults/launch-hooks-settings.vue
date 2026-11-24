@@ -80,12 +80,15 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-3">
 		<template v-if="settings">
-			<div class="flex flex-col gap-2.5">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
 					{{ formatMessage(messages.preLaunchHookTitle) }}
 				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.preLaunchHookDescription) }}
+				</p>
 				<Input
 					id="pre-launch"
 					v-model="settings.hooks.pre_launch"
@@ -95,14 +98,14 @@ const messages = defineMessages({
 					:placeholder="formatMessage(messages.preLaunchHookPlaceholder)"
 					wrapper-class="w-full"
 				/>
-				<p class="m-0 leading-tight">
-					{{ formatMessage(messages.preLaunchHookDescription) }}
-				</p>
 			</div>
-			<div class="flex flex-col gap-2.5">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
 					{{ formatMessage(messages.wrapperHookTitle) }}
 				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.wrapperHookDescription) }}
+				</p>
 				<Input
 					id="wrapper"
 					v-model="settings.hooks.wrapper"
@@ -112,14 +115,14 @@ const messages = defineMessages({
 					:placeholder="formatMessage(messages.wrapperHookPlaceholder)"
 					wrapper-class="w-full"
 				/>
-				<p class="m-0 leading-tight">
-					{{ formatMessage(messages.wrapperHookDescription) }}
-				</p>
 			</div>
-			<div class="flex flex-col gap-2.5">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-2">
+				<h2 class="m-0 text-sm font-bold text-contrast">
 					{{ formatMessage(messages.postExitHookTitle) }}
 				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.postExitHookDescription) }}
+				</p>
 				<Input
 					id="post-exit"
 					v-model="settings.hooks.post_exit"
@@ -129,13 +132,12 @@ const messages = defineMessages({
 					:placeholder="formatMessage(messages.postExitHookPlaceholder)"
 					wrapper-class="w-full"
 				/>
-				<p class="m-0 leading-tight">
-					{{ formatMessage(messages.postExitHookDescription) }}
-				</p>
 			</div>
-			<div class="m-0 leading-tight">
-				{{ formatMessage(messages.hookVariablesDescription) }}
-				<ul>
+			<div class="rounded-2xl bg-bg-raised p-4 text-xs text-secondary leading-relaxed">
+				<p class="m-0 font-semibold text-contrast mb-2">
+					{{ formatMessage(messages.hookVariablesDescription) }}
+				</p>
+				<ul class="m-0 pl-4 space-y-1 font-mono text-[11px]">
 					<li>{{ formatMessage(messages.instanceNameDescription) }}</li>
 					<li>{{ formatMessage(messages.instanceIdDescription) }}</li>
 					<li>{{ formatMessage(messages.instanceDirDescription) }}</li>

@@ -1,6 +1,7 @@
 import { readonly, ref } from 'vue'
 
-const STORAGE_KEY = 'modrinth-quick-instance-count'
+const STORAGE_KEY = 'solara-quick-instance-count'
+const LEGACY_STORAGE_KEY = 'modrinth-quick-instance-count'
 
 export const QUICK_INSTANCE_LIMIT_MAX = 20
 
@@ -10,7 +11,8 @@ function normalizeLimit(limit: number | null): number | null {
 	return rounded >= QUICK_INSTANCE_LIMIT_MAX ? null : rounded
 }
 
-const storedLimit = localStorage.getItem(STORAGE_KEY)
+const storedLimit =
+	localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
 const quickInstanceLimit = ref(normalizeLimit(storedLimit === null ? null : Number(storedLimit)))
 
 function setQuickInstanceLimit(limit: number | null): void {

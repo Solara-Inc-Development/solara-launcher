@@ -1,1 +1,0 @@
-    - [Consent model](%DISCLOSURES_FAQ_TELEMETRY_CONSENT_LINK%): Opt In.

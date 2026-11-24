@@ -62,31 +62,6 @@ const messages = defineMessages({
 		id: 'app.settings.resource-management.debug-info.export',
 		defaultMessage: 'Export debug info',
 	},
-	reportAdTitle: {
-		id: 'app.settings.troubleshooting.report-ad.title',
-		defaultMessage: 'Report an ad',
-	},
-	reportAdDescription: {
-		id: 'app.settings.troubleshooting.report-ad.description',
-		defaultMessage:
-			"Seen an inappropriate or offensive ad? Copy its details while it's showing and send them to <support>Solara Support</support>. We'll review it and remove it.",
-	},
-	copyAdDetails: {
-		id: 'app.settings.troubleshooting.report-ad.copy',
-		defaultMessage: 'Copy ad details',
-	},
-	copiedAdDetails: {
-		id: 'app.settings.troubleshooting.report-ad.copied',
-		defaultMessage: 'Copied',
-	},
-	noAdLoadedTitle: {
-		id: 'app.settings.troubleshooting.report-ad.no-ad.title',
-		defaultMessage: 'No ad found',
-	},
-	noAdLoadedText: {
-		id: 'app.settings.troubleshooting.report-ad.no-ad.text',
-		defaultMessage: 'Wait for the ad to load, then try again.',
-	},
 	appCacheTitle: {
 		id: 'app.settings.resource-management.app-cache.title',
 		defaultMessage: 'App cache',
@@ -174,47 +149,57 @@ async function handleExportDebugInfo() {
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
-		<div class="flex flex-col gap-2.5">
-			<ConfirmModalWrapper
-				ref="clearCacheConfirmModal"
-				:title="formatMessage(messages.clearCacheConfirmTitle)"
-				:description="formatMessage(messages.clearCacheConfirmDescription)"
-				:has-to-type="false"
-				:proceed-label="formatMessage(messages.clearCache)"
-				:show-ad-on-close="false"
-				@proceed="clearCache"
-			/>
-			<h2 class="m-0 text-lg font-semibold text-contrast">
-				{{ formatMessage(messages.appCacheTitle) }}
-			</h2>
-			<Button id="clear-cache" class="w-fit" @click="handleClearCacheClick">
+	<div class="flex flex-col gap-3">
+		<ConfirmModalWrapper
+			ref="clearCacheConfirmModal"
+			:title="formatMessage(messages.clearCacheConfirmTitle)"
+			:description="formatMessage(messages.clearCacheConfirmDescription)"
+			:has-to-type="false"
+			:proceed-label="formatMessage(messages.clearCache)"
+			:show-ad-on-close="false"
+			@proceed="clearCache"
+		/>
+		<div class="rounded-2xl bg-bg-raised p-4 flex items-center justify-between gap-4">
+			<div class="flex flex-col gap-1 min-w-0">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.appCacheTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.appCacheDescription) }}
+				</p>
+			</div>
+			<Button id="clear-cache" class="shrink-0" @click="handleClearCacheClick">
 				<TrashIcon aria-hidden="true" />
 				{{ formatMessage(messages.clearCache) }}
 			</Button>
-			<p class="m-0 leading-tight text-secondary">
-				{{ formatMessage(messages.appCacheDescription) }}
-			</p>
 		</div>
-		<div class="flex flex-col gap-2.5">
-			<h2 class="m-0 text-lg font-semibold text-contrast">
-				{{ formatMessage(messages.appDatabaseBackupsTitle) }}
-			</h2>
-			<Button id="open-db-backups-folder" class="w-fit" @click="openDbBackupsFolder">
+		<div class="rounded-2xl bg-bg-raised p-4 flex items-center justify-between gap-4">
+			<div class="flex flex-col gap-1 min-w-0">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.appDatabaseBackupsTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.appDatabaseBackupsDescription) }}
+				</p>
+			</div>
+			<Button id="open-db-backups-folder" class="shrink-0" @click="openDbBackupsFolder">
 				<FolderOpenIcon aria-hidden="true" />
 				{{ formatMessage(messages.openBackupsFolder) }}
 			</Button>
-			<p class="m-0 leading-tight text-secondary">
-				{{ formatMessage(messages.appDatabaseBackupsDescription) }}
-			</p>
 		</div>
-		<div class="flex flex-col gap-2.5">
-			<h2 class="m-0 text-lg font-semibold text-contrast">
-				{{ formatMessage(messages.debugInfoTitle) }}
-			</h2>
+		<div class="rounded-2xl bg-bg-raised p-4 flex items-center justify-between gap-4">
+			<div class="flex flex-col gap-1 min-w-0">
+				<h2 class="m-0 text-sm font-bold text-contrast">
+					{{ formatMessage(messages.debugInfoTitle) }}
+				</h2>
+				<p class="m-0 text-xs text-secondary leading-relaxed">
+					{{ formatMessage(messages.debugInfoDescription) }}
+				</p>
+			</div>
 			<Button
 				id="export-debug-info"
-				class="w-fit"
+				color="brand"
+				class="shrink-0"
 				:disabled="exportingDebugInfo"
 				:loading="exportingDebugInfo"
 				@click="handleExportDebugInfo"
@@ -227,16 +212,13 @@ async function handleExportDebugInfo() {
 				<DownloadIcon v-else aria-hidden="true" />
 				{{ formatMessage(messages.exportDebugInfo) }}
 			</Button>
-			<p class="m-0 leading-tight text-secondary">
-				{{ formatMessage(messages.debugInfoDescription) }}
-			</p>
 		</div>
-		<div class="flex items-center justify-between gap-4">
-			<div>
-				<h2 class="m-0 text-lg font-semibold text-contrast">
+		<div class="rounded-2xl bg-bg-raised p-4 flex items-center justify-between gap-4">
+			<div class="flex flex-col gap-1 min-w-0">
+				<h2 class="m-0 text-sm font-bold text-contrast">
 					{{ formatMessage(messages.alwaysShowCopyDetailsTitle) }}
 				</h2>
-				<p class="m-0 mt-1">
+				<p class="m-0 text-xs text-secondary leading-relaxed">
 					{{ formatMessage(messages.alwaysShowCopyDetailsDescription) }}
 				</p>
 			</div>

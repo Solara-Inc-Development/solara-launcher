@@ -1,18 +1,24 @@
 <template>
 	<div class="gallery">
-		<Card v-for="(image, index) in filteredGallery" :key="image.url" class="gallery-item">
-			<a @click="expandImage(image, index)">
-				<img :src="image.url" :alt="image.title" class="gallery-image" />
+		<div
+			v-for="(image, index) in filteredGallery"
+			:key="image.url"
+			class="gallery-item rounded-2xl bg-bg-raised transition-transform duration-150 hover:-translate-y-0.5"
+		>
+			<a class="block cursor-pointer overflow-hidden" @click="expandImage(image, index)">
+				<img :src="image.url" :alt="image.title" class="gallery-image transition-transform duration-200 hover:scale-[1.02]" />
 			</a>
 			<div class="gallery-body">
-				<h3>{{ image.title }}</h3>
-				{{ image.description }}
+				<h3 class="m-0 mb-1 text-sm font-bold text-contrast">{{ image.title }}</h3>
+				<p v-if="image.description" class="m-0 text-xs text-secondary leading-relaxed">
+					{{ image.description }}
+				</p>
 			</div>
-			<span class="gallery-time">
-				<CalendarIcon />
+			<span class="gallery-time flex items-center gap-1.5 text-xs text-secondary/80">
+				<CalendarIcon class="size-3.5 text-brand" />
 				{{ formatDate(new Date(image.created)) }}
 			</span>
-		</Card>
+		</div>
 	</div>
 	<ImageViewerEditor
 		ref="galleryViewer"
@@ -35,7 +41,7 @@
 
 <script setup>
 import { CalendarIcon, ExternalIcon } from '@modrinth/assets'
-import { Button, Card, ImageViewerEditor, useFormatDateTime } from '@modrinth/ui'
+import { Button, ImageViewerEditor, useFormatDateTime } from '@modrinth/ui'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { computed, ref } from 'vue'
 

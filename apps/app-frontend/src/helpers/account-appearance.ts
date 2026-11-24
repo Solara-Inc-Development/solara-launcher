@@ -1,8 +1,13 @@
-const STORAGE_KEY = 'modrinth-account-appearances'
+const STORAGE_KEY = 'solara-account-appearances'
+const LEGACY_STORAGE_KEY = 'modrinth-account-appearances'
 
 function readCache(): Record<string, { auto: boolean; theme: string }> {
 	try {
-		const parsed = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '')
+		const parsed = JSON.parse(
+			window.localStorage.getItem(STORAGE_KEY) ??
+				window.localStorage.getItem(LEGACY_STORAGE_KEY) ??
+				'',
+		)
 		if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
 		return parsed
 	} catch {

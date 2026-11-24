@@ -1,1 +1,0 @@
-- We understand you may not want to spoil some of the details of your projects contents, you can put important details in a spoiler!</br>

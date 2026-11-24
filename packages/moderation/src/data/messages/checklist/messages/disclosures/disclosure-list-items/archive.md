@@ -1,1 +1,0 @@
-- [Archive Project](%DISCLOSURES_FAQ_ARCHIVE_LINK%).

@@ -2,7 +2,8 @@ import { computed, ref } from 'vue'
 
 export const APP_UPDATE_POPUP_DELAY_MS = 24 * 60 * 60 * 1000
 
-const UPDATE_PROMPT_STORAGE_KEY = 'modrinth-app-update-prompt-state'
+const UPDATE_PROMPT_STORAGE_KEY = 'solara-app-update-prompt-state'
+const LEGACY_UPDATE_PROMPT_STORAGE_KEY = 'modrinth-app-update-prompt-state'
 
 export interface AppUpdate {
 	rid: number
@@ -67,7 +68,9 @@ export const appUpdateState = {
 
 function readPromptState(): UpdatePromptState | null {
 	try {
-		const raw = localStorage.getItem(UPDATE_PROMPT_STORAGE_KEY)
+		const raw =
+			localStorage.getItem(UPDATE_PROMPT_STORAGE_KEY) ??
+			localStorage.getItem(LEGACY_UPDATE_PROMPT_STORAGE_KEY)
 		if (!raw) {
 			return null
 		}

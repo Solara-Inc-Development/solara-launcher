@@ -71,7 +71,8 @@ const gameVersions = computed(() => gameVersionsQuery.data.value ?? [])
 const MAX_JUMP_BACK_IN = 5
 const MAX_NEW_INSTANCES = 3
 const ROW_DRAG_DISTANCE = 92
-const STORAGE_KEY = 'modrinth-jump-back-in-count'
+const STORAGE_KEY = 'solara-jump-back-in-count'
+const LEGACY_STORAGE_KEY = 'modrinth-jump-back-in-count'
 
 const itemsGrid = ref<HTMLElement>()
 const columnCount = ref(1)
@@ -80,7 +81,10 @@ useResizeObserver(itemsGrid, () => {
 	columnCount.value = getComputedStyle(itemsGrid.value).gridTemplateColumns.split(' ').length
 })
 
-const storedVisibleCount = Number.parseInt(localStorage.getItem(STORAGE_KEY) ?? '', 10)
+const storedVisibleCount = Number.parseInt(
+	localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY) ?? '',
+	10,
+)
 const visibleItemLimit = ref(
 	Number.isFinite(storedVisibleCount)
 		? Math.max(1, Math.min(storedVisibleCount, MAX_JUMP_BACK_IN))

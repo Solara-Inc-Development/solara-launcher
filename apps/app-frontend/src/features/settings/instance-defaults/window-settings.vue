@@ -58,14 +58,14 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-3">
 		<template v-if="settings">
-			<div class="flex items-center justify-between gap-4">
+			<div class="rounded-2xl bg-bg-raised p-4 flex items-center justify-between gap-4">
 				<div class="flex flex-col gap-1">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
+					<h2 class="m-0 text-sm font-bold text-contrast">
 						{{ formatMessage(messages.fullscreenTitle) }}
 					</h2>
-					<p class="m-0 leading-tight">
+					<p class="m-0 text-xs text-secondary leading-relaxed">
 						{{ formatMessage(messages.fullscreenDescription) }}
 					</p>
 				</div>
@@ -75,43 +75,46 @@ const messages = defineMessages({
 					:aria-label="formatMessage(messages.fullscreenTitle)"
 				/>
 			</div>
-			<div class="flex items-center justify-between gap-4">
-				<div class="flex flex-col gap-1">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.widthTitle) }}
-					</h2>
-					<p class="m-0 leading-tight">
-						{{ formatMessage(messages.widthDescription) }}
-					</p>
+			<div class="rounded-2xl bg-bg-raised p-4 flex flex-col gap-4">
+				<div class="flex items-center justify-between gap-4">
+					<div class="flex flex-col gap-1">
+						<h2 class="m-0 text-sm font-bold text-contrast">
+							{{ formatMessage(messages.widthTitle) }}
+						</h2>
+						<p class="m-0 text-xs text-secondary leading-relaxed">
+							{{ formatMessage(messages.widthDescription) }}
+						</p>
+					</div>
+					<Input
+						id="width"
+						v-model="settings.game_resolution[0]"
+						:aria-label="formatMessage(messages.widthTitle)"
+						:disabled="settings.force_fullscreen"
+						autocomplete="off"
+						type="number"
+						:placeholder="formatMessage(messages.widthPlaceholder)"
+					/>
 				</div>
-				<Input
-					id="width"
-					v-model="settings.game_resolution[0]"
-					:aria-label="formatMessage(messages.widthTitle)"
-					:disabled="settings.force_fullscreen"
-					autocomplete="off"
-					type="number"
-					:placeholder="formatMessage(messages.widthPlaceholder)"
-				/>
-			</div>
-			<div class="flex items-center justify-between gap-4">
-				<div class="flex flex-col gap-1">
-					<h2 class="m-0 text-lg font-semibold text-contrast">
-						{{ formatMessage(messages.heightTitle) }}
-					</h2>
-					<p class="m-0 leading-tight">
-						{{ formatMessage(messages.heightDescription) }}
-					</p>
+				<div class="h-px bg-white/5" />
+				<div class="flex items-center justify-between gap-4">
+					<div class="flex flex-col gap-1">
+						<h2 class="m-0 text-sm font-bold text-contrast">
+							{{ formatMessage(messages.heightTitle) }}
+						</h2>
+						<p class="m-0 text-xs text-secondary leading-relaxed">
+							{{ formatMessage(messages.heightDescription) }}
+						</p>
+					</div>
+					<Input
+						id="height"
+						v-model="settings.game_resolution[1]"
+						:aria-label="formatMessage(messages.heightTitle)"
+						:disabled="settings.force_fullscreen"
+						autocomplete="off"
+						type="number"
+						:placeholder="formatMessage(messages.heightPlaceholder)"
+					/>
 				</div>
-				<Input
-					id="height"
-					v-model="settings.game_resolution[1]"
-					:aria-label="formatMessage(messages.heightTitle)"
-					:disabled="settings.force_fullscreen"
-					autocomplete="off"
-					type="number"
-					:placeholder="formatMessage(messages.heightPlaceholder)"
-				/>
 			</div>
 		</template>
 		<Button v-else-if="settingsQuery.isError.value" @click="settingsQuery.refetch()">

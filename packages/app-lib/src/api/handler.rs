@@ -129,9 +129,12 @@ pub async fn parse_command(
 ) -> crate::Result<CommandPayload> {
     tracing::debug!("Parsing external command");
 
-    // modrinth://some-command
-    // This occurs when following a web redirect link
-    if let Some(sublink) = command_string.strip_prefix("modrinth://") {
+    // solara://some-command (primary) or modrinth://some-command (compatibility fallback)
+    // This occurs when launching desktop shortcuts or following web redirect links
+    if let Some(sublink) = command_string
+        .strip_prefix("solara://")
+        .or_else(|| command_string.strip_prefix("modrinth://"))
+    {
         Ok(handle_url(sublink).await?)
     } else {
         // We assume anything else is a filepath to an .mrpack file

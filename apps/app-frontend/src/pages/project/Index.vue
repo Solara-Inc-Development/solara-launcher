@@ -3,7 +3,7 @@
 		<div class="flex flex-col gap-4 p-6">
 			<div
 				v-if="projectInstallContext"
-				class="sticky top-0 z-20 -mx-6 -mt-6 rounded-tl-[--radius-xl] border-0 border-b border-solid bg-surface-1 px-6 py-4 border-surface-5"
+				class="sticky top-0 z-20 -mx-6 -mt-6 rounded-tl-[--radius-xl] border-0 border-b border-solid bg-[#000000]/95 backdrop-blur-md px-6 py-4 border-white/[0.06]"
 			>
 				<BrowseInstallHeader :install-context="projectHeaderInstallContext" />
 			</div>
@@ -1160,7 +1160,7 @@ const copyProjectLink = (project) => navigator.clipboard.writeText(getProjectLin
 }
 
 .project-inline-sidebar {
-	background: color-mix(in srgb, var(--surface-3) 82%, transparent);
+	background: var(--color-raised-bg);
 }
 
 .project-sidebar-section {
@@ -1169,7 +1169,7 @@ const copyProjectLink = (project) => navigator.clipboard.writeText(getProjectLin
 	flex-direction: column;
 	gap: 0.5rem;
 	border: 0;
-	border-bottom: 1px solid color-mix(in srgb, var(--surface-5) 55%, transparent);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
 	&:last-child {
 		border-bottom: 0;

@@ -1,1 +1,0 @@
-- [Telemetry](%DISCLOSURES_FAQ_TELEMETRY_LINK%).

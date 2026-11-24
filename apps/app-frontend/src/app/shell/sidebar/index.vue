@@ -69,10 +69,7 @@ const messages = defineMessages({
 
 <template>
 	<div
-		class="app-sidebar mt-px relative flex h-[calc(100vh-var(--top-bar-height))] w-[300px] shrink-0 flex-col overflow-visible border-0 border-l-[1px] border-solid border-[--brand-gradient-border] before:pointer-events-none before:absolute before:inset-y-0 before:-left-8 before:w-8 before:content-['']"
-		:class="{
-			'before:shadow-[-15px_0_15px_-15px_rgba(0,0,0,0.1)_inset]': appTheme.advancedRendering,
-		}"
+		class="app-sidebar mt-px relative flex h-[calc(100vh-var(--top-bar-height))] w-[300px] shrink-0 flex-col overflow-visible border-0 border-l-[1px] border-solid border-white/[0.06]"
 	>
 		<div class="relative flex min-h-0 grow shrink flex-col">
 			<div
@@ -90,15 +87,15 @@ const messages = defineMessages({
 					class="sidebar-teleport-content empty:hidden"
 				></div>
 				<div class="sidebar-default-content hidden" :class="{ 'sidebar-enabled': visible }">
-					<div
-						class="p-4 border-0 border-b-[1px] border-[--brand-gradient-border] border-solid"
-					>
-						<h3 class="text-base text-primary font-medium m-0">
-							{{ formatMessage(messages.playingAs) }}
-						</h3>
-						<Suspense>
-							<AccountsCard ref="accounts" />
-						</Suspense>
+					<div class="p-3.5">
+						<div class="rounded-2xl bg-bg-raised p-3.5 flex flex-col gap-2">
+							<h3 class="text-[11px] uppercase tracking-[0.12em] text-brand font-bold m-0">
+								{{ formatMessage(messages.playingAs) }}
+							</h3>
+							<Suspense>
+								<AccountsCard ref="accounts" />
+							</Suspense>
+						</div>
 					</div>
 					<NewsSidebar />
 				</div>
@@ -119,13 +116,7 @@ const messages = defineMessages({
 
 <style scoped>
 .app-sidebar {
-	background: var(--brand-gradient-bg);
-	--color-button-bg: var(--brand-gradient-button);
-	--surface-4: var(--brand-gradient-button);
-	--color-button-bg-hover: var(--brand-gradient-border);
-	--surface-5: var(--brand-gradient-border);
-	--color-divider: var(--brand-gradient-border);
-	--color-divider-dark: var(--brand-gradient-border);
+	background: #000000;
 }
 
 .sidebar-teleport-content:empty + .sidebar-default-content.sidebar-enabled {
@@ -133,6 +124,6 @@ const messages = defineMessages({
 }
 
 .sidebar-scroll-fade {
-	background: var(--brand-gradient-fade-out-color);
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.92));
 }
 </style>

@@ -42,10 +42,16 @@
 </template>
 
 <script setup lang="ts">
-import type { VersionEntry } from '@modrinth/blog/changelog'
 import { renderHighlightedString } from '@modrinth/utils'
 import dayjs from 'dayjs'
 import { computed, ref } from 'vue'
+
+type VersionEntry = {
+	date: dayjs.Dayjs
+	product: 'web' | 'hosting' | 'app'
+	version?: string
+	body: string
+}
 
 import { useFormatDateTime, useRelativeTime } from '../../composables'
 import { defineMessages, useVIntl } from '../../composables/i18n'

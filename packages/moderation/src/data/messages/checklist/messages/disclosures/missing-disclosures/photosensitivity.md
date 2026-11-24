@@ -1,1 +1,0 @@
-- Content that [may be dangerous to users with photosensitive epilepsy](%DISCLOSURES_FAQ_PHOTOSENSITIVITY_LINK%).

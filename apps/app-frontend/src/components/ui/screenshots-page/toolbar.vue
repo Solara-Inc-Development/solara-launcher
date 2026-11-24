@@ -32,7 +32,7 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-2">
+	<div class="rounded-2xl bg-bg-raised p-3.5 flex flex-col gap-2.5">
 		<div class="flex flex-wrap gap-2">
 			<Input
 				v-model="search"
@@ -42,7 +42,7 @@ const messages = defineMessages({
 				clearable
 				wrapper-class="min-w-[16rem] flex-1"
 			/>
-			<Button @click="emit('new-group')">
+			<Button color="brand" @click="emit('new-group')">
 				<SquarePlusIcon />
 				{{ formatMessage(messages.newGroup) }}
 			</Button>
@@ -57,7 +57,7 @@ const messages = defineMessages({
 			>
 				<template #prefix>
 					<ArrowUpDownIcon
-						class="size-5 text-primary"
+						class="size-4 text-brand"
 						:aria-label="formatMessage(messages.sortBy)"
 					/>
 				</template>
@@ -74,7 +74,7 @@ const messages = defineMessages({
 			>
 				<template #prefix>
 					<LayoutGridIcon
-						class="size-5 text-primary"
+						class="size-4 text-brand"
 						:aria-label="formatMessage(messages.groupBy)"
 					/>
 				</template>
