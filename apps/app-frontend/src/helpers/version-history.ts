@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.104',
+		title: 'Sleek Floating Solara Glass Dock & Minimal Pure-OLED Top Bar',
+		date: 'November 24, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Replaced the wide text sidebar with a sleek compact floating Solara glass dock (72px rail, rounded 22px frosted dock, 42px squircle icons with glowing cyan active pills and micro left glow pip) so your games, modpacks, and skins get maximum screen space.',
+			'Upgraded Recent Instances in the floating dock to crisp rounded-squircle icons with live pulsing cyan running dots and full right-click Play/Stop/Open Folder menus.',
+			'Simplified the Top Title Bar to a clean pure-OLED minimal bar with Solara Launcher branding, a frosted pill Back/Forward capsule, airy breadcrumbs, dark glass status pill, and flush rounded window controls.',
+		],
+		issuesFixed: [
+			'Restored spacious wide layout across Home, Library, Modpacks, Skins, and Instance pages while keeping a clean futuristic Solara identity distinct from Modrinth.',
+		],
+		futureUpdates: [
+			'Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.103',
 		title: 'Custom Solara Labeled Sidebar, Top Command Title Bar & Independent solara-core Foundation',
 		date: 'November 24, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Replaced the narrow Modrinth-style icon strip and curved L-frame cutout with a sleek labeled pure-OLED Solara Left Sidebar featuring glowing light-blue active indicators, named Recent Instances pills with live running dots, and a pinned + New Instance & Settings action dock.',
 			'Redesigned the Top Title Bar with a 2px Solara cyan-to-gold micro-accent hairline, aligned Solara Launcher crest badge, pill Back/Forward navigation capsule, frosted pill breadcrumbs, borderless status pill, and flush frameless window controls.',

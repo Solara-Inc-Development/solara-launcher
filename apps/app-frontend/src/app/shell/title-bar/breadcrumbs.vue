@@ -15,7 +15,7 @@
 			v-if="breadcrumbs.length > 0"
 			ref="innerRef"
 			data-tauri-drag-region
-			class="solara-breadcrumb-pill flex w-fit items-center gap-1.5 rounded-full px-3 py-1"
+			class="flex w-fit items-center gap-1.5 pr-4"
 			:class="{ 'breadcrumbs-scroll': isAnimating }"
 			@animationiteration="onAnimationIteration"
 		>
@@ -24,7 +24,7 @@
 					:is="index < breadcrumbs.length - 1 && breadcrumb.to ? RouterLink : 'span'"
 					v-bind="index < breadcrumbs.length - 1 && breadcrumb.to ? { to: breadcrumb.to } : {}"
 					:data-tauri-drag-region="index === breadcrumbs.length - 1 ? '' : undefined"
-					class="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-semibold leading-5 no-underline transition-colors"
+					class="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold leading-5 no-underline transition-colors"
 					:class="
 						index === breadcrumbs.length - 1
 							? 'cursor-default select-none text-contrast'
@@ -38,16 +38,16 @@
 						:alt="breadcrumb.visual.alt ?? breadcrumb.label"
 						:circle="breadcrumb.visual.circle"
 						:tint-by="breadcrumb.visual.tintBy ?? breadcrumb.id"
-						size="16px"
+						size="18px"
 						no-shadow
 						raised
 						class="inline-block shrink-0 align-middle"
-						:class="{ '!rounded': !breadcrumb.visual.circle }"
+						:class="{ '!rounded-md': !breadcrumb.visual.circle }"
 					/>
 					<component
 						:is="breadcrumb.visual.component"
 						v-else-if="breadcrumb.visual?.type === 'icon'"
-						class="size-3.5 shrink-0"
+						class="size-4 shrink-0"
 						:class="index === breadcrumbs.length - 1 ? 'text-brand' : 'text-secondary'"
 						aria-hidden="true"
 					/>
@@ -56,7 +56,7 @@
 				<span
 					v-if="index < breadcrumbs.length - 1"
 					data-tauri-drag-region
-					class="text-[11px] font-bold text-secondary/45 select-none px-0.5"
+					class="text-xs font-bold text-secondary/40 select-none px-0.5"
 					aria-hidden="true"
 				>
 					/

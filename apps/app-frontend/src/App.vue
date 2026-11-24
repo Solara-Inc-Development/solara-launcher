@@ -1872,66 +1872,63 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<UnknownPackWarningModal ref="unknownPackWarningModal" />
 		<InstanceActionModals ref="instanceActionModals" />
 		<SharedInstanceModals ref="sharedInstanceModals" />
-		<aside
-			class="app-grid-navbar solara-left-sidebar flex flex-col px-2.5 pt-3 pb-3 gap-1 w-[--left-bar-width]"
-		>
-			<div class="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary/65 select-none">
-				Menu
+		<aside class="app-grid-navbar solara-dock-rail flex items-stretch justify-center px-2 pt-1.5 pb-2.5 w-[--left-bar-width]">
+			<div class="solara-floating-dock flex flex-col items-center py-2.5 px-1.5 gap-1.5 w-full min-h-0">
+				<NavButton
+					v-tooltip.right="formatMessage(messages.home)"
+					to="/"
+					:is-primary="(route) => route.path === '/'"
+					:is-subpage="
+						() =>
+							(route.path.startsWith('/browse') || route.path.startsWith('/project')) && route.query.i
+					"
+				>
+					<HomeIcon />
+				</NavButton>
+				<NavButton
+					v-tooltip.right="'Modpacks'"
+					to="/browse/modpack"
+					:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
+					:is-subpage="
+						(route) => route.path.startsWith('/project') && !route.query.i && !route.query.sid
+					"
+				>
+					<PackageIcon />
+				</NavButton>
+				<NavButton
+					v-if="appSettings.showSkinSelectorInSidebar"
+					v-tooltip.right="'Skin Studio'"
+					to="/skins"
+				>
+					<PaletteIcon />
+				</NavButton>
+				<NavButton
+					v-tooltip.right="'Library'"
+					to="/library"
+					:is-primary="(r) => r.path === '/library'"
+					:is-subpage="(r) => r.path.startsWith('/instance/')"
+				>
+					<LibraryIcon />
+				</NavButton>
+				<suspense>
+					<QuickInstanceSwitcher>
+						<NavButton
+							v-tooltip.right="formatMessage(messages.createNewInstance)"
+							variant="primary"
+							:to="() => installationModal?.show()"
+							:disabled="offline"
+						>
+							<PlusIcon />
+						</NavButton>
+						<NavButton
+							v-tooltip.right="formatMessage(commonMessages.settingsLabel)"
+							:to="settingsActions.openSettings"
+						>
+							<SettingsIcon />
+						</NavButton>
+					</QuickInstanceSwitcher>
+				</suspense>
 			</div>
-			<NavButton
-				to="/"
-				:is-primary="(route) => route.path === '/'"
-				:is-subpage="
-					() =>
-						(route.path.startsWith('/browse') || route.path.startsWith('/project')) && route.query.i
-				"
-			>
-				<HomeIcon />
-				<span class="truncate">{{ formatMessage(messages.home) }}</span>
-			</NavButton>
-			<NavButton
-				to="/browse/modpack"
-				:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
-				:is-subpage="
-					(route) => route.path.startsWith('/project') && !route.query.i && !route.query.sid
-				"
-			>
-				<PackageIcon />
-				<span class="truncate">Modpacks</span>
-			</NavButton>
-			<NavButton
-				v-if="appSettings.showSkinSelectorInSidebar"
-				to="/skins"
-			>
-				<PaletteIcon />
-				<span class="truncate">Skin Studio</span>
-			</NavButton>
-			<NavButton
-				to="/library"
-				:is-primary="(r) => r.path === '/library'"
-				:is-subpage="(r) => r.path.startsWith('/instance/')"
-			>
-				<LibraryIcon />
-				<span class="truncate">Library</span>
-			</NavButton>
-			<suspense>
-				<QuickInstanceSwitcher>
-					<NavButton
-						variant="primary"
-						:to="() => installationModal?.show()"
-						:disabled="offline"
-					>
-						<PlusIcon />
-						<span class="truncate">New Instance</span>
-					</NavButton>
-					<NavButton
-						:to="settingsActions.openSettings"
-					>
-						<SettingsIcon />
-						<span class="truncate">{{ formatMessage(commonMessages.settingsLabel) }}</span>
-					</NavButton>
-				</QuickInstanceSwitcher>
-			</suspense>
 		</aside>
 		<AppTitleBar
 			:can-navigate-back="canNavigateBack"
@@ -2068,8 +2065,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 <style lang="scss" scoped>
 .app-grid-layout,
 .app-contents {
-	--top-bar-height: 3.25rem;
-	--left-bar-width: 13.5rem;
+	--top-bar-height: 3rem;
+	--left-bar-width: 4.5rem;
 	--right-bar-width: 0px;
 }
 
@@ -2094,14 +2091,23 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	}
 }
 
-.solara-left-sidebar {
-	background: #05070b;
-	border-right: 1px solid rgba(255, 255, 255, 0.06);
+.solara-dock-rail {
+	background: var(--color-bg);
 }
 
-:global(.light-mode) .solara-left-sidebar {
-	background: var(--color-raised-bg);
-	border-right: 1px solid rgba(15, 23, 42, 0.08);
+.solara-floating-dock {
+	background: #0a0e16;
+	border: 1px solid rgba(255, 255, 255, 0.075);
+	border-radius: 22px;
+	box-shadow:
+		0 10px 30px rgba(0, 0, 0, 0.55),
+		inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+:global(.light-mode) .solara-floating-dock {
+	background: #ffffff;
+	border: 1px solid rgba(15, 23, 42, 0.08);
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 [data-tauri-drag-region-exclude] {
@@ -2144,13 +2150,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	overflow: auto;
 	overflow-x: hidden;
 	scrollbar-gutter: stable;
-}
-
-@media (max-width: 900px) {
-	.app-grid-layout,
-	.app-contents {
-		--left-bar-width: 11.5rem;
-	}
 }
 
 @media (prefers-reduced-motion: no-preference) {

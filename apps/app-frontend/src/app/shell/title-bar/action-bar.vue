@@ -128,15 +128,18 @@
 
 <style scoped>
 .solara-status-pill {
-	background: rgba(255, 255, 255, 0.05);
+	background: #0a0e16;
+	border: 1px solid rgba(255, 255, 255, 0.075);
 }
 
 .solara-status-pill:hover {
-	background: rgba(255, 255, 255, 0.085);
+	background: #121826;
+	border-color: rgba(61, 214, 245, 0.25);
 }
 
 :global(.light-mode) .solara-status-pill {
-	background: rgba(15, 23, 42, 0.06);
+	background: #ffffff;
+	border: 1px solid rgba(15, 23, 42, 0.08);
 }
 </style>
 

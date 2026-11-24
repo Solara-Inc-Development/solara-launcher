@@ -3,13 +3,13 @@
 		<section
 			v-if="showControls"
 			ref="controlsEl"
-			class="solara-window-controls pointer-events-auto fixed top-0 right-0 z-[10001] flex h-[3.25rem] items-center gap-1 px-2.5 pt-[2px]"
+			class="solara-window-controls pointer-events-auto fixed top-0 right-0 z-[10001] flex h-12 items-center gap-1 px-2.5"
 			data-tauri-drag-region-exclude
 		>
 			<IconButton
 				type="quiet"
 				label="Minimize window"
-				class="solara-win-btn !h-7 !w-7 !min-w-7 !rounded-lg !p-0 hover:!bg-white/10"
+				class="solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-white/10"
 				@click="getCurrentWindow().minimize()"
 			>
 				<MinimizeIcon class="!size-3.5" />
@@ -17,7 +17,7 @@
 			<IconButton
 				type="quiet"
 				label="Toggle maximize window"
-				class="solara-win-btn !h-7 !w-7 !min-w-7 !rounded-lg !p-0 hover:!bg-white/10"
+				class="solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-white/10"
 				@click="getCurrentWindow().toggleMaximize()"
 			>
 				<RestoreIcon v-if="isMaximized" class="!size-3.5" />
@@ -26,7 +26,7 @@
 			<IconButton
 				type="quiet"
 				label="Close window"
-				class="close-button solara-win-btn !h-7 !w-7 !min-w-7 !rounded-lg !p-0 hover:!bg-red focus-visible:!bg-red"
+				class="close-button solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-red focus-visible:!bg-red"
 				@click="handleClose"
 			>
 				<XIcon class="!size-3.5" />

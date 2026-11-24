@@ -30,7 +30,7 @@ import { get_all } from '@/helpers/process'
 import { showInstanceInFolder } from '@/helpers/utils'
 import { instanceListQueryOptions } from '@/pages/instance/query-options'
 
-const ITEM_SIZE = 44
+const ITEM_SIZE = 46
 const SYNC_DEBOUNCE_MS = 1000
 const { handleError } = injectNotificationManager()
 const auth = injectAuth()
@@ -83,11 +83,11 @@ const showOverdrag = ref(false)
 
 const updateMaxAuto = () => {
 	if (!container.value) return
-	const headerAndHandleHeight = 52
+	const dividersHeight = 40
 	const footerHeight = (footer.value?.clientHeight ?? 0) + 12
 	maxAuto.value = Math.max(
 		0,
-		Math.floor((container.value.clientHeight - footerHeight - headerAndHandleHeight) / ITEM_SIZE),
+		Math.floor((container.value.clientHeight - footerHeight - dividersHeight) / ITEM_SIZE),
 	)
 }
 
@@ -345,22 +345,17 @@ function openContextMenu(event, instance) {
 </script>
 
 <template>
-	<div ref="container" class="flex min-h-0 flex-1 flex-col gap-1 pt-2">
+	<div ref="container" class="flex min-h-0 flex-1 flex-col items-center gap-1">
 		<Transition name="top-divider">
 			<div
 				v-if="recentInstances.length > 0"
-				class="top-divider shrink-0 flex items-center justify-between px-2.5 overflow-hidden"
+				class="top-divider shrink-0 flex items-center justify-center overflow-hidden"
 			>
-				<span class="text-[10px] font-bold uppercase tracking-[0.12em] text-secondary/65">
-					Recent
-				</span>
-				<span class="text-[10px] font-semibold text-secondary/45 tabular-nums">
-					{{ recentInstances.length }}
-				</span>
+				<div class="h-px w-6 rounded-full bg-white/[0.1] shrink-0" />
 			</div>
 		</Transition>
-		<div :aria-label="formatMessage(messages.title)" class="min-w-0">
-			<TransitionGroup name="quick-instance" tag="div" class="flex shrink-0 flex-col gap-0.5">
+		<div :aria-label="formatMessage(messages.title)">
+			<TransitionGroup name="quick-instance" tag="div" class="flex shrink-0 flex-col items-center gap-1.5">
 				<NavButton
 					v-for="instance in recentInstances"
 					:key="instance.id"
@@ -369,30 +364,25 @@ function openContextMenu(event, instance) {
 					:to="`/instance/${encodeURIComponent(instance.id)}`"
 					@contextmenu.prevent.stop="(event) => openContextMenu(event, instance)"
 				>
-					<div class="relative shrink-0 flex items-center justify-center">
-						<Avatar
-							:src="getInstanceIconUrl(instance.icon_path)"
-							size="24px"
-							:tint-by="instance.id"
-							class="!rounded-lg"
-							:class="`transition-all ${instance.install_stage !== 'installed' ? 'brightness-[0.3] scale-90' : ''}`"
-							pad-transparent-corners
-						/>
-						<div
-							v-if="instance.install_stage !== 'installed'"
-							class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
-						>
-							<SpinnerIcon class="animate-spin size-3.5 text-brand" />
-						</div>
-					</div>
-					<span class="min-w-0 flex-1 truncate text-xs font-semibold">
-						{{ instance.name }}
-					</span>
+					<Avatar
+						:src="getInstanceIconUrl(instance.icon_path)"
+						size="28px"
+						:tint-by="instance.id"
+						class="!rounded-[10px]"
+						:class="`transition-all ${instance.install_stage !== 'installed' ? 'brightness-[0.28] scale-[0.86]' : ''}`"
+						pad-transparent-corners
+					/>
 					<span
 						v-if="runningInstances.includes(instance.id)"
-						class="size-2 shrink-0 rounded-full bg-brand shadow-[0_0_8px_rgba(61,214,245,0.85)] animate-pulse"
+						class="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full bg-brand ring-2 ring-[#0a0e16] shadow-[0_0_8px_rgba(61,214,245,0.9)] animate-pulse"
 						title="Running"
 					/>
+					<div
+						v-if="instance.install_stage !== 'installed'"
+						class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+					>
+						<SpinnerIcon class="animate-spin size-4 text-brand" />
+					</div>
 				</NavButton>
 			</TransitionGroup>
 		</div>
@@ -415,17 +405,17 @@ function openContextMenu(event, instance) {
 			@keydown.down.prevent="nudgeLimit(1)"
 		>
 			<div
-				class="h-1 w-10 rounded-full transition-colors duration-200"
+				class="h-1 w-6 rounded-full transition-colors duration-200"
 				:class="
 					showOverdrag
 						? 'bg-red'
 						: canDrag
-							? 'bg-white/[0.08] group-hover:bg-brand/60 group-focus-visible:bg-brand/60'
-							: 'bg-white/[0.05]'
+							? 'bg-white/[0.1] group-hover:bg-brand/70 group-focus-visible:bg-brand/70'
+							: 'bg-white/[0.06]'
 				"
 			></div>
 		</div>
-		<div ref="footer" class="mt-auto flex shrink-0 flex-col gap-1.5 pt-2 border-0 border-t border-solid border-white/[0.06]">
+		<div ref="footer" class="mt-auto flex shrink-0 flex-col items-center gap-1.5">
 			<slot />
 		</div>
 	</div>
@@ -433,7 +423,7 @@ function openContextMenu(event, instance) {
 
 <style scoped lang="scss">
 .top-divider {
-	height: 1.5rem;
+	height: 1rem;
 }
 
 .top-divider-enter-active,
@@ -450,8 +440,9 @@ function openContextMenu(event, instance) {
 }
 
 .quick-instance-item {
-	height: 2.4rem;
-	overflow: hidden;
+	height: 42px;
+	width: 42px;
+	overflow: visible;
 }
 
 .quick-instance-enter-active,
@@ -465,7 +456,7 @@ function openContextMenu(event, instance) {
 .quick-instance-enter-from,
 .quick-instance-leave-to {
 	opacity: 0;
-	transform: translateX(-8px);
+	transform: scale(0.65);
 	height: 0;
 }
 
@@ -480,14 +471,14 @@ function openContextMenu(event, instance) {
 	.top-divider-enter-from,
 	.top-divider-leave-to {
 		opacity: 1;
-		height: 1.5rem;
+		height: 1rem;
 	}
 
 	.quick-instance-enter-from,
 	.quick-instance-leave-to {
 		opacity: 1;
 		transform: none;
-		height: 2.4rem;
+		height: 42px;
 	}
 }
 </style>

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.103: Custom Solara labeled pure-OLED Sidebar, Top Command Title Bar (2px Solara hairline, pill breadcrumbs, flush window controls), and independent packages/solara-core Rust crate.
+# Solara V-0.0.104: Sleek compact floating Solara glass dock (72px rail, 42px glowing cyan squircles) & minimal pure-OLED top bar.
 on:
   workflow_dispatch:
   push:

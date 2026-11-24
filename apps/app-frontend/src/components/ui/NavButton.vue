@@ -6,17 +6,17 @@
 		:disabled="isLink ? undefined : disabled"
 		:active-class="isLink && isSubpage ? '' : undefined"
 		:class="[
-			'solara-nav-item',
+			'solara-dock-btn',
 			{
 				'router-link-active': isPrimary && isPrimary(route),
 				'subpage-active': isSubpage && isSubpage(route),
-				'is-primary-cta': variant === 'primary',
+				'is-accent-cta': variant === 'primary',
 				disabled: disabled,
 			},
 		]"
 		@click="onClick"
 	>
-		<span class="solara-nav-indicator" aria-hidden="true" />
+		<span class="solara-dock-pip" aria-hidden="true" />
 		<slot />
 	</component>
 </template>
@@ -59,104 +59,121 @@ defineOptions({
 </script>
 
 <style lang="scss" scoped>
-.solara-nav-item {
+.solara-dock-btn {
 	position: relative;
 	display: flex;
 	align-items: center;
-	gap: 0.65rem;
-	width: 100%;
-	height: 2.45rem;
-	padding: 0 0.78rem;
-	border: 0;
-	border-radius: 12px;
+	justify-content: center;
+	width: 42px;
+	height: 42px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 14px;
 	background: transparent;
 	color: var(--color-secondary);
-	font-size: 0.84rem;
-	font-weight: 600;
-	letter-spacing: -0.005em;
 	text-decoration: none;
 	cursor: pointer;
 	user-select: none;
+	flex-shrink: 0;
 	transition:
-		background-color 150ms ease,
-		color 150ms ease,
-		transform 120ms ease;
+		background-color 160ms ease,
+		border-color 160ms ease,
+		color 160ms ease,
+		transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+		box-shadow 180ms ease;
 
 	:deep(svg) {
-		width: 1.1rem;
-		height: 1.1rem;
+		width: 20px;
+		height: 20px;
 		flex-shrink: 0;
-		transition: color 150ms ease, transform 150ms ease;
+		transition: transform 160ms ease, color 160ms ease;
 	}
 
 	&:hover:not(.disabled) {
-		background: rgba(255, 255, 255, 0.055);
+		background: rgba(255, 255, 255, 0.08);
 		color: var(--color-contrast);
+		transform: translateY(-1px);
 	}
 
 	&:active:not(.disabled) {
-		transform: scale(0.985);
+		transform: scale(0.94);
 	}
 
 	&.disabled {
-		opacity: 0.4;
+		opacity: 0.38;
 		cursor: not-allowed;
 	}
 }
 
-.solara-nav-indicator {
+:global(.light-mode) .solara-dock-btn:hover:not(.disabled) {
+	background: rgba(15, 23, 42, 0.07);
+}
+
+.solara-dock-pip {
 	position: absolute;
-	left: 0;
-	top: 22%;
-	bottom: 22%;
+	left: -7px;
+	top: 50%;
 	width: 3px;
+	height: 18px;
 	border-radius: 999px;
 	background: #3dd6f5;
-	box-shadow: 0 0 10px rgba(61, 214, 245, 0.75);
+	box-shadow: 0 0 10px rgba(61, 214, 245, 0.9);
 	opacity: 0;
-	transform: scaleY(0.4);
+	transform: translateY(-50%) scaleY(0.35);
 	transition:
 		opacity 160ms ease,
 		transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.solara-nav-item.router-link-active {
-	background: rgba(61, 214, 245, 0.13);
+.solara-dock-btn.router-link-active {
+	background: linear-gradient(145deg, rgba(61, 214, 245, 0.22), rgba(56, 189, 248, 0.09));
+	border-color: rgba(61, 214, 245, 0.38);
 	color: #7ee8ff;
+	box-shadow:
+		0 0 18px rgba(61, 214, 245, 0.14),
+		inset 0 1px 0 rgba(255, 255, 255, 0.12);
 
 	:deep(svg) {
-		color: #3dd6f5;
+		color: #5ee2ff;
 	}
 
-	.solara-nav-indicator {
+	.solara-dock-pip {
 		opacity: 1;
-		transform: scaleY(1);
+		transform: translateY(-50%) scaleY(1);
 	}
 }
 
-.solara-nav-item.subpage-active {
-	background: rgba(255, 255, 255, 0.06);
+:global(.light-mode) .solara-dock-btn.router-link-active {
+	background: rgba(14, 165, 233, 0.14);
+	border-color: rgba(14, 165, 233, 0.35);
+	color: #0284c7;
+	box-shadow: none;
+
+	:deep(svg) {
+		color: #0284c7;
+	}
+}
+
+.solara-dock-btn.subpage-active {
+	background: rgba(255, 255, 255, 0.075);
 	color: var(--color-contrast);
 
-	.solara-nav-indicator {
+	.solara-dock-pip {
 		opacity: 0.55;
-		transform: scaleY(0.75);
+		transform: translateY(-50%) scaleY(0.65);
 	}
 }
 
-.solara-nav-item.is-primary-cta {
+.solara-dock-btn.is-accent-cta {
 	background: rgba(61, 214, 245, 0.14);
-	color: #7ee8ff;
-	font-weight: 700;
-	justify-content: center;
-
-	:deep(svg) {
-		color: #3dd6f5;
-	}
+	border-color: rgba(61, 214, 245, 0.28);
+	color: #6ce4ff;
 
 	&:hover:not(.disabled) {
 		background: #3dd6f5;
+		border-color: #3dd6f5;
 		color: #041017;
+		box-shadow: 0 4px 16px rgba(61, 214, 245, 0.35);
 
 		:deep(svg) {
 			color: #041017;
