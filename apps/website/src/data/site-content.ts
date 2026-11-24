@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.102',
+    version: 'V-0.0.103',
     date: 'November 24, 2026',
     tag: 'Latest Preview',
+    title: 'Custom Solara Labeled Sidebar, Top Command Title Bar & Independent solara-core Crate',
+    highlights: [
+      'Replaced the narrow icon strip and curved L-frame cutout with a sleek labeled pure-OLED Solara Left Sidebar featuring glowing light-blue active bars, named Recent Instances pills with running dots, and a pinned + New Instance & Settings dock.',
+      'Rebuilt the Top Title Bar with a 2px Solara cyan-to-gold micro-accent hairline, aligned crest badge, pill navigation arrows, frosted pill breadcrumbs, borderless status pill, and flush window controls.',
+      'Added the independent packages/solara-core Rust launcher core crate (pure-Rust Java probing, Mojang Piston downloader, Fabric & Quilt loader merger, and direct JVM launch builder).',
+    ],
+  },
+  {
+    version: 'V-0.0.102',
+    date: 'November 24, 2026',
+    tag: 'Feature Release',
     title: 'Custom Pure-OLED Solara App Settings, Native solara:// Shortcuts & Major Code Cleanup',
     highlights: [
       'Built a 100% custom pure-#000000 OLED Solara App Settings menu with a branded sidebar, light-blue active tabs, and borderless raised cards across Java & Memory, Window, Launch Hooks, and Troubleshooting.',
