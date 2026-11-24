@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.100',
+    version: 'V-0.0.101',
     date: 'November 24, 2026',
     tag: 'Latest Preview',
+    title: 'Solara Discord Rich Presence, Fixed CurseForge Downloads, YouTube Fix & Strict Update Control',
+    highlights: [
+      'Enabled native Solara Discord Rich Presence with Solara branding, live game and modloader status, elapsed timer, background Discord detection, and a Settings -> Appearance toggle.',
+      'Fixed the CurseForge ACL permission error so installing CurseForge mods, shaders, resource packs, datapacks, and modpacks works cleanly again.',
+      'Fixed YouTube "Video Player Configuration Error" (Error 153) inside project descriptions and locked updates so Solara only restarts when you click Update Now.',
+    ],
+  },
+  {
+    version: 'V-0.0.100',
+    date: 'November 24, 2026',
+    tag: 'Feature Release',
     title: 'Solara Frosted OLED Side Notifications, Custom Instance Settings & Light-Blue Accents',
     highlights: [
       'Redesigned all side notifications and download progress popups into frosted pure-OLED Solara glass cards with a glowing top accent hairline, soft icon badges, and smooth slide animations.',
