@@ -1,6 +1,6 @@
 [package]
 name = "theseus_gui"
-version = "0.0.99"
+version = "0.0.100"
 edition.workspace = true
 description = "Solara Launcher desktop hub and Minecraft Java launcher (built on Modrinth App / Theseus)"
 repository = "https://github.com/Solara-Inc-Development/solara-launcher"

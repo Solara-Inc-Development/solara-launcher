@@ -46,13 +46,13 @@
     "result": "passed"
   },
   "windowsInstallerBuild": {
-    "run": 45240000000,
+    "run": 45319212039,
     "result": "passed",
-    "publicVersion": "V-0.0.99",
-    "sourceCommit": "fdca3bebd689f74e9346f096fb579cda61d228b0",
+    "publicVersion": "V-0.0.100",
+    "sourceCommit": "9e3b75886dd33cb644b6af8a8923e01ef2fbea1f",
     "staticVerification": "Genuine CI-built unstripped direct standalone x64 PE32+ executable (zero NSIS wrapper, standard DIB icon.ico); 8 MiB stack; embedded GPL/dependency licence notices; artifact/source SHA-256 and exact-source privacy checks; persistent Minisign signature and signed version verified. Physical Windows acceptance remains pending.",
-    "installerSha256": "bd3fd1283810db4d3372f88c7cab3296ce1331a2913c20a496a9516e72053f47",
-    "sourceArchiveSha256": "6c910efa5416387c88cfdb10bfb27e12eeae4c10a0ebecc175935433a5e8d1d8",
+    "installerSha256": "08c4abc993bddc4a7234515608c987678a4a875a744960bb2a09359157a6a2f4",
+    "sourceArchiveSha256": "990352752ad4d25dd09616e9a8a617e400c01f56e3c33c1da8f29fd7bde85f16",
     "windowsDeviceAcceptance": false
   },
   "distributionStatus": "testing-preview-live",

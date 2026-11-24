@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.99',
+    version: 'V-0.0.100',
     date: 'November 24, 2026',
     tag: 'Latest Preview',
+    title: 'Solara Frosted OLED Side Notifications, Custom Instance Settings & Light-Blue Accents',
+    highlights: [
+      'Redesigned all side notifications and download progress popups into frosted pure-OLED Solara glass cards with a glowing top accent hairline, soft icon badges, and smooth slide animations.',
+      'Built a 100% custom pure-#000000 OLED Solara Instance Settings modal with a profile identity sidebar, light-blue active tabs, quick Open Game Folder shortcut, and borderless raised cards across every tab.',
+      'Unified green Update, Update All, success notification, and download progress accents into Solara Launcher’s signature light-blue theme color.',
+    ],
+  },
+  {
+    version: 'V-0.0.99',
+    date: 'November 24, 2026',
+    tag: 'Feature Release',
     title: 'Pure-OLED Instance & Browser UI, Custom Instance Settings, ASCII Console Logo & Update Control',
     highlights: [
       'Upgraded the Instance header, tabs, Mods & Packs cards, Library grid, and Add Mods browser to a borderless pure-#000000 OLED aesthetic with silky raised cards and Modrinth-style long horizontal mod cards.',

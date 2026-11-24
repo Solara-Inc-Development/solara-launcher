@@ -3371,6 +3371,50 @@
       "notes": "## Features Added\n- Upgraded the **Instance Header, Tabs, Mods & Packs, Library, and Add Mods browser** to a seamless pure-`#000000` OLED aesthetic with silky borderless raised cards and **Modrinth-style long horizontal mod cards**.\n- Customized the **Instance Settings** menu with a Solara profile card header, quick Icon Studio & Upload buttons, a Game Folder shortcut in the sidebar footer, and smooth borderless option cards.\n- Replaced the console banner with **colorful classic ASCII art** (`/ \\ | _`) spelling **SOLARA** in a cyan-to-gold gradient.\n- Restored the **New Version Available** update popup showing **Features Added**, **Issues Fixed**, and **Future Updates Implementation** whenever a new Solara Launcher update is ready, and added **Update Selected** to the bulk-selection dock.\n\n## Issues Fixed\n- Stopped Solara Launcher from restarting automatically on its own when an update downloads — updates now wait quietly in the background until you click **Update Now**.\n- Fixed the single-mod **Update** button and **Update All** button inside Instance Management so they reliably open the updater and apply compatible mod updates.\n- Fixed **Install** buttons overflowing outside narrow mod cards inside **Add Mods**, removed harsh gray outlines across Instance/Library/Add Mods, and replaced the Library sort dropdown with the native Solara Combobox.\n- Fixed a startup race condition that could prevent the update changelog popup from appearing if the update check finished during the splash screen.\n\n## Future Updates Implementation\n- Continue migrating to the independent custom Solara launcher core architecture.\n- Expand Solara Theme Studio customization and offline world snapshot backups.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.99/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "0dc776f0-c3a8-41f9-b57e-69d006c176c3",
+      "publicVersion": "V-0.0.100",
+      "internalVersion": "0.0.100",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.100/solaralauncher.exe",
+      "commit": "9e3b75886dd33cb644b6af8a8923e01ef2fbea1f",
+      "allocatedAt": "2026-11-24T03:28:02.707Z",
+      "state": "published",
+      "applicationSha256": "08c4abc993bddc4a7234515608c987678a4a875a744960bb2a09359157a6a2f4",
+      "applicationSize": 75288064,
+      "sourceTree": "3c5e8d9a82d9654f3e06b7d2cbb4bff38e14e591",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75288064,
+          "sha256": "08c4abc993bddc4a7234515608c987678a4a875a744960bb2a09359157a6a2f4"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75288064,
+          "sha256": "08c4abc993bddc4a7234515608c987678a4a875a744960bb2a09359157a6a2f4"
+        },
+        "source.zip": {
+          "size": 37028887,
+          "sha256": "990352752ad4d25dd09616e9a8a617e400c01f56e3c33c1da8f29fd7bde85f16"
+        }
+      },
+      "bundledNotices": {
+        "packages": 714,
+        "files": 1275,
+        "verified": true
+      },
+      "size": 75288064,
+      "sha256": "08c4abc993bddc4a7234515608c987678a4a875a744960bb2a09359157a6a2f4",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-24T03:55:32.424Z",
+      "verifiedAt": "2026-11-24T03:55:24.031Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaHdyTjdHYVpTaXAzbWd2MnpicEpwZDRWV2JudWkwZ0pTSWsxUlBKcEQ0b0pZeWxpS2ttcnZzSzc4eU5uUml6M1NBRmpNWFNVdTB0aTlRT2JnbDRJUHcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1NDkyNTIxCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEwMAo1akljRFFwcktRZVAxZTJSUHgrRG5CeUNNSE9iVEFXVzAxdHV1Vi9XaHRqSnA0TUlyUkdZTTNkN0VKVURuQzVMRG80cFZZSzBma1JuQ0o0UFJCaFVCZz09Cg==",
+      "notes": "## Features Added\n- Redesigned all **side notifications and download progress popups** into sleek frosted pure-OLED Solara glass cards with a luminous top hairline, rounded icon badges, glowing light-blue progress rails, and silky slide transitions.\n- Built a **100% custom pure-`#000000` OLED Solara Instance Settings modal** featuring a custom profile identity sidebar, light-blue active tabs, quick **Open Game Folder** shortcut, and borderless raised cards across **Profile & Icon**, **Java & RAM**, **Game Window**, and **Launch Commands**.\n\n## Issues Fixed\n- Unified green **Update**, **Update All**, success toast badges, and download progress accents into Solara Launcher’s signature light-blue (`#3dd6f5`) accent color.\n- Removed stock Modrinth modal chrome and the unused Cloud Sync tab from Instance Settings.\n\n## Future Updates Implementation\n- Continue migrating to the independent custom Solara launcher core architecture.\n- Expand Solara Theme Studio customization and offline world snapshot backups.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.100/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
