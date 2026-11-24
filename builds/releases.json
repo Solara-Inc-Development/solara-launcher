@@ -3547,6 +3547,50 @@
       "notes": "## Features Added\n- Replaced the narrow icon strip and curved L-frame cutout with a sleek labeled pure-OLED Solara Left Sidebar featuring glowing light-blue active indicators, named Recent Instances pills with live running dots, and a pinned + New Instance & Settings action dock.\n- Redesigned the Top Title Bar with a 2px Solara cyan-to-gold micro-accent hairline, aligned Solara Launcher crest badge, pill Back/Forward navigation capsule, frosted pill breadcrumbs, borderless status pill, and flush frameless window controls.\n- Added the independent packages/solara-core Rust launcher core crate (pure-Rust Java probing, Mojang Piston manifest and downloader, Fabric and Quilt loader merger, and direct JVM launch builder) as the foundation for staged engine independence.\n\n## Issues Fixed\n- Removed the legacy rounded-top-left L-border chrome and floating corner window controls box so the entire desktop shell looks and feels 100% Solara.\n\n## Future Updates Implementation\n- Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).\n- Custom Solara Theme Studio integration with personalized accent controls.\n- Enhanced offline world backups and automatic snapshot recovery.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.103/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "ebc81038-9e4a-4208-8399-037b1501a11c",
+      "publicVersion": "V-0.0.104",
+      "internalVersion": "0.0.104",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.104/solaralauncher.exe",
+      "commit": "83f26766b4ee59407639be69269465ff0a8b702d",
+      "allocatedAt": "2026-11-24T12:06:52.315Z",
+      "state": "published",
+      "applicationSha256": "613aaa1898adddb92ff2af27d046f876ad5089aab6912514f9781dfe986e2f88",
+      "applicationSize": 75359232,
+      "sourceTree": "7e70e372b22e3f3b9599a34830e9c745ad249793",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75359232,
+          "sha256": "613aaa1898adddb92ff2af27d046f876ad5089aab6912514f9781dfe986e2f88"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75359232,
+          "sha256": "613aaa1898adddb92ff2af27d046f876ad5089aab6912514f9781dfe986e2f88"
+        },
+        "source.zip": {
+          "size": 36254339,
+          "sha256": "46c590bbf07736eee18c302c1269b1a06d1c6a7f64f6d31d45e51dfc10103ef0"
+        }
+      },
+      "bundledNotices": {
+        "packages": 719,
+        "files": 1283,
+        "verified": true
+      },
+      "size": 75359232,
+      "sha256": "613aaa1898adddb92ff2af27d046f876ad5089aab6912514f9781dfe986e2f88",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-24T12:25:40.627Z",
+      "verifiedAt": "2026-11-24T12:24:10.910Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaDdsSU9iMERNRjR3WURPZGpKSzEyVzF1TzRxczJQSzV1Y1VXcEY3c1ZjeElVWTR0QWwvZXpxRTI0WUxlUXh2UnMrc0JUTlJRN3dpMWw2UjRabCthSVFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1NTIzMDQ4CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEwNApldHBtVmRZWWl5Wi9QbVcyZ0UrWWNMaEFhMFdKLzMzWDJ4RGdUdXpLQmUzZS9sRTBWdk9wSjM3OU8vKysxT1NaUWxrSlVaczhSaDdockl1MUhycTFCdz09Cg==",
+      "notes": "## Features Added\n- Replaced the wide text sidebar with a sleek compact floating Solara glass dock (72px rail, rounded 22px frosted dock, 42px squircle icons with glowing cyan active pills and micro left glow pip) so your games, modpacks, and skins get maximum screen space.\n- Upgraded Recent Instances in the floating dock to crisp rounded-squircle icons with live pulsing cyan running dots and full right-click Play/Stop/Open Folder menus.\n- Simplified the Top Title Bar to a clean pure-OLED minimal bar with Solara Launcher branding, a frosted pill Back/Forward capsule, airy breadcrumbs, dark glass status pill, and flush rounded window controls.\n\n## Issues Fixed\n- Restored spacious wide layout across Home, Library, Modpacks, Skins, and Instance pages while keeping a clean futuristic Solara identity distinct from Modrinth.\n\n## Future Updates Implementation\n- Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).\n- Custom Solara Theme Studio integration with personalized accent controls.\n- Enhanced offline world backups and automatic snapshot recovery.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.104/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }

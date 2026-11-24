@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.103',
+    version: 'V-0.0.104',
     date: 'November 24, 2026',
     tag: 'Latest Preview',
+    title: 'Sleek Floating Solara Glass Dock & Minimal Pure-OLED Top Bar',
+    highlights: [
+      'Replaced the wide sidebar with a compact floating Solara glass dock (72px rail, rounded frosted dock, glowing light-blue squircle icons with active glow pip) for maximum content space.',
+      'Upgraded Recent Instances in the dock to rounded-squircle icons with live pulsing cyan running dots and full right-click Play/Stop/Open Folder controls.',
+      'Simplified the Top Title Bar to a clean pure-OLED minimal bar with frosted pill Back/Forward arrows, airy breadcrumbs, dark glass status pill, and flush rounded window controls.',
+    ],
+  },
+  {
+    version: 'V-0.0.103',
+    date: 'November 24, 2026',
+    tag: 'Feature Release',
     title: 'Custom Solara Labeled Sidebar, Top Command Title Bar & Independent solara-core Crate',
     highlights: [
       'Replaced the narrow icon strip and curved L-frame cutout with a sleek labeled pure-OLED Solara Left Sidebar featuring glowing light-blue active bars, named Recent Instances pills with running dots, and a pinned + New Instance & Settings dock.',
