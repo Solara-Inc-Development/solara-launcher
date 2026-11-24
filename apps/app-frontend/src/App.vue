@@ -1872,11 +1872,13 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<UnknownPackWarningModal ref="unknownPackWarningModal" />
 		<InstanceActionModals ref="instanceActionModals" />
 		<SharedInstanceModals ref="sharedInstanceModals" />
-		<div
-			class="app-grid-navbar bg-bg-raised flex flex-col p-[0.5rem] pt-0 gap-[0.25rem] w-[--left-bar-width]"
+		<aside
+			class="app-grid-navbar solara-left-sidebar flex flex-col px-2.5 pt-3 pb-3 gap-1 w-[--left-bar-width]"
 		>
+			<div class="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-secondary/65 select-none">
+				Menu
+			</div>
 			<NavButton
-				v-tooltip.right="formatMessage(messages.home)"
 				to="/"
 				:is-primary="(route) => route.path === '/'"
 				:is-subpage="
@@ -1885,9 +1887,9 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				"
 			>
 				<HomeIcon />
+				<span class="truncate">{{ formatMessage(messages.home) }}</span>
 			</NavButton>
 			<NavButton
-				v-tooltip.right="'ModPackInstaller'"
 				to="/browse/modpack"
 				:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
 				:is-subpage="
@@ -1895,40 +1897,42 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				"
 			>
 				<PackageIcon />
+				<span class="truncate">Modpacks</span>
 			</NavButton>
 			<NavButton
 				v-if="appSettings.showSkinSelectorInSidebar"
-				v-tooltip.right="'Skin Studio'"
 				to="/skins"
 			>
 				<PaletteIcon />
+				<span class="truncate">Skin Studio</span>
 			</NavButton>
 			<NavButton
-				v-tooltip.right="'Library'"
 				to="/library"
 				:is-primary="(r) => r.path === '/library'"
 				:is-subpage="(r) => r.path.startsWith('/instance/')"
 			>
 				<LibraryIcon />
+				<span class="truncate">Library</span>
 			</NavButton>
 			<suspense>
 				<QuickInstanceSwitcher>
 					<NavButton
-						v-tooltip.right="formatMessage(messages.createNewInstance)"
+						variant="primary"
 						:to="() => installationModal?.show()"
 						:disabled="offline"
 					>
 						<PlusIcon />
+						<span class="truncate">New Instance</span>
+					</NavButton>
+					<NavButton
+						:to="settingsActions.openSettings"
+					>
+						<SettingsIcon />
+						<span class="truncate">{{ formatMessage(commonMessages.settingsLabel) }}</span>
 					</NavButton>
 				</QuickInstanceSwitcher>
 			</suspense>
-			<NavButton
-				v-tooltip.right="formatMessage(commonMessages.settingsLabel)"
-				:to="settingsActions.openSettings"
-			>
-				<SettingsIcon />
-			</NavButton>
-		</div>
+		</aside>
 		<AppTitleBar
 			:can-navigate-back="canNavigateBack"
 			:can-navigate-forward="canNavigateForward"
@@ -2064,8 +2068,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 <style lang="scss" scoped>
 .app-grid-layout,
 .app-contents {
-	--top-bar-height: 3rem;
-	--left-bar-width: 4rem;
+	--top-bar-height: 3.25rem;
+	--left-bar-width: 13.5rem;
 	--right-bar-width: 0px;
 }
 
@@ -2075,8 +2079,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	grid-template-columns: auto 1fr;
 	grid-template-rows: auto minmax(0, 1fr);
 	position: relative;
-	//z-index: 0;
-	background-color: var(--color-raised-bg);
+	background-color: var(--color-bg);
 	height: 100vh;
 }
 
@@ -2089,6 +2092,16 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	> :deep(*) {
 		flex-shrink: 0;
 	}
+}
+
+.solara-left-sidebar {
+	background: #05070b;
+	border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+:global(.light-mode) .solara-left-sidebar {
+	background: var(--color-raised-bg);
+	border-right: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 [data-tauri-drag-region-exclude] {
@@ -2104,7 +2117,6 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	bottom: 0;
 	height: calc(100vh - var(--top-bar-height));
 	background-color: var(--color-bg);
-	border-top-left-radius: var(--radius-xl);
 
 	display: grid;
 	grid-template-columns: 1fr;
@@ -2115,15 +2127,10 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 }
 
 .loading-indicator-container {
-	border-top-left-radius: var(--radius-xl);
 	overflow: hidden;
 }
 
 .disable-advanced-rendering {
-	&.app-contents::before {
-		box-shadow: none;
-	}
-
 	*,
 	:deep(*) {
 		box-shadow: none !important;
@@ -2139,20 +2146,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	scrollbar-gutter: stable;
 }
 
-.app-contents::before {
-	z-index: 30;
-	content: '';
-	position: fixed;
-	left: var(--left-bar-width);
-	top: var(--top-bar-height);
-	right: calc(-1 * var(--left-bar-width));
-	bottom: calc(-1 * var(--left-bar-width));
-	border-radius: var(--radius-xl);
-	box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.1) inset;
-	border-color: var(--surface-5);
-	border-width: 1px;
-	border-style: solid;
-	pointer-events: none;
+@media (max-width: 900px) {
+	.app-grid-layout,
+	.app-contents {
+		--left-bar-width: 11.5rem;
+	}
 }
 
 @media (prefers-reduced-motion: no-preference) {

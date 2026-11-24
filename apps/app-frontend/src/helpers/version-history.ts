@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.103',
+		title: 'Custom Solara Labeled Sidebar, Top Command Title Bar & Independent solara-core Foundation',
+		date: 'November 24, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Replaced the narrow Modrinth-style icon strip and curved L-frame cutout with a sleek labeled pure-OLED Solara Left Sidebar featuring glowing light-blue active indicators, named Recent Instances pills with live running dots, and a pinned + New Instance & Settings action dock.',
+			'Redesigned the Top Title Bar with a 2px Solara cyan-to-gold micro-accent hairline, aligned Solara Launcher crest badge, pill Back/Forward navigation capsule, frosted pill breadcrumbs, borderless status pill, and flush frameless window controls.',
+			'Added the independent packages/solara-core Rust launcher core crate (pure-Rust Java probing, Mojang Piston manifest/downloader, Fabric & Quilt loader merger, and direct JVM launch builder with 10/10 passing unit tests) for staged module-by-module engine independence.',
+		],
+		issuesFixed: [
+			'Removed the legacy rounded-top-left L-border chrome and floating corner window controls box so the entire desktop shell looks and feels 100% Solara.',
+		],
+		futureUpdates: [
+			'Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.102',
 		title: 'Custom Pure-OLED Solara App Settings, Native solara:// Shortcuts & Major Upstream Cleanup',
 		date: 'November 24, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Built a 100% custom pure-#000000 OLED Solara App Settings modal with a branded left navigation sidebar, light-blue active tabs, and borderless raised cards across Java & Memory, Game Window, Launch Hooks, and Troubleshooting.',
 			'Added native solara:// deep-link handling in Rust and switched desktop instance shortcuts to solara://launch/instance while keeping external .mrpack compatibility.',

@@ -1,0 +1,26 @@
+[package]
+name = "solara-core"
+version = "0.1.0"
+edition.workspace = true
+repository.workspace = true
+license = "GPL-3.0-only"
+description = "Independent Solara Launcher Minecraft Java runtime, Mojang Piston, loader, and direct JVM launch core"
+
+[dependencies]
+anyhow = { workspace = true }
+bytes = { workspace = true }
+futures = { workspace = true }
+hex = { workspace = true }
+reqwest = { workspace = true, features = ["json", "rustls"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs", "io-util", "process", "rt", "sync"] }
+tracing = { workspace = true }
+zip = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

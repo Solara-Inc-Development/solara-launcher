@@ -2,7 +2,7 @@
 	<div
 		ref="outerRef"
 		data-tauri-drag-region
-		class="min-w-0 overflow-hidden pl-4"
+		class="min-w-0 overflow-hidden"
 		:class="{
 			'[mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%_-_12px),transparent)]':
 				isOverflowing,
@@ -12,9 +12,10 @@
 		@mouseleave="onMouseLeave"
 	>
 		<div
+			v-if="breadcrumbs.length > 0"
 			ref="innerRef"
 			data-tauri-drag-region
-			class="flex w-fit items-center gap-2 pr-4"
+			class="solara-breadcrumb-pill flex w-fit items-center gap-1.5 rounded-full px-3 py-1"
 			:class="{ 'breadcrumbs-scroll': isAnimating }"
 			@animationiteration="onAnimationIteration"
 		>
@@ -23,11 +24,11 @@
 					:is="index < breadcrumbs.length - 1 && breadcrumb.to ? RouterLink : 'span'"
 					v-bind="index < breadcrumbs.length - 1 && breadcrumb.to ? { to: breadcrumb.to } : {}"
 					:data-tauri-drag-region="index === breadcrumbs.length - 1 ? '' : undefined"
-					class="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-base font-medium leading-6"
+					class="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-semibold leading-5 no-underline transition-colors"
 					:class="
 						index === breadcrumbs.length - 1
 							? 'cursor-default select-none text-contrast'
-							: 'text-primary hover:text-contrast'
+							: 'text-secondary hover:text-brand'
 					"
 					:aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined"
 				>
@@ -37,32 +38,35 @@
 						:alt="breadcrumb.visual.alt ?? breadcrumb.label"
 						:circle="breadcrumb.visual.circle"
 						:tint-by="breadcrumb.visual.tintBy ?? breadcrumb.id"
-						size="20px"
+						size="16px"
 						no-shadow
 						raised
 						class="inline-block shrink-0 align-middle"
-						:class="{ '!rounded-md': !breadcrumb.visual.circle }"
+						:class="{ '!rounded': !breadcrumb.visual.circle }"
 					/>
 					<component
 						:is="breadcrumb.visual.component"
 						v-else-if="breadcrumb.visual?.type === 'icon'"
-						class="size-5 shrink-0 text-primary"
+						class="size-3.5 shrink-0"
+						:class="index === breadcrumbs.length - 1 ? 'text-brand' : 'text-secondary'"
 						aria-hidden="true"
 					/>
 					<span>{{ breadcrumb.label }}</span>
 				</component>
-				<ChevronRightIcon
+				<span
 					v-if="index < breadcrumbs.length - 1"
 					data-tauri-drag-region
-					class="size-5 shrink-0 text-primary"
-				/>
+					class="text-[11px] font-bold text-secondary/45 select-none px-0.5"
+					aria-hidden="true"
+				>
+					/
+				</span>
 			</template>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ChevronRightIcon } from '@modrinth/assets'
 import { Avatar } from '@modrinth/ui'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
@@ -133,6 +137,14 @@ watch(breadcrumbs, () => {
 </script>
 
 <style scoped>
+.solara-breadcrumb-pill {
+	background: rgba(255, 255, 255, 0.045);
+}
+
+:global(.light-mode) .solara-breadcrumb-pill {
+	background: rgba(15, 23, 42, 0.06);
+}
+
 .breadcrumbs-scroll {
 	animation: breadcrumb-scroll 10s ease-in-out infinite;
 }
