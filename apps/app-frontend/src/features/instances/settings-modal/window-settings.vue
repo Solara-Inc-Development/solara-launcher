@@ -96,17 +96,18 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-3.5">
 		<DefaultSettingsIntro
 			tab="window"
 			:description="formatMessage(messages.defaultSettingsDescription)"
 		/>
-		<div class="flex items-center gap-4 justify-between">
-			<div class="flex flex-col gap-1">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
+
+		<section class="flex items-center justify-between gap-4 rounded-2xl bg-bg-raised p-4">
+			<div class="flex flex-col gap-0.5">
+				<h2 class="m-0 text-sm font-bold text-contrast">
 					{{ formatMessage(messages.fullscreen) }}
 				</h2>
-				<p class="m-0">
+				<p class="m-0 text-xs text-secondary">
 					{{ formatMessage(messages.fullscreenDescription) }}
 				</p>
 			</div>
@@ -122,60 +123,60 @@ const messages = defineMessages({
 					@reset="draft.fullscreen = null"
 				/>
 			</div>
-		</div>
+		</section>
 
-		<div class="flex items-center gap-4 justify-between">
-			<div class="flex flex-col gap-1">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.width) }}
-				</h2>
-				<p class="m-0">
+		<section class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+			<div class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
+				<div class="flex items-center justify-between gap-2">
+					<h2 class="m-0 text-sm font-bold text-contrast">
+						{{ formatMessage(messages.width) }}
+					</h2>
+					<ResetToDefaultButton
+						:disabled="draft.resolution === null"
+						:setting="formatMessage(messages.width)"
+						@reset="resetDimension(0)"
+					/>
+				</div>
+				<p class="m-0 text-xs text-secondary">
 					{{ formatMessage(messages.widthDescription) }}
 				</p>
-			</div>
-			<div class="flex shrink-0 items-center gap-2">
 				<Input
 					id="width"
 					:model-value="resolution[0]"
 					autocomplete="off"
 					:disabled="fullscreen"
 					type="number"
+					wrapper-class="w-full"
 					:placeholder="formatMessage(messages.enterWidth)"
 					@update:model-value="(value) => setDimension(0, Number(value))"
 				/>
-				<ResetToDefaultButton
-					:disabled="draft.resolution === null"
-					:setting="formatMessage(messages.width)"
-					@reset="resetDimension(0)"
-				/>
 			</div>
-		</div>
 
-		<div class="flex items-center gap-4 justify-between">
-			<div class="flex flex-col gap-1">
-				<h2 class="m-0 text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.height) }}
-				</h2>
-				<p class="m-0">
+			<div class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
+				<div class="flex items-center justify-between gap-2">
+					<h2 class="m-0 text-sm font-bold text-contrast">
+						{{ formatMessage(messages.height) }}
+					</h2>
+					<ResetToDefaultButton
+						:disabled="draft.resolution === null"
+						:setting="formatMessage(messages.height)"
+						@reset="resetDimension(1)"
+					/>
+				</div>
+				<p class="m-0 text-xs text-secondary">
 					{{ formatMessage(messages.heightDescription) }}
 				</p>
-			</div>
-			<div class="flex shrink-0 items-center gap-2">
 				<Input
 					id="height"
 					:model-value="resolution[1]"
 					autocomplete="off"
 					:disabled="fullscreen"
 					type="number"
+					wrapper-class="w-full"
 					:placeholder="formatMessage(messages.enterHeight)"
 					@update:model-value="(value) => setDimension(1, Number(value))"
 				/>
-				<ResetToDefaultButton
-					:disabled="draft.resolution === null"
-					:setting="formatMessage(messages.height)"
-					@reset="resetDimension(1)"
-				/>
 			</div>
-		</div>
+		</section>
 	</div>
 </template>

@@ -899,8 +899,8 @@ function itemCanSwitchVersion(item: ContentItem) {
 }
 
 .solara-update-pill {
-	background-color: color-mix(in srgb, #1bd96a 16%, transparent);
-	color: color-mix(in srgb, #1bd96a 88%, var(--color-contrast));
+	background-color: color-mix(in srgb, var(--color-brand) 16%, transparent);
+	color: var(--color-brand);
 }
 
 .solara-pill-active {

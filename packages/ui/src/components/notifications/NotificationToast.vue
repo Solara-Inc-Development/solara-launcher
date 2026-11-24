@@ -1,7 +1,9 @@
 <template>
 	<div
-		class="notification-toast relative overflow-hidden rounded-[20px] border border-solid border-surface-5 bg-surface-3 p-4 shadow-[0px_4px_8px_0px_rgba(0,0,0,0.1),0px_1px_3px_0px_rgba(0,0,0,0.2)]"
+		class="notification-toast solara-glass-toast relative overflow-hidden rounded-2xl"
 	>
+		<div class="solara-glass-hairline pointer-events-none h-[2px] w-full shrink-0" />
+		<div class="p-3.5">
 		<div v-if="isInviteNotification" class="flex w-full items-start gap-3">
 			<Avatar
 				:src="inviteAvatarUrl"
@@ -173,17 +175,17 @@
 			<Avatar
 				:src="entityIconUrl"
 				:alt="entityLabel"
-				size="44px"
+				size="42px"
 				no-shadow
 				raised
 				:tint-by="entityLabel"
-				class="!rounded-xl border border-solid border-surface-5"
+				class="!rounded-xl"
 			/>
-			<div class="notification-toast-main-grid min-w-0 flex-1 text-base leading-5">
+			<div class="notification-toast-main-grid min-w-0 flex-1 text-sm leading-5">
 				<p
 					ref="titleRef"
 					v-tooltip="truncatedTooltip(titleRef, entityLabel)"
-					class="col-start-1 col-end-3 row-start-1 m-0 min-w-0 truncate pr-9 text-lg font-semibold leading-6 text-contrast"
+					class="col-start-1 col-end-3 row-start-1 m-0 min-w-0 truncate pr-8 text-[14px] font-bold leading-snug text-contrast"
 				>
 					{{ entityLabel }}
 				</p>
@@ -194,53 +196,55 @@
 						size="sm"
 						:label="formatMessage(messages.dismissNotification)"
 						native-type="button"
-						class="notification-toast-dismiss -m-1.5"
+						class="notification-toast-dismiss -m-1"
 						@click="$emit('dismiss')"
 					>
 						<XIcon />
 					</IconButton>
 				</div>
 				<div
-					class="col-start-1 col-end-3 row-start-2 flex min-w-0 items-center justify-between gap-0.5"
+					class="col-start-1 col-end-3 row-start-2 flex min-w-0 items-center justify-between gap-2"
 				>
 					<p
 						ref="statusRef"
 						v-tooltip="truncatedTooltip(statusRef, statusLine)"
-						class="m-0 min-w-0 flex-1 font-normal leading-tight text-contrast/85"
+						class="m-0 min-w-0 flex-1 text-[12.5px] font-normal leading-tight text-secondary"
 						:class="wrapText ? 'whitespace-normal break-words' : 'truncate'"
 					>
 						{{ statusLine }}
 					</p>
 					<div
 						v-if="type === 'instance-download' && progressLabel"
-						class="notification-inline-progress-label flex-none text-xs"
+						class="notification-inline-progress-label flex-none rounded-md bg-surface-4 px-1.5 py-0.5 text-[11px] font-bold text-contrast"
 					>
 						{{ progressLabel }}
 					</div>
 				</div>
 				<div
 					v-if="type === 'instance-ready'"
-					class="col-start-1 col-end-3 row-start-3 mt-2 flex min-w-0 items-center justify-between gap-2"
+					class="col-start-1 col-end-3 row-start-3 mt-2.5 flex min-w-0 items-center justify-between gap-2"
 				>
-					<div class="flex min-w-0 items-center gap-2">
-						<Button type="colored" color="brand" @click="$emit('launch')">
+					<div class="flex min-w-0 items-center gap-1.5">
+						<Button size="sm" type="colored" color="brand" class="!rounded-xl !font-bold" @click="$emit('launch')">
 							{{ formatMessage(messages.launchGame) }}
 						</Button>
-						<Button type="outlined" @click="$emit('open-instance')">
+						<Button size="sm" type="base" class="!rounded-xl" @click="$emit('open-instance')">
 							{{ formatMessage(messages.instance) }}
 						</Button>
 					</div>
-					<div v-if="progressLabel" class="notification-inline-progress-label flex-none">
+					<div v-if="progressLabel" class="notification-inline-progress-label flex-none text-[11px] font-semibold">
 						{{ progressLabel }}
 					</div>
 				</div>
 				<div
 					v-if="type === 'instance-download' && actions?.length"
-					class="col-start-1 col-end-3 row-start-3 mt-2 flex min-w-0 flex-wrap items-center gap-2"
+					class="col-start-1 col-end-3 row-start-3 mt-2.5 flex min-w-0 flex-wrap items-center gap-1.5"
 				>
 					<Button
 						v-for="(action, index) in actions"
 						:key="index"
+						size="sm"
+						class="!rounded-xl"
 						:type="notificationButtonColor(action, index) ? 'colored' : 'base'"
 						:color="notificationButtonColor(action, index)"
 						@click="$emit('action', index)"
@@ -251,18 +255,19 @@
 				</div>
 			</div>
 		</div>
+		</div>
 		<div
 			v-if="showsBottomProgress"
-			class="notification-bottom-progress-track absolute inset-x-0 bottom-0 h-1 overflow-hidden"
+			class="notification-bottom-progress-track absolute inset-x-0 bottom-0 h-[3px] overflow-hidden"
 			role="progressbar"
 			:aria-valuenow="isWaitingProgress ? undefined : progressPercent"
 			aria-valuemin="0"
 			aria-valuemax="100"
 		>
 			<div
-				class="h-full transition-[left,width] duration-200 ease-in-out"
+				class="solara-progress-fill h-full transition-[left,width] duration-200 ease-out"
 				:class="[
-					type === 'instance-ready' ? 'bg-surface-5' : 'bg-brand',
+					type === 'instance-ready' ? 'solara-progress-fill--done' : 'solara-progress-fill--active',
 					{ 'notification-bottom-progress--waiting': isWaitingProgress },
 				]"
 				:style="isWaitingProgress ? undefined : { width: `${progressPercent}%` }"
@@ -475,7 +480,29 @@ const statusRef = ref<HTMLElement | null>(null)
 
 <style scoped>
 .notification-toast {
-	width: min(420px, calc(100vw - 1.5rem));
+	width: min(376px, calc(100vw - 1.5rem));
+}
+
+.solara-glass-toast {
+	background-color: color-mix(in srgb, var(--surface-3) 92%, transparent);
+	border: 1px solid color-mix(in srgb, var(--surface-5) 45%, transparent);
+	backdrop-filter: blur(18px);
+	-webkit-backdrop-filter: blur(18px);
+	box-shadow:
+		0 16px 36px -14px rgba(0, 0, 0, 0.72),
+		0 4px 12px -4px rgba(0, 0, 0, 0.38);
+}
+
+.solara-glass-hairline {
+	background: linear-gradient(90deg, transparent 0%, #3dd6f5 32%, #ffb55a 78%, transparent 100%);
+}
+
+.solara-progress-fill--active {
+	background: linear-gradient(90deg, #3dd6f5 0%, #7be8ff 100%);
+}
+
+.solara-progress-fill--done {
+	background: linear-gradient(90deg, #3dd6f5 0%, #ffb55a 100%);
 }
 
 .notification-toast-main-grid {

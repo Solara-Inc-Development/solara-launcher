@@ -117,17 +117,22 @@ const messages = defineMessages({
 </script>
 
 <template>
-	<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-3.5">
 		<DefaultSettingsIntro
 			tab="hooks"
 			:description="formatMessage(messages.defaultSettingsDescription)"
 		/>
 
-		<section class="flex flex-col gap-2.5">
+		<section class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
 			<div class="flex items-center justify-between gap-4">
-				<h2 class="m-0 min-w-0 text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.preLaunch) }}
-				</h2>
+				<div class="flex flex-col gap-0.5">
+					<h2 class="m-0 text-sm font-bold text-contrast">
+						{{ formatMessage(messages.preLaunch) }}
+					</h2>
+					<p class="m-0 text-xs text-secondary">
+						{{ formatMessage(messages.preLaunchDescription) }}
+					</p>
+				</div>
 				<ResetToDefaultButton
 					:disabled="hooks.pre_launch === null"
 					:setting="formatMessage(messages.preLaunch)"
@@ -142,16 +147,18 @@ const messages = defineMessages({
 				wrapper-class="w-full"
 				@update:model-value="(value) => (hooks.pre_launch = String(value ?? ''))"
 			/>
-			<p class="m-0">
-				{{ formatMessage(messages.preLaunchDescription) }}
-			</p>
 		</section>
 
-		<section class="flex flex-col gap-2.5">
+		<section class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
 			<div class="flex items-center justify-between gap-4">
-				<h2 class="m-0 min-w-0 text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.wrapper) }}
-				</h2>
+				<div class="flex flex-col gap-0.5">
+					<h2 class="m-0 text-sm font-bold text-contrast">
+						{{ formatMessage(messages.wrapper) }}
+					</h2>
+					<p class="m-0 text-xs text-secondary">
+						{{ formatMessage(messages.wrapperDescription) }}
+					</p>
+				</div>
 				<ResetToDefaultButton
 					:disabled="hooks.wrapper === null"
 					:setting="formatMessage(messages.wrapper)"
@@ -166,16 +173,18 @@ const messages = defineMessages({
 				wrapper-class="w-full"
 				@update:model-value="(value) => (hooks.wrapper = String(value ?? ''))"
 			/>
-			<p class="m-0">
-				{{ formatMessage(messages.wrapperDescription) }}
-			</p>
 		</section>
 
-		<section class="flex flex-col gap-2.5">
+		<section class="flex flex-col gap-2.5 rounded-2xl bg-bg-raised p-4">
 			<div class="flex items-center justify-between gap-4">
-				<h2 class="m-0 min-w-0 text-lg font-semibold text-contrast">
-					{{ formatMessage(messages.postExit) }}
-				</h2>
+				<div class="flex flex-col gap-0.5">
+					<h2 class="m-0 text-sm font-bold text-contrast">
+						{{ formatMessage(messages.postExit) }}
+					</h2>
+					<p class="m-0 text-xs text-secondary">
+						{{ formatMessage(messages.postExitDescription) }}
+					</p>
+				</div>
 				<ResetToDefaultButton
 					:disabled="hooks.post_exit === null"
 					:setting="formatMessage(messages.postExit)"
@@ -190,16 +199,13 @@ const messages = defineMessages({
 				wrapper-class="w-full"
 				@update:model-value="(value) => (hooks.post_exit = String(value ?? ''))"
 			/>
-			<p class="m-0">
-				{{ formatMessage(messages.postExitDescription) }}
-			</p>
 		</section>
 
-		<div>
-			<div class="m-0">
+		<section class="rounded-2xl bg-bg-raised p-4">
+			<div class="m-0 text-xs font-bold text-contrast">
 				{{ formatMessage(messages.hookVariablesDescription) }}
 			</div>
-			<ul class="m-0 mt-2">
+			<ul class="m-0 mt-2 space-y-1 pl-4 text-xs text-secondary font-mono">
 				<li>{{ formatMessage(messages.instanceNameDescription) }}</li>
 				<li>{{ formatMessage(messages.instanceIdDescription) }}</li>
 				<li>{{ formatMessage(messages.instanceDirDescription) }}</li>
@@ -207,6 +213,6 @@ const messages = defineMessages({
 				<li>{{ formatMessage(messages.instanceJavaDescription) }}</li>
 				<li>{{ formatMessage(messages.instanceJavaArgsDescription) }}</li>
 			</ul>
-		</div>
+		</section>
 	</div>
 </template>

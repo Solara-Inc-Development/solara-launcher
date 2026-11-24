@@ -18,87 +18,103 @@
 				@mouseleave="setNotificationTimer(item)"
 			>
 				<div
-					class="flex w-full gap-2 overflow-hidden rounded-lg bg-bg-raised border border-solid border-surface-5"
-					:class="item.containerClass"
+					class="solara-toast group relative flex w-full flex-col overflow-hidden rounded-2xl"
+					:class="[
+						item.containerClass,
+						{
+							'solara-toast--error': item.type === 'error',
+							'solara-toast--warning': item.type === 'warning',
+							'solara-toast--success': item.type === 'success',
+							'solara-toast--info': !item.type || item.type === 'info',
+							'solara-toast--neutral': item.type === 'neutral',
+						},
+					]"
 				>
-					<div
-						class="w-2"
-						:class="{
-							'bg-red': item.type === 'error',
-							'bg-orange': item.type === 'warning',
-							'bg-green': item.type === 'success',
-							'bg-blue': !item.type || item.type === 'info',
-							'bg-transparent': item.type === 'neutral',
-						}"
-					></div>
-					<div
-						class="grid w-full grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-1 py-2 pl-1 pr-3"
-					>
+					<!-- Signature thin luminous Solara top accent hairline -->
+					<div class="solara-toast-hairline pointer-events-none h-[2px] w-full shrink-0" />
+
+					<div class="flex items-start gap-3 px-3.5 py-3">
 						<div
 							v-if="!item.noIcon"
-							class="flex items-center"
+							class="solara-toast-icon-badge mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl"
 							:class="{
-								'text-red': item.type === 'error',
-								'text-orange': item.type === 'warning',
-								'text-green': item.type === 'success',
-								'text-blue': !item.type || item.type === 'info',
-								'text-contrast': item.type === 'neutral',
+								'solara-badge--error': item.type === 'error',
+								'solara-badge--warning': item.type === 'warning',
+								'solara-badge--success': item.type === 'success',
+								'solara-badge--info': !item.type || item.type === 'info',
+								'solara-badge--neutral': item.type === 'neutral',
 							}"
 						>
-							<IssuesIcon v-if="item.type === 'warning'" class="h-6 w-6" />
-							<CheckCircleIcon v-else-if="item.type === 'success'" class="h-6 w-6" />
-							<XCircleIcon v-else-if="item.type === 'error'" class="h-6 w-6" />
-							<InfoIcon v-else class="h-6 w-6" />
+							<IssuesIcon v-if="item.type === 'warning'" class="size-4" />
+							<CheckCircleIcon v-else-if="item.type === 'success'" class="size-4" />
+							<XCircleIcon v-else-if="item.type === 'error'" class="size-4" />
+							<InfoIcon v-else class="size-4" />
 						</div>
-						<div
-							class="m-0 text-wrap font-bold text-contrast"
-							:class="{ 'col-span-2': item.noIcon }"
-						>
-							{{ item.title }}
-						</div>
-						<div class="flex items-center gap-1">
-							<div v-if="item.count && item.count > 1" class="text-xs font-bold text-contrast">
-								x{{ item.count }}
+
+						<div class="flex min-w-0 flex-1 flex-col gap-1">
+							<div class="flex items-start justify-between gap-2">
+								<div class="flex min-w-0 flex-wrap items-center gap-1.5">
+									<div class="m-0 text-[13.5px] font-bold leading-snug text-contrast">
+										{{ item.title }}
+									</div>
+									<span
+										v-if="item.count && item.count > 1"
+										class="rounded-full bg-surface-4 px-1.5 py-0.5 text-[10.5px] font-bold leading-none text-contrast tabular-nums"
+									>
+										×{{ item.count }}
+									</span>
+								</div>
+
+								<div class="flex shrink-0 items-center gap-0.5">
+									<button
+										v-if="item.copyable !== false"
+										v-tooltip="
+											item.supportData ? 'Copy error details for support' : 'Copy to clipboard'
+										"
+										type="button"
+										:aria-label="
+											item.supportData ? 'Copy error details for support' : 'Copy to clipboard'
+										"
+										class="flex size-6 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-0 text-secondary/75 transition-all hover:bg-surface-4 hover:text-contrast"
+										@click="copyToClipboard(item)"
+									>
+										<CheckIcon v-if="copied[getCopyKey(item)]" class="size-3.5 text-brand" />
+										<CopyIcon v-else class="size-3.5" />
+									</button>
+									<button
+										v-if="item.dismissible !== false"
+										v-tooltip="`Dismiss`"
+										type="button"
+										aria-label="Dismiss"
+										class="flex size-6 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-0 text-secondary/75 transition-all hover:bg-surface-4 hover:text-contrast"
+										@click="dismissNotification(index)"
+									>
+										<XIcon class="size-3.5" />
+									</button>
+								</div>
 							</div>
-							<IconButton
-								v-if="item.copyable !== false"
-								v-tooltip="
-									item.supportData ? 'Copy error details for support' : 'Copy to clipboard'
-								"
-								size="xs"
-								:label="item.supportData ? 'Copy error details for support' : 'Copy to clipboard'"
-								@click="copyToClipboard(item)"
+
+							<div
+								v-if="item.text"
+								class="max-h-[45vh] overflow-y-auto whitespace-pre-wrap text-[12.5px] leading-relaxed text-secondary"
 							>
-								<CheckIcon v-if="copied[getCopyKey(item)]" />
-								<CopyIcon v-else />
-							</IconButton>
-							<IconButton
-								v-if="item.dismissible !== false"
-								v-tooltip="`Dismiss`"
-								size="xs"
-								:label="`Dismiss`"
-								@click="dismissNotification(index)"
-							>
-								<XIcon />
-							</IconButton>
-						</div>
-						<div v-if="item.type !== 'neutral'"></div>
-						<div
-							class="col-span-2 whitespace-pre-wrap text-sm text-primary max-h-[80vh] overflow-y-auto"
-						>
-							{{ item.text }}
-						</div>
-						<template v-if="item.errorCode">
-							<div></div>
-							<div class="m-0 text-wrap text-xs font-medium text-secondary">
-								{{ item.errorCode }}
+								{{ item.text }}
 							</div>
-						</template>
-						<template v-if="item.buttons?.length">
-							<div class="col-span-2 flex flex-wrap gap-1.5 pt-1">
+
+							<div v-if="item.errorCode" class="pt-0.5">
+								<span
+									class="inline-block rounded-md bg-surface-4 px-2 py-0.5 font-mono text-[11px] font-medium text-secondary"
+								>
+									{{ item.errorCode }}
+								</span>
+							</div>
+
+							<div v-if="item.buttons?.length" class="flex flex-wrap gap-1.5 pt-1.5">
 								<Button
 									v-for="(button, buttonIndex) in item.buttons"
 									:key="buttonIndex"
+									size="sm"
+									class="!rounded-xl"
 									:type="button.color && button.color !== 'standard' ? 'colored' : 'base'"
 									:color="
 										button.color && button.color !== 'standard'
@@ -113,7 +129,7 @@
 									{{ button.label }}
 								</Button>
 							</div>
-						</template>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -133,7 +149,7 @@ import {
 } from '@modrinth/assets'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { Button, IconButton } from '#ui/components/base/buttons'
+import { Button } from '#ui/components/base/buttons'
 import { useModalStack } from '#ui/composables/modal-stack.ts'
 
 import {
@@ -222,14 +238,15 @@ withDefaults(
 <style lang="scss" scoped>
 .vue-notification-group {
 	position: fixed;
-	bottom: 1.5rem;
+	bottom: 1.25rem;
 	z-index: 200;
-	width: 460px;
-	transition: bottom 0.25s ease-in-out;
+	width: 376px;
+	max-width: calc(100vw - 2rem);
+	transition: bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 
 	&.location-right {
-		right: 1.5rem;
-		transition: right 0.25s ease-in-out;
+		right: 1.25rem;
+		transition: right 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 
 		&.has-sidebar {
 			right: 325px;
@@ -237,7 +254,7 @@ withDefaults(
 	}
 
 	&.location-left {
-		left: 1.5rem;
+		left: 1.25rem;
 	}
 
 	@media screen and (max-width: 500px) {
@@ -261,7 +278,6 @@ withDefaults(
 
 	.vue-notification-wrapper {
 		width: 100%;
-		overflow: hidden;
 		margin-bottom: 10px;
 
 		&:last-child {
@@ -270,7 +286,7 @@ withDefaults(
 	}
 
 	@media screen and (max-width: 750px) {
-		transition: bottom 0.25s ease-in-out;
+		transition: bottom 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 		bottom: calc(var(--size-mobile-navbar-height) + 10px) !important;
 
 		&.browse-menu-open {
@@ -279,32 +295,96 @@ withDefaults(
 	}
 }
 
+.solara-toast {
+	background-color: color-mix(in srgb, var(--surface-3) 92%, transparent);
+	border: 1px solid color-mix(in srgb, var(--surface-5) 45%, transparent);
+	backdrop-filter: blur(18px);
+	-webkit-backdrop-filter: blur(18px);
+	box-shadow:
+		0 16px 36px -14px rgba(0, 0, 0, 0.72),
+		0 4px 12px -4px rgba(0, 0, 0, 0.38);
+	transition:
+		transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 180ms ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		border-color: color-mix(in srgb, var(--surface-5) 75%, transparent);
+	}
+}
+
+.solara-toast--success .solara-toast-hairline {
+	background: linear-gradient(90deg, transparent 0%, #3dd6f5 30%, #7be8ff 72%, transparent 100%);
+}
+.solara-toast--info .solara-toast-hairline {
+	background: linear-gradient(90deg, transparent 0%, #3dd6f5 32%, #ffb55a 78%, transparent 100%);
+}
+.solara-toast--warning .solara-toast-hairline {
+	background: linear-gradient(90deg, transparent 0%, #ffb55a 35%, #f59e0b 75%, transparent 100%);
+}
+.solara-toast--error .solara-toast-hairline {
+	background: linear-gradient(90deg, transparent 0%, #f43f5e 35%, #fb7185 75%, transparent 100%);
+}
+.solara-toast--neutral .solara-toast-hairline {
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		color-mix(in srgb, var(--color-contrast) 22%, transparent) 50%,
+		transparent 100%
+	);
+}
+
+.solara-badge--success {
+	background-color: color-mix(in srgb, var(--color-brand) 16%, transparent);
+	color: var(--color-brand);
+}
+.solara-badge--info {
+	background-color: color-mix(in srgb, var(--color-brand) 16%, transparent);
+	color: var(--color-brand);
+}
+.solara-badge--warning {
+	background-color: color-mix(in srgb, #ffb55a 16%, transparent);
+	color: #ffb55a;
+}
+.solara-badge--error {
+	background-color: color-mix(in srgb, #f43f5e 16%, transparent);
+	color: #f43f5e;
+}
+.solara-badge--neutral {
+	background-color: var(--surface-4);
+	color: var(--color-contrast);
+}
+
 .notifs-enter-active,
 .notifs-leave-active,
 .notifs-move {
-	transition: all 0.25s ease-in-out;
-}
-.notifs-enter-from,
-.notifs-leave-to {
-	opacity: 0;
+	transition:
+		opacity 240ms cubic-bezier(0.22, 1, 0.36, 1),
+		transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .notifs-enter-from {
-	transform: translateY(100%) scale(0.8);
+	opacity: 0;
+	.location-right & {
+		transform: translateX(28px) scale(0.96);
+	}
+	.location-left & {
+		transform: translateX(-28px) scale(0.96);
+	}
 }
 
 .notifs-leave-to {
+	opacity: 0;
 	.location-right & {
-		transform: translateX(100%) scale(0.8);
+		transform: translateX(36px) scale(0.96);
 	}
-
 	.location-left & {
-		transform: translateX(-100%) scale(0.8);
+		transform: translateX(-36px) scale(0.96);
 	}
 }
 
 .exit-fade .notifs-leave-active {
-	transition: opacity 0.25s ease-in-out;
+	transition: opacity 220ms ease-out;
 }
 
 .exit-fade .notifs-leave-to {
@@ -312,6 +392,6 @@ withDefaults(
 }
 
 body.floating-action-bar-shown .vue-notification-group {
-	bottom: calc(90px);
+	bottom: 90px;
 }
 </style>

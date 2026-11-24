@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.97 (retry after transient Windows Gradle hiccup): Pure-#000000 OLED Instance/Library/Add Mods long-card UI, custom Instance Settings, colorful classic ASCII SOLARA console logo, fixed mod/bulk updates, no unprompted update restarts.
+# Solara V-0.0.100: Custom Solara frosted OLED side notifications, 100% custom pure-OLED Instance Settings modal, and unified light-blue Solara accents.
 on:
   workflow_dispatch:
   push:

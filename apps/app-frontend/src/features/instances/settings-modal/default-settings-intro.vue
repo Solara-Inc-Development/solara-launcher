@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Settings2Icon } from '@modrinth/assets'
-import { Button, defineMessage, useVIntl } from '@modrinth/ui'
+import { defineMessage, useVIntl } from '@modrinth/ui'
 
 import {
 	injectSettingsActions,
@@ -30,13 +30,15 @@ function showDefaultSettings() {
 </script>
 
 <template>
-	<div
-		class="flex items-center justify-between gap-4 border-0 border-b border-solid border-surface-5 pb-6"
-	>
-		<p class="m-0 min-w-0 text-secondary">{{ description }}</p>
-		<Button class="shrink-0" @click="showDefaultSettings">
-			<Settings2Icon />
-			{{ formatMessage(label) }}
-		</Button>
+	<div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand/10 px-4 py-3">
+		<p class="m-0 min-w-0 flex-1 text-xs leading-relaxed text-secondary">{{ description }}</p>
+		<button
+			type="button"
+			class="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border-0 bg-brand/15 px-3 py-1.5 text-xs font-bold text-brand transition-all hover:brightness-110"
+			@click="showDefaultSettings"
+		>
+			<Settings2Icon class="size-3.5" />
+			<span>{{ formatMessage(label) }}</span>
+		</button>
 	</div>
 </template>

@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.100',
+		title: 'Solara Frosted OLED Side Notifications, Custom Instance Settings & Unified Light-Blue Accent',
+		date: 'November 24, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Redesigned all side notifications and download progress popups into sleek frosted pure-OLED Solara glass cards with a glowing top accent hairline, soft icon badges, and smooth slide animations.',
+			'Built a 100% custom pure-#000000 OLED Solara Instance Settings modal with a profile identity sidebar, light-blue active tabs, quick Open Game Folder shortcut, and borderless raised cards across every settings tab.',
+		],
+		issuesFixed: [
+			'Unified green Update, Update All, success notification, and download progress accents into Solara Launcher’s signature light-blue theme color.',
+			'Removed the unused Cloud Sync tab and stock Modrinth modal chrome from Instance Settings for a cleaner Solara experience.',
+		],
+		futureUpdates: [
+			'Independent custom launcher core architecture replacing inherited engine.',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.99',
 		title: 'Pure-OLED Instance/Library/Browser UI, Classic ASCII Console Logo, Custom Instance Settings & Fixed Updates',
 		date: 'November 23, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Redesigned the Instance header, tabs, Mods & Packs workspace, Library grid, and Add Mods browser into a borderless pure-#000000 OLED style with silky raised cards and Modrinth-style long horizontal browse cards.',
 			'Customized the Instance Settings menu with a Solara profile identity card, one-click Icon Studio & Upload controls, quick Game Folder footer shortcut, and clean borderless settings cards.',
