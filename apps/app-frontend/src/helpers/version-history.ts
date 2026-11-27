@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.106',
+		title: 'Lunar/Feather-Style Top Navigation Deck & 4-Sided Curved Recessed OLED Frame',
+		date: 'November 27, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Removed the left Modrinth-style sidebar completely and introduced a sleek centered Top Navigation Deck (Home, Modpacks, Library, Skins, inline Quick Instance tiles with live running dots, and a + New CTA pill) with glowing cyan active pills and laser underlines.',
+			'Upgraded the inner viewport to a symmetric 4-sided curved recessed pure-OLED stage framed cleanly on all four sides by the outer bezel.',
+			'Integrated a recessed Back/Forward history capsule on the left and quick Settings gear + status capsule + seamless window controls on the right.',
+		],
+		issuesFixed: [
+			'Eliminated the Modrinth-signature left circle-icon strip and top-left L-cutout while keeping the beloved recessed curved OLED stage depth.',
+		],
+		futureUpdates: [
+			'Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.105',
 		title: 'Restored Beloved Classic Curved-Frame Sidebar & Title Bar Shell',
 		date: 'November 27, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Restored the beloved seamless elevated outer L-frame shell, recessed curved pure-OLED inner stage, bouncy circular navigation icons, classic Quick Instance Switcher, and crisp top title bar.',
 		],

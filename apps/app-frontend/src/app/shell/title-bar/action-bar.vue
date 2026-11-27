@@ -7,7 +7,7 @@
 		<AppUpdateButton />
 		<DownloadManager />
 		<div
-			class="flex border-solid border-surface-5 text-sm font-medium items-center gap-2 py-1.5 px-3 rounded-xl border"
+			class="solara-status-capsule flex border-solid border-surface-4 text-sm font-medium items-center gap-2 h-9 px-3 rounded-xl border"
 		>
 			<template v-if="selectedProcess">
 				<OnlineIndicatorIcon />
@@ -119,7 +119,10 @@
 						Update Available
 					</span>
 					<span v-else-if="justCheckedUpToDate" class="text-brand font-medium">Up to date</span>
-					<span v-else>Check for updates</span>
+					<span v-else>
+						<span class="hidden 2xl:inline">Check for updates</span>
+						<span class="2xl:hidden">Updates</span>
+					</span>
 				</button>
 			</template>
 		</div>
@@ -313,3 +316,9 @@ onBeforeUnmount(() => {
 	window.removeEventListener('online', handleOnline)
 })
 </script>
+
+<style scoped>
+.solara-status-capsule {
+	background-color: color-mix(in srgb, var(--color-bg) 76%, transparent);
+}
+</style>

@@ -3,7 +3,7 @@
 		<section
 			v-if="showControls"
 			ref="controlsEl"
-			class="pointer-events-auto fixed top-0 right-0 z-[10001] flex h-12 items-center gap-2 bg-bg-raised rounded-bl-2xl px-1.5"
+			class="pointer-events-auto fixed top-0 right-0 z-[10001] flex h-[var(--top-bar-height,3.5rem)] items-center gap-1 bg-bg-raised px-2"
 			data-tauri-drag-region-exclude
 		>
 			<IconButton

@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.105: Restored beloved classic elevated L-frame sidebar, bouncy circular nav icons, curved recessed OLED viewport, and crisp top title bar.
+# Solara V-0.0.106: Lunar/Feather-style Top Navigation Deck & symmetric 4-sided curved recessed OLED inner frame (zero Modrinth left sidebar).
 on:
   workflow_dispatch:
   push:

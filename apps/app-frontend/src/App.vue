@@ -221,7 +221,7 @@ async function handleFullscreenChange() {
 	}
 }
 
-const APP_LEFT_NAV_WIDTH = '4rem'
+const APP_LEFT_NAV_WIDTH = '0.5rem'
 const APP_SIDEBAR_WIDTH = 300
 const credentials = ref(null)
 const storedModrinthAccounts = ref([])
@@ -276,7 +276,7 @@ providePageContext({
 	adConsentAvailable,
 	floatingActionBarOffsets: {
 		left: ref(APP_LEFT_NAV_WIDTH),
-		right: computed(() => (sidebarVisible.value ? `${APP_SIDEBAR_WIDTH}px` : '0px')),
+		right: computed(() => (sidebarVisible.value ? `${APP_SIDEBAR_WIDTH}px` : '0.5rem')),
 	},
 	featureFlags: {
 		serverRamAsBytesAlwaysOn: computed(() =>
@@ -1872,68 +1872,15 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<UnknownPackWarningModal ref="unknownPackWarningModal" />
 		<InstanceActionModals ref="instanceActionModals" />
 		<SharedInstanceModals ref="sharedInstanceModals" />
-		<div
-			class="app-grid-navbar bg-bg-raised flex flex-col p-[0.5rem] pt-0 gap-[0.25rem] w-[--left-bar-width]"
-		>
-			<NavButton
-				v-tooltip.right="formatMessage(messages.home)"
-				to="/"
-				:is-primary="(route) => route.path === '/'"
-				:is-subpage="
-					() =>
-						(route.path.startsWith('/browse') || route.path.startsWith('/project')) && route.query.i
-				"
-			>
-				<HomeIcon />
-			</NavButton>
-			<NavButton
-				v-tooltip.right="'ModPackInstaller'"
-				to="/browse/modpack"
-				:is-primary="() => route.path.startsWith('/browse') && !route.query.i && !route.query.sid"
-				:is-subpage="
-					(route) => route.path.startsWith('/project') && !route.query.i && !route.query.sid
-				"
-			>
-				<PackageIcon />
-			</NavButton>
-			<NavButton
-				v-if="appSettings.showSkinSelectorInSidebar"
-				v-tooltip.right="'Skin Studio'"
-				to="/skins"
-			>
-				<PaletteIcon />
-			</NavButton>
-			<NavButton
-				v-tooltip.right="'Library'"
-				to="/library"
-				:is-primary="(r) => r.path === '/library'"
-				:is-subpage="(r) => r.path.startsWith('/instance/')"
-			>
-				<LibraryIcon />
-			</NavButton>
-			<suspense>
-				<QuickInstanceSwitcher>
-					<NavButton
-						v-tooltip.right="formatMessage(messages.createNewInstance)"
-						:to="() => installationModal?.show()"
-						:disabled="offline"
-					>
-						<PlusIcon />
-					</NavButton>
-				</QuickInstanceSwitcher>
-			</suspense>
-			<NavButton
-				v-tooltip.right="formatMessage(commonMessages.settingsLabel)"
-				:to="settingsActions.openSettings"
-			>
-				<SettingsIcon />
-			</NavButton>
-		</div>
 		<AppTitleBar
 			:can-navigate-back="canNavigateBack"
 			:can-navigate-forward="canNavigateForward"
+			:show-skin-tab="appSettings.showSkinSelectorInSidebar"
+			:offline="offline"
 			:show-sidebar-toggle="false"
 			:sidebar-toggled="false"
+			@create-instance="installationModal?.show()"
+			@open-settings="settingsActions.openSettings()"
 			@toggle-sidebar="sidebarToggled = !sidebarToggled"
 		/>
 	</div>
@@ -1950,8 +1897,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				class="loading-indicator-container h-8 fixed z-50 pointer-events-none"
 				:style="{
 					top: 'calc(var(--top-bar-height))',
-					left: 'calc(var(--left-bar-width))',
-					width: 'calc(100% - var(--left-bar-width) - var(--right-bar-width))',
+					left: 'calc(var(--frame-inset))',
+					width: 'calc(100% - (2 * var(--frame-inset)) - var(--right-bar-width))',
 				}"
 			>
 				<LoadingBar position="absolute" />
@@ -1964,7 +1911,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 			</div>
 			<div
 				id="background-teleport-target"
-				class="absolute h-full -z-10 rounded-tl-[--radius-xl] overflow-hidden"
+				class="absolute h-full -z-10 rounded-[--radius-xl] overflow-hidden"
 				:style="{
 					width: 'calc(100% - var(--right-bar-width))',
 				}"
@@ -2064,30 +2011,20 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 <style lang="scss" scoped>
 .app-grid-layout,
 .app-contents {
-	--top-bar-height: 3rem;
-	--left-bar-width: 4rem;
+	--top-bar-height: 3.5rem;
+	--frame-inset: 0.5rem;
+	--left-bar-width: 0px;
 	--right-bar-width: 0px;
 }
 
 .app-grid-layout {
 	display: grid;
-	grid-template: 'status status' 'nav dummy';
-	grid-template-columns: auto 1fr;
+	grid-template: 'status' 'dummy';
+	grid-template-columns: 1fr;
 	grid-template-rows: auto minmax(0, 1fr);
 	position: relative;
 	background-color: var(--color-raised-bg);
 	height: 100vh;
-}
-
-.app-grid-navbar {
-	grid-area: nav;
-	min-height: 0;
-	position: relative;
-	z-index: 2;
-
-	> :deep(*) {
-		flex-shrink: 0;
-	}
 }
 
 [data-tauri-drag-region-exclude] {
@@ -2097,13 +2034,14 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 .app-contents {
 	position: absolute;
 	z-index: 1;
-	left: var(--left-bar-width);
+	left: var(--frame-inset);
 	top: var(--top-bar-height);
-	right: 0;
-	bottom: 0;
-	height: calc(100vh - var(--top-bar-height));
+	right: var(--frame-inset);
+	bottom: var(--frame-inset);
+	height: calc(100vh - var(--top-bar-height) - var(--frame-inset));
 	background-color: var(--color-bg);
-	border-top-left-radius: var(--radius-xl);
+	border-radius: var(--radius-xl);
+	overflow: hidden;
 
 	display: grid;
 	grid-template-columns: 1fr;
@@ -2115,6 +2053,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 
 .loading-indicator-container {
 	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
 	overflow: hidden;
 }
 
@@ -2142,12 +2081,12 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	z-index: 30;
 	content: '';
 	position: fixed;
-	left: var(--left-bar-width);
+	left: var(--frame-inset);
 	top: var(--top-bar-height);
-	right: calc(-1 * var(--left-bar-width));
-	bottom: calc(-1 * var(--left-bar-width));
+	right: var(--frame-inset);
+	bottom: var(--frame-inset);
 	border-radius: var(--radius-xl);
-	box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.1) inset;
+	box-shadow: 0 2px 18px rgba(0, 0, 0, 0.22) inset;
 	border-color: var(--surface-5);
 	border-width: 1px;
 	border-style: solid;
@@ -2210,6 +2149,11 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 }
 </style>
 <style>
+:root {
+	--top-bar-height: 3.5rem;
+	--left-bar-width: 0px;
+}
+
 .os-theme-dark,
 .os-theme-light {
 	--os-handle-bg: var(--color-scrollbar) !important;

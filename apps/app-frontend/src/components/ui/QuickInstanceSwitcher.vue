@@ -1,28 +1,28 @@
 <script setup>
-import { EyeIcon, FolderOpenIcon, PlayIcon, SpinnerIcon, StopCircleIcon } from '@modrinth/assets'
+import {
+	DropdownIcon,
+	EyeIcon,
+	FolderOpenIcon,
+	PlayIcon,
+	SpinnerIcon,
+	StopCircleIcon,
+} from '@modrinth/assets'
 import {
 	Avatar,
 	commonMessages,
 	ContextMenu,
 	defineMessages,
-	injectAuth,
+	FloatingMenu,
 	injectNotificationManager,
-	injectUserPreferences,
 	useVIntl,
 } from '@modrinth/ui'
 import { useQuery } from '@tanstack/vue-query'
 import dayjs from 'dayjs'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import NavButton from '@/components/ui/NavButton.vue'
 import { useAppEvent } from '@/composables/use-app-event'
-import { useAppSettings } from '@/composables/use-app-settings.ts'
 import { handleSevereError } from '@/composables/use-error.js'
-import {
-	QUICK_INSTANCE_LIMIT_MAX,
-	useQuickInstanceLimit,
-} from '@/composables/use-quick-instance-limit.ts'
 import { useHiddenInstances } from '@/features/library/hidden-instances/use-hidden-instances'
 import { trackEvent } from '@/helpers/analytics'
 import { getInstanceIconUrl, kill, run } from '@/helpers/instance'
@@ -30,24 +30,20 @@ import { get_all } from '@/helpers/process'
 import { showInstanceInFolder } from '@/helpers/utils'
 import { instanceListQueryOptions } from '@/pages/instance/query-options'
 
-const ITEM_SIZE = 52
-const SYNC_DEBOUNCE_MS = 1000
+const INLINE_MAX = 3
+const DROPDOWN_MAX = 8
+
 const { handleError } = injectNotificationManager()
-const auth = injectAuth()
-const { updatePreferences } = injectUserPreferences()
-const appSettings = useAppSettings()
 const instancesQuery = useQuery(instanceListQueryOptions())
 const router = useRouter()
+const route = useRoute()
 const instanceOptions = ref()
 const runningInstances = ref([])
+const moreMenuOpen = ref(false)
 
 const { formatMessage } = useVIntl()
-
-const container = ref()
-const footer = ref()
-let resizeObserver
-const maxAuto = ref(0)
 const { hiddenIds } = useHiddenInstances()
+
 const allInstances = computed(() =>
 	(instancesQuery.data.value ?? [])
 		.filter((instance) => !hiddenIds.value.has(instance.id))
@@ -68,167 +64,17 @@ const allInstances = computed(() =>
 			return dateB - dateA
 		}),
 )
-const dragging = ref(false)
-const quickInstances = useQuickInstanceLimit()
 
-const maxVisible = computed(() =>
-	Math.min(maxAuto.value, allInstances.value.length, QUICK_INSTANCE_LIMIT_MAX),
-)
-const visibleCount = computed(() =>
-	Math.min(quickInstances.limit.value ?? maxVisible.value, maxVisible.value),
-)
-const recentInstances = computed(() => allInstances.value.slice(0, visibleCount.value))
-const canDrag = computed(() => maxVisible.value > 0)
-const showOverdrag = ref(false)
+const inlineInstances = computed(() => allInstances.value.slice(0, INLINE_MAX))
+const dropdownInstances = computed(() => allInstances.value.slice(0, DROPDOWN_MAX))
+const overflowCount = computed(() => Math.max(0, allInstances.value.length - INLINE_MAX))
 
-const updateMaxAuto = () => {
-	if (!container.value) return
-	const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
-	const dividerHeight = rem + 1
-	const gap = rem / 4
-	const footerHeight = (footer.value?.clientHeight ?? 0) + gap
-	maxAuto.value = Math.max(
-		0,
-		Math.floor(
-			(container.value.clientHeight - footerHeight - 2 * dividerHeight - gap) / (3 * rem + gap),
-		),
-	)
+function isInstanceRouteActive(instanceId) {
+	return route.path.startsWith(`/instance/${encodeURIComponent(instanceId)}`)
 }
 
-const setLimit = (count) => {
-	const clamped = Math.max(0, Math.min(count, maxVisible.value))
-	if (clamped >= maxVisible.value) {
-		quickInstances.setLimit(null)
-	} else {
-		quickInstances.setLimit(clamped)
-	}
-}
-
-const syncLimitToAccount = () => {
-	if (!appSettings.syncFeaturesAcrossDevices || !auth.user.value) {
-		return
-	}
-	updatePreferences({
-		behavior: {
-			quick_instance_count: quickInstances.limit.value ?? QUICK_INSTANCE_LIMIT_MAX,
-		},
-	}).catch(() => undefined)
-}
-
-let syncTimeout = null
-
-const cancelScheduledSync = () => {
-	if (syncTimeout !== null) {
-		clearTimeout(syncTimeout)
-		syncTimeout = null
-	}
-}
-
-const scheduleSync = () => {
-	cancelScheduledSync()
-	syncTimeout = setTimeout(() => {
-		syncTimeout = null
-		syncLimitToAccount()
-	}, SYNC_DEBOUNCE_MS)
-}
-
-const flushScheduledSync = () => {
-	if (syncTimeout !== null) {
-		cancelScheduledSync()
-		syncLimitToAccount()
-	}
-}
-
-const nudgeLimit = (delta) => {
-	if (!canDrag.value) {
-		return
-	}
-	const target = visibleCount.value + delta
-	if (target < 0 || target > maxVisible.value) {
-		flashOverdrag()
-	}
-	const previousLimit = quickInstances.limit.value
-	setLimit(target)
-	if (quickInstances.limit.value !== previousLimit) {
-		scheduleSync()
-	}
-}
-
-let dragStartY = 0
-let dragStartCount = 0
-let dragStartLimit = null
-let dragHadPendingSync = false
-let wasOverdragging = false
-let overdragTimeout = null
-
-const clearOverdragFlash = () => {
-	showOverdrag.value = false
-	if (overdragTimeout !== null) {
-		clearTimeout(overdragTimeout)
-		overdragTimeout = null
-	}
-}
-
-const flashOverdrag = () => {
-	showOverdrag.value = true
-	if (overdragTimeout !== null) {
-		clearTimeout(overdragTimeout)
-	}
-	overdragTimeout = setTimeout(() => {
-		showOverdrag.value = false
-		overdragTimeout = null
-	}, 500)
-}
-
-const onDividerPointerDown = (event) => {
-	if (!canDrag.value) {
-		return
-	}
-	event.preventDefault()
-	dragging.value = true
-	wasOverdragging = false
-	clearOverdragFlash()
-	dragStartY = event.clientY
-	dragStartCount = visibleCount.value
-	dragStartLimit = quickInstances.limit.value
-	dragHadPendingSync = syncTimeout !== null
-	cancelScheduledSync()
-	document.body.classList.add('quick-instance-dragging')
-	event.currentTarget.setPointerCapture(event.pointerId)
-}
-
-const onDividerPointerMove = (event) => {
-	if (!dragging.value) {
-		return
-	}
-	const delta = event.clientY - dragStartY
-	const target = dragStartCount + Math.round(delta / ITEM_SIZE)
-	const isOverdragging = target < 0 || target > maxAuto.value
-	if (isOverdragging && !wasOverdragging) {
-		flashOverdrag()
-	}
-	wasOverdragging = isOverdragging
-	setLimit(target)
-}
-
-const endDrag = (event) => {
-	if (!dragging.value) {
-		return
-	}
-	dragging.value = false
-	wasOverdragging = false
-	clearOverdragFlash()
-	document.body.classList.remove('quick-instance-dragging')
-	if (event?.currentTarget?.hasPointerCapture?.(event.pointerId)) {
-		event.currentTarget.releasePointerCapture(event.pointerId)
-	}
-	if (dragHadPendingSync || quickInstances.limit.value !== dragStartLimit) {
-		syncLimitToAccount()
-	}
-}
-
-const onDividerPointerUp = (event) => {
-	endDrag(event)
+function isInstanceRunning(instanceId) {
+	return runningInstances.value.includes(instanceId)
 }
 
 await instancesQuery.suspense().catch(handleError)
@@ -236,29 +82,10 @@ await instancesQuery.suspense().catch(handleError)
 useAppEvent('process', checkProcesses)
 
 onMounted(() => {
-	resizeObserver = new ResizeObserver(updateMaxAuto)
-	resizeObserver.observe(container.value)
-	resizeObserver.observe(footer.value)
-	updateMaxAuto()
 	checkProcesses()
 })
 
-onUnmounted(() => {
-	resizeObserver?.disconnect()
-	flushScheduledSync()
-	document.body.classList.remove('quick-instance-dragging')
-	clearOverdragFlash()
-})
-
 const messages = defineMessages({
-	dragTooltip: {
-		id: 'app.quick-instance-switcher.drag-tooltip',
-		defaultMessage: 'Drag to resize',
-	},
-	dragShowTooltip: {
-		id: 'app.quick-instance-switcher.drag-show-tooltip',
-		defaultMessage: 'Drag to show recent instances',
-	},
 	viewInstance: {
 		id: 'app.quick-instance-switcher.view-instance',
 		defaultMessage: 'View instance',
@@ -275,13 +102,6 @@ const messages = defineMessages({
 		id: 'app.quick-instance-switcher.title',
 		defaultMessage: 'Recent instances',
 	},
-})
-
-const dividerTooltip = computed(() => {
-	if (!canDrag.value || dragging.value) {
-		return null
-	}
-	return formatMessage(visibleCount.value === 0 ? messages.dragShowTooltip : messages.dragTooltip)
 })
 
 async function checkProcesses() {
@@ -312,7 +132,7 @@ async function stopInstance(instance) {
 }
 
 function openContextMenu(event, instance) {
-	const playing = runningInstances.value.includes(instance.id)
+	const playing = isInstanceRunning(instance.id)
 	instanceOptions.value?.open(event, [
 		playing
 			? {
@@ -349,147 +169,118 @@ function openContextMenu(event, instance) {
 </script>
 
 <template>
-	<div ref="container" class="flex min-h-0 flex-1 flex-col gap-1">
-		<Transition name="top-divider">
-			<div
-				v-if="recentInstances.length > 0"
-				class="top-divider shrink-0 flex items-center justify-center overflow-hidden"
-			>
-				<div class="h-px w-8 bg-surface-5 shrink-0"></div>
-			</div>
-		</Transition>
-		<div :aria-label="formatMessage(messages.title)">
-			<TransitionGroup name="quick-instance" tag="div" class="flex shrink-0 flex-col items-center">
-				<NavButton
-					v-for="instance in recentInstances"
-					:key="instance.id"
-					v-tooltip.right="instance.name"
-					class="quick-instance-item relative"
-					:to="`/instance/${encodeURIComponent(instance.id)}`"
-					@contextmenu.prevent.stop="(event) => openContextMenu(event, instance)"
-				>
-					<Avatar
-						:src="getInstanceIconUrl(instance.icon_path)"
-						size="28px"
-						:tint-by="instance.id"
-						:class="`transition-all ${instance.install_stage !== 'installed' ? `brightness-[0.25] scale-[0.85]` : `group-hover:brightness-75`}`"
-						pad-transparent-corners
-					/>
-					<div
-						v-if="instance.install_stage !== 'installed'"
-						class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
-					>
-						<SpinnerIcon class="animate-spin w-4 h-4" />
-					</div>
-				</NavButton>
-			</TransitionGroup>
-		</div>
-		<ContextMenu ref="instanceOptions" :label="formatMessage(messages.instanceActions)" />
-		<div
-			v-tooltip.right="dividerTooltip"
-			role="separator"
-			aria-orientation="horizontal"
-			:tabindex="canDrag ? 0 : undefined"
-			:aria-valuemin="canDrag ? 0 : undefined"
-			:aria-valuemax="canDrag ? maxVisible : undefined"
-			:aria-valuenow="canDrag ? visibleCount : undefined"
-			class="flex shrink-0 items-center justify-center py-2 select-none"
-			:class="canDrag ? 'cursor-ns-resize touch-none group' : ''"
-			@pointerdown="onDividerPointerDown"
-			@pointermove="onDividerPointerMove"
-			@pointerup="onDividerPointerUp"
-			@pointercancel="onDividerPointerUp"
-			@keydown.up.prevent="nudgeLimit(-1)"
-			@keydown.down.prevent="nudgeLimit(1)"
+	<div
+		v-if="inlineInstances.length > 0"
+		data-tauri-drag-region-exclude
+		:aria-label="formatMessage(messages.title)"
+		class="hidden lg:flex items-center gap-1"
+	>
+		<div class="h-4 w-px bg-surface-5/80 mx-0.5 shrink-0" />
+
+		<RouterLink
+			v-for="(instance, index) in inlineInstances"
+			:key="instance.id"
+			v-tooltip.bottom="instance.name"
+			:to="`/instance/${encodeURIComponent(instance.id)}`"
+			class="solara-quick-tile group relative size-8 rounded-xl items-center justify-center transition-all duration-200 select-none no-underline"
+			:class="[
+				index === 2 ? 'hidden xl:flex' : 'flex',
+				isInstanceRouteActive(instance.id)
+					? 'bg-brand/15 ring-1 ring-brand/55 shadow-[0_0_12px_rgba(61,214,245,0.18)]'
+					: 'hover:bg-[color-mix(in_srgb,var(--color-contrast)_7%,transparent)]',
+			]"
+			@contextmenu.prevent.stop="(event) => openContextMenu(event, instance)"
 		>
+			<Avatar
+				:src="getInstanceIconUrl(instance.icon_path)"
+				size="22px"
+				:tint-by="instance.id"
+				:class="`rounded-[7px] transition-transform duration-200 ${
+					instance.install_stage !== 'installed'
+						? 'brightness-[0.3] scale-[0.88]'
+						: 'group-hover:scale-105'
+				}`"
+				pad-transparent-corners
+			/>
+			<span
+				v-if="isInstanceRunning(instance.id)"
+				class="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full bg-emerald-400 ring-2 ring-[var(--color-bg)] animate-pulse pointer-events-none"
+			/>
 			<div
-				class="h-px w-8 transition-colors duration-200"
-				:class="
-					showOverdrag
-						? 'bg-red'
-						: canDrag
-							? 'bg-surface-5 group-hover:bg-secondary group-focus-visible:bg-secondary'
-							: 'bg-surface-5'
-				"
-			></div>
-		</div>
-		<div ref="footer" class="flex shrink-0 flex-col items-center">
-			<slot />
-		</div>
+				v-else-if="instance.install_stage !== 'installed'"
+				class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+			>
+				<SpinnerIcon class="animate-spin size-3.5 text-brand" />
+			</div>
+		</RouterLink>
+
+		<FloatingMenu
+			v-if="overflowCount > 0"
+			placement="bottom"
+			@open="moreMenuOpen = true"
+			@close="moreMenuOpen = false"
+		>
+			<button
+				type="button"
+				v-tooltip.bottom="'Recent instances'"
+				class="h-7 px-1.5 rounded-lg border-0 bg-transparent hover:bg-[color-mix(in_srgb,var(--color-contrast)_7%,transparent)] text-xs font-bold text-secondary hover:text-contrast flex items-center gap-0.5 cursor-pointer transition-colors"
+			>
+				<span>+{{ overflowCount }}</span>
+				<DropdownIcon class="size-3.5 transition-transform" :class="{ 'rotate-180': moreMenuOpen }" />
+			</button>
+			<template #popper="{ hide }">
+				<div class="flex w-[17rem] max-h-[20rem] flex-col gap-1 overflow-y-auto p-1">
+					<div class="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-secondary">
+						Recent Instances
+					</div>
+					<div
+						v-for="inst in dropdownInstances"
+						:key="inst.id"
+						class="flex items-center justify-between gap-2 rounded-xl px-2 py-1.5 hover:bg-surface-4 transition-colors"
+					>
+						<RouterLink
+							:to="`/instance/${encodeURIComponent(inst.id)}`"
+							class="flex items-center gap-2.5 min-w-0 flex-1 no-underline text-contrast"
+							@click="hide()"
+						>
+							<Avatar
+								:src="getInstanceIconUrl(inst.icon_path)"
+								size="24px"
+								:tint-by="inst.id"
+								class="rounded-md shrink-0"
+								pad-transparent-corners
+							/>
+							<div class="flex flex-col min-w-0">
+								<span class="text-xs font-bold text-contrast truncate">{{ inst.name }}</span>
+								<span class="text-[11px] text-secondary truncate capitalize">
+									{{ inst.loader }} {{ inst.game_version }}
+								</span>
+							</div>
+						</RouterLink>
+						<button
+							v-if="isInstanceRunning(inst.id)"
+							type="button"
+							v-tooltip="'Stop'"
+							class="size-7 rounded-lg bg-red/15 hover:bg-red/25 border-0 text-red flex items-center justify-center cursor-pointer shrink-0"
+							@click.stop="stopInstance(inst)"
+						>
+							<StopCircleIcon class="size-4" />
+						</button>
+						<button
+							v-else
+							type="button"
+							v-tooltip="'Play'"
+							:disabled="inst.launch_blocked || inst.install_stage !== 'installed'"
+							class="size-7 rounded-lg bg-brand/15 hover:bg-brand hover:text-[var(--color-accent-contrast)] border-0 text-brand flex items-center justify-center cursor-pointer shrink-0 disabled:opacity-40"
+							@click.stop="playInstance(inst)"
+						>
+							<PlayIcon class="size-3.5" />
+						</button>
+					</div>
+				</div>
+			</template>
+		</FloatingMenu>
+
+		<ContextMenu ref="instanceOptions" :label="formatMessage(messages.instanceActions)" />
 	</div>
 </template>
-
-<style scoped lang="scss">
-.top-divider {
-	height: calc(1rem + 1px);
-}
-
-.top-divider-enter-active,
-.top-divider-leave-active {
-	transition:
-		opacity 0.25s ease,
-		height 0.25s ease;
-}
-
-.top-divider-enter-from,
-.top-divider-leave-to {
-	opacity: 0;
-	height: 0;
-}
-
-.quick-instance-item {
-	height: 3rem;
-	overflow: hidden;
-
-	& + & {
-		margin-top: 0.25rem;
-	}
-}
-
-.quick-instance-enter-active,
-.quick-instance-leave-active {
-	transition:
-		opacity 0.25s ease,
-		transform 0.25s ease,
-		height 0.25s ease,
-		margin-top 0.25s ease;
-}
-
-.quick-instance-enter-from,
-.quick-instance-leave-to {
-	opacity: 0;
-	transform: scale(0.5);
-	height: 0;
-	margin-top: 0 !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.top-divider-enter-active,
-	.top-divider-leave-active,
-	.quick-instance-enter-active,
-	.quick-instance-leave-active {
-		transition: none;
-	}
-
-	.top-divider-enter-from,
-	.top-divider-leave-to {
-		opacity: 1;
-		height: calc(1rem + 1px);
-	}
-
-	.quick-instance-enter-from,
-	.quick-instance-leave-to {
-		opacity: 1;
-		transform: none;
-		height: 3rem;
-		margin-top: unset !important;
-	}
-}
-</style>
-
-<style lang="scss">
-body.quick-instance-dragging,
-body.quick-instance-dragging * {
-	cursor: ns-resize !important;
-}
-</style>
