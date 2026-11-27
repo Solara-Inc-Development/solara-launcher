@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
+    version: 'V-0.0.105',
+    date: 'November 27, 2026',
+    tag: 'Latest Preview',
+    title: 'Restored Classic Curved-Frame Sidebar & Title Bar Shell',
+    highlights: [
+      'Brought back the beloved classic elevated L-frame sidebar, smooth curved recessed pure-OLED inner viewport, bouncy circular navigation icons, and classic Quick Instance Switcher.',
+      'Restored the seamless elevated Top Title Bar with crisp breadcrumbs, running/update status bar, and smoothly curved window controls.',
+      'Preserved 100% of recent Solara upgrades: native Solara Discord Rich Presence, CurseForge ACL fix, YouTube embed fix, manual Update Now restart control, custom dark Settings modals, and frosted side notifications.',
+    ],
+  },
+  {
     version: 'V-0.0.104',
     date: 'November 24, 2026',
-    tag: 'Latest Preview',
+    tag: 'Feature Release',
     title: 'Sleek Floating Solara Glass Dock & Minimal Pure-OLED Top Bar',
     highlights: [
       'Replaced the wide sidebar with a compact floating Solara glass dock (72px rail, rounded frosted dock, glowing light-blue squircle icons with active glow pip) for maximum content space.',
