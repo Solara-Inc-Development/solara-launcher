@@ -3635,6 +3635,50 @@
       "notes": "## Features Added\n- Restored the beloved seamless elevated outer L-frame shell, recessed curved pure-OLED inner stage, bouncy circular navigation icons, classic Quick Instance Switcher, and crisp top title bar.\n\n## Issues Fixed\n- Preserved all recent Solara upgrades (native Solara Discord Rich Presence, CurseForge ACL fix, YouTube preview fix, strict no-auto-restart updates, custom OLED App & Instance Settings modals, frosted side notifications, and native solara:// shortcuts).\n\n## Future Updates Implementation\n- Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).\n- Custom Solara Theme Studio integration with personalized accent controls.\n- Enhanced offline world backups and automatic snapshot recovery.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.105/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "e5d88ccd-fa40-4223-94dd-53d32fcb9362",
+      "publicVersion": "V-0.0.106",
+      "internalVersion": "0.0.106",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.106/solaralauncher.exe",
+      "commit": "b742fcac13f45436a5998e41c727deaecb78b251",
+      "allocatedAt": "2026-11-27T20:07:21.429Z",
+      "state": "published",
+      "applicationSha256": "96f4d1a0178d87e1d92084efd80c2eabf68168839f714aff644b2d2d7aa5dee2",
+      "applicationSize": 75353600,
+      "sourceTree": "cd173f4ffcbbb14f5205d85415f035b0ec91f854",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75353600,
+          "sha256": "96f4d1a0178d87e1d92084efd80c2eabf68168839f714aff644b2d2d7aa5dee2"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75353600,
+          "sha256": "96f4d1a0178d87e1d92084efd80c2eabf68168839f714aff644b2d2d7aa5dee2"
+        },
+        "source.zip": {
+          "size": 36255872,
+          "sha256": "8c3ae1d3835c3c22eb857837453a5e8d896ce4456d45e7b14b0cf2a9b2e6fe99"
+        }
+      },
+      "bundledNotices": {
+        "packages": 719,
+        "files": 1283,
+        "verified": true
+      },
+      "size": 75353600,
+      "sha256": "96f4d1a0178d87e1d92084efd80c2eabf68168839f714aff644b2d2d7aa5dee2",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-27T20:33:42.420Z",
+      "verifiedAt": "2026-11-27T20:31:50.119Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaCtSWHA4aG10bEVyVy9NT010TENQZSt1c09RbDNCMDRNMW5Tb29LbGExekViVU5BclQ1TGQzVnZDK056b3YwS3lBUU53TDlqK1d4Z0RYUmFIa05jL1F3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1ODExNTA3CWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEwNgo4Z2l4Q1FYZFk5dnJtSCtRTTg0RVJEWEo0OXNzL29BeHRyUk1CWlRhZXpuVjF5a0RHRGkwY0hBa2hZMzFaeW15VDg5UWJCQjhtbUZJZElndjVhdk5Bdz09Cg==",
+      "notes": "# Changelog\n\n## Lunar/Feather-Style Top Navigation Deck & 4-Sided Curved Recessed OLED Frame\n- **Top Navigation Deck (Zero Left Sidebar):** Removed the Modrinth-style left circle-icon sidebar completely and introduced a sleek centered Top Navigation Deck (`Home`, `Modpacks`, `Library`, `Skins`, inline Quick Instance tiles with live pulsing running dots & right-click Play/Stop menus, and a glowing cyan `+ New` button) with bouncy cyan active pills and laser underlines.\n- **Symmetric 4-Sided Curved Recessed OLED Frame:** Upgraded the inner pure-`#000000` OLED screen so all four corners curve smoothly inside the elevated outer frame, keeping the premium recessed depth while giving full horizontal width to Home, Modpacks, Library, and Skins.\n- **Integrated Toolbar Controls:** Added a recessed Back/Forward capsule on the left and a dedicated Settings gear button + status capsule + seamless window controls on the right.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.106/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
