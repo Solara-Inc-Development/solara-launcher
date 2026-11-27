@@ -7,15 +7,15 @@
 		<AppUpdateButton />
 		<DownloadManager />
 		<div
-			class="solara-status-pill flex text-xs font-semibold items-center gap-2 py-1.5 px-3.5 rounded-full transition-colors"
+			class="flex border-solid border-surface-5 text-sm font-medium items-center gap-2 py-1.5 px-3 rounded-xl border"
 		>
 			<template v-if="selectedProcess">
-				<span class="size-2 rounded-full bg-brand shadow-[0_0_8px_rgba(61,214,245,0.85)] animate-pulse shrink-0" />
+				<OnlineIndicatorIcon />
 				<div class="text-contrast flex items-center gap-2">
 					<router-link
 						v-tooltip="formatMessage(messages.viewInstance)"
 						:to="`/instance/${encodeURIComponent(selectedProcess.instance.id)}`"
-						class="hover:underline text-contrast no-underline"
+						class="hover:underline"
 					>
 						{{ selectedProcess.instance.name }}
 					</router-link>
@@ -105,7 +105,7 @@
 			<template v-else>
 				<button
 					type="button"
-					class="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-xs font-semibold text-secondary hover:text-contrast transition-colors p-0 select-none"
+					class="flex items-center gap-2 bg-transparent border-0 cursor-pointer text-sm font-medium text-secondary hover:text-contrast transition-colors p-0 select-none"
 					:disabled="isCheckingUpdates"
 					@click="handleCheckForUpdates"
 				>
@@ -113,35 +113,18 @@
 						class="size-3.5 text-brand"
 						:class="{ 'animate-spin': isCheckingUpdates }"
 					/>
-					<span v-if="isCheckingUpdates" class="text-contrast">Checking...</span>
-					<span v-else-if="hasAvailableUpdate" class="text-brand font-bold flex items-center gap-1.5">
+					<span v-if="isCheckingUpdates" class="text-contrast">Checking for updates...</span>
+					<span v-else-if="hasAvailableUpdate" class="text-brand font-semibold flex items-center gap-1.5">
 						<span class="size-2 rounded-full bg-brand animate-pulse" />
 						Update Available
 					</span>
-					<span v-else-if="justCheckedUpToDate" class="text-brand font-semibold">Up to date</span>
-					<span v-else>Check updates</span>
+					<span v-else-if="justCheckedUpToDate" class="text-brand font-medium">Up to date</span>
+					<span v-else>Check for updates</span>
 				</button>
 			</template>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.solara-status-pill {
-	background: #0a0e16;
-	border: 1px solid rgba(255, 255, 255, 0.075);
-}
-
-.solara-status-pill:hover {
-	background: #121826;
-	border-color: rgba(61, 214, 245, 0.25);
-}
-
-:global(.light-mode) .solara-status-pill {
-	background: #ffffff;
-	border: 1px solid rgba(15, 23, 42, 0.08);
-}
-</style>
 
 <script setup lang="ts">
 import {

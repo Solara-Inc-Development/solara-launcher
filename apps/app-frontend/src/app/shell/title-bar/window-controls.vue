@@ -3,33 +3,33 @@
 		<section
 			v-if="showControls"
 			ref="controlsEl"
-			class="solara-window-controls pointer-events-auto fixed top-0 right-0 z-[10001] flex h-12 items-center gap-1 px-2.5"
+			class="pointer-events-auto fixed top-0 right-0 z-[10001] flex h-12 items-center gap-2 bg-bg-raised rounded-bl-2xl px-1.5"
 			data-tauri-drag-region-exclude
 		>
 			<IconButton
 				type="quiet"
 				label="Minimize window"
-				class="solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-white/10"
+				class="relative before:absolute before:-inset-y-[9px] before:-inset-x-[6px] before:content-['']"
 				@click="getCurrentWindow().minimize()"
 			>
-				<MinimizeIcon class="!size-3.5" />
+				<MinimizeIcon />
 			</IconButton>
 			<IconButton
 				type="quiet"
 				label="Toggle maximize window"
-				class="solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-white/10"
+				class="relative before:absolute before:-inset-y-[9px] before:-inset-x-[6px] before:content-['']"
 				@click="getCurrentWindow().toggleMaximize()"
 			>
-				<RestoreIcon v-if="isMaximized" class="!size-3.5" />
-				<MaximizeIcon v-else class="!size-3.5" />
+				<RestoreIcon v-if="isMaximized" />
+				<MaximizeIcon v-else />
 			</IconButton>
 			<IconButton
 				type="quiet"
 				label="Close window"
-				class="close-button solara-win-btn !h-8 !w-8 !min-w-8 !rounded-xl !p-0 hover:!bg-red focus-visible:!bg-red"
+				class="close-button relative before:absolute before:-inset-y-[9px] before:-left-[6px] before:-right-[9px] before:content-[''] hover:!bg-red focus-visible:!bg-red"
 				@click="handleClose"
 			>
-				<XIcon class="!size-3.5" />
+				<XIcon />
 			</IconButton>
 		</section>
 	</Teleport>

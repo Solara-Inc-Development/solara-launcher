@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.104: Sleek compact floating Solara glass dock (72px rail, 42px glowing cyan squircles) & minimal pure-OLED top bar.
+# Solara V-0.0.105: Restored beloved classic elevated L-frame sidebar, bouncy circular nav icons, curved recessed OLED viewport, and crisp top title bar.
 on:
   workflow_dispatch:
   push:

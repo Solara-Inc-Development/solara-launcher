@@ -11,11 +11,28 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.105',
+		title: 'Restored Beloved Classic Curved-Frame Sidebar & Title Bar Shell',
+		date: 'November 27, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Restored the beloved seamless elevated outer L-frame shell, recessed curved pure-OLED inner stage, bouncy circular navigation icons, classic Quick Instance Switcher, and crisp top title bar.',
+		],
+		issuesFixed: [
+			'Preserved all recent Solara upgrades (native Solara Discord Rich Presence, CurseForge ACL fix, YouTube preview fix, strict no-auto-restart updates, custom OLED App & Instance Settings modals, frosted side notifications, and native solara:// shortcuts).',
+		],
+		futureUpdates: [
+			'Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.104',
 		title: 'Sleek Floating Solara Glass Dock & Minimal Pure-OLED Top Bar',
 		date: 'November 24, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Replaced the wide text sidebar with a sleek compact floating Solara glass dock (72px rail, rounded 22px frosted dock, 42px squircle icons with glowing cyan active pills and micro left glow pip) so your games, modpacks, and skins get maximum screen space.',
 			'Upgraded Recent Instances in the floating dock to crisp rounded-squircle icons with live pulsing cyan running dots and full right-click Play/Stop/Open Folder menus.',
