@@ -11,11 +11,30 @@ export interface VersionChangelog {
 
 export const VERIFIED_VERSION_HISTORY: VersionChangelog[] = [
 	{
+		version: 'V-0.0.107',
+		title: 'Discord-Style Pure Icon Squircle Rail, Live Ctrl+K Quick Search & 4-Sided Curved OLED Frame',
+		date: 'November 28, 2026',
+		channel: 'Testing Preview',
+		isLatest: true,
+		featuresAdded: [
+			'Introduced a familiar gamer-friendly 68px Discord-style left squircle icon rail featuring recessed dark-glass rounded-square tiles, left-wall glowing cyan indicator pips, vertical Recent Instances with live emerald running badges, and a glowing cyan + Create squircle.',
+			'Replaced Modrinth breadcrumbs in the top bar with a live Quick Search bar (Ctrl+K) that searches Modrinth & CurseForge modpacks, filters your installed instances with instant Play/Stop buttons, and triggers quick launcher actions.',
+			'Framed the pure-#000000 OLED inner viewport with smooth rounded corners on all 4 sides inside the outer bezel.',
+		],
+		issuesFixed: [
+			'Restored left-side muscle memory for Minecraft players while keeping Solara Launcher visually distinct from Modrinth (no Modrinth circles, no 1-corner L-cutout, no breadcrumb bar).',
+		],
+		futureUpdates: [
+			'Wire packages/solara-core modules live into Solara Launcher step-by-step (JRE probing -> Mojang/Fabric/Quilt -> Forge/NeoForge -> direct JVM launch -> SQLite instance store).',
+			'Custom Solara Theme Studio integration with personalized accent controls.',
+			'Enhanced offline world backups and automatic snapshot recovery.',
+		],
+	},
+	{
 		version: 'V-0.0.106',
 		title: 'Lunar/Feather-Style Top Navigation Deck & 4-Sided Curved Recessed OLED Frame',
 		date: 'November 27, 2026',
 		channel: 'Testing Preview',
-		isLatest: true,
 		featuresAdded: [
 			'Removed the left Modrinth-style sidebar completely and introduced a sleek centered Top Navigation Deck (Home, Modpacks, Library, Skins, inline Quick Instance tiles with live running dots, and a + New CTA pill) with glowing cyan active pills and laser underlines.',
 			'Upgraded the inner viewport to a symmetric 4-sided curved recessed pure-OLED stage framed cleanly on all four sides by the outer bezel.',

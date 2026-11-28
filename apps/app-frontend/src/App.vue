@@ -221,7 +221,7 @@ async function handleFullscreenChange() {
 	}
 }
 
-const APP_LEFT_NAV_WIDTH = '0.5rem'
+const APP_LEFT_NAV_WIDTH = '4.25rem'
 const APP_SIDEBAR_WIDTH = 300
 const credentials = ref(null)
 const storedModrinthAccounts = ref([])
@@ -1872,11 +1872,66 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 		<UnknownPackWarningModal ref="unknownPackWarningModal" />
 		<InstanceActionModals ref="instanceActionModals" />
 		<SharedInstanceModals ref="sharedInstanceModals" />
+		<aside
+			aria-label="Primary navigation"
+			class="app-grid-navbar bg-bg-raised flex flex-col items-center px-3 pt-1 pb-2 gap-1.5 w-[--left-bar-width]"
+		>
+			<NavButton
+				v-tooltip.right="formatMessage(messages.home)"
+				to="/"
+				:is-primary="(r) => r.path === '/'"
+			>
+				<HomeIcon />
+			</NavButton>
+			<NavButton
+				v-tooltip.right="'Modpacks'"
+				to="/browse/modpack"
+				:is-primary="(r) => r.path.startsWith('/browse') && !r.query.i && !r.query.sid"
+				:is-subpage="(r) => r.path.startsWith('/project') && !r.query.i && !r.query.sid"
+			>
+				<PackageIcon />
+			</NavButton>
+			<NavButton
+				v-if="appSettings.showSkinSelectorInSidebar"
+				v-tooltip.right="'Skin Studio'"
+				to="/skins"
+				:is-primary="(r) => r.path.startsWith('/skins')"
+			>
+				<PaletteIcon />
+			</NavButton>
+			<NavButton
+				v-tooltip.right="'Library'"
+				to="/library"
+				:is-primary="(r) => r.path === '/library'"
+				:is-subpage="
+					(r) =>
+						Boolean((r.path.startsWith('/browse') || r.path.startsWith('/project')) && r.query.i)
+				"
+			>
+				<LibraryIcon />
+			</NavButton>
+			<suspense>
+				<QuickInstanceSwitcher>
+					<NavButton
+						variant="cta"
+						v-tooltip.right="formatMessage(messages.createNewInstance)"
+						:to="() => installationModal?.show()"
+						:disabled="offline"
+					>
+						<PlusIcon />
+					</NavButton>
+				</QuickInstanceSwitcher>
+			</suspense>
+			<NavButton
+				v-tooltip.right="formatMessage(commonMessages.settingsLabel)"
+				:to="settingsActions.openSettings"
+			>
+				<SettingsIcon />
+			</NavButton>
+		</aside>
 		<AppTitleBar
 			:can-navigate-back="canNavigateBack"
 			:can-navigate-forward="canNavigateForward"
-			:show-skin-tab="appSettings.showSkinSelectorInSidebar"
-			:offline="offline"
 			:show-sidebar-toggle="false"
 			:sidebar-toggled="false"
 			@create-instance="installationModal?.show()"
@@ -1897,8 +1952,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 				class="loading-indicator-container h-8 fixed z-50 pointer-events-none"
 				:style="{
 					top: 'calc(var(--top-bar-height))',
-					left: 'calc(var(--frame-inset))',
-					width: 'calc(100% - (2 * var(--frame-inset)) - var(--right-bar-width))',
+					left: 'calc(var(--left-bar-width))',
+					width: 'calc(100% - var(--left-bar-width) - var(--frame-inset) - var(--right-bar-width))',
 				}"
 			>
 				<LoadingBar position="absolute" />
@@ -2011,20 +2066,31 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 <style lang="scss" scoped>
 .app-grid-layout,
 .app-contents {
-	--top-bar-height: 3.5rem;
+	--top-bar-height: 3.25rem;
 	--frame-inset: 0.5rem;
-	--left-bar-width: 0px;
+	--left-bar-width: 4.25rem;
 	--right-bar-width: 0px;
 }
 
 .app-grid-layout {
 	display: grid;
-	grid-template: 'status' 'dummy';
-	grid-template-columns: 1fr;
+	grid-template: 'status status' 'nav dummy';
+	grid-template-columns: auto 1fr;
 	grid-template-rows: auto minmax(0, 1fr);
 	position: relative;
 	background-color: var(--color-raised-bg);
 	height: 100vh;
+}
+
+.app-grid-navbar {
+	grid-area: nav;
+	min-height: 0;
+	position: relative;
+	z-index: 2;
+
+	> :deep(*) {
+		flex-shrink: 0;
+	}
 }
 
 [data-tauri-drag-region-exclude] {
@@ -2034,7 +2100,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 .app-contents {
 	position: absolute;
 	z-index: 1;
-	left: var(--frame-inset);
+	left: var(--left-bar-width);
 	top: var(--top-bar-height);
 	right: var(--frame-inset);
 	bottom: var(--frame-inset);
@@ -2081,7 +2147,7 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 	z-index: 30;
 	content: '';
 	position: fixed;
-	left: var(--frame-inset);
+	left: var(--left-bar-width);
 	top: var(--top-bar-height);
 	right: var(--frame-inset);
 	bottom: var(--frame-inset);
@@ -2150,8 +2216,8 @@ provideAppUpdateDownloadProgress(appUpdateDownload)
 </style>
 <style>
 :root {
-	--top-bar-height: 3.5rem;
-	--left-bar-width: 0px;
+	--top-bar-height: 3.25rem;
+	--left-bar-width: 4.25rem;
 }
 
 .os-theme-dark,

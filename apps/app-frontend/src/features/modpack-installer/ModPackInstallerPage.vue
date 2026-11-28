@@ -90,8 +90,22 @@ watch(source, (val) => {
 	}
 })
 const viewMode = ref<ViewMode>('grid')
-const searchQuery = ref('')
-const debouncedQuery = ref('')
+const searchQuery = ref(String(route.query.q ?? ''))
+const debouncedQuery = ref(String(route.query.q ?? '').trim())
+
+watch(
+	() => [route.query.q, route.query.source],
+	([nextQ, nextSource]) => {
+		if (nextSource === 'curseforge' || nextSource === 'modrinth') {
+			source.value = nextSource
+		}
+		if (typeof nextQ === 'string' && nextQ !== searchQuery.value) {
+			searchQuery.value = nextQ
+			debouncedQuery.value = nextQ.trim()
+			page.value = 1
+		}
+	},
+)
 const selectedLoader = ref<LoaderFilter>('all')
 const selectedGameVersion = ref<string>('all')
 const selectedCategory = ref<string>('all')

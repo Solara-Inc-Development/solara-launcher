@@ -1,5 +1,5 @@
 name: Build Windows testing candidate
-# Solara V-0.0.106: Lunar/Feather-style Top Navigation Deck & symmetric 4-sided curved recessed OLED inner frame (zero Modrinth left sidebar).
+# Solara V-0.0.107: Discord-style 68px pure icon squircle rail + left cyan glow pip + live Ctrl+K Quick Search bar + 4-sided curved recessed OLED frame.
 on:
   workflow_dispatch:
   push:
