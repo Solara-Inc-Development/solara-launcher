@@ -95,9 +95,20 @@ export const SYSTEM_REQUIREMENTS = [
 
 export const CHANGELOG_HIGHLIGHTS = [
   {
-    version: 'V-0.0.106',
+    version: 'V-0.0.107',
     date: 'November 28, 2026',
     tag: 'Latest Preview',
+    title: 'Discord-Style Pure Icon Squircle Rail, Live Ctrl+K Quick Search & 4-Sided Curved OLED Frame',
+    highlights: [
+      'Introduced a gamer-friendly 68px Discord-style left squircle icon rail with recessed dark-glass rounded-square tiles, left-wall glowing cyan indicator pips, vertical Recent Instances with live emerald running dots, and a glowing cyan + Create squircle.',
+      'Replaced Modrinth breadcrumbs in the top bar with a live Quick Search bar (Ctrl+K) that searches Modrinth & CurseForge modpacks, filters your installed instances with instant Play/Stop buttons, and triggers quick launcher actions.',
+      'Framed the pure-#000000 OLED inner viewport with smooth rounded corners on all 4 sides inside the elevated outer bezel.',
+    ],
+  },
+  {
+    version: 'V-0.0.106',
+    date: 'November 28, 2026',
+    tag: 'Feature Release',
     title: 'Lunar/Feather-Style Top Navigation Deck & 4-Sided Curved Recessed OLED Frame',
     highlights: [
       'Removed the Modrinth-style left sidebar completely and introduced a sleek centered Top Navigation Deck (Home, Modpacks, Library, Skins, quick recent world icons with live running dots, and a + New button) with glowing cyan active pills and laser underlines.',

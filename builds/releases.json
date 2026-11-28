@@ -3679,6 +3679,50 @@
       "notes": "# Changelog\n\n## Lunar/Feather-Style Top Navigation Deck & 4-Sided Curved Recessed OLED Frame\n- **Top Navigation Deck (Zero Left Sidebar):** Removed the Modrinth-style left circle-icon sidebar completely and introduced a sleek centered Top Navigation Deck (`Home`, `Modpacks`, `Library`, `Skins`, inline Quick Instance tiles with live pulsing running dots & right-click Play/Stop menus, and a glowing cyan `+ New` button) with bouncy cyan active pills and laser underlines.\n- **Symmetric 4-Sided Curved Recessed OLED Frame:** Upgraded the inner pure-`#000000` OLED screen so all four corners curve smoothly inside the elevated outer frame, keeping the premium recessed depth while giving full horizontal width to Home, Modpacks, Library, and Skins.\n- **Integrated Toolbar Controls:** Added a recessed Back/Forward capsule on the left and a dedicated Settings gear button + status capsule + seamless window controls on the right.\n",
       "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.106/solaralauncher.exe",
       "channel": "testing-preview"
+    },
+    {
+      "buildId": "1a25729f-a237-40c4-883a-8caa244b7246",
+      "publicVersion": "V-0.0.107",
+      "internalVersion": "0.0.107",
+      "filename": "solaralauncher.exe",
+      "artifactPath": "V-0.0.107/solaralauncher.exe",
+      "commit": "7e81fd1e8c535b4f6b3ea4a0a94b15193b9526f5",
+      "allocatedAt": "2026-11-28T03:41:39.774Z",
+      "state": "published",
+      "applicationSha256": "54c8e944f985ed240856f59593f3b9e65ef78b01fea3b90b13e9f5aaad7960eb",
+      "applicationSize": 75357696,
+      "sourceTree": "7f29d6797e35fd8cb001658178b5c0b9e36ff8e2",
+      "acceptance": false,
+      "distributionMode": "standalone-x64",
+      "artifacts": {
+        "solaralauncher.exe": {
+          "size": 75357696,
+          "sha256": "54c8e944f985ed240856f59593f3b9e65ef78b01fea3b90b13e9f5aaad7960eb"
+        },
+        "application/solaralauncher.exe": {
+          "size": 75357696,
+          "sha256": "54c8e944f985ed240856f59593f3b9e65ef78b01fea3b90b13e9f5aaad7960eb"
+        },
+        "source.zip": {
+          "size": 36262122,
+          "sha256": "fe92a06ec3e4942b99bd1b7c070db7cd4323527b9e08bceff9e531e047e294c4"
+        }
+      },
+      "bundledNotices": {
+        "packages": 719,
+        "files": 1283,
+        "verified": true
+      },
+      "size": 75357696,
+      "sha256": "54c8e944f985ed240856f59593f3b9e65ef78b01fea3b90b13e9f5aaad7960eb",
+      "platform": "windows",
+      "arch": "x86_64",
+      "publishedAt": "2026-11-28T07:18:54.624Z",
+      "verifiedAt": "2026-11-28T07:16:45.522Z",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRM2xoRlMrM3FaaCtDVkl5Z0E0RjIzQ3RzOXFFZk1aOHJUVHpUODJpcnFWb25KWDNTSWhlNW9KSW51ZlN0ZXVKWjJHSmI1SzJNV1RSeVJzeHgvM2lCd2xteUdESlRKMUFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1ODUwMjAzCWZpbGU6c29sYXJhbGF1bmNoZXIuZXhlCXZlcnNpb246MC4wLjEwNwpCcnRMOERlVlBhbHZZeExqTEpwd2h1TlJoTG56bW1UU2JiWm0yTCtOZjF0amlYYjBQeG05YStRNHZlandlUGxuaDdaTWxGaWw3NXppK01CcjRYOTNBUT09Cg==",
+      "notes": "# Changelog\n\n## Discord-Style Pure Icon Squircle Rail, Live Ctrl+K Quick Search & 4-Sided Curved OLED Frame\n- **Discord-Style 68px Pure Icon Squircle Rail:** Brought back left-side muscle memory for Minecraft players using recessed dark-glass rounded-square tiles (`44px × 44px`), Discord-style left-wall glowing cyan indicator pips, vertical Recent Instances with live emerald running badges & right-click Play/Stop menus, and a glowing cyan `+` Create squircle — with zero Modrinth circles.\n- **Live Top Quick Search Bar (`Ctrl+K`):** Replaced Modrinth's breadcrumb trail in the top bar with a live Quick Search bar that searches Modrinth & CurseForge modpacks, filters your installed instances with instant Play/Stop buttons, and triggers quick launcher actions.\n- **4-Sided Curved Recessed OLED Frame:** Surrounded the pure-`#000000` OLED inner stage with smooth rounded corners on all four sides inside the elevated outer bezel.\n",
+      "url": "https://github.com/Solara-Inc-Development/solara-launcher/releases/download/V-0.0.107/solaralauncher.exe",
+      "channel": "testing-preview"
     }
   ]
 }
